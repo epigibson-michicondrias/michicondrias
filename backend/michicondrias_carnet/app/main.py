@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.main import api_router
 from mangum import Mangum
+import os
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
