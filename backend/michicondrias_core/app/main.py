@@ -9,7 +9,8 @@ import os
 # Michicondrias Core Service - Ready for AWS Lambda
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    root_path=os.getenv("PROXY_PREFIX", "")
 )
 
 app.add_middleware(
