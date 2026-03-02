@@ -29,7 +29,12 @@ const menuItems: MenuItem[] = [
     { href: "/dashboard/admin/analytics", icon: "📊", label: "Analíticas", roles: ["admin"] },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+    isOpen?: boolean;
+    onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     const pathname = usePathname();
     const [role, setRole] = useState<string>("user"); // Default to user for SSR
     const [mounted, setMounted] = useState(false);
@@ -64,45 +69,53 @@ export default function Sidebar() {
     );
 
     return (
-        <aside className={styles.sidebar}>
-            <div className={styles.sidebar__brand}>
-                <Link href="/">
-                    <span className={styles.sidebar__logo}>🐱</span>
-                    <span className={`${styles.sidebar__name} gradient-text`}>
-                        Michicondrias
-                    </span>
-                </Link>
-            </div>
-
-            {/* Role badge */}
-            <div className={styles.sidebar__role}>
-                <span className={styles.sidebar__role_badge}>
-                    {role === "admin" ? "🛡️" : role === "veterinario" ? "🩺" : "👤"}{" "}
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                </span>
-            </div>
-
-            <nav className={styles.sidebar__nav}>
-                {visibleItems.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`${styles.sidebar__link} ${item.href === "/dashboard"
-                            ? pathname === "/dashboard" ? styles["sidebar__link--active"] : ""
-                            : pathname.startsWith(item.href) ? styles["sidebar__link--active"] : ""
-                            }`}
-                    >
-                        <span className={styles.sidebar__icon}>{item.icon}</span>
-                        <span>{item.label}</span>
+        <>
+            <div
+                className={`${styles.backdrop} ${isOpen ? styles.open : ""}`}
+                onClick={onClose}
+            />
+            <aside className={`${styles.sidebar} ${isOpen ? styles.open : ""}`}>
+                <div className={styles.sidebar__brand}>
+                    <Link href="/" onClick={onClose}>
+                        <span className={styles.sidebar__logo}>🐱</span>
+                        <span className={`${styles.sidebar__name} gradient-text`}>
+                            Michicondrias
+                        </span>
                     </Link>
-                ))}
-            </nav>
+                    <button className={styles.sidebar__close_btn} onClick={onClose}>✕</button>
+                </div>
 
-            <div className={styles.sidebar__footer}>
-                <button onClick={logout} className={styles.sidebar__logout}>
-                    🚪 Cerrar sesión
-                </button>
-            </div>
-        </aside>
+                {/* Role badge */}
+                <div className={styles.sidebar__role}>
+                    <span className={styles.sidebar__role_badge}>
+                        {role === "admin" ? "🛡️" : role === "veterinario" ? "🩺" : "👤"}{" "}
+                        {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </span>
+                </div>
+
+                <nav className={styles.sidebar__nav}>
+                    {visibleItems.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={onClose}
+                            className={`${styles.sidebar__link} ${item.href === "/dashboard"
+                                ? pathname === "/dashboard" ? styles["sidebar__link--active"] : ""
+                                : pathname.startsWith(item.href) ? styles["sidebar__link--active"] : ""
+                                }`}
+                        >
+                            <span className={styles.sidebar__icon}>{item.icon}</span>
+                            <span>{item.label}</span>
+                        </Link>
+                    ))}
+                </nav>
+
+                <div className={styles.sidebar__footer}>
+                    <button onClick={() => { logout(); onClose && onClose(); }} className={styles.sidebar__logout}>
+                        🚪 Cerrar sesión
+                    </button>
+                </div>
+            </aside>
+        </>
     );
 }

@@ -1,6 +1,7 @@
 .sidebar {
     width: 260px;
-    min-height: 100vh;
+    height: 100vh;
+    /* Changed to fixed height context for inner scroll to work */
     background: var(--bg-secondary);
     border-right: 1px solid var(--border-color);
     display: flex;
@@ -8,12 +9,16 @@
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 100;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar__brand {
     padding: 1.5rem;
     border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .sidebar__brand a {
@@ -30,6 +35,16 @@
 .sidebar__name {
     font-size: 1.25rem;
     font-weight: 800;
+}
+
+.sidebar__close_btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
 }
 
 .sidebar__role {
@@ -55,6 +70,37 @@
     flex-direction: column;
     gap: 0.25rem;
     overflow-y: auto;
+}
+
+/* Custom internal scrollbar for nav elements */
+.sidebar__nav::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar__nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar__nav::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.sidebar__nav::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 990;
+    transition: opacity 0.3s ease;
 }
 
 .sidebar__link {
@@ -122,4 +168,22 @@
     background: rgba(239, 68, 68, 0.1);
     border-color: var(--error);
     color: var(--error);
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar__close_btn {
+        display: block;
+    }
+
+    .backdrop.open {
+        display: block;
+    }
 }

@@ -14,9 +14,31 @@
 /* Topbar */
 .topbar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
+}
+
+.hamburger-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
+}
+
+.hamburger-btn:hover {
+    background: var(--surface-hover);
+}
+
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: block;
+    }
 }
 
 /* Page Header */

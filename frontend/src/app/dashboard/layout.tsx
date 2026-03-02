@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
@@ -16,6 +16,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const router = useRouter();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         if (!isAuthenticated()) {
@@ -27,10 +28,16 @@ export default function DashboardLayout({
         <NotificationProvider>
             <CartProvider>
                 <div className={styles["dashboard-layout"]}>
-                    <Sidebar />
+                    <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
                     <main className={styles["dashboard-main"]}>
                         <div className={styles["topbar"]}>
-                            <div /> {/* Spacer */}
+                            <button
+                                className={styles["hamburger-btn"]}
+                                onClick={() => setIsSidebarOpen(true)}
+                                aria-label="Abrir Menú"
+                            >
+                                ☰
+                            </button>
                             <NotificationBell />
                         </div>
                         {children}
