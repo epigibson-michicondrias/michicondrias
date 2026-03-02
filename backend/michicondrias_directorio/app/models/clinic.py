@@ -15,6 +15,7 @@ class Clinic(BaseModel):
     is_24_hours = Column(Boolean, default=False)
     has_emergency = Column(Boolean, default=False)
     owner_user_id = Column(String(36), index=True, nullable=True) # Ligado al microservicio core
+    is_approved = Column(Boolean, default=False)
 
 class Veterinarian(BaseModel):
     __tablename__ = "veterinarians"
@@ -28,3 +29,4 @@ class Veterinarian(BaseModel):
     bio = Column(Text)
     user_id = Column(String(36), index=True, nullable=True) # Ligado al usuario del microservicio core
     clinic_id = Column(String(36), ForeignKey("clinics.id"), nullable=True) # A qué clínica pertenece
+    is_approved = Column(Boolean, default=False)

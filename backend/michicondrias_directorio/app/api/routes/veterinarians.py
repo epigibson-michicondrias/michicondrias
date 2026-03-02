@@ -34,3 +34,37 @@ def create_veterinarian(
     """
     vet = crud.crud_clinic.create_veterinarian(db=db, vet=vet_in, user_id=user_id)
     return vet
+
+# --- ADMIN ENDPOINTS FOR MODERATION ---
+
+@router.get("/admin/pending", response_model=List[VeterinarianResponse])
+def get_pending_veterinarians(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Retrieve veterinarians pending approval (Admin only)."""
+    return crud.crud_clinic.get_pending_veterinarians(db)
+
+@router.post("/admin/{vet_id}/approve", response_model=VeterinarianResponse)
+def approve_veterinarian(
+    vet_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Approve a veterinarian (Admin only)."""
+    vet = crud.crud_clinic.approve_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinario no encontrado")
+    return vet
+
+@router.delete("/admin/{vet_id}/reject")
+def reject_veterinarian(
+    vet_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Reject and delete a veterinarian (Admin only)."""
+    vet = crud.crud_clinic.remove_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinario no encontrado")
+    return {"message": "Veterinario eliminado exitosamente"}

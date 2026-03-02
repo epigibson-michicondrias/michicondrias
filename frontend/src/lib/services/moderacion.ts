@@ -36,3 +36,37 @@ export async function rejectLostPet(reportId: string): Promise<void> {
         method: "DELETE"
     });
 }
+
+// --- Directorio (Clinicas) ---
+export async function getPendingClinics(): Promise<any[]> {
+    return apiFetch<any[]>("directorio", "/clinics/admin/pending");
+}
+
+export async function approveClinic(clinicId: string): Promise<any> {
+    return apiFetch<any>("directorio", `/clinics/admin/${clinicId}/approve`, {
+        method: "POST"
+    });
+}
+
+export async function rejectClinic(clinicId: string): Promise<void> {
+    return apiFetch<void>("directorio", `/clinics/admin/${clinicId}/reject`, {
+        method: "DELETE"
+    });
+}
+
+// --- Directorio (Veterinarios) ---
+export async function getPendingVeterinarians(): Promise<any[]> {
+    return apiFetch<any[]>("directorio", "/veterinarians/admin/pending");
+}
+
+export async function approveVeterinarian(vetId: string): Promise<any> {
+    return apiFetch<any>("directorio", `/veterinarians/admin/${vetId}/approve`, {
+        method: "POST"
+    });
+}
+
+export async function rejectVeterinarian(vetId: string): Promise<void> {
+    return apiFetch<void>("directorio", `/veterinarians/admin/${vetId}/reject`, {
+        method: "DELETE"
+    });
+}

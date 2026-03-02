@@ -44,3 +44,37 @@ def create_clinic(
     """
     clinic = crud.crud_clinic.create_clinic(db=db, clinic=clinic_in, owner_user_id=user_id)
     return clinic
+
+# --- ADMIN ENDPOINTS FOR MODERATION ---
+
+@router.get("/admin/pending", response_model=List[ClinicResponse])
+def get_pending_clinics(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Retrieve clinics pending approval (Admin only)."""
+    return crud.crud_clinic.get_pending_clinics(db)
+
+@router.post("/admin/{clinic_id}/approve", response_model=ClinicResponse)
+def approve_clinic(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Approve a clinic to be visible publicly (Admin only)."""
+    clinic = crud.crud_clinic.approve_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    return clinic
+
+@router.delete("/admin/{clinic_id}/reject")
+def reject_clinic(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Reject and delete a clinic (Admin only)."""
+    clinic = crud.crud_clinic.remove_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    return {"message": "Clínica eliminada exitosamente"}

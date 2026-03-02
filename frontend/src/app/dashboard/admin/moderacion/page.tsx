@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
-import { getPendingAdoptions, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet } from "@/lib/services/moderacion";
+import { getPendingAdoptions, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet, getPendingClinics, approveClinic, rejectClinic } from "@/lib/services/moderacion";
 import { Listing } from "@/lib/services/adopciones";
 import { LostPetReport } from "@/lib/services/perdidas";
 import styles from "./moderacion.module.css";
@@ -11,6 +11,7 @@ import styles from "./moderacion.module.css";
 export default function ModeracionPage() {
     const [pendingAdoptions, setPendingAdoptions] = useState<Listing[]>([]);
     const [pendingLostPets, setPendingLostPets] = useState<LostPetReport[]>([]);
+    const [pendingClinics, setPendingClinics] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"adopciones" | "perdidas" | "directorio">("adopciones");
 
@@ -27,9 +28,13 @@ export default function ModeracionPage() {
             } else if (activeTab === "perdidas") {
                 const data = await getPendingLostPets();
                 setPendingLostPets(data);
+            } else if (activeTab === "directorio") {
+                const data = await getPendingClinics();
+                setPendingClinics(data);
             } else {
                 setPendingAdoptions([]);
                 setPendingLostPets([]);
+                setPendingClinics([]);
             }
         } catch (error: any) {
             toast.error(error.message || "Error al cargar contenido pendiente");
@@ -50,6 +55,10 @@ export default function ModeracionPage() {
                 await approveLostPet(id);
                 setPendingLostPets(prev => prev.filter(p => p.id !== id));
                 toast.success(`Reporte de mascota pérdida de ${name} revisado y liberado.`);
+            } else if (activeTab === "directorio") {
+                await approveClinic(id);
+                setPendingClinics(prev => prev.filter(p => p.id !== id));
+                toast.success(`Clínica / Profesional ${name} aprobado y ya es público.`);
             }
         } catch (error: any) {
             toast.error(error.message || "Error al aprobar publicación");
@@ -68,13 +77,17 @@ export default function ModeracionPage() {
                 await rejectLostPet(id);
                 setPendingLostPets(prev => prev.filter(p => p.id !== id));
                 toast.success(`Reporte falso de ${name} eliminado del sistema.`);
+            } else if (activeTab === "directorio") {
+                await rejectClinic(id);
+                setPendingClinics(prev => prev.filter(p => p.id !== id));
+                toast.success(`Solicitud de ${name} rechazada y eliminada.`);
             }
         } catch (error: any) {
             toast.error(error.message || "Error al rechazar publicación");
         }
     }
 
-    const currentData = activeTab === "adopciones" ? pendingAdoptions : (activeTab === "perdidas" ? pendingLostPets : []);
+    const currentData = activeTab === "adopciones" ? pendingAdoptions : (activeTab === "perdidas" ? pendingLostPets : (activeTab === "directorio" ? pendingClinics : []));
 
     return (
         <div className={styles.container}>
@@ -111,10 +124,13 @@ export default function ModeracionPage() {
                 <button
                     className={`${styles.tab} ${activeTab === 'directorio' ? styles.active : ''}`}
                     onClick={() => setActiveTab('directorio')}
-                    disabled
-                    style={{ opacity: 0.5, cursor: "not-allowed" }}
                 >
-                    Directorio (Próximamente)
+                    Directorio Profesional
+                    {activeTab === 'directorio' && pendingClinics.length > 0 && (
+                        <span style={{ marginLeft: "6px", background: "var(--accent)", color: "white", padding: "2px 6px", borderRadius: "10px", fontSize: "0.8rem" }}>
+                            {pendingClinics.length}
+                        </span>
+                    )}
                 </button>
             </div>
 
@@ -222,6 +238,47 @@ export default function ModeracionPage() {
                                         title="Marcar como válido. Dejará de aparecer en esta cola."
                                     >
                                         ✅ Revisado (Ok)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {activeTab === "directorio" && pendingClinics.map(clinic => (
+                        <div key={clinic.id} className={styles.card}>
+                            <div className={styles['card-image-wrapper']}>
+                                <div className={styles['card-no-image']} style={{ fontSize: "4rem", background: "var(--bg-secondary)" }}>
+                                    🏥
+                                </div>
+                            </div>
+
+                            <div className={styles['card-content']}>
+                                <h3 className={styles['pet-name']}>{clinic.name}</h3>
+
+                                <div className={styles['pet-traits']}>
+                                    <span className={styles['trait-badge']}>{clinic.city}, {clinic.state}</span>
+                                    {clinic.is_24_hours && <span className={styles['trait-badge']} style={{ background: "#10b981", color: "white" }}>24 Horas</span>}
+                                    {clinic.has_emergency && <span className={styles['trait-badge']} style={{ background: "#ef4444", color: "white" }}>Urgencias</span>}
+                                </div>
+
+                                <div className={styles['pet-desc']} style={{ marginBottom: "0.5rem" }}>
+                                    <p style={{ margin: 0 }}><strong>📍 Dirección:</strong> {clinic.address}</p>
+                                    <p style={{ margin: "0.25rem 0", fontStyle: "italic" }}>{clinic.description || "Sin descripción."}</p>
+                                    <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }}>Contacto: {clinic.phone} | {clinic.email}</p>
+                                    {clinic.website && <p style={{ margin: 0, fontSize: "0.85rem" }}>Web: <a href={clinic.website} target="_blank" rel="noopener noreferrer" style={{ color: "var(--primary)" }}>{clinic.website}</a></p>}
+                                </div>
+
+                                <div className={styles['card-actions']}>
+                                    <button
+                                        className={styles['btn-reject']}
+                                        onClick={() => handleReject(clinic.id, clinic.name)}
+                                    >
+                                        ❌ Rechazar Registro
+                                    </button>
+                                    <button
+                                        className={styles['btn-approve']}
+                                        onClick={() => handleApprove(clinic.id, clinic.name)}
+                                    >
+                                        ✅ Activar Negocio
                                     </button>
                                 </div>
                             </div>
