@@ -1,0 +1,44 @@
+{
+    "FunctionName": "michicondrias-core",
+    "FunctionArn": "arn:aws:lambda:us-east-1:491799435777:function:michicondrias-core",
+    "Runtime": "python3.11",
+    "Role": "arn:aws:iam::491799435777:role/michicondrias-lambda-ex",
+    "Handler": "app.main.handler",
+    "CodeSize": 57548940,
+    "Description": "",
+    "Timeout": 15,
+    "MemorySize": 128,
+    "LastModified": "2026-03-02T23:33:49.000+0000",
+    "CodeSha256": "osa9Z7QYUB7aLxkCCfpTJHpgcqWBPxrfuuCo+XStWNs=",
+    "Version": "$LATEST",
+    "Environment": {
+        "Variables": {
+            "DATABASE_URL": "postgresql://neondb_owner:npg_QjveaCY3fGb4@ep-jolly-mouse-aihvxmyi-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+            "PROXY_PREFIX": "/core"
+        }
+    },
+    "TracingConfig": {
+        "Mode": "PassThrough"
+    },
+    "RevisionId": "40f78849-761c-4d6a-a1ec-b5b566af07e7",
+    "State": "Active",
+    "LastUpdateStatus": "Successful",
+    "PackageType": "Zip",
+    "Architectures": [
+        "x86_64"
+    ],
+    "EphemeralStorage": {
+        "Size": 512
+    },
+    "SnapStart": {
+        "ApplyOn": "None",
+        "OptimizationStatus": "Off"
+    },
+    "RuntimeVersionConfig": {
+        "RuntimeVersionArn": "arn:aws:lambda:us-east-1::runtime:0de7d4de4aef04631dc8443fb686ab8bf14de4d4a348cb0d407cce5f48aef7d8"
+    },
+    "LoggingConfig": {
+        "LogFormat": "Text",
+        "LogGroup": "/aws/lambda/michicondrias-core"
+    }
+}
