@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getCurrentUser, User } from "@/lib/auth";
 import { requestAdoption, getListings, Listing } from "@/lib/services/adopciones";
@@ -8,7 +8,7 @@ import CustomSelect from "@/components/ui/CustomSelect";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 
-export default function SolicitudAdopcionPage() {
+function SolicitudContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const listingId = searchParams.get("id");
@@ -322,5 +322,13 @@ export default function SolicitudAdopcionPage() {
                 </div>
             </form>
         </>
+    );
+}
+
+export default function SolicitudAdopcionPage() {
+    return (
+        <Suspense fallback={<p style={{ padding: "2rem" }}>Cargando formulario...</p>}>
+            <SolicitudContent />
+        </Suspense>
     );
 }

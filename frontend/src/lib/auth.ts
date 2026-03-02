@@ -1,5 +1,6 @@
 import { apiFetch, setToken, removeToken, getToken } from "./api";
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
 interface LoginResponse {
     access_token: string;
     token_type: string;
@@ -40,7 +41,7 @@ async function login(email: string, password: string): Promise<LoginResponse> {
     formData.append("username", email);
     formData.append("password", password);
 
-    const res = await fetch("http://localhost:8000/api/v1/login/access-token", {
+    const res = await fetch(`${BASE_URL}/core/api/v1/login/access-token`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString(),
@@ -66,7 +67,7 @@ async function register(
     password: string,
     fullName: string
 ): Promise<User> {
-    const res = await fetch("http://localhost:8000/api/v1/users/register", {
+    const res = await fetch(`${BASE_URL}/core/api/v1/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

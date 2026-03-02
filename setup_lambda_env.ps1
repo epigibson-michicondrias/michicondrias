@@ -1,32 +1,28 @@
 $services = @("core", "adopciones", "mascotas", "perdidas", "carnet", "directorio", "ecommerce")
+$neonUrl = "postgresql://neondb_owner:npg_QjveaCY3fGb4@ep-jolly-mouse-aihvxmyi-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+Write-Host "Iniciando configuración de variables de entorno (incluye DATABASE_URL) en AWS Lambda..."
 
 foreach ($service in $services) {
-    $functionName = "michicondrias-$service"
-    $prefix = "/$service"
+    Write-Host "`nActualizando función: michicondrias-$service"
     
-    Write-Host "Configurando PROXY_PREFIX=$prefix para $functionName..."
-    
-    # Obtener variables actuales para combinarlas si existen
-    $currentConfig = aws lambda get-function-configuration --function-name $functionName --no-cli-pager | ConvertFrom-Json
-    $vars = @{}
-    if ($currentConfig.Environment -and $currentConfig.Environment.Variables) {
-        $vars = $currentConfig.Environment.Variables
+    $envObj = @{
+        Variables = @{
+            PROXY_PREFIX = "/$service"
+            DATABASE_URL = $neonUrl
+        }
     }
     
-    # Agregar/Actualizar PROXY_PREFIX
-    $vars.PROXY_PREFIX = $prefix
-    
-    # Convertir a formato key1=val1,key2=val2
-    $varStrings = @()
-    foreach ($key in $vars.Keys) {
-        $varStrings += "$key=$($vars[$key])"
-    }
-    $varString = $varStrings -join ","
+    $envPath = "c:\desarrollos\michicondrias\env_$service.json"
+    $envObj | ConvertTo-Json -Depth 5 -Compress | Set-Content -Path $envPath -Encoding Ascii
     
     aws lambda update-function-configuration `
-        --function-name $functionName `
-        --environment "Variables={$varString}" `
+        --function-name "michicondrias-$service" `
+        --environment "file://$envPath" `
         --no-cli-pager | Out-Null
+        
+    Remove-Item $envPath
+    Write-Host "Variables inyectadas con éxito."
 }
 
-Write-Host "Configuración completada exitosamente."
+Write-Host "`nTodas las Lambdas ahora apuntan a Neon Serverless Postgres."

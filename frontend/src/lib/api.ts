@@ -1,11 +1,13 @@
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
+
 const API_URLS = {
-    core: "http://localhost:8000/api/v1",
-    adopciones: "http://localhost:8001/api/v1/adopciones",
-    directorio: "http://localhost:8002/api/v1/directorio",
-    carnet: "http://localhost:8003/api/v1",
-    ecommerce: "http://localhost:8004/api/v1",
-    mascotas: "http://localhost:8005/api/v1",
-    perdidas: "http://localhost:8006/api/v1",
+    core: `${BASE_URL}/core/api/v1`,
+    adopciones: `${BASE_URL}/adopciones/api/v1/adopciones`,
+    directorio: `${BASE_URL}/directorio/api/v1/directorio`,
+    carnet: `${BASE_URL}/carnet/api/v1`,
+    ecommerce: `${BASE_URL}/ecommerce/api/v1`,
+    mascotas: `${BASE_URL}/mascotas/api/v1`,
+    perdidas: `${BASE_URL}/perdidas/api/v1`,
 };
 
 type ServiceName = keyof typeof API_URLS;

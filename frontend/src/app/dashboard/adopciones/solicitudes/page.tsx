@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
     getListing, Listing,
@@ -21,7 +21,7 @@ const STATUS_LABELS: Record<string, { label: string; color: string; icon: string
     REJECTED: { label: "Rechazada", color: "#ef4444", icon: "❌" },
 };
 
-export default function SolicitudesAdminPage() {
+function SolicitudesContent() {
     const searchParams = useSearchParams();
     const listingId = searchParams.get("id");
 
@@ -243,5 +243,13 @@ export default function SolicitudesAdminPage() {
                 </>
             )}
         </div>
+    );
+}
+
+export default function SolicitudesAdminPage() {
+    return (
+        <Suspense fallback={<p style={{ padding: "2rem" }}>Cargando...</p>}>
+            <SolicitudesContent />
+        </Suspense>
     );
 }
