@@ -7,7 +7,7 @@ import { getProduct, getReviews, createReview, Product, Review } from "@/lib/ser
 import { getCurrentUser, User } from "@/lib/auth";
 import { toast } from "react-hot-toast";
 import { useCart } from "@/lib/contexts/CartContext";
-import styles from "../producto.module.css";
+import styles from "../../producto.module.css";
 import dashStyles from "../../../dashboard.module.css";
 
 export default function ProductoDetallePage() {

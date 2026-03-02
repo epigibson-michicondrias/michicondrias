@@ -1,12 +1,27 @@
 import { apiFetch } from "../api";
 
+export interface Category {
+    id: string;
+    name: string;
+    description: string | null;
+    image_url: string | null;
+}
+
+export interface Subcategory {
+    id: string;
+    name: string;
+    description: string | null;
+    category_id: string;
+}
+
 export interface Product {
     id: string;
     name: string;
     description: string | null;
     price: number;
     stock: number;
-    category: string | null;
+    category_id: string | null;
+    category?: Category;
     image_url: string | null;
     is_active: boolean;
     seller_id: string | null;
@@ -75,10 +90,10 @@ export async function getProduct(productId: string): Promise<Product> {
     return apiFetch<Product>("ecommerce", `/products/${productId}`);
 }
 
-export async function createProduct(product: Omit<Product, "id" | "average_rating" | "review_count">): Promise<Product> {
+export async function createProduct(formData: FormData): Promise<Product> {
     return apiFetch<Product>("ecommerce", "/products/", {
         method: "POST",
-        body: JSON.stringify(product),
+        body: formData,
     });
 }
 
@@ -116,4 +131,9 @@ export async function createDonation(amount: number, message?: string): Promise<
         method: "POST",
         body: JSON.stringify({ amount, currency: "MXN", message }),
     });
+}
+
+// CATEGORIES
+export async function getCategories(): Promise<Category[]> {
+    return apiFetch<Category[]>("ecommerce", "/categories/");
 }

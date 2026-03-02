@@ -102,3 +102,32 @@ def delete_subcategory(
     if not subcategory:
         raise HTTPException(status_code=404, detail="Subcategory not found")
     return crud.crud_category.remove_subcategory(db=db, subcategory_id=subcategory_id)
+
+@router.get("/init-db/seed")
+def init_categories(db: Session = Depends(get_db)) -> Any:
+    """Initialize categories if table is empty."""
+    import uuid
+    from app.models.ecommerce import Category
+    
+    existing = db.query(Category).count()
+    if existing > 0:
+        return {"message": "La base de datos ya tiene categorías", "count": existing}
+    
+    cats = [
+        {"name": "Alimentos", "description": "Alimentos y Snacks premium para mascotas"},
+        {"name": "Accesorios", "description": "Correas, camas, platos y más"},
+        {"name": "Juguetes", "description": "Juguetes interactivos y de peluche"},
+        {"name": "Salud", "description": "Higiene, suplementos y cuidado médico"}
+    ]
+    
+    for c in cats:
+        db_cat = Category(
+            id=str(uuid.uuid4()),
+            name=c["name"],
+            description=c["description"],
+            is_active=True
+        )
+        db.add(db_cat)
+    
+    db.commit()
+    return {"message": "Categorías inicializadas correctamente", "count": len(cats)}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProducts, Product, createProduct } from "@/lib/services/ecommerce";
+import { getProducts, Product, createProduct, getCategories, Category } from "@/lib/services/ecommerce";
 import { getCurrentUser, User, hasRole } from "@/lib/auth";
 import dashStyles from "../dashboard.module.css";
 import modStyles from "../modules.module.css";
@@ -20,13 +20,24 @@ export default function TiendaPage() {
 
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", stock: "10", category: "Alimentos", image_url: "", specifications: "" });
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", stock: "10", category_id: "", specifications: "" });
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // Check if user is a seller or admin natively
     const [isSeller, setIsSeller] = useState(false);
 
     // Cart Global State hook
     const { addToCart, cartCount, setIsCartOpen } = useCart();
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
 
     useEffect(() => {
         async function load() {
@@ -38,6 +49,12 @@ export default function TiendaPage() {
 
                 const data = await getProducts();
                 setProducts(data);
+
+                const cats = await getCategories();
+                setCategories(cats);
+                if (cats.length > 0) {
+                    setNewProduct(prev => ({ ...prev, category_id: cats[0].id }));
+                }
             } catch (err) {
                 console.error("Error al cargar productos de la tienda", err);
             } finally {
@@ -50,7 +67,7 @@ export default function TiendaPage() {
     const filtered = products.filter(p => {
         const matchesQuery = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (p.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-        const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
+        const matchesCategory = categoryFilter === "all" || p.category_id === categoryFilter;
         return matchesQuery && matchesCategory;
     });
 
@@ -58,20 +75,24 @@ export default function TiendaPage() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const added = await createProduct({
-                name: newProduct.name,
-                description: newProduct.description,
-                price: parseFloat(newProduct.price),
-                stock: parseInt(newProduct.stock, 10),
-                category: newProduct.category,
-                image_url: newProduct.image_url,
-                specifications: newProduct.specifications,
-                is_active: true,
-                seller_id: currentUser?.id || null
-            });
+            const formData = new FormData();
+            formData.append("name", newProduct.name);
+            formData.append("description", newProduct.description);
+            formData.append("price", newProduct.price);
+            formData.append("stock", newProduct.stock);
+            formData.append("category_id", newProduct.category_id);
+            formData.append("specifications", newProduct.specifications);
+
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+
+            const added = await createProduct(formData);
             setProducts([added, ...products]);
             setShowModal(false);
-            setNewProduct({ name: "", description: "", price: "", stock: "10", category: "Alimentos", image_url: "", specifications: "" });
+            setNewProduct({ name: "", description: "", price: "", stock: "10", category_id: categories[0]?.id || "", specifications: "" });
+            setImageFile(null);
+            setImagePreview(null);
             toast.success("Producto publicado en el marketplace");
         } catch (error: any) {
             toast.error(error.message || "Error al publicar producto");
@@ -104,10 +125,9 @@ export default function TiendaPage() {
                         className={styles["filter-select"]}
                     >
                         <option value="all">Todas las Categorías</option>
-                        <option value="Alimentos">Alimentos y Snacks</option>
-                        <option value="Accesorios">Accesorios (Correas, Camas)</option>
-                        <option value="Juguetes">Juguetes interactivos</option>
-                        <option value="Salud">Higiene y Salud</option>
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
                     </select>
                 </div>
 
@@ -173,7 +193,7 @@ export default function TiendaPage() {
                                 </div>
                                 <div className={styles["product-details"]}>
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <div className={styles["category-tag"]}>{product.category}</div>
+                                        <div className={styles["category-tag"]}>{product.category?.name || "Categoría"}</div>
                                         {product.review_count > 0 && (
                                             <div style={{ fontSize: "0.8rem", color: "#fbbf24" }}>⭐ {product.average_rating.toFixed(1)}</div>
                                         )}
@@ -222,11 +242,13 @@ export default function TiendaPage() {
                                         <div style={{ display: "flex", gap: "1rem" }}>
                                             <div style={{ flex: 1 }}>
                                                 <label>Categoría *</label>
-                                                <select className="form-input" value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}>
-                                                    <option value="Alimentos">Alimentos y Snacks</option>
-                                                    <option value="Accesorios">Accesorios (Correas, Camas)</option>
-                                                    <option value="Juguetes">Juguetes interactivos</option>
-                                                    <option value="Salud">Higiene y Salud</option>
+                                                <select className="form-input" value={newProduct.category_id} onChange={e => setNewProduct({ ...newProduct, category_id: e.target.value })}>
+                                                    {categories.map(cat => (
+                                                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                                    ))}
+                                                    {categories.length === 0 && (
+                                                        <option value="">Cargando categorías...</option>
+                                                    )}
                                                 </select>
                                             </div>
                                             <div style={{ flex: 1 }}>
@@ -249,8 +271,14 @@ export default function TiendaPage() {
                                                 <input type="number" className="form-input" required value={newProduct.stock} onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })} />
                                             </div>
                                             <div style={{ flex: 2 }}>
-                                                <label>URL de la Imagen (Opcional)</label>
-                                                <input type="text" className="form-input" placeholder="https://..." value={newProduct.image_url} onChange={e => setNewProduct({ ...newProduct, image_url: e.target.value })} />
+                                                <label>Foto del Producto *</label>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="form-input"
+                                                    required
+                                                    onChange={handleFileChange}
+                                                />
                                             </div>
                                         </div>
                                         <div>
@@ -265,7 +293,11 @@ export default function TiendaPage() {
                                 </div>
 
                                 <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
-                                    <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Cancelar</button>
+                                    <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => {
+                                        setShowModal(false);
+                                        setImagePreview(null);
+                                        setImageFile(null);
+                                    }}>Cancelar</button>
                                     <button type="submit" className="btn btn-primary" style={{ flex: 2 }} disabled={submitting}>
                                         {submitting ? "Publicando..." : "Mandar al Aparador →"}
                                     </button>
@@ -278,9 +310,9 @@ export default function TiendaPage() {
 
                                 <div className={styles["product-card"]} style={{ width: "100%", maxWidth: "320px", pointerEvents: "none" }}>
                                     <div className={styles["product-image"]} style={{
-                                        backgroundImage: newProduct.image_url ? `url(${newProduct.image_url})` : "none"
+                                        backgroundImage: imagePreview ? `url(${imagePreview})` : "none"
                                     }}>
-                                        {!newProduct.image_url && <span style={{ fontSize: "3rem" }}>🛍️</span>}
+                                        {!imagePreview && <span style={{ fontSize: "3rem" }}>🛍️</span>}
                                         {parseInt(newProduct.stock) <= 5 && parseInt(newProduct.stock) > 0 && (
                                             <div className={styles["stock-warning"]}>¡Últimos {newProduct.stock}!</div>
                                         )}
@@ -289,7 +321,9 @@ export default function TiendaPage() {
                                         )}
                                     </div>
                                     <div className={styles["product-details"]}>
-                                        <div className={styles["category-tag"]}>{newProduct.category || "Categoría"}</div>
+                                        <div className={styles["category-tag"]}>
+                                            {categories.find(c => c.id === newProduct.category_id)?.name || "Categoría"}
+                                        </div>
                                         <h2 className={styles["product-title"]}>{newProduct.name || "Nombre del Producto"}</h2>
                                         <p className={styles["product-price"]}>${parseFloat(newProduct.price || "0").toFixed(2)} MXN</p>
                                         <p className={styles["product-desc"]}>

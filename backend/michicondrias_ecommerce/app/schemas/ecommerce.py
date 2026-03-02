@@ -88,6 +88,7 @@ class ProductResponse(ProductBase):
     id: str
     average_rating: Optional[float] = 0.0
     review_count: Optional[int] = 0
+    category: Optional[CategoryResponse] = None
 
     class Config:
         from_attributes = True
