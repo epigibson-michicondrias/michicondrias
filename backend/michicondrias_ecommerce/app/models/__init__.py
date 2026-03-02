@@ -1,1 +1,1 @@
-from .ecommerce import Product, Donation
+from .ecommerce import Product, Donation, Category, Subcategory
