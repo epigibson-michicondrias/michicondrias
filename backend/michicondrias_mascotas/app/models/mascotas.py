@@ -16,6 +16,19 @@ class Pet(Base):
     description = Column(Text, nullable=True)
     photo_url = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    
+    # Enrichment Fields
+    is_vaccinated = Column(Boolean, default=False)
+    is_sterilized = Column(Boolean, default=False)
+    is_dewormed = Column(Boolean, default=False)
+    temperament = Column(Text, nullable=True)
+    energy_level = Column(String, nullable=True) # Bajo, Medio, Alto
+    social_cats = Column(Boolean, default=True)
+    social_dogs = Column(Boolean, default=True)
+    social_children = Column(Boolean, default=True)
+    weight_kg = Column(Float, nullable=True)
+    microchip_number = Column(String, nullable=True)
+
     # Traceability: which adoption listing originated this pet record
     adopted_from_listing_id = Column(String, nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -17,6 +17,18 @@ export interface Listing {
     is_approved: boolean;
     published_by: string;
     adopted_by: string | null;
+
+    // Enrichment Fields
+    is_vaccinated: boolean;
+    is_sterilized: boolean;
+    is_dewormed: boolean;
+    temperament: string | null;
+    energy_level: string | null;
+    social_cats: boolean;
+    social_dogs: boolean;
+    social_children: boolean;
+    weight_kg: number | null;
+    microchip_number: string | null;
 }
 
 export interface ListingCreate {
@@ -27,6 +39,18 @@ export interface ListingCreate {
     size: string | null;
     description: string | null;
     photo_url: string | null;
+
+    // Enrichment Fields
+    is_vaccinated: boolean;
+    is_sterilized: boolean;
+    is_dewormed: boolean;
+    temperament: string | null;
+    energy_level: string | null;
+    social_cats: boolean;
+    social_dogs: boolean;
+    social_children: boolean;
+    weight_kg: number | null;
+    microchip_number: string | null;
 }
 
 export interface AdoptionRequest {

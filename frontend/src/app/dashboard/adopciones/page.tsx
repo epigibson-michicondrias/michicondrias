@@ -185,6 +185,16 @@ export default function AdopcionesPage() {
                                                 {listing.size}
                                             </span>
                                         )}
+                                        {listing.is_sterilized && (
+                                            <span className={styles["pet-card__chip"]} style={{ border: "1px solid var(--accent)", color: "var(--accent)" }}>
+                                                ✂️ Esterilizado
+                                            </span>
+                                        )}
+                                        {listing.is_vaccinated && (
+                                            <span className={styles["pet-card__chip"]} style={{ border: "1px solid #4ade80", color: "#4ade80" }}>
+                                                💉 Vacunado
+                                            </span>
+                                        )}
                                     </div>
 
                                     {listing.description && (

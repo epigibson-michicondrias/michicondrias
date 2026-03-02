@@ -12,6 +12,18 @@ export interface Pet {
     photo_url: string | null;
     is_active: boolean;
     adopted_from_listing_id: string | null;
+
+    // Enrichment Fields
+    is_vaccinated: boolean;
+    is_sterilized: boolean;
+    is_dewormed: boolean;
+    temperament: string | null;
+    energy_level: string | null;
+    social_cats: boolean;
+    social_dogs: boolean;
+    social_children: boolean;
+    weight_kg: number | null;
+    microchip_number: string | null;
 }
 
 export async function getUserPets(userId: string): Promise<Pet[]> {

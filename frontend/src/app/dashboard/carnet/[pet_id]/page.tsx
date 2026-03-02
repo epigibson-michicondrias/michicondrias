@@ -159,7 +159,39 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                             <span>Tamaño</span>
                             <strong>{pet.size || "Mediano"}</strong>
                         </div>
+                        <div className={styles["pet-stat"]}>
+                            <span>Peso</span>
+                            <strong>{pet.weight_kg ? `${pet.weight_kg} kg` : "--"}</strong>
+                        </div>
                     </div>
+
+                    <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#fff", background: "rgba(255,255,255,0.05)", padding: "0.5rem", borderRadius: "4px" }}>
+                            <span>💉 Vacunas:</span>
+                            <span style={{ color: pet.is_vaccinated ? "#4ade80" : "#fb7185" }}>{pet.is_vaccinated ? "Al día" : "Pendientes"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#fff", background: "rgba(255,255,255,0.05)", padding: "0.5rem", borderRadius: "4px" }}>
+                            <span>✂️ Esterilizado:</span>
+                            <span style={{ color: pet.is_sterilized ? "#4ade80" : "#fb7185" }}>{pet.is_sterilized ? "SÍ" : "NO"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#fff", background: "rgba(255,255,255,0.05)", padding: "0.5rem", borderRadius: "4px" }}>
+                            <span>🦠 Desparasitado:</span>
+                            <span>{pet.is_dewormed ? "SÍ" : "NO"}</span>
+                        </div>
+                    </div>
+
+                    {pet.temperament && (
+                        <div style={{ marginTop: "1rem", padding: "1rem", background: "rgba(255,255,255,0.03)", borderRadius: "6px", borderLeft: "3px solid var(--primary)" }}>
+                            <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: 600 }}>Personalidad:</p>
+                            <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", color: "#fff", fontStyle: "italic" }}>"{pet.temperament}"</p>
+                        </div>
+                    )}
+
+                    {pet.microchip_number && (
+                        <div style={{ marginTop: "1rem", fontSize: "0.75rem", textAlign: "center", opacity: 0.6 }}>
+                            📡 Microchip: {pet.microchip_number}
+                        </div>
+                    )}
 
                     {!isOwner && isVet && (
                         <div style={{ marginTop: "1.5rem", padding: "1rem", background: "rgba(124, 58, 237, 0.1)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(124, 58, 237, 0.2)", fontSize: "0.85rem", color: "var(--primary-light)" }}>

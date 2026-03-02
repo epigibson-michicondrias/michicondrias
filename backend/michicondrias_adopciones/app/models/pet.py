@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Text, Boolean
+from sqlalchemy import Column, String, Integer, Text, Boolean, Float
 from app.models.base import BaseModel
 
 
@@ -17,6 +17,18 @@ class AdoptionListing(BaseModel):
     size = Column(String(50))  # pequeño, mediano, grande
     description = Column(Text)
     photo_url = Column(Text)
+
+    # Enrichment Fields
+    is_vaccinated = Column(Boolean, default=False)
+    is_sterilized = Column(Boolean, default=False)
+    is_dewormed = Column(Boolean, default=False)
+    temperament = Column(Text, nullable=True)
+    energy_level = Column(String, nullable=True)
+    social_cats = Column(Boolean, default=True)
+    social_dogs = Column(Boolean, default=True)
+    social_children = Column(Boolean, default=True)
+    weight_kg = Column(Float, nullable=True)
+    microchip_number = Column(String, nullable=True)
 
     # Who published it
     published_by = Column(String(36), index=True, nullable=False)

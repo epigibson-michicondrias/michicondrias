@@ -21,6 +21,16 @@ export default function NuevaAdopcionPage() {
         age: "",
         size: "mediano",
         description: "",
+        is_vaccinated: false,
+        is_sterilized: false,
+        is_dewormed: false,
+        temperament: "",
+        energy_level: "Medio",
+        social_cats: true,
+        social_dogs: true,
+        social_children: true,
+        weight_kg: "",
+        microchip_number: "",
     });
 
     // Photo Mock State
@@ -66,6 +76,17 @@ export default function NuevaAdopcionPage() {
                 size: formData.size || null,
                 description: formData.description || null,
                 photo_url: photoPreview,
+                // Enrichment Fields
+                is_vaccinated: formData.is_vaccinated,
+                is_sterilized: formData.is_sterilized,
+                is_dewormed: formData.is_dewormed,
+                temperament: formData.temperament || null,
+                energy_level: formData.energy_level || null,
+                social_cats: formData.social_cats,
+                social_dogs: formData.social_dogs,
+                social_children: formData.social_children,
+                weight_kg: formData.weight_kg ? Number(formData.weight_kg) : null,
+                microchip_number: formData.microchip_number || null,
             });
             setSuccess(true);
         } catch (err: unknown) {
@@ -207,6 +228,62 @@ export default function NuevaAdopcionPage() {
                         value={formData.size}
                         onChange={(v) => setFormData({ ...formData, size: v })}
                     />
+                </div>
+
+                <div className={styles["form-divider"]} />
+                <p className={styles["form-section-title"]}>🩺 Información Clínica</p>
+                <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", color: "#fff" }}>
+                        <input type="checkbox" checked={formData.is_vaccinated} onChange={e => setFormData({ ...formData, is_vaccinated: e.target.checked })} /> Vacunado
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", color: "#fff" }}>
+                        <input type="checkbox" checked={formData.is_sterilized} onChange={e => setFormData({ ...formData, is_sterilized: e.target.checked })} /> Esterilizado
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", color: "#fff" }}>
+                        <input type="checkbox" checked={formData.is_dewormed} onChange={e => setFormData({ ...formData, is_dewormed: e.target.checked })} /> Desparasitado
+                    </label>
+                </div>
+                <div className={styles["form-row"]}>
+                    <div className={styles["form-group"]}>
+                        <label>Peso (kg)</label>
+                        <input type="number" step="0.1" value={formData.weight_kg} onChange={e => setFormData({ ...formData, weight_kg: e.target.value })} placeholder="Ej: 5.5" />
+                    </div>
+                    <div className={styles["form-group"]}>
+                        <label>Microchip (opcional)</label>
+                        <input type="text" value={formData.microchip_number} onChange={e => setFormData({ ...formData, microchip_number: e.target.value })} placeholder="ID del chip" />
+                    </div>
+                </div>
+
+                <div className={styles["form-divider"]} />
+                <p className={styles["form-section-title"]}>🧠 Comportamiento y Socialización</p>
+                <div className={styles["form-row"]}>
+                    <div className={styles["form-group"]}>
+                        <label>Nivel de Energía</label>
+                        <CustomSelect
+                            options={[
+                                { value: "Bajo", label: "Bajo", icon: "💤" },
+                                { value: "Medio", label: "Medio", icon: "🐕" },
+                                { value: "Alto", label: "Alto", icon: "⚡" },
+                            ]}
+                            value={formData.energy_level}
+                            onChange={(v) => setFormData({ ...formData, energy_level: v })}
+                        />
+                    </div>
+                    <div className={styles["form-group"]}>
+                        <label>Personalidad / Temperamento</label>
+                        <input type="text" value={formData.temperament} onChange={e => setFormData({ ...formData, temperament: e.target.value })} placeholder="Ej: Cariñoso, protector..." />
+                    </div>
+                </div>
+                <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.9rem", color: "#fff" }}>
+                        <input type="checkbox" checked={formData.social_cats} onChange={e => setFormData({ ...formData, social_cats: e.target.checked })} /> ¿Apto con Gatos?
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.9rem", color: "#fff" }}>
+                        <input type="checkbox" checked={formData.social_dogs} onChange={e => setFormData({ ...formData, social_dogs: e.target.checked })} /> ¿Apto con Otros Perros?
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.9rem", color: "#fff" }}>
+                        <input type="checkbox" checked={formData.social_children} onChange={e => setFormData({ ...formData, social_children: e.target.checked })} /> ¿Apto con Niños?
+                    </label>
                 </div>
 
                 <div className={styles["form-divider"]} />

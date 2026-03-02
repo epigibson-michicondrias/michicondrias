@@ -19,6 +19,18 @@ class PetCreate(BaseModel):
     description: Optional[str] = None
     photo_url: Optional[str] = None
     adopted_from_listing_id: Optional[str] = None
+    
+    # Enrichment Fields
+    is_vaccinated: bool = False
+    is_sterilized: bool = False
+    is_dewormed: bool = False
+    temperament: Optional[str] = None
+    energy_level: Optional[str] = None
+    social_cats: bool = True
+    social_dogs: bool = True
+    social_children: bool = True
+    weight_kg: Optional[float] = None
+    microchip_number: Optional[str] = None
 
 class PetResponse(PetCreate):
     id: str
@@ -34,6 +46,16 @@ class PetUpdate(BaseModel):
     size: Optional[str] = None
     description: Optional[str] = None
     photo_url: Optional[str] = None
+    is_vaccinated: Optional[bool] = None
+    is_sterilized: Optional[bool] = None
+    is_dewormed: Optional[bool] = None
+    temperament: Optional[str] = None
+    energy_level: Optional[str] = None
+    social_cats: Optional[bool] = None
+    social_dogs: Optional[bool] = None
+    social_children: Optional[bool] = None
+    weight_kg: Optional[float] = None
+    microchip_number: Optional[str] = None
 
 
 @router.post("/", response_model=PetResponse)

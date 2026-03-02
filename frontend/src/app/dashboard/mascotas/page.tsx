@@ -17,6 +17,10 @@ export default function MisMascotasPage() {
     const [form, setForm] = useState({
         name: "", species: "perro", breed: "", age_months: "",
         size: "mediano", description: "", photo_url: "",
+        is_vaccinated: false, is_sterilized: false, is_dewormed: false,
+        temperament: "", energy_level: "Medio",
+        social_cats: true, social_dogs: true, social_children: true,
+        weight_kg: "", microchip_number: ""
     });
 
     useEffect(() => {
@@ -44,12 +48,19 @@ export default function MisMascotasPage() {
             const created = await createPet({
                 ...form,
                 age_months: form.age_months ? parseInt(form.age_months) : null,
+                weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
                 owner_id: user!.id,
                 is_active: true,
             });
             setPets([created, ...pets]);
             setShowModal(false);
-            setForm({ name: "", species: "perro", breed: "", age_months: "", size: "mediano", description: "", photo_url: "" });
+            setForm({
+                name: "", species: "perro", breed: "", age_months: "", size: "mediano", description: "", photo_url: "",
+                is_vaccinated: false, is_sterilized: false, is_dewormed: false,
+                temperament: "", energy_level: "Medio",
+                social_cats: true, social_dogs: true, social_children: true,
+                weight_kg: "", microchip_number: ""
+            });
             toast.success("🐾 Mascota registrada con éxito");
         } catch (error: any) {
             toast.error(error.message || "Error al registrar mascota");
@@ -111,6 +122,8 @@ export default function MisMascotasPage() {
                                     {pet.breed && <span className={styles["pet-tag"]}>{pet.breed}</span>}
                                     {pet.size && <span className={styles["pet-tag"]}>{pet.size}</span>}
                                     {pet.age_months && <span className={styles["pet-tag"]}>{getAgeLabel(pet.age_months)}</span>}
+                                    {pet.is_sterilized && <span className={styles["pet-tag"]} style={{ border: "1px solid var(--accent)", color: "var(--accent)" }}>✂️ Esterilizado</span>}
+                                    {pet.is_vaccinated && <span className={styles["pet-tag"]} style={{ border: "1px solid #4ade80", color: "#4ade80" }}>💉 Vacunado</span>}
                                 </div>
                                 {pet.description && (
                                     <p className={styles["pet-desc"]}>{pet.description}</p>
@@ -171,6 +184,60 @@ export default function MisMascotasPage() {
                             <div>
                                 <label>URL de Foto</label>
                                 <input type="text" className="form-input" value={form.photo_url} onChange={e => setForm({ ...form, photo_url: e.target.value })} placeholder="https://..." />
+                            </div>
+
+                            <div style={{ padding: "1rem", background: "rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                <h4 style={{ margin: 0, fontSize: "0.9rem", color: "var(--accent)" }}>🩺 Información Clínica</h4>
+                                <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+                                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+                                        <input type="checkbox" checked={form.is_vaccinated} onChange={e => setForm({ ...form, is_vaccinated: e.target.checked })} /> Vacunado
+                                    </label>
+                                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+                                        <input type="checkbox" checked={form.is_sterilized} onChange={e => setForm({ ...form, is_sterilized: e.target.checked })} /> Esterilizado
+                                    </label>
+                                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
+                                        <input type="checkbox" checked={form.is_dewormed} onChange={e => setForm({ ...form, is_dewormed: e.target.checked })} /> Desparasitado
+                                    </label>
+                                </div>
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                    <div style={{ flex: 1 }}>
+                                        <label>Peso (kg)</label>
+                                        <input type="number" step="0.1" className="form-input" value={form.weight_kg} onChange={e => setForm({ ...form, weight_kg: e.target.value })} placeholder="12.5" />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <label>Microchip / ID</label>
+                                        <input type="text" className="form-input" value={form.microchip_number} onChange={e => setForm({ ...form, microchip_number: e.target.value })} placeholder="9000..." />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: "1rem", background: "rgba(255,255,255,0.05)", borderRadius: "var(--radius-md)", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                <h4 style={{ margin: 0, fontSize: "0.9rem", color: "var(--primary)" }}>🧠 Temperamento y Sociabilidad</h4>
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                    <div style={{ flex: 1 }}>
+                                        <label>Nivel de Energía</label>
+                                        <select className="form-input" value={form.energy_level} onChange={e => setForm({ ...form, energy_level: e.target.value })}>
+                                            <option value="Bajo">Bajo (Tranquilo)</option>
+                                            <option value="Medio">Medio (Equilibrado)</option>
+                                            <option value="Alto">Alto (Muy Activo)</option>
+                                        </select>
+                                    </div>
+                                    <div style={{ flex: 2 }}>
+                                        <label>Personalidad</label>
+                                        <input type="text" className="form-input" value={form.temperament} onChange={e => setForm({ ...form, temperament: e.target.value })} placeholder="Ej. Jugueón, miedoso con extraños..." />
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+                                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem" }}>
+                                        <input type="checkbox" checked={form.social_cats} onChange={e => setForm({ ...form, social_cats: e.target.checked })} /> ¿Apto con Gatos?
+                                    </label>
+                                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem" }}>
+                                        <input type="checkbox" checked={form.social_dogs} onChange={e => setForm({ ...form, social_dogs: e.target.checked })} /> ¿Apto con Perros?
+                                    </label>
+                                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem" }}>
+                                        <input type="checkbox" checked={form.social_children} onChange={e => setForm({ ...form, social_children: e.target.checked })} /> ¿Apto con Niños?
+                                    </label>
+                                </div>
                             </div>
                             <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
                                 <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Cancelar</button>
