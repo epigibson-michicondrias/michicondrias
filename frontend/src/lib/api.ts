@@ -61,7 +61,17 @@ async function apiFetch<T>(
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Error ${res.status}`);
+        const errorMessage = errorData.detail || `Error ${res.status}`;
+
+        // If the user was deleted from DB (like a Neon migration reset), force logout
+        if (res.status === 404 && (errorMessage === "User not found" || errorMessage === "Usuario no encontrado")) {
+            removeToken();
+            if (typeof window !== "undefined") {
+                window.location.href = "/login";
+            }
+        }
+
+        throw new Error(errorMessage);
     }
 
     return res.json();
