@@ -11,17 +11,17 @@ jobs:
       matrix:
         service: [core, adopciones, mascotas, perdidas, carnet, directorio, ecommerce]
         
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Force deployment
-      id: check_changes
-      run: echo "deploy=true" >> $GITHUB_OUTPUT
+    - name: Debug Secrets (Check if set)
+      run: |
+        if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+          echo "Error: AWS_ACCESS_KEY_ID is NOT set in GitHub Secrets"
+          exit 1
+        else
+          echo "AWS_ACCESS_KEY_ID is found"
+        fi
 
     - name: Configure AWS credentials
-      if: steps.check_changes.outputs.deploy == 'true'
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
