@@ -52,6 +52,7 @@ export default function DashboardHomePage() {
     const roleModules = role === "admin" ? [
         { icon: "🛡️", label: "Roles y Permisos", desc: "Gestión de accesos", href: "/dashboard/admin/roles", color: "#6366f1" },
         { icon: "⚙️", label: "Configuración Global", desc: "Variables y mantenimiento", href: "/dashboard/admin/configuraciones", color: "#f59e0b" },
+        { icon: "🏷️", label: "Categorías de Tienda", desc: "Catálogo Ecommerce", href: "/dashboard/admin/categorias", color: "#ec4899" },
         { icon: "🕵️", label: "Revisión KYC", desc: "Verificar identidades pendientes", href: "/dashboard/admin/verificaciones", color: "#10b981" },
     ] : [];
 
