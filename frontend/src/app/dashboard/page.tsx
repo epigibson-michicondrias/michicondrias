@@ -50,6 +50,7 @@ export default function DashboardHomePage() {
     ];
 
     const roleModules = role === "admin" ? [
+        { icon: "🛡️", label: "Roles y Permisos", desc: "Gestión de accesos", href: "/dashboard/admin/roles" },
         { icon: "🕵️", label: "Revisión KYC", desc: "Verificar identidades pendientes", href: "/dashboard/admin/verificaciones" },
     ] : [];
 
