@@ -3,10 +3,6 @@ name: Deploy Backend to AWS Lambda
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'backend/**'
-      - '.github/workflows/**'
-      - 'README.md'
 
 jobs:
   deploy:
@@ -19,16 +15,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Check for changes in service
+    - name: Force deployment
       id: check_changes
-      run: |
-        if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-          echo "deploy=true" >> $GITHUB_OUTPUT
-        elif git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^backend/michicondrias_${{ matrix.service }}/"; then
-          echo "deploy=true" >> $GITHUB_OUTPUT
-        else
-          echo "deploy=false" >> $GITHUB_OUTPUT
-        fi
+      run: echo "deploy=true" >> $GITHUB_OUTPUT
 
     - name: Configure AWS credentials
       if: steps.check_changes.outputs.deploy == 'true'
