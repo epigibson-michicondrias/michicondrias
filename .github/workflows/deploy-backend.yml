@@ -39,7 +39,9 @@ jobs:
     - name: Install dependencies and Package
       run: |
         cd backend/michicondrias_${{ matrix.service }}
-        pip install -r requirements.txt -t .
+        # Instalar dependencias usando la imagen oficial de Amazon Linux para evitar errores de GLIBC_2.28
+        docker run --rm -v ${{ github.workspace }}/backend/michicondrias_${{ matrix.service }}:/var/task public.ecr.aws/sam/build-python3.11 pip install -r requirements.txt -t .
+        # Comprimir el código y las dependencias ya compatibles con Lambda
         zip -r ../../${{ matrix.service }}.zip .
 
     - name: Upload to S3

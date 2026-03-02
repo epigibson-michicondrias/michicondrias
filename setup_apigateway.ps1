@@ -9,6 +9,18 @@ $api = aws apigatewayv2 get-apis --no-cli-pager | ConvertFrom-Json | Select-Obje
 if ($null -eq $api) {
     Write-Host "La API no existe. Creando..."
     $api = aws apigatewayv2 create-api --name $apiName --protocol-type HTTP --no-cli-pager | ConvertFrom-Json
+    Write-Host "API creada con ID: $($api.ApiId)"
+    
+    Write-Host "Creando Stage `$default` con auto-deploy..."
+    aws apigatewayv2 create-stage --api-id $($api.ApiId) --stage-name "`$default" --auto-deploy --no-cli-pager | Out-Null
+} else {
+    Write-Host "La API ya existe con ID: $($api.ApiId)"
+    # Verificar si el stage existe, si no, crearlo
+    $stage = aws apigatewayv2 get-stages --api-id $($api.ApiId) --no-cli-pager | ConvertFrom-Json | Select-Object -ExpandProperty Items | Where-Object { $_.StageName -eq "`$default" }
+    if ($null -eq $stage) {
+        Write-Host "Creando Stage `$default` faltante..."
+        aws apigatewayv2 create-stage --api-id $($api.ApiId) --stage-name "`$default" --auto-deploy --no-cli-pager | Out-Null
+    }
 }
 
 $apiId = $api.ApiId
@@ -27,11 +39,18 @@ foreach ($service in $services) {
     }
     $integrationId = $integration.IntegrationId
 
-    # 2. Ruta
-    $routeKey = "ANY /$service/{proxy+}"
-    $route = aws apigatewayv2 get-routes --api-id $apiId --no-cli-pager | ConvertFrom-Json | Select-Object -ExpandProperty Items | Where-Object { $_.RouteKey -eq $routeKey }
-    if ($null -eq $route) {
-        aws apigatewayv2 create-route --api-id $apiId --route-key $routeKey --target "integrations/$integrationId" --no-cli-pager | Out-Null
+    # 2. Rutas (Proxy, Root, y Root con Slash)
+    $routeKeys = @("ANY /$service/{proxy+}", "ANY /$service", "ANY /$service/")
+    
+    foreach ($routeKey in $routeKeys) {
+        $route = aws apigatewayv2 get-routes --api-id $apiId --no-cli-pager | ConvertFrom-Json | Select-Object -ExpandProperty Items | Where-Object { $_.RouteKey -eq $routeKey }
+        
+        if ($null -eq $route) {
+            aws apigatewayv2 create-route --api-id $apiId --route-key $routeKey --target "integrations/$integrationId" --no-cli-pager | Out-Null
+            Write-Host "Ruta $routeKey creada."
+        } else {
+            Write-Host "Ruta $routeKey ya existe."
+        }
     }
 
     # 3. Permisos
