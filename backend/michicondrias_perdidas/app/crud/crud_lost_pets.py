@@ -61,6 +61,22 @@ def update_report(db: Session, report_id: str, report_in: LostPetReportUpdate) -
     return db_report
 
 
+def get_pending_reports(db: Session, skip: int = 0, limit: int = 100) -> List[LostPetReport]:
+    """Retrieve new reports that haven't been reviewed by admin yet."""
+    return db.query(LostPetReport).filter(LostPetReport.is_reviewed == False).order_by(desc(LostPetReport.created_at)).offset(skip).limit(limit).all()
+
+
+def approve_report(db: Session, report_id: str) -> Optional[LostPetReport]:
+    """Mark a lost pet report as reviewed and valid."""
+    db_report = get_report_by_id(db, report_id)
+    if not db_report:
+        return None
+    db_report.is_reviewed = True
+    db.commit()
+    db.refresh(db_report)
+    return db_report
+
+
 def delete_report(db: Session, report_id: str) -> bool:
     db_report = get_report_by_id(db, report_id)
     if not db_report:

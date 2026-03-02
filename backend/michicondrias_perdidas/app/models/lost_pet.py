@@ -36,6 +36,7 @@ class LostPetReport(Base):
     status = Column(String(20), default="active")  # active | resolved | expired
     is_resolved = Column(Boolean, default=False)
     resolved_at = Column(DateTime(timezone=True), nullable=True)
+    is_reviewed = Column(Boolean, default=False)  # Admin moderation queue flag
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -101,3 +101,45 @@ def remove_report(
         raise HTTPException(status_code=403, detail="No tienes permisos para eliminar este reporte")
     delete_report(db, report_id=report_id)
     return {"detail": "Reporte eliminado exitosamente"}
+
+
+# ========================================
+# ADMIN — Moderation flow
+# ========================================
+
+@router.get("/admin/pending", response_model=List[LostPetReportOut])
+def read_pending_reports(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Pending lost pet reports awaiting moderation review. Admin only."""
+    from app.crud.crud_lost_pets import get_pending_reports
+    return get_pending_reports(db)
+
+
+@router.post("/admin/{report_id}/approve", response_model=LostPetReportOut)
+def moderation_approve_report(
+    report_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Mark a lost pet report as checked and verified. Admin only."""
+    from app.crud.crud_lost_pets import approve_report
+    report = approve_report(db, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    return report
+
+
+@router.delete("/admin/{report_id}/reject")
+def moderation_reject_report(
+    report_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Reject and explicitly delete a spam/fake lost pet report. Admin only."""
+    report = get_report_by_id(db, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    delete_report(db, report_id=report_id)
+    return {"detail": "Reporte rechazado y eliminado permanentemente"}
