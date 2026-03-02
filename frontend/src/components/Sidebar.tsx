@@ -26,6 +26,7 @@ const menuItems: MenuItem[] = [
     { href: "/dashboard/petfriendly", icon: "📍", label: "Petfriendly", roles: ["all"] },
     { href: "/dashboard/perfil", icon: "⚙️", label: "Mi Cuenta", roles: ["all"] },
     { href: "/dashboard/admin/verificaciones", icon: "🕵️", label: "Revisión KYC", roles: ["admin"] },
+    { href: "/dashboard/admin/moderacion", icon: "🛡️", label: "Moderación", roles: ["admin"] },
     { href: "/dashboard/admin/analytics", icon: "📊", label: "Analíticas", roles: ["admin"] },
 ];
 
