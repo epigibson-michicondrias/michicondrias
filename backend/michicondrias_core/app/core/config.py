@@ -4,6 +4,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Michicondrias API"
     API_V1_STR: str = "/api/v1"
     
+    # Database Connection
+    DATABASE_URL: str | None = None
+    
     # Postgres local default (coincide con docker-compose.yml)
     POSTGRES_USER: str = "user"
     POSTGRES_PASSWORD: str = "password"
@@ -22,6 +25,8 @@ class Settings(BaseSettings):
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     class Config:
