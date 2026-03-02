@@ -6,6 +6,7 @@ from mangum import Mangum
 from fastapi.staticfiles import StaticFiles
 import os
 
+# Michicondrias Core Service - Ready for AWS Lambda
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
