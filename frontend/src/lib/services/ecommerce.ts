@@ -10,6 +10,23 @@ export interface Product {
     image_url: string | null;
     is_active: boolean;
     seller_id: string | null;
+    specifications: string | null;
+    average_rating: number;
+    review_count: number;
+}
+
+export interface Review {
+    id: string;
+    product_id: string;
+    user_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+}
+
+export interface ReviewCreate {
+    rating: number;
+    comment?: string;
 }
 
 export interface Donation {
@@ -31,7 +48,22 @@ export async function getProducts(category?: string, sellerId?: string): Promise
     return apiFetch<Product[]>("ecommerce", `/products/${qs}`);
 }
 
-export async function createProduct(product: Omit<Product, "id">): Promise<Product> {
+export async function getProduct(productId: string): Promise<Product> {
+    return apiFetch<Product>("ecommerce", `/products/${productId}`);
+}
+
+export async function getReviews(productId: string): Promise<Review[]> {
+    return apiFetch<Review[]>("ecommerce", `/products/${productId}/reviews`);
+}
+
+export async function createReview(productId: string, review: ReviewCreate): Promise<Review> {
+    return apiFetch<Review>("ecommerce", `/products/${productId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify(review),
+    });
+}
+
+export async function createProduct(product: Omit<Product, "id" | "average_rating" | "review_count">): Promise<Product> {
     return apiFetch<Product>("ecommerce", "/products/", {
         method: "POST",
         body: JSON.stringify(product),

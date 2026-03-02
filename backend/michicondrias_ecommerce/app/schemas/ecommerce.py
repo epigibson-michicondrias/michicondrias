@@ -1,5 +1,22 @@
+from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
+
+class ReviewBase(BaseModel):
+    rating: int # 1-5
+    comment: Optional[str] = None
+
+class ReviewCreate(ReviewBase):
+    pass
+
+class ReviewResponse(ReviewBase):
+    id: str
+    product_id: str
+    user_id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 class SubcategoryBase(BaseModel):
     name: str
@@ -52,6 +69,7 @@ class ProductBase(BaseModel):
     image_url: Optional[str] = None
     is_active: Optional[bool] = True
     seller_id: Optional[str] = None
+    specifications: Optional[str] = None
 
 class ProductCreate(ProductBase):
     pass
@@ -64,9 +82,12 @@ class ProductUpdate(BaseModel):
     category: Optional[str] = None
     image_url: Optional[str] = None
     is_active: Optional[bool] = None
+    specifications: Optional[str] = None
 
 class ProductResponse(ProductBase):
     id: str
+    average_rating: Optional[float] = 0.0
+    review_count: Optional[int] = 0
 
     class Config:
         from_attributes = True

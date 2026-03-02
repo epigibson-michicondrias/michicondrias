@@ -46,9 +46,24 @@ class Product(Base):
     is_active = Column(Boolean, default=True)
     is_approved = Column(Boolean, default=False)
     seller_id = Column(String, index=True, nullable=True)
+    
+    specifications = Column(Text, nullable=True) # JSON or formatted text for tech specs
 
     category = relationship("Category", back_populates="products")
     subcategory = relationship("Subcategory", back_populates="products")
+    reviews = relationship("Review", back_populates="product", cascade="all, delete-orphan")
+
+class Review(Base):
+    __tablename__ = "product_reviews"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    user_id = Column(String, index=True, nullable=False) # From Core Auth
+    rating = Column(Integer, nullable=False) # 1-5
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    product = relationship("Product", back_populates="reviews")
 
 class Donation(Base):
     __tablename__ = "donations"

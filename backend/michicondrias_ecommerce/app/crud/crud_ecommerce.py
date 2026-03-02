@@ -1,22 +1,54 @@
-from sqlalchemy.orm import Session
-from app.models.ecommerce import Product, Donation
-from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate
+from sqlalchemy import func
+from app.models.ecommerce import Product, Donation, Review
+from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate
+
+def _attach_rating_info(db: Session, product: Product):
+    if not product:
+        return product
+    stats = db.query(
+        func.avg(Review.rating).label("avg_rating"),
+        func.count(Review.id).label("count")
+    ).filter(Review.product_id == product.id).first()
+    
+    product.average_rating = float(stats.avg_rating) if stats.avg_rating else 0.0
+    product.review_count = stats.count or 0
+    return product
 
 # CRUD PRODUCTS
 def get_product(db: Session, product_id: str):
-    return db.query(Product).filter(Product.id == product_id).first()
+    product = db.query(Product).filter(Product.id == product_id).first()
+    return _attach_rating_info(db, product)
 
 def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None):
     # Public view only shows active AND approved products
     query = db.query(Product).filter(Product.is_active == True, Product.is_approved == True)
     if category:
-        query = query.filter(Product.category == category)
+        query = query.filter(Product.category_id == category) # Fixed category_id
     if seller_id:
         query = query.filter(Product.seller_id == seller_id)
-    return query.offset(skip).limit(limit).all()
+    
+    products = query.offset(skip).limit(limit).all()
+    for p in products:
+        _attach_rating_info(db, p)
+    return products
 
 def get_pending_products(db: Session):
-    return db.query(Product).filter(Product.is_approved == False).all()
+    products = db.query(Product).filter(Product.is_approved == False).all()
+    for p in products:
+        _attach_rating_info(db, p)
+    return products
+
+# ... (approve_product and others remain same, skipping to new Review CRUD)
+
+def create_review(db: Session, review: ReviewCreate, product_id: str, user_id: str):
+    db_review = Review(**review.model_dump(), product_id=product_id, user_id=user_id)
+    db.add(db_review)
+    db.commit()
+    db.refresh(db_review)
+    return db_review
+
+def get_product_reviews(db: Session, product_id: str, skip: int = 0, limit: int = 50):
+    return db.query(Review).filter(Review.product_id == product_id).order_by(Review.created_at.desc()).offset(skip).limit(limit).all()
 
 def approve_product(db: Session, product_id: str):
     db_product = get_product(db, product_id)

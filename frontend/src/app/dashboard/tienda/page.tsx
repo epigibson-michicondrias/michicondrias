@@ -20,7 +20,7 @@ export default function TiendaPage() {
 
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", stock: "10", category: "Alimentos", image_url: "" });
+    const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", stock: "10", category: "Alimentos", image_url: "", specifications: "" });
 
     // Check if user is a seller or admin natively
     const [isSeller, setIsSeller] = useState(false);
@@ -65,12 +65,13 @@ export default function TiendaPage() {
                 stock: parseInt(newProduct.stock, 10),
                 category: newProduct.category,
                 image_url: newProduct.image_url,
+                specifications: newProduct.specifications,
                 is_active: true,
                 seller_id: currentUser?.id || null
             });
             setProducts([added, ...products]);
             setShowModal(false);
-            setNewProduct({ name: "", description: "", price: "", stock: "10", category: "Alimentos", image_url: "" });
+            setNewProduct({ name: "", description: "", price: "", stock: "10", category: "Alimentos", image_url: "", specifications: "" });
             toast.success("Producto publicado en el marketplace");
         } catch (error: any) {
             toast.error(error.message || "Error al publicar producto");
@@ -158,25 +159,32 @@ export default function TiendaPage() {
                 <div className={styles["products-grid"]}>
                     {filtered.map(product => (
                         <div key={product.id} className={styles["product-card"]}>
-                            <div className={styles["product-image"]} style={{
-                                backgroundImage: product.image_url ? `url(${product.image_url})` : "none"
-                            }}>
-                                {!product.image_url && <span style={{ fontSize: "3rem" }}>🛍️</span>}
-                                {product.stock <= 5 && product.stock > 0 && (
-                                    <div className={styles["stock-warning"]}>¡Últimos {product.stock}!</div>
-                                )}
-                                {product.stock === 0 && (
-                                    <div className={styles["stock-out"]}>Agotado</div>
-                                )}
-                            </div>
-                            <div className={styles["product-details"]}>
-                                <div className={styles["category-tag"]}>{product.category}</div>
-                                <h2 className={styles["product-title"]}>{product.name}</h2>
-                                <p className={styles["product-price"]}>${product.price.toFixed(2)} MXN</p>
-                                <p className={styles["product-desc"]}>
-                                    {product.description && product.description.length > 80 ? product.description.substring(0, 80) + '...' : product.description || "Sin descripción"}
-                                </p>
-                            </div>
+                            <Link href={`/dashboard/tienda/producto/${product.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                                <div className={styles["product-image"]} style={{
+                                    backgroundImage: product.image_url ? `url(${product.image_url})` : "none"
+                                }}>
+                                    {!product.image_url && <span style={{ fontSize: "3rem" }}>🛍️</span>}
+                                    {product.stock <= 5 && product.stock > 0 && (
+                                        <div className={styles["stock-warning"]}>¡Últimos {product.stock}!</div>
+                                    )}
+                                    {product.stock === 0 && (
+                                        <div className={styles["stock-out"]}>Agotado</div>
+                                    )}
+                                </div>
+                                <div className={styles["product-details"]}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <div className={styles["category-tag"]}>{product.category}</div>
+                                        {product.review_count > 0 && (
+                                            <div style={{ fontSize: "0.8rem", color: "#fbbf24" }}>⭐ {product.average_rating.toFixed(1)}</div>
+                                        )}
+                                    </div>
+                                    <h2 className={styles["product-title"]}>{product.name}</h2>
+                                    <p className={styles["product-price"]}>${product.price.toFixed(2)} MXN</p>
+                                    <p className={styles["product-desc"]}>
+                                        {product.description && product.description.length > 80 ? product.description.substring(0, 80) + '...' : product.description || "Sin descripción"}
+                                    </p>
+                                </div>
+                            </Link>
                             <div className={styles["product-footer"]}>
                                 <button
                                     className={`${styles["action-btn"]} ${product.stock === 0 ? styles["btn-disabled"] : styles["btn-solid"]}`}
@@ -247,7 +255,11 @@ export default function TiendaPage() {
                                         </div>
                                         <div>
                                             <label>Descripción del artículo</label>
-                                            <textarea className="form-input" rows={3} value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Describe las ventajas, ingredientes o modo de uso del producto."></textarea>
+                                            <textarea className="form-input" rows={2} value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} placeholder="Describe las ventajas, ingredientes o modo de uso del producto."></textarea>
+                                        </div>
+                                        <div>
+                                            <label>Especificaciones Técnicas (Separadas por comas)</label>
+                                            <textarea className="form-input" rows={2} value={newProduct.specifications} onChange={e => setNewProduct({ ...newProduct, specifications: e.target.value })} placeholder="Ej. Material: Plástico, Tamaño: Grande, Peso: 1.5kg"></textarea>
                                         </div>
                                     </div>
                                 </div>
