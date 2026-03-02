@@ -42,8 +42,13 @@ jobs:
         pip install -r requirements.txt -t .
         zip -r ../../${{ matrix.service }}.zip .
 
-    - name: Deploy to AWS Lambda
+    - name: Upload to S3
+      run: |
+        aws s3 cp ${{ matrix.service }}.zip s3://michicondrias-storage-1/deployments/${{ matrix.service }}.zip
+
+    - name: Deploy to AWS Lambda (via S3)
       run: |
         aws lambda update-function-code \
           --function-name michicondrias-${{ matrix.service }} \
-          --zip-file fileb://${{ matrix.service }}.zip
+          --s3-bucket michicondrias-storage-1 \
+          --s3-key deployments/${{ matrix.service }}.zip
