@@ -1,0 +1,160 @@
+services:
+  db:
+    image: postgres:15
+    container_name: michicondrias_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d michicondrias_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: michicondrias_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    restart: always
+
+  # ========================================
+  # MICROSERVICIOS BACKEND
+  # ========================================
+
+  core:
+    build: ./backend/michicondrias_core
+    container_name: michicondrias_core
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/michicondrias_core:/app
+    restart: always
+
+  adopciones:
+    build: ./backend/michicondrias_adopciones
+    container_name: michicondrias_adopciones
+    ports:
+      - "8001:8000"
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/michicondrias_adopciones:/app
+    restart: always
+
+  directorio:
+    build: ./backend/michicondrias_directorio
+    container_name: michicondrias_directorio
+    ports:
+      - "8002:8000"
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/michicondrias_directorio:/app
+    restart: always
+
+  carnet:
+    build: ./backend/michicondrias_carnet
+    container_name: michicondrias_carnet
+    ports:
+      - "8003:8000"
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/michicondrias_carnet:/app
+    restart: always
+
+  ecommerce:
+    build: ./backend/michicondrias_ecommerce
+    container_name: michicondrias_ecommerce
+    ports:
+      - "8004:8000"
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/michicondrias_ecommerce:/app
+    restart: always
+
+  mascotas:
+    build: ./backend/michicondrias_mascotas
+    container_name: michicondrias_mascotas
+    ports:
+      - "8005:8000"
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/michicondrias_mascotas:/app
+    restart: always
+
+  perdidas:
+    build: ./backend/michicondrias_perdidas
+    container_name: michicondrias_perdidas
+    ports:
+      - "8006:8000"
+    environment:
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: michicondrias_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/michicondrias_perdidas:/app
+    restart: always

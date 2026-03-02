@@ -1,0 +1,54 @@
+from sqlalchemy import Column, String, Integer, Text, Boolean
+from app.models.base import BaseModel
+
+
+class AdoptionListing(BaseModel):
+    """
+    A temporary adoption listing/ad. NOT a registered pet.
+    When adoption completes, a real Pet is created in the system.
+    """
+    __tablename__ = "adoption_listings"
+
+    # Animal info
+    name = Column(String(100), nullable=False)
+    species = Column(String(50), nullable=False)
+    breed = Column(String(100))
+    age_months = Column(Integer)
+    size = Column(String(50))  # pequeño, mediano, grande
+    description = Column(Text)
+    photo_url = Column(Text)
+
+    # Who published it
+    published_by = Column(String(36), index=True, nullable=False)
+
+    # Approval flow
+    is_approved = Column(Boolean, default=False)
+
+    # Adoption status: abierto -> en_proceso -> adoptado
+    status = Column(String(50), default="abierto")
+
+    # Once adopted, who adopted it
+    adopted_by = Column(String(36), nullable=True)
+
+
+class AdoptionRequest(BaseModel):
+    """A request from a user to adopt an animal from a listing with a welfare questionnaire."""
+    __tablename__ = "adoption_requests"
+
+    listing_id = Column(String(36), index=True, nullable=False)
+    user_id = Column(String(36), index=True, nullable=False)
+    applicant_name = Column(String(255), nullable=True) # Nombre del solicitante
+    status = Column(String(50), default="PENDING")  # PENDING, REVIEWING, INTERVIEW_SCHEDULED, APPROVED, ADOPTED, REJECTED
+    
+    # Questionnaire fields
+    house_type = Column(String(100)) # Casa, Depto, etc.
+    has_yard = Column(Boolean, default=False)
+    own_or_rent = Column(String(50)) # Propio, Renta
+    landlord_permission = Column(Boolean, default=True)
+    other_pets = Column(Text) # Descripción de otras mascotas
+    has_children = Column(Boolean, default=False)
+    children_ages = Column(String(100))
+    hours_alone = Column(Integer) # Horas que pasará sola la mascota
+    financial_commitment = Column(Boolean, default=False) # Compromiso de gastos médicos/alimento
+    reason = Column(Text) # Por qué quiere adoptar
+    previous_experience = Column(Text) # Experiencia previa con mascotas

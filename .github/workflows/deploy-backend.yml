@@ -1,0 +1,55 @@
+name: Deploy Backend to AWS Lambda
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [core, adopciones, mascotas, perdidas, carnet, directorio, ecommerce]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check for changes in service
+      id: check_changes
+      run: |
+        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^backend/michicondrias_${{ matrix.service }}/"; then
+          echo "deploy=true" >> $GITHUB_OUTPUT
+        else
+          echo "deploy=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Configure AWS credentials
+      if: steps.check_changes.outputs.deploy == 'true'
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Set up Python
+      if: steps.check_changes.outputs.deploy == 'true'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies and Package
+      if: steps.check_changes.outputs.deploy == 'true'
+      run: |
+        cd backend/michicondrias_${{ matrix.service }}
+        pip install -r requirements.txt -t .
+        zip -r ../../${{ matrix.service }}.zip .
+
+    - name: Deploy to AWS Lambda
+      if: steps.check_changes.outputs.deploy == 'true'
+      run: |
+        aws lambda update-function-code \
+          --function-name michicondrias-${{ matrix.service }} \
+          --zip-file fileb://${{ matrix.service }}.zip

@@ -1,0 +1,258 @@
+.adopciones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* =========================================
+   Buscador y Filtros Premium
+   ========================================= */
+.search-input {
+    flex: 2;
+    min-width: 250px;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all var(--transition-base);
+    backdrop-filter: blur(10px);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.filter-select {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    backdrop-filter: blur(10px);
+}
+
+.filter-select:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
+.filter-select option {
+    background: #1e1e24;
+    color: #fff;
+}
+
+
+/* ============================
+   PREMIUM PET CARD
+   ============================ */
+
+.pet-card {
+    position: relative;
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-base);
+    animation: fadeInUp 0.4s ease-out backwards;
+}
+
+.pet-card:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.pet-card:nth-child(2) {
+    animation-delay: 0.08s;
+}
+
+.pet-card:nth-child(3) {
+    animation-delay: 0.16s;
+}
+
+.pet-card:nth-child(4) {
+    animation-delay: 0.24s;
+}
+
+.pet-card:nth-child(5) {
+    animation-delay: 0.32s;
+}
+
+.pet-card:nth-child(6) {
+    animation-delay: 0.4s;
+}
+
+.pet-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 12px 40px rgba(124, 58, 237, 0.15),
+        0 0 0 1px rgba(124, 58, 237, 0.2);
+}
+
+/* Visual header with species emoji and gradient */
+.pet-card__visual {
+    position: relative;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.pet-card__visual--perro {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
+}
+
+.pet-card__visual--gato {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(236, 72, 153, 0.08) 100%);
+}
+
+.pet-card__visual--ave {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.08) 100%);
+}
+
+.pet-card__visual--otro {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%);
+}
+
+.pet-card__emoji {
+    font-size: 4.5rem;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+    transition: transform var(--transition-base);
+}
+
+.pet-card:hover .pet-card__emoji {
+    transform: scale(1.15) rotate(-5deg);
+}
+
+/* Floating badge on visual */
+.pet-card__status {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pet-card__status--disponible {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--success);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.pet-card__status--adoptado {
+    background: rgba(124, 58, 237, 0.2);
+    color: var(--primary-light);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+/* Card body */
+.pet-card__body {
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.pet-card__name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pet-card__species-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-full);
+    background: rgba(124, 58, 237, 0.12);
+    color: var(--primary-light);
+}
+
+/* Info chips row */
+.pet-card__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+}
+
+.pet-card__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    background: rgba(148, 163, 184, 0.08);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.pet-card__chip-icon {
+    font-size: 0.85rem;
+}
+
+/* Description */
+.pet-card__desc {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Adopt button area */
+.pet-card__actions {
+    padding: 0 1.5rem 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.pet-card__adopt-btn {
+    flex: 1;
+    padding: 0.6rem;
+    background: var(--primary-gradient);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.pet-card__adopt-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+}

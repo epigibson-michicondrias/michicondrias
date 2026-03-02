@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+backend/**/venv/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/**/*.pyo
+backend/**/*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/**/.env
+
+# Next.js
+.next/
+out/
+
+# Database
+postgres_data/
+
+# OS/IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+ms_logs.txt
+frontend/.next/
+frontend/node_modules/
+backend/michicondrias_core/app/uploads/
