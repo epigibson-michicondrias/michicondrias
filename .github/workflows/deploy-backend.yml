@@ -11,6 +11,10 @@ jobs:
       matrix:
         service: [core, adopciones, mascotas, perdidas, carnet, directorio, ecommerce]
         
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     - name: Debug Secrets (Check if set)
       run: |
         if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
@@ -28,20 +32,17 @@ jobs:
         aws-region: us-east-1
 
     - name: Set up Python
-      if: steps.check_changes.outputs.deploy == 'true'
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
     - name: Install dependencies and Package
-      if: steps.check_changes.outputs.deploy == 'true'
       run: |
         cd backend/michicondrias_${{ matrix.service }}
         pip install -r requirements.txt -t .
         zip -r ../../${{ matrix.service }}.zip .
 
     - name: Deploy to AWS Lambda
-      if: steps.check_changes.outputs.deploy == 'true'
       run: |
         aws lambda update-function-code \
           --function-name michicondrias-${{ matrix.service }} \
