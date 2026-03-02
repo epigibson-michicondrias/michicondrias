@@ -7,15 +7,28 @@ def get_product(db: Session, product_id: str):
     return db.query(Product).filter(Product.id == product_id).first()
 
 def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None):
-    query = db.query(Product).filter(Product.is_active == True)
+    # Public view only shows active AND approved products
+    query = db.query(Product).filter(Product.is_active == True, Product.is_approved == True)
     if category:
         query = query.filter(Product.category == category)
     if seller_id:
         query = query.filter(Product.seller_id == seller_id)
     return query.offset(skip).limit(limit).all()
 
+def get_pending_products(db: Session):
+    return db.query(Product).filter(Product.is_approved == False).all()
+
+def approve_product(db: Session, product_id: str):
+    db_product = get_product(db, product_id)
+    if db_product:
+        db_product.is_approved = True
+        db.commit()
+        db.refresh(db_product)
+    return db_product
+
 def create_product(db: Session, product: ProductCreate):
     db_product = Product(**product.model_dump())
+    db_product.is_approved = False # All new products start as pending
     db.add(db_product)
     db.commit()
     db.refresh(db_product)

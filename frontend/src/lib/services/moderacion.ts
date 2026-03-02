@@ -70,3 +70,20 @@ export async function rejectVeterinarian(vetId: string): Promise<void> {
         method: "DELETE"
     });
 }
+
+// --- Ecommerce (Productos) ---
+export async function getPendingProducts(): Promise<any[]> {
+    return apiFetch<any[]>("ecommerce", "/products/admin/pending");
+}
+
+export async function approveProduct(productId: string): Promise<any> {
+    return apiFetch<any>("ecommerce", `/products/admin/${productId}/approve`, {
+        method: "POST"
+    });
+}
+
+export async function rejectProduct(productId: string): Promise<void> {
+    return apiFetch<void>("ecommerce", `/products/admin/${productId}/reject`, {
+        method: "DELETE"
+    });
+}

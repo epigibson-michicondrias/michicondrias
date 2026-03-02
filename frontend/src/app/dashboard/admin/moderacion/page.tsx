@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
-import { getPendingAdoptions, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet, getPendingClinics, approveClinic, rejectClinic } from "@/lib/services/moderacion";
+import { getPendingAdoptions, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet, getPendingClinics, approveClinic, rejectClinic, getPendingProducts, approveProduct, rejectProduct } from "@/lib/services/moderacion";
 import { Listing } from "@/lib/services/adopciones";
 import { LostPetReport } from "@/lib/services/perdidas";
 import styles from "./moderacion.module.css";
@@ -12,8 +12,9 @@ export default function ModeracionPage() {
     const [pendingAdoptions, setPendingAdoptions] = useState<Listing[]>([]);
     const [pendingLostPets, setPendingLostPets] = useState<LostPetReport[]>([]);
     const [pendingClinics, setPendingClinics] = useState<any[]>([]);
+    const [pendingProducts, setPendingProducts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<"adopciones" | "perdidas" | "directorio">("adopciones");
+    const [activeTab, setActiveTab] = useState<"adopciones" | "perdidas" | "directorio" | "ecommerce">("adopciones");
 
     useEffect(() => {
         loadPending();
@@ -31,10 +32,14 @@ export default function ModeracionPage() {
             } else if (activeTab === "directorio") {
                 const data = await getPendingClinics();
                 setPendingClinics(data);
+            } else if (activeTab === "ecommerce") {
+                const data = await getPendingProducts();
+                setPendingProducts(data);
             } else {
                 setPendingAdoptions([]);
                 setPendingLostPets([]);
                 setPendingClinics([]);
+                setPendingProducts([]);
             }
         } catch (error: any) {
             toast.error(error.message || "Error al cargar contenido pendiente");
@@ -59,6 +64,10 @@ export default function ModeracionPage() {
                 await approveClinic(id);
                 setPendingClinics(prev => prev.filter(p => p.id !== id));
                 toast.success(`Clínica / Profesional ${name} aprobado y ya es público.`);
+            } else if (activeTab === "ecommerce") {
+                await approveProduct(id);
+                setPendingProducts(prev => prev.filter(p => p.id !== id));
+                toast.success(`Producto ${name} aprobado y listado en la tienda.`);
             }
         } catch (error: any) {
             toast.error(error.message || "Error al aprobar publicación");
@@ -81,13 +90,17 @@ export default function ModeracionPage() {
                 await rejectClinic(id);
                 setPendingClinics(prev => prev.filter(p => p.id !== id));
                 toast.success(`Solicitud de ${name} rechazada y eliminada.`);
+            } else if (activeTab === "ecommerce") {
+                await rejectProduct(id);
+                setPendingProducts(prev => prev.filter(p => p.id !== id));
+                toast.success(`Producto ${name} rechazado y eliminado.`);
             }
         } catch (error: any) {
             toast.error(error.message || "Error al rechazar publicación");
         }
     }
 
-    const currentData = activeTab === "adopciones" ? pendingAdoptions : (activeTab === "perdidas" ? pendingLostPets : (activeTab === "directorio" ? pendingClinics : []));
+    const currentData = activeTab === "adopciones" ? pendingAdoptions : (activeTab === "perdidas" ? pendingLostPets : (activeTab === "directorio" ? pendingClinics : (activeTab === "ecommerce" ? pendingProducts : [])));
 
     return (
         <div className={styles.container}>
@@ -129,6 +142,17 @@ export default function ModeracionPage() {
                     {activeTab === 'directorio' && pendingClinics.length > 0 && (
                         <span style={{ marginLeft: "6px", background: "var(--accent)", color: "white", padding: "2px 6px", borderRadius: "10px", fontSize: "0.8rem" }}>
                             {pendingClinics.length}
+                        </span>
+                    )}
+                </button>
+                <button
+                    className={`${styles.tab} ${activeTab === 'ecommerce' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('ecommerce')}
+                >
+                    Ecommerce / Tienda
+                    {activeTab === 'ecommerce' && pendingProducts.length > 0 && (
+                        <span style={{ marginLeft: "6px", background: "var(--accent)", color: "white", padding: "2px 6px", borderRadius: "10px", fontSize: "0.8rem" }}>
+                            {pendingProducts.length}
                         </span>
                     )}
                 </button>
@@ -279,6 +303,46 @@ export default function ModeracionPage() {
                                         onClick={() => handleApprove(clinic.id, clinic.name)}
                                     >
                                         ✅ Activar Negocio
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {activeTab === "ecommerce" && pendingProducts.map(product => (
+                        <div key={product.id} className={styles.card}>
+                            <div className={styles['card-image-wrapper']}>
+                                <div className={styles['card-image']} style={{ backgroundImage: product.image_url ? `url(${product.image_url})` : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {!product.image_url && <span style={{ fontSize: "3rem" }}>🛍️</span>}
+                                </div>
+                            </div>
+
+                            <div className={styles['card-content']}>
+                                <h3 className={styles['pet-name']}>{product.name}</h3>
+
+                                <div className={styles['pet-traits']}>
+                                    <span className={styles['trait-badge']}>{product.category}</span>
+                                    <span className={styles['trait-badge']} style={{ background: "var(--primary)", color: "white" }}>${product.price} MXN</span>
+                                    <span className={styles['trait-badge']}>Stock: {product.stock}</span>
+                                </div>
+
+                                <div className={styles['pet-desc']} style={{ marginBottom: "0.5rem" }}>
+                                    <p style={{ margin: "0.25rem 0", fontStyle: "italic" }}>{product.description || "Sin descripción."}</p>
+                                    <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }}>ID Vendedor: {product.seller_id}</p>
+                                </div>
+
+                                <div className={styles['card-actions']}>
+                                    <button
+                                        className={styles['btn-reject']}
+                                        onClick={() => handleReject(product.id, product.name)}
+                                    >
+                                        ❌ Rechazar
+                                    </button>
+                                    <button
+                                        className={styles['btn-approve']}
+                                        onClick={() => handleApprove(product.id, product.name)}
+                                    >
+                                        ✅ Aprobar Venta
                                     </button>
                                 </div>
                             </div>

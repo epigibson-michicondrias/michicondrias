@@ -44,6 +44,7 @@ class Product(Base):
     
     image_url = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    is_approved = Column(Boolean, default=False)
     seller_id = Column(String, index=True, nullable=True)
 
     category = relationship("Category", back_populates="products")

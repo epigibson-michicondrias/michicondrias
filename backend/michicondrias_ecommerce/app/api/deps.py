@@ -42,3 +42,26 @@ def get_optional_user_id(token: str = Depends(oauth2_scheme)) -> str:
         return user_id
     except JWTError:
         return None
+
+def require_admin(token: str = Depends(oauth2_scheme)) -> str:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+        )
+        role = payload.get("role", "consumidor")
+        if role != "admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin role required",
+            )
+        return payload.get("sub")
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+        )

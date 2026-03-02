@@ -49,3 +49,37 @@ def create_product(
     product_in.seller_id = user_id
     product = crud.crud_ecommerce.create_product(db=db, product=product_in)
     return product
+
+# --- ADMIN ENDPOINTS FOR MODERATION ---
+
+@router.get("/admin/pending", response_model=List[ProductResponse])
+def get_pending_products(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Retrieve products pending approval (Admin only)."""
+    return crud.crud_ecommerce.get_pending_products(db)
+
+@router.post("/admin/{product_id}/approve", response_model=ProductResponse)
+def approve_product(
+    product_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Approve a product (Admin only)."""
+    product = crud.crud_ecommerce.approve_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+@router.delete("/admin/{product_id}/reject")
+def reject_product(
+    product_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin)
+) -> Any:
+    """Reject and delete a product (Admin only)."""
+    product = crud.crud_ecommerce.delete_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"message": "Product deleted successfully"}
