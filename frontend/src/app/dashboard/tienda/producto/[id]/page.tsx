@@ -100,7 +100,7 @@ export default function ProductoDetallePage() {
                 {/* Content */}
                 <div className={styles["info-section"]}>
                     <div className={styles["badge-row"]}>
-                        <span className={styles["category-badge"]}>{product.category}</span>
+                        <span className={styles["category-badge"]}>{product.category?.name || "Categoría"}</span>
                         {product.stock <= 0 ? (
                             <span className={styles["stock-badge"]} style={{ color: "#ef4444" }}>🔴 Agotado</span>
                         ) : product.stock <= 5 ? (

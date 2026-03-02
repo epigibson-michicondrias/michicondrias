@@ -321,7 +321,7 @@ export default function ModeracionPage() {
                                 <h3 className={styles['pet-name']}>{product.name}</h3>
 
                                 <div className={styles['pet-traits']}>
-                                    <span className={styles['trait-badge']}>{product.category}</span>
+                                    <span className={styles['trait-badge']}>{product.category?.name || "Categoría"}</span>
                                     <span className={styles['trait-badge']} style={{ background: "var(--primary)", color: "white" }}>${product.price} MXN</span>
                                     <span className={styles['trait-badge']}>Stock: {product.stock}</span>
                                 </div>
