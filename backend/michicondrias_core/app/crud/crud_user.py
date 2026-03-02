@@ -53,3 +53,14 @@ def remove_user(db: Session, user_id: str):
         db.delete(db_user)
         db.commit()
     return db_user
+
+# --- Analytics Methods ---
+
+def count_total_users(db: Session) -> int:
+    return db.query(User).count()
+
+def count_users_by_status(db: Session, status: str) -> int:
+    return db.query(User).filter(User.verification_status == status).count()
+
+def count_users_by_role(db: Session, role_id: str) -> int:
+    return db.query(User).filter(User.role_id == role_id).count()
