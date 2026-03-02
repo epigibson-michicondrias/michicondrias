@@ -111,3 +111,34 @@ class DonationResponse(DonationBase):
 
     class Config:
         from_attributes = True
+
+# ORDER SCHEMAS
+class OrderItemBase(BaseModel):
+    product_id: str
+    quantity: int
+
+class OrderItemCreate(OrderItemBase):
+    pass
+
+class OrderItemResponse(OrderItemBase):
+    id: str
+    price_at_purchase: float
+    
+    class Config:
+        from_attributes = True
+
+class OrderCreate(BaseModel):
+    items: List[OrderItemCreate]
+    shipping_address: Optional[str] = None
+
+class OrderResponse(BaseModel):
+    id: str
+    user_id: str
+    total_amount: float
+    status: str
+    shipping_address: Optional[str] = None
+    created_at: datetime
+    items: List[OrderItemResponse]
+
+    class Config:
+        from_attributes = True

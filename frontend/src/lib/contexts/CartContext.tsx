@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Product } from "@/lib/services/ecommerce";
+import { Product, createOrder, Order } from "@/lib/services/ecommerce";
 import { toast } from "react-hot-toast";
 
 export interface CartItem {
@@ -15,6 +15,7 @@ interface CartContextType {
     removeFromCart: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
+    checkout: (address?: string) => Promise<Order | null>;
     cartCount: number;
     cartTotal: number;
     isCartOpen: boolean;
@@ -52,7 +53,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCartItems(prev => {
             const existing = prev.find(item => item.product.id === product.id);
             if (existing) {
-                // If adding forces above stock, clamp it
                 const newQuantity = Math.min(existing.quantity + quantity, product.stock);
                 if (existing.quantity === product.stock) {
                     toast.error(`Ya tienes el máximo disponible (${product.stock}) en tu carrito.`);
@@ -87,10 +87,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("michicondrias_cart");
     };
 
+    const checkout = async (address: string = "Dirección en Perfil") => {
+        if (cartItems.length === 0) return null;
+
+        try {
+            const orderData = {
+                items: cartItems.map(item => ({
+                    product_id: item.product.id,
+                    quantity: item.quantity
+                })),
+                shipping_address: address
+            };
+
+            const order = await createOrder(orderData);
+            toast.success("¡Pedido realizado con éxito!");
+            clearCart();
+            setIsCartOpen(false);
+            return order;
+        } catch (error: any) {
+            console.error("Error during checkout", error);
+            const msg = error.detail || "Error al procesar la compra. Verifica el stock.";
+            toast.error(msg);
+            return null;
+        }
+    };
+
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     const cartTotal = cartItems.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
 
-    // Provide empty default before mount to avoid hydration mismatch, or provide actual
     return (
         <CartContext.Provider value={{
             cartItems: mounted ? cartItems : [],
@@ -98,6 +122,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             removeFromCart,
             updateQuantity,
             clearCart,
+            checkout,
             cartCount: mounted ? cartCount : 0,
             cartTotal: mounted ? cartTotal : 0,
             isCartOpen,

@@ -29,6 +29,28 @@ export interface ReviewCreate {
     comment?: string;
 }
 
+export interface OrderItem {
+    id: string;
+    product_id: string;
+    quantity: number;
+    price_at_purchase: number;
+}
+
+export interface Order {
+    id: string;
+    user_id: string;
+    total_amount: number;
+    status: string;
+    shipping_address?: string;
+    created_at: string;
+    items: OrderItem[];
+}
+
+export interface OrderCreate {
+    items: { product_id: string; quantity: number }[];
+    shipping_address?: string;
+}
+
 export interface Donation {
     id: string;
     user_id: string | null;
@@ -39,6 +61,7 @@ export interface Donation {
     status: string;
 }
 
+// PRODUCTS
 export async function getProducts(category?: string, sellerId?: string): Promise<Product[]> {
     const params = new URLSearchParams();
     if (category) params.append("category", category);
@@ -52,6 +75,14 @@ export async function getProduct(productId: string): Promise<Product> {
     return apiFetch<Product>("ecommerce", `/products/${productId}`);
 }
 
+export async function createProduct(product: Omit<Product, "id" | "average_rating" | "review_count">): Promise<Product> {
+    return apiFetch<Product>("ecommerce", "/products/", {
+        method: "POST",
+        body: JSON.stringify(product),
+    });
+}
+
+// REVIEWS
 export async function getReviews(productId: string): Promise<Review[]> {
     return apiFetch<Review[]>("ecommerce", `/products/${productId}/reviews`);
 }
@@ -63,13 +94,19 @@ export async function createReview(productId: string, review: ReviewCreate): Pro
     });
 }
 
-export async function createProduct(product: Omit<Product, "id" | "average_rating" | "review_count">): Promise<Product> {
-    return apiFetch<Product>("ecommerce", "/products/", {
+// ORDERS
+export async function createOrder(data: OrderCreate): Promise<Order> {
+    return apiFetch<Order>("ecommerce", "/orders/", {
         method: "POST",
-        body: JSON.stringify(product),
+        body: JSON.stringify(data),
     });
 }
 
+export async function getMyOrders(): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", "/orders/me");
+}
+
+// DONATIONS
 export async function getDonations(): Promise<Donation[]> {
     return apiFetch<Donation[]>("ecommerce", "/donations/");
 }

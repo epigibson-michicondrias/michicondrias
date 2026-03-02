@@ -21,6 +21,7 @@ const menuItems: MenuItem[] = [
     { href: "/dashboard/directorio", icon: "🩺", label: "Directorio", roles: ["all"] },
     { href: "/dashboard/carnet", icon: "📋", label: "Carnet Clínico", roles: ["all"] },
     { href: "/dashboard/tienda", icon: "🛒", label: "Tienda", roles: ["all"] },
+    { href: "/dashboard/tienda/compras", icon: "🛍️", label: "Mis Compras", roles: ["all"] },
     { href: "/dashboard/donaciones", icon: "💛", label: "Donaciones", roles: ["all"] },
     { href: "/dashboard/perdidas", icon: "🔍", label: "Perdidas", roles: ["all"] },
     { href: "/dashboard/petfriendly", icon: "📍", label: "Petfriendly", roles: ["all"] },

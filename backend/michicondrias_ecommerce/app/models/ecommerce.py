@@ -52,6 +52,7 @@ class Product(Base):
     category = relationship("Category", back_populates="products")
     subcategory = relationship("Subcategory", back_populates="products")
     reviews = relationship("Review", back_populates="product", cascade="all, delete-orphan")
+    order_items = relationship("OrderItem", back_populates="product")
 
 class Review(Base):
     __tablename__ = "product_reviews"
@@ -64,6 +65,30 @@ class Review(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     product = relationship("Product", back_populates="reviews")
+
+class Order(Base):
+    __tablename__ = "orders"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    user_id = Column(String, index=True, nullable=False) # From Core Auth
+    total_amount = Column(Float, nullable=False)
+    status = Column(String, default="pending") # pending, paid, shipped, delivered, cancelled
+    shipping_address = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    order_id = Column(String, ForeignKey("orders.id"), nullable=False)
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    price_at_purchase = Column(Float, nullable=False) # Important in case price changes later
+
+    order = relationship("Order", back_populates="items")
+    product = relationship("Product")
 
 class Donation(Base):
     __tablename__ = "donations"

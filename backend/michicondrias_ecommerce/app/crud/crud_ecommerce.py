@@ -1,6 +1,7 @@
+from sqlalchemy.orm import Session
 from sqlalchemy import func
-from app.models.ecommerce import Product, Donation, Review
-from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate
+from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
+from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate, OrderCreate
 
 def _attach_rating_info(db: Session, product: Product):
     if not product:
@@ -103,3 +104,63 @@ def update_donation_status(db: Session, db_donation: Donation, status: str):
     db.commit()
     db.refresh(db_donation)
     return db_donation
+
+# CRUD ORDERS
+def create_order(db: Session, order_in: OrderCreate, user_id: str):
+    # 1. Calculate total and check stock
+    total_amount = 0.0
+    items_to_create = []
+    
+    # Use a nested transaction or just the main one. Since we are in a function called by a route, 
+    # we use the 'db' session. We'll use 'with_for_update()' to lock the rows.
+    
+    for item in order_in.items:
+        product = db.query(Product).filter(Product.id == item.product_id).with_for_update().first()
+        if not product:
+            raise Exception(f"Producto {item.product_id} no encontrado")
+        
+        if product.stock < item.quantity:
+            raise Exception(f"Stock insuficiente para {product.name}. Solo quedan {product.stock}.")
+        
+        # Calculate price
+        item_total = product.price * item.quantity
+        total_amount += item_total
+        
+        # Prepare OrderItem
+        items_to_create.append(OrderItem(
+            product_id=product.id,
+            quantity=item.quantity,
+            price_at_purchase=product.price
+        ))
+        
+        # Deduct stock
+        product.stock -= item.quantity
+
+    # 2. Create Order
+    db_order = Order(
+        user_id=user_id,
+        total_amount=total_amount,
+        shipping_address=order_in.shipping_address,
+        status="paid" # Simulating paid for now
+    )
+    db.add(db_order)
+    db.flush() # Get order ID
+
+    # 3. Save Items
+    for oi in items_to_create:
+        oi.order_id = db_order.id
+        db.add(oi)
+    
+    try:
+        db.commit()
+        db.refresh(db_order)
+        return db_order
+    except Exception as e:
+        db.rollback()
+        raise e
+
+def get_user_orders(db: Session, user_id: str, skip: int = 0, limit: int = 20):
+    return db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+
+def get_order(db: Session, order_id: str):
+    return db.query(Order).filter(Order.id == order_id).first()

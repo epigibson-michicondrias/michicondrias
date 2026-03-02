@@ -5,28 +5,29 @@ import styles from "./CartDrawer.module.css";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
+import { useRouter } from "next/navigation";
+
 export default function CartDrawer() {
-    const { isCartOpen, setIsCartOpen, cartItems, cartCount, cartTotal, removeFromCart, updateQuantity, clearCart } = useCart();
-    const [isSimulatingCheckout, setIsSimulatingCheckout] = useState(false);
+    const { isCartOpen, setIsCartOpen, cartItems, cartCount, cartTotal, removeFromCart, updateQuantity, clearCart, checkout } = useCart();
+    const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [checkoutSuccess, setCheckoutSuccess] = useState(false);
 
     if (!isCartOpen) return null;
 
-    const handleCheckout = () => {
-        setIsSimulatingCheckout(true);
-        // Simulate a checkout delay (e.g. connecting to Stripe/MercadoPago)
-        setTimeout(() => {
-            setIsSimulatingCheckout(false);
+    const handleCheckout = async () => {
+        setIsSubmitting(true);
+        const order = await checkout();
+        if (order) {
             setCheckoutSuccess(true);
-            toast.success("¡Pago exitoso! Gracias por tu compra 🐾");
-            clearCart();
-
-            // Auto close after success
+            // Wait a bit to show success state before redirecting if we want, or redirect immediately
             setTimeout(() => {
                 setCheckoutSuccess(false);
                 setIsCartOpen(false);
-            }, 3000);
-        }, 2500);
+                router.push("/dashboard/tienda/compras");
+            }, 2000);
+        }
+        setIsSubmitting(false);
     };
 
     return (
@@ -45,7 +46,7 @@ export default function CartDrawer() {
                             <h3>¡Compra Realizada!</h3>
                             <p>Tu orden electrónica ha sido generada y el vendedor ha sido notificado.</p>
                         </div>
-                    ) : isSimulatingCheckout ? (
+                    ) : isSubmitting ? (
                         <div className={styles["loading-state"]}>
                             <div className={styles.spinner}></div>
                             <p>Procesando pago seguro...</p>
@@ -84,7 +85,7 @@ export default function CartDrawer() {
                     )}
                 </div>
 
-                {!isSimulatingCheckout && !checkoutSuccess && cartItems.length > 0 && (
+                {!isSubmitting && !checkoutSuccess && cartItems.length > 0 && (
                     <div className={styles["drawer-footer"]}>
                         <div className={styles["summary-row"]}>
                             <span>Subtotal</span>
