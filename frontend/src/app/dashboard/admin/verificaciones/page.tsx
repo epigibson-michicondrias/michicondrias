@@ -78,7 +78,11 @@ export default function AdminVerificacionesPage() {
         });
     };
 
-    if (loading) return <p className={dashStyles["loading-text"]}>Cargando solicitudes de identidad...</p>;
+    const getImageUrl = (url?: string) => {
+        if (!url) return "/placeholder-image.png";
+        if (url.startsWith("http")) return url;
+        return `${CORE_BASE_URL}${url}`;
+    };
 
     if (loading) return <p className={dashStyles["loading-text"]}>Cargando solicitudes de identidad...</p>;
 
@@ -120,25 +124,25 @@ export default function AdminVerificacionesPage() {
                                 <div className={styles["doc-item"]}>
                                     <span className={styles["doc-label"]}>Identificación Anverso</span>
                                     <div className={styles["doc-preview"]}>
-                                        <img src={`${CORE_BASE_URL}${user.id_front_url}`} alt="ID Frente" />
+                                        <img src={getImageUrl(user.id_front_url)} alt="ID Frente" />
                                     </div>
-                                    <a href={`${CORE_BASE_URL}${user.id_front_url}`} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
+                                    <a href={getImageUrl(user.id_front_url)} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
                                 </div>
 
                                 <div className={styles["doc-item"]}>
                                     <span className={styles["doc-label"]}>Identificación Reverso</span>
                                     <div className={styles["doc-preview"]}>
-                                        <img src={`${CORE_BASE_URL}${user.id_back_url}`} alt="ID Reverso" />
+                                        <img src={getImageUrl(user.id_back_url)} alt="ID Reverso" />
                                     </div>
-                                    <a href={`${CORE_BASE_URL}${user.id_back_url}`} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
+                                    <a href={getImageUrl(user.id_back_url)} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
                                 </div>
 
                                 <div className={styles["doc-item"]}>
                                     <span className={styles["doc-label"]}>Comprobante de Domicilio</span>
                                     <div className={styles["doc-preview"]}>
-                                        <img src={`${CORE_BASE_URL}${user.proof_of_address_url}`} alt="Comprobante" />
+                                        <img src={getImageUrl(user.proof_of_address_url)} alt="Comprobante" />
                                     </div>
-                                    <a href={`${CORE_BASE_URL}${user.proof_of_address_url}`} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
+                                    <a href={getImageUrl(user.proof_of_address_url)} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
                                 </div>
                             </div>
 
