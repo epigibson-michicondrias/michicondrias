@@ -20,7 +20,9 @@ jobs:
     - name: Check for changes in service
       id: check_changes
       run: |
-        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^backend/michicondrias_${{ matrix.service }}/"; then
+        if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+          echo "deploy=true" >> $GITHUB_OUTPUT
+        elif git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^backend/michicondrias_${{ matrix.service }}/"; then
           echo "deploy=true" >> $GITHUB_OUTPUT
         else
           echo "deploy=false" >> $GITHUB_OUTPUT
