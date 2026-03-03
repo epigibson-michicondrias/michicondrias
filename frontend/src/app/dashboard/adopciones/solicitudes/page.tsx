@@ -29,6 +29,16 @@ function SolicitudesContent() {
     const [requests, setRequests] = useState<AdoptionRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [expandedRequests, setExpandedRequests] = useState<Set<string>>(new Set());
+
+    const toggleExpand = (id: string) => {
+        setExpandedRequests(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
 
     const [modalState, setModalState] = useState<{
         isOpen: boolean; title: string; message: string;
@@ -151,96 +161,113 @@ function SolicitudesContent() {
                                 return (
                                     <div
                                         key={req.id}
-                                        className={`${styles["request-card"]} ${req.status === "ADOPTED" ? styles["request-card--adopted"] : ""}`}
+                                        className={`${styles["request-card"]} ${req.status === "ADOPTED" ? styles["request-card--adopted"] : ""} ${expandedRequests.has(req.id) ? styles["request-card--expanded"] : ""}`}
                                         data-status={req.status}
+                                        onClick={() => toggleExpand(req.id)}
                                     >
-                                        <div className={styles.pawDecoration} style={{ position: "absolute", top: "-15px", right: "-15px", fontSize: "2.5rem", opacity: 0.05, pointerEvents: "none" }}>🐾</div>
+                                        <div className={styles.pawDecoration} style={{ position: "absolute", top: "-10px", right: "-10px", fontSize: "2rem", opacity: 0.03, pointerEvents: "none" }}>🐾</div>
 
                                         <div className={styles["request-header"]}>
-                                            <div>
-                                                <h3 className={styles["request-applicant"]}>{req.applicant_name || "Solicitante Anónimo"}</h3>
-                                                <span className={styles["request-id"]}>🆔 {req.user_id.substring(0, 8).toUpperCase()}</span>
+                                            <div className={styles["header-main"]}>
+                                                <div className={styles["header-info"]}>
+                                                    <h3 className={styles["request-applicant"]}>{req.applicant_name || "Solicitante Anónimo"}</h3>
+                                                    <span className={styles["request-id"]}>🆔 {req.user_id.substring(0, 8).toUpperCase()}</span>
+                                                </div>
+                                                {!expandedRequests.has(req.id) && (
+                                                    <div className={styles["compact-summary"]}>
+                                                        <span>🏠 {req.house_type}</span>
+                                                        <span>🌳 {req.has_yard ? "Sí" : "No"}</span>
+                                                        <span>🕒 {req.hours_alone}h/día</span>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <span className={styles["status-badge"]} style={{ color: statusInfo.color }}>
-                                                {statusInfo.icon} {statusInfo.label}
-                                            </span>
+                                            <div className={styles["header-actions"]}>
+                                                <span className={styles["status-badge"]} style={{ color: statusInfo.color }}>
+                                                    {statusInfo.icon} {statusInfo.label}
+                                                </span>
+                                                <button className={styles["expand-icon"]}>
+                                                    {expandedRequests.has(req.id) ? "🔼" : "🔽"}
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        {/* Questionnaire Summary */}
-                                        <div className={styles["questionnaire"]}>
-                                            <div className={styles["q-grid"]}>
-                                                <div className={styles["q-item"]}>
-                                                    <span className={styles["q-label"]}>🏠 Vivienda</span>
-                                                    <span className={styles["q-value"]}>{req.house_type} • {req.own_or_rent}</span>
+                                        {/* Questionnaire Summary - Expandable */}
+                                        <div className={`${styles["expandable-content"]} ${expandedRequests.has(req.id) ? styles["is-expanded"] : ""}`} onClick={(e) => e.stopPropagation()}>
+                                            <div className={styles["questionnaire"]}>
+                                                <div className={styles["q-grid"]}>
+                                                    <div className={styles["q-item"]}>
+                                                        <span className={styles["q-label"]}>🏠 Vivienda</span>
+                                                        <span className={styles["q-value"]}>{req.house_type} • {req.own_or_rent}</span>
+                                                    </div>
+                                                    <div className={styles["q-item"]}>
+                                                        <span className={styles["q-label"]}>🌳 Patio</span>
+                                                        <span className={styles["q-value"]}>{req.has_yard ? "✅ Sí" : "❌ No"}</span>
+                                                    </div>
+                                                    <div className={styles["q-item"]}>
+                                                        <span className={styles["q-label"]}>👶 Niños</span>
+                                                        <span className={styles["q-value"]}>{req.has_children ? `👶 Sí (${req.children_ages || "sin edades"})` : "❌ No"}</span>
+                                                    </div>
+                                                    <div className={styles["q-item"]}>
+                                                        <span className={styles["q-label"]}>⏰ Horas sola</span>
+                                                        <span className={styles["q-value"]}>🕒 {req.hours_alone}h/día</span>
+                                                    </div>
+                                                    <div className={styles["q-item"]}>
+                                                        <span className={styles["q-label"]}>💰 Compromiso</span>
+                                                        <span className={styles["q-value"]} style={{ color: req.financial_commitment ? "#22c55e" : "#ef4444" }}>
+                                                            {req.financial_commitment ? "✅ Sí" : "❌ No"}
+                                                        </span>
+                                                    </div>
+                                                    <div className={styles["q-item"]}>
+                                                        <span className={styles["q-label"]}>🐾 Otras mascotas</span>
+                                                        <span className={styles["q-value"]}>{req.other_pets || "❌ No"}</span>
+                                                    </div>
                                                 </div>
-                                                <div className={styles["q-item"]}>
-                                                    <span className={styles["q-label"]}>🌳 Patio</span>
-                                                    <span className={styles["q-value"]}>{req.has_yard ? "✅ Sí" : "❌ No"}</span>
-                                                </div>
-                                                <div className={styles["q-item"]}>
-                                                    <span className={styles["q-label"]}>👶 Niños</span>
-                                                    <span className={styles["q-value"]}>{req.has_children ? `👶 Sí (${req.children_ages || "sin edades"})` : "❌ No"}</span>
-                                                </div>
-                                                <div className={styles["q-item"]}>
-                                                    <span className={styles["q-label"]}>⏰ Horas sola</span>
-                                                    <span className={styles["q-value"]}>🕒 {req.hours_alone}h/día</span>
-                                                </div>
-                                                <div className={styles["q-item"]}>
-                                                    <span className={styles["q-label"]}>💰 Compromiso</span>
-                                                    <span className={styles["q-value"]} style={{ color: req.financial_commitment ? "#22c55e" : "#ef4444" }}>
-                                                        {req.financial_commitment ? "✅ Sí" : "❌ No"}
-                                                    </span>
-                                                </div>
-                                                <div className={styles["q-item"]}>
-                                                    <span className={styles["q-label"]}>🐾 Otras mascotas</span>
-                                                    <span className={styles["q-value"]}>{req.other_pets || "❌ No"}</span>
-                                                </div>
-                                            </div>
 
-                                            <div className={styles["q-reason"]}>
-                                                <span className={styles["q-label"]}>💬 Motivo de adopción</span>
-                                                <p>{req.reason}</p>
-                                            </div>
-
-                                            {req.previous_experience && (
                                                 <div className={styles["q-reason"]}>
-                                                    <span className={styles["q-label"]}>📋 Experiencia previa</span>
-                                                    <p>{req.previous_experience}</p>
+                                                    <span className={styles["q-label"]}>💬 Motivo de adopción</span>
+                                                    <p>{req.reason}</p>
+                                                </div>
+
+                                                {req.previous_experience && (
+                                                    <div className={styles["q-reason"]}>
+                                                        <span className={styles["q-label"]}>📋 Experiencia previa</span>
+                                                        <p>{req.previous_experience}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Actions */}
+                                            {!isAdopted && req.status !== "REJECTED" && req.status !== "ADOPTED" && (
+                                                <div className={styles["request-actions"]}>
+                                                    {req.status === "PENDING" && (
+                                                        <button className={styles["action-btn-review"]}
+                                                            disabled={actionLoading === req.id}
+                                                            onClick={() => handleStatusChange(req.id, "REVIEWING")}>
+                                                            🔍 Empezar Revisión
+                                                        </button>
+                                                    )}
+                                                    {(req.status === "REVIEWING" || req.status === "PENDING") && (
+                                                        <button className={styles["action-btn-interview"]}
+                                                            disabled={actionLoading === req.id}
+                                                            onClick={() => handleStatusChange(req.id, "INTERVIEW_SCHEDULED")}>
+                                                            📅 Agendar Entrevista
+                                                        </button>
+                                                    )}
+                                                    {(req.status === "INTERVIEW_SCHEDULED" || req.status === "APPROVED") && (
+                                                        <button className={styles["action-btn-adopt"]}
+                                                            disabled={actionLoading === req.id}
+                                                            onClick={() => handleFinalApproval(req.id, req.applicant_name || "este solicitante")}>
+                                                            🎉 Finalizar Adopción
+                                                        </button>
+                                                    )}
+                                                    <button className={styles["action-btn-reject"]}
+                                                        disabled={actionLoading === req.id}
+                                                        onClick={() => handleStatusChange(req.id, "REJECTED")}>
+                                                        ❌ Rechazar
+                                                    </button>
                                                 </div>
                                             )}
                                         </div>
-
-                                        {/* Actions */}
-                                        {!isAdopted && req.status !== "REJECTED" && req.status !== "ADOPTED" && (
-                                            <div className={styles["request-actions"]}>
-                                                {req.status === "PENDING" && (
-                                                    <button className={styles["action-btn-review"]}
-                                                        disabled={actionLoading === req.id}
-                                                        onClick={() => handleStatusChange(req.id, "REVIEWING")}>
-                                                        🔍 Empezar Revisión
-                                                    </button>
-                                                )}
-                                                {(req.status === "REVIEWING" || req.status === "PENDING") && (
-                                                    <button className={styles["action-btn-interview"]}
-                                                        disabled={actionLoading === req.id}
-                                                        onClick={() => handleStatusChange(req.id, "INTERVIEW_SCHEDULED")}>
-                                                        📅 Agendar Entrevista
-                                                    </button>
-                                                )}
-                                                {(req.status === "INTERVIEW_SCHEDULED" || req.status === "APPROVED") && (
-                                                    <button className={styles["action-btn-adopt"]}
-                                                        disabled={actionLoading === req.id}
-                                                        onClick={() => handleFinalApproval(req.id, req.applicant_name || "este solicitante")}>
-                                                        🎉 Finalizar Adopción
-                                                    </button>
-                                                )}
-                                                <button className={styles["action-btn-reject"]}
-                                                    disabled={actionLoading === req.id}
-                                                    onClick={() => handleStatusChange(req.id, "REJECTED")}>
-                                                    ❌ Rechazar
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
                                 );
                             })}
