@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getPendingAdoptions, getGlobalPendingRequests, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet, getPendingClinics, approveClinic, rejectClinic, getPendingProducts, approveProduct, rejectProduct } from "@/lib/services/moderacion";
 import { Listing, AdoptionRequest } from "@/lib/services/adopciones";
 import { LostPetReport } from "@/lib/services/perdidas";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import styles from "./moderacion.module.css";
 
 export default function ModeracionPage() {
@@ -16,6 +17,23 @@ export default function ModeracionPage() {
     const [pendingProducts, setPendingProducts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"adopciones" | "solicitudes" | "perdidas" | "directorio" | "ecommerce">("adopciones");
+
+    const [modalState, setModalState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        confirmText?: string;
+        isDanger: boolean;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        isDanger: false,
+        onConfirm: () => { },
+    });
+
+    const closeModal = () => setModalState(prev => ({ ...prev, isOpen: false }));
 
     useEffect(() => {
         loadPending();
@@ -52,9 +70,7 @@ export default function ModeracionPage() {
         }
     }
 
-    async function handleApprove(id: string, name: string) {
-        if (!confirm(`¿Estás seguro de aprobar la publicación de: ${name}?`)) return;
-
+    async function executeApprove(id: string, name: string) {
         try {
             if (activeTab === "adopciones") {
                 await approveAdoption(id);
@@ -75,12 +91,23 @@ export default function ModeracionPage() {
             }
         } catch (error: any) {
             toast.error(error.message || "Error al aprobar publicación");
+        } finally {
+            closeModal();
         }
     }
 
-    async function handleReject(id: string, name: string) {
-        if (!confirm(`¿Estás seguro de RECHAZAR y eliminar permanentemente a: ${name}?`)) return;
+    function handleApprove(id: string, name: string) {
+        setModalState({
+            isOpen: true,
+            title: "Aprobar Contenido",
+            message: `¿Estás seguro de aprobar la publicación de: ${name}?`,
+            confirmText: "Sí, Aprobar",
+            isDanger: false,
+            onConfirm: () => executeApprove(id, name)
+        });
+    }
 
+    async function executeReject(id: string, name: string) {
         try {
             if (activeTab === "adopciones") {
                 await rejectAdoption(id);
@@ -101,7 +128,20 @@ export default function ModeracionPage() {
             }
         } catch (error: any) {
             toast.error(error.message || "Error al rechazar publicación");
+        } finally {
+            closeModal();
         }
+    }
+
+    function handleReject(id: string, name: string) {
+        setModalState({
+            isOpen: true,
+            title: "Rechazar Contenido",
+            message: `¿Estás seguro de RECHAZAR y eliminar permanentemente a: ${name}?`,
+            confirmText: "Sí, Rechazar",
+            isDanger: true,
+            onConfirm: () => executeReject(id, name)
+        });
     }
 
     const currentData = activeTab === "adopciones" ? pendingAdoptions : (activeTab === "solicitudes" ? pendingRequests : (activeTab === "perdidas" ? pendingLostPets : (activeTab === "directorio" ? pendingClinics : (activeTab === "ecommerce" ? pendingProducts : []))));
@@ -267,10 +307,17 @@ export default function ModeracionPage() {
                                         className={styles['btn-approve']}
                                         style={{ background: "#3b82f6" }}
                                         onClick={() => {
-                                            if (confirm("Al aprobar desde aquí, solo moverás la solicitud a 'REVISANDO' en el panel del dueño. ¿Proceder?")) {
-                                                toast.success("Redirigiendo a gestión de solicitudes...");
-                                                window.location.href = `/dashboard/adopciones/solicitudes?id=${req.listing_id}`;
-                                            }
+                                            setModalState({
+                                                isOpen: true,
+                                                title: "Gestionar Solicitud",
+                                                message: "Al aprobar desde aquí, solo moverás la solicitud a 'REVISANDO' en el panel del dueño. ¿Proceder?",
+                                                confirmText: "Continuar",
+                                                isDanger: false,
+                                                onConfirm: () => {
+                                                    toast.success("Redirigiendo a gestión de solicitudes...");
+                                                    window.location.href = `/dashboard/adopciones/solicitudes?id=${req.listing_id}`;
+                                                }
+                                            });
                                         }}
                                     >
                                         🔍 Gestionar
@@ -417,6 +464,16 @@ export default function ModeracionPage() {
                     ))}
                 </div>
             )}
+
+            <ConfirmModal
+                isOpen={modalState.isOpen}
+                title={modalState.title}
+                message={modalState.message}
+                confirmText={modalState.confirmText}
+                isDanger={modalState.isDanger}
+                onConfirm={modalState.onConfirm}
+                onCancel={closeModal}
+            />
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { getCurrentUser } from "@/lib/auth";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 import dashStyles from "../../dashboard.module.css";
 import modStyles from "../../modules.module.css";
 
@@ -11,6 +12,21 @@ export default function PartnerOnboardingPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
+
+    const [modalState, setModalState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        confirmText?: string;
+        isDanger: boolean;
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        isDanger: false,
+    });
+
+    const closeModal = () => setModalState(prev => ({ ...prev, isOpen: false }));
 
     const roles = [
         { id: "veterinario", icon: "🩺", title: "Clínica o Veterinario", desc: "Ofrece atención médica, registra historiales y atiende emergencias." },
@@ -48,7 +64,13 @@ export default function PartnerOnboardingPage() {
 
         } catch (error) {
             console.error("Error upgrading role:", error);
-            alert("Ocurrió un error al intentar procesar tu solicitud de Partnership.");
+            setModalState({
+                isOpen: true,
+                title: "Error de Solicitud",
+                message: "Ocurrió un error al intentar procesar tu solicitud de Partnership. Por favor intenta de nuevo más tarde.",
+                confirmText: "Entendido",
+                isDanger: true
+            });
             setLoading(false);
         }
     }
@@ -110,6 +132,16 @@ export default function PartnerOnboardingPage() {
                     {loading ? "Configurando tu entorno..." : (selectedRole ? "Confirmar y Continuar 👉" : "Selecciona un Rol")}
                 </button>
             </div>
+
+            <ConfirmModal
+                isOpen={modalState.isOpen}
+                title={modalState.title}
+                message={modalState.message}
+                confirmText={modalState.confirmText}
+                isDanger={modalState.isDanger}
+                onConfirm={closeModal}
+                onCancel={closeModal}
+            />
         </div>
     );
 }
