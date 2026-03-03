@@ -31,6 +31,8 @@ class PetCreate(BaseModel):
     social_children: bool = True
     weight_kg: Optional[float] = None
     microchip_number: Optional[str] = None
+    gender: Optional[str] = None
+    gallery: Optional[List[str]] = None
 
 class PetResponse(PetCreate):
     id: str
@@ -56,6 +58,8 @@ class PetUpdate(BaseModel):
     social_children: Optional[bool] = None
     weight_kg: Optional[float] = None
     microchip_number: Optional[str] = None
+    gender: Optional[str] = None
+    gallery: Optional[List[str]] = None
 
 
 @router.post("/", response_model=PetResponse)

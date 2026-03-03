@@ -232,6 +232,19 @@ async def approve_adoption(
                 "description": listing.description,
                 "photo_url": listing.photo_url,
                 "adopted_from_listing_id": listing.id,
+                # Enrichment Fields
+                "is_vaccinated": listing.is_vaccinated,
+                "is_sterilized": listing.is_sterilized,
+                "is_dewormed": listing.is_dewormed,
+                "temperament": listing.temperament,
+                "energy_level": listing.energy_level,
+                "social_cats": listing.social_cats,
+                "social_dogs": listing.social_dogs,
+                "social_children": listing.social_children,
+                "weight_kg": listing.weight_kg,
+                "microchip_number": listing.microchip_number,
+                "gender": listing.gender,
+                "gallery": listing.gallery
             }
             # Use docker service name 'mascotas' for inter-service communication
             response = await client.post(

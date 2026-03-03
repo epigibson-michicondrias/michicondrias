@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Boolean, DateTime, Text, Float, Integer
+from sqlalchemy import Column, String, Boolean, DateTime, Text, Float, Integer, JSON
 from sqlalchemy.sql import func
 from app.db.session import Base
 
@@ -28,6 +28,8 @@ class Pet(Base):
     social_children = Column(Boolean, default=True)
     weight_kg = Column(Float, nullable=True)
     microchip_number = Column(String, nullable=True)
+    gender = Column(String(20), nullable=True)
+    gallery = Column(JSON, nullable=True)
 
     # Traceability: which adoption listing originated this pet record
     adopted_from_listing_id = Column(String, nullable=True, index=True)
