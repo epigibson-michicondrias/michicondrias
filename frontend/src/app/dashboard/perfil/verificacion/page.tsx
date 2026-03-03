@@ -64,7 +64,7 @@ export default function VerificacionPage() {
                     method: "PUT",
                     body: file,
                     headers: {
-                        "Content-Type": file.type || "image/jpeg",
+                        "Content-Type": "image/jpeg",
                     },
                 });
 
