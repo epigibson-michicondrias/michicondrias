@@ -46,23 +46,31 @@ def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpe
         logger.error("AWS Credentials not available")
         return None
 
-def generate_presigned_url(object_name: str, expiration: int = 3600, content_type: str = "image/jpeg") -> str | None:
+def generate_presigned_url(object_name: str, expiration: int = 3600, content_type: str = "image/jpeg", method: str = 'put_object') -> str | None:
     """
-    Generate a presigned URL to upload an object via PUT.
+    Generate a presigned URL to upload or download an object.
     """
     s3_client = get_s3_client()
     try:
-        # We must sign the Content-Type if the browser is going to send it
+        params = {
+            'Bucket': settings.S3_BUCKET_NAME,
+            'Key': object_name,
+        }
+        if method == 'put_object':
+            params['ContentType'] = content_type
+            
         response = s3_client.generate_presigned_url(
-            'put_object',
-            Params={
-                'Bucket': settings.S3_BUCKET_NAME,
-                'Key': object_name,
-                'ContentType': content_type
-            },
+            ClientMethod=method,
+            Params=params,
             ExpiresIn=expiration
         )
         return response
     except ClientError as e:
-        logger.error(f"Error generating presigned URL: {e}")
+        logger.error(f"Error generating presigned URL ({method}): {e}")
         return None
+
+def get_presigned_url(object_name: str, expiration: int = 3600) -> str | None:
+    """
+    Generate a presigned GET URL for viewing private files.
+    """
+    return generate_presigned_url(object_name, expiration=expiration, method='get_object')

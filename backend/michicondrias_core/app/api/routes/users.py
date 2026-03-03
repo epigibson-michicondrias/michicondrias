@@ -27,17 +27,19 @@ def read_user_me(
     Get current user profile including role.
     """
     role_name = current_user.role.name if current_user.role else "consumidor"
-    return UserMeResponse(
-        id=current_user.id,
-        email=current_user.email,
-        full_name=current_user.full_name,
-        is_active=current_user.is_active,
-        role_name=role_name,
-        verification_status=current_user.verification_status,
-        id_front_url=current_user.id_front_url,
-        id_back_url=current_user.id_back_url,
-        proof_of_address_url=current_user.proof_of_address_url,
-    )
+    user_data = {
+        "id": current_user.id,
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "is_active": current_user.is_active,
+        "role_name": role_name,
+        "verification_status": current_user.verification_status,
+        "id_front_url": current_user.id_front_url,
+        "id_back_url": current_user.id_back_url,
+        "proof_of_address_url": current_user.proof_of_address_url,
+    }
+    # Transform URLs for viewing
+    return _add_kyc_presigned_urls(user_data)
 
 @router.post("/register", response_model=UserResponse)
 def register_user(
@@ -133,7 +135,7 @@ async def finalize_kyc(
         id_back=req.id_back_url,
         proof=req.proof_of_address_url
     )
-    return updated_user
+    return _add_kyc_presigned_urls(updated_user)
 
 @router.post("/me/kyc", response_model=UserResponse)
 async def upload_kyc_docs(
@@ -177,7 +179,7 @@ async def upload_kyc_docs(
         proof=saved_urls["proof_of_address"]
     )
     
-    return updated_user
+    return _add_kyc_presigned_urls(updated_user)
 
 @router.post("/me/upgrade-role", response_model=UserResponse)
 def upgrade_user_role(
@@ -207,6 +209,38 @@ def upgrade_user_role(
 
     return current_user
 
+def _add_kyc_presigned_urls(user_data: Any) -> dict:
+    """Helper to transform static S3 URLs into temporary presigned GET URLs without modifying DB state."""
+    from app.core.s3 import get_presigned_url
+    
+    # Handle both SQLAlchemy objects and dictionaries
+    if hasattr(user_data, "__dict__"):
+        # For SQLAlchemy objects, create a dict instead of modifying the object in place
+        res = {
+            "id": user_data.id,
+            "email": user_data.email,
+            "full_name": user_data.full_name,
+            "is_active": user_data.is_active,
+            "verification_status": user_data.verification_status,
+            "id_front_url": user_data.id_front_url,
+            "id_back_url": user_data.id_back_url,
+            "proof_of_address_url": user_data.proof_of_address_url,
+            "role_id": getattr(user_data, "role_id", None),
+            "role_name": getattr(user_data, "role_name", user_data.role.name if hasattr(user_data, "role") and user_data.role else None)
+        }
+    else:
+        res = dict(user_data)
+        
+    for attr in ["id_front_url", "id_back_url", "proof_of_address_url"]:
+        static_url = res.get(attr)
+        if static_url and ".amazonaws.com/" in static_url:
+            # Extract key: everything after the bucket domain
+            key = static_url.split(".amazonaws.com/")[-1]
+            presigned = get_presigned_url(key)
+            if presigned:
+                res[attr] = presigned
+    return res
+
 @router.get("/pending-verifications", response_model=List[UserResponse])
 def read_pending_verifications(
     db: Session = Depends(get_db),
@@ -216,7 +250,8 @@ def read_pending_verifications(
     List all users with PENDING verification status. (Admin only)
     """
     users = db.query(User).filter(User.verification_status == "PENDING").all()
-    return users
+    # Transform URLs to be viewable by admin
+    return [_add_kyc_presigned_urls(user) for user in users]
 
 @router.post("/{user_id}/verify", response_model=UserResponse)
 def verify_user_kyc(
@@ -236,4 +271,4 @@ def verify_user_kyc(
     db.add(user)
     db.commit()
     db.refresh(user)
-    return user
+    return _add_kyc_presigned_urls(user)
