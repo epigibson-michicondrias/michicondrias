@@ -5,16 +5,23 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from botocore.config import Config
+
 def get_s3_client():
+    config = Config(
+        signature_version='s3v4',
+        s3={'addressing_style': 'virtual'}
+    )
     if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
         return boto3.client(
             's3',
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_REGION
+            region_name=settings.AWS_REGION,
+            config=config
         )
     # If no credentials, try to use IAM role (for Lambda)
-    return boto3.client('s3', region_name=settings.AWS_REGION)
+    return boto3.client('s3', region_name=settings.AWS_REGION, config=config)
 
 def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpeg") -> str | None:
     """
@@ -38,7 +45,7 @@ def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpe
         logger.error("AWS Credentials not available")
         return None
 
-def generate_presigned_url(object_name: str, expiration: int = 3600, content_type: str = "image/jpeg") -> str | None:
+def generate_presigned_url(object_name: str, expiration: int = 3600) -> str | None:
     """
     Generate a presigned URL to share an S3 object or upload one.
     """
@@ -49,7 +56,6 @@ def generate_presigned_url(object_name: str, expiration: int = 3600, content_typ
             Params={
                 'Bucket': settings.S3_BUCKET_NAME,
                 'Key': object_name,
-                'ContentType': content_type
             },
             ExpiresIn=expiration
         )

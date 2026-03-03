@@ -63,9 +63,6 @@ export default function VerificacionPage() {
                 const res = await fetch(u.url, {
                     method: "PUT",
                     body: file,
-                    headers: {
-                        "Content-Type": "image/jpeg",
-                    },
                 });
 
                 if (!res.ok) {
