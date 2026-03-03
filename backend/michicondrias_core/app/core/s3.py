@@ -17,6 +17,7 @@ def get_s3_client():
             's3',
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_session_token=settings.AWS_SESSION_TOKEN, # Crucial for 403 ASIA errors
             region_name=settings.AWS_REGION,
             config=config
         )
@@ -45,17 +46,19 @@ def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpe
         logger.error("AWS Credentials not available")
         return None
 
-def generate_presigned_url(object_name: str, expiration: int = 3600) -> str | None:
+def generate_presigned_url(object_name: str, expiration: int = 3600, content_type: str = "image/jpeg") -> str | None:
     """
-    Generate a presigned URL to share an S3 object or upload one.
+    Generate a presigned URL to upload an object via PUT.
     """
     s3_client = get_s3_client()
     try:
+        # We must sign the Content-Type if the browser is going to send it
         response = s3_client.generate_presigned_url(
             'put_object',
             Params={
                 'Bucket': settings.S3_BUCKET_NAME,
                 'Key': object_name,
+                'ContentType': content_type
             },
             ExpiresIn=expiration
         )
