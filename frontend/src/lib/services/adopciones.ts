@@ -29,6 +29,12 @@ export interface Listing {
     social_children: boolean;
     weight_kg: number | null;
     microchip_number: string | null;
+
+    // Enrichment Fields 2.0
+    gender: string | null;
+    location: string | null;
+    is_emergency: boolean;
+    gallery: string[] | null;
 }
 
 export interface ListingCreate {
@@ -51,6 +57,12 @@ export interface ListingCreate {
     social_children: boolean;
     weight_kg: number | null;
     microchip_number: string | null;
+
+    // Enrichment Fields 2.0
+    gender: string | null;
+    location: string | null;
+    is_emergency: boolean;
+    gallery: string[] | null;
 }
 
 export interface AdoptionRequest {

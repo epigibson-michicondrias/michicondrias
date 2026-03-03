@@ -31,6 +31,9 @@ export default function NuevaAdopcionPage() {
         social_children: true,
         weight_kg: "",
         microchip_number: "",
+        gender: "hembra",
+        location: "",
+        is_emergency: false,
     });
 
     // Photo Mock State
@@ -87,6 +90,10 @@ export default function NuevaAdopcionPage() {
                 social_children: formData.social_children,
                 weight_kg: formData.weight_kg ? Number(formData.weight_kg) : null,
                 microchip_number: formData.microchip_number || null,
+                gender: formData.gender,
+                location: formData.location || null,
+                is_emergency: formData.is_emergency,
+                gallery: null, // Placeholder for now
             });
             setSuccess(true);
         } catch (err: unknown) {
@@ -228,6 +235,35 @@ export default function NuevaAdopcionPage() {
                         value={formData.size}
                         onChange={(v) => setFormData({ ...formData, size: v })}
                     />
+                </div>
+
+                <div className={styles["form-row"]}>
+                    <div className={styles["form-group"]}>
+                        <label>Género</label>
+                        <CustomSelect
+                            options={[
+                                { value: "macho", label: "Macho", icon: "♂️" },
+                                { value: "hembra", label: "Hembra", icon: "♀️" },
+                            ]}
+                            value={formData.gender}
+                            onChange={(v) => setFormData({ ...formData, gender: v })}
+                        />
+                    </div>
+                    <div className={styles["form-group"]}>
+                        <label>Ubicación (Ciudad/Estado)</label>
+                        <input
+                            name="location"
+                            placeholder="Ej: CDMX, Polanco"
+                            value={formData.location}
+                            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        />
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: "2rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", color: "#ff4d4f", fontWeight: 600 }}>
+                        <input type="checkbox" checked={formData.is_emergency} onChange={e => setFormData({ ...formData, is_emergency: e.target.checked })} /> 🚨 ¿Es un caso de emergencia / urgente?
+                    </label>
                 </div>
 
                 <div className={styles["form-divider"]} />

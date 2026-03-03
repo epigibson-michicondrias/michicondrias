@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Text, Boolean, Float
+from sqlalchemy import Column, String, Integer, Text, Boolean, Float, JSON
 from app.models.base import BaseModel
 
 
@@ -32,6 +32,12 @@ class AdoptionListing(BaseModel):
 
     # Who published it
     published_by = Column(String(36), index=True, nullable=False)
+
+    # New Enrichment Fields
+    gender = Column(String(20), nullable=True) # Macho/Hembra
+    location = Column(String(100), nullable=True)
+    is_emergency = Column(Boolean, default=False)
+    gallery = Column(JSON, nullable=True) # Lista de URLs de fotos adicionales
 
     # Approval flow
     is_approved = Column(Boolean, default=False)

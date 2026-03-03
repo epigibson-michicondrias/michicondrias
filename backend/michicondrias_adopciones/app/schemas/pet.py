@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 # ============================
@@ -26,6 +26,12 @@ class ListingBase(BaseModel):
     social_children: Optional[bool] = True
     weight_kg: Optional[float] = None
     microchip_number: Optional[str] = None
+    
+    # New Enrichment Fields 2.0
+    gender: Optional[str] = None
+    location: Optional[str] = None
+    is_emergency: bool = False
+    gallery: Optional[List[str]] = None
 
 class ListingCreate(ListingBase):
     pass
