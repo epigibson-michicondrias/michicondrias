@@ -61,22 +61,25 @@ export default function MisSolicitudesPage() {
 
                     return (
                         <div key={req.id} className={styles["request-card"]}>
-                            <div className={styles["header-info"]} style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+                            <div className={styles.pawDecoration} style={{ position: "absolute", top: "-15px", right: "-15px", fontSize: "2.5rem", opacity: 0.1, pointerEvents: "none" }}>🐾</div>
+                            <div className={styles["header-info"]} style={{ display: "flex", alignItems: "center", gap: "1.5rem", position: "relative", zIndex: 2 }}>
                                 {req.pet_photo_url ? (
                                     <div
                                         style={{
-                                            width: "65px", height: "65px", borderRadius: "50%",
+                                            width: "70px", height: "70px", borderRadius: "50%",
                                             background: `url(${req.pet_photo_url}) center/cover no-repeat`,
-                                            border: "2px solid rgba(124, 58, 237, 0.4)"
+                                            border: "3px solid #7c3aed",
+                                            boxShadow: "0 0 15px rgba(124, 58, 237, 0.4)"
                                         }}
                                     />
                                 ) : (
                                     <div
                                         style={{
-                                            width: "65px", height: "65px", borderRadius: "50%",
-                                            background: "linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(236, 72, 153, 0.1))",
-                                            display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem",
-                                            border: "2px solid rgba(124, 58, 237, 0.4)"
+                                            width: "70px", height: "70px", borderRadius: "50%",
+                                            background: "linear-gradient(135deg, #1e1b4b, #0f172a)",
+                                            display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem",
+                                            border: "3px solid #7c3aed",
+                                            boxShadow: "0 0 15px rgba(124, 58, 237, 0.4)"
                                         }}
                                     >🐾</div>
                                 )}
@@ -84,7 +87,9 @@ export default function MisSolicitudesPage() {
                                     <h2 className={styles.title}>
                                         Adopción de {req.pet_name || "Mascota"}
                                     </h2>
-                                    <p className={styles.subtitle}>Solicitud #{req.id.substring(0, 8)} • Enviada para evaluación administrativa</p>
+                                    <p className={styles.subtitle}>
+                                        <span className={styles["request-id-badge"]}>#{req.id.substring(0, 8).toUpperCase()}</span> • Enviada para evaluación administrativa
+                                    </p>
                                 </div>
                             </div>
 
