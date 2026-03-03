@@ -304,8 +304,7 @@ export default function ModeracionPage() {
                                         ❌ Rechazar
                                     </button>
                                     <button
-                                        className={styles['btn-approve']}
-                                        style={{ background: "#3b82f6" }}
+                                        className={styles['btn-manage']}
                                         onClick={() => {
                                             setModalState({
                                                 isOpen: true,
