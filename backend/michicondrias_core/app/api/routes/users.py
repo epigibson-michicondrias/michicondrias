@@ -98,20 +98,35 @@ def create_user(
 @router.get("/me/kyc/presigned-urls", response_model=KYCPresignedUrlsResponse)
 async def get_kyc_presigned_urls(
     current_user: User = Depends(deps.get_current_active_user),
+    id_front_ext: str = "jpg",
+    id_back_ext: str = "jpg",
+    proof_ext: str = "jpg",
 ) -> Any:
     """
-    Generate presigned URLs for KYC document uploads.
+    Generate presigned URLs for KYC document uploads with specific extensions.
     """
     from app.core.s3 import generate_presigned_url
+    import mimetypes
     
-    keys = ["id_front", "id_back", "proof_of_address"]
+    mapping = {
+        "id_front": id_front_ext,
+        "id_back": id_back_ext,
+        "proof_of_address": proof_ext
+    }
+    
     urls = []
-    
-    for key in keys:
-        object_name = f"kyc/{current_user.id}/{key}.jpg" # Simplified extension for now
-        url = generate_presigned_url(object_name)
+    for key, ext in mapping.items():
+        # Clean extension (remove leading dot if present)
+        clean_ext = ext.replace(".", "")
+        object_name = f"kyc/{current_user.id}/{key}.{clean_ext}"
+        
+        # Guess mimetype based on extension
+        content_type, _ = mimetypes.guess_type(f"file.{clean_ext}")
+        if not content_type:
+            content_type = "image/jpeg" if clean_ext in ["jpg", "jpeg"] else "application/octet-stream"
+            
+        url = generate_presigned_url(object_name, content_type=content_type)
         if url:
-            # Construct the final public URL that will be used after upload
             from app.core.config import settings
             public_url = f"https://{settings.S3_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{object_name}"
             urls.append(KYCPresignedUrl(key=key, url=url, object_key=public_url))
