@@ -149,13 +149,19 @@ function SolicitudesContent() {
                                 const statusInfo = STATUS_LABELS[req.status] || { label: req.status, color: "#94a3b8", icon: "❓" };
                                 const isAdopted = listing?.status === "ADOPTED";
                                 return (
-                                    <div key={req.id} className={`${styles["request-card"]} ${req.status === "ADOPTED" ? styles["request-card--adopted"] : ""}`}>
+                                    <div
+                                        key={req.id}
+                                        className={`${styles["request-card"]} ${req.status === "ADOPTED" ? styles["request-card--adopted"] : ""}`}
+                                        data-status={req.status}
+                                    >
+                                        <div className={styles.pawDecoration} style={{ position: "absolute", top: "-15px", right: "-15px", fontSize: "2.5rem", opacity: 0.05, pointerEvents: "none" }}>🐾</div>
+
                                         <div className={styles["request-header"]}>
                                             <div>
                                                 <h3 className={styles["request-applicant"]}>{req.applicant_name || "Solicitante Anónimo"}</h3>
-                                                <span className={styles["request-id"]}>ID: {req.user_id.substring(0, 8)}</span>
+                                                <span className={styles["request-id"]}>🆔 {req.user_id.substring(0, 8).toUpperCase()}</span>
                                             </div>
-                                            <span className={styles["status-badge"]} style={{ color: statusInfo.color, borderColor: statusInfo.color }}>
+                                            <span className={styles["status-badge"]} style={{ color: statusInfo.color }}>
                                                 {statusInfo.icon} {statusInfo.label}
                                             </span>
                                         </div>
@@ -165,37 +171,37 @@ function SolicitudesContent() {
                                             <div className={styles["q-grid"]}>
                                                 <div className={styles["q-item"]}>
                                                     <span className={styles["q-label"]}>🏠 Vivienda</span>
-                                                    <span>{req.house_type} • {req.own_or_rent}</span>
+                                                    <span className={styles["q-value"]}>{req.house_type} • {req.own_or_rent}</span>
                                                 </div>
                                                 <div className={styles["q-item"]}>
                                                     <span className={styles["q-label"]}>🌳 Patio</span>
-                                                    <span>{req.has_yard ? "Sí" : "No"}</span>
+                                                    <span className={styles["q-value"]}>{req.has_yard ? "✅ Sí" : "❌ No"}</span>
                                                 </div>
                                                 <div className={styles["q-item"]}>
                                                     <span className={styles["q-label"]}>👶 Niños</span>
-                                                    <span>{req.has_children ? `Sí (${req.children_ages || "sin edades"})` : "No"}</span>
+                                                    <span className={styles["q-value"]}>{req.has_children ? `👶 Sí (${req.children_ages || "sin edades"})` : "❌ No"}</span>
                                                 </div>
                                                 <div className={styles["q-item"]}>
                                                     <span className={styles["q-label"]}>⏰ Horas sola</span>
-                                                    <span>{req.hours_alone}h/día</span>
+                                                    <span className={styles["q-value"]}>🕒 {req.hours_alone}h/día</span>
                                                 </div>
                                                 <div className={styles["q-item"]}>
-                                                    <span className={styles["q-label"]}>💰 Compromiso financiero</span>
-                                                    <span style={{ color: req.financial_commitment ? "#22c55e" : "#ef4444" }}>
+                                                    <span className={styles["q-label"]}>💰 Compromiso</span>
+                                                    <span className={styles["q-value"]} style={{ color: req.financial_commitment ? "#22c55e" : "#ef4444" }}>
                                                         {req.financial_commitment ? "✅ Sí" : "❌ No"}
                                                     </span>
                                                 </div>
-                                                {req.other_pets && (
-                                                    <div className={styles["q-item"]}>
-                                                        <span className={styles["q-label"]}>🐾 Otras mascotas</span>
-                                                        <span>{req.other_pets}</span>
-                                                    </div>
-                                                )}
+                                                <div className={styles["q-item"]}>
+                                                    <span className={styles["q-label"]}>🐾 Otras mascotas</span>
+                                                    <span className={styles["q-value"]}>{req.other_pets || "❌ No"}</span>
+                                                </div>
                                             </div>
+
                                             <div className={styles["q-reason"]}>
-                                                <span className={styles["q-label"]}>💬 Motivo</span>
+                                                <span className={styles["q-label"]}>💬 Motivo de adopción</span>
                                                 <p>{req.reason}</p>
                                             </div>
+
                                             {req.previous_experience && (
                                                 <div className={styles["q-reason"]}>
                                                     <span className={styles["q-label"]}>📋 Experiencia previa</span>
@@ -211,14 +217,14 @@ function SolicitudesContent() {
                                                     <button className={styles["action-btn-review"]}
                                                         disabled={actionLoading === req.id}
                                                         onClick={() => handleStatusChange(req.id, "REVIEWING")}>
-                                                        🔍 Revisar
+                                                        🔍 Empezar Revisión
                                                     </button>
                                                 )}
                                                 {(req.status === "REVIEWING" || req.status === "PENDING") && (
                                                     <button className={styles["action-btn-interview"]}
                                                         disabled={actionLoading === req.id}
                                                         onClick={() => handleStatusChange(req.id, "INTERVIEW_SCHEDULED")}>
-                                                        📅 Programar Entrevista
+                                                        📅 Agendar Entrevista
                                                     </button>
                                                 )}
                                                 {(req.status === "INTERVIEW_SCHEDULED" || req.status === "APPROVED") && (
