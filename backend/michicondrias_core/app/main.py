@@ -8,9 +8,18 @@ import os
 import time
 import logging
 import uuid
+import traceback
 from contextvars import ContextVar
+from fastapi import Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 
-logger = logging.getLogger(__name__)
+# Configure logging for CloudWatch
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    force=True
+)
+logger = logging.getLogger("michicondrias")
 correlation_id_ctx: ContextVar[str] = ContextVar("correlation_id", default="")
 
 # Michicondrias Core Service - Ready for AWS Lambda
@@ -36,24 +45,39 @@ app.add_middleware(
 )
 
 @app.middleware("http")
-async def add_process_time_header(request, call_next):
+async def observability_middleware(request: Request, call_next):
     # Get correlation ID from header or generate a new one
     correlation_id = request.headers.get("X-Correlation-ID", str(uuid.uuid4()))
     correlation_id_ctx.set(correlation_id)
 
     start_time = time.perf_counter()
-    response = await call_next(request)
-    process_time = time.perf_counter() - start_time
-    
-    # Log with correlation ID
-    logger.info(
-        f"Request {request.method} {request.url.path} - "
-        f"CorrID: {correlation_id} - Process time: {process_time:.4f}s"
-    )
-    
-    response.headers["X-Process-Time"] = str(process_time)
-    response.headers["X-Correlation-ID"] = correlation_id
-    return response
+    try:
+        response = await call_next(request)
+        process_time = time.perf_counter() - start_time
+        
+        # Log successful request
+        logger.info(
+            f"Request {request.method} {request.url.path} - HTTP {response.status_code} - "
+            f"CorrID: {correlation_id} - Time: {process_time:.4f}s"
+        )
+        
+        response.headers["X-Process-Time"] = str(process_time)
+        response.headers["X-Correlation-ID"] = correlation_id
+        return response
+    except Exception as e:
+        process_time = time.perf_counter() - start_time
+        # CRITICAL: Log the full exception with the Correlation ID
+        logger.error(
+            f"EXCEPTION {request.method} {request.url.path} - CorrID: {correlation_id} - "
+            f"Error: {type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
+        )
+        # Return a generic 500 but keep the correlation ID for the client/logs
+        return Response(
+            content='{"detail": "Internal Server Error", "correlation_id": "'+correlation_id+'"}',
+            status_code=500,
+            media_type="application/json",
+            headers={"X-Correlation-ID": correlation_id}
+        )
 
 
 
