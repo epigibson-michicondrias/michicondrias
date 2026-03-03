@@ -6,6 +6,7 @@ import httpx
 from app.crud import crud_pet as crud
 from app.api import deps
 from app.db.session import get_db
+from app.core.config import settings
 from app.schemas.pet import (
     ListingCreate,
     ListingUpdate,
@@ -203,6 +204,8 @@ async def approve_adoption(
     db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
+    from app.main import correlation_id_ctx
+    correlation_id = correlation_id_ctx.get()
     """
     Approve an adoption request. Admin only.
     This marks the listing as 'ADOPTED', rejects other requests,
@@ -221,7 +224,9 @@ async def approve_adoption(
     # Create permanent pet record in michicondrias_mascotas service
     pet_created = False
     try:
-        async with httpx.AsyncClient() as client:
+        # Configure transport with retries (3 attempts)
+        transport = httpx.AsyncHTTPTransport(retries=3)
+        async with httpx.AsyncClient(transport=transport) as client:
             pet_data = {
                 "owner_id": result.user_id,
                 "name": listing.name,
@@ -246,10 +251,12 @@ async def approve_adoption(
                 "gender": listing.gender,
                 "gallery": listing.gallery
             }
-            # Use docker service name 'mascotas' for inter-service communication
+            # Use service URL from settings
+            headers = {"X-Correlation-ID": correlation_id}
             response = await client.post(
-                "http://mascotas:8000/api/v1/pets/",
+                f"{settings.MASCOTAS_SERVICE_URL}/api/v1/pets/",
                 json=pet_data,
+                headers=headers,
                 timeout=10.0
             )
             response.raise_for_status()

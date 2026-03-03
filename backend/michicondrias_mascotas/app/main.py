@@ -4,6 +4,13 @@ from app.core.config import settings
 from app.api.main import api_router
 from mangum import Mangum
 import os
+import time
+import logging
+import uuid
+from contextvars import ContextVar
+
+logger = logging.getLogger(__name__)
+correlation_id_ctx: ContextVar[str] = ContextVar("correlation_id", default="")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -18,6 +25,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_process_time_header(request, call_next):
+    # Get correlation ID from header (sent by other services) or generate a new one
+    correlation_id = request.headers.get("X-Correlation-ID", str(uuid.uuid4()))
+    correlation_id_ctx.set(correlation_id)
+
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    process_time = time.perf_counter() - start_time
+    
+    # Log with correlation ID
+    logger.info(
+        f"Request {request.method} {request.url.path} - "
+        f"CorrID: {correlation_id} - Process time: {process_time:.4f}s"
+    )
+    
+    response.headers["X-Process-Time"] = str(process_time)
+    response.headers["X-Correlation-ID"] = correlation_id
+    return response
+
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

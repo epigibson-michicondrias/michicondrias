@@ -17,6 +17,13 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "super_secreto_cambiar_en_produccion" 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
+    # API Gateway Configuration
+    API_GATEWAY_URL: str = "http://localhost:8000"
+    
+    @property
+    def CORE_SERVICE_URL(self) -> str:
+        return f"{self.API_GATEWAY_URL}/core"
+
     # AWS S3 Settings
     AWS_ACCESS_KEY_ID: str | None = None
     AWS_SECRET_ACCESS_KEY: str | None = None

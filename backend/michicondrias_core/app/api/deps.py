@@ -23,7 +23,8 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = db.query(User).filter(User.id == token_data.sub).first()
+    from sqlalchemy.orm import joinedload
+    user = db.query(User).options(joinedload(User.role)).filter(User.id == token_data.sub).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user

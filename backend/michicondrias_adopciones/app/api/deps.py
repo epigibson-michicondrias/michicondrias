@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from app.core.config import settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/api/v1/login/access-token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.CORE_SERVICE_URL}/api/v1/login/access-token")
 
 ALGORITHM = "HS256"
 

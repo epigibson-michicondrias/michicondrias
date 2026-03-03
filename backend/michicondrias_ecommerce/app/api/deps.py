@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from app.core.config import settings
 
 # Point to core login URL for stateless validation
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/api/v1/login/access-token", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.CORE_SERVICE_URL}/api/v1/login/access-token", auto_error=False)
 
 ALGORITHM = "HS256"
 
