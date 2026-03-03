@@ -39,7 +39,8 @@ export default function ConfirmModal({
 
     return (
         <div className={styles.overlay} onClick={onCancel}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={`${styles.modal} ${isDanger ? styles.danger : ""}`} onClick={(e) => e.stopPropagation()}>
+                <div className={styles.pawDecoration}>🐾</div>
                 <div className={styles.icon}>{isDanger ? "⚠️" : "✨"}</div>
                 <h2 className={styles.title}>{title}</h2>
                 <p className={styles.message}>{message}</p>
