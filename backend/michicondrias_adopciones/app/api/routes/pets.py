@@ -1,5 +1,5 @@
 from typing import Any, List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 import httpx
 
@@ -137,10 +137,18 @@ def read_my_requests(
     return results
 
 
+from app.models.pet import AdoptionRequest
+
 # ========================================
 # ADMIN — Approval flow
 # ========================================
 
+@router.get("/admin/pending", response_model=List[ListingResponse])
+def read_pending_listings(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """All pending listings awaiting approval. Admin only."""
     return crud.get_pending_listings(db)
 
 @router.get("/admin/requests/pending", response_model=List[AdoptionRequestResponse])
@@ -203,34 +211,55 @@ def update_adoption_request_status(
 @router.post("/admin/requests/{request_id}/approve", response_model=AdoptionRequestResponse)
 async def approve_adoption(
     request_id: str,
+    request: Request,
     db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
-    from app.main import correlation_id_ctx
-    correlation_id = correlation_id_ctx.get()
     """
     Approve an adoption request. Admin only.
     This marks the listing as 'ADOPTED', rejects other requests,
     and creates a permanent Pet record in the mascotas microservice
     linked to the adopter (user_id) and listing (adopted_from_listing_id).
     """
-    result = crud.approve_adoption(db, request_id)
-    if not result:
+    from app.main import correlation_id_ctx
+    correlation_id = correlation_id_ctx.get()
+
+    # 1. Get request and listing info first
+    req = db.query(AdoptionRequest).filter(AdoptionRequest.id == request_id).first()
+    if not req:
         raise HTTPException(status_code=404, detail="Solicitud no encontrada")
     
-    # Get listing info to create the real pet record
-    listing = crud.get_listing(db, result.listing_id)
+    listing = crud.get_listing(db, req.listing_id)
     if not listing:
-        raise HTTPException(status_code=404, detail="Listing no encontrado")
+        raise HTTPException(status_code=404, detail="Publicación original no encontrada")
     
-    # Create permanent pet record in michicondrias_mascotas service
-    pet_created = False
+    # 2. Determine the service URL dynamically based on the current request Host
+    # This allows it to work in local (localhost:8000), staging or production seamlessly
+    host = request.headers.get("host", "localhost:8000")
+    # If the request arrived at localhost:8001 (direct to microservice), we still want to target the gateway (8000)
+    # but usually internal calls go through the gateway or direct. 
+    # Let's be smart: if they use the gateway prefix, follow it.
+    
+    # Check if we are in local development vs production (simple check)
+    is_local = "localhost" in host or "127.0.0.1" in host
+    
+    # Build internal URL. We assume /mascotas/api/v1 is the path in the gateway.
+    # If is_local and port is 8001, the gateway is likely at 8000.
+    target_host = host
+    if is_local and ":8001" in host:
+        target_host = host.replace(":8001", ":8000")
+    
+    protocol = "https" if request.url.scheme == "https" else "http"
+    mascotas_url = f"{protocol}://{target_host}/mascotas/api/v1/pets/"
+
+    print(f"[ADOPTION] Targeting mascotas service at: {mascotas_url}")
+
+    # 3. Create permanent pet record in michicondrias_mascotas service
+    transport = httpx.AsyncHTTPTransport(retries=3)
     try:
-        # Configure transport with retries (3 attempts)
-        transport = httpx.AsyncHTTPTransport(retries=3)
         async with httpx.AsyncClient(transport=transport) as client:
             pet_data = {
-                "owner_id": result.user_id,
+                "owner_id": req.user_id,
                 "name": listing.name,
                 "species": listing.species,
                 "breed": listing.breed,
@@ -253,25 +282,31 @@ async def approve_adoption(
                 "gender": listing.gender,
                 "gallery": listing.gallery
             }
-            # Use service URL from settings
+            
             headers = {"X-Correlation-ID": correlation_id}
+            
+            import json
+            print(f"[ADOPTION] Sending pet creation to mascotas service at {mascotas_url}")
+            print(f"[ADOPTION] Pet data to send: {json.dumps(pet_data)}")
+            
             response = await client.post(
-                f"{settings.MASCOTAS_SERVICE_URL}/api/v1/pets/",
+                mascotas_url,
                 json=pet_data,
                 headers=headers,
-                timeout=10.0
+                timeout=12.0
             )
-            response.raise_for_status()
-            pet_created = True
-            print(f"[ADOPTION] Pet created successfully for user {result.user_id} from listing {listing.id}")
-    except httpx.ConnectError:
-        print(f"[ADOPTION ERROR] Cannot connect to mascotas service. Pet not created for listing {listing.id}")
-    except httpx.HTTPStatusError as e:
-        print(f"[ADOPTION ERROR] Mascotas service returned {e.response.status_code}: {e.response.text}")
+            
+            if response.status_code >= 400:
+                print(f"[ADOPTION ERROR] Mascotas service {response.status_code}: {response.text}")
+                response.raise_for_status()
+                
+            print(f"[ADOPTION] Pet created successfully in mascotas service.")
+            
     except Exception as e:
-        print(f"[ADOPTION ERROR] Unexpected error creating pet: {type(e).__name__}: {e}")
+        err_detail = f"Falla en registro de mascota (Servicio Mascotas): {type(e).__name__}: {str(e)}"
+        print(f"[ADOPTION ERROR] {err_detail}")
+        raise HTTPException(status_code=500, detail=err_detail)
     
-    if not pet_created:
-        print(f"[ADOPTION WARNING] Adoption approved but pet NOT created. Manual creation needed for listing {listing.id}, user {result.user_id}")
-        
+    # 4. If pet creation succeeded, finalize the adoption in local DB
+    result = crud.approve_adoption(db, request_id)
     return result

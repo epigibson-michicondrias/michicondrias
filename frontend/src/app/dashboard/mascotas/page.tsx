@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserPets, createPet, Pet } from "@/lib/services/mascotas";
-import { getCurrentUser, User } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import dashStyles from "../dashboard.module.css";
 import modStyles from "../modules.module.css";
 import styles from "./mascotas.module.css";
 import { toast } from "react-hot-toast";
 
 export default function MisMascotasPage() {
-    const [pets, setPets] = useState<Pet[]>([]);
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [form, setForm] = useState({
@@ -23,36 +22,31 @@ export default function MisMascotasPage() {
         weight_kg: "", microchip_number: ""
     });
 
-    useEffect(() => {
-        async function load() {
-            try {
-                const u = await getCurrentUser();
-                setUser(u);
-                if (u) {
-                    const data = await getUserPets(u.id);
-                    setPets(data);
-                }
-            } catch (err) {
-                console.error("Error cargando mascotas", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-    }, []);
+    const { data: user } = useQuery({
+        queryKey: ["current-user"],
+        queryFn: getCurrentUser
+    });
+
+    const { data: pets = [], isLoading: loading } = useQuery({
+        queryKey: ["user-pets", user?.id],
+        queryFn: () => getUserPets(user!.id),
+        enabled: !!user?.id,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const created = await createPet({
+            await createPet({
                 ...form,
                 age_months: form.age_months ? parseInt(form.age_months) : null,
                 weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
                 owner_id: user!.id,
                 is_active: true,
             });
-            setPets([created, ...pets]);
+            // Finalize by invalidating cache
+            queryClient.invalidateQueries({ queryKey: ["user-pets", user?.id] });
             setShowModal(false);
             setForm({
                 name: "", species: "perro", breed: "", age_months: "", size: "mediano", description: "", photo_url: "",

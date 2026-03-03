@@ -73,16 +73,26 @@ def create_pet(
     Called by the adoption service when an adoption is finalized,
     or by the user registering their own pet.
     """
-    db_obj = Pet(**pet_in.model_dump())
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    print(f"[MASCOTAS] Creating pet for owner {pet_in.owner_id}: {pet_in.name}")
+    try:
+        db_obj = Pet(**pet_in.model_dump())
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        print(f"[MASCOTAS] Pet created successfully ID: {db_obj.id}")
+        return db_obj
+    except Exception as e:
+        print(f"[MASCOTAS ERROR] Failed to create pet: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error en base de datos: {str(e)}")
 
 @router.get("/user/{user_id}", response_model=List[PetResponse])
 def get_user_pets(user_id: str, db: Session = Depends(get_db)) -> Any:
     """Get all permanent pets owned by a specific user."""
-    return db.query(Pet).filter(Pet.owner_id == user_id, Pet.is_active == True).all()
+    print(f"[MASCOTAS] Fetching pets for user_id: {user_id}")
+    pets = db.query(Pet).filter(Pet.owner_id == user_id, Pet.is_active == True).all()
+    print(f"[MASCOTAS] Found {len(pets)} pets for user {user_id}")
+    return pets
 
 @router.get("/{pet_id}", response_model=PetResponse)
 def get_pet_by_id(pet_id: str, db: Session = Depends(get_db)) -> Any:
