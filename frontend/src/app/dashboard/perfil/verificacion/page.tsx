@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getCurrentUser, uploadKYC, User } from "@/lib/auth";
+import { getCurrentUser, getKYCPresignedUrls, finalizeKYC, User, KYCPresignedUrl } from "@/lib/auth";
 import { toast } from "react-hot-toast";
 import dashStyles from "../../dashboard.module.css";
 import styles from "./verificacion.module.css";
@@ -50,16 +50,46 @@ export default function VerificacionPage() {
         }
 
         setUploading(true);
-        const formData = new FormData();
-        formData.append("id_front", files.id_front);
-        formData.append("id_back", files.id_back);
-        formData.append("proof_of_address", files.proof);
 
         try {
-            const updatedUser = await uploadKYC(formData);
+            // 1. Get presigned URLs
+            const { urls } = await getKYCPresignedUrls();
+
+            // 2. Upload to S3 directly
+            const uploadPromises = urls.map(async (u: KYCPresignedUrl) => {
+                const file = files[u.key as keyof typeof files];
+                if (!file) return;
+
+                const res = await fetch(u.url, {
+                    method: "PUT",
+                    body: file,
+                    headers: {
+                        "Content-Type": file.type || "image/jpeg",
+                    },
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Error al subir ${u.key} a S3`);
+                }
+            });
+
+            await Promise.all(uploadPromises);
+
+            // 3. Finalize on backend
+            const id_front_url = urls.find((u: KYCPresignedUrl) => u.key === "id_front")?.object_key || "";
+            const id_back_url = urls.find((u: KYCPresignedUrl) => u.key === "id_back")?.object_key || "";
+            const proof_url = urls.find((u: KYCPresignedUrl) => u.key === "proof_of_address")?.object_key || "";
+
+            const updatedUser = await finalizeKYC({
+                id_front_url,
+                id_back_url,
+                proof_of_address_url: proof_url
+            });
+
             setUser(updatedUser);
             toast.success("Documentos enviados con éxito. Un administrador los revisará pronto.", { duration: 5000 });
         } catch (err: any) {
+            console.error("KYC Upload Error:", err);
             toast.error(err.message || "Error al subir los documentos");
         } finally {
             setUploading(false);

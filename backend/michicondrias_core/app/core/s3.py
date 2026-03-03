@@ -37,3 +37,23 @@ def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpe
     except NoCredentialsError:
         logger.error("AWS Credentials not available")
         return None
+
+def generate_presigned_url(object_name: str, expiration: int = 3600, content_type: str = "image/jpeg") -> str | None:
+    """
+    Generate a presigned URL to share an S3 object or upload one.
+    """
+    s3_client = get_s3_client()
+    try:
+        response = s3_client.generate_presigned_url(
+            'put_object',
+            Params={
+                'Bucket': settings.S3_BUCKET_NAME,
+                'Key': object_name,
+                'ContentType': content_type
+            },
+            ExpiresIn=expiration
+        )
+        return response
+    except ClientError as e:
+        logger.error(f"Error generating presigned URL: {e}")
+        return None

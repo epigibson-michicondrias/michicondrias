@@ -107,13 +107,40 @@ async function getCurrentUser(): Promise<User> {
     return res;
 }
 
-async function uploadKYC(formData: FormData): Promise<User> {
-    const res = await apiFetch<User>("core", "/users/me/kyc", {
-        method: "POST",
-        body: formData,
-    });
-    return res;
+interface KYCPresignedUrl {
+    key: "id_front" | "id_back" | "proof_of_address";
+    url: string;
+    object_key: string;
 }
 
-export { login, register, logout, isAuthenticated, getUserRole, hasRole, getCurrentUser, uploadKYC };
-export type { User, LoginResponse };
+interface KYCPresignedUrlsResponse {
+    urls: KYCPresignedUrl[];
+}
+
+async function getKYCPresignedUrls(): Promise<KYCPresignedUrlsResponse> {
+    return await apiFetch<KYCPresignedUrlsResponse>("core", "/users/me/kyc/presigned-urls");
+}
+
+async function finalizeKYC(data: {
+    id_front_url: string;
+    id_back_url: string;
+    proof_of_address_url: string;
+}): Promise<User> {
+    return await apiFetch<User>("core", "/users/me/kyc/finalize", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export {
+    login,
+    register,
+    logout,
+    isAuthenticated,
+    getUserRole,
+    hasRole,
+    getCurrentUser,
+    getKYCPresignedUrls,
+    finalizeKYC
+};
+export type { User, LoginResponse, KYCPresignedUrl };

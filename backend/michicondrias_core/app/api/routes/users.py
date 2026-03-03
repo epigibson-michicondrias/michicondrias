@@ -6,7 +6,14 @@ import os
 from app import crud
 from app.api import deps
 from app.db.session import get_db
-from app.schemas.user import UserCreate, UserResponse, UserMeResponse
+from app.schemas.user import (
+    UserCreate, 
+    UserResponse, 
+    UserMeResponse, 
+    KYCPresignedUrlsResponse, 
+    KYCPresignedUrl, 
+    KYCFinalizeRequest
+)
 from app.models.user import User
 from app.models.role import Role
 
@@ -85,6 +92,48 @@ def create_user(
         )
     user = crud.crud_user.create_user(db=db, user=user_in)
     return user
+
+@router.get("/me/kyc/presigned-urls", response_model=KYCPresignedUrlsResponse)
+async def get_kyc_presigned_urls(
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Generate presigned URLs for KYC document uploads.
+    """
+    from app.core.s3 import generate_presigned_url
+    
+    keys = ["id_front", "id_back", "proof_of_address"]
+    urls = []
+    
+    for key in keys:
+        object_name = f"kyc/{current_user.id}/{key}.jpg" # Simplified extension for now
+        url = generate_presigned_url(object_name)
+        if url:
+            # Construct the final public URL that will be used after upload
+            from app.core.config import settings
+            public_url = f"https://{settings.S3_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{object_name}"
+            urls.append(KYCPresignedUrl(key=key, url=url, object_key=public_url))
+            
+    return KYCPresignedUrlsResponse(urls=urls)
+
+@router.post("/me/kyc/finalize", response_model=UserResponse)
+async def finalize_kyc(
+    *,
+    db: Session = Depends(get_db),
+    req: KYCFinalizeRequest,
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Finalize KYC process after frontend has uploaded files to S3.
+    """
+    updated_user = crud.crud_user.update_user_kyc(
+        db, 
+        db_user=current_user,
+        id_front=req.id_front_url,
+        id_back=req.id_back_url,
+        proof=req.proof_of_address_url
+    )
+    return updated_user
 
 @router.post("/me/kyc", response_model=UserResponse)
 async def upload_kyc_docs(

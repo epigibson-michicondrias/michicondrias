@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 
 class Token(BaseModel):
     access_token: str
@@ -49,3 +49,16 @@ class UserMeResponse(UserBase):
 
     class Config:
         from_attributes = True
+
+class KYCPresignedUrl(BaseModel):
+    key: str
+    url: str
+    object_key: str
+
+class KYCPresignedUrlsResponse(BaseModel):
+    urls: List[KYCPresignedUrl]
+
+class KYCFinalizeRequest(BaseModel):
+    id_front_url: str
+    id_back_url: str
+    proof_of_address_url: str
