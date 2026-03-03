@@ -88,14 +88,16 @@
     position: relative;
     margin-top: 1.5rem;
     padding: 0 0.5rem;
+    --step-item-width: 130px;
+    --half-step: 65px;
 }
 
 .stepper::before {
     content: '';
     position: absolute;
     top: 25px;
-    left: 10%;
-    right: 10%;
+    left: var(--half-step);
+    right: var(--half-step);
     height: 4px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 2px;
@@ -105,8 +107,9 @@
 .stepper-progress {
     position: absolute;
     top: 25px;
-    left: 10%;
+    left: var(--half-step);
     height: 4px;
+    width: calc(var(--progress, 0) * (100% - var(--step-item-width)));
     background: linear-gradient(90deg, #7c3aed, #4f46e5);
     z-index: 2;
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
@@ -203,6 +206,7 @@
         top: 0;
         left: 27px;
         width: 4px;
+        height: calc(var(--progress, 0) * 100%);
         transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);
     }
 

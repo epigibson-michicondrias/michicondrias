@@ -52,8 +52,8 @@ export default function MisSolicitudesPage() {
                 requests.map(req => {
                     const currentIdx = getProgressIndex(req.status);
                     const isRejected = req.status === "REJECTED";
-                    // Calculate progress bar width based on steps (4 intervals for 5 steps)
-                    const progressWidth = isRejected ? 0 : (currentIdx / (STEPS.length - 1)) * 100;
+                    // Calculate progress factor for the stepper
+                    const progressFactor = isRejected ? 0 : (currentIdx / (STEPS.length - 1));
 
                     return (
                         <div key={req.id} className={styles["request-card"]}>
@@ -109,11 +109,13 @@ export default function MisSolicitudesPage() {
                                             </div>
                                         </div>
                                     )}
-                                    <div className={styles.stepper}>
+                                    <div
+                                        className={styles.stepper}
+                                        style={{ "--progress": isRejected ? 0 : (currentIdx / (STEPS.length - 1)) } as any}
+                                    >
                                         {/* Desktop Progress Bar */}
                                         <div
                                             className={styles["stepper-progress"]}
-                                            style={{ width: `${progressWidth}%` }}
                                             suppressHydrationWarning
                                         />
 
