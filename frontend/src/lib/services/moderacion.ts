@@ -1,10 +1,14 @@
 import { apiFetch } from "../api";
-import { Listing } from "./adopciones";
+import { Listing, AdoptionRequest } from "./adopciones";
 import { LostPetReport } from "./perdidas";
 
 // --- Adopciones ---
 export async function getPendingAdoptions(): Promise<Listing[]> {
-    return apiFetch<Listing[]>("adopciones", "/admin/pending");
+    return apiFetch<Listing[]>("adopciones", "/pets/admin/pending");
+}
+
+export async function getGlobalPendingRequests(): Promise<AdoptionRequest[]> {
+    return apiFetch<AdoptionRequest[]>("adopciones", "/pets/admin/requests/pending");
 }
 
 export async function approveAdoption(listingId: string): Promise<Listing> {

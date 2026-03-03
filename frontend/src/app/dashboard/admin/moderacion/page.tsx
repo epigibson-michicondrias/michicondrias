@@ -3,18 +3,19 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
-import { getPendingAdoptions, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet, getPendingClinics, approveClinic, rejectClinic, getPendingProducts, approveProduct, rejectProduct } from "@/lib/services/moderacion";
-import { Listing } from "@/lib/services/adopciones";
+import { getPendingAdoptions, getGlobalPendingRequests, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet, getPendingClinics, approveClinic, rejectClinic, getPendingProducts, approveProduct, rejectProduct } from "@/lib/services/moderacion";
+import { Listing, AdoptionRequest } from "@/lib/services/adopciones";
 import { LostPetReport } from "@/lib/services/perdidas";
 import styles from "./moderacion.module.css";
 
 export default function ModeracionPage() {
     const [pendingAdoptions, setPendingAdoptions] = useState<Listing[]>([]);
+    const [pendingRequests, setPendingRequests] = useState<AdoptionRequest[]>([]);
     const [pendingLostPets, setPendingLostPets] = useState<LostPetReport[]>([]);
     const [pendingClinics, setPendingClinics] = useState<any[]>([]);
     const [pendingProducts, setPendingProducts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<"adopciones" | "perdidas" | "directorio" | "ecommerce">("adopciones");
+    const [activeTab, setActiveTab] = useState<"adopciones" | "solicitudes" | "perdidas" | "directorio" | "ecommerce">("adopciones");
 
     useEffect(() => {
         loadPending();
@@ -26,6 +27,9 @@ export default function ModeracionPage() {
             if (activeTab === "adopciones") {
                 const data = await getPendingAdoptions();
                 setPendingAdoptions(data);
+            } else if (activeTab === "solicitudes") {
+                const data = await getGlobalPendingRequests();
+                setPendingRequests(data);
             } else if (activeTab === "perdidas") {
                 const data = await getPendingLostPets();
                 setPendingLostPets(data);
@@ -100,7 +104,7 @@ export default function ModeracionPage() {
         }
     }
 
-    const currentData = activeTab === "adopciones" ? pendingAdoptions : (activeTab === "perdidas" ? pendingLostPets : (activeTab === "directorio" ? pendingClinics : (activeTab === "ecommerce" ? pendingProducts : [])));
+    const currentData = activeTab === "adopciones" ? pendingAdoptions : (activeTab === "solicitudes" ? pendingRequests : (activeTab === "perdidas" ? pendingLostPets : (activeTab === "directorio" ? pendingClinics : (activeTab === "ecommerce" ? pendingProducts : []))));
 
     return (
         <div className={styles.container}>
@@ -116,10 +120,21 @@ export default function ModeracionPage() {
                     className={`${styles.tab} ${activeTab === 'adopciones' ? styles.active : ''}`}
                     onClick={() => setActiveTab('adopciones')}
                 >
-                    Adopciones Pendientes
+                    Publicaciones (Pets)
                     {activeTab === 'adopciones' && pendingAdoptions.length > 0 && (
                         <span style={{ marginLeft: "6px", background: "var(--primary)", color: "white", padding: "2px 6px", borderRadius: "10px", fontSize: "0.8rem" }}>
                             {pendingAdoptions.length}
+                        </span>
+                    )}
+                </button>
+                <button
+                    className={`${styles.tab} ${activeTab === 'solicitudes' ? styles.active : ''}`}
+                    onClick={() => setActiveTab('solicitudes')}
+                >
+                    Solicitudes de Adopción
+                    {activeTab === 'solicitudes' && pendingRequests.length > 0 && (
+                        <span style={{ marginLeft: "6px", background: "#f59e0b", color: "white", padding: "2px 6px", borderRadius: "10px", fontSize: "0.8rem" }}>
+                            {pendingRequests.length}
                         </span>
                     )}
                 </button>
@@ -207,6 +222,58 @@ export default function ModeracionPage() {
                                         onClick={() => handleApprove(pet.id, pet.name)}
                                     >
                                         ✅ Aprobar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {activeTab === "solicitudes" && pendingRequests.map(req => (
+                        <div key={req.id} className={styles.card}>
+                            <div className={styles['card-image-wrapper']}>
+                                {req.pet_photo_url ? (
+                                    <Image
+                                        src={req.pet_photo_url}
+                                        alt={req.pet_name || "Mascota"}
+                                        fill
+                                        style={{ objectFit: "cover" }}
+                                    />
+                                ) : (
+                                    <div className={styles['card-no-image']}>🐾</div>
+                                )}
+                                <div style={{ position: "absolute", top: "10px", right: "10px", background: "var(--primary)", color: "white", padding: "4px 8px", borderRadius: "4px", fontSize: "0.8rem", fontWeight: "bold" }}>
+                                    Petición para: {req.pet_name}
+                                </div>
+                            </div>
+
+                            <div className={styles['card-content']}>
+                                <h3 className={styles['pet-name']}>{req.applicant_name || "Solicitante"}</h3>
+                                <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>Hogar: {req.house_type} • {req.own_or_rent}</p>
+
+                                <div className={styles['pet-desc']} style={{ background: "var(--bg-secondary)", padding: "1rem", borderRadius: "8px", fontSize: "0.9rem" }}>
+                                    <p style={{ margin: "0 0 0.5rem 0" }}><strong>💬 Motivo:</strong> {req.reason}</p>
+                                    <p style={{ margin: "0 0 0.5rem 0" }}><strong>🏡 Entorno:</strong> {req.has_yard ? "Tiene patio" : "Sin patio"} • Niños: {req.has_children ? `Sí (${req.children_ages})` : "No"}</p>
+                                    <p style={{ margin: 0 }}><strong>⏰ Soledad:</strong> {req.hours_alone}h/día • <strong>💰 Dinero:</strong> {req.financial_commitment ? "✅ Sí" : "❌ No"}</p>
+                                </div>
+
+                                <div className={styles['card-actions']} style={{ marginTop: "1.5rem" }}>
+                                    <button
+                                        className={styles['btn-reject']}
+                                        onClick={() => handleReject(req.id, `Solicitud de ${req.applicant_name}`)}
+                                    >
+                                        ❌ Rechazar
+                                    </button>
+                                    <button
+                                        className={styles['btn-approve']}
+                                        style={{ background: "#3b82f6" }}
+                                        onClick={() => {
+                                            if (confirm("Al aprobar desde aquí, solo moverás la solicitud a 'REVISANDO' en el panel del dueño. ¿Proceder?")) {
+                                                toast.success("Redirigiendo a gestión de solicitudes...");
+                                                window.location.href = `/dashboard/adopciones/solicitudes?id=${req.listing_id}`;
+                                            }
+                                        }}
+                                    >
+                                        🔍 Gestionar
                                     </button>
                                 </div>
                             </div>

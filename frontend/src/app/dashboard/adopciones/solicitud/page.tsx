@@ -171,142 +171,153 @@ function SolicitudContent() {
             </div>
 
             <form onSubmit={handleSubmit} className={styles["create-form"]}>
-                {error && <div className={styles["form-error"]}>⚠️ {error}</div>}
+                <fieldset disabled={loadingAction} style={{ border: "none", padding: 0, margin: 0 }}>
+                    {error && <div className={styles["form-error"]}>⚠️ {error}</div>}
 
-                <p className={styles["form-section-title"]}>Hogar y Entorno</p>
+                    <p className={styles["form-section-title"]}>Hogar y Entorno</p>
 
-                <div className={styles["form-row"]}>
-                    <div className={styles["form-group"]}>
-                        <label>Tipo de vivienda</label>
-                        <CustomSelect
-                            options={[
-                                { value: "Casa", label: "Casa", icon: "🏠" },
-                                { value: "Departamento", label: "Departamento", icon: "🏢" },
-                                { value: "Rancho/Granja", label: "Rancho/Granja", icon: "🌾" },
-                                { value: "Otro", label: "Otro", icon: "🏕️" }
-                            ]}
-                            value={formData.house_type}
-                            onChange={(v) => setFormData({ ...formData, house_type: v })}
-                        />
+                    <div className={styles["form-row"]}>
+                        <div className={styles["form-group"]}>
+                            <label>Tipo de vivienda</label>
+                            <CustomSelect
+                                disabled={loadingAction}
+                                options={[
+                                    { value: "Casa", label: "Casa", icon: "🏠" },
+                                    { value: "Departamento", label: "Departamento", icon: "🏢" },
+                                    { value: "Rancho/Granja", label: "Rancho/Granja", icon: "🌾" },
+                                    { value: "Otro", label: "Otro", icon: "🏕️" }
+                                ]}
+                                value={formData.house_type}
+                                onChange={(v) => setFormData({ ...formData, house_type: v })}
+                            />
+                        </div>
+                        <div className={styles["form-group"]}>
+                            <label>¿Tiene patio o jardín cercado?</label>
+                            <CustomSelect
+                                disabled={loadingAction}
+                                options={[
+                                    { value: "true", label: "Sí, tiene patio", icon: "🌳" },
+                                    { value: "false", label: "No", icon: "❌" }
+                                ]}
+                                value={formData.has_yard}
+                                onChange={(v) => setFormData({ ...formData, has_yard: v })}
+                            />
+                        </div>
                     </div>
-                    <div className={styles["form-group"]}>
-                        <label>¿Tiene patio o jardín cercado?</label>
-                        <CustomSelect
-                            options={[
-                                { value: "true", label: "Sí, tiene patio", icon: "🌳" },
-                                { value: "false", label: "No", icon: "❌" }
-                            ]}
-                            value={formData.has_yard}
-                            onChange={(v) => setFormData({ ...formData, has_yard: v })}
-                        />
-                    </div>
-                </div>
 
-                <div className={styles["form-row"]}>
-                    <div className={styles["form-group"]}>
-                        <label>Situación de vivienda</label>
-                        <CustomSelect
-                            options={[
-                                { value: "Propio", label: "Propia", icon: "🔑" },
-                                { value: "Renta", label: "Rentada", icon: "📜" }
-                            ]}
-                            value={formData.own_or_rent}
-                            onChange={(v) => setFormData({ ...formData, own_or_rent: v })}
-                        />
+                    <div className={styles["form-row"]}>
+                        <div className={styles["form-group"]}>
+                            <label>Situación de vivienda</label>
+                            <CustomSelect
+                                disabled={loadingAction}
+                                options={[
+                                    { value: "Propio", label: "Propia", icon: "🔑" },
+                                    { value: "Renta", label: "Rentada", icon: "📜" }
+                                ]}
+                                value={formData.own_or_rent}
+                                onChange={(v) => setFormData({ ...formData, own_or_rent: v })}
+                            />
+                        </div>
+                        <div className={styles["form-group"]}>
+                            <label>¿Permiten mascotas? (si renta)</label>
+                            <CustomSelect
+                                disabled={loadingAction}
+                                options={[
+                                    { value: "true", label: "Sí / N/A (Propia)", icon: "✅" },
+                                    { value: "false", label: "No me permiten", icon: "⛔" }
+                                ]}
+                                value={formData.landlord_permission}
+                                onChange={(v) => setFormData({ ...formData, landlord_permission: v })}
+                            />
+                        </div>
                     </div>
-                    <div className={styles["form-group"]}>
-                        <label>¿Permiten mascotas? (si renta)</label>
-                        <CustomSelect
-                            options={[
-                                { value: "true", label: "Sí / N/A (Propia)", icon: "✅" },
-                                { value: "false", label: "No me permiten", icon: "⛔" }
-                            ]}
-                            value={formData.landlord_permission}
-                            onChange={(v) => setFormData({ ...formData, landlord_permission: v })}
-                        />
-                    </div>
-                </div>
 
-                <p className={styles["form-section-title"]}>Familia y Rutina</p>
+                    <p className={styles["form-section-title"]}>Familia y Rutina</p>
 
-                <div className={styles["form-row"]}>
-                    <div className={styles["form-group"]}>
-                        <label>¿Hay niños en casa?</label>
-                        <CustomSelect
-                            options={[
-                                { value: "false", label: "No", icon: "🧑‍🤝‍🧑" },
-                                { value: "true", label: "Sí", icon: "👶" }
-                            ]}
-                            value={formData.has_children}
-                            onChange={(v) => setFormData({ ...formData, has_children: v })}
-                        />
+                    <div className={styles["form-row"]}>
+                        <div className={styles["form-group"]}>
+                            <label>¿Hay niños en casa?</label>
+                            <CustomSelect
+                                disabled={loadingAction}
+                                options={[
+                                    { value: "false", label: "No", icon: "🧑‍🤝‍🧑" },
+                                    { value: "true", label: "Sí", icon: "👶" }
+                                ]}
+                                value={formData.has_children}
+                                onChange={(v) => setFormData({ ...formData, has_children: v })}
+                            />
+                        </div>
+                        <div className={styles["form-group"]}>
+                            <label>Edades de los niños</label>
+                            <input
+                                name="children_ages"
+                                placeholder="Ej: 5 y 8 años"
+                                value={formData.children_ages}
+                                onChange={e => setFormData({ ...formData, children_ages: e.target.value })}
+                            />
+                        </div>
                     </div>
+
                     <div className={styles["form-group"]}>
-                        <label>Edades de los niños</label>
+                        <label>¿Cuántas horas al día pasará sola la mascota?</label>
                         <input
-                            name="children_ages"
-                            placeholder="Ej: 5 y 8 años"
-                            value={formData.children_ages}
-                            onChange={e => setFormData({ ...formData, children_ages: e.target.value })}
+                            name="hours_alone"
+                            type="number" min="0" max="24" required
+                            value={formData.hours_alone}
+                            onChange={e => setFormData({ ...formData, hours_alone: e.target.value })}
                         />
                     </div>
-                </div>
 
-                <div className={styles["form-group"]}>
-                    <label>¿Cuántas horas al día pasará sola la mascota?</label>
-                    <input
-                        name="hours_alone"
-                        type="number" min="0" max="24" required
-                        value={formData.hours_alone}
-                        onChange={e => setFormData({ ...formData, hours_alone: e.target.value })}
-                    />
-                </div>
-
-                <div className={styles["form-group"]}>
-                    <label>¿Tienes otras mascotas actualmente? ¿Cuáles?</label>
-                    <textarea
-                        name="other_pets"
-                        placeholder="Especie, raza, edad..."
-                        value={formData.other_pets}
-                        onChange={e => setFormData({ ...formData, other_pets: e.target.value })}
-                    />
-                </div>
-
-                <p className={styles["form-section-title"]}>Compromiso y Experiencia</p>
-
-                <div className={styles["form-group"]}>
-                    <label>Describe tu experiencia previa con mascotas</label>
-                    <textarea
-                        name="previous_experience"
-                        placeholder="He tenido perros toda mi vida..."
-                        value={formData.previous_experience}
-                        onChange={e => setFormData({ ...formData, previous_experience: e.target.value })}
-                    />
-                </div>
-
-                <div className={styles["form-group"]}>
-                    <label>¿Por qué deseas adoptar a esta mascota?</label>
-                    <textarea
-                        name="reason" required
-                        placeholder="Explica tus motivos..."
-                        value={formData.reason}
-                        onChange={e => setFormData({ ...formData, reason: e.target.value })}
-                    />
-                </div>
-
-                <div className={styles["form-group"]}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
-                        <input
-                            type="checkbox"
-                            name="financial_commitment"
-                            required
-                            style={{ width: "auto" }}
-                            checked={formData.financial_commitment}
-                            onChange={e => setFormData({ ...formData, financial_commitment: e.target.checked })}
+                    <div className={styles["form-group"]}>
+                        <label>¿Tienes otras mascotas actualmente? ¿Cuáles?</label>
+                        <textarea
+                            name="other_pets"
+                            placeholder="Especie, raza, edad..."
+                            value={formData.other_pets}
+                            onChange={e => setFormData({ ...formData, other_pets: e.target.value })}
                         />
-                        <span>Entiendo y acepto el compromiso financiero (comida, veterinario, vacunas) de por vida de la mascota.</span>
-                    </label>
-                </div>
+                    </div>
+
+                    <p className={styles["form-section-title"]}>Compromiso y Experiencia</p>
+
+                    <div className={styles["form-group"]}>
+                        <label>Describe tu experiencia previa con mascotas</label>
+                        <textarea
+                            name="previous_experience"
+                            placeholder="He tenido perros toda mi vida..."
+                            value={formData.previous_experience}
+                            onChange={e => setFormData({ ...formData, previous_experience: e.target.value })}
+                        />
+                    </div>
+
+                    <div className={styles["form-group"]}>
+                        <label>¿Por qué deseas adoptar a esta mascota?</label>
+                        <textarea
+                            name="reason" required
+                            placeholder="Explica tus motivos..."
+                            value={formData.reason}
+                            onChange={e => setFormData({ ...formData, reason: e.target.value })}
+                        />
+                    </div>
+
+                    <div className={styles["form-group"]}>
+                        <label className={styles["toggle-group"]}>
+                            <input
+                                type="checkbox"
+                                name="financial_commitment"
+                                required
+                                checked={formData.financial_commitment}
+                                onChange={e => setFormData({ ...formData, financial_commitment: e.target.checked })}
+                            />
+                            <div className={styles["toggle-switch"]}>
+                                <div className={styles["toggle-knob"]}></div>
+                            </div>
+                            <span className={styles["toggle-label"]}>
+                                Entiendo y acepto el compromiso financiero (comida, veterinario, vacunas) de por vida de la mascota.
+                            </span>
+                        </label>
+                    </div>
+                </fieldset>
 
                 <div className={styles["form-actions"]}>
                     <button type="submit" className="btn btn-primary" disabled={loadingAction}>
@@ -316,6 +327,7 @@ function SolicitudContent() {
                         type="button"
                         className="btn btn-secondary"
                         onClick={() => router.back()}
+                        disabled={loadingAction}
                     >
                         Volver
                     </button>

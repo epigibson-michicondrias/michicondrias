@@ -141,13 +141,15 @@ def read_my_requests(
 # ADMIN — Approval flow
 # ========================================
 
-@router.get("/admin/pending", response_model=List[ListingResponse])
-def read_pending_listings(
+    return crud.get_pending_listings(db)
+
+@router.get("/admin/requests/pending", response_model=List[AdoptionRequestResponse])
+def read_pending_requests(
     db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
-    """Pending listings awaiting approval. Admin only."""
-    return crud.get_pending_listings(db)
+    """All pending adoption requests awaiting review. Admin only."""
+    return crud.get_all_pending_requests(db)
 
 @router.post("/admin/{listing_id}/approve", response_model=ListingResponse)
 def approve_listing(

@@ -137,3 +137,27 @@ def approve_adoption(db: Session, request_id: str):
     db.commit()
     db.refresh(req)
     return req
+
+def get_all_pending_requests(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Get all PENDING adoption requests globally (across all listings).
+    Enriches with pet info from AdoptionListing.
+    """
+    results = (
+        db.query(AdoptionRequest, AdoptionListing.name.label("pet_name"), AdoptionListing.photo_url.label("pet_photo_url"))
+        .join(AdoptionListing, AdoptionRequest.listing_id == AdoptionListing.id)
+        .filter(AdoptionRequest.status == "PENDING")
+        .offset(skip).limit(limit).all()
+    )
+    
+    final_list = []
+    for req, pet_name, pet_photo_url in results:
+        # We manually attach the labels to the object or return it in a way 
+        # that AdoptionRequestResponse can pick it up.
+        # Since AdoptionRequestResponse expects pet_name and pet_photo_url, 
+        # and SQLAlchemy labels match those in the schema, it works.
+        req.pet_name = pet_name
+        req.pet_photo_url = pet_photo_url
+        final_list.append(req)
+    
+    return final_list

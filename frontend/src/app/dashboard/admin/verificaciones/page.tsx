@@ -84,6 +84,37 @@ export default function AdminVerificacionesPage() {
         return `${CORE_BASE_URL}${url}`;
     };
 
+    const isPdf = (url?: string) => {
+        if (!url) return false;
+        // Check path before query params
+        const path = url.split("?")[0].toLowerCase();
+        return path.endsWith(".pdf");
+    };
+
+    const DocPreview = ({ url, label }: { url?: string; label: string }) => {
+        const fullUrl = getImageUrl(url);
+        const pdf = isPdf(fullUrl);
+
+        return (
+            <div className={styles["doc-item"]}>
+                <span className={styles["doc-label"]}>{label}</span>
+                <div className={styles["doc-preview"]}>
+                    {pdf ? (
+                        <div className={styles["pdf-preview"]}>
+                            <span className={styles["pdf-icon"]}>📄</span>
+                            <span className={styles["pdf-text"]}>Documento PDF</span>
+                        </div>
+                    ) : (
+                        <img src={fullUrl} alt={label} onError={(e) => (e.currentTarget.src = "/placeholder-image.png")} />
+                    )}
+                </div>
+                <a href={fullUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>
+                    Ver tamaño completo {pdf ? "(PDF)" : ""}
+                </a>
+            </div>
+        );
+    };
+
     if (loading) return <p className={dashStyles["loading-text"]}>Cargando solicitudes de identidad...</p>;
 
     return (
@@ -121,29 +152,9 @@ export default function AdminVerificacionesPage() {
                             </div>
 
                             <div className={styles["docs-grid"]}>
-                                <div className={styles["doc-item"]}>
-                                    <span className={styles["doc-label"]}>Identificación Anverso</span>
-                                    <div className={styles["doc-preview"]}>
-                                        <img src={getImageUrl(user.id_front_url)} alt="ID Frente" />
-                                    </div>
-                                    <a href={getImageUrl(user.id_front_url)} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
-                                </div>
-
-                                <div className={styles["doc-item"]}>
-                                    <span className={styles["doc-label"]}>Identificación Reverso</span>
-                                    <div className={styles["doc-preview"]}>
-                                        <img src={getImageUrl(user.id_back_url)} alt="ID Reverso" />
-                                    </div>
-                                    <a href={getImageUrl(user.id_back_url)} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
-                                </div>
-
-                                <div className={styles["doc-item"]}>
-                                    <span className={styles["doc-label"]}>Comprobante de Domicilio</span>
-                                    <div className={styles["doc-preview"]}>
-                                        <img src={getImageUrl(user.proof_of_address_url)} alt="Comprobante" />
-                                    </div>
-                                    <a href={getImageUrl(user.proof_of_address_url)} target="_blank" className="btn btn-secondary" style={{ fontSize: "0.8rem", padding: "0.5rem" }}>Ver tamaño completo</a>
-                                </div>
+                                <DocPreview url={user.id_front_url} label="Identificación Anverso" />
+                                <DocPreview url={user.id_back_url} label="Identificación Reverso" />
+                                <DocPreview url={user.proof_of_address_url} label="Comprobante de Domicilio" />
                             </div>
 
                             <div className={styles["actions"]}>

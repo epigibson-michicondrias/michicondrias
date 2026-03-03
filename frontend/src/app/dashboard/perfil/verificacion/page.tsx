@@ -14,11 +14,11 @@ export default function VerificacionPage() {
     const [files, setFiles] = useState<{
         id_front: File | null;
         id_back: File | null;
-        proof: File | null;
+        proof_of_address: File | null;
     }>({
         id_front: null,
         id_back: null,
-        proof: null,
+        proof_of_address: null,
     });
 
     useEffect(() => {
@@ -44,7 +44,7 @@ export default function VerificacionPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!files.id_front || !files.id_back || !files.proof) {
+        if (!files.id_front || !files.id_back || !files.proof_of_address) {
             toast.error("Por favor, sube los 3 documentos requeridos.");
             return;
         }
@@ -52,20 +52,34 @@ export default function VerificacionPage() {
         setUploading(true);
 
         try {
-            // 1. Get presigned URLs
-            const { urls } = await getKYCPresignedUrls();
+            // 1. Get presigned URLs with correct extensions
+            const extensions = {
+                id_front: files.id_front.name.split(".").pop() || "jpg",
+                id_back: files.id_back.name.split(".").pop() || "jpg",
+                proof_of_address: files.proof_of_address.name.split(".").pop() || "pdf",
+            };
+
+            const { urls } = await getKYCPresignedUrls(extensions);
 
             // 2. Upload to S3 directly
             const uploadPromises = urls.map(async (u: KYCPresignedUrl) => {
                 const file = files[u.key as keyof typeof files];
-                if (!file) return;
+                if (!file) {
+                    console.error(`File missing for key: ${u.key}`);
+                    return;
+                }
 
                 const res = await fetch(u.url, {
                     method: "PUT",
                     body: file,
+                    headers: {
+                        "Content-Type": file.type || "application/octet-stream",
+                    },
                 });
 
                 if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error(`S3 Upload Error for ${u.key}:`, errorText);
                     throw new Error(`Error al subir ${u.key} a S3`);
                 }
             });
@@ -160,8 +174,8 @@ export default function VerificacionPage() {
                         <i>🏠</i>
                         <h3>Comprobante de Domicilio</h3>
                         <p>Recibo de luz, agua o teléfono (no mayor a 3 meses)</p>
-                        <input type="file" className={styles["file-input"]} accept="image/*,application/pdf" onChange={(e) => handleFileChange(e, "proof")} required />
-                        {files.proof && <span className={styles["file-preview"]}>✓ {files.proof.name}</span>}
+                        <input type="file" className={styles["file-input"]} accept="image/*,application/pdf" onChange={(e) => handleFileChange(e, "proof_of_address")} required />
+                        {files.proof_of_address && <span className={styles["file-preview"]}>✓ {files.proof_of_address.name}</span>}
                     </div>
 
                     <button type="submit" className={styles["submit-btn"]} disabled={uploading}>

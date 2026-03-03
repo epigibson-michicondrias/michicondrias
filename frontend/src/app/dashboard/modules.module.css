@@ -132,7 +132,7 @@
     letter-spacing: 0.05em;
 }
 
-.form-group input,
+.form-group input:not([type="checkbox"]),
 .form-group textarea,
 .form-group select {
     width: 100%;
@@ -269,6 +269,70 @@
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
     animation: fadeInUp 0.3s ease-out;
+}
+
+/* Premium Toggle Switch */
+.toggle-group {
+    display: flex !important;
+    /* Override global label block */
+    align-items: flex-start;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 0.75rem 0;
+    text-transform: none !important;
+    /* Override global label uppercase */
+    letter-spacing: normal !important;
+}
+
+.toggle-switch {
+    margin-top: 0.2rem;
+    /* Align with first line of text */
+    position: relative;
+    width: 44px;
+    height: 22px;
+    background: rgba(15, 15, 26, 0.8);
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+
+.toggle-group input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 17px;
+    height: 17px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-group input:checked+.toggle-switch {
+    background: var(--primary);
+    border-color: var(--primary-light);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+    /* Stronger glow */
+}
+
+.toggle-group input:checked+.toggle-switch .toggle-knob {
+    transform: translateX(24px);
+    background: white;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    /* Knob glow */
+}
+
+.toggle-label {
+    font-size: 0.95rem;
+    /* Slightly larger for readability */
+    color: var(--text-primary);
+    font-weight: 500;
+    line-height: 1.5;
+    user-select: none;
 }
 
 /* Disabled button */
