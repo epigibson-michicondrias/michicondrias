@@ -20,6 +20,7 @@ export default function PendientesPage() {
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [mounted, setMounted] = useState(false);
 
     const [modalState, setModalState] = useState<{
         isOpen: boolean;
@@ -38,12 +39,20 @@ export default function PendientesPage() {
     const closeModal = () => setModalState(prev => ({ ...prev, isOpen: false }));
 
     useEffect(() => {
-        if (role !== "admin") {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (mounted && role !== "admin") {
             router.push("/dashboard/adopciones");
-            return;
         }
-        loadPending();
-    }, [role, router]);
+    }, [role, router, mounted]);
+
+    useEffect(() => {
+        if (mounted && role === "admin") {
+            loadPending();
+        }
+    }, [mounted, role]);
 
     async function loadPending() {
         try {
@@ -93,6 +102,7 @@ export default function PendientesPage() {
         });
     }
 
+    if (!mounted) return null;
     if (role !== "admin") return null;
 
     return (
