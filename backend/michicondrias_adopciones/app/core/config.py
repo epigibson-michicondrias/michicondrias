@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "michicondrias_db"
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: str = "5433"
+    
+    SECRET_KEY: str = "super_secreto_cambiar_en_produccion" 
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
 
     # API Gateway Configuration
     # IN AWS: Set this via API_GATEWAY_URL env var
