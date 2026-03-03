@@ -41,6 +41,13 @@ export async function createPet(petData: Partial<Pet>): Promise<Pet> {
     });
 }
 
+export async function updatePet(petId: string, petData: Partial<Pet>): Promise<Pet> {
+    return apiFetch<Pet>("mascotas", `/pets/${petId}`, {
+        method: "PUT",
+        body: JSON.stringify(petData)
+    });
+}
+
 export interface LostPet {
     id: string;
     user_id: string;

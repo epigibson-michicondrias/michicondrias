@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getUserRole } from "@/lib/auth";
+import Image from "next/image";
 import {
     getPendingListings,
     approveListing,
@@ -12,7 +13,7 @@ import {
 import { toast } from "react-hot-toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import dashStyles from "../../dashboard.module.css";
-import styles from "../../modules.module.css";
+import styles from "./pendientes.module.css";
 
 export default function PendientesPage() {
     const router = useRouter();
@@ -70,9 +71,9 @@ export default function PendientesPage() {
         try {
             await approveListing(id);
             setListings((prev) => prev.filter((l) => l.id !== id));
-            toast.success("Publicación aprobada exitosamente");
+            toast.success("Publicación aprobada exitosamente. ¡Michi liberado! 🐾");
         } catch {
-            toast.error("Error al aprobar publicación");
+            toast.error("Error al aprobar publicación. Intenta de nuevo.");
         } finally {
             setActionLoading(null);
         }
@@ -83,20 +84,20 @@ export default function PendientesPage() {
         try {
             await rejectListing(id);
             setListings((prev) => prev.filter((l) => l.id !== id));
-            toast.success("Publicación rechazada y eliminada");
+            toast.success("Publicación rechazada y eliminada correctamente.");
         } catch {
-            toast.error("Error al rechazar publicación");
+            toast.error("Error al rechazar publicación.");
         } finally {
             setActionLoading(null);
             closeModal();
         }
     }
 
-    function handleReject(id: string) {
+    function handleReject(id: string, name: string) {
         setModalState({
             isOpen: true,
             title: "Rechazar Publicación",
-            message: "¿Estás seguro de rechazar y eliminar esta publicación permanentemente?",
+            message: `¿Estás seguro de rechazar y eliminar permanentemente la publicación de ${name}?`,
             isDanger: true,
             onConfirm: () => executeReject(id)
         });
@@ -106,7 +107,7 @@ export default function PendientesPage() {
     if (role !== "admin") return null;
 
     return (
-        <>
+        <div className={styles.container}>
             <ConfirmModal
                 isOpen={modalState.isOpen}
                 title={modalState.title}
@@ -118,60 +119,79 @@ export default function PendientesPage() {
             <div className={dashStyles["page-header"]}>
                 <h1 className={dashStyles["page-title"]}>📋 Pendientes de Aprobación</h1>
                 <p className={dashStyles["page-subtitle"]}>
-                    Publicaciones esperando tu revisión
+                    Verifica que las publicaciones cumplan con los estándares de Michicondrias
                 </p>
             </div>
 
             {loading ? (
-                <p style={{ color: "var(--text-secondary)", padding: "2rem" }}>Cargando...</p>
+                <div className={dashStyles["loading-container"]}>
+                    <p style={{ color: "var(--text-secondary)", padding: "2rem" }}>Cargando michis pendientes...</p>
+                </div>
             ) : listings.length === 0 ? (
-                <div className={styles["empty-state"]}>
-                    <span className={styles["empty-state__icon"]}>✅</span>
-                    <p className={styles["empty-state__text"]}>
-                        No hay publicaciones pendientes. ¡Todo al día!
+                <div className={styles.emptyState}>
+                    <span className={styles.emptyIcon}>🎉</span>
+                    <h3 className={styles.emptyTitle}>¡Todo está al día!</h3>
+                    <p className={styles.emptyText}>
+                        No hay publicaciones pendientes de revisión. ¡Buen trabajo, Admin!
                     </p>
                 </div>
             ) : (
-                <div className={styles["module-page__list"]}>
+                <div className={styles.grid}>
                     {listings.map((listing) => (
-                        <div key={listing.id} className={styles["item-card"]}>
-                            <div className={styles["item-card__header"]}>
-                                <span className={styles["item-card__icon"]}>
-                                    {listing.species === "perro" ? "🐕" : listing.species === "gato" ? "🐈" : "🐾"}
-                                </span>
-                                <span className={styles["item-card__title"]}>{listing.name}</span>
-                            </div>
-                            <div className={styles["item-card__body"]}>
-                                <p><strong>Especie:</strong> {listing.species}</p>
-                                {listing.breed && <p><strong>Raza:</strong> {listing.breed}</p>}
-                                {listing.age_months && <p><strong>Edad:</strong> {listing.age_months} meses</p>}
-                                {listing.size && <p><strong>Tamaño:</strong> {listing.size}</p>}
-                                {listing.description && (
-                                    <p style={{ marginTop: "0.5rem", fontStyle: "italic" }}>{listing.description}</p>
+                        <div key={listing.id} className={styles.card}>
+                            <div className={styles.cardImageWrapper}>
+                                {listing.photo_url ? (
+                                    <Image
+                                        src={listing.photo_url}
+                                        alt={listing.name}
+                                        fill
+                                        style={{ objectFit: "cover" }}
+                                    />
+                                ) : (
+                                    <div className={styles.noImage}>📷</div>
                                 )}
                             </div>
-                            <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
-                                <button
-                                    className="btn btn-primary"
-                                    style={{ fontSize: "0.85rem", padding: "0.5rem 1rem" }}
-                                    onClick={() => handleApprove(listing.id)}
-                                    disabled={actionLoading === listing.id}
-                                >
-                                    {actionLoading === listing.id ? "..." : "✅ Aprobar"}
-                                </button>
-                                <button
-                                    className="btn btn-secondary"
-                                    style={{ fontSize: "0.85rem", padding: "0.5rem 1rem", color: "var(--error)" }}
-                                    onClick={() => handleReject(listing.id)}
-                                    disabled={actionLoading === listing.id}
-                                >
-                                    ❌ Rechazar
-                                </button>
+
+                            <div className={styles.cardContent}>
+                                <div className={styles.header}>
+                                    <div className={styles.petIcon}>
+                                        {listing.species === "perro" ? "🐕" : listing.species === "gato" ? "🐈" : "🐾"}
+                                    </div>
+                                    <h3 className={styles.petName}>{listing.name}</h3>
+                                </div>
+
+                                <div className={styles.traits}>
+                                    <span className={styles.traitBadge}>{listing.species}</span>
+                                    {listing.breed && <span className={styles.traitBadge}>{listing.breed}</span>}
+                                    {listing.age_months && <span className={styles.traitBadge}>{listing.age_months} meses</span>}
+                                    {listing.size && <span className={styles.traitBadge}>{listing.size}</span>}
+                                </div>
+
+                                <div className={styles.petDesc}>
+                                    {listing.description || "Sin descripción proporcionada por el usuario."}
+                                </div>
+
+                                <div className={styles.actions}>
+                                    <button
+                                        className={`${styles.btnReject} ${actionLoading === listing.id ? styles.btnLoading : ""}`}
+                                        onClick={() => handleReject(listing.id, listing.name)}
+                                        disabled={actionLoading === listing.id}
+                                    >
+                                        ❌ Rechazar
+                                    </button>
+                                    <button
+                                        className={`${styles.btnApprove} ${actionLoading === listing.id ? styles.btnLoading : ""}`}
+                                        onClick={() => handleApprove(listing.id)}
+                                        disabled={actionLoading === listing.id}
+                                    >
+                                        {actionLoading === listing.id ? "..." : "✅ Aprobar"}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
-        </>
+        </div>
     );
 }
