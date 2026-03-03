@@ -8,6 +8,7 @@ import { Listing, AdoptionRequest } from "@/lib/services/adopciones";
 import { LostPetReport } from "@/lib/services/perdidas";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import styles from "./moderacion.module.css";
+import dashStyles from "../../dashboard.module.css";
 
 export default function ModeracionPage() {
     const [pendingAdoptions, setPendingAdoptions] = useState<Listing[]>([]);
@@ -37,10 +38,17 @@ export default function ModeracionPage() {
 
     useEffect(() => {
         loadPending();
+
+        // Smart Polling: Refresh every 30 seconds
+        const interval = setInterval(() => {
+            loadPending(true); // silent refresh
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, [activeTab]);
 
-    async function loadPending() {
-        setIsLoading(true);
+    async function loadPending(silent = false) {
+        if (!silent) setIsLoading(true);
         try {
             if (activeTab === "adopciones") {
                 const data = await getPendingAdoptions();
@@ -64,9 +72,9 @@ export default function ModeracionPage() {
                 setPendingProducts([]);
             }
         } catch (error: any) {
-            toast.error(error.message || "Error al cargar contenido pendiente");
+            if (!silent) toast.error(error.message || "Error al cargar contenido pendiente");
         } finally {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
         }
     }
 
@@ -152,6 +160,10 @@ export default function ModeracionPage() {
                 <div>
                     <h1 className={styles.title}>🛡️ Centro de Moderación</h1>
                     <p className={styles.subtitle}>Aprueba o rechaza el contenido subido por los usuarios antes de que sea público o retira spam.</p>
+                </div>
+                <div className={dashStyles["live-indicator"]}>
+                    <div className={dashStyles["live-dot"]} />
+                    Live
                 </div>
             </div>
 

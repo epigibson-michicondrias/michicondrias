@@ -19,16 +19,24 @@ export default function MisSolicitudesPage() {
 
     useEffect(() => {
         loadMyRequests();
+
+        // Smart Polling: Refresh every 30 seconds
+        const interval = setInterval(() => {
+            loadMyRequests(true); // silent refresh
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, []);
 
-    async function loadMyRequests() {
+    async function loadMyRequests(silent = false) {
+        if (!silent) setLoading(true);
         try {
             const data = await getMyRequests();
             setRequests(data);
         } catch (err) {
             console.error("Error loading my requests", err);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }
 
@@ -41,8 +49,16 @@ export default function MisSolicitudesPage() {
     return (
         <div className={styles.container}>
             <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>📄 Mis Solicitudes</h1>
-                <p className={dashStyles["page-subtitle"]}>Sigue el progreso de tus trámites de adopción en tiempo real</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                    <div>
+                        <h1 className={dashStyles["page-title"]}>📄 Mis Solicitudes</h1>
+                        <p className={dashStyles["page-subtitle"]}>Sigue el progreso de tus trámites de adopción en tiempo real</p>
+                    </div>
+                    <div className={dashStyles["live-indicator"]}>
+                        <div className={dashStyles["live-dot"]} />
+                        Live
+                    </div>
+                </div>
             </div>
 
             {loading ? (
