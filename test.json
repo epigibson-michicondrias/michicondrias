@@ -1,0 +1,25 @@
+[
+  {
+    "name": "Croquetas Premium 5KG",
+    "description": "Test",
+    "price": 200.0,
+    "stock": 10,
+    "category_id": "23c77f9c-596f-4d72-96a8-455c5fd5583a",
+    "subcategory_id": null,
+    "image_url": "https://michicondrias-storage-1.s3.us-east-1.amazonaws.com/products/a1e766cf-ae0e-48eb-a6ef-78ff89623110/07cf8e7f970d418b8d8c6830d470a4b2.png",
+    "is_active": true,
+    "seller_id": "a1e766cf-ae0e-48eb-a6ef-78ff89623110",
+    "specifications": "Test",
+    "id": "7590bc4d-d232-4665-83bb-86e257066e30",
+    "average_rating": 0.0,
+    "review_count": 0,
+    "category": {
+      "name": "Alimentos",
+      "description": "Alimentos y Snacks premium para mascotas",
+      "image_url": null,
+      "is_active": true,
+      "id": "23c77f9c-596f-4d72-96a8-455c5fd5583a",
+      "subcategories": []
+    }
+  }
+]
