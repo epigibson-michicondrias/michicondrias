@@ -96,23 +96,10 @@ async def upload_kyc_docs(
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Upload KYC documents (ID front, ID back, proof of address).
-    Saves to local storage and updates user status to PENDING.
-    """
-from app.core.s3 import upload_file_to_s3
-
-@router.post("/me/kyc", response_model=UserResponse)
-async def upload_kyc_docs(
-    *,
-    db: Session = Depends(get_db),
-    id_front: UploadFile = File(...),
-    id_back: UploadFile = File(...),
-    proof_of_address: UploadFile = File(...),
-    current_user: User = Depends(deps.get_current_active_user),
-) -> Any:
-    """
     Upload KYC documents (ID front, ID back, proof of address) to S3.
     """
+    from app.core.s3 import upload_file_to_s3
+    
     # Map files for S3 upload
     files = [
         (id_front, "id_front"),
