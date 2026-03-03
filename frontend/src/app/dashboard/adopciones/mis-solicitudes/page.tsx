@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getMyRequests, AdoptionRequest } from "@/lib/services/adopciones";
+import { useQuery } from "@tanstack/react-query";
+import { getMyRequests } from "@/lib/services/adopciones";
 import dashStyles from "../../dashboard.module.css";
 import styles from "./mis-solicitudes.module.css";
 
@@ -14,31 +14,11 @@ const STEPS = [
 ];
 
 export default function MisSolicitudesPage() {
-    const [requests, setRequests] = useState<AdoptionRequest[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        loadMyRequests();
-
-        // Smart Polling: Refresh every 30 seconds
-        const interval = setInterval(() => {
-            loadMyRequests(true); // silent refresh
-        }, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    async function loadMyRequests(silent = false) {
-        if (!silent) setLoading(true);
-        try {
-            const data = await getMyRequests();
-            setRequests(data);
-        } catch (err) {
-            console.error("Error loading my requests", err);
-        } finally {
-            if (!silent) setLoading(false);
-        }
-    }
+    const { data: requests = [], isLoading: loading } = useQuery({
+        queryKey: ["my-requests"],
+        queryFn: getMyRequests,
+        refetchInterval: 30000, // Smart Polling: 30 seconds
+    });
 
     const getProgressIndex = (status: string) => {
         if (status === "REJECTED") return -1;

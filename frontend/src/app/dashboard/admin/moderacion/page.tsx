@@ -3,7 +3,22 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
-import { getPendingAdoptions, getGlobalPendingRequests, approveAdoption, rejectAdoption, getPendingLostPets, approveLostPet, rejectLostPet, getPendingClinics, approveClinic, rejectClinic, getPendingProducts, approveProduct, rejectProduct } from "@/lib/services/moderacion";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+    getPendingAdoptions,
+    getGlobalPendingRequests,
+    approveAdoption,
+    rejectAdoption,
+    getPendingLostPets,
+    approveLostPet,
+    rejectLostPet,
+    getPendingClinics,
+    approveClinic,
+    rejectClinic,
+    getPendingProducts,
+    approveProduct,
+    rejectProduct
+} from "@/lib/services/moderacion";
 import { Listing, AdoptionRequest } from "@/lib/services/adopciones";
 import { LostPetReport } from "@/lib/services/perdidas";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -11,12 +26,7 @@ import styles from "./moderacion.module.css";
 import dashStyles from "../../dashboard.module.css";
 
 export default function ModeracionPage() {
-    const [pendingAdoptions, setPendingAdoptions] = useState<Listing[]>([]);
-    const [pendingRequests, setPendingRequests] = useState<AdoptionRequest[]>([]);
-    const [pendingLostPets, setPendingLostPets] = useState<LostPetReport[]>([]);
-    const [pendingClinics, setPendingClinics] = useState<any[]>([]);
-    const [pendingProducts, setPendingProducts] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState<"adopciones" | "solicitudes" | "perdidas" | "directorio" | "ecommerce">("adopciones");
 
     const [modalState, setModalState] = useState<{
@@ -36,65 +46,61 @@ export default function ModeracionPage() {
 
     const closeModal = () => setModalState(prev => ({ ...prev, isOpen: false }));
 
-    useEffect(() => {
-        loadPending();
+    // Queries for each category
+    const { data: pendingAdoptions = [], isLoading: loadingAdoptions } = useQuery({
+        queryKey: ["pending-adoptions"],
+        queryFn: getPendingAdoptions,
+        refetchInterval: 30000,
+    });
 
-        // Smart Polling: Refresh every 30 seconds
-        const interval = setInterval(() => {
-            loadPending(true); // silent refresh
-        }, 30000);
+    const { data: pendingRequests = [], isLoading: loadingRequests } = useQuery({
+        queryKey: ["pending-requests"],
+        queryFn: getGlobalPendingRequests,
+        refetchInterval: 30000,
+    });
 
-        return () => clearInterval(interval);
-    }, [activeTab]);
+    const { data: pendingLostPets = [], isLoading: loadingLostPets } = useQuery({
+        queryKey: ["pending-lost-pets"],
+        queryFn: getPendingLostPets,
+        refetchInterval: 30000,
+    });
 
-    async function loadPending(silent = false) {
-        if (!silent) setIsLoading(true);
-        try {
-            if (activeTab === "adopciones") {
-                const data = await getPendingAdoptions();
-                setPendingAdoptions(data);
-            } else if (activeTab === "solicitudes") {
-                const data = await getGlobalPendingRequests();
-                setPendingRequests(data);
-            } else if (activeTab === "perdidas") {
-                const data = await getPendingLostPets();
-                setPendingLostPets(data);
-            } else if (activeTab === "directorio") {
-                const data = await getPendingClinics();
-                setPendingClinics(data);
-            } else if (activeTab === "ecommerce") {
-                const data = await getPendingProducts();
-                setPendingProducts(data);
-            } else {
-                setPendingAdoptions([]);
-                setPendingLostPets([]);
-                setPendingClinics([]);
-                setPendingProducts([]);
-            }
-        } catch (error: any) {
-            if (!silent) toast.error(error.message || "Error al cargar contenido pendiente");
-        } finally {
-            if (!silent) setIsLoading(false);
-        }
-    }
+    const { data: pendingClinics = [], isLoading: loadingClinics } = useQuery({
+        queryKey: ["pending-clinics"],
+        queryFn: getPendingClinics,
+        refetchInterval: 30000,
+    });
+
+    const { data: pendingProducts = [], isLoading: loadingProducts } = useQuery({
+        queryKey: ["pending-products"],
+        queryFn: getPendingProducts,
+        refetchInterval: 30000,
+    });
+
+    const isLoading =
+        (activeTab === "adopciones" && loadingAdoptions) ||
+        (activeTab === "solicitudes" && loadingRequests) ||
+        (activeTab === "perdidas" && loadingLostPets) ||
+        (activeTab === "directorio" && loadingClinics) ||
+        (activeTab === "ecommerce" && loadingProducts);
 
     async function executeApprove(id: string, name: string) {
         try {
             if (activeTab === "adopciones") {
                 await approveAdoption(id);
-                setPendingAdoptions(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-adoptions"] });
                 toast.success(`Publicación de ${name} aprobada. ¡Ahora es visible!`);
             } else if (activeTab === "perdidas") {
                 await approveLostPet(id);
-                setPendingLostPets(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-lost-pets"] });
                 toast.success(`Reporte de mascota pérdida de ${name} revisado y liberado.`);
             } else if (activeTab === "directorio") {
                 await approveClinic(id);
-                setPendingClinics(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-clinics"] });
                 toast.success(`Clínica / Profesional ${name} aprobado y ya es público.`);
             } else if (activeTab === "ecommerce") {
                 await approveProduct(id);
-                setPendingProducts(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-products"] });
                 toast.success(`Producto ${name} aprobado y listado en la tienda.`);
             }
         } catch (error: any) {
@@ -119,19 +125,19 @@ export default function ModeracionPage() {
         try {
             if (activeTab === "adopciones") {
                 await rejectAdoption(id);
-                setPendingAdoptions(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-adoptions"] });
                 toast.success(`Publicación rechazada y eliminada.`);
             } else if (activeTab === "perdidas") {
                 await rejectLostPet(id);
-                setPendingLostPets(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-lost-pets"] });
                 toast.success(`Reporte falso de ${name} eliminado del sistema.`);
             } else if (activeTab === "directorio") {
                 await rejectClinic(id);
-                setPendingClinics(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-clinics"] });
                 toast.success(`Solicitud de ${name} rechazada y eliminada.`);
             } else if (activeTab === "ecommerce") {
                 await rejectProduct(id);
-                setPendingProducts(prev => prev.filter(p => p.id !== id));
+                queryClient.invalidateQueries({ queryKey: ["pending-products"] });
                 toast.success(`Producto ${name} rechazado y eliminado.`);
             }
         } catch (error: any) {
