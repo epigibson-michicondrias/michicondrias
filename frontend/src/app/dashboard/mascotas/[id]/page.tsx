@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getPetById, updatePet, Pet } from "@/lib/services/mascotas";
+import { createSubscriptionSession } from "@/lib/services/ecommerce";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../mascotas.module.css";
 import { toast } from "react-hot-toast";
@@ -17,6 +18,7 @@ export default function GestionMascotaPage() {
     const petId = params.id as string;
 
     const [isEditing, setIsEditing] = useState(false);
+    const [isUpgrading, setIsUpgrading] = useState(false);
     const [form, setForm] = useState<Partial<Pet>>({});
 
     const { data: pet, isLoading, error } = useQuery({
@@ -65,6 +67,22 @@ export default function GestionMascotaPage() {
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
         mutation.mutate(form);
+    };
+
+    const handleUpgradePro = async () => {
+        setIsUpgrading(true);
+        try {
+            const result = await createSubscriptionSession(petId);
+            if (result.url) {
+                window.location.href = result.url;
+            } else {
+                toast.error("Error al iniciar checkout");
+                setIsUpgrading(false);
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Error de conexión con Stripe");
+            setIsUpgrading(false);
+        }
     };
 
     return (
@@ -164,6 +182,45 @@ export default function GestionMascotaPage() {
                                     {pet.description || "Este pequeño compañero aún no tiene una historia escrita, pero cada día a tu lado es un capítulo nuevo."}
                                 </p>
                             </div>
+
+                            {/* Michi-Tracker Pro Banner */}
+                            {!pet.has_active_subscription ? (
+                                <div style={{ background: 'linear-gradient(135deg, rgba(30,30,40,0.8), rgba(20,20,30,0.95))', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem', boxShadow: '0 8px 32px rgba(139, 92, 246, 0.15)', position: 'relative', overflow: 'hidden' }}>
+                                    <div style={{ position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%', background: 'radial-gradient(circle at center, rgba(139,92,246,0.1) 0%, transparent 50%)', animation: 'spin 15s linear infinite', zIndex: 0, pointerEvents: 'none' }} />
+                                    <div style={{ zIndex: 1, position: 'relative' }}>
+                                        <h3 style={{ margin: 0, color: '#a78bfa', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.4rem' }}>
+                                            🛸 Michi-Tracker Pro
+                                        </h3>
+                                        <p style={{ color: 'var(--text-secondary)', margin: '0.5rem 0 1.5rem 0', lineHeight: 1.6 }}>
+                                            Activa la suscripción mensual para desbloquear el collar GPS, monitoreo en tiempo real, alertas de escape y más.
+                                        </p>
+                                        <button
+                                            className={styles["btn-premium"]}
+                                            style={{ width: '100%' }}
+                                            onClick={handleUpgradePro}
+                                            disabled={isUpgrading}
+                                        >
+                                            {isUpgrading ? "Conectando con Stripe..." : "🌟 Adquirir Suscripción por $199 MXN/mes"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '24px', padding: '2rem', marginTop: '1.5rem', boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)' }}>
+                                    <h3 style={{ margin: 0, color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.4rem' }}>
+                                        📡 Michi-Tracker Pro Activo
+                                    </h3>
+                                    <p style={{ color: 'var(--text-secondary)', margin: '0.5rem 0 1.5rem 0' }}>
+                                        Conexión satelital establecida con el Michi-Collar GPS.
+                                    </p>
+                                    <button
+                                        className="btn btn-outline"
+                                        style={{ width: '100%', borderColor: '#10b981', color: '#10b981' }}
+                                        onClick={() => toast.success("Abriendo radar...")}
+                                    >
+                                        📍 Abrir Radar en Tiempo Real
+                                    </button>
+                                </div>
+                            )}
 
                             {/* Behavior & Social */}
                             <div className={styles["info-block"]}>

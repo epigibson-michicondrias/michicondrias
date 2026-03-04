@@ -136,6 +136,12 @@ export async function createCheckoutSession(orderId: string): Promise<{ sessionI
     });
 }
 
+export async function createSubscriptionSession(petId: string): Promise<{ sessionId: string, url: string }> {
+    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-subscription-session/${petId}`, {
+        method: "POST"
+    });
+}
+
 export async function createDonation(amount: number, message?: string): Promise<Donation> {
     return apiFetch<Donation>("ecommerce", "/donations/", {
         method: "POST",

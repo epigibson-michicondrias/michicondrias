@@ -24,6 +24,10 @@ export interface Pet {
     social_children: boolean;
     weight_kg: number | null;
     microchip_number: string | null;
+
+    // Michi-Tracker Pro
+    has_active_subscription?: boolean;
+    stripe_subscription_id?: string | null;
 }
 
 export async function getUserPets(userId: string): Promise<Pet[]> {
