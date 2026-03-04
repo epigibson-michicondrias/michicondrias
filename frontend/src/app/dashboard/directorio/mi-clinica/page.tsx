@@ -12,6 +12,7 @@ import {
 import { hasRole } from "@/lib/auth";
 import dashStyles from "../../dashboard.module.css";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string; badge?: string }> = {
@@ -36,6 +37,8 @@ export default function MiClinicaPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [form, setForm] = useState<Partial<ClinicCreate>>({});
     const [saving, setSaving] = useState(false);
+    const [deleteClinicModal, setDeleteClinicModal] = useState<string | null>(null);
+    const [deleteServiceModal, setDeleteServiceModal] = useState<string | null>(null);
 
     // Services
     const [services, setServices] = useState<ClinicServiceItem[]>([]);
@@ -112,13 +115,13 @@ export default function MiClinicaPage() {
     }
 
     async function handleDelete(clinicId: string) {
-        if (!confirm("¿Estás seguro de eliminar esta clínica?")) return;
         try {
             await deleteClinic(clinicId);
             setClinics(prev => prev.filter(c => c.id !== clinicId));
             setSelectedClinic(null);
             toast.success("Clínica eliminada");
         } catch (err: any) { toast.error(err.message || "Error"); }
+        finally { setDeleteClinicModal(null); }
     }
 
     // --- Services ---
@@ -142,9 +145,10 @@ export default function MiClinicaPage() {
     async function handleDeleteService(id: string) {
         try {
             await deleteClinicService(id);
-            setServices(services.filter(s => s.id !== id));
+            setServices(prev => prev.filter(s => s.id !== id));
             toast.success("Servicio eliminado");
         } catch (err: any) { toast.error(err.message || "Error"); }
+        finally { setDeleteServiceModal(null); }
     }
 
     // --- Schedule ---
@@ -259,7 +263,7 @@ export default function MiClinicaPage() {
                                     <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
                                         <button className="btn btn-primary" style={{ borderRadius: "12px", padding: "0.7rem 1.5rem" }} onClick={() => handleEdit(selectedClinic)}>✏️ Editar</button>
                                         <Link href={`/dashboard/directorio/clinica/${selectedClinic.id}`} className="btn btn-secondary" style={{ borderRadius: "12px", padding: "0.7rem 1.5rem" }}>👁️ Ver Perfil</Link>
-                                        <button className="btn btn-outline" style={{ borderRadius: "12px", padding: "0.7rem 1.5rem", borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }} onClick={() => handleDelete(selectedClinic.id)}>🗑️ Eliminar</button>
+                                        <button className="btn btn-outline" style={{ borderRadius: "12px", padding: "0.7rem 1.5rem", borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }} onClick={() => setDeleteClinicModal(selectedClinic.id)}>🗑️ Eliminar</button>
                                     </div>
                                 </div>
                             )}
@@ -292,7 +296,7 @@ export default function MiClinicaPage() {
                                             {svc.description && <p style={{ margin: "0.5rem 0 0 0", color: "var(--text-secondary)", fontSize: "0.85rem" }}>{svc.description}</p>}
                                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.75rem" }}>
                                                 <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>⏱️ {svc.duration_minutes} min</span>
-                                                <button onClick={() => handleDeleteService(svc.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: "0.8rem" }}>🗑️ Eliminar</button>
+                                                <button onClick={() => setDeleteServiceModal(svc.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: "0.8rem" }}>🗑️ Eliminar</button>
                                             </div>
                                         </div>
                                     ))}
@@ -400,6 +404,28 @@ export default function MiClinicaPage() {
                     )}
                 </>
             )}
+
+            <ConfirmModal
+                isOpen={!!deleteClinicModal}
+                title="Eliminar Clínica"
+                message="¿Estás seguro que deseas eliminar esta clínica permanentemente del directorio? Esta acción no se puede deshacer."
+                confirmText="Sí, Eliminar"
+                cancelText="Cancelar"
+                isDanger={true}
+                onConfirm={() => deleteClinicModal && handleDelete(deleteClinicModal)}
+                onCancel={() => setDeleteClinicModal(null)}
+            />
+
+            <ConfirmModal
+                isOpen={!!deleteServiceModal}
+                title="Eliminar Servicio"
+                message="¿Estás seguro que deseas eliminar este servicio de tu catálogo? Ya no estará disponible para nuevas citas."
+                confirmText="Sí, Eliminar"
+                cancelText="Cancelar"
+                isDanger={true}
+                onConfirm={() => deleteServiceModal && handleDeleteService(deleteServiceModal)}
+                onCancel={() => setDeleteServiceModal(null)}
+            />
         </div>
     );
 }

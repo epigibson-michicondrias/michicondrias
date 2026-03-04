@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getMyAppointments, cancelAppointment, AppointmentItem } from "@/lib/services/directorio";
 import dashStyles from "../../dashboard.module.css";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
     pending: { label: "Pendiente", emoji: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
@@ -20,6 +21,7 @@ export default function MisCitasPage() {
     const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<string>("all");
+    const [cancelModal, setCancelModal] = useState<{ isOpen: boolean; apptId: string | null }>({ isOpen: false, apptId: null });
 
     useEffect(() => {
         loadAppointments();
@@ -34,15 +36,17 @@ export default function MisCitasPage() {
         } finally { setLoading(false); }
     }
 
-    async function handleCancel(id: string) {
-        const reason = prompt("¿Motivo de la cancelación? (opcional)");
-        if (reason === null) return; // user clicked cancel on prompt
+    async function handleCancel(reason?: string) {
+        if (!cancelModal.apptId) return;
+        const id = cancelModal.apptId;
         try {
             const updated = await cancelAppointment(id, reason || undefined);
             setAppointments(prev => prev.map(a => a.id === id ? updated : a));
             toast.success("Cita cancelada correctamente");
         } catch (err: any) {
             toast.error(err.message || "Error al cancelar");
+        } finally {
+            setCancelModal({ isOpen: false, apptId: null });
         }
     }
 
@@ -133,7 +137,7 @@ export default function MisCitasPage() {
                                     {["pending", "confirmed"].includes(appt.status) && (
                                         <>
                                             <button onClick={() => router.push(`/dashboard/directorio/citas/agendar/${appt.clinic_id}?service_id=${appt.service_id}`)} className="btn btn-secondary" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem" }}>🔄 Reagendar</button>
-                                            <button onClick={() => handleCancel(appt.id)} className="btn btn-outline" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem", borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}>❌ Cancelar</button>
+                                            <button onClick={() => setCancelModal({ isOpen: true, apptId: appt.id })} className="btn btn-outline" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem", borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}>❌ Cancelar</button>
                                         </>
                                     )}
                                 </div>
@@ -142,6 +146,20 @@ export default function MisCitasPage() {
                     })}
                 </div>
             )}
+
+            {/* Cancel Modal */}
+            <ConfirmModal
+                isOpen={cancelModal.isOpen}
+                title="Cancelar Cita"
+                message="¿Estás seguro que deseas cancelar esta cita? Por favor, déjanos conocer el motivo."
+                confirmText="Sí, Cancelar"
+                cancelText="Mantener Cita"
+                isDanger={true}
+                requireInput={true}
+                inputPlaceholder="Motivo de cancelación (opcional)"
+                onConfirm={handleCancel}
+                onCancel={() => setCancelModal({ isOpen: false, apptId: null })}
+            />
         </div>
     );
 }
