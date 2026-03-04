@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getClinic, Clinic, getVets, Vet, createVet } from "@/lib/services/directorio";
+import { getClinic, Clinic, getVets, Vet, createVet, getClinicReviews, createClinicReview, getClinicRating, ClinicReview, ClinicRating } from "@/lib/services/directorio";
 import { getCurrentUser, User } from "@/lib/auth";
 import dashStyles from "../../../dashboard.module.css";
 import styles from "./clinica.module.css";
@@ -21,20 +21,29 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
         first_name: "", last_name: "", specialty: "",
         license_number: "", phone: "", email: "", bio: ""
     });
+    const [reviews, setReviews] = useState<ClinicReview[]>([]);
+    const [rating, setRating] = useState<ClinicRating>({ average_rating: 0, total_reviews: 0 });
+    const [reviewText, setReviewText] = useState("");
+    const [reviewRating, setReviewRating] = useState(5);
+    const [submittingReview, setSubmittingReview] = useState(false);
 
     const { id } = React.use(props.params);
 
     useEffect(() => {
         async function load() {
             try {
-                const [data, vetsData, user] = await Promise.all([
+                const [data, vetsData, user, reviewsData, ratingData] = await Promise.all([
                     getClinic(id),
                     getVets(id),
-                    getCurrentUser()
+                    getCurrentUser(),
+                    getClinicReviews(id).catch(() => []),
+                    getClinicRating(id).catch(() => ({ average_rating: 0, total_reviews: 0 })),
                 ]);
                 setClinic(data);
                 setVets(vetsData);
                 setCurrentUser(user);
+                setReviews(reviewsData);
+                setRating(ratingData);
             } catch (err) {
                 console.error("Error cargando perfil de clínica", err);
             } finally {
@@ -50,7 +59,7 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
         e.preventDefault();
         setSubmitting(true);
         try {
-            const added = await createVet({ ...formData, clinic_id: id });
+            const added = await createVet({ ...formData, clinic_id: id, photo_url: null });
             setVets([...vets, added]);
             setShowModal(false);
             setFormData({ first_name: "", last_name: "", specialty: "", license_number: "", phone: "", email: "", bio: "" });
@@ -59,6 +68,26 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
             toast.error(err.message || "Error al añadir especialista");
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handleSubmitReview = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmittingReview(true);
+        try {
+            const newReview = await createClinicReview(id, reviewRating, reviewText);
+            setReviews([newReview, ...reviews]);
+            setRating({ average_rating: 0, total_reviews: rating.total_reviews + 1 });
+            setReviewText("");
+            setReviewRating(5);
+            toast.success("¡Gracias por tu reseña! 🌟");
+            // Refresh rating
+            const updated = await getClinicRating(id);
+            setRating(updated);
+        } catch (err: any) {
+            toast.error(err.message || "Error al enviar reseña");
+        } finally {
+            setSubmittingReview(false);
         }
     };
 
@@ -213,6 +242,78 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
                             ))}
                         </div>
                     )}
+
+                    {/* --- Reviews & Ratings Section --- */}
+                    <div style={{ marginTop: "4rem" }}>
+                        <div className={dashStyles["form-divider"]} style={{ margin: "0 0 3rem 0" }} />
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                            <h3 className={styles["section-title"]} style={{ marginBottom: 0 }}>
+                                ⭐ Reseñas y Calificaciones
+                                {rating.total_reviews > 0 && (
+                                    <span style={{ marginLeft: "1rem", fontSize: "0.9rem", color: "#fbbf24", fontWeight: 700 }}>
+                                        {rating.average_rating}/5 ({rating.total_reviews} reseña{rating.total_reviews !== 1 ? "s" : ""})
+                                    </span>
+                                )}
+                            </h3>
+                        </div>
+
+                        {/* Review Form */}
+                        {currentUser && (
+                            <form onSubmit={handleSubmitReview} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "20px", padding: "1.5rem", marginBottom: "2rem" }}>
+                                <p style={{ margin: "0 0 1rem 0", color: "#fff", fontWeight: 700 }}>Deja tu opinión</p>
+                                <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+                                    {[1, 2, 3, 4, 5].map(star => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setReviewRating(star)}
+                                            style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.8rem", filter: star <= reviewRating ? "none" : "grayscale(1) opacity(0.3)", transition: "all 0.2s" }}
+                                        >
+                                            ⭐
+                                        </button>
+                                    ))}
+                                </div>
+                                <textarea
+                                    className="form-input"
+                                    rows={3}
+                                    placeholder="¿Qué tal fue tu experiencia en esta clínica?"
+                                    value={reviewText}
+                                    onChange={e => setReviewText(e.target.value)}
+                                    style={{ marginBottom: "1rem" }}
+                                />
+                                <button type="submit" className="btn btn-primary" disabled={submittingReview} style={{ borderRadius: "12px" }}>
+                                    {submittingReview ? "Enviando..." : "Publicar Reseña"}
+                                </button>
+                            </form>
+                        )}
+
+                        {/* Review List */}
+                        {reviews.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "2rem", background: "rgba(255,255,255,0.01)", borderRadius: "16px", border: "1px dashed rgba(255,255,255,0.06)" }}>
+                                <p style={{ margin: 0, opacity: 0.6 }}>Aún no hay reseñas para esta clínica. ¡Sé el primero!</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                {reviews.map(review => (
+                                    <div key={review.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: "1.25rem" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                                            <div style={{ display: "flex", gap: "0.25rem" }}>
+                                                {Array.from({ length: 5 }, (_, i) => (
+                                                    <span key={i} style={{ fontSize: "1rem", filter: i < review.rating ? "none" : "grayscale(1) opacity(0.2)" }}>⭐</span>
+                                                ))}
+                                            </div>
+                                            <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+                                                {review.created_at ? new Date(review.created_at).toLocaleDateString("es-MX") : ""}
+                                            </span>
+                                        </div>
+                                        {review.comment && (
+                                            <p style={{ margin: 0, color: "var(--text-secondary)", lineHeight: 1.6 }}>{review.comment}</p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

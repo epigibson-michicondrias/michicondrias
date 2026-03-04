@@ -147,6 +147,22 @@ export default function DirectorioPage() {
                 </div>
             </div>
 
+            {/* Mi Clínica Banner for Vet/Admin */}
+            {isMounted && canRegister && (
+                <div style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.15))", border: "1px solid rgba(16, 185, 129, 0.2)", borderRadius: "20px", padding: "1.5rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                        <span style={{ fontSize: "2rem" }}>🩺</span>
+                        <div>
+                            <p style={{ margin: 0, color: "#10b981", fontWeight: 800, fontSize: "1.05rem" }}>Panel de Mi Clínica</p>
+                            <p style={{ margin: "0.2rem 0 0 0", color: "var(--text-secondary)", fontSize: "0.85rem" }}>Edita tu información, gestiona especialistas y ve tus reseñas</p>
+                        </div>
+                    </div>
+                    <Link href="/dashboard/directorio/mi-clinica" className="btn btn-primary" style={{ borderRadius: "12px", padding: "0.7rem 1.5rem", background: "linear-gradient(135deg, #10b981, #059669)", whiteSpace: "nowrap" }}>
+                        Administrar Mi Clínica →
+                    </Link>
+                </div>
+            )}
+
             {loading ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
                     <div className={dashStyles["loading-spinner-premium"]} />
