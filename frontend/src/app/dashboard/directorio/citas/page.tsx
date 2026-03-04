@@ -136,7 +136,7 @@ export default function MisCitasPage() {
                                 <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
                                     {["pending", "confirmed"].includes(appt.status) && (
                                         <>
-                                            <button onClick={() => router.push(`/dashboard/directorio/citas/agendar/${appt.clinic_id}?service_id=${appt.service_id}`)} className="btn btn-secondary" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem" }}>🔄 Reagendar</button>
+                                            <button onClick={() => router.push(`/dashboard/directorio/citas/agendar/${appt.clinic_id}?service_id=${appt.service_id}&reschedule_id=${appt.id}&pet_id=${appt.pet_id}`)} className="btn btn-secondary" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem" }}>🔄 Reagendar</button>
                                             <button onClick={() => setCancelModal({ isOpen: true, apptId: appt.id })} className="btn btn-outline" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem", borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}>❌ Cancelar</button>
                                         </>
                                     )}

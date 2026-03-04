@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getClinic, Clinic, getClinicServices, ClinicServiceItem, getAvailableSlots, AvailableSlot, createAppointment } from "@/lib/services/directorio";
+import { getClinic, Clinic, getClinicServices, ClinicServiceItem, getAvailableSlots, AvailableSlot, createAppointment, rescheduleAppointment } from "@/lib/services/directorio";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserPets } from "@/lib/services/mascotas";
 import dashStyles from "../../../../dashboard.module.css";
@@ -16,6 +16,8 @@ export default function AgendarPage() {
     const { clinic_id } = useParams<{ clinic_id: string }>();
     const searchParams = useSearchParams();
     const preselectedServiceId = searchParams.get("service_id");
+    const preselectedPetId = searchParams.get("pet_id");
+    const rescheduleId = searchParams.get("reschedule_id");
 
     const [clinic, setClinic] = useState<Clinic | null>(null);
     const [services, setServices] = useState<ClinicServiceItem[]>([]);
@@ -50,6 +52,12 @@ export default function AgendarPage() {
                     try {
                         const userPets = await getUserPets(user.id);
                         setPets(userPets);
+                        if (preselectedPetId) setSelectedPet(preselectedPetId);
+
+                        // Si estamos reagendando, el servicio y la mascota ya están fijos por el backend, así que saltamos al paso 2
+                        if (rescheduleId && preselectedServiceId && preselectedPetId) {
+                            setStep(2);
+                        }
                     } catch (err) {
                         console.error("Error cargando mascotas:", err);
                     }
@@ -74,18 +82,23 @@ export default function AgendarPage() {
         if (!selectedService || !selectedPet || !selectedDate || !selectedSlot) return;
         setBooking(true);
         try {
-            await createAppointment({
-                clinic_id,
-                service_id: selectedService,
-                pet_id: selectedPet,
-                date: selectedDate,
-                start_time: selectedSlot,
-                notes: notes || undefined,
-            });
-            toast.success("🎉 ¡Cita agendada con éxito!");
+            if (rescheduleId) {
+                await rescheduleAppointment(rescheduleId, selectedDate, selectedSlot);
+                toast.success("🎉 ¡Cita reagendada con éxito!");
+            } else {
+                await createAppointment({
+                    clinic_id,
+                    service_id: selectedService,
+                    pet_id: selectedPet,
+                    date: selectedDate,
+                    start_time: selectedSlot,
+                    notes: notes || undefined,
+                });
+                toast.success("🎉 ¡Cita agendada con éxito!");
+            }
             router.push("/dashboard/directorio/citas");
         } catch (err: any) {
-            toast.error(err.message || "Error al agendar la cita");
+            toast.error(err.message || "Error al procesar la cita");
         } finally { setBooking(false); }
     }
 
@@ -131,7 +144,7 @@ export default function AgendarPage() {
                     <button onClick={() => router.back()} className={dashStyles["back-button-premium"]} style={{ marginRight: "1rem" }}>
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
                     </button>
-                    📅 Agendar Cita — {clinic?.name}
+                    📅 {rescheduleId ? "Reagendar" : "Agendar"} Cita — {clinic?.name}
                 </h1>
                 <p className={dashStyles["page-subtitle"]}>Selecciona un servicio, fecha y horario disponible</p>
             </div>
@@ -279,7 +292,9 @@ export default function AgendarPage() {
                     )}
 
                     <div style={{ display: "flex", gap: "1rem" }}>
-                        <button className="btn btn-secondary" onClick={() => setStep(1)} style={{ flex: 1, borderRadius: "16px" }}>← Atrás</button>
+                        {!rescheduleId && (
+                            <button className="btn btn-secondary" onClick={() => setStep(1)} style={{ flex: 1, borderRadius: "16px" }}>← Atrás</button>
+                        )}
                         <button className="btn btn-primary" disabled={!selectedDate || !selectedSlot} onClick={() => setStep(3)} style={{ flex: 2, borderRadius: "16px" }}>Siguiente → Confirmar</button>
                     </div>
                 </div>
