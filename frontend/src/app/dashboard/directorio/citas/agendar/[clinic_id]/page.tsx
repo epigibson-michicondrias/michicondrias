@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getClinic, Clinic, getClinicServices, ClinicServiceItem, getAvailableSlots, AvailableSlot, createAppointment } from "@/lib/services/directorio";
+import { getCurrentUser } from "@/lib/auth";
+import { getUserPets } from "@/lib/services/mascotas";
 import dashStyles from "../../../../dashboard.module.css";
 import { toast } from "react-hot-toast";
 
@@ -35,24 +37,22 @@ export default function AgendarPage() {
     useEffect(() => {
         async function load() {
             try {
-                const [clinicData, servicesData] = await Promise.all([
+                const [clinicData, servicesData, user] = await Promise.all([
                     getClinic(clinic_id),
                     getClinicServices(clinic_id),
+                    getCurrentUser(),
                 ]);
                 setClinic(clinicData);
                 setServices(servicesData);
                 if (preselectedServiceId) setSelectedService(preselectedServiceId);
 
-                // Load pets from mascotas service
-                const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-                if (token) {
+                if (user) {
                     try {
-                        const apiBase = process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8000";
-                        const res = await fetch(`${apiBase}/mascotas/api/v1/mascotas/pets/me`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        if (res.ok) setPets(await res.json());
-                    } catch { }
+                        const userPets = await getUserPets(user.id);
+                        setPets(userPets);
+                    } catch (err) {
+                        console.error("Error cargando mascotas:", err);
+                    }
                 }
             } catch (err) { console.error(err); } finally { setLoading(false); }
         }
