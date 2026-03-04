@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getMyAppointments, cancelAppointment, AppointmentItem } from "@/lib/services/directorio";
-import dashStyles from "../../../dashboard.module.css";
+import dashStyles from "../../dashboard.module.css";
 import { toast } from "react-hot-toast";
 
 const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
