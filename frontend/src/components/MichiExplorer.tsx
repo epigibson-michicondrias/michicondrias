@@ -26,8 +26,13 @@ export default function MichiExplorer() {
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Fetch initial data
+    // Fetch initial data only when modal opens for the first time
     useEffect(() => {
+        if (!isOpen) return;
+
+        // Prevent refetching if we already have data
+        if (data.pets.length > 0 || data.clinics.length > 0 || data.products.length > 0) return;
+
         async function loadData() {
             try {
                 const user = await getCurrentUser();
@@ -42,7 +47,7 @@ export default function MichiExplorer() {
             }
         }
         loadData();
-    }, []);
+    }, [isOpen, data]);
 
     // Handle shortcuts
     useEffect(() => {
@@ -132,15 +137,21 @@ export default function MichiExplorer() {
 
                         <div className={styles["explorer-results"]}>
                             {!query && (
-                                <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>
-                                    <p style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>🤖 Michi-Explorer está listo</p>
-                                    <p style={{ fontSize: "0.85rem" }}>Escribe para buscar en todo el ecosistema de Michicondrias</p>
+                                <div style={{ padding: "3rem 1rem", textAlign: "center", color: "var(--text-muted)" }}>
+                                    <div style={{ marginBottom: "1rem", opacity: 0.5 }}>
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+                                    </div>
+                                    <p style={{ fontSize: "1.2rem", marginBottom: "0.5rem", fontWeight: 700, color: "var(--text-secondary)" }}>Michi-Explorer Listo</p>
+                                    <p style={{ fontSize: "0.9rem" }}>Escribe para buscar instantáneamente en todo el ecosistema</p>
                                 </div>
                             )}
 
                             {query && flatResults.length === 0 && (
-                                <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>
-                                    <p>No encontramos resultados para "{query}" 😿</p>
+                                <div style={{ padding: "3rem 1rem", textAlign: "center", color: "var(--text-muted)" }}>
+                                    <div style={{ marginBottom: "1rem", opacity: 0.5 }}>
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 5.172a4 4 0 0 0-5.656 5.656l1.414 1.414L12 18.414l6.242-6.172 1.414-1.414a4 4 0 0 0-5.656-5.656l-1.414 1.414L12 7.586l-1.414-1.414z" /><line x1="2" y1="2" x2="22" y2="22" /></svg>
+                                    </div>
+                                    <p style={{ fontSize: "1.1rem" }}>No encontramos resultados para <strong style={{ color: "var(--text-primary)" }}>"{query}"</strong></p>
                                 </div>
                             )}
 
