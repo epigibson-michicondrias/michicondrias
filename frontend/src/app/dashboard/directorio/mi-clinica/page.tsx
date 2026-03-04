@@ -9,6 +9,7 @@ import {
     getClinicSchedule, setClinicSchedule, ClinicScheduleItem,
     getClinicAppointments, confirmAppointment, completeAppointment, AppointmentItem,
 } from "@/lib/services/directorio";
+import { createMedicalRecord, MedicalRecordCreate, Prescription } from "@/lib/services/medical";
 import { hasRole } from "@/lib/auth";
 import dashStyles from "../../dashboard.module.css";
 import { toast } from "react-hot-toast";
@@ -51,6 +52,12 @@ export default function MiClinicaPage() {
 
     // Agenda
     const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
+
+    // Medical Record
+    const [recordModalOpen, setRecordModalOpen] = useState(false);
+    const [selectedApptForRecord, setSelectedApptForRecord] = useState<AppointmentItem | null>(null);
+    const [recordForm, setRecordForm] = useState<MedicalRecordCreate>({ pet_id: "", diagnosis: "", prescriptions: [] });
+    const [savingRecord, setSavingRecord] = useState(false);
 
     useEffect(() => {
         if (!hasRole("veterinario") && !hasRole("admin")) {
@@ -183,6 +190,50 @@ export default function MiClinicaPage() {
             setAppointments(prev => prev.map(a => a.id === id ? updated : a));
             toast.success("Cita completada 🎉");
         } catch (err: any) { toast.error(err.message || "Error"); }
+    }
+
+    // --- Medical Records ---
+    function openRecordModal(appt: AppointmentItem) {
+        setSelectedApptForRecord(appt);
+        setRecordForm({ pet_id: appt.pet_id, diagnosis: "", weight_kg: undefined, temperature_c: undefined, clinical_notes: "", prescriptions: [] });
+        setRecordModalOpen(true);
+    }
+
+    function addPrescriptionRow() {
+        setRecordForm(prev => ({ ...prev, prescriptions: [...prev.prescriptions, { medication_name: "", dosage: "", frequency_hours: 8, duration_days: 5, instructions: "" }] }));
+    }
+
+    function updatePrescription(index: number, field: keyof Prescription, value: any) {
+        setRecordForm(prev => {
+            const arr = [...prev.prescriptions];
+            arr[index] = { ...arr[index], [field]: value };
+            return { ...prev, prescriptions: arr };
+        });
+    }
+
+    function removePrescription(index: number) {
+        setRecordForm(prev => ({ ...prev, prescriptions: prev.prescriptions.filter((_, i) => i !== index) }));
+    }
+
+    async function handleSaveRecord() {
+        if (!selectedApptForRecord || !recordForm.diagnosis) return toast.error("El diagnóstico es obligatorio.");
+
+        // Basic validation for prescriptions
+        for (const p of recordForm.prescriptions) {
+            if (!p.medication_name || !p.dosage) return toast.error("Hay recetas incompletas (Falta nombre o dosis)");
+        }
+
+        setSavingRecord(true);
+        try {
+            await createMedicalRecord(selectedApptForRecord.id, recordForm);
+
+            // Si la cita no estaba completada, en el backend se autocompleta. Actualizamos UI:
+            setAppointments(prev => prev.map(a => a.id === selectedApptForRecord.id ? { ...a, status: "completed" } : a));
+
+            toast.success("Expediente y recetas guardados correctamente 🩺");
+            setRecordModalOpen(false);
+        } catch (err: any) { toast.error(err.message || "Error al guardar el expediente"); }
+        finally { setSavingRecord(false); }
     }
 
     const tabs: { key: Tab; label: string; icon: string }[] = [
@@ -394,6 +445,9 @@ export default function MiClinicaPage() {
                                                 <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
                                                     {appt.status === "pending" && <button onClick={() => handleConfirm(appt.id)} className="btn btn-primary" style={{ borderRadius: "10px", padding: "0.4rem 1rem", fontSize: "0.8rem", background: "linear-gradient(135deg, #10b981, #059669)" }}>✅ Confirmar</button>}
                                                     {appt.status === "confirmed" && <button onClick={() => handleComplete(appt.id)} className="btn btn-primary" style={{ borderRadius: "10px", padding: "0.4rem 1rem", fontSize: "0.8rem" }}>🎉 Completar</button>}
+                                                    {["confirmed", "completed"].includes(appt.status) && (
+                                                        <button onClick={() => openRecordModal(appt)} className="btn btn-secondary" style={{ borderRadius: "10px", padding: "0.4rem 1rem", fontSize: "0.8rem", background: "rgba(139,92,246,0.15)", color: "#a78bfa", borderColor: "rgba(139,92,246,0.3)" }}>🩺 Expediente</button>
+                                                    )}
                                                 </div>
                                             </div>
                                         );
@@ -403,6 +457,119 @@ export default function MiClinicaPage() {
                         </div>
                     )}
                 </>
+            )}
+
+            {/* Expediente Modal */}
+            {recordModalOpen && selectedApptForRecord && (
+                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "1rem" }}>
+                    <div style={{ background: "var(--bg-glass)", border: "1px solid var(--border-color)", borderRadius: "24px", padding: "2rem", width: "100%", maxWidth: "800px", maxHeight: "90vh", overflowY: "auto", position: "relative", animation: "slideUp 0.3s ease-out" }}>
+                        <button onClick={() => setRecordModalOpen(false)} style={{ position: "absolute", top: "1.5rem", right: "1.5rem", background: "none", border: "none", color: "var(--text-secondary)", fontSize: "1.5rem", cursor: "pointer" }}>×</button>
+
+                        <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem", color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            🩺 Expediente Médico
+                        </h2>
+                        <p style={{ color: "var(--text-secondary)", marginBottom: "2rem", fontSize: "0.9rem" }}>
+                            Cita del {selectedApptForRecord.date} · {selectedApptForRecord.service_name}
+                        </p>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                            {/* Constantes Fisiológicas */}
+                            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: "1.5rem" }}>
+                                <h3 style={{ fontSize: "1.1rem", color: "#a78bfa", marginTop: 0, marginBottom: "1rem" }}>Vitales (Opcional)</h3>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                                    <div>
+                                        <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>Peso (kg)</label>
+                                        <input type="number" step="0.1" className="form-input" value={recordForm.weight_kg || ""} onChange={e => setRecordForm({ ...recordForm, weight_kg: parseFloat(e.target.value) || undefined })} placeholder="Ej. 4.5" />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>Temperatura (°C)</label>
+                                        <input type="number" step="0.1" className="form-input" value={recordForm.temperature_c || ""} onChange={e => setRecordForm({ ...recordForm, temperature_c: parseFloat(e.target.value) || undefined })} placeholder="Ej. 38.5" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Diagnóstico */}
+                            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: "1.5rem" }}>
+                                <h3 style={{ fontSize: "1.1rem", color: "#a78bfa", marginTop: 0, marginBottom: "1rem" }}>Diagnóstico y Notas</h3>
+                                <div style={{ marginBottom: "1rem" }}>
+                                    <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>Diagnóstico Principal *</label>
+                                    <input className="form-input" value={recordForm.diagnosis} onChange={e => setRecordForm({ ...recordForm, diagnosis: e.target.value })} placeholder="Ej. Gastroenteritis aguda" />
+                                </div>
+                                <div>
+                                    <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>Notas Clínicas (Opcional)</label>
+                                    <textarea className="form-input" rows={3} value={recordForm.clinical_notes || ""} onChange={e => setRecordForm({ ...recordForm, clinical_notes: e.target.value })} placeholder="Hallazgos en la exploración, recomendaciones generales..." />
+                                </div>
+                            </div>
+
+                            {/* Recetas */}
+                            <div style={{ background: "rgba(16,185,129,0.04)", border: "1px solid rgba(16,185,129,0.1)", borderRadius: "16px", padding: "1.5rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                                    <h3 style={{ fontSize: "1.1rem", color: "#10b981", margin: 0 }}>💊 Receta Digital</h3>
+                                    <button onClick={addPrescriptionRow} style={{ background: "rgba(16,185,129,0.2)", border: "none", color: "#10b981", padding: "0.4rem 0.8rem", borderRadius: "8px", cursor: "pointer", fontSize: "0.8rem", fontWeight: "bold" }}>+ Agregar Medicamento</button>
+                                </div>
+
+                                {recordForm.prescriptions.length === 0 ? (
+                                    <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", textAlign: "center", margin: "1rem 0" }}>No hay medicamentos recetados. Presiona + para añadir uno.</p>
+                                ) : (
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                        {recordForm.prescriptions.map((p, idx) => (
+                                            <div key={idx} style={{ background: "rgba(0,0,0,0.2)", padding: "1rem", borderRadius: "12px", position: "relative" }}>
+                                                <button onClick={() => removePrescription(idx)} style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "1rem" }}>✖</button>
+
+                                                <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.8rem", marginBottom: "0.8rem" }}>
+                                                    <div>
+                                                        <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Nombre del Medicamento *</label>
+                                                        <input className="form-input" style={{ padding: "0.5rem" }} value={p.medication_name} onChange={e => updatePrescription(idx, "medication_name", e.target.value)} placeholder="Ej. Doxiciclina 100mg" />
+                                                    </div>
+                                                </div>
+
+                                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.8rem" }}>
+                                                    <div>
+                                                        <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Dosis *</label>
+                                                        <input className="form-input" style={{ padding: "0.5rem" }} value={p.dosage} onChange={e => updatePrescription(idx, "dosage", e.target.value)} placeholder="Ej. 1/2 tableta" />
+                                                    </div>
+                                                    <div>
+                                                        <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Frecuencia *</label>
+                                                        <select className="form-input" style={{ padding: "0.5rem" }} value={p.frequency_hours} onChange={e => updatePrescription(idx, "frequency_hours", parseInt(e.target.value))}>
+                                                            <option value={4}>Cada 4 hrs</option>
+                                                            <option value={6}>Cada 6 hrs</option>
+                                                            <option value={8}>Cada 8 hrs</option>
+                                                            <option value={12}>Cada 12 hrs</option>
+                                                            <option value={24}>Cada 24 hrs</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Duración *</label>
+                                                        <select className="form-input" style={{ padding: "0.5rem" }} value={p.duration_days} onChange={e => updatePrescription(idx, "duration_days", parseInt(e.target.value))}>
+                                                            {[1, 2, 3, 4, 5, 7, 10, 14, 21, 30].map(d => <option key={d} value={d}>Por {d} días</option>)}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div style={{ marginTop: "0.8rem" }}>
+                                                    <label style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>Instrucciones adicionales</label>
+                                                    <input className="form-input" style={{ padding: "0.5rem" }} value={p.instructions || ""} onChange={e => updatePrescription(idx, "instructions", e.target.value)} placeholder="Ej. Dar junto con comida humeda..." />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {recordForm.prescriptions.length > 0 && (
+                                    <div style={{ marginTop: "1rem", fontSize: "0.8rem", color: "#10b981", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                                        El sistema enviará recordatorios automáticos al dueño por SMS/Push basados en esta receta.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
+                            <button className="btn btn-secondary" style={{ flex: 1, borderRadius: "14px", padding: "1rem" }} onClick={() => setRecordModalOpen(false)}>Cancelar</button>
+                            <button className="btn btn-primary" style={{ flex: 2, borderRadius: "14px", padding: "1rem", background: "linear-gradient(135deg, #8b5cf6, #7c3aed)" }} onClick={handleSaveRecord} disabled={savingRecord || !recordForm.diagnosis}>
+                                {savingRecord ? "Guardando..." : "💾 Guardar Expediente"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             <ConfirmModal
