@@ -31,6 +31,10 @@ class Pet(Base):
     gender = Column(String(20), nullable=True)
     gallery = Column(JSON, nullable=True)
 
+    # Subscription (Michi-Tracker Pro)
+    has_active_subscription = Column(Boolean, default=False)
+    stripe_subscription_id = Column(String, nullable=True)
+
     # Traceability: which adoption listing originated this pet record
     adopted_from_listing_id = Column(String, nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

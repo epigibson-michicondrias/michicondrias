@@ -33,6 +33,10 @@ class PetCreate(BaseModel):
     microchip_number: Optional[str] = None
     gender: Optional[str] = None
     gallery: Optional[List[str]] = None
+    
+    # Michi-Tracker Pro
+    has_active_subscription: bool = False
+    stripe_subscription_id: Optional[str] = None
 
 class PetResponse(PetCreate):
     id: str
@@ -60,6 +64,13 @@ class PetUpdate(BaseModel):
     microchip_number: Optional[str] = None
     gender: Optional[str] = None
     gallery: Optional[List[str]] = None
+    
+    has_active_subscription: Optional[bool] = None
+    stripe_subscription_id: Optional[str] = None
+
+class PetSubscriptionUpdate(BaseModel):
+    has_active_subscription: bool
+    stripe_subscription_id: Optional[str] = None
 
 
 @router.post("/", response_model=PetResponse)
@@ -125,4 +136,20 @@ def get_pet_by_listing(listing_id: str, db: Session = Depends(get_db)) -> Any:
     pet = db.query(Pet).filter(Pet.adopted_from_listing_id == listing_id).first()
     if not pet:
         raise HTTPException(status_code=404, detail="No se encontró mascota vinculada a este listing")
+    return pet
+
+@router.patch("/{pet_id}/subscription", response_model=PetResponse)
+def update_pet_subscription(
+    pet_id: str,
+    sub_in: PetSubscriptionUpdate,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Internal use: Toggles Michi-Tracker Pro subscription status from the Ecommerce webhook."""
+    pet = db.query(Pet).filter(Pet.id == pet_id).first()
+    if not pet:
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    pet.has_active_subscription = sub_in.has_active_subscription
+    pet.stripe_subscription_id = sub_in.stripe_subscription_id
+    db.commit()
+    db.refresh(pet)
     return pet
