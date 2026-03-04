@@ -374,7 +374,7 @@ export default function MiClinicaPage() {
                                 </div>
                             ) : (
                                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                    {appointments.map(appt => {
+                                    {appointments.filter(a => a.status !== "rescheduled").map(appt => {
                                         const s = STATUS_MAP[appt.status] || STATUS_MAP.pending;
                                         return (
                                             <div key={appt.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "18px", padding: "1.25rem", display: "flex", alignItems: "center", gap: "1.25rem", flexWrap: "wrap" }}>
