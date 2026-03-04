@@ -141,7 +141,7 @@ def create_order(db: Session, order_in: OrderCreate, user_id: str):
         user_id=user_id,
         total_amount=total_amount,
         shipping_address=order_in.shipping_address,
-        status="paid" # Simulating paid for now
+        status="pending" # Wait for Stripe Webhook to mark as paid
     )
     db.add(db_order)
     db.flush() # Get order ID
