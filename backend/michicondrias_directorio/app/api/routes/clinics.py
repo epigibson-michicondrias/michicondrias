@@ -16,10 +16,18 @@ def read_clinics(
     limit: int = 100,
 ) -> Any:
     """
-    Retrieve clinics. (Public endpoint)
+    Retrieve approved clinics. (Public endpoint)
     """
     clinics = crud.crud_clinic.get_clinics(db, skip=skip, limit=limit)
     return clinics
+
+@router.get("/me", response_model=List[ClinicResponse])
+def read_my_clinics(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Retrieve clinics owned by the current user."""
+    return crud.crud_clinic.get_clinics_by_owner(db, owner_user_id=user_id)
 
 @router.get("/{clinic_id}", response_model=ClinicResponse)
 def read_clinic(
@@ -44,6 +52,37 @@ def create_clinic(
     """
     clinic = crud.crud_clinic.create_clinic(db=db, clinic=clinic_in, owner_user_id=user_id)
     return clinic
+
+@router.put("/{clinic_id}", response_model=ClinicResponse)
+def update_my_clinic(
+    clinic_id: str,
+    *,
+    db: Session = Depends(get_db),
+    clinic_in: ClinicUpdate,
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Update a clinic. Only the owner or admin can edit."""
+    clinic = crud.crud_clinic.get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    if clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para editar esta clínica")
+    return crud.crud_clinic.update_clinic(db, clinic, clinic_in)
+
+@router.delete("/{clinic_id}")
+def delete_my_clinic(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Delete a clinic. Only the owner can delete."""
+    clinic = crud.crud_clinic.get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    if clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para eliminar esta clínica")
+    crud.crud_clinic.remove_clinic(db, clinic_id)
+    return {"message": "Clínica eliminada exitosamente"}
 
 # --- ADMIN ENDPOINTS FOR MODERATION ---
 
@@ -78,3 +117,4 @@ def reject_clinic(
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     return {"message": "Clínica eliminada exitosamente"}
+

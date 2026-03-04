@@ -1,2 +1,3 @@
 from app.models.base import BaseModel
-from app.models.clinic import Clinic, Veterinarian
+from app.models.clinic import Clinic, Veterinarian, ClinicReview
+

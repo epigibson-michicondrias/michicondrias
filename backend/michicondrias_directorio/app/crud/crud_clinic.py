@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models.clinic import Clinic, Veterinarian
-from app.schemas.clinic import ClinicCreate, ClinicUpdate, VeterinarianCreate, VeterinarianUpdate
+from app.models.clinic import Clinic, Veterinarian, ClinicReview
+from app.schemas.clinic import ClinicCreate, ClinicUpdate, VeterinarianCreate, VeterinarianUpdate, ClinicReviewCreate
 
 # CRUD CLINICS
 def get_clinic(db: Session, clinic_id: str):
@@ -8,6 +8,9 @@ def get_clinic(db: Session, clinic_id: str):
 
 def get_clinics(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Clinic).filter(Clinic.is_approved == True).offset(skip).limit(limit).all()
+
+def get_clinics_by_owner(db: Session, owner_user_id: str):
+    return db.query(Clinic).filter(Clinic.owner_user_id == owner_user_id).all()
 
 def get_pending_clinics(db: Session):
     return db.query(Clinic).filter(Clinic.is_approved == False).all()
@@ -92,3 +95,25 @@ def remove_veterinarian(db: Session, vet_id: str):
         db.delete(db_vet)
         db.commit()
     return db_vet
+
+# CRUD CLINIC REVIEWS
+def get_clinic_reviews(db: Session, clinic_id: str):
+    return db.query(ClinicReview).filter(ClinicReview.clinic_id == clinic_id).order_by(ClinicReview.created_at.desc()).all()
+
+def create_clinic_review(db: Session, clinic_id: str, user_id: str, review: ClinicReviewCreate):
+    db_review = ClinicReview(
+        clinic_id=clinic_id,
+        user_id=user_id,
+        rating=review.rating,
+        comment=review.comment,
+    )
+    db.add(db_review)
+    db.commit()
+    db.refresh(db_review)
+    return db_review
+
+def get_clinic_average_rating(db: Session, clinic_id: str):
+    from sqlalchemy import func
+    result = db.query(func.avg(ClinicReview.rating)).filter(ClinicReview.clinic_id == clinic_id).scalar()
+    return round(float(result), 1) if result else 0.0
+

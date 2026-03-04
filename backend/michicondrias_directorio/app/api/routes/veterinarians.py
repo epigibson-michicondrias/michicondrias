@@ -35,6 +35,22 @@ def create_veterinarian(
     vet = crud.crud_clinic.create_veterinarian(db=db, vet=vet_in, user_id=user_id)
     return vet
 
+@router.put("/{vet_id}", response_model=VeterinarianResponse)
+def update_my_vet_profile(
+    vet_id: str,
+    *,
+    db: Session = Depends(get_db),
+    vet_in: VeterinarianUpdate,
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Update a vet profile. Only the linked user can edit."""
+    vet = crud.crud_clinic.get_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinario no encontrado")
+    if vet.user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para editar este perfil")
+    return crud.crud_clinic.update_veterinarian(db, vet, vet_in)
+
 # --- ADMIN ENDPOINTS FOR MODERATION ---
 
 @router.get("/admin/pending", response_model=List[VeterinarianResponse])
@@ -68,3 +84,4 @@ def reject_veterinarian(
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinario no encontrado")
     return {"message": "Veterinario eliminado exitosamente"}
+
