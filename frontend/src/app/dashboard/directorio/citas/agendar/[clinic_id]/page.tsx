@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { getClinic, Clinic, getClinicServices, ClinicServiceItem, getAvailableSlots, AvailableSlot, createAppointment } from "@/lib/services/directorio";
 import dashStyles from "../../../../dashboard.module.css";
 import { toast } from "react-hot-toast";
@@ -111,6 +112,17 @@ export default function AgendarPage() {
         return <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}><div className={dashStyles["loading-spinner-premium"]} /></div>;
     }
 
+    if (!clinic) {
+        return (
+            <div style={{ textAlign: "center", padding: "4rem", animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}>
+                <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.5 }}>🏥</div>
+                <h2 style={{ color: "#fff", marginBottom: "0.5rem" }}>Clínica no encontrada</h2>
+                <p style={{ color: "var(--text-secondary)", marginBottom: "2rem" }}>No pudimos encontrar la clínica para agendar tu cita.</p>
+                <button onClick={() => router.push("/dashboard/directorio")} className="btn btn-primary" style={{ borderRadius: "16px", padding: "1rem 2rem" }}>Volver al Directorio</button>
+            </div>
+        );
+    }
+
     return (
         <div style={{ animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}>
             {/* Header */}
@@ -143,27 +155,34 @@ export default function AgendarPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                     <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", padding: "2rem" }}>
                         <h3 style={{ color: "#fff", margin: "0 0 1.5rem 0" }}>🏷️ Selecciona el Servicio</h3>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-                            {services.map(svc => (
-                                <button key={svc.id} onClick={() => setSelectedService(svc.id)} style={{
-                                    padding: "1.25rem", borderRadius: "16px", textAlign: "left", cursor: "pointer", transition: "all 0.3s",
-                                    background: selectedService === svc.id ? "rgba(139, 92, 246, 0.15)" : "rgba(255,255,255,0.02)",
-                                    border: `2px solid ${selectedService === svc.id ? "#a78bfa" : "rgba(255,255,255,0.06)"}`,
-                                }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                                        <div>
-                                            <p style={{ margin: 0, color: "#fff", fontWeight: 700 }}>{svc.name}</p>
-                                            {svc.category && <span style={{ fontSize: "0.75rem", color: "#a78bfa", background: "rgba(139,92,246,0.1)", padding: "0.2rem 0.5rem", borderRadius: "6px" }}>{svc.category}</span>}
+                        {services.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "2rem", background: "rgba(255,255,255,0.01)", borderRadius: "16px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                                <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem", opacity: 0.5 }}>🏷️</div>
+                                <p style={{ color: "var(--text-secondary)", margin: 0 }}>Esta clínica no tiene servicios publicados para agendar online.</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
+                                {services.map(svc => (
+                                    <button key={svc.id} onClick={() => setSelectedService(svc.id)} style={{
+                                        padding: "1.25rem", borderRadius: "16px", textAlign: "left", cursor: "pointer", transition: "all 0.3s",
+                                        background: selectedService === svc.id ? "rgba(139, 92, 246, 0.15)" : "rgba(255,255,255,0.02)",
+                                        border: `2px solid ${selectedService === svc.id ? "#a78bfa" : "rgba(255,255,255,0.06)"}`,
+                                    }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                                            <div>
+                                                <p style={{ margin: 0, color: "#fff", fontWeight: 700 }}>{svc.name}</p>
+                                                {svc.category && <span style={{ fontSize: "0.75rem", color: "#a78bfa", background: "rgba(139,92,246,0.1)", padding: "0.2rem 0.5rem", borderRadius: "6px" }}>{svc.category}</span>}
+                                            </div>
+                                            <span style={{ color: "#10b981", fontWeight: 800, fontSize: "1.1rem" }}>
+                                                {svc.price ? `$${svc.price}` : "Consultar"}
+                                            </span>
                                         </div>
-                                        <span style={{ color: "#10b981", fontWeight: 800, fontSize: "1.1rem" }}>
-                                            {svc.price ? `$${svc.price}` : "Consultar"}
-                                        </span>
-                                    </div>
-                                    {svc.description && <p style={{ margin: "0.5rem 0 0 0", color: "var(--text-secondary)", fontSize: "0.85rem" }}>{svc.description}</p>}
-                                    <p style={{ margin: "0.3rem 0 0 0", fontSize: "0.75rem", color: "var(--text-secondary)" }}>⏱️ {svc.duration_minutes} min</p>
-                                </button>
-                            ))}
-                        </div>
+                                        {svc.description && <p style={{ margin: "0.5rem 0 0 0", color: "var(--text-secondary)", fontSize: "0.85rem" }}>{svc.description}</p>}
+                                        <p style={{ margin: "0.3rem 0 0 0", fontSize: "0.75rem", color: "var(--text-secondary)" }}>⏱️ {svc.duration_minutes} min</p>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "24px", padding: "2rem" }}>
@@ -179,7 +198,16 @@ export default function AgendarPage() {
                                     <p style={{ margin: "0.3rem 0 0 0", color: "#fff", fontWeight: 600 }}>{pet.name}</p>
                                 </button>
                             ))}
-                            {pets.length === 0 && <p style={{ color: "var(--text-secondary)" }}>No tienes mascotas registradas</p>}
+                            {pets.length === 0 && (
+                                <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "2rem", background: "rgba(255,255,255,0.01)", border: "1px dashed rgba(255,255,255,0.1)", borderRadius: "16px" }}>
+                                    <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem", opacity: 0.5 }}>🐾</div>
+                                    <p style={{ color: "#fff", marginBottom: "0.5rem", fontWeight: 600 }}>Aún no tienes mascotas registradas</p>
+                                    <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem", fontSize: "0.9rem" }}>Es necesario registrar a tu michi o lomito para poder agendar una cita.</p>
+                                    <Link href="/dashboard/mascotas" className="btn btn-secondary" style={{ borderRadius: "12px", padding: "0.75rem 1.5rem", display: "inline-block", textDecoration: "none" }}>
+                                        + Registrar Mascota
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
 
