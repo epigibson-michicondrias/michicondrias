@@ -35,7 +35,7 @@ class PetCreate(BaseModel):
     gallery: Optional[List[str]] = None
     
     # Michi-Tracker Pro
-    has_active_subscription: bool = False
+    has_active_subscription: Optional[bool] = False
     stripe_subscription_id: Optional[str] = None
 
 class PetResponse(PetCreate):
