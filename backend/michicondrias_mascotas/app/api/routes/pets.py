@@ -153,3 +153,19 @@ def update_pet_subscription(
     db.commit()
     db.refresh(pet)
     return pet
+
+@router.patch("/by-subscription/{sub_id}", response_model=PetResponse)
+def revoke_pet_subscription(
+    sub_id: str,
+    sub_in: PetSubscriptionUpdate,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Internal use: Revokes Michi-Tracker Pro tracking using only the stripe_subscription_id."""
+    pet = db.query(Pet).filter(Pet.stripe_subscription_id == sub_id).first()
+    if not pet:
+        raise HTTPException(status_code=404, detail="Mascota con esta suscripcion no fue encontrada")
+    pet.has_active_subscription = sub_in.has_active_subscription
+    pet.stripe_subscription_id = sub_in.stripe_subscription_id
+    db.commit()
+    db.refresh(pet)
+    return pet

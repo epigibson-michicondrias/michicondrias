@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     def CORE_SERVICE_URL(self) -> str:
         return f"{self.API_GATEWAY_URL}/core"
 
+    @property
+    def MASCOTAS_SERVICE_URL(self) -> str:
+        return f"{self.API_GATEWAY_URL}/mascotas"
+
     # AWS S3 Settings
     AWS_ACCESS_KEY_ID: str | None = None
     AWS_SECRET_ACCESS_KEY: str | None = None
