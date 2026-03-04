@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ToasterProvider from "@/components/ui/ToasterProvider";
 import QueryProvider from "@/components/QueryProvider";
+import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

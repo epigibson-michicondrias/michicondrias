@@ -16,10 +16,16 @@ class Settings(BaseSettings):
     
     SECRET_KEY: str = "super_secreto_cambiar_en_produccion" 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
-
     # API Gateway Configuration
     # IN AWS: Set this via API_GATEWAY_URL env var
     API_GATEWAY_URL: str = "http://localhost:8000"
+    
+    # S3 Credentials
+    AWS_ACCESS_KEY_ID: str | None = None
+    AWS_SECRET_ACCESS_KEY: str | None = None
+    AWS_SESSION_TOKEN: str | None = None
+    AWS_REGION: str = "us-east-1"
+    S3_BUCKET_NAME: str = "michicondrias-storage-1"
     
     @property
     def CORE_SERVICE_URL(self) -> str:

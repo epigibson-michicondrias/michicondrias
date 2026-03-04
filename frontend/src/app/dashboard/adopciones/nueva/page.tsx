@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createListing } from "@/lib/services/adopciones";
+import { createListing, getAdopcionesPresignedUrl } from "@/lib/services/adopciones";
 import CustomSelect from "@/components/ui/CustomSelect";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
@@ -36,7 +36,8 @@ export default function NuevaAdopcionPage() {
         is_emergency: false,
     });
 
-    // Photo Mock State
+    // Photo Control State
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
     const speciesOptions = [
@@ -55,6 +56,7 @@ export default function NuevaAdopcionPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
+            setPhotoFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPhotoPreview(reader.result as string);
@@ -68,9 +70,32 @@ export default function NuevaAdopcionPage() {
         setLoading(true);
         setError("");
 
-        const form = e.currentTarget;
         try {
-            // Simulated upload: pass photo_url if exists, backend supports it optionally
+            let finalPhotoUrl = null;
+
+            // 1. Upload photo to S3 if selected
+            if (photoFile) {
+                const ext = photoFile.name.split(".").pop() || "jpg";
+                const presigned = await getAdopcionesPresignedUrl(ext);
+
+                const res = await fetch(presigned.url, {
+                    method: "PUT",
+                    body: photoFile,
+                    headers: {
+                        "Content-Type": photoFile.type || "application/octet-stream",
+                    },
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error("S3 Upload Error:", errorText);
+                    throw new Error("Error al subir la imagen a S3");
+                }
+
+                finalPhotoUrl = presigned.object_key;
+            }
+
+            // 2. Create the listing
             await createListing({
                 name: formData.name,
                 species: formData.species,
@@ -78,7 +103,7 @@ export default function NuevaAdopcionPage() {
                 age_months: formData.age ? Number(formData.age) : null,
                 size: formData.size || null,
                 description: formData.description || null,
-                photo_url: photoPreview,
+                photo_url: finalPhotoUrl,
                 // Enrichment Fields
                 is_vaccinated: formData.is_vaccinated,
                 is_sterilized: formData.is_sterilized,

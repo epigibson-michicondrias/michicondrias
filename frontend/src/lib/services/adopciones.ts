@@ -101,6 +101,11 @@ export interface AdoptionRequestCreate {
     previous_experience: string | null;
 }
 
+export interface PresignedUrlResponse {
+    url: string;
+    object_key: string;
+}
+
 // Public
 export async function getListings(): Promise<Listing[]> {
     return apiFetch<Listing[]>("adopciones", "/pets/");
@@ -111,6 +116,10 @@ export async function getListing(id: string): Promise<Listing> {
 }
 
 // Authenticated
+export async function getAdopcionesPresignedUrl(ext: string): Promise<PresignedUrlResponse> {
+    return apiFetch<PresignedUrlResponse>("adopciones", `/pets/presigned-url?ext=${ext}`);
+}
+
 export async function createListing(data: ListingCreate): Promise<Listing> {
     return apiFetch<Listing>("adopciones", "/pets/", {
         method: "POST",

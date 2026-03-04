@@ -91,6 +91,15 @@ img {
   height: auto;
 }
 
+/* Fix for Leaflet React map tiles collapsing */
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img {
+  max-width: none !important;
+  max-height: none !important;
+  width: auto;
+  height: auto;
+}
+
 /* ============================
    UTILITIES
    ============================ */

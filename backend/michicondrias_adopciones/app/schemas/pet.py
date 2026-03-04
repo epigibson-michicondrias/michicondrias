@@ -52,6 +52,14 @@ class ListingResponse(ListingBase):
 
 
 # ============================
+# PHOTOS
+# ============================
+
+class PresignedUrlResponse(BaseModel):
+    url: str
+    object_key: str
+
+# ============================
 # ADOPTION REQUEST
 # ============================
 

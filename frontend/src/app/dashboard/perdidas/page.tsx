@@ -211,49 +211,83 @@ export default function PerdidasPage() {
                             <div className={styles["report-image"]} style={{
                                 backgroundImage: report.image_url ? `url(${report.image_url})` : "none"
                             }}>
-                                {!report.image_url && <span style={{ fontSize: "3rem" }}>{report.species === "gato" ? "🐈" : report.species === "perro" ? "🐕" : "🐾"}</span>}
+                                {!report.image_url && (
+                                    <div style={{ padding: '2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '50%', boxShadow: 'inset 0 0 20px rgba(255,255,255,0.02)' }}>
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ color: report.report_type === 'lost' ? '#fca5a5' : '#86efac', filter: `drop-shadow(0 0 15px ${report.report_type === 'lost' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(34, 197, 94, 0.4)'})` }}>
+                                            {report.species === 'gato' ? (
+                                                <path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 5.03-2.84 6.42-2.26 1.4.58-.42 7 .58 8 .5 1.4 0 2.88 0 2.88-3.2 6.08-9.08 8.56-10.12 8.56-1.02 0-6.57-2.48-9.76-8.56 0 0-.5-1.48 0-2.88 1-1-1.2-7.55.22-8.08C2.73 2.5 5.86 3.4 7.55 5.3A9.8 9.8 0 0 1 12 5Z" />
+                                            ) : report.species === 'perro' ? (
+                                                <path d="M10 5.172C10 3.782 8.423 2.679 6.5 3c-2.823.476-2.771 4.305-1.209 5.866 2 2 6 7 6 7s1.5-1 4-1M14 5.172c0-1.39 1.577-2.493 3.5-2.172 2.823.476 2.771 4.305 1.209 5.866-2 2-6 7-6 7s-1.5-1-4-1" />
+                                            ) : (
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                                            )}
+                                        </svg>
+                                    </div>
+                                )}
                             </div>
 
-                            <div className={styles["report-body"]}>
+                            <div className={styles["report-body"]} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                     <h3 className={styles["report-name"]}>{report.pet_name}</h3>
                                     {report.has_tracker && !report.is_resolved && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontSize: '0.75rem', fontWeight: 800, background: 'rgba(16, 185, 129, 0.1)', padding: '0.3rem 0.6rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                                            <span style={{ display: 'inline-block', width: '6px', height: '6px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 8px #10b981', animation: 'pulse 1.5s infinite' }}></span>
-                                            GPS Activo
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(16, 185, 129, 0.15)', padding: '0.4rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(16, 185, 129, 0.4)', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.1)' }}>
+                                            <span style={{ display: 'inline-block', width: '6px', height: '6px', background: '#34d399', borderRadius: '50%', boxShadow: '0 0 10px #34d399', animation: 'pulse 1.5s infinite' }}></span>
+                                            GPS ACTIVO
                                         </div>
                                     )}
                                 </div>
-                                <div className={styles["report-meta"]}>
-                                    <span>{report.species} {report.breed ? `· ${report.breed}` : ""}</span>
-                                    <span>{report.color ? `· ${report.color}` : ""}</span>
-                                    <span>{report.size ? `· ${report.size}` : ""}</span>
+                                <div className={styles["report-meta"]} style={{ marginTop: '0.5rem', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                        {report.species.charAt(0).toUpperCase() + report.species.slice(1)} {report.breed ? `(${report.breed})` : ""}
+                                    </span>
+                                    {report.color && <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>🎨 {report.color}</span>}
+                                    {report.size && <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>📏 {report.size}</span>}
                                 </div>
 
                                 {report.last_seen_location && (
-                                    <p className={styles["report-location"]}>📍 {report.last_seen_location}</p>
-                                )}
-
-                                {report.description && (
-                                    <p className={styles["report-desc"]}>
-                                        {report.description.length > 120 ? report.description.substring(0, 120) + '...' : report.description}
+                                    <p className={styles["report-location"]} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: '#cbd5e1' }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" strokeWidth="2" style={{ marginTop: '2px', flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                                        <span style={{ lineHeight: 1.4 }}>{report.last_seen_location}</span>
                                     </p>
                                 )}
 
-                                <div className={styles["report-footer"]} style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
-                                    <span className={styles["report-time"]}>{getTimeSince(report.created_at)}</span>
+                                {report.description && (
+                                    <p className={styles["report-desc"]} style={{ marginTop: '0.75rem', fontStyle: 'italic', opacity: 0.8 }}>
+                                        "{report.description.length > 100 ? report.description.substring(0, 100) + '...' : report.description}"
+                                    </p>
+                                )}
+
+                                <div style={{ flex: 1 }}></div>
+
+                                <div className={styles["report-footer"]} style={{ flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <span className={styles["report-time"]} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                                        {getTimeSince(report.created_at)}
+                                    </span>
                                     <div style={{ display: "flex", gap: "0.5rem", width: '100%' }}>
                                         {report.has_tracker && !report.is_resolved ? (
-                                            <a href={`/dashboard/perdidas/rastreo/${report.id}`} className="btn btn-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', textAlign: 'center', textDecoration: 'none' }}>
-                                                🗺️ Seguir en Vivo
+                                            <a href={`/dashboard/perdidas/rastreo/${report.id}`} className="btn btn-primary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.9rem', background: 'linear-gradient(135deg, #10b981, #059669)', border: '1px solid rgba(16, 185, 129, 0.5)', textAlign: 'center', textDecoration: 'none', borderRadius: '12px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="4" /><line x1="12" y1="2" x2="12" y2="4" /><line x1="12" y1="20" x2="12" y2="22" /><line x1="2" y1="12" x2="4" y2="12" /><line x1="20" y1="12" x2="22" y2="12" /></svg>
+                                                    Seguir en Vivo
+                                                </span>
                                             </a>
                                         ) : report.contact_phone && (
-                                            <a href={`tel:${report.contact_phone}`} className={styles["contact-btn"]} style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}>📞 Llamar</a>
+                                            <a href={`tel:${report.contact_phone}`} className={styles["contact-btn"]} style={{ flex: 1, textAlign: 'center', textDecoration: 'none', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '12px', padding: '0.6rem' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                                                    Llamar
+                                                </span>
+                                            </a>
                                         )}
 
                                         {report.reporter_id === currentUser?.id && !report.is_resolved && (
-                                            <button className={styles["resolve-btn"]} onClick={() => handleResolve(report.id)} style={{ flex: report.has_tracker ? 'none' : 1 }}>
-                                                ✅ Reunido
+                                            <button className={styles["resolve-btn"]} onClick={() => handleResolve(report.id)} style={{ flex: report.has_tracker ? 'none' : 1, borderRadius: '12px', padding: '0.6rem' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
+                                                    Reunido
+                                                </span>
                                             </button>
                                         )}
                                     </div>
@@ -261,8 +295,13 @@ export default function PerdidasPage() {
                             </div>
 
                             {report.is_resolved && (
-                                <div className={styles["resolved-overlay"]}>
-                                    <span>🎉 ¡Reunido!</span>
+                                <div className={styles["resolved-overlay"]} style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                        <div style={{ background: 'rgba(34, 197, 94, 0.2)', padding: '1.5rem', borderRadius: '50%', boxShadow: '0 0 40px rgba(34, 197, 94, 0.4)' }}>
+                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" style={{ filter: 'drop-shadow(0 0 10px rgba(74, 222, 128, 0.8))' }}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                                        </div>
+                                        <span style={{ textShadow: '0 0 20px rgba(34, 197, 94, 0.8)', fontSize: '1.5rem', letterSpacing: '0.05em' }}>¡DE VUELTA A CASA!</span>
+                                    </div>
                                 </div>
                             )}
                         </div>

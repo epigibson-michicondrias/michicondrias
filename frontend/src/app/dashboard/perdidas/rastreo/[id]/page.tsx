@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { getReportById, LostPetReport, updateTrackerLocation } from "@/lib/services/perdidas";
+
+// Dynamically import the Leaflet map so it doesn't break SSR
+const MapComponent = dynamic(() => import("./MapComponent"), {
+    ssr: false,
+    loading: () => <div style={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', background: '#0f172a', borderRadius: '50%' }}>🛰️ Conectando satélites...</div>
+});
+
 import dashStyles from "../../../dashboard.module.css";
 import styles from "./rastreo.module.css";
 import { toast } from "react-hot-toast";
@@ -12,7 +20,7 @@ export default function TrackingPage() {
     const router = useRouter();
     const [report, setReport] = useState<LostPetReport | null>(null);
     const [loading, setLoading] = useState(true);
-    const [markerPos, setMarkerPos] = useState({ x: 50, y: 50 }); // percentages
+    const [markerPos, setMarkerPos] = useState({ lat: 19.4326, lng: -99.1332 });
     const [distance, setDistance] = useState(0);
 
     useEffect(() => {
@@ -31,12 +39,12 @@ export default function TrackingPage() {
                 }
                 setReport(rep);
 
-                // Initialize random position
-                setMarkerPos({
-                    x: 30 + Math.random() * 40,
-                    y: 30 + Math.random() * 40
-                });
-                setDistance(Math.floor(Math.random() * 500) + 50);
+                // Initialize from db or use default CDMX
+                const initialLat = rep.current_lat || 19.4326;
+                const initialLng = rep.current_lng || -99.1332;
+                setMarkerPos({ lat: initialLat, lng: initialLng });
+
+                setDistance(Math.floor(Math.random() * 50) + 5);
 
             } catch (error) {
                 console.error(error);
@@ -54,18 +62,21 @@ export default function TrackingPage() {
 
         const interval = setInterval(() => {
             setMarkerPos(prev => {
-                // Random drift
-                const newX = Math.max(10, Math.min(90, prev.x + (Math.random() * 4 - 2)));
-                const newY = Math.max(10, Math.min(90, prev.y + (Math.random() * 4 - 2)));
+                // Realistic drift in map (very small coordinates variation)
+                const driftLat = (Math.random() * 0.0002) - 0.0001;
+                const driftLng = (Math.random() * 0.0002) - 0.0001;
+
+                const newLat = prev.lat + driftLat;
+                const newLng = prev.lng + driftLng;
 
                 // Simulate saving to backend every couple of movements
                 if (Math.random() > 0.5) {
-                    updateTrackerLocation(report.id, newX, newY).catch(() => { });
+                    updateTrackerLocation(report.id, newLat, newLng).catch(() => { });
                 }
 
-                return { x: newX, y: newY };
+                return { lat: newLat, lng: newLng };
             });
-            setDistance(prev => Math.max(0, prev + Math.floor(Math.random() * 20 - 10)));
+            setDistance(prev => Math.max(0, prev + Math.floor(Math.random() * 4 - 2)));
         }, 3000);
 
         return () => clearInterval(interval);
@@ -99,13 +110,8 @@ export default function TrackingPage() {
 
             <div className={styles["tracking-container"]}>
                 <div className={styles["map-simulation"]}>
-                    <div className={styles["radar"]}>
-                        <div className={styles["radar-sweep"]}></div>
-
-                        <div
-                            className={styles["pet-marker"]}
-                            style={{ left: `${markerPos.x}%`, top: `${markerPos.y}%` }}
-                        ></div>
+                    <div className={styles["map-wrapper"]} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+                        <MapComponent lat={markerPos.lat} lng={markerPos.lng} name={report.pet_name} />
                     </div>
 
                     <div className={styles["overlay-ui"]}>
