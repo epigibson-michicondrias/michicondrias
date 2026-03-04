@@ -7,28 +7,43 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.CORE_SERVICE_URL}/api/
 
 ALGORITHM = "HS256"
 
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
-    try:
-        if not token:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not authenticated",
-            )
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+def _decode_token(token: str) -> dict:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No autenticado",
         )
-        user_id: str = payload.get("sub")
-        if user_id is None:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("sub") is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Could not validate credentials",
+                detail="No se pudieron validar las credenciales",
             )
-        return user_id
+        return payload
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
+            detail="No se pudieron validar las credenciales",
         )
+
+def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+    payload = _decode_token(token)
+    return payload["sub"]
+
+def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
+    payload = _decode_token(token)
+    return payload.get("role", "consumidor")
+
+def require_admin(token: str = Depends(oauth2_scheme)) -> str:
+    payload = _decode_token(token)
+    role = payload.get("role", "consumidor")
+    if role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Se requiere rol de administrador",
+        )
+    return payload["sub"]
 
 def get_optional_user_id(token: str = Depends(oauth2_scheme)) -> str:
     if not token:
