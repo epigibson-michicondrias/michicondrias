@@ -17,6 +17,14 @@ export interface LostPetReport {
     longitude: number | null;
     contact_phone: string | null;
     contact_email: string | null;
+
+    // Michi-Tracker fields
+    has_tracker: boolean;
+    tracker_device_id: string | null;
+    current_lat: number | null;
+    current_lng: number | null;
+    last_tracked_at: string | null;
+
     status: string;
     is_resolved: boolean;
     resolved_at: string | null;
@@ -39,6 +47,16 @@ export interface LostPetReportCreate {
     longitude?: number;
     contact_phone?: string;
     contact_email?: string;
+
+    has_tracker?: boolean;
+    tracker_device_id?: string;
+}
+
+export async function updateTrackerLocation(reportId: string, lat: number, lng: number): Promise<LostPetReport> {
+    return apiFetch<LostPetReport>("perdidas", `/reports/${reportId}/location`, {
+        method: "PATCH",
+        body: JSON.stringify({ current_lat: lat, current_lng: lng }),
+    });
 }
 
 export async function getReports(

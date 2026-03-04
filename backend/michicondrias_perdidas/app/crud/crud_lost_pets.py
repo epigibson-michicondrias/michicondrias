@@ -61,6 +61,18 @@ def update_report(db: Session, report_id: str, report_in: LostPetReportUpdate) -
     return db_report
 
 
+def update_tracker_location(db: Session, report_id: str, lat: float, lng: float) -> Optional[LostPetReport]:
+    db_report = get_report_by_id(db, report_id)
+    if not db_report:
+        return None
+    db_report.current_lat = lat
+    db_report.current_lng = lng
+    db_report.last_tracked_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_report)
+    return db_report
+
+
 def get_pending_reports(db: Session, skip: int = 0, limit: int = 100) -> List[LostPetReport]:
     """Retrieve new reports that haven't been reviewed by admin yet."""
     return db.query(LostPetReport).filter(LostPetReport.is_reviewed == False).order_by(desc(LostPetReport.created_at)).offset(skip).limit(limit).all()

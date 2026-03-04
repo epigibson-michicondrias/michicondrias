@@ -28,6 +28,14 @@ class LostPetReport(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     
+    # Michi-Tracker (Real-time tracking)
+    has_tracker = Column(Boolean, default=False)
+    tracker_device_id = Column(String(100), nullable=True)
+    current_lat = Column(Float, nullable=True)
+    current_lng = Column(Float, nullable=True)
+    last_tracked_at = Column(DateTime(timezone=True), nullable=True)
+
+    
     # Contact
     contact_phone = Column(String(30), nullable=True)
     contact_email = Column(String(120), nullable=True)

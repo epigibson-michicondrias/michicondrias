@@ -136,6 +136,23 @@ export default function PerdidasPage() {
                 </div>
             </div>
 
+            {/* Michi-Tracker Premium Offer */}
+            <div className={dashStyles["premium-banner"]} style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15))', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '2rem', marginBottom: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '2rem' }}>
+                <div style={{ flex: 1, minWidth: '300px' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.2)', color: '#10b981', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1rem', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
+                        <span style={{ display: 'inline-block', width: '8px', height: '8px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 10px #10b981', animation: 'pulse 2s infinite' }}></span>
+                        Membresía Activa
+                    </div>
+                    <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', marginBottom: '0.5rem', lineHeight: 1.1 }}>Michi-Tracker Pro</h2>
+                    <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '1.05rem', lineHeight: 1.6, margin: 0 }}>No dependas solo de la suerte. Con nuestra membresía premium adquieres un collar GPS Inteligente para localizar a tu michi en tiempo real con precisión milimétrica.</p>
+                </div>
+                <div>
+                    <button className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.1rem', borderRadius: '16px', background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 10px 25px rgba(16, 185, 129, 0.4)', fontWeight: 800, border: 'none' }}>
+                        Adquirir Collar GPS 📍
+                    </button>
+                </div>
+            </div>
+
             {/* Toolbar */}
             <div className={modStyles["module-page__toolbar"]}>
                 <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", flex: 1 }}>
@@ -198,7 +215,15 @@ export default function PerdidasPage() {
                             </div>
 
                             <div className={styles["report-body"]}>
-                                <h3 className={styles["report-name"]}>{report.pet_name}</h3>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <h3 className={styles["report-name"]}>{report.pet_name}</h3>
+                                    {report.has_tracker && !report.is_resolved && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#10b981', fontSize: '0.75rem', fontWeight: 800, background: 'rgba(16, 185, 129, 0.1)', padding: '0.3rem 0.6rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                                            <span style={{ display: 'inline-block', width: '6px', height: '6px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 8px #10b981', animation: 'pulse 1.5s infinite' }}></span>
+                                            GPS Activo
+                                        </div>
+                                    )}
+                                </div>
                                 <div className={styles["report-meta"]}>
                                     <span>{report.species} {report.breed ? `· ${report.breed}` : ""}</span>
                                     <span>{report.color ? `· ${report.color}` : ""}</span>
@@ -215,14 +240,19 @@ export default function PerdidasPage() {
                                     </p>
                                 )}
 
-                                <div className={styles["report-footer"]}>
+                                <div className={styles["report-footer"]} style={{ flexWrap: 'wrap', gap: '0.75rem' }}>
                                     <span className={styles["report-time"]}>{getTimeSince(report.created_at)}</span>
-                                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                                        {report.contact_phone && (
-                                            <a href={`tel:${report.contact_phone}`} className={styles["contact-btn"]}>📞 Llamar</a>
+                                    <div style={{ display: "flex", gap: "0.5rem", width: '100%' }}>
+                                        {report.has_tracker && !report.is_resolved ? (
+                                            <a href={`/dashboard/perdidas/rastreo/${report.id}`} className="btn btn-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', textAlign: 'center', textDecoration: 'none' }}>
+                                                🗺️ Seguir en Vivo
+                                            </a>
+                                        ) : report.contact_phone && (
+                                            <a href={`tel:${report.contact_phone}`} className={styles["contact-btn"]} style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}>📞 Llamar</a>
                                         )}
+
                                         {report.reporter_id === currentUser?.id && !report.is_resolved && (
-                                            <button className={styles["resolve-btn"]} onClick={() => handleResolve(report.id)}>
+                                            <button className={styles["resolve-btn"]} onClick={() => handleResolve(report.id)} style={{ flex: report.has_tracker ? 'none' : 1 }}>
                                                 ✅ Reunido
                                             </button>
                                         )}
