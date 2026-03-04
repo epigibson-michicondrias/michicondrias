@@ -12,13 +12,13 @@ export async function getGlobalPendingRequests(): Promise<AdoptionRequest[]> {
 }
 
 export async function approveAdoption(listingId: string): Promise<Listing> {
-    return apiFetch<Listing>("adopciones", `/admin/${listingId}/approve`, {
+    return apiFetch<Listing>("adopciones", `/pets/admin/${listingId}/approve`, {
         method: "POST"
     });
 }
 
 export async function rejectAdoption(listingId: string): Promise<void> {
-    return apiFetch<void>("adopciones", `/admin/${listingId}/reject`, {
+    return apiFetch<void>("adopciones", `/pets/admin/${listingId}/reject`, {
         method: "DELETE"
     });
 }
@@ -26,17 +26,17 @@ export async function rejectAdoption(listingId: string): Promise<void> {
 
 // --- Perdidas ---
 export async function getPendingLostPets(): Promise<LostPetReport[]> {
-    return apiFetch<LostPetReport[]>("perdidas", "/admin/pending");
+    return apiFetch<LostPetReport[]>("perdidas", "/reports/admin/pending");
 }
 
 export async function approveLostPet(reportId: string): Promise<LostPetReport> {
-    return apiFetch<LostPetReport>("perdidas", `/admin/${reportId}/approve`, {
+    return apiFetch<LostPetReport>("perdidas", `/reports/admin/${reportId}/approve`, {
         method: "POST"
     });
 }
 
 export async function rejectLostPet(reportId: string): Promise<void> {
-    return apiFetch<void>("perdidas", `/admin/${reportId}/reject`, {
+    return apiFetch<void>("perdidas", `/reports/admin/${reportId}/reject`, {
         method: "DELETE"
     });
 }
