@@ -132,7 +132,15 @@ def read_my_requests(
         listing = crud.get_listing(db, r.listing_id)
         if listing:
             r_dict["pet_name"] = listing.name
-            r_dict["pet_photo_url"] = listing.photo_url
+            
+            # PROTECT AGAINST Lambda 6MB limit (413 Payload Too Large)
+            # If the photo is a huge base64 string, drop it for the list view
+            photo = listing.photo_url
+            if photo and photo.startswith("data:image") and len(photo) > 100000:
+                pass # The frontend will show a fallback paw icon
+            else:
+                r_dict["pet_photo_url"] = photo
+                
         results.append(r_dict)
     return results
 
