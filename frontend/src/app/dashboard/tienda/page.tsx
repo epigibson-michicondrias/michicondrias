@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProducts, Product, createProduct, getCategories, Category } from "@/lib/services/ecommerce";
+import { getProducts, Product, createProduct, getCategories, Category, getEcommercePresignedUrl } from "@/lib/services/ecommerce";
 import { getCurrentUser, User, hasRole } from "@/lib/auth";
 import dashStyles from "../dashboard.module.css";
 import modStyles from "../modules.module.css";
@@ -75,19 +75,37 @@ export default function TiendaPage() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            const formData = new FormData();
-            formData.append("name", newProduct.name);
-            formData.append("description", newProduct.description);
-            formData.append("price", newProduct.price);
-            formData.append("stock", newProduct.stock);
-            formData.append("category_id", newProduct.category_id);
-            formData.append("specifications", newProduct.specifications);
-
+            let finalImageUrl = null;
             if (imageFile) {
-                formData.append("image", imageFile);
+                // Get extension
+                const ext = imageFile.name.substring(imageFile.name.lastIndexOf('.'));
+                const presigned = await getEcommercePresignedUrl(ext);
+
+                // Upload direct to S3
+                const uploadRes = await fetch(presigned.url, {
+                    method: "PUT",
+                    body: imageFile,
+                    headers: {
+                        "Content-Type": imageFile.type,
+                    },
+                });
+
+                if (!uploadRes.ok) {
+                    throw new Error("Error al subir la imagen a S3");
+                }
+
+                finalImageUrl = presigned.public_url;
             }
 
-            const added = await createProduct(formData);
+            const added = await createProduct({
+                name: newProduct.name,
+                description: newProduct.description,
+                price: parseFloat(newProduct.price),
+                stock: parseInt(newProduct.stock),
+                category_id: newProduct.category_id,
+                specifications: newProduct.specifications,
+                image_url: finalImageUrl || undefined
+            });
             setProducts([added, ...products]);
             setShowModal(false);
             setNewProduct({ name: "", description: "", price: "", stock: "10", category_id: categories[0]?.id || "", specifications: "" });

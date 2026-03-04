@@ -164,3 +164,14 @@ def get_user_orders(db: Session, user_id: str, skip: int = 0, limit: int = 20):
 
 def get_order(db: Session, order_id: str):
     return db.query(Order).filter(Order.id == order_id).first()
+
+def get_all_orders(db: Session, skip: int = 0, limit: int = 50):
+    return db.query(Order).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+
+def update_order_status(db: Session, order_id: str, status: str):
+    db_order = get_order(db, order_id)
+    if db_order:
+        db_order.status = status
+        db.commit()
+        db.refresh(db_order)
+    return db_order

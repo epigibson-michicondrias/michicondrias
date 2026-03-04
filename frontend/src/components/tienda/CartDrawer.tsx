@@ -4,6 +4,7 @@ import { useCart } from "@/lib/contexts/CartContext";
 import styles from "./CartDrawer.module.css";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { createCheckoutSession } from "@/lib/services/ecommerce";
 
 import { useRouter } from "next/navigation";
 
@@ -19,15 +20,19 @@ export default function CartDrawer() {
         setIsSubmitting(true);
         const order = await checkout();
         if (order) {
-            setCheckoutSuccess(true);
-            // Wait a bit to show success state before redirecting if we want, or redirect immediately
-            setTimeout(() => {
-                setCheckoutSuccess(false);
-                setIsCartOpen(false);
-                router.push("/dashboard/tienda/compras");
-            }, 2000);
+            try {
+                // Request Stripe Checkout Session
+                const { url } = await createCheckoutSession(order.id);
+                // Redirect user to Stripe secure page
+                window.location.href = url;
+            } catch (err) {
+                console.error("Stripe Checkout Error", err);
+                toast.error("Ocurrió un error al contactar al banco.");
+                setIsSubmitting(false);
+            }
+        } else {
+            setIsSubmitting(false);
         }
-        setIsSubmitting(false);
     };
 
     return (

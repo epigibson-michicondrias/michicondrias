@@ -51,3 +51,34 @@ def read_order(
     if order.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to view this order")
     return order
+
+# --- ADMIN ENDPOINTS ---
+
+@router.get("/admin/all", response_model=List[OrderResponse])
+def read_all_orders(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+    skip: int = 0,
+    limit: int = 50,
+) -> Any:
+    """
+    Retrieve all orders across the system (Admin only).
+    """
+    return crud.crud_ecommerce.get_all_orders(db, skip=skip, limit=limit)
+
+@router.patch("/admin/{order_id}/status", response_model=OrderResponse)
+def update_order_status(
+    order_id: str,
+    status: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """
+    Update an order's status (Admin only).
+    """
+    order = crud.crud_ecommerce.get_order(db, order_id=order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    updated_order = crud.crud_ecommerce.update_order_status(db, order_id=order_id, status=status)
+    return updated_order

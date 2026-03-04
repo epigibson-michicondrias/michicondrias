@@ -90,10 +90,14 @@ export async function getProduct(productId: string): Promise<Product> {
     return apiFetch<Product>("ecommerce", `/products/${productId}`);
 }
 
-export async function createProduct(formData: FormData): Promise<Product> {
+export async function getEcommercePresignedUrl(extension: string): Promise<{ url: string; object_key: string; public_url: string }> {
+    return apiFetch<{ url: string; object_key: string; public_url: string }>("ecommerce", `/products/presigned-url?file_extension=${extension}`);
+}
+
+export async function createProduct(productData: Partial<Product> & { image_url?: string }): Promise<Product> {
     return apiFetch<Product>("ecommerce", "/products/", {
         method: "POST",
-        body: formData,
+        body: JSON.stringify(productData),
     });
 }
 
@@ -124,6 +128,12 @@ export async function getMyOrders(): Promise<Order[]> {
 // DONATIONS
 export async function getDonations(): Promise<Donation[]> {
     return apiFetch<Donation[]>("ecommerce", "/donations/");
+}
+
+export async function createCheckoutSession(orderId: string): Promise<{ sessionId: string, url: string }> {
+    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-checkout-session/${orderId}`, {
+        method: "POST"
+    });
 }
 
 export async function createDonation(amount: number, message?: string): Promise<Donation> {

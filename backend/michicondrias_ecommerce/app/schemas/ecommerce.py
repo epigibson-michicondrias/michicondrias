@@ -143,3 +143,8 @@ class OrderResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PresignedUrlResponse(BaseModel):
+    url: str
+    object_key: str
+    public_url: str

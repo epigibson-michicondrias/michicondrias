@@ -7,8 +7,9 @@ import uuid
 from app import crud
 from app.api import deps
 from app.db.session import get_db
-from app.schemas.ecommerce import ProductCreate, ProductUpdate, ProductResponse, ReviewCreate, ReviewResponse
-from app.core.s3 import upload_file_to_s3
+from app.schemas.ecommerce import ProductCreate, ProductUpdate, ProductResponse, ReviewCreate, ReviewResponse, PresignedUrlResponse
+from app.core.s3 import upload_file_to_s3, generate_presigned_url
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -39,59 +40,46 @@ def read_product(
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
+@router.get("/presigned-url", response_model=PresignedUrlResponse)
+def get_presigned_url(
+    file_extension: str,
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """
+    Get a presigned URL for S3 upload.
+    """
+    if not file_extension.startswith("."):
+        file_extension = f".{file_extension}"
+        
+    unique_id = uuid.uuid4().hex
+    object_name = f"products/{user_id}/{unique_id}{file_extension}"
+    
+    url = generate_presigned_url(object_name)
+    if not url:
+        raise HTTPException(status_code=500, detail="Could not generate presigned URL")
+        
+    return {
+        "url": url,
+        "object_key": object_name,
+        "public_url": f"https://{settings.S3_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{object_name}"
+    }
+
 @router.post("/", response_model=ProductResponse)
 async def create_product(
     *,
     db: Session = Depends(get_db),
-    name: str = Form(...),
-    description: Optional[str] = Form(None),
-    price: float = Form(...),
-    stock: int = Form(0),
-    category_id: Optional[str] = Form(None),
-    subcategory_id: Optional[str] = Form(None),
-    specifications: Optional[str] = Form(None),
-    image: Optional[UploadFile] = File(None),
+    product_in: ProductCreate,
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """
-    Create new product with image upload to S3.
+    Create new product with pre-uploaded S3 URL.
     """
     import logging
     logger = logging.getLogger(__name__)
-    
-    # Handle empty strings from FormData
-    cat_id = category_id if category_id and category_id.strip() else None
-    subcat_id = subcategory_id if subcategory_id and subcategory_id.strip() else None
-
-    image_url = None
-    if image:
-        try:
-            # Generate a unique filename for S3
-            ext = os.path.splitext(image.filename)[1] or ".jpg"
-            unique_id = uuid.uuid4().hex
-            object_name = f"products/{user_id}/{unique_id}{ext}"
-            
-            # Upload to S3
-            image_url = upload_file_to_s3(image.file, object_name, content_type=image.content_type)
-            if not image_url:
-                logger.error(f"S3 Upload failed for product: {name}")
-                raise HTTPException(status_code=500, detail="Error al subir la imagen a S3")
-        except Exception as e:
-            logger.exception("Unexpected error during S3 upload")
-            raise HTTPException(status_code=500, detail=f"Error interno en S3: {str(e)}")
 
     try:
-        product_in = ProductCreate(
-            name=name,
-            description=description,
-            price=price,
-            stock=stock,
-            category_id=cat_id,
-            subcategory_id=subcat_id,
-            specifications=specifications,
-            image_url=image_url,
-            seller_id=user_id
-        )
+        # Override seller_id to ensure the current user is the owner
+        product_in.seller_id = user_id
         
         product = crud.crud_ecommerce.create_product(db=db, product=product_in)
         return product
