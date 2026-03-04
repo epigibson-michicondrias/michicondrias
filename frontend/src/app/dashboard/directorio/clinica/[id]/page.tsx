@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getClinic, Clinic, getVets, Vet, createVet, getClinicReviews, createClinicReview, getClinicRating, ClinicReview, ClinicRating } from "@/lib/services/directorio";
+import { getClinic, Clinic, getVets, Vet, createVet, getClinicReviews, createClinicReview, getClinicRating, ClinicReview, ClinicRating, getClinicServices, ClinicServiceItem } from "@/lib/services/directorio";
 import { getCurrentUser, User } from "@/lib/auth";
 import dashStyles from "../../../dashboard.module.css";
 import styles from "./clinica.module.css";
@@ -14,6 +14,7 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
     const [vets, setVets] = useState<Vet[]>([]);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [services, setServices] = useState<ClinicServiceItem[]>([]);
 
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -32,18 +33,20 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
     useEffect(() => {
         async function load() {
             try {
-                const [data, vetsData, user, reviewsData, ratingData] = await Promise.all([
+                const [data, vetsData, user, reviewsData, ratingData, servicesData] = await Promise.all([
                     getClinic(id),
                     getVets(id),
                     getCurrentUser(),
                     getClinicReviews(id).catch(() => []),
                     getClinicRating(id).catch(() => ({ average_rating: 0, total_reviews: 0 })),
+                    getClinicServices(id).catch(() => []),
                 ]);
                 setClinic(data);
                 setVets(vetsData);
                 setCurrentUser(user);
                 setReviews(reviewsData);
                 setRating(ratingData);
+                setServices(servicesData);
             } catch (err) {
                 console.error("Error cargando perfil de clínica", err);
             } finally {
@@ -242,6 +245,42 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
                             ))}
                         </div>
                     )}
+
+                    {/* --- Services Catalog Section --- */}
+                    <div style={{ marginTop: "3rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                            <h3 className={styles["section-title"]} style={{ marginBottom: 0 }}>Servicios Disponibles</h3>
+                        </div>
+                        {services.length === 0 ? (
+                            <div className={styles["description-box"]} style={{ textAlign: "center", padding: "2.5rem", background: 'rgba(255,255,255,0.01)', borderStyle: 'dashed' }}>
+                                <div style={{ fontSize: "2rem", marginBottom: '0.5rem', opacity: 0.4 }}>🏷️</div>
+                                <p style={{ margin: 0, opacity: 0.7 }}>Esta clínica aún no ha publicado sus servicios.</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
+                                {services.map(svc => (
+                                    <div key={svc.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "18px", padding: "1.5rem", display: "flex", flexDirection: "column" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.5rem" }}>
+                                            <div>
+                                                <p style={{ margin: 0, color: "#fff", fontWeight: 700, fontSize: "1.05rem" }}>{svc.name}</p>
+                                                {svc.category && <span style={{ fontSize: "0.7rem", color: "#a78bfa", background: "rgba(139,92,246,0.1)", padding: "0.15rem 0.5rem", borderRadius: "6px" }}>{svc.category}</span>}
+                                            </div>
+                                            <span style={{ color: "#10b981", fontWeight: 800, fontSize: "1.1rem" }}>{svc.price ? `$${svc.price}` : "Consultar"}</span>
+                                        </div>
+                                        {svc.description && <p style={{ margin: "0 0 0.5rem 0", color: "var(--text-secondary)", fontSize: "0.85rem", flex: 1 }}>{svc.description}</p>}
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: "1rem" }}>
+                                            <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>⏱️ {svc.duration_minutes} min</span>
+                                            {currentUser?.role_name === "consumidor" && (
+                                                <button onClick={() => router.push(`/dashboard/directorio/citas/agendar/${id}?service_id=${svc.id}`)} className="btn btn-primary" style={{ padding: "0.5rem 1rem", borderRadius: "10px", fontSize: "0.8rem", background: "linear-gradient(135deg, #10b981, #059669)" }}>
+                                                    📅 Agendar Cita
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     {/* --- Reviews & Ratings Section --- */}
                     <div style={{ marginTop: "4rem" }}>
