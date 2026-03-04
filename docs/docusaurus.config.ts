@@ -88,6 +88,18 @@ const config: Config = {
           label: 'Documentación Premium',
         },
         {
+          type: 'doc',
+          docId: 'api/authentication',
+          position: 'left',
+          label: 'API Reference',
+        },
+        {
+          type: 'doc',
+          docId: 'frontend/services',
+          position: 'left',
+          label: 'Frontend Docs',
+        },
+        {
           href: 'https://github.com/facebook/docusaurus',
           label: 'GitHub',
           position: 'right',
@@ -103,6 +115,14 @@ const config: Config = {
             {
               label: 'Documentación Premium',
               to: '/docs/dashboard/home',
+            },
+            {
+              label: 'API Reference',
+              to: '/docs/api/authentication',
+            },
+            {
+              label: 'Frontend Services',
+              to: '/docs/frontend/services',
             },
           ],
         },
