@@ -69,7 +69,25 @@ The immediate next priority features are:
 
 ---
 
-## 📝 6. Feature History (Executed Phases)
+## � 6. Functional Inventory (Completed vs Pending)
+
+### ✅ Fully Functional (100% Ready)
+- **Authentication & Security (Core):** JWT Login, Role Guards, S3 Presigned URL generation for KYC.
+- **Moderation Dashboard:** Global pending approvals (Adopciones, Perdidas) with 404 router fixes, Neon/Glassmorphism UI.
+- **Pets & Digital Passports:** CRUD for pets, cinematic profile views, S3 photo integration.
+- **Adoptions (Adopciones):** Public listings, adoption requests, atomic DB rollbacks, Direct S3 image uploads (resolving 413 Payload Error).
+- **Directorio (Vets/Clinics):** Premium glass catalog, detail views, and backend schema migrations.
+- **Medical Records (Carnet):** Medical timeline, vaccination logs, vet-mode clinical terminal UI.
+- **Lost Pets (Perdidas):** Radar simulator, interactive Mapbox/Leaflet live map, Michi-Tracker live coordinates patching.
+
+### 🚧 Pending / In Progress
+- **Michi-Explorer (Global Search):** `Ctrl+K` command palette and backend aggregation endpoints (Currently Phase 41).
+- **React Native Mobile App:** Phase 44 mapped the specs, but the Expo build and layout parity is still pending.
+- **Ecommerce (Shop):** Basic API models exist, but UI integration and payment gateways (Stripe/MercadoPago) are not yet fully implemented.
+
+---
+
+## �📝 7. Feature History (Executed Phases)
 
 The following is the chronological progression of the Michicondrias project. Future AI sessions should read this to understand what has already been built and the complexity of the current system.
 
