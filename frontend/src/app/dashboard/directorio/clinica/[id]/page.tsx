@@ -89,7 +89,7 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
                     <button
                         onClick={() => router.back()}
                         className={dashStyles["back-button-premium"]}
-                        style={{ margin: '1.5rem' }}
+                        style={{ margin: '1.5rem', zIndex: 100, position: 'relative' }}
                         title="Volver al Directorio"
                     >
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -108,38 +108,61 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
                         <div>
                             <h1 className={styles["clinic-name"]}>{clinic.name}</h1>
                             <p className={styles["clinic-metadata"]}>
-                                📍 {clinic.address ? `${clinic.address}, ` : ""}{clinic.city || "Ciudad Desconocida"}, {clinic.state || "MX"}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+                                </svg>
+                                {clinic.address ? `${clinic.address}, ` : ""}{clinic.city || "Ciudad Desconocida"}, {clinic.state || "MX"}
                             </p>
                         </div>
                         <div className={styles["tags-box"]}>
-                            {clinic.is_24_hours && <span className={`${styles.tag} ${styles["tag-blue"]}`}>🕒 Abierto 24 Horas</span>}
-                            {clinic.has_emergency && <span className={`${styles.tag} ${styles["tag-red"]}`}>🚨 Urgencias Mayores</span>}
+                            {clinic.is_24_hours && (
+                                <span className={`${styles.tag} ${styles["tag-blue"]}`}>
+                                    🕒 Abierto 24 Horas
+                                </span>
+                            )}
+                            {clinic.has_emergency && (
+                                <span className={`${styles.tag} ${styles["tag-red"]}`}>
+                                    🚨 Urgencias Mayores
+                                </span>
+                            )}
                         </div>
                     </div>
 
                     <div className={styles["quick-stats"]}>
                         <div className={styles["stat-card"]}>
-                            <span className={styles["stat-icon"]}>📞</span>
+                            <div className={styles["stat-icon"]} style={{ color: '#3b82f6' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                </svg>
+                            </div>
                             <div className={styles["stat-text"]}>
                                 <span className={styles["stat-label"]}>Teléfono Principal</span>
                                 <span className={styles["stat-value"]}>{clinic.phone || "No listado"}</span>
                             </div>
                         </div>
                         <div className={styles["stat-card"]}>
-                            <span className={styles["stat-icon"]}>✉️</span>
+                            <div className={styles["stat-icon"]} style={{ color: '#8b5cf6' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                </svg>
+                            </div>
                             <div className={styles["stat-text"]}>
                                 <span className={styles["stat-label"]}>Correo Electrónico</span>
                                 <span className={styles["stat-value"]}>{clinic.email || "No listado"}</span>
                             </div>
                         </div>
                         <div className={styles["stat-card"]}>
-                            <span className={styles["stat-icon"]}>🌐</span>
+                            <div className={styles["stat-icon"]} style={{ color: '#06b6d4' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                                </svg>
+                            </div>
                             <div className={styles["stat-text"]}>
                                 <span className={styles["stat-label"]}>Sitio Web / Redes</span>
                                 <span className={styles["stat-value"]}>
                                     {clinic.website ? (
-                                        <a href={clinic.website} target="_blank" rel="noreferrer" style={{ color: "var(--primary-light)" }}>
-                                            Visitar Enlace
+                                        <a href={clinic.website} target="_blank" rel="noreferrer" style={{ color: "var(--primary-light)", textDecoration: 'none' }}>
+                                            Visitar Enlace oficial
                                         </a>
                                     ) : "No disponible"}
                                 </span>
@@ -147,10 +170,10 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
                         </div>
                     </div>
 
-                    <div className={dashStyles["form-divider"]} style={{ margin: "2.5rem 0" }} />
+                    <div className={dashStyles["form-divider"]} style={{ margin: "4rem 0" }} />
 
                     <h3 className={styles["section-title"]}>Acerca de la Clínica</h3>
-                    <div className={styles["description-box"]} style={{ marginBottom: "2rem" }}>
+                    <div className={styles["description-box"]} style={{ marginBottom: "3rem" }}>
                         {clinic.description ? (
                             <p>{clinic.description}</p>
                         ) : (
@@ -158,30 +181,33 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
                         )}
                     </div>
 
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
                         <h3 className={styles["section-title"]} style={{ marginBottom: 0 }}>Nuestros Especialistas Médicos</h3>
                         {isOwnerOrAdmin && (
-                            <button className="btn btn-secondary" onClick={() => setShowModal(true)}>
-                                + Añadir Especialista
+                            <button className="btn btn-secondary" onClick={() => setShowModal(true)} style={{ padding: '0.6rem 1.25rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M5 12h14M12 5v14" />
+                                </svg>
+                                Añadir Especialista
                             </button>
                         )}
                     </div>
 
                     {vets.length === 0 ? (
-                        <div className={styles["description-box"]} style={{ textAlign: "center", padding: "2rem" }}>
-                            <span style={{ fontSize: "2rem" }}>🧑‍⚕️</span>
-                            <p style={{ marginTop: "0.5rem", opacity: 0.7 }}>Aún no hay especialistas listados públicamente en esta clínica.</p>
+                        <div className={styles["description-box"]} style={{ textAlign: "center", padding: "3rem", background: 'rgba(255,255,255,0.01)', borderStyle: 'dashed' }}>
+                            <div style={{ fontSize: "2.5rem", marginBottom: '1rem', opacity: 0.4 }}>🧑‍⚕️</div>
+                            <p style={{ margin: 0, opacity: 0.7 }}>Aún no hay especialistas listados públicamente en esta clínica.</p>
                         </div>
                     ) : (
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
+                        <div className={styles["specialists-grid"]}>
                             {vets.map(vet => (
-                                <div key={vet.id} style={{ background: "rgba(255,255,255,0.03)", padding: "1.2rem", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", gap: "1rem", alignItems: "center" }}>
-                                    <div style={{ width: "45px", height: "45px", borderRadius: "50%", background: "linear-gradient(135deg, var(--primary), var(--primary-light))", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "1.2rem" }}>
+                                <div key={vet.id} className={styles["vet-card"]}>
+                                    <div className={styles["vet-avatar"]}>
                                         {vet.first_name.charAt(0)}
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <p style={{ fontWeight: 700, margin: 0, fontSize: "1.05rem", color: "#fff" }}>{vet.first_name} {vet.last_name}</p>
-                                        <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--primary-light)" }}>{vet.specialty || "Médico General"}</p>
+                                        <p style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "#fff", letterSpacing: '-0.01em' }}>{vet.first_name} {vet.last_name}</p>
+                                        <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.9rem", color: "var(--primary-light)", fontWeight: 600 }}>{vet.specialty || "Médico General"}</p>
                                     </div>
                                 </div>
                             ))}

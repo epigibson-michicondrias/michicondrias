@@ -1,11 +1,11 @@
 .container {
-    animation: fadeIn 0.4s ease-out;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeIn {
+@keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(20px);
     }
 
     to {
@@ -18,43 +18,49 @@
 .search-input {
     flex: 2;
     min-width: 250px;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    padding: 0.85rem 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     color: #fff;
-    font-size: 0.95rem;
-    transition: all var(--transition-base);
-    backdrop-filter: blur(10px);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(15px);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .search-input:focus {
     outline: none;
     border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
-    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.07);
 }
 
 .search-input::placeholder {
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.4);
 }
 
 .filter-select {
     flex: 1;
     min-width: 180px;
-    padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    padding: 0.85rem 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
     color: #fff;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: all var(--transition-base);
-    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(15px);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
 }
 
 .filter-select:hover {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
 .filter-select:focus {
@@ -63,114 +69,151 @@
 }
 
 .filter-select option {
-    background: #1e1e24;
+    background: #121218;
     color: #fff;
+    padding: 10px;
 }
 
 /* Grid & Cards */
 .clinic-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
 .clinic-card {
-    background: var(--bg-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: all var(--transition-base);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.clinic-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .clinic-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.1), 0 0 0 1px rgba(124, 58, 237, 0.2);
+    transform: translateY(-8px) scale(1.01);
+    border-color: rgba(6, 182, 212, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(6, 182, 212, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.clinic-card:hover::before {
+    opacity: 1;
+}
+
+/* Specific Hover for Specialist card */
+.clinic-card.vet-hover:hover {
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(16, 185, 129, 0.15);
 }
 
 .card-header {
-    padding: 1.5rem;
+    padding: 1.75rem 1.5rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    gap: 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .avatar-placeholder {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(59, 130, 246, 0.3));
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.3));
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
 }
 
 .name {
-    font-size: 1.15rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
     color: #fff;
-    margin: 0 0 0.2rem 0;
+    margin: 0 0 0.3rem 0;
+    letter-spacing: -0.02em;
 }
 
 .location {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
 .card-body {
-    padding: 1.25rem 1.5rem;
+    padding: 1.5rem;
     flex: 1;
 }
 
 .tags-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
 }
 
 .tag {
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.4rem 0.8rem;
+    border-radius: 10px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .tag-blue {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
+    background: rgba(6, 182, 212, 0.1);
+    color: #22d3ee;
+    border-color: rgba(6, 182, 212, 0.2);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.05);
 }
 
 .tag-red {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.1);
     color: #f87171;
+    border-color: rgba(239, 68, 68, 0.2);
 }
 
 .description {
-    font-size: 0.88rem;
-    color: var(--text-secondary);
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.6;
     margin: 0;
 }
 
 .card-footer {
-    padding: 1rem 1.5rem;
+    padding: 1.25rem 1.5rem;
     display: flex;
-    gap: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    gap: 1rem;
+    background: rgba(0, 0, 0, 0.15);
 }
 
 .action-btn {
@@ -178,68 +221,90 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    font-family: 'Inter', sans-serif;
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    transition: all var(--transition-base);
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 12px;
+    transition: all 0.3s ease;
     cursor: pointer;
+    text-decoration: none;
+    gap: 0.5rem;
 }
 
 .btn-outline {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.03);
     color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-outline:hover {
     background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-solid {
-    background: var(--primary-gradient);
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
     color: #fff;
     border: none;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
 }
 
 .btn-solid:hover {
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
 }
 
 /* Tabs */
 .tabs-container {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0px;
+    display: inline-flex;
+    gap: 0.25rem;
+    margin: 2rem 0;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.4rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
 }
 
 .tab {
     background: transparent;
     border: none;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.75rem 1.75rem;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all var(--transition-base);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
 }
 
 .tab:hover {
     color: #fff;
     background: rgba(255, 255, 255, 0.05);
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
 }
 
 .tab-active {
     color: #fff;
-    border-bottom-color: var(--primary);
-    background: rgba(124, 58, 237, 0.1);
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    background: rgba(124, 58, 237, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(124, 58, 237, 0.2);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+    .clinic-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tabs-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .tab {
+        justify-content: center;
+    }
 }
