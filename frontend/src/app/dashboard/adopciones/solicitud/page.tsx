@@ -164,7 +164,19 @@ function SolicitudContent() {
     return (
         <>
             <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>📋 Solicitud de Adopción</h1>
+                <h1 className={dashStyles["page-title"]}>
+                    <button
+                        onClick={() => router.back()}
+                        className={dashStyles["back-button-premium"]}
+                        title="Volver"
+                        disabled={loadingAction}
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    Solicitud de Adopción
+                </h1>
                 <p className={dashStyles["page-subtitle"]}>
                     Tu compromiso es vital para la vida y felicidad de esta mascota
                 </p>
@@ -320,16 +332,8 @@ function SolicitudContent() {
                 </fieldset>
 
                 <div className={styles["form-actions"]}>
-                    <button type="submit" className="btn btn-primary" disabled={loadingAction}>
+                    <button type="submit" className="btn btn-primary" disabled={loadingAction} style={{ flex: 1 }}>
                         {loadingAction ? "Enviando..." : "🤝 Enviar solicitud formal"}
-                    </button>
-                    <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => router.back()}
-                        disabled={loadingAction}
-                    >
-                        Volver
                     </button>
                 </div>
             </form>

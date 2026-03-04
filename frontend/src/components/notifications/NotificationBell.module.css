@@ -4,61 +4,90 @@
 
 .bell {
     position: relative;
-    background: transparent;
-    border: none;
-    font-size: 1.35rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
     cursor: pointer;
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    padding: 0.6rem;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
 }
 
 .bell:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(124, 58, 237, 0.1);
+    border-color: rgba(124, 58, 237, 0.3);
+    color: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.2);
+}
+
+.bell:active {
+    transform: scale(0.95);
+}
+
+.bell-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bell-svg {
+    width: 20px;
+    height: 20px;
 }
 
 .badge {
     position: absolute;
-    top: 2px;
-    right: 2px;
+    top: -4px;
+    right: -4px;
     min-width: 18px;
     height: 18px;
-    border-radius: 50%;
-    background: #ef4444;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
     color: #fff;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    animation: pop 0.3s ease-out;
+    border: 2px solid var(--bg-primary);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes pop {
     from {
-        transform: scale(0);
+        transform: scale(0) rotate(-10deg);
+        opacity: 0;
     }
 
     to {
-        transform: scale(1);
+        transform: scale(1) rotate(0);
+        opacity: 1;
     }
 }
 
 /* Panel */
 .panel {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 12px);
     right: 0;
-    width: 360px;
-    max-height: 450px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    width: 380px;
+    max-height: 500px;
+    background: rgba(15, 15, 20, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
     z-index: 1000;
     overflow: hidden;
-    animation: slideDown 0.2s ease-out;
+    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideDown {
@@ -117,32 +146,51 @@
 /* Items */
 .item {
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    transition: background var(--transition-fast);
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 .item:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .unread {
-    background: rgba(124, 58, 237, 0.05);
-    border-left: 3px solid var(--primary);
+    background: rgba(124, 58, 237, 0.04);
 }
 
 .item-link {
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
     text-decoration: none;
     color: inherit;
+    position: relative;
+}
+
+.unread .item-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 70%;
+    background: linear-gradient(to bottom, var(--primary), #8b5cf6);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
 }
 
 .item-icon {
-    font-size: 1.35rem;
-    min-width: 28px;
-    text-align: center;
-    padding-top: 2px;
+    font-size: 1.5rem;
+    min-width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .item-content {

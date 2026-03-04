@@ -86,8 +86,15 @@ export default function ClinicaDetailPage(props: { params: Promise<{ id: string 
         <div className={styles["profile-container"]}>
             <div className={styles["visual-header"]}>
                 <div className={styles["hero-overlay"]}>
-                    <button className={styles["back-btn"]} onClick={() => router.back()}>
-                        ← Volver al Directorio
+                    <button
+                        onClick={() => router.back()}
+                        className={dashStyles["back-button-premium"]}
+                        style={{ margin: '1.5rem' }}
+                        title="Volver al Directorio"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
                     </button>
                 </div>
                 <div className={styles["avatar-large"]}>

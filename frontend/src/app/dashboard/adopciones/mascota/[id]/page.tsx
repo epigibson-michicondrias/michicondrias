@@ -74,8 +74,15 @@ export default function MascotaDetailPage(props: { params: Promise<{ id: string 
                 )}
 
                 <div className={styles["hero-overlay"]}>
-                    <button className={styles["back-btn"]} onClick={() => router.back()}>
-                        ← Volver a la Galería
+                    <button
+                        onClick={() => router.back()}
+                        className={dashStyles["back-button-premium"]}
+                        style={{ margin: '1.5rem' }}
+                        title="Volver a la Galería"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
                     </button>
                     <div className={styles["hero-tags"]} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                         <span className={styles["status-badge"]}>

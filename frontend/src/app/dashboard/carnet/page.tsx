@@ -6,6 +6,8 @@ import { getCurrentUser, User, hasRole } from "@/lib/auth";
 import { getUserPets, Pet, createPet } from "@/lib/services/mascotas";
 import dashStyles from "../dashboard.module.css";
 import modStyles from "../modules.module.css";
+import styles from "./carnet.module.css";
+import petStyles from "../mascotas/mascotas.module.css";
 import { toast } from "react-hot-toast";
 
 export default function CarnetPage() {
@@ -26,7 +28,6 @@ export default function CarnetPage() {
                 const u = await getCurrentUser();
                 setUser(u);
 
-                // Fetch dynamic role check client side
                 const r = hasRole("veterinario") || hasRole("admin");
                 setIsVetOrAdmin(r);
 
@@ -66,114 +67,140 @@ export default function CarnetPage() {
     if (loading) return <p className={dashStyles["loading-text"]}>Cargando historiales...</p>;
 
     return (
-        <div style={{ animation: "fadeIn 0.4s ease-out" }}>
+        <div className={styles.container}>
             <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>📋 Carnet Clínico de Mascotas</h1>
+                <h1 className={dashStyles["page-title"]}>📋 Carnet Clínico</h1>
                 <p className={dashStyles["page-subtitle"]}>
-                    Gestiona el historial médico, vacunas y consultas de tus compañeros de vida.
+                    Expedientes médicos, vacunas y consultas de tus compañeros.
                 </p>
-                <div style={{ marginTop: "1.5rem" }}>
-                    <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                        + Registrar Nueva Mascota
-                    </button>
+            </div>
+
+            {/* Action Bar */}
+            <div className={styles["action-bar"]}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.5rem' }}>📑</span>
+                    <span style={{ color: "var(--text-secondary)", fontSize: "0.95rem", fontWeight: 600 }}>
+                        {pets.length} {pets.length === 1 ? 'Carnet activo' : 'Carnets activos'}
+                    </span>
                 </div>
+                <button className={petStyles["btn-premium"]} onClick={() => setShowModal(true)}>
+                    ✨ Registrar Nueva Mascota
+                </button>
             </div>
 
             {isVetOrAdmin && (
-                <div style={{ background: "rgba(124, 58, 237, 0.1)", padding: "1.5rem", borderRadius: "var(--radius-md)", border: "1px solid rgba(124, 58, 237, 0.3)", marginBottom: "2rem", display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap", position: "relative" }}>
-                    <div style={{ flex: 1, minWidth: "250px" }}>
-                        <h3 style={{ fontSize: "1.05rem", color: "#fff", marginBottom: "0.2rem" }}>👨‍⚕️ Modo Médico Habilitado</h3>
-                        <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: 0 }}>Como veterinario puedes ingresar el ID de un paciente externo y atarlo a tu historial de clínica.</p>
+                <div className={styles["medical-terminal"]}>
+                    <div className={styles["terminal-info"]}>
+                        <h3 className={styles["terminal-title"]}>
+                            👨‍⚕️ Modo Médico Habilitado
+                        </h3>
+                        <p className={styles["terminal-subtitle"]}>
+                            Acceso global a historiales de pacientes externos mediante ID digital.
+                        </p>
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+
+                    <div className={styles["terminal-actions"]}>
                         <input
                             type="text"
-                            className="form-input"
+                            className={`form-input ${styles["terminal-input"]}`}
                             placeholder="Introduce el ID del paciente..."
                             value={searchId}
                             onChange={(e) => setSearchId(e.target.value)}
-                            style={{ minWidth: "250px", marginBottom: 0 }}
                         />
-                        <Link href={`/dashboard/carnet/${searchId}`} className={`btn btn-solid ${!searchId ? "disabled" : ""}`} style={{ pointerEvents: searchId ? "auto" : "none", opacity: searchId ? 1 : 0.5, padding: "0.75rem 1rem", height: "100%", whiteSpace: "nowrap" }}>
-                            Abrir Consulta 🏥
+                        <Link
+                            href={`/dashboard/carnet/${searchId}`}
+                            className={`btn btn-solid ${!searchId ? "disabled" : ""}`}
+                            style={{
+                                pointerEvents: searchId ? "auto" : "none",
+                                opacity: searchId ? 1 : 0.5,
+                                background: '#06b6d4',
+                                borderColor: '#06b6d4',
+                                color: '#000',
+                                fontWeight: 800
+                            }}
+                        >
+                            INICIAR CONSULTA 🏥
                         </Link>
                     </div>
                 </div>
             )}
 
             {pets.length === 0 ? (
-                <div className={modStyles["empty-state"]}>
-                    <span className={modStyles["empty-state__icon"]}>🐾</span>
-                    <p className={modStyles["empty-state__text"]}>Aún no tienes mascotas personales registradas.</p>
+                <div className={modStyles["empty-state"]} style={{ padding: "5rem 2rem", background: "rgba(15,15,26,0.4)", borderRadius: "32px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                    <span style={{ fontSize: "5rem", display: "block", marginBottom: "1rem" }}>🩺</span>
+                    <h3 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "800" }}>Sin expedientes</h3>
+                    <p style={{ color: "var(--text-secondary)" }}>Registra a tu mascota para generar su carnet clínico digital.</p>
                 </div>
             ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
+                <div className={styles["carnet-grid"]}>
                     {pets.map(pet => (
-                        <div key={pet.id} style={{
-                            background: "var(--bg-glass)",
-                            border: "1px solid var(--border-color)",
-                            borderRadius: "var(--radius-lg)",
-                            padding: "1.5rem",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "1rem"
-                        }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyItems: "center", gap: "1rem" }}>
-                                <div style={{
-                                    width: "60px", height: "60px",
-                                    borderRadius: "50%",
-                                    background: "linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(59, 130, 246, 0.3))",
-                                    display: "flex", alignItems: "center", justifyContent: "center",
-                                    fontSize: "1.5rem"
-                                }}>
-                                    {pet.species.toLowerCase() === "perro" ? "🐶" : pet.species.toLowerCase() === "gato" ? "🐱" : "🐾"}
+                        <div key={pet.id} className={styles["pet-medical-card"]}>
+                            <div className={styles["card-header"]}>
+                                <div className={styles["pet-avatar-wrapper"]}>
+                                    {pet.species.toLowerCase() === "perro" ? "🐕" : pet.species.toLowerCase() === "gato" ? "🐈" : "🐾"}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <h2 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#fff", margin: "0 0 0.2rem 0" }}>{pet.name}</h2>
-                                    <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: 0 }}>{pet.breed || pet.species}</p>
+                                <div className={styles["pet-main-info"]}>
+                                    <h2 className={styles["pet-name"]}>{pet.name}</h2>
+                                    <p className={styles["pet-breed"]}>{pet.breed || pet.species}</p>
                                 </div>
                             </div>
 
-                            <div style={{ background: "rgba(0,0,0,0.2)", padding: "0.5rem 1rem", borderRadius: "6px", fontSize: "0.75rem", textAlign: "center", fontFamily: "monospace", color: "var(--primary-light)" }}>
-                                ID: {pet.id}
+                            <div className={styles["id-badge"]}>
+                                <span>DIGITAL ID:</span> {pet.id.substring(0, 18)}...
                             </div>
 
-                            <Link href={`/dashboard/carnet/${pet.id}`} className="btn btn-outline" style={{ textAlign: "center", justifyContent: "center", width: "100%", marginTop: "auto" }}>
-                                📂 Abrir Carnet / Expediente
-                            </Link>
+                            <div className={styles["card-actions"]}>
+                                <Link href={`/dashboard/carnet/${pet.id}`} className={styles["btn-open-carnet"]}>
+                                    📂 Abrir Expediente Médico
+                                </Link>
+                            </div>
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Modal de Mascota  */}
+            {/* Modal de Mascota Premium */}
             {showModal && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-                    <div style={{ background: "var(--bg-glass)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-lg)", padding: "2rem", width: "100%", maxWidth: "450px" }}>
-                        <h2 style={{ color: "#fff", marginBottom: "1.5rem", fontSize: "1.4rem" }}>Nueva Mascota</h2>
-                        <form onSubmit={handleCreatePet} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            <div>
-                                <label>Nombre *</label>
-                                <input type="text" className="form-input" required value={newPet.name} onChange={e => setNewPet({ ...newPet, name: e.target.value })} />
+                <div className={petStyles["modal-overlay"]}>
+                    <div className={petStyles["modal-content"]} style={{ maxWidth: '500px' }}>
+                        <div className={petStyles["modal-header"]}>
+                            <h2 className={petStyles["modal-title"]}>✨ Nuevo Perfil Clínico</h2>
+                            <button
+                                onClick={() => setShowModal(false)}
+                                style={{ background: "transparent", border: "none", color: "var(--text-secondary)", fontSize: "2rem", cursor: "pointer" }}
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleCreatePet} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                            <div className={petStyles["form-section"]}>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label>Nombre del Paciente *</label>
+                                    <input type="text" className="form-input" required value={newPet.name} onChange={e => setNewPet({ ...newPet, name: e.target.value })} placeholder="Ej. Milanesillo" />
+                                </div>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label>Especie *</label>
+                                    <select className="form-input" value={newPet.species} onChange={e => setNewPet({ ...newPet, species: e.target.value })}>
+                                        <option value="Gato">🐈 Gato</option>
+                                        <option value="Perro">🐕 Perro</option>
+                                        <option value="Conejo">🐰 Conejo</option>
+                                        <option value="Ave">🦜 Ave</option>
+                                        <option value="Otro">🐾 Otro</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Raza / Variedad</label>
+                                    <input type="text" className="form-input" placeholder="Ej. Siamés, Mezcla..." value={newPet.breed} onChange={e => setNewPet({ ...newPet, breed: e.target.value })} />
+                                </div>
                             </div>
-                            <div>
-                                <label>Especie *</label>
-                                <select className="form-input" value={newPet.species} onChange={e => setNewPet({ ...newPet, species: e.target.value })}>
-                                    <option value="Gato">Gato</option>
-                                    <option value="Perro">Perro</option>
-                                    <option value="Conejo">Conejo</option>
-                                    <option value="Ave">Ave</option>
-                                    <option value="Otro">Otro</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>Raza</label>
-                                <input type="text" className="form-input" placeholder="Ej. Siamés, Golden Retriever..." value={newPet.breed} onChange={e => setNewPet({ ...newPet, breed: e.target.value })} />
-                            </div>
-                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                                <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Cancelar</button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={creating}>
-                                    {creating ? "Creando..." : "Crear Perfil"}
+
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                <button type="button" className="btn btn-secondary" style={{ flex: 1, borderRadius: '16px' }} onClick={() => setShowModal(false)}>
+                                    Cancelar
+                                </button>
+                                <button type="submit" className={petStyles["btn-premium"]} style={{ flex: 1 }} disabled={creating}>
+                                    {creating ? "Generando..." : "Crear Expediente"}
                                 </button>
                             </div>
                         </form>

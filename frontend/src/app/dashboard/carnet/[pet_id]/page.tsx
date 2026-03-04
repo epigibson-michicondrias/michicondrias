@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { getPetById, Pet } from "@/lib/services/mascotas";
 import { getRecordsByPet, getVaccinesByPet, createRecord, createVaccine, MedicalRecord, Vaccine } from "@/lib/services/carnet";
 import { getCurrentUser, User, hasRole } from "@/lib/auth";
 import dashStyles from "../../dashboard.module.css";
 import styles from "./expediente.module.css";
+import petStyles from "../../mascotas/mascotas.module.css";
 import { toast } from "react-hot-toast";
 
 export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: string }> }) {
@@ -65,7 +67,7 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
             const added = await createRecord({
                 pet_id,
                 veterinarian_id: user?.id || null,
-                clinic_id: null, // Depending on future scope we can attach clinic_id
+                clinic_id: null,
                 reason_for_visit: recordForm.reason_for_visit,
                 diagnosis: recordForm.diagnosis,
                 treatment: recordForm.treatment,
@@ -107,41 +109,69 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
     };
 
     if (loading) {
-        return <div className={dashStyles["page-header"]}><h1 className={dashStyles["page-title"]}>Cargando Expediente...</h1></div>;
+        return <div className={dashStyles["loading-container"]}><p className={dashStyles["loading-text"]}>Sincronizando Expediente Clínico...</p></div>;
     }
 
     if (!pet) {
         return (
             <div className={dashStyles["empty-state"]}>
-                <span style={{ fontSize: "4rem" }}>😢</span>
-                <p>No pudimos encontrar el expediente de esta mascota.</p>
-                <button onClick={() => router.push("/dashboard/carnet")} className="btn btn-secondary" style={{ marginTop: "1rem" }}>
-                    Volver
+                <span style={{ fontSize: "5rem", display: "block", marginBottom: "1.5rem" }}>📡</span>
+                <h3 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "800" }}>Error de Sincronización</h3>
+                <p style={{ color: "var(--text-secondary)" }}>No se pudo recuperar el historial médico digital del paciente.</p>
+                <button onClick={() => router.push("/dashboard/carnet")} className="btn btn-secondary" style={{ marginTop: "2rem", borderRadius: "16px" }}>
+                    Regresar al Carnet
                 </button>
             </div>
         );
     }
 
-    // Checking if user is Owner
     const isOwner = user?.id === pet.owner_id;
 
     return (
         <div className={styles["record-container"]}>
-            <div className={dashStyles["page-header"]} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
-                <div>
-                    <h1 className={dashStyles["page-title"]}>
-                        <button onClick={() => router.back()} style={{ background: "transparent", border: "none", color: "var(--primary-light)", cursor: "pointer", fontSize: "1.2rem", marginRight: "10px" }}>←</button>
-                        Expediente de {pet.name}
-                    </h1>
-                    <p className={dashStyles["page-subtitle"]}>ID del Paciente: <span style={{ fontFamily: "monospace", opacity: 0.8 }}>{pet.id}</span></p>
+            <div className={dashStyles["page-header"]}>
+                <h1 className={dashStyles["page-title"]}>
+                    <button
+                        onClick={() => router.back()}
+                        className={dashStyles["back-button-premium"]}
+                        title="Volver"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    Expediente Clínico
+                </h1>
+                <p className={dashStyles["page-subtitle"]}>Historial médico integral de <strong>{pet.name}</strong></p>
+            </div>
+
+            {/* Action Bar / Patient ID */}
+            <div className={styles["action-bar"]}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div className={styles["medical-tag"]}>PATIENT_ID</div>
+                    <code style={{ color: "var(--primary-light)", fontSize: "0.9rem", letterSpacing: "0.1em" }}>{pet.id}</code>
                 </div>
+                {!isOwner && isVet && (
+                    <div className={styles["status-badge"]} style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
+                        ⚕️ MODO CLÍNICO EXTERNO
+                    </div>
+                )}
             </div>
 
             <div className={styles["layout-grid"]}>
-                {/* Left pane: Pet Details */}
-                <div className={styles["left-pane"]}>
+                {/* Left pane: Clinical Sidebar */}
+                <aside className={styles["left-pane"]}>
                     <div className={styles["pet-avatar-large"]}>
-                        {pet.species === "Perro" ? "🐶" : pet.species === "Gato" ? "🐱" : "🐾"}
+                        {pet.photo_url ? (
+                            <Image
+                                src={pet.photo_url}
+                                alt={pet.name}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                            />
+                        ) : (
+                            pet.species === "Perro" ? "🐕" : pet.species === "Gato" ? "🐈" : "🐾"
+                        )}
                     </div>
                     <h2 className={styles["pet-name"]}>{pet.name}</h2>
                     <p className={styles["pet-breed"]}>{pet.breed || pet.species}</p>
@@ -152,100 +182,102 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                             <strong>{pet.species}</strong>
                         </div>
                         <div className={styles["pet-stat"]}>
-                            <span>Edad Estimada</span>
-                            <strong>{pet.age_months ? `${Math.floor(pet.age_months / 12)}a ${pet.age_months % 12}m` : "No registrada"}</strong>
+                            <span>Edad</span>
+                            <strong>{pet.age_months ? `${Math.floor(pet.age_months / 12)}a ${pet.age_months % 12}m` : "N/A"}</strong>
                         </div>
                         <div className={styles["pet-stat"]}>
-                            <span>Tamaño</span>
-                            <strong>{pet.size || "Mediano"}</strong>
-                        </div>
-                        <div className={styles["pet-stat"]}>
-                            <span>Peso</span>
+                            <span>Peso Actual</span>
                             <strong>{pet.weight_kg ? `${pet.weight_kg} kg` : "--"}</strong>
                         </div>
                     </div>
 
-                    <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#fff", background: "rgba(255,255,255,0.05)", padding: "0.5rem", borderRadius: "4px" }}>
-                            <span>💉 Vacunas:</span>
-                            <span style={{ color: pet.is_vaccinated ? "#4ade80" : "#fb7185" }}>{pet.is_vaccinated ? "Al día" : "Pendientes"}</span>
+                    <div className={styles["health-status-list"]}>
+                        <div className={`${styles["health-badge"]} ${pet.is_vaccinated ? styles["badge-success"] : styles["badge-warning"]}`}>
+                            <span>💉 Vacunación</span>
+                            <span>{pet.is_vaccinated ? "AL DÍA" : "PENDIENTE"}</span>
                         </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#fff", background: "rgba(255,255,255,0.05)", padding: "0.5rem", borderRadius: "4px" }}>
-                            <span>✂️ Esterilizado:</span>
-                            <span style={{ color: pet.is_sterilized ? "#4ade80" : "#fb7185" }}>{pet.is_sterilized ? "SÍ" : "NO"}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: "#fff", background: "rgba(255,255,255,0.05)", padding: "0.5rem", borderRadius: "4px" }}>
-                            <span>🦠 Desparasitado:</span>
-                            <span>{pet.is_dewormed ? "SÍ" : "NO"}</span>
+                        <div className={`${styles["health-badge"]} ${pet.is_sterilized ? styles["badge-success"] : styles["badge-warning"]}`}>
+                            <span>✂️ Esterilización</span>
+                            <span>{pet.is_sterilized ? "SÍ" : "NO"}</span>
                         </div>
                     </div>
 
                     {pet.temperament && (
-                        <div style={{ marginTop: "1rem", padding: "1rem", background: "rgba(255,255,255,0.03)", borderRadius: "6px", borderLeft: "3px solid var(--primary)" }}>
-                            <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)", fontWeight: 600 }}>Personalidad:</p>
-                            <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", color: "#fff", fontStyle: "italic" }}>"{pet.temperament}"</p>
+                        <div className={styles["diagnosis-box"]} style={{ textAlign: 'left', marginTop: '0' }}>
+                            <strong>PERFIL DE TEMPERAMENTO</strong>
+                            <p style={{ margin: 0, fontSize: "0.95rem", color: "#fff", fontStyle: "italic" }}>"{pet.temperament}"</p>
                         </div>
                     )}
+                </aside>
 
-                    {pet.microchip_number && (
-                        <div style={{ marginTop: "1rem", fontSize: "0.75rem", textAlign: "center", opacity: 0.6 }}>
-                            📡 Microchip: {pet.microchip_number}
-                        </div>
-                    )}
-
-                    {!isOwner && isVet && (
-                        <div style={{ marginTop: "1.5rem", padding: "1rem", background: "rgba(124, 58, 237, 0.1)", borderRadius: "var(--radius-sm)", border: "1px solid rgba(124, 58, 237, 0.2)", fontSize: "0.85rem", color: "var(--primary-light)" }}>
-                            <strong>Atención Médica Externa</strong><br />
-                            Estás visualizando el carnet de un paciente que no es tuyo bajo el rol de veterinario.
-                            Puedes registrar nuevas interacciones médicas debajo.
-                        </div>
-                    )}
-                </div>
-
-                {/* Right pane: Medical History */}
-                <div className={styles["right-pane"]}>
-                    <div className={styles["tabs-container"]}>
+                {/* Right pane: Clinical Content */}
+                <main className={styles["right-pane"]}>
+                    <nav className={styles["tabs-container"]}>
                         <button
                             className={`${styles.tab} ${activeTab === "consultas" ? styles["tab-active"] : ""}`}
                             onClick={() => setActiveTab("consultas")}
                         >
-                            🩺 Consultas y Tratamientos
+                            🩺 Consultas
                         </button>
                         <button
                             className={`${styles.tab} ${activeTab === "vacunas" ? styles["tab-active"] : ""}`}
                             onClick={() => setActiveTab("vacunas")}
                         >
-                            💉 Historial de Vacunación
+                            💉 Vacunas
                         </button>
-                    </div>
+                    </nav>
 
                     <div className={styles["tab-content"]}>
                         {activeTab === "consultas" ? (
-                            <div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                                    <h3 style={{ color: "#fff", margin: 0 }}>Historial Médico</h3>
+                            <div className={styles.container}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                                    <h3 style={{ color: "#fff", margin: 0, fontSize: "1.5rem", fontWeight: 800 }}>Línea de Tiempo Médica</h3>
                                     {isVet && (
-                                        <button className="btn btn-primary" onClick={() => setShowRecordModal(true)} style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}>
-                                            + Registrar Consulta
+                                        <button className={petStyles["btn-premium"]} onClick={() => setShowRecordModal(true)}>
+                                            ✨ Nueva Consulta
                                         </button>
                                     )}
                                 </div>
 
                                 {records.length === 0 ? (
-                                    <div className={styles["empty-list"]}>Sin consultas registradas.</div>
+                                    <div className={styles["empty-list"]}>
+                                        <span style={{ fontSize: "3rem", display: "block", marginBottom: "1rem" }}>📝</span>
+                                        No hay registros de consultas médicas previos.
+                                    </div>
                                 ) : (
                                     <div className={styles["timeline"]}>
                                         {records.map(record => (
                                             <div key={record.id} className={styles["timeline-item"]}>
                                                 <div className={styles["timeline-date"]}>
-                                                    {new Date(record.date).toLocaleDateString()}
+                                                    <span className={styles["date-day"]}>{new Date(record.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</span>
+                                                    <span className={styles["date-year"]}>{new Date(record.date).getFullYear()}</span>
                                                 </div>
                                                 <div className={styles["timeline-content"]}>
-                                                    <h4 style={{ margin: "0 0 0.5rem 0", color: "#fff" }}>{record.reason_for_visit}</h4>
-                                                    {record.weight_kg && <span style={{ fontSize: "0.8rem", background: "rgba(255,255,255,0.1)", padding: "0.2rem 0.5rem", borderRadius: "4px", marginRight: "0.5rem" }}>⚖️ {record.weight_kg} kg</span>}
-                                                    {record.diagnosis && <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}><strong>Diagnóstico:</strong> {record.diagnosis}</p>}
-                                                    {record.treatment && <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}><strong>Tratamiento:</strong> {record.treatment}</p>}
-                                                    {record.notes && <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", fontStyle: "italic", marginTop: "0.5rem" }}>{record.notes}</p>}
+                                                    <h4>{record.reason_for_visit}</h4>
+                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                                        <span className={styles["medical-tag"]}>🩺 CONSULTA</span>
+                                                        {record.weight_kg && <span className={styles["medical-tag"]} style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4' }}>⚖️ {record.weight_kg} kg</span>}
+                                                    </div>
+
+                                                    {record.diagnosis && (
+                                                        <div className={styles["diagnosis-box"]}>
+                                                            <strong>DIAGNÓSTICO CLÍNICO</strong>
+                                                            <p style={{ margin: 0 }}>{record.diagnosis}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {record.treatment && (
+                                                        <div className={styles["treatment-box"]}>
+                                                            <strong>TRATAMIENTO Y RECETA</strong>
+                                                            <p style={{ margin: 0 }}>{record.treatment}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {record.notes && (
+                                                        <p style={{ marginTop: '1.25rem', fontSize: '0.9rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                                                            {record.notes}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
@@ -253,41 +285,47 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                                 )}
                             </div>
                         ) : (
-                            <div>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                                    <h3 style={{ color: "#fff", margin: 0 }}>Esquema de Vacunación</h3>
+                            <div className={styles.container}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                                    <h3 style={{ color: "#fff", margin: 0, fontSize: "1.5rem", fontWeight: 800 }}>Esquema de Vacunación</h3>
                                     {isVet && (
-                                        <button className="btn btn-secondary" onClick={() => setShowVaccineModal(true)} style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}>
-                                            + Registrar Vacuna
+                                        <button className={petStyles["btn-premium"]} style={{ background: 'linear-gradient(135deg, #06b6d4, #3b82f6)' }} onClick={() => setShowVaccineModal(true)}>
+                                            💉 Aplicar Vacuna
                                         </button>
                                     )}
                                 </div>
 
                                 {vaccines.length === 0 ? (
-                                    <div className={styles["empty-list"]}>Sin historial de vacunación.</div>
+                                    <div className={styles["empty-list"]}>
+                                        <span style={{ fontSize: "3rem", display: "block", marginBottom: "1rem" }}>💉</span>
+                                        No hay registros de inmunización para este paciente.
+                                    </div>
                                 ) : (
                                     <div className={styles["vaccines-grid"]}>
                                         {vaccines.map(vaccine => {
                                             const isDue = vaccine.next_due_date && new Date(vaccine.next_due_date) < new Date();
                                             return (
                                                 <div key={vaccine.id} className={`${styles["vaccine-card"]} ${isDue ? styles["vaccine-due"] : ""}`}>
-                                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                                        <h4 style={{ margin: "0 0 0.5rem 0", color: "#fff" }}>🧬 {vaccine.name}</h4>
-                                                        {isDue && <span className={styles["badge-danger"]}>Expirada</span>}
+                                                    <h4 className={styles["vaccine-name"]}>{vaccine.name}</h4>
+
+                                                    <div className={styles["vaccine-info-row"]}>
+                                                        <span>Fecha Aplicación:</span>
+                                                        <strong>{new Date(vaccine.date_administered).toLocaleDateString()}</strong>
                                                     </div>
-                                                    <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: "0 0 0.25rem 0" }}>
-                                                        <strong>Aplicada:</strong> {new Date(vaccine.date_administered).toLocaleDateString()}
-                                                    </p>
+
                                                     {vaccine.next_due_date && (
-                                                        <p style={{ fontSize: "0.85rem", color: isDue ? "#ef4444" : "var(--primary-light)", margin: 0 }}>
-                                                            <strong>Próxima Dosis:</strong> {new Date(vaccine.next_due_date).toLocaleDateString()}
-                                                        </p>
-                                                    )}
-                                                    {vaccine.batch_number && (
-                                                        <div style={{ marginTop: "0.75rem", fontSize: "0.75rem", fontFamily: "monospace", color: "var(--text-secondary)" }}>
-                                                            Lote: {vaccine.batch_number}
+                                                        <div className={styles["vaccine-info-row"]}>
+                                                            <span style={{ color: isDue ? '#ef4444' : 'inherit' }}>Próxima Dosis:</span>
+                                                            <strong style={{ color: isDue ? '#ef4444' : '#10b981' }}>{new Date(vaccine.next_due_date).toLocaleDateString()}</strong>
                                                         </div>
                                                     )}
+
+                                                    <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <span className={`${styles["status-badge"]} ${isDue ? styles["status-expired"] : styles["status-valid"]}`}>
+                                                            {isDue ? "EXPIRADA" : "ACTIVA"}
+                                                        </span>
+                                                        {vaccine.batch_number && <code style={{ fontSize: '0.7rem', opacity: 0.5 }}>#{vaccine.batch_number}</code>}
+                                                    </div>
                                                 </div>
                                             );
                                         })}
@@ -296,40 +334,49 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                             </div>
                         )}
                     </div>
-                </div>
+                </main>
             </div>
 
             {/* Modals for Vet usage */}
             {showRecordModal && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-                    <div style={{ background: "var(--bg-glass)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-lg)", padding: "2rem", width: "100%", maxWidth: "550px", maxHeight: "90vh", overflowY: "auto" }}>
-                        <h2 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#fff" }}>Registrar Consulta Médica</h2>
-                        <form onSubmit={handleCreateRecord} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            <div>
-                                <label>Motivo de la visita *</label>
-                                <input type="text" className="form-input" required value={recordForm.reason_for_visit} onChange={e => setRecordForm({ ...recordForm, reason_for_visit: e.target.value })} placeholder="Ej. Revisión general, Cojera, Dolor..." />
-                            </div>
-                            <div>
-                                <label>Diagnóstico</label>
-                                <textarea className="form-input" rows={2} value={recordForm.diagnosis} onChange={e => setRecordForm({ ...recordForm, diagnosis: e.target.value })}></textarea>
-                            </div>
-                            <div>
-                                <label>Tratamiento / Receta</label>
-                                <textarea className="form-input" rows={2} value={recordForm.treatment} onChange={e => setRecordForm({ ...recordForm, treatment: e.target.value })}></textarea>
-                            </div>
-                            <div style={{ display: "flex", gap: "1rem" }}>
-                                <div style={{ flex: 1 }}>
-                                    <label>Peso (kg)</label>
-                                    <input type="number" step="0.01" className="form-input" value={recordForm.weight_kg} onChange={e => setRecordForm({ ...recordForm, weight_kg: e.target.value })} />
+                <div className={petStyles["modal-overlay"]}>
+                    <div className={petStyles["modal-content"]} style={{ maxWidth: '650px' }}>
+                        <div className={petStyles["modal-header"]}>
+                            <h2 className={petStyles["modal-title"]}>👨‍⚕️ Registro de Consulta Profesional</h2>
+                            <button onClick={() => setShowRecordModal(false)} style={{ background: "transparent", border: "none", color: "#fff", fontSize: "2rem", cursor: "pointer" }}>&times;</button>
+                        </div>
+                        <form onSubmit={handleCreateRecord} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                            <div className={petStyles["form-section"]}>
+                                <div>
+                                    <label>Motivo de la visita *</label>
+                                    <input type="text" className="form-input" required value={recordForm.reason_for_visit} onChange={e => setRecordForm({ ...recordForm, reason_for_visit: e.target.value })} placeholder="Ej. Revisión trimestral, Alergia cutánea..." />
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <label>Notas Privadas / Internas</label>
-                                    <input type="text" className="form-input" value={recordForm.notes} onChange={e => setRecordForm({ ...recordForm, notes: e.target.value })} />
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
+                                    <div>
+                                        <label>Peso (kg)</label>
+                                        <input type="number" step="0.01" className="form-input" value={recordForm.weight_kg} onChange={e => setRecordForm({ ...recordForm, weight_kg: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label>Notas Internas</label>
+                                        <input type="text" className="form-input" value={recordForm.notes} onChange={e => setRecordForm({ ...recordForm, notes: e.target.value })} />
+                                    </div>
                                 </div>
                             </div>
+
+                            <div className={petStyles["form-section"]}>
+                                <div>
+                                    <label>Diagnóstico</label>
+                                    <textarea className="form-input" rows={3} value={recordForm.diagnosis} onChange={e => setRecordForm({ ...recordForm, diagnosis: e.target.value })} placeholder="Escribe el diagnóstico profesional..."></textarea>
+                                </div>
+                                <div style={{ marginTop: "1rem" }}>
+                                    <label>Tratamiento / Receta Médica</label>
+                                    <textarea className="form-input" rows={4} value={recordForm.treatment} onChange={e => setRecordForm({ ...recordForm, treatment: e.target.value })} placeholder="Prescripciones y pasos a seguir..."></textarea>
+                                </div>
+                            </div>
+
                             <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                                <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowRecordModal(false)}>Cancelar</button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={submitting}>{submitting ? "Guardando..." : "Guardar Historial"}</button>
+                                <button type="button" className="btn btn-secondary" style={{ flex: 1, borderRadius: '16px' }} onClick={() => setShowRecordModal(false)}>Cancelar</button>
+                                <button type="submit" className={petStyles["btn-premium"]} style={{ flex: 1 }} disabled={submitting}>{submitting ? "Procesando..." : "Finalizar y Guardar"}</button>
                             </div>
                         </form>
                     </div>
@@ -337,31 +384,36 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
             )}
 
             {showVaccineModal && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-                    <div style={{ background: "var(--bg-glass)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-lg)", padding: "2rem", width: "100%", maxWidth: "550px" }}>
-                        <h2 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#fff" }}>Aplicar Vacuna</h2>
-                        <form onSubmit={handleCreateVaccine} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            <div>
-                                <label>Nombre Comercial / Tipo de Vacuna *</label>
-                                <input type="text" className="form-input" required value={vaccineForm.name} onChange={e => setVaccineForm({ ...vaccineForm, name: e.target.value })} placeholder="Ej. Rabia, Múltiple Canina..." />
-                            </div>
-                            <div style={{ display: "flex", gap: "1rem" }}>
-                                <div style={{ flex: 1 }}>
-                                    <label>Fecha de Próxima Dosis</label>
-                                    <input type="date" className="form-input" value={vaccineForm.next_due_date} onChange={e => setVaccineForm({ ...vaccineForm, next_due_date: e.target.value })} />
+                <div className={petStyles["modal-overlay"]}>
+                    <div className={petStyles["modal-content"]} style={{ maxWidth: '550px' }}>
+                        <div className={petStyles["modal-header"]}>
+                            <h2 className={petStyles["modal-title"]}>💉 Inmunización del Paciente</h2>
+                            <button onClick={() => setShowVaccineModal(false)} style={{ background: "transparent", border: "none", color: "#fff", fontSize: "2rem", cursor: "pointer" }}>&times;</button>
+                        </div>
+                        <form onSubmit={handleCreateVaccine} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                            <div className={petStyles["form-section"]}>
+                                <div>
+                                    <label>Nombre de la Vacuna *</label>
+                                    <input type="text" className="form-input" required value={vaccineForm.name} onChange={e => setVaccineForm({ ...vaccineForm, name: e.target.value })} placeholder="Ej. Quíntuple Canina, Rabia..." />
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <label>Número de Lote / Sticker</label>
-                                    <input type="text" className="form-input" value={vaccineForm.batch_number} onChange={e => setVaccineForm({ ...vaccineForm, batch_number: e.target.value })} />
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
+                                    <div>
+                                        <label>Próxima Dosis</label>
+                                        <input type="date" className="form-input" value={vaccineForm.next_due_date} onChange={e => setVaccineForm({ ...vaccineForm, next_due_date: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label>Lote / Folio</label>
+                                        <input type="text" className="form-input" value={vaccineForm.batch_number} onChange={e => setVaccineForm({ ...vaccineForm, batch_number: e.target.value })} />
+                                    </div>
                                 </div>
                             </div>
                             <div>
-                                <label>Notas Adicionales</label>
+                                <label>Observaciones</label>
                                 <textarea className="form-input" rows={2} value={vaccineForm.notes} onChange={e => setVaccineForm({ ...vaccineForm, notes: e.target.value })}></textarea>
                             </div>
                             <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                                <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowVaccineModal(false)}>Cancelar</button>
-                                <button type="submit" className="btn btn-secondary" style={{ flex: 1 }} disabled={submitting}>{submitting ? "Guardando..." : "Registrar Vacuna"}</button>
+                                <button type="button" className="btn btn-secondary" style={{ flex: 1, borderRadius: '16px' }} onClick={() => setShowVaccineModal(false)}>Cancelar</button>
+                                <button type="submit" className={petStyles["btn-premium"]} style={{ flex: 1, background: 'linear-gradient(135deg, #06b6d4, #3b82f6)' }} disabled={submitting}>{submitting ? "Registrando..." : "Registrar Aplicación"}</button>
                             </div>
                         </form>
                     </div>

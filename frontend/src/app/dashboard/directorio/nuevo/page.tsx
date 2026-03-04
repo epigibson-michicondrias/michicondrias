@@ -54,7 +54,18 @@ export default function NuevoDirectorioPage() {
     return (
         <div style={{ animation: "fadeIn 0.4s ease-out" }}>
             <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>🏥 Alta de Clínica</h1>
+                <h1 className={dashStyles["page-title"]}>
+                    <button
+                        onClick={() => router.back()}
+                        className={dashStyles["back-button-premium"]}
+                        title="Volver"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    Alta de Clínica
+                </h1>
                 <p className={dashStyles["page-subtitle"]}>
                     Registra tu consultorio o clínica en la red de Michicondrias
                 </p>
@@ -188,11 +199,8 @@ export default function NuevoDirectorioPage() {
                 <div className={dashStyles["form-divider"]} style={{ margin: "2rem 0" }} />
 
                 <div className={styles["form-actions"]}>
-                    <button type="submit" className="btn btn-primary" disabled={loading} style={{ flex: 2, padding: "1rem" }}>
+                    <button type="submit" className="btn btn-primary" disabled={loading} style={{ flex: 1, padding: "1rem" }}>
                         {loading ? "Validando e Insertando..." : "🏥 Inscribir Clínica Formalmente"}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={() => router.back()} style={{ flex: 1 }}>
-                        Cancelar
                     </button>
                 </div>
             </form>

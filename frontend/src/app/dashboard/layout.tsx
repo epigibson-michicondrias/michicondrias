@@ -9,6 +9,7 @@ import styles from "./dashboard.module.css";
 import { CartProvider } from "@/lib/contexts/CartContext";
 import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 import CartDrawer from "@/components/tienda/CartDrawer";
+import MichiExplorer from "@/components/MichiExplorer";
 
 export default function DashboardLayout({
     children,
@@ -38,6 +39,7 @@ export default function DashboardLayout({
                             >
                                 ☰
                             </button>
+                            <MichiExplorer />
                             <NotificationBell />
                         </div>
                         {children}

@@ -73,8 +73,16 @@ export default function MisMascotasPage() {
         return `${years} año${years > 1 ? "s" : ""}${rem > 0 ? ` ${rem}m` : ""}`;
     };
 
-    const speciesIcon: Record<string, string> = {
-        perro: "🐕", gato: "🐈", ave: "🦜", otro: "🐾",
+    const speciesIcon: Record<string, React.ReactNode> = {
+        perro: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 5.172a4 4 0 0 0-5.656 5.656l1.414 1.414L12 18.414l6.242-6.172 1.414-1.414a4 4 0 0 0-5.656-5.656l-1.414 1.414L12 7.586l-1.414-1.414z" /><path d="M12 18.414 7.758 14.172a4 4 0 0 1 5.656-5.656l.586.586.586-.586a4 4 0 0 1 5.656 5.656L12 18.414z" opacity="0.3" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="9" r="1" /><path d="M10 13c.67.67 1.33.67 2 0" /></svg>,
+        gato: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 2-1.99 2-1.99a8.1 8.1 0 0 1 0 4.13c1.08.77 2 2.11 2 3.6 0 3-1.61 5.5-4 6.5l-1 2-1-2c-2.39-1-4-3.5-4-6.5 0-1.49.92-2.83 2-3.6a8.1 8.1 0 0 1 0-4.13s.22-.01 2 1.99c.65-.17 1.33-.26 2-.26Z" /><circle cx="12" cy="10" r="1" /></svg>,
+        ave: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 7c-1.5 0-3-1-4.5-1s-3 1-4.5 1" /><path d="M20 12c-1.5 0-3-1-4.5-1s-3 1-4.5 1" /><path d="M12 17c-1.5 0-3-1-4.5-1s-3 1-4.5 1" /><path d="M22 2v20H2V2h20z" /><path d="M12 2v20" /></svg>,
+        otro: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5c.67 0 1.35.09 2 .26 1.78-2 2-1.99 2-1.99a8.1 8.1 0 0 1 0 4.13c1.08.77 2 2.11 2 3.6 0 3-1.61 5.5-4 6.5l-1 2-1-2c-2.39-1-4-3.5-4-6.5 0-1.49.92-2.83 2-3.6a8.1 8.1 0 0 1 0-4.13s.22-.01 2 1.99c.65-.17 1.33-.26 2-.26Z" /></svg>,
+    };
+
+    const statusIcons = {
+        vaccinated: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></svg>,
+        sterilized: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 15h12" /><path d="M6 9h12" /><path d="M9 18V6" /><path d="M15 18V6" /></svg>
     };
 
     return (
@@ -82,13 +90,13 @@ export default function MisMascotasPage() {
             <div className={dashStyles["page-header"]}>
                 <h1 className={dashStyles["page-title"]}>🐾 Mis Mascotas</h1>
                 <p className={dashStyles["page-subtitle"]}>
-                    Registra y gestiona los perfiles de tus compañeros peludos.
+                    Registra y gestiona los "Pasaportes Digitales" de tus compañeros peludos.
                 </p>
             </div>
 
             <div className={styles["action-bar"]}>
-                <span style={{ color: "var(--text-secondary)", fontSize: "0.95rem", fontWeight: 600 }}>
-                    🐾 {pets.length} {pets.length === 1 ? 'Mascota registrada' : 'Mascotas registradas'}
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.95rem", fontWeight: 700, letterSpacing: '0.02em' }}>
+                    🛰️ {pets.length} {pets.length === 1 ? 'Mascota registrada' : 'Mascotas registradas'}
                 </span>
                 <button className={styles["btn-premium"]} onClick={() => setShowModal(true)}>
                     ✨ Registrar Nueva Mascota
@@ -97,13 +105,13 @@ export default function MisMascotasPage() {
 
             {loading ? (
                 <div className={dashStyles["loading-container"]}>
-                    <p style={{ color: "var(--text-secondary)", padding: "2rem" }}>Conectando con el refugio...</p>
+                    <p style={{ color: "var(--text-secondary)", padding: "2rem" }}>Sincronizando identidades digitales...</p>
                 </div>
             ) : pets.length === 0 ? (
-                <div className={dashStyles["empty-state"]} style={{ padding: "5rem 2rem", background: "rgba(15,15,26,0.4)", borderRadius: "32px", border: "1px dashed rgba(255,255,255,0.1)" }}>
-                    <span style={{ fontSize: "5rem", display: "block", marginBottom: "1rem" }}>🐾</span>
-                    <h3 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "800" }}>¡Aún no hay compañeros!</h3>
-                    <p style={{ color: "var(--text-secondary)" }}>Registra a tu primera mascota para empezar a gestionarla.</p>
+                <div className={dashStyles["empty-state"]} style={{ padding: "5rem 2rem", background: "rgba(255,255,255,0.02)", borderRadius: "40px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                    <span style={{ fontSize: "5rem", display: "block", marginBottom: "1.5rem", opacity: 0.5 }}>🛰️</span>
+                    <h3 style={{ color: "#fff", fontSize: "1.75rem", fontWeight: "900", letterSpacing: '-0.02em' }}>¡Aún no hay compañeros!</h3>
+                    <p style={{ color: "var(--text-secondary)", fontSize: '1.1rem' }}>Registra a tu primera mascota para generar su pasaporte digital.</p>
                 </div>
             ) : (
                 <div className={styles["pets-grid"]}>
@@ -120,7 +128,7 @@ export default function MisMascotasPage() {
                                         />
                                     ) : (
                                         <div className={styles["pet-emoji-placeholder"]}>
-                                            {speciesIcon[pet.species] || "🐾"}
+                                            {speciesIcon[pet.species] || speciesIcon.otro}
                                         </div>
                                     )}
                                 </div>
@@ -128,20 +136,35 @@ export default function MisMascotasPage() {
                                     <div className={styles["pet-header"]}>
                                         <h3 className={styles["pet-name"]}>{pet.name}</h3>
                                         <div style={{ display: "flex", gap: "0.5rem" }}>
-                                            {pet.is_vaccinated && <span className={`${styles["pet-status-chip"]} ${styles["status-vaccinated"]}`} title="Vacunado">💉</span>}
-                                            {pet.is_sterilized && <span className={`${styles["pet-status-chip"]} ${styles["status-sterilized"]}`} title="Esterilizado">✂️</span>}
+                                            {pet.is_vaccinated && (
+                                                <span className={`${styles["pet-status-chip"]} ${styles["status-vaccinated"]}`} title="Vacunado">
+                                                    {statusIcons.vaccinated}
+                                                </span>
+                                            )}
+                                            {pet.is_sterilized && (
+                                                <span className={`${styles["pet-status-chip"]} ${styles["status-sterilized"]}`} title="Esterilizado">
+                                                    {statusIcons.sterilized}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
                                     <div className={styles["pet-meta"]}>
-                                        <span className={styles["pet-tag"]}>{speciesIcon[pet.species]} {pet.species}</span>
+                                        <span className={styles["pet-tag"]}>
+                                            {speciesIcon[pet.species] || speciesIcon.otro} {pet.species}
+                                        </span>
                                         {pet.breed && <span className={styles["pet-tag"]}>{pet.breed}</span>}
-                                        {pet.size && <span className={styles["pet-tag"]}>{pet.size}</span>}
-                                        {pet.age_months && <span className={styles["pet-tag"]}>{getAgeLabel(pet.age_months)}</span>}
+                                        {pet.age_months && <span className={styles["pet-tag"]}>📅 {getAgeLabel(pet.age_months)}</span>}
                                     </div>
+
                                     {pet.description && (
                                         <p className={styles["pet-desc"]}>{pet.description}</p>
                                     )}
+
+                                    <div className={styles["pet-passport-footer"]}>
+                                        <span>PET ID: {pet.id.split('-')[0].toUpperCase()}</span>
+                                        <span>{pet.microchip_number ? `CHIP: ${pet.microchip_number}` : 'NO CHIP'}</span>
+                                    </div>
                                 </div>
                             </div>
                         </Link>
