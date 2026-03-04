@@ -1,0 +1,733 @@
+2026-03-04T01:39:15 INIT_START Runtime Version: python:3.11.mainlinev2.v3	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:0de7d4de4aef04631dc8443fb686ab8bf14de4d4a348cb0d407cce5f48aef7d8
+2026-03-04T01:39:15 INIT_START Runtime Version: python:3.11.mainlinev2.v3	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:0de7d4de4aef04631dc8443fb686ab8bf14de4d4a348cb0d407cce5f48aef7d8
+2026-03-04T01:39:16 START RequestId: 5fcd1d53-9497-480f-8a34-be0e383cd791 Version: $LATEST
+2026-03-04T01:39:16 2026-03-04 01:39:16,984 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:16 2026-03-04 01:39:16,984 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:16 2026-03-04 01:39:16,984 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:17 START RequestId: b3e9b1b3-8b92-4b28-adc8-6b85019f404a Version: $LATEST
+2026-03-04T01:39:17 2026-03-04 01:39:17,021 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:17 2026-03-04 01:39:17,021 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:17 2026-03-04 01:39:17,021 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:17 2026-03-04 01:39:17,062 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: 9232e518-eeda-438c-bbb1-224abd6fd486 - Time: 0.0003s
+2026-03-04T01:39:17 2026-03-04 01:39:17,099 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:39:17 2026-03-04 01:39:17,099 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:17 2026-03-04 01:39:17,099 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:17 END RequestId: 5fcd1d53-9497-480f-8a34-be0e383cd791
+2026-03-04T01:39:17 REPORT RequestId: 5fcd1d53-9497-480f-8a34-be0e383cd791	Duration: 136.38 ms	Billed Duration: 1700 ms	Memory Size: 128 MB	Max Memory Used: 111 MB	Init Duration: 1562.73 ms
+2026-03-04T01:39:17 2026-03-04 01:39:17,124 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: d5b3119e-ca6e-4551-b47b-40d175149fed - Time: 0.0364s
+2026-03-04T01:39:17 2026-03-04 01:39:17,125 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:39:17 2026-03-04 01:39:17,125 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:17 2026-03-04 01:39:17,125 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:17 END RequestId: b3e9b1b3-8b92-4b28-adc8-6b85019f404a
+2026-03-04T01:39:17 REPORT RequestId: b3e9b1b3-8b92-4b28-adc8-6b85019f404a	Duration: 124.91 ms	Billed Duration: 1656 ms	Memory Size: 128 MB	Max Memory Used: 115 MB	Init Duration: 1530.94 ms
+2026-03-04T01:39:17 START RequestId: 82d9d496-ea40-4e4c-8505-eecb605ec14f Version: $LATEST
+2026-03-04T01:39:17 2026-03-04 01:39:17,201 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:17 2026-03-04 01:39:17,201 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:17 2026-03-04 01:39:17,201 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:18 2026-03-04 01:39:18,448 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: 9af2300d-f01c-4afb-9c6f-c6b2f3d2df6f - Time: 1.2461s
+2026-03-04T01:39:18 2026-03-04 01:39:18,505 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:39:18 2026-03-04 01:39:18,527 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:18 2026-03-04 01:39:18,564 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:18 END RequestId: 82d9d496-ea40-4e4c-8505-eecb605ec14f
+2026-03-04T01:39:18 REPORT RequestId: 82d9d496-ea40-4e4c-8505-eecb605ec14f	Duration: 1625.60 ms	Billed Duration: 1626 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:39:18 START RequestId: e77766cb-dd65-48c2-8573-6aebd1e58894 Version: $LATEST
+2026-03-04T01:39:18 2026-03-04 01:39:18,913 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:18 2026-03-04 01:39:18,914 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:18 2026-03-04 01:39:18,914 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:19 2026-03-04 01:39:19,828 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: 142e3165-91ec-424e-a8df-7833ac5af53e - Time: 0.9137s
+2026-03-04T01:39:19 2026-03-04 01:39:19,885 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:39:19 2026-03-04 01:39:19,907 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:19 2026-03-04 01:39:19,944 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:20 END RequestId: e77766cb-dd65-48c2-8573-6aebd1e58894
+2026-03-04T01:39:20 REPORT RequestId: e77766cb-dd65-48c2-8573-6aebd1e58894	Duration: 1233.25 ms	Billed Duration: 1234 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:39:31 START RequestId: 401516bc-0510-4ac2-9d71-fedadb41b7d3 Version: $LATEST
+2026-03-04T01:39:31 START RequestId: 656f10a7-7577-49db-844f-4198eff4245f Version: $LATEST
+2026-03-04T01:39:31 2026-03-04 01:39:31,392 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:31 2026-03-04 01:39:31,392 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:31 2026-03-04 01:39:31,392 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:31 2026-03-04 01:39:31,392 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:31 2026-03-04 01:39:31,392 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:31 2026-03-04 01:39:31,392 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: 96b1d2e0-3a14-45cd-b264-06e58f926d5a - Time: 0.0002s
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: d36ac1c2-69dd-49b0-81ee-1156d47aa486 - Time: 0.0002s
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:31 2026-03-04 01:39:31,393 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:31 END RequestId: 656f10a7-7577-49db-844f-4198eff4245f
+2026-03-04T01:39:31 REPORT RequestId: 656f10a7-7577-49db-844f-4198eff4245f	Duration: 8.22 ms	Billed Duration: 9 ms	Memory Size: 128 MB	Max Memory Used: 111 MB
+2026-03-04T01:39:31 END RequestId: 401516bc-0510-4ac2-9d71-fedadb41b7d3
+2026-03-04T01:39:31 REPORT RequestId: 401516bc-0510-4ac2-9d71-fedadb41b7d3	Duration: 13.62 ms	Billed Duration: 14 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:39:31 START RequestId: 5d81b8ed-bdca-4a68-88d3-f77ac61d58d8 Version: $LATEST
+2026-03-04T01:39:31 2026-03-04 01:39:31,481 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:31 2026-03-04 01:39:31,482 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:31 2026-03-04 01:39:31,482 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:31 2026-03-04 01:39:31,648 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: 97649c7f-868e-45ff-8088-b58fd653d446 - Time: 0.1657s
+2026-03-04T01:39:31 2026-03-04 01:39:31,648 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:39:31 2026-03-04 01:39:31,708 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:31 2026-03-04 01:39:31,708 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:31 END RequestId: 5d81b8ed-bdca-4a68-88d3-f77ac61d58d8
+2026-03-04T01:39:31 REPORT RequestId: 5d81b8ed-bdca-4a68-88d3-f77ac61d58d8	Duration: 425.20 ms	Billed Duration: 426 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:39:32 START RequestId: 1cf61205-1646-4b2e-8cb7-5739d27f1b3a Version: $LATEST
+2026-03-04T01:39:32 2026-03-04 01:39:32,000 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:39:32 2026-03-04 01:39:32,000 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:39:32 2026-03-04 01:39:32,000 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:39:32 2026-03-04 01:39:32,148 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: f4ced43a-de81-4446-af0c-569843df040d - Time: 0.1470s
+2026-03-04T01:39:32 2026-03-04 01:39:32,148 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:39:32 2026-03-04 01:39:32,207 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:39:32 2026-03-04 01:39:32,224 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:39:32 END RequestId: 1cf61205-1646-4b2e-8cb7-5739d27f1b3a
+2026-03-04T01:39:32 REPORT RequestId: 1cf61205-1646-4b2e-8cb7-5739d27f1b3a	Duration: 447.89 ms	Billed Duration: 448 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:04 START RequestId: 9070cfda-8875-49d7-8f1c-0fc7083f43ce Version: $LATEST
+2026-03-04T01:40:04 2026-03-04 01:40:04,527 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:04 2026-03-04 01:40:04,527 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:04 2026-03-04 01:40:04,527 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:04 2026-03-04 01:40:04,527 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8/request - HTTP 200 - CorrID: 884f2256-be7c-473d-8613-064c6e584be7 - Time: 0.0002s
+2026-03-04T01:40:04 2026-03-04 01:40:04,527 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8/request 200
+2026-03-04T01:40:04 2026-03-04 01:40:04,528 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:04 2026-03-04 01:40:04,528 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:04 END RequestId: 9070cfda-8875-49d7-8f1c-0fc7083f43ce
+2026-03-04T01:40:04 REPORT RequestId: 9070cfda-8875-49d7-8f1c-0fc7083f43ce	Duration: 18.93 ms	Billed Duration: 19 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:04 START RequestId: 171314f6-f96d-4dea-8d0e-2b79382b10ef Version: $LATEST
+2026-03-04T01:40:04 2026-03-04 01:40:04,614 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:04 2026-03-04 01:40:04,614 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:04 2026-03-04 01:40:04,614 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:05 2026-03-04 01:40:05,386 - michicondrias - INFO - Request POST /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8/request - HTTP 200 - CorrID: e1d2bb1a-00ff-4177-a593-a8f009d701bc - Time: 0.7710s
+2026-03-04T01:40:05 2026-03-04 01:40:05,386 - mangum.http - INFO - POST /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8/request 200
+2026-03-04T01:40:05 2026-03-04 01:40:05,425 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:05 2026-03-04 01:40:05,444 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:05 END RequestId: 171314f6-f96d-4dea-8d0e-2b79382b10ef
+2026-03-04T01:40:05 REPORT RequestId: 171314f6-f96d-4dea-8d0e-2b79382b10ef	Duration: 832.42 ms	Billed Duration: 833 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:08 START RequestId: 7959656a-a81e-4a5d-8176-bbeca7089fa9 Version: $LATEST
+2026-03-04T01:40:08 2026-03-04 01:40:08,017 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:08 2026-03-04 01:40:08,017 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:08 2026-03-04 01:40:08,017 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:08 2026-03-04 01:40:08,018 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: cbabb42d-e0e2-472d-bbce-a5eb07d243b8 - Time: 0.0002s
+2026-03-04T01:40:08 2026-03-04 01:40:08,018 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:40:08 2026-03-04 01:40:08,018 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:08 2026-03-04 01:40:08,018 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:08 START RequestId: 7549689a-3827-4f32-bbfd-5e82bcb2460f Version: $LATEST
+2026-03-04T01:40:08 2026-03-04 01:40:08,019 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:08 2026-03-04 01:40:08,020 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:08 2026-03-04 01:40:08,020 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:08 2026-03-04 01:40:08,020 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: 56c5928c-9751-4151-a79f-6409797cbae3 - Time: 0.0004s
+2026-03-04T01:40:08 2026-03-04 01:40:08,021 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:40:08 2026-03-04 01:40:08,021 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:08 2026-03-04 01:40:08,021 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:08 END RequestId: 7959656a-a81e-4a5d-8176-bbeca7089fa9
+2026-03-04T01:40:08 REPORT RequestId: 7959656a-a81e-4a5d-8176-bbeca7089fa9	Duration: 8.37 ms	Billed Duration: 9 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:08 END RequestId: 7549689a-3827-4f32-bbfd-5e82bcb2460f
+2026-03-04T01:40:08 REPORT RequestId: 7549689a-3827-4f32-bbfd-5e82bcb2460f	Duration: 20.33 ms	Billed Duration: 21 ms	Memory Size: 128 MB	Max Memory Used: 111 MB
+2026-03-04T01:40:08 START RequestId: fef7be66-846b-4191-b023-b0880d85f0e1 Version: $LATEST
+2026-03-04T01:40:08 2026-03-04 01:40:08,116 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:08 2026-03-04 01:40:08,116 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:08 2026-03-04 01:40:08,116 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:09 2026-03-04 01:40:09,421 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: a34f9013-79ec-4107-b3f1-f2c8ff5d78a1 - Time: 1.3052s
+2026-03-04T01:40:09 2026-03-04 01:40:09,460 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:40:09 2026-03-04 01:40:09,481 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:09 2026-03-04 01:40:09,481 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:09 END RequestId: fef7be66-846b-4191-b023-b0880d85f0e1
+2026-03-04T01:40:09 REPORT RequestId: fef7be66-846b-4191-b023-b0880d85f0e1	Duration: 1684.84 ms	Billed Duration: 1685 ms	Memory Size: 128 MB	Max Memory Used: 116 MB
+2026-03-04T01:40:09 START RequestId: 2d0dde13-b91b-4d99-8a5d-ef8246c0df42 Version: $LATEST
+2026-03-04T01:40:09 2026-03-04 01:40:09,883 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:09 2026-03-04 01:40:09,883 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:09 2026-03-04 01:40:09,883 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:10 2026-03-04 01:40:10,842 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/ - HTTP 200 - CorrID: d601a22d-b7b4-4518-ade5-6c60a7b11b5f - Time: 0.9587s
+2026-03-04T01:40:10 2026-03-04 01:40:10,900 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/ 200
+2026-03-04T01:40:10 2026-03-04 01:40:10,921 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:10 2026-03-04 01:40:10,959 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:11 END RequestId: 2d0dde13-b91b-4d99-8a5d-ef8246c0df42
+2026-03-04T01:40:11 REPORT RequestId: 2d0dde13-b91b-4d99-8a5d-ef8246c0df42	Duration: 1276.87 ms	Billed Duration: 1277 ms	Memory Size: 128 MB	Max Memory Used: 116 MB
+2026-03-04T01:40:14 START RequestId: 96641fb2-7274-4235-9190-dd64bdc536ea Version: $LATEST
+2026-03-04T01:40:14 2026-03-04 01:40:14,324 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:14 2026-03-04 01:40:14,324 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:14 2026-03-04 01:40:14,324 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:14 2026-03-04 01:40:14,324 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/admin/requests/pending - HTTP 200 - CorrID: 620ca815-ca37-4236-ac27-943f1c5f9de1 - Time: 0.0002s
+2026-03-04T01:40:14 2026-03-04 01:40:14,324 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/admin/requests/pending 200
+2026-03-04T01:40:14 2026-03-04 01:40:14,325 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:14 2026-03-04 01:40:14,325 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:14 START RequestId: 49575df1-3944-4edb-80d8-e685bf2b2a82 Version: $LATEST
+2026-03-04T01:40:14 2026-03-04 01:40:14,332 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:14 2026-03-04 01:40:14,332 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:14 2026-03-04 01:40:14,332 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:14 2026-03-04 01:40:14,333 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/admin/pending - HTTP 200 - CorrID: 54da6694-5e56-4cf0-887e-f40240aea4c4 - Time: 0.0002s
+2026-03-04T01:40:14 2026-03-04 01:40:14,333 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/admin/pending 200
+2026-03-04T01:40:14 2026-03-04 01:40:14,333 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:14 2026-03-04 01:40:14,333 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:14 END RequestId: 96641fb2-7274-4235-9190-dd64bdc536ea
+2026-03-04T01:40:14 REPORT RequestId: 96641fb2-7274-4235-9190-dd64bdc536ea	Duration: 16.21 ms	Billed Duration: 17 ms	Memory Size: 128 MB	Max Memory Used: 116 MB
+2026-03-04T01:40:14 END RequestId: 49575df1-3944-4edb-80d8-e685bf2b2a82
+2026-03-04T01:40:14 REPORT RequestId: 49575df1-3944-4edb-80d8-e685bf2b2a82	Duration: 13.49 ms	Billed Duration: 14 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:14 START RequestId: 4b8b4b28-97a9-4680-bcb0-c76f3ae26419 Version: $LATEST
+2026-03-04T01:40:14 2026-03-04 01:40:14,416 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:14 START RequestId: 1cf355d4-46f7-4085-801d-41e8c258faaf Version: $LATEST
+2026-03-04T01:40:14 2026-03-04 01:40:14,416 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:14 2026-03-04 01:40:14,417 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:14 2026-03-04 01:40:14,416 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:14 2026-03-04 01:40:14,417 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:14 2026-03-04 01:40:14,417 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:14 2026-03-04 01:40:14,505 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/admin/pending - HTTP 200 - CorrID: 393fac96-3df0-4144-bb42-50f1b070c1d5 - Time: 0.0877s
+2026-03-04T01:40:14 2026-03-04 01:40:14,505 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/admin/pending 200
+2026-03-04T01:40:14 2026-03-04 01:40:14,525 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:14 2026-03-04 01:40:14,544 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:14 END RequestId: 1cf355d4-46f7-4085-801d-41e8c258faaf
+2026-03-04T01:40:14 REPORT RequestId: 1cf355d4-46f7-4085-801d-41e8c258faaf	Duration: 129.83 ms	Billed Duration: 130 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:15 2026-03-04 01:40:15,082 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/admin/requests/pending - HTTP 200 - CorrID: 264b1e4e-d620-4d81-b71f-ffc8f700cf8e - Time: 0.6650s
+2026-03-04T01:40:15 2026-03-04 01:40:15,119 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/admin/requests/pending 200
+2026-03-04T01:40:15 2026-03-04 01:40:15,140 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:15 2026-03-04 01:40:15,159 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:15 END RequestId: 4b8b4b28-97a9-4680-bcb0-c76f3ae26419
+2026-03-04T01:40:15 REPORT RequestId: 4b8b4b28-97a9-4680-bcb0-c76f3ae26419	Duration: 943.98 ms	Billed Duration: 944 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:40:28 START RequestId: 91048041-0236-4dc4-88f6-5366e35af5b1 Version: $LATEST
+2026-03-04T01:40:28 2026-03-04 01:40:28,413 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:28 2026-03-04 01:40:28,414 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:28 2026-03-04 01:40:28,414 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:28 2026-03-04 01:40:28,414 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: f24b1cf8-b29e-4c61-a818-7f65c6dd2066 - Time: 0.0002s
+2026-03-04T01:40:28 2026-03-04 01:40:28,414 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:40:28 START RequestId: b4e09470-002d-4c0f-9c6d-1562fdc5f9f3 Version: $LATEST
+2026-03-04T01:40:28 2026-03-04 01:40:28,415 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:28 2026-03-04 01:40:28,415 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:28 2026-03-04 01:40:28,415 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:28 2026-03-04 01:40:28,415 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:28 2026-03-04 01:40:28,415 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:28 2026-03-04 01:40:28,416 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests - HTTP 200 - CorrID: eb7cf802-db77-4191-9d4c-25eae0a988d0 - Time: 0.0002s
+2026-03-04T01:40:28 2026-03-04 01:40:28,416 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests 200
+2026-03-04T01:40:28 2026-03-04 01:40:28,416 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:28 END RequestId: 91048041-0236-4dc4-88f6-5366e35af5b1
+2026-03-04T01:40:28 REPORT RequestId: 91048041-0236-4dc4-88f6-5366e35af5b1	Duration: 7.75 ms	Billed Duration: 8 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:40:28 2026-03-04 01:40:28,416 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:28 END RequestId: b4e09470-002d-4c0f-9c6d-1562fdc5f9f3
+2026-03-04T01:40:28 REPORT RequestId: b4e09470-002d-4c0f-9c6d-1562fdc5f9f3	Duration: 11.16 ms	Billed Duration: 12 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:28 START RequestId: 3e21bdb1-bc8d-40d1-8701-34b6f32a3dfb Version: $LATEST
+2026-03-04T01:40:28 2026-03-04 01:40:28,505 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:28 2026-03-04 01:40:28,505 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:28 2026-03-04 01:40:28,506 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:28 START RequestId: 76e41df7-ed48-4115-a91c-178de13e446b Version: $LATEST
+2026-03-04T01:40:28 2026-03-04 01:40:28,509 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:28 2026-03-04 01:40:28,509 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:28 2026-03-04 01:40:28,509 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:28 2026-03-04 01:40:28,605 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests - HTTP 200 - CorrID: 51c39b94-9bbf-4e19-8fa4-bc871b53e96f - Time: 0.0990s
+2026-03-04T01:40:28 2026-03-04 01:40:28,624 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests 200
+2026-03-04T01:40:28 2026-03-04 01:40:28,627 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:28 2026-03-04 01:40:28,627 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:28 END RequestId: 3e21bdb1-bc8d-40d1-8701-34b6f32a3dfb
+2026-03-04T01:40:28 REPORT RequestId: 3e21bdb1-bc8d-40d1-8701-34b6f32a3dfb	Duration: 141.18 ms	Billed Duration: 142 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:28 2026-03-04 01:40:28,740 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: 5473dd6e-1ed7-4b96-a925-a2e5cd2e3bd2 - Time: 0.2305s
+2026-03-04T01:40:28 2026-03-04 01:40:28,760 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:40:28 2026-03-04 01:40:28,781 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:28 2026-03-04 01:40:28,819 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:29 END RequestId: 76e41df7-ed48-4115-a91c-178de13e446b
+2026-03-04T01:40:29 REPORT RequestId: 76e41df7-ed48-4115-a91c-178de13e446b	Duration: 534.56 ms	Billed Duration: 535 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:40:41 START RequestId: 79251986-f84a-4af0-8f08-1c5c46239029 Version: $LATEST
+2026-03-04T01:40:41 2026-03-04 01:40:41,538 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:41 2026-03-04 01:40:41,538 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:41 2026-03-04 01:40:41,538 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:41 START RequestId: f1dd7947-5561-4746-9d55-8cbfe9c6834c Version: $LATEST
+2026-03-04T01:40:41 2026-03-04 01:40:41,539 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests - HTTP 200 - CorrID: 337d41da-29ac-4598-90fd-b3cd623324b2 - Time: 0.0002s
+2026-03-04T01:40:41 2026-03-04 01:40:41,539 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests 200
+2026-03-04T01:40:41 2026-03-04 01:40:41,539 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:41 2026-03-04 01:40:41,539 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:41 2026-03-04 01:40:41,539 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:41 2026-03-04 01:40:41,539 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:41 2026-03-04 01:40:41,539 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:41 2026-03-04 01:40:41,540 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: 90a75130-016e-4352-859f-54ca2f5f4c1d - Time: 0.0002s
+2026-03-04T01:40:41 2026-03-04 01:40:41,540 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:40:41 2026-03-04 01:40:41,540 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:41 2026-03-04 01:40:41,540 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:41 END RequestId: f1dd7947-5561-4746-9d55-8cbfe9c6834c
+2026-03-04T01:40:41 REPORT RequestId: f1dd7947-5561-4746-9d55-8cbfe9c6834c	Duration: 6.14 ms	Billed Duration: 7 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:41 END RequestId: 79251986-f84a-4af0-8f08-1c5c46239029
+2026-03-04T01:40:41 REPORT RequestId: 79251986-f84a-4af0-8f08-1c5c46239029	Duration: 21.85 ms	Billed Duration: 22 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:40:41 START RequestId: c1455435-5e72-45b7-813a-6671175ecc65 Version: $LATEST
+2026-03-04T01:40:41 2026-03-04 01:40:41,619 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:41 2026-03-04 01:40:41,619 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:41 2026-03-04 01:40:41,619 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:41 START RequestId: 43f69f10-c089-4778-a0a4-70c06b40c694 Version: $LATEST
+2026-03-04T01:40:41 2026-03-04 01:40:41,622 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:41 2026-03-04 01:40:41,622 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:41 2026-03-04 01:40:41,622 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:41 2026-03-04 01:40:41,665 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests - HTTP 200 - CorrID: 06cf50b9-25fb-4673-8b49-21e7991e972f - Time: 0.0425s
+2026-03-04T01:40:41 2026-03-04 01:40:41,665 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/admin/a1fba012-c31a-4475-81a4-025b2f3d07f8/requests 200
+2026-03-04T01:40:41 2026-03-04 01:40:41,685 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:41 2026-03-04 01:40:41,685 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:41 END RequestId: 43f69f10-c089-4778-a0a4-70c06b40c694
+2026-03-04T01:40:41 REPORT RequestId: 43f69f10-c089-4778-a0a4-70c06b40c694	Duration: 83.82 ms	Billed Duration: 84 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:40:41 2026-03-04 01:40:41,819 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 - HTTP 200 - CorrID: 00bcb38d-0156-4f1e-9582-e5b70d70d90a - Time: 0.1999s
+2026-03-04T01:40:41 2026-03-04 01:40:41,820 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/a1fba012-c31a-4475-81a4-025b2f3d07f8 200
+2026-03-04T01:40:41 2026-03-04 01:40:41,841 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:41 2026-03-04 01:40:41,879 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:42 END RequestId: c1455435-5e72-45b7-813a-6671175ecc65
+2026-03-04T01:40:42 REPORT RequestId: c1455435-5e72-45b7-813a-6671175ecc65	Duration: 482.09 ms	Billed Duration: 483 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:40:58 START RequestId: d0c59605-5dbf-4567-9d77-728b3a5906c8 Version: $LATEST
+2026-03-04T01:40:58 2026-03-04 01:40:58,594 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:58 2026-03-04 01:40:58,594 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:58 2026-03-04 01:40:58,594 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:58 2026-03-04 01:40:58,595 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/admin/requests/21d0edd0-1950-43cd-9f9b-bd04e84fc2f0/status - HTTP 200 - CorrID: c101d4c4-885b-4875-9ad5-033161e294ee - Time: 0.0002s
+2026-03-04T01:40:58 2026-03-04 01:40:58,595 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/admin/requests/21d0edd0-1950-43cd-9f9b-bd04e84fc2f0/status 200
+2026-03-04T01:40:58 2026-03-04 01:40:58,595 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:58 2026-03-04 01:40:58,595 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:58 END RequestId: d0c59605-5dbf-4567-9d77-728b3a5906c8
+2026-03-04T01:40:58 REPORT RequestId: d0c59605-5dbf-4567-9d77-728b3a5906c8	Duration: 5.94 ms	Billed Duration: 6 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:40:58 START RequestId: b8d03033-dbc3-45b7-8177-3b91ca4787d0 Version: $LATEST
+2026-03-04T01:40:58 2026-03-04 01:40:58,689 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:40:58 2026-03-04 01:40:58,689 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:40:58 2026-03-04 01:40:58,689 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:40:58 2026-03-04 01:40:58,880 - michicondrias - INFO - Request PUT /adopciones/api/v1/adopciones/pets/admin/requests/21d0edd0-1950-43cd-9f9b-bd04e84fc2f0/status - HTTP 200 - CorrID: d8883e0e-fc57-4713-a86b-0269daafbe6d - Time: 0.1905s
+2026-03-04T01:40:58 2026-03-04 01:40:58,880 - mangum.http - INFO - PUT /adopciones/api/v1/adopciones/pets/admin/requests/21d0edd0-1950-43cd-9f9b-bd04e84fc2f0/status 200
+2026-03-04T01:40:58 2026-03-04 01:40:58,920 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:40:58 2026-03-04 01:40:58,939 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:40:58 END RequestId: b8d03033-dbc3-45b7-8177-3b91ca4787d0
+2026-03-04T01:40:58 REPORT RequestId: b8d03033-dbc3-45b7-8177-3b91ca4787d0	Duration: 251.51 ms	Billed Duration: 252 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:41:04 START RequestId: 2322985f-8967-48fb-b363-71c38bf257aa Version: $LATEST
+2026-03-04T01:41:04 2026-03-04 01:41:04,248 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:04 2026-03-04 01:41:04,249 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:04 2026-03-04 01:41:04,249 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:04 2026-03-04 01:41:04,249 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: b0e30201-16d4-4d90-b112-a5442613dcb6 - Time: 0.0002s
+2026-03-04T01:41:04 2026-03-04 01:41:04,249 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:04 2026-03-04 01:41:04,250 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:04 2026-03-04 01:41:04,250 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:04 END RequestId: 2322985f-8967-48fb-b363-71c38bf257aa
+2026-03-04T01:41:04 REPORT RequestId: 2322985f-8967-48fb-b363-71c38bf257aa	Duration: 11.55 ms	Billed Duration: 12 ms	Memory Size: 128 MB	Max Memory Used: 119 MB
+2026-03-04T01:41:04 START RequestId: 5687bbe0-3e9a-4815-82dd-607d27b95400 Version: $LATEST
+2026-03-04T01:41:04 2026-03-04 01:41:04,334 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:04 2026-03-04 01:41:04,334 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:04 2026-03-04 01:41:04,334 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:05 2026-03-04 01:41:05,001 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 44ba1573-7387-451c-9e23-0d3a2cce2792 - Time: 0.6667s
+2026-03-04T01:41:05 2026-03-04 01:41:05,060 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:05 2026-03-04 01:41:05,159 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:05 2026-03-04 01:41:05,159 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:08 [ERROR] [1772588468300] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:41:09 START RequestId: c98804eb-b27f-4329-b7c2-e324c2931012 Version: $LATEST
+2026-03-04T01:41:09 2026-03-04 01:41:09,294 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:09 2026-03-04 01:41:09,294 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:09 2026-03-04 01:41:09,294 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:09 2026-03-04 01:41:09,295 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 32fac2c9-d823-4233-a8a0-9857095e079f - Time: 0.0002s
+2026-03-04T01:41:09 2026-03-04 01:41:09,295 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:09 2026-03-04 01:41:09,295 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:09 2026-03-04 01:41:09,295 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:09 END RequestId: c98804eb-b27f-4329-b7c2-e324c2931012
+2026-03-04T01:41:09 REPORT RequestId: c98804eb-b27f-4329-b7c2-e324c2931012	Duration: 11.48 ms	Billed Duration: 12 ms	Memory Size: 128 MB	Max Memory Used: 118 MB
+2026-03-04T01:41:09 START RequestId: d3f50f8d-7b8c-4cc8-bb52-81bdfe247846 Version: $LATEST
+2026-03-04T01:41:09 2026-03-04 01:41:09,392 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:09 2026-03-04 01:41:09,392 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:09 2026-03-04 01:41:09,392 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:09 Traceback (most recent call last):
+2026-03-04T01:41:10 2026-03-04 01:41:10,086 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 0acb238b-6363-49cc-a44f-d4702ab6a4af - Time: 0.6930s
+2026-03-04T01:41:10 2026-03-04 01:41:10,145 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:10 2026-03-04 01:41:10,244 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:10 2026-03-04 01:41:10,244 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:10 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:41:11 [ERROR] [1772588471073] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:41:11 Traceback (most recent call last):
+2026-03-04T01:41:11 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:41:11 main()
+2026-03-04T01:41:11 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:41:11 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:41:11 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:41:11 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:41:11 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:41:11 handle_event_request(
+2026-03-04T01:41:11 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:41:11 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:41:11 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:41:11 runtime_client.post_invocation_result(
+2026-03-04T01:41:11 RuntimeError: Failed to post invocation response
+2026-03-04T01:41:14 INIT_START Runtime Version: python:3.11.mainlinev2.v3	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:0de7d4de4aef04631dc8443fb686ab8bf14de4d4a348cb0d407cce5f48aef7d8
+2026-03-04T01:41:15 START RequestId: a3c2468a-5475-4baa-aa7d-9df2fd96efce Version: $LATEST
+2026-03-04T01:41:15 2026-03-04 01:41:15,881 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:15 2026-03-04 01:41:15,896 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:15 2026-03-04 01:41:15,896 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:15 2026-03-04 01:41:15,979 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 5f2415d2-a575-4291-8425-d7126f4a5f99 - Time: 0.0003s
+2026-03-04T01:41:15 2026-03-04 01:41:15,979 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:16 2026-03-04 01:41:15,979 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:16 2026-03-04 01:41:16,016 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:16 END RequestId: a3c2468a-5475-4baa-aa7d-9df2fd96efce
+2026-03-04T01:41:16 REPORT RequestId: a3c2468a-5475-4baa-aa7d-9df2fd96efce	Duration: 137.28 ms	Billed Duration: 1669 ms	Memory Size: 128 MB	Max Memory Used: 112 MB	Init Duration: 1531.24 ms
+2026-03-04T01:41:16 START RequestId: a2a72e31-f33d-49d2-b502-36ade6fa260b Version: $LATEST
+2026-03-04T01:41:16 2026-03-04 01:41:16,100 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:16 2026-03-04 01:41:16,100 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:16 2026-03-04 01:41:16,100 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:16 END RequestId: d3f50f8d-7b8c-4cc8-bb52-81bdfe247846
+2026-03-04T01:41:16 REPORT RequestId: d3f50f8d-7b8c-4cc8-bb52-81bdfe247846	Duration: 7217.44 ms	Billed Duration: 7218 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:41:18 2026-03-04 01:41:18,758 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 885ec693-4cee-4a59-8663-80b038731c71 - Time: 2.6579s
+2026-03-04T01:41:18 2026-03-04 01:41:18,799 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:18 2026-03-04 01:41:18,936 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:18 2026-03-04 01:41:18,936 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:19 main()
+2026-03-04T01:41:19 END RequestId: 5687bbe0-3e9a-4815-82dd-607d27b95400
+2026-03-04T01:41:19 REPORT RequestId: 5687bbe0-3e9a-4815-82dd-607d27b95400	Duration: 15000.00 ms	Billed Duration: 15000 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: timeout
+2026-03-04T01:41:19 [ERROR] [1772588479784] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:41:19 Traceback (most recent call last):
+2026-03-04T01:41:19 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:41:19 main()
+2026-03-04T01:41:19 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:41:19 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:41:19 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:41:19 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:41:19 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:41:19 handle_event_request(
+2026-03-04T01:41:19 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:41:19 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:41:19 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:41:19 runtime_client.post_invocation_result(
+2026-03-04T01:41:19 RuntimeError: Failed to post invocation response
+2026-03-04T01:41:24 END RequestId: a2a72e31-f33d-49d2-b502-36ade6fa260b
+2026-03-04T01:41:24 REPORT RequestId: a2a72e31-f33d-49d2-b502-36ade6fa260b	Duration: 8300.94 ms	Billed Duration: 8301 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:41:25 START RequestId: 62ef3408-21f7-4938-a4f1-044d24d30cc9 Version: $LATEST
+2026-03-04T01:41:25 2026-03-04 01:41:25,367 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:25 2026-03-04 01:41:25,368 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:25 2026-03-04 01:41:25,368 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:25 2026-03-04 01:41:25,442 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 313c00ba-35e8-41e6-847d-aa19d6d09d85 - Time: 0.0003s
+2026-03-04T01:41:25 2026-03-04 01:41:25,443 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:25 2026-03-04 01:41:25,499 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:25 2026-03-04 01:41:25,499 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:25 END RequestId: 62ef3408-21f7-4938-a4f1-044d24d30cc9
+2026-03-04T01:41:25 REPORT RequestId: 62ef3408-21f7-4938-a4f1-044d24d30cc9	Duration: 1617.92 ms	Billed Duration: 1618 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:41:26 START RequestId: 656611c3-6b9a-48d1-b686-5730fc48c52d Version: $LATEST
+2026-03-04T01:41:26 2026-03-04 01:41:26,627 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:26 2026-03-04 01:41:26,627 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:26 2026-03-04 01:41:26,627 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:26 2026-03-04 01:41:26,699 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: a7d53da9-b572-4f46-8790-641df51c221b - Time: 0.0003s
+2026-03-04T01:41:26 2026-03-04 01:41:26,735 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:26 2026-03-04 01:41:26,736 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:26 2026-03-04 01:41:26,736 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:26 END RequestId: 656611c3-6b9a-48d1-b686-5730fc48c52d
+2026-03-04T01:41:26 REPORT RequestId: 656611c3-6b9a-48d1-b686-5730fc48c52d	Duration: 1568.88 ms	Billed Duration: 1569 ms	Memory Size: 128 MB	Max Memory Used: 123 MB
+2026-03-04T01:41:26 START RequestId: 8e197aef-0f18-48fa-be81-541bd892ed1a Version: $LATEST
+2026-03-04T01:41:26 2026-03-04 01:41:26,818 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:26 2026-03-04 01:41:26,818 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:26 2026-03-04 01:41:26,818 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:29 2026-03-04 01:41:29,438 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: e25a98a5-9461-4c3c-acef-49c6da1a5ec6 - Time: 2.6189s
+2026-03-04T01:41:29 2026-03-04 01:41:29,498 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:29 2026-03-04 01:41:29,597 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:29 2026-03-04 01:41:29,597 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:30 [ERROR] [1772588490524] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:41:30 Traceback (most recent call last):
+2026-03-04T01:41:30 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:41:30 main()
+2026-03-04T01:41:30 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:41:30 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:41:30 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:41:30 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:41:30 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:41:30 handle_event_request(
+2026-03-04T01:41:30 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:41:30 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:41:30 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:41:30 runtime_client.post_invocation_result(
+2026-03-04T01:41:30 RuntimeError: Failed to post invocation response
+2026-03-04T01:41:31 START RequestId: 22a2caf1-26a6-4a65-af75-7fabc987f676 Version: $LATEST
+2026-03-04T01:41:31 2026-03-04 01:41:31,619 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:31 2026-03-04 01:41:31,619 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:31 2026-03-04 01:41:31,619 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:31 2026-03-04 01:41:31,619 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: b21b693c-76c8-4978-9baa-7d03cb9a61e9 - Time: 0.0002s
+2026-03-04T01:41:31 2026-03-04 01:41:31,620 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:31 2026-03-04 01:41:31,620 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:31 2026-03-04 01:41:31,620 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:31 END RequestId: 22a2caf1-26a6-4a65-af75-7fabc987f676
+2026-03-04T01:41:31 REPORT RequestId: 22a2caf1-26a6-4a65-af75-7fabc987f676	Duration: 3.22 ms	Billed Duration: 4 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:41:31 START RequestId: bb8e3c33-2128-4e8f-b1f3-fe1c512bbf7f Version: $LATEST
+2026-03-04T01:41:31 2026-03-04 01:41:31,710 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:31 2026-03-04 01:41:31,710 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:31 2026-03-04 01:41:31,710 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:34 2026-03-04 01:41:34,401 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: dd24984f-4ef9-41ca-8afb-cf6392afaeeb - Time: 2.6911s
+2026-03-04T01:41:34 2026-03-04 01:41:34,461 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:34 2026-03-04 01:41:34,579 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:34 2026-03-04 01:41:34,579 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:35 END RequestId: 8e197aef-0f18-48fa-be81-541bd892ed1a
+2026-03-04T01:41:35 REPORT RequestId: 8e197aef-0f18-48fa-be81-541bd892ed1a	Duration: 8523.37 ms	Billed Duration: 8524 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:41:35 [ERROR] [1772588495446] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:41:35 Traceback (most recent call last):
+2026-03-04T01:41:35 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:41:35 main()
+2026-03-04T01:41:35 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:41:35 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:41:35 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:41:35 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:41:35 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:41:35 handle_event_request(
+2026-03-04T01:41:35 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:41:35 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:41:35 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:41:35 runtime_client.post_invocation_result(
+2026-03-04T01:41:35 RuntimeError: Failed to post invocation response
+2026-03-04T01:41:38 START RequestId: d6a9382e-e217-4175-a314-d85f6cf553a6 Version: $LATEST
+2026-03-04T01:41:38 2026-03-04 01:41:38,991 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:38 2026-03-04 01:41:38,991 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:38 2026-03-04 01:41:38,991 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:39 2026-03-04 01:41:39,059 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 18d5ed94-100d-452d-9411-861d59ff8ce8 - Time: 0.0003s
+2026-03-04T01:41:39 2026-03-04 01:41:39,059 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:39 2026-03-04 01:41:39,095 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:39 2026-03-04 01:41:39,096 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:39 END RequestId: d6a9382e-e217-4175-a314-d85f6cf553a6
+2026-03-04T01:41:39 REPORT RequestId: d6a9382e-e217-4175-a314-d85f6cf553a6	Duration: 1565.40 ms	Billed Duration: 1566 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:41:39 START RequestId: 728f5582-24cd-4d1e-b415-9e2e85ae4083 Version: $LATEST
+2026-03-04T01:41:39 2026-03-04 01:41:39,178 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:39 2026-03-04 01:41:39,178 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:39 2026-03-04 01:41:39,179 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:40 END RequestId: bb8e3c33-2128-4e8f-b1f3-fe1c512bbf7f
+2026-03-04T01:41:40 REPORT RequestId: bb8e3c33-2128-4e8f-b1f3-fe1c512bbf7f	Duration: 8515.69 ms	Billed Duration: 8516 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:41:42 2026-03-04 01:41:42,097 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: ad09af39-4c50-4581-82a6-aa941189b6f5 - Time: 2.9185s
+2026-03-04T01:41:42 2026-03-04 01:41:42,158 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:42 2026-03-04 01:41:42,256 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:42 2026-03-04 01:41:42,256 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:43 [ERROR] [1772588503183] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:41:43 Traceback (most recent call last):
+2026-03-04T01:41:43 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:41:43 main()
+2026-03-04T01:41:43 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:41:43 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:41:43 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:41:43 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:41:43 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:41:43 handle_event_request(
+2026-03-04T01:41:43 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:41:43 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:41:43 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:41:43 runtime_client.post_invocation_result(
+2026-03-04T01:41:43 RuntimeError: Failed to post invocation response
+2026-03-04T01:41:48 END RequestId: 728f5582-24cd-4d1e-b415-9e2e85ae4083
+2026-03-04T01:41:48 REPORT RequestId: 728f5582-24cd-4d1e-b415-9e2e85ae4083	Duration: 8866.93 ms	Billed Duration: 8867 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:41:48 START RequestId: 2af69a94-a35b-4511-9ac9-6761b547b97a Version: $LATEST
+2026-03-04T01:41:48 2026-03-04 01:41:48,710 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:48 2026-03-04 01:41:48,710 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:48 2026-03-04 01:41:48,710 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:48 2026-03-04 01:41:48,782 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: f08093f1-4882-4fc9-936e-e0fd22b65bfc - Time: 0.0003s
+2026-03-04T01:41:48 2026-03-04 01:41:48,783 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:48 2026-03-04 01:41:48,819 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:48 2026-03-04 01:41:48,819 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:48 END RequestId: 2af69a94-a35b-4511-9ac9-6761b547b97a
+2026-03-04T01:41:48 REPORT RequestId: 2af69a94-a35b-4511-9ac9-6761b547b97a	Duration: 1569.93 ms	Billed Duration: 1570 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:41:48 START RequestId: e6ebe1b0-9dc1-4f7f-bbb9-d2f61603d061 Version: $LATEST
+2026-03-04T01:41:48 2026-03-04 01:41:48,905 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:41:48 2026-03-04 01:41:48,906 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:41:48 2026-03-04 01:41:48,906 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:41:51 2026-03-04 01:41:51,620 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: ef505d46-8021-49dc-841d-647eed822f20 - Time: 2.7142s
+2026-03-04T01:41:51 2026-03-04 01:41:51,681 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:41:51 2026-03-04 01:41:51,779 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:41:51 2026-03-04 01:41:51,779 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:41:52 [ERROR] [1772588512707] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:41:52 Traceback (most recent call last):
+2026-03-04T01:41:52 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:41:52 main()
+2026-03-04T01:41:52 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:41:52 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:41:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:41:52 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:41:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:41:52 handle_event_request(
+2026-03-04T01:41:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:41:52 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:41:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:41:52 runtime_client.post_invocation_result(
+2026-03-04T01:41:52 RuntimeError: Failed to post invocation response
+2026-03-04T01:41:57 END RequestId: e6ebe1b0-9dc1-4f7f-bbb9-d2f61603d061
+2026-03-04T01:41:57 REPORT RequestId: e6ebe1b0-9dc1-4f7f-bbb9-d2f61603d061	Duration: 8760.78 ms	Billed Duration: 8761 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:42:04 START RequestId: d1a2e268-e4cd-4b08-b671-428878b50edc Version: $LATEST
+2026-03-04T01:42:04 2026-03-04 01:42:04,628 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:04 2026-03-04 01:42:04,628 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:04 2026-03-04 01:42:04,628 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:04 2026-03-04 01:42:04,702 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: effe54b2-9d70-408f-80dc-f1219ad276c9 - Time: 0.0003s
+2026-03-04T01:42:04 2026-03-04 01:42:04,703 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:04 2026-03-04 01:42:04,739 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:04 2026-03-04 01:42:04,739 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:04 END RequestId: d1a2e268-e4cd-4b08-b671-428878b50edc
+2026-03-04T01:42:04 REPORT RequestId: d1a2e268-e4cd-4b08-b671-428878b50edc	Duration: 1606.71 ms	Billed Duration: 1607 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:42:04 START RequestId: d4cd681e-01cb-48df-8a2d-e5ab843d131d Version: $LATEST
+2026-03-04T01:42:04 2026-03-04 01:42:04,824 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:04 2026-03-04 01:42:04,824 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:04 2026-03-04 01:42:04,824 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:07 2026-03-04 01:42:07,541 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: ff22b8ba-a6ac-4990-9c6c-c256220594d0 - Time: 2.7165s
+2026-03-04T01:42:07 2026-03-04 01:42:07,601 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:07 2026-03-04 01:42:07,700 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:07 2026-03-04 01:42:07,700 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:08 [ERROR] [1772588528647] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:42:08 Traceback (most recent call last):
+2026-03-04T01:42:08 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:42:08 main()
+2026-03-04T01:42:08 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:42:08 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:42:08 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:42:08 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:42:08 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:42:08 handle_event_request(
+2026-03-04T01:42:08 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:42:08 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:42:08 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:42:08 runtime_client.post_invocation_result(
+2026-03-04T01:42:08 RuntimeError: Failed to post invocation response
+2026-03-04T01:42:11 START RequestId: db4ade26-198b-4966-94fc-3963682b2492 Version: $LATEST
+2026-03-04T01:42:11 2026-03-04 01:42:11,183 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:11 2026-03-04 01:42:11,184 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:11 2026-03-04 01:42:11,184 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:11 2026-03-04 01:42:11,296 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 7cf74ee6-fb77-48ff-812a-adcae02756a5 - Time: 0.0364s
+2026-03-04T01:42:11 2026-03-04 01:42:11,296 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:11 2026-03-04 01:42:11,296 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:11 2026-03-04 01:42:11,296 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:11 END RequestId: db4ade26-198b-4966-94fc-3963682b2492
+2026-03-04T01:42:11 REPORT RequestId: db4ade26-198b-4966-94fc-3963682b2492	Duration: 1581.05 ms	Billed Duration: 1582 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:42:11 START RequestId: feb209a8-099f-4229-bf7b-f8a1bb6adc1a Version: $LATEST
+2026-03-04T01:42:11 2026-03-04 01:42:11,383 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:11 2026-03-04 01:42:11,384 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:11 2026-03-04 01:42:11,384 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:13 END RequestId: d4cd681e-01cb-48df-8a2d-e5ab843d131d
+2026-03-04T01:42:13 REPORT RequestId: d4cd681e-01cb-48df-8a2d-e5ab843d131d	Duration: 8964.49 ms	Billed Duration: 8965 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:42:14 2026-03-04 01:42:14,156 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 7df9ebdd-6d75-49ac-97e8-668c6d50bb64 - Time: 2.7720s
+2026-03-04T01:42:14 2026-03-04 01:42:14,216 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:14 2026-03-04 01:42:14,316 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:14 2026-03-04 01:42:14,316 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:15 [ERROR] [1772588535223] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:42:15 Traceback (most recent call last):
+2026-03-04T01:42:15 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:42:15 main()
+2026-03-04T01:42:15 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:42:15 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:42:15 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:42:15 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:42:15 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:42:15 handle_event_request(
+2026-03-04T01:42:15 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:42:15 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:42:15 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:42:15 runtime_client.post_invocation_result(
+2026-03-04T01:42:15 RuntimeError: Failed to post invocation response
+2026-03-04T01:42:18 START RequestId: e06882aa-1cf3-42df-8baa-15ead48fb7aa Version: $LATEST
+2026-03-04T01:42:18 2026-03-04 01:42:18,785 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:18 2026-03-04 01:42:18,785 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:18 2026-03-04 01:42:18,786 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:18 2026-03-04 01:42:18,862 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: fb6a91a6-7edf-421b-8eec-094e31116f2b - Time: 0.0003s
+2026-03-04T01:42:18 2026-03-04 01:42:18,863 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:18 2026-03-04 01:42:18,899 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:18 2026-03-04 01:42:18,899 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:18 END RequestId: e06882aa-1cf3-42df-8baa-15ead48fb7aa
+2026-03-04T01:42:18 REPORT RequestId: e06882aa-1cf3-42df-8baa-15ead48fb7aa	Duration: 1590.61 ms	Billed Duration: 1591 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:42:18 START RequestId: 95505bbd-98b1-405d-bee5-fc773509b915 Version: $LATEST
+2026-03-04T01:42:18 2026-03-04 01:42:18,996 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:18 2026-03-04 01:42:18,996 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:18 2026-03-04 01:42:18,996 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:20 END RequestId: feb209a8-099f-4229-bf7b-f8a1bb6adc1a
+2026-03-04T01:42:20 REPORT RequestId: feb209a8-099f-4229-bf7b-f8a1bb6adc1a	Duration: 8816.59 ms	Billed Duration: 8817 ms	Memory Size: 128 MB	Max Memory Used: 128 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:42:21 2026-03-04 01:42:21,741 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 2196de82-c003-42b9-8bad-53071dd9a47c - Time: 2.7441s
+2026-03-04T01:42:21 2026-03-04 01:42:21,801 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:21 2026-03-04 01:42:21,900 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:21 2026-03-04 01:42:21,900 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:22 [ERROR] [1772588542866] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:42:22 Traceback (most recent call last):
+2026-03-04T01:42:22 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:42:22 main()
+2026-03-04T01:42:22 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:42:22 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:42:22 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:42:22 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:42:22 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:42:22 handle_event_request(
+2026-03-04T01:42:22 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:42:22 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:42:22 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:42:22 runtime_client.post_invocation_result(
+2026-03-04T01:42:22 RuntimeError: Failed to post invocation response
+2026-03-04T01:42:28 END RequestId: 95505bbd-98b1-405d-bee5-fc773509b915
+2026-03-04T01:42:28 REPORT RequestId: 95505bbd-98b1-405d-bee5-fc773509b915	Duration: 9009.80 ms	Billed Duration: 9010 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:42:28 START RequestId: 1a622094-13f2-4236-a590-0486e8013b5a Version: $LATEST
+2026-03-04T01:42:28 2026-03-04 01:42:28,398 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:28 2026-03-04 01:42:28,398 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:28 2026-03-04 01:42:28,399 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:28 2026-03-04 01:42:28,480 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 7d6520d6-571e-4064-b898-03becdd828ae - Time: 0.0003s
+2026-03-04T01:42:28 2026-03-04 01:42:28,481 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:28 2026-03-04 01:42:28,537 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:28 2026-03-04 01:42:28,537 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:28 END RequestId: 1a622094-13f2-4236-a590-0486e8013b5a
+2026-03-04T01:42:28 REPORT RequestId: 1a622094-13f2-4236-a590-0486e8013b5a	Duration: 1569.84 ms	Billed Duration: 1570 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:42:28 START RequestId: d26c6dcc-e968-49d6-b7f9-261312e3c6e8 Version: $LATEST
+2026-03-04T01:42:28 2026-03-04 01:42:28,633 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:28 2026-03-04 01:42:28,633 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:28 2026-03-04 01:42:28,633 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:31 2026-03-04 01:42:31,319 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 8115a69c-feaf-4c19-a2a0-19196dcbb65e - Time: 2.6854s
+2026-03-04T01:42:31 2026-03-04 01:42:31,359 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:31 2026-03-04 01:42:31,477 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:31 2026-03-04 01:42:31,478 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:32 [ERROR] [1772588552385] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:42:32 Traceback (most recent call last):
+2026-03-04T01:42:32 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:42:32 main()
+2026-03-04T01:42:32 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:42:32 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:42:32 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:42:32 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:42:32 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:42:32 handle_event_request(
+2026-03-04T01:42:32 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:42:32 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:42:32 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:42:32 runtime_client.post_invocation_result(
+2026-03-04T01:42:32 RuntimeError: Failed to post invocation response
+2026-03-04T01:42:37 END RequestId: d26c6dcc-e968-49d6-b7f9-261312e3c6e8
+2026-03-04T01:42:37 REPORT RequestId: d26c6dcc-e968-49d6-b7f9-261312e3c6e8	Duration: 8928.43 ms	Billed Duration: 8929 ms	Memory Size: 128 MB	Max Memory Used: 127 MB	Status: error	Error Type: Runtime.ExitError
+2026-03-04T01:42:48 START RequestId: f12c0231-12f6-46ec-98a1-de42ee067663 Version: $LATEST
+2026-03-04T01:42:48 2026-03-04 01:42:48,789 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:48 2026-03-04 01:42:48,789 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:48 2026-03-04 01:42:48,789 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:48 2026-03-04 01:42:48,860 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: a855651e-8bbe-4684-8ad9-7ef025458ee6 - Time: 0.0004s
+2026-03-04T01:42:48 2026-03-04 01:42:48,861 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:48 2026-03-04 01:42:48,897 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:48 2026-03-04 01:42:48,897 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:48 END RequestId: f12c0231-12f6-46ec-98a1-de42ee067663
+2026-03-04T01:42:48 REPORT RequestId: f12c0231-12f6-46ec-98a1-de42ee067663	Duration: 1609.26 ms	Billed Duration: 1610 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:42:48 START RequestId: c0a391f6-25e8-4a5a-a59d-22a9a4d64211 Version: $LATEST
+2026-03-04T01:42:48 2026-03-04 01:42:48,983 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:48 2026-03-04 01:42:48,983 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:48 2026-03-04 01:42:48,983 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:51 2026-03-04 01:42:51,699 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 7c7d157b-714f-4c7b-9432-158c338f7182 - Time: 2.7156s
+2026-03-04T01:42:51 2026-03-04 01:42:51,759 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:51 2026-03-04 01:42:51,858 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:51 2026-03-04 01:42:51,858 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:52 [ERROR] [1772588572785] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:42:52 Traceback (most recent call last):
+2026-03-04T01:42:52 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:42:52 main()
+2026-03-04T01:42:52 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:42:52 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:42:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:42:52 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:42:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:42:52 handle_event_request(
+2026-03-04T01:42:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:42:52 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:42:52 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:42:52 runtime_client.post_invocation_result(
+2026-03-04T01:42:52 RuntimeError: Failed to post invocation response
+2026-03-04T01:42:55 START RequestId: 780e39c8-e6e3-4cb0-a511-2a25eb2f5c11 Version: $LATEST
+2026-03-04T01:42:55 2026-03-04 01:42:55,325 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:55 2026-03-04 01:42:55,325 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:55 2026-03-04 01:42:55,325 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:55 2026-03-04 01:42:55,403 - michicondrias - INFO - Request OPTIONS /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: 5fd9d228-dab6-4359-abd5-a574847936df - Time: 0.0003s
+2026-03-04T01:42:55 2026-03-04 01:42:55,403 - mangum.http - INFO - OPTIONS /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:55 2026-03-04 01:42:55,440 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:55 2026-03-04 01:42:55,440 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:55 END RequestId: 780e39c8-e6e3-4cb0-a511-2a25eb2f5c11
+2026-03-04T01:42:55 REPORT RequestId: 780e39c8-e6e3-4cb0-a511-2a25eb2f5c11	Duration: 1573.02 ms	Billed Duration: 1574 ms	Memory Size: 128 MB	Max Memory Used: 127 MB
+2026-03-04T01:42:55 START RequestId: 56229ff9-f321-40a0-b348-1ac352629de6 Version: $LATEST
+2026-03-04T01:42:55 2026-03-04 01:42:55,521 - mangum.lifespan - INFO - Waiting for application startup.
+2026-03-04T01:42:55 2026-03-04 01:42:55,522 - mangum.lifespan - INFO - LifespanCycleState.STARTUP:  'lifespan.startup.complete' event received from application.
+2026-03-04T01:42:55 2026-03-04 01:42:55,522 - mangum.lifespan - INFO - Application startup complete.
+2026-03-04T01:42:58 2026-03-04 01:42:58,301 - michicondrias - INFO - Request GET /adopciones/api/v1/adopciones/pets/requests/me - HTTP 200 - CorrID: ef11ac20-7433-48fe-baba-562ea6de12d0 - Time: 2.7791s
+2026-03-04T01:42:58 2026-03-04 01:42:58,341 - mangum.http - INFO - GET /adopciones/api/v1/adopciones/pets/requests/me 200
+2026-03-04T01:42:58 2026-03-04 01:42:58,459 - mangum.lifespan - INFO - Waiting for application shutdown.
+2026-03-04T01:42:58 2026-03-04 01:42:58,460 - mangum.lifespan - INFO - LifespanCycleState.SHUTDOWN:  'lifespan.shutdown.complete' event received from application.
+2026-03-04T01:42:59 [ERROR] [1772588579387] LAMBDA_RUNTIME Failed to post handler success response. Http response code: 413.
+2026-03-04T01:42:59 Traceback (most recent call last):
+2026-03-04T01:42:59 File "/var/runtime/bootstrap.py", line 63, in <module>
+2026-03-04T01:42:59 main()
+2026-03-04T01:42:59 File "/var/runtime/bootstrap.py", line 60, in main
+2026-03-04T01:42:59 awslambdaricmain.main([os.environ["LAMBDA_TASK_ROOT"], os.environ["_HANDLER"]])
+2026-03-04T01:42:59 File "/var/lang/lib/python3.11/site-packages/awslambdaric/__main__.py", line 21, in main
+2026-03-04T01:42:59 bootstrap.run(app_root, handler, lambda_runtime_api_addr)
+2026-03-04T01:42:59 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 529, in run
+2026-03-04T01:42:59 handle_event_request(
+2026-03-04T01:42:59 File "/var/lang/lib/python3.11/site-packages/awslambdaric/bootstrap.py", line 210, in handle_event_request
+2026-03-04T01:42:59 lambda_runtime_client.post_invocation_result(
+2026-03-04T01:42:59 File "/var/lang/lib/python3.11/site-packages/awslambdaric/lambda_runtime_client.py", line 148, in post_invocation_result
+2026-03-04T01:42:59 runtime_client.post_invocation_result(
+2026-03-04T01:42:59 RuntimeError: Failed to post invocation response

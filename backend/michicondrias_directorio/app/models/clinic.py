@@ -16,7 +16,7 @@ class Clinic(BaseModel):
     is_24_hours = Column(Boolean, default=False)
     has_emergency = Column(Boolean, default=False)
     owner_user_id = Column(String(36), index=True, nullable=True) # Ligado al microservicio core
-    is_approved = Column(Boolean, default=False)
+    is_approved = Column(Boolean, default=False, index=True)
 
 class Veterinarian(BaseModel):
     __tablename__ = "veterinarians"

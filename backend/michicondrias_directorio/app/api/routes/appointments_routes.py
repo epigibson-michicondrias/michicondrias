@@ -47,6 +47,9 @@ def create_appointment(
     return _serialize_appointment(appt, svc, clinic)
 
 
+from app.models.clinic import Clinic
+from app.models.services import ClinicService
+
 @router.get("/me", response_model=List[AppointmentResponse])
 def read_my_appointments(
     db: Session = Depends(get_db),
@@ -54,10 +57,23 @@ def read_my_appointments(
 ) -> Any:
     """Get all appointments for the current user (Consumer)."""
     appointments = crud_services.get_user_appointments(db, user_id)
+    if not appointments:
+        return []
+
+    # Bulk fetch related data to avoid N+1 queries
+    service_ids = list({a.service_id for a in appointments})
+    clinic_ids = list({a.clinic_id for a in appointments})
+    
+    services = db.query(ClinicService).filter(ClinicService.id.in_(service_ids)).all() if service_ids else []
+    clinics = db.query(Clinic).filter(Clinic.id.in_(clinic_ids)).all() if clinic_ids else []
+    
+    svc_map = {s.id: s for s in services}
+    clinic_map = {c.id: c for c in clinics}
+
     result = []
     for appt in appointments:
-        svc = crud_services.get_service(db, appt.service_id)
-        clinic = get_clinic(db, appt.clinic_id)
+        svc = svc_map.get(appt.service_id)
+        clinic = clinic_map.get(appt.clinic_id)
         result.append(_serialize_appointment(appt, svc, clinic))
     return result
 
@@ -75,10 +91,19 @@ def read_clinic_appointments(
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     if clinic.owner_user_id != user_id:
         raise HTTPException(status_code=403, detail="Solo el dueño puede ver las citas")
+        
     appointments = crud_services.get_clinic_appointments(db, clinic_id, status)
+    if not appointments:
+        return []
+        
+    # Bulk fetch services
+    service_ids = list({a.service_id for a in appointments})
+    services = db.query(ClinicService).filter(ClinicService.id.in_(service_ids)).all() if service_ids else []
+    svc_map = {s.id: s for s in services}
+
     result = []
     for appt in appointments:
-        svc = crud_services.get_service(db, appt.service_id)
+        svc = svc_map.get(appt.service_id)
         result.append(_serialize_appointment(appt, svc, clinic))
     return result
 

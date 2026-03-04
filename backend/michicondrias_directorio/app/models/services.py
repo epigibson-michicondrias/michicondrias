@@ -12,7 +12,7 @@ class ClinicService(BaseModel):
     price = Column(Float, nullable=True)  # Price in MXN, null = "Consultar"
     duration_minutes = Column(Integer, nullable=False, default=30)
     category = Column(String(100), nullable=True)  # e.g. "Consulta", "Vacunación", "Cirugía"
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, index=True)
 
 
 class ClinicSchedule(BaseModel):
@@ -20,11 +20,11 @@ class ClinicSchedule(BaseModel):
     __tablename__ = "clinic_schedules"
 
     clinic_id = Column(String(36), ForeignKey("clinics.id"), nullable=False, index=True)
-    day_of_week = Column(Integer, nullable=False)  # 0=Monday, 6=Sunday
+    day_of_week = Column(Integer, nullable=False, index=True)  # 0=Monday, 6=Sunday
     start_time = Column(Time, nullable=False)       # e.g. 09:00
     end_time = Column(Time, nullable=False)          # e.g. 18:00
     slot_duration_minutes = Column(Integer, nullable=False, default=30)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, index=True)
 
 
 class ScheduleException(BaseModel):
@@ -51,7 +51,7 @@ class Appointment(BaseModel):
     date = Column(Date, nullable=False, index=True)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
-    status = Column(String(20), nullable=False, default="pending")
+    status = Column(String(20), nullable=False, default="pending", index=True)
     # Statuses: pending, confirmed, completed, cancelled, no_show
     notes = Column(Text, nullable=True)  # Consumer notes
     cancellation_reason = Column(Text, nullable=True)
