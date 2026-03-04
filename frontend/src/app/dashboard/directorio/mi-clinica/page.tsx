@@ -14,11 +14,13 @@ import dashStyles from "../../dashboard.module.css";
 import { toast } from "react-hot-toast";
 
 const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
+const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string; badge?: string }> = {
     pending: { label: "Pendiente", emoji: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
     confirmed: { label: "Confirmada", emoji: "✅", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
-    completed: { label: "Completada", emoji: "🎉", color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
-    cancelled: { label: "Cancelada", emoji: "❌", color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
+    completed: { label: "Completada", emoji: "🎉", color: "#3b82f6", bg: "rgba(59,130,246,0.12)", badge: dashStyles["badge-completed"] },
+    cancelled: { label: "Cancelada", emoji: "❌", color: "#ef4444", bg: "rgba(239,68,68,0.12)", badge: dashStyles["badge-cancelled"] },
+    no_show: { label: "No Asistió", emoji: "👻", color: "#6b7280", bg: "rgba(107,114,128,0.12)", badge: dashStyles["badge-neutral"] },
+    rescheduled: { label: "Reagendada", emoji: "🔄", color: "#6b7280", bg: "rgba(107,114,128,0.12)", badge: dashStyles["badge-neutral"] },
 };
 
 type Tab = "info" | "services" | "schedule" | "agenda";

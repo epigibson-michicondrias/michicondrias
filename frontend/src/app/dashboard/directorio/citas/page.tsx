@@ -12,6 +12,7 @@ const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; 
     completed: { label: "Completada", emoji: "🎉", color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
     cancelled: { label: "Cancelada", emoji: "❌", color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
     no_show: { label: "No Asistió", emoji: "👻", color: "#6b7280", bg: "rgba(107,114,128,0.12)" },
+    rescheduled: { label: "Reagendada (Historial)", emoji: "🔄", color: "#6b7280", bg: "rgba(107,114,128,0.12)" }
 };
 
 export default function MisCitasPage() {
@@ -45,9 +46,11 @@ export default function MisCitasPage() {
         }
     }
 
-    const filtered = filter === "all" ? appointments : appointments.filter(a => a.status === filter);
-    const upcoming = appointments.filter(a => ["pending", "confirmed"].includes(a.status));
-    const past = appointments.filter(a => ["completed", "cancelled", "no_show"].includes(a.status));
+    // Ocultamos las "rescheduled" de la vista principal del usuario para evitar basura visual
+    const displayAppointments = appointments.filter(a => a.status !== "rescheduled");
+    const filtered = filter === "all" ? displayAppointments : displayAppointments.filter(a => a.status === filter);
+    const upcoming = displayAppointments.filter(a => ["pending", "confirmed"].includes(a.status));
+    const past = displayAppointments.filter(a => ["completed", "cancelled", "no_show"].includes(a.status));
 
     return (
         <div style={{ animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}>
@@ -62,7 +65,7 @@ export default function MisCitasPage() {
                     { label: "Próximas", count: upcoming.length, emoji: "📋", color: "#a78bfa" },
                     { label: "Completadas", count: past.filter(a => a.status === "completed").length, emoji: "✅", color: "#10b981" },
                     { label: "Canceladas", count: past.filter(a => a.status === "cancelled").length, emoji: "❌", color: "#ef4444" },
-                    { label: "Total", count: appointments.length, emoji: "📊", color: "#3b82f6" },
+                    { label: "Total", count: displayAppointments.length, emoji: "📊", color: "#3b82f6" },
                 ].map(stat => (
                     <div key={stat.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "18px", padding: "1.25rem", textAlign: "center" }}>
                         <div style={{ fontSize: "1.5rem" }}>{stat.emoji}</div>

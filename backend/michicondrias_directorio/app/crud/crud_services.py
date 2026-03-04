@@ -299,10 +299,39 @@ def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_
     if existing:
         raise ValueError("El nuevo horario ya está reservado.")
 
-    appt.date = d
-    appt.start_time = start
-    appt.end_time = end_dt.time()
-    appt.status = "pending"  # Reset to pending after reschedule
+    # Mark original as rescheduled
+    appt.status = "rescheduled"
     db.commit()
-    db.refresh(appt)
-    return appt
+
+    # Create new appointment with the updated time
+    new_appt = Appointment(
+        clinic_id=appt.clinic_id,
+        service_id=appt.service_id,
+        pet_id=appt.pet_id,
+        user_id=appt.user_id,
+        vet_id=appt.vet_id,
+        date=d,
+        start_time=start,
+        end_time=end_dt.time(),
+        status="pending",
+        notes=appt.notes,
+        cancellation_reason="Reagendada de la cita original"
+    )
+    db.add(new_appt)
+    db.commit()
+    db.refresh(new_appt)
+    
+    # Create reminders for the new appointment
+    appt_datetime = datetime.combine(d, start)
+    for hours_before in [24, 2]:
+        remind_at = appt_datetime - timedelta(hours=hours_before)
+        if remind_at > datetime.now():
+            reminder = AppointmentReminder(
+                appointment_id=new_appt.id,
+                remind_at=remind_at.isoformat(),
+                reminder_type="in_app",
+            )
+            db.add(reminder)
+    db.commit()
+
+    return new_appt
