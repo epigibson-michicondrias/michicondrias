@@ -18,6 +18,10 @@ Gestión de identidades permanentes y procesos de adopción.
 
 ## 2. Adopciones (Listings)
 
+### `GET /adopciones/api/v1/pets/presigned-url`
+**Función**: `getAdopcionesPresignedUrl(ext)`
+- **Descripción**: Genera una URL firmada de S3 (`michicondrias-storage-1`) para subir la fotografía de la mascota directamente desde el frontend evitando los límites de API Gateway.
+
 ### `GET /adopciones/api/v1/pets/`
 **Función**: `getListings()`
 - **Descripción**: Lista pública de mascotas en adopción (Aprobadas).

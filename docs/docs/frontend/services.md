@@ -21,8 +21,15 @@ Todos los servicios utilizan un patrón consistente basado en la utilidad `apiFe
 ### `adopciones.ts`
 - **Funciones Críticas**:
     - `getListings()`: Feed principal de adopciones.
+    - `getAdopcionesPresignedUrl(ext)`: Genera URL temporal en AWS S3 para subir fotos.
     - `requestAdoption(listingId, data)`: Procesa el formulario de solicitud.
-    - `approveListing(id)`: (Admin) Gestión de publicaciones.
+    - `createListing(data)`: Crea una nueva mascota en adopción, asignando la URL pública de la foto.
+
+### `moderacion.ts`
+- **Funciones Críticas**:
+    - Centraliza las llamadas de revisión administrativa de rutas dispares.
+    - `approveAdoption()` / `rejectAdoption()`: Rutean correctamente hacia `adopciones/pets/admin/*`.
+    - `approveLostPet()` / `rejectLostPet()`: Rutean correctamente hacia `perdidas/reports/admin/*`.
 
 ### `ecommerce.ts`
 - **Funciones Críticas**:
