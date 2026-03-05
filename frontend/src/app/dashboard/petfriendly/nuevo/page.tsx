@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPlace, getMascotasPresignedUrl } from "@/lib/services/mascotas";
+import { createPlace } from "@/lib/services/perdidas";
+import { getMascotasPresignedUrl } from "@/lib/services/mascotas";
 import { toast } from "react-hot-toast";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
@@ -58,9 +59,9 @@ export default function NuevoLugarPage() {
 
             await createPlace({
                 ...formData,
-                image_url: photoUrl || null,
-                latitude: null,
-                longitude: null,
+                image_url: photoUrl || undefined,
+                latitude: undefined,
+                longitude: undefined,
             });
 
             toast.success("¡Lugar registrado exitosamente!");

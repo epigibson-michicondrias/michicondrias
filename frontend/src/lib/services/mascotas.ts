@@ -78,21 +78,6 @@ export interface LostPet {
     created_at: string;
 }
 
-export interface PetfriendlyPlace {
-    id: string;
-    name: string;
-    category: string;
-    description: string | null;
-    address: string;
-    city: string | null;
-    state: string | null;
-    latitude: number | null;
-    longitude: number | null;
-    rating: number;
-    image_url: string | null;
-    created_by_user_id: string;
-}
-
 export async function getLostPets(isFound?: boolean): Promise<LostPet[]> {
     const params = isFound !== undefined ? `?is_found=${isFound}` : "";
     return apiFetch<LostPet[]>("mascotas", `/lost-pets/${params}`);
@@ -104,22 +89,5 @@ export async function createLostPet(
     return apiFetch<LostPet>("mascotas", "/lost-pets/", {
         method: "POST",
         body: JSON.stringify(pet),
-    });
-}
-
-export async function getPlaces(category?: string, city?: string): Promise<PetfriendlyPlace[]> {
-    const params = new URLSearchParams();
-    if (category) params.append("category", category);
-    if (city) params.append("city", city);
-    const qs = params.toString() ? `?${params.toString()}` : "";
-    return apiFetch<PetfriendlyPlace[]>("mascotas", `/places/${qs}`);
-}
-
-export async function createPlace(
-    place: Omit<PetfriendlyPlace, "id" | "created_by_user_id">
-): Promise<PetfriendlyPlace> {
-    return apiFetch<PetfriendlyPlace>("mascotas", "/places/", {
-        method: "POST",
-        body: JSON.stringify(place),
     });
 }

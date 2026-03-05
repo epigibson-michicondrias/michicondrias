@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getPlaces, PetfriendlyPlace } from "@/lib/services/mascotas";
+import { getPlaces, PetfriendlyPlace } from "@/lib/services/perdidas";
 import Link from "next/link";
 import dashStyles from "../dashboard.module.css";
 import styles from "../modules.module.css";
@@ -23,7 +23,7 @@ export default function PetfriendlyPage() {
 
     const filtered = places.filter(place =>
         place.name.toLowerCase().includes(search.toLowerCase()) ||
-        place.address.toLowerCase().includes(search.toLowerCase()) ||
+        (place.address?.toLowerCase().includes(search.toLowerCase())) ||
         (place.city?.toLowerCase().includes(search.toLowerCase()))
     );
 
@@ -129,7 +129,7 @@ function PlaceCard({ place }: { place: PetfriendlyPlace }) {
                         <span style={{ fontWeight: 800 }}>{place.rating.toFixed(1)}</span>
                     </div>
                 </div>
-                <p style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "1rem" }}>📍 {place.address}</p>
+                <p style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "1rem" }}>📍 {place.address || "Dirección no disponible"}</p>
                 <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", flexGrow: 1 }}>
                     {place.description ? (place.description.length > 100 ? place.description.substring(0, 100) + "..." : place.description) : "Sin descripción disponible."}
                 </p>
