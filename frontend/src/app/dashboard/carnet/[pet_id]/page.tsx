@@ -215,6 +215,86 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                             <p style={{ margin: 0, fontSize: "0.95rem", color: "#fff", fontStyle: "italic" }}>"{pet.temperament}"</p>
                         </div>
                     )}
+
+                    {/* Clinical Summary */}
+                    <div style={{
+                        background: "rgba(124, 58, 237, 0.05)",
+                        border: "1px solid rgba(124, 58, 237, 0.15)",
+                        borderRadius: "16px",
+                        padding: "1.25rem",
+                        marginTop: "0.5rem"
+                    }}>
+                        <strong style={{ color: "#a78bfa", fontSize: "0.8rem", letterSpacing: "0.1em", display: "block", marginBottom: "0.75rem" }}>📊 RESUMEN CLÍNICO</strong>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                            <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: "10px", padding: "0.6rem", textAlign: "center" }}>
+                                <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff", display: "block" }}>{records.length}</span>
+                                <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Consultas</span>
+                            </div>
+                            <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: "10px", padding: "0.6rem", textAlign: "center" }}>
+                                <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff", display: "block" }}>{vaccines.length}</span>
+                                <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Vacunas</span>
+                            </div>
+                        </div>
+                        {records.length > 0 && (
+                            <p style={{ margin: "0.75rem 0 0 0", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                                Última visita: <strong style={{ color: "#fff" }}>{new Date(records[0].date).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}</strong>
+                            </p>
+                        )}
+                        {vaccines.length > 0 && (() => {
+                            const upcoming = vaccines.filter(v => v.next_due_date && new Date(v.next_due_date) > new Date()).sort((a, b) => new Date(a.next_due_date!).getTime() - new Date(b.next_due_date!).getTime());
+                            if (upcoming.length > 0) {
+                                return (
+                                    <p style={{ margin: "0.4rem 0 0 0", fontSize: "0.8rem", color: "#fbbf24" }}>
+                                        ⏰ Próxima: <strong>{upcoming[0].name}</strong> el {new Date(upcoming[0].next_due_date!).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}
+                                    </p>
+                                );
+                            }
+                            return null;
+                        })()}
+                    </div>
+
+                    {/* Weight Sparkline */}
+                    {(() => {
+                        const weights = records.filter(r => r.weight_kg).map(r => ({ date: r.date, weight: r.weight_kg! })).reverse();
+                        if (weights.length < 2) return null;
+                        const minW = Math.min(...weights.map(w => w.weight));
+                        const maxW = Math.max(...weights.map(w => w.weight));
+                        const range = maxW - minW || 1;
+                        const svgW = 200;
+                        const svgH = 60;
+                        const pad = 4;
+                        const points = weights.map((w, i) => {
+                            const x = pad + (i / (weights.length - 1)) * (svgW - pad * 2);
+                            const y = svgH - pad - ((w.weight - minW) / range) * (svgH - pad * 2);
+                            return `${x},${y}`;
+                        });
+                        const linePath = `M ${points.join(" L ")}`;
+                        const areaPath = `${linePath} L ${pad + ((weights.length - 1) / (weights.length - 1)) * (svgW - pad * 2)},${svgH - pad} L ${pad},${svgH - pad} Z`;
+                        return (
+                            <div style={{ marginTop: "0.5rem", background: "rgba(0,0,0,0.15)", borderRadius: "14px", padding: "1rem" }}>
+                                <strong style={{ color: "var(--text-secondary)", fontSize: "0.75rem", letterSpacing: "0.1em", display: "block", marginBottom: "0.5rem" }}>⚖️ EVOLUCIÓN DE PESO</strong>
+                                <svg viewBox={`0 0 ${svgW} ${svgH}`} style={{ width: "100%", height: "60px" }}>
+                                    <defs>
+                                        <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
+                                            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d={areaPath} fill="url(#weightGrad)" />
+                                    <path d={linePath} fill="none" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    {weights.map((w, i) => {
+                                        const x = pad + (i / (weights.length - 1)) * (svgW - pad * 2);
+                                        const y = svgH - pad - ((w.weight - minW) / range) * (svgH - pad * 2);
+                                        return <circle key={i} cx={x} cy={y} r="3" fill="#06b6d4" stroke="#0f0f1a" strokeWidth="1.5" />;
+                                    })}
+                                </svg>
+                                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+                                    <span>{weights[0].weight} kg</span>
+                                    <span>{weights[weights.length - 1].weight} kg</span>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </aside>
 
                 {/* Right pane: Clinical Content */}

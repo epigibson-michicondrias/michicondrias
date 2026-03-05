@@ -24,6 +24,8 @@ export interface Pet {
     social_children: boolean;
     weight_kg: number | null;
     microchip_number: string | null;
+    gender: string | null;
+    gallery: string[] | null;
 
     // Michi-Tracker Pro
     has_active_subscription?: boolean;

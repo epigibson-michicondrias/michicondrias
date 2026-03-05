@@ -222,7 +222,79 @@ export default function MascotaDetailPage(props: { params: Promise<{ id: string 
                         </div>
                     </div>
 
+                    {/* Photo Gallery */}
+                    {listing.gallery && listing.gallery.length > 0 && (
+                        <>
+                            <div className={dashStyles["form-divider"]} style={{ margin: "2.5rem 0" }} />
+                            <h3 className={styles["section-title"]}>📸 Galería de Fotos</h3>
+                            <div style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                                gap: "1rem",
+                                marginBottom: "1rem",
+                            }}>
+                                {listing.gallery.map((url: string, i: number) => (
+                                    <div key={i} style={{
+                                        position: "relative",
+                                        borderRadius: "16px",
+                                        overflow: "hidden",
+                                        aspectRatio: "1",
+                                        border: "1px solid rgba(255,255,255,0.06)",
+                                        cursor: "pointer",
+                                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                                    }}
+                                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "scale(1.03)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 30px rgba(0,0,0,0.4)"; }}
+                                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
+                                    >
+                                        <img
+                                            src={url}
+                                            alt={`${listing.name} foto ${i + 1}`}
+                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+
                     <div className={dashStyles["form-divider"]} style={{ margin: "2.5rem 0" }} />
+
+                    {/* Share Button */}
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+                        <button
+                            onClick={() => {
+                                const shareData = {
+                                    title: `Adopta a ${listing.name} en Michicondrias 🐾`,
+                                    text: `¡Conoce a ${listing.name}! ${listing.breed || listing.species} buscando un hogar amoroso. ${listing.description?.substring(0, 100) || ""}`,
+                                    url: window.location.href,
+                                };
+                                if (navigator.share) {
+                                    navigator.share(shareData).catch(() => { });
+                                } else {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    import("react-hot-toast").then(({ toast }) => toast.success("🔗 Link copiado al portapapeles"));
+                                }
+                            }}
+                            style={{
+                                background: "linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.15))",
+                                border: "1px solid rgba(124, 58, 237, 0.3)",
+                                color: "#fff",
+                                padding: "0.85rem 2rem",
+                                borderRadius: "16px",
+                                fontWeight: 700,
+                                fontSize: "0.95rem",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                transition: "all 0.3s ease",
+                            }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(6, 182, 212, 0.3))"; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.15))"; }}
+                        >
+                            🔗 Compartir Perfil de Adopción
+                        </button>
+                    </div>
 
                     {/* Compromisos */}
                     <h3 className={styles["section-title"]} style={{ marginTop: "2rem" }}>🤝 Compromisos Requeridos</h3>

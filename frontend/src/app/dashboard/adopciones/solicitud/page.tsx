@@ -98,21 +98,69 @@ function SolicitudContent() {
 
     if (success) {
         return (
-            <div className={styles["create-form"]} style={{ textAlign: "center" }}>
-                <span style={{ fontSize: "4rem", display: "block", marginBottom: "1rem" }}>📝</span>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "1rem" }}>
-                    ¡Solicitud enviada con éxito!
-                </h2>
-                <p style={{ color: "var(--text-secondary)", marginBottom: "2rem", lineHeight: 1.6 }}>
-                    Gracias por tu interés. Tu solicitud ha sido recibida y será revisada con prioridad
-                    en el bienestar del animalito. Nos comunicaremos contigo pronto.
-                </p>
-                <button
-                    onClick={() => router.push("/dashboard/adopciones")}
-                    className="btn btn-primary"
-                >
-                    Volver a Adopciones
-                </button>
+            <div className={styles["create-form"]} style={{ textAlign: "center", position: "relative", overflow: "hidden" }}>
+                {/* Celebration particles */}
+                <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+                    {Array.from({ length: 20 }).map((_, i) => (
+                        <span key={i} style={{
+                            position: "absolute",
+                            width: `${6 + Math.random() * 8}px`,
+                            height: `${6 + Math.random() * 8}px`,
+                            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+                            background: ['#a78bfa', '#06b6d4', '#f472b6', '#34d399', '#fbbf24', '#fb923c'][Math.floor(Math.random() * 6)],
+                            left: `${5 + Math.random() * 90}%`,
+                            top: "-10%",
+                            opacity: 0.8,
+                            animation: `confettiFall ${2 + Math.random() * 3}s ease-in ${Math.random() * 1.5}s forwards`,
+                        }} />
+                    ))}
+                </div>
+                <style>{`
+                    @keyframes confettiFall {
+                        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                        100% { transform: translateY(600px) rotate(${360 + Math.random() * 360}deg); opacity: 0; }
+                    }
+                    @keyframes scaleIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+                `}</style>
+
+                <div style={{ animation: "scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div style={{
+                        width: "90px", height: "90px", borderRadius: "50%",
+                        background: "linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))",
+                        border: "2px solid rgba(16, 185, 129, 0.4)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: "3rem", marginBottom: "1.5rem",
+                        boxShadow: "0 0 40px rgba(16, 185, 129, 0.2)",
+                    }}>
+                        🎉
+                    </div>
+                    <h2 style={{ fontSize: "1.8rem", fontWeight: 800, marginBottom: "0.75rem", background: "linear-gradient(135deg, #34d399, #06b6d4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                        ¡Solicitud Enviada!
+                    </h2>
+                    <p style={{ color: "var(--text-secondary)", marginBottom: "2rem", lineHeight: 1.7, maxWidth: "400px" }}>
+                        Tu solicitud ha sido recibida y será revisada con prioridad en el bienestar del animalito.
+                        Puedes rastrear el progreso en tiempo real desde <strong style={{ color: "#fff" }}>Mis Solicitudes</strong>.
+                    </p>
+                    <button
+                        onClick={() => router.push("/dashboard/adopciones/mis-solicitudes")}
+                        style={{
+                            background: "linear-gradient(135deg, #7c3aed, #06b6d4)",
+                            color: "#fff",
+                            border: "none",
+                            padding: "1rem 2.5rem",
+                            borderRadius: "16px",
+                            fontWeight: 700,
+                            fontSize: "1rem",
+                            cursor: "pointer",
+                            boxShadow: "0 8px 30px rgba(124, 58, 237, 0.3)",
+                            transition: "transform 0.3s ease",
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.transform = "translateY(-2px)")}
+                        onMouseLeave={e => (e.currentTarget.style.transform = "translateY(0)")}
+                    >
+                        📄 Ver Mis Solicitudes
+                    </button>
+                </div>
             </div>
         );
     }

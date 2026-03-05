@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getCurrentUser, User, hasRole } from "@/lib/auth";
 import { getUserPets, Pet, createPet } from "@/lib/services/mascotas";
 import dashStyles from "../dashboard.module.css";
@@ -137,13 +138,48 @@ export default function CarnetPage() {
                         <div key={pet.id} className={styles["pet-medical-card"]}>
                             <div className={styles["card-header"]}>
                                 <div className={styles["pet-avatar-wrapper"]}>
-                                    {pet.species.toLowerCase() === "perro" ? "🐕" : pet.species.toLowerCase() === "gato" ? "🐈" : "🐾"}
+                                    {pet.photo_url ? (
+                                        <Image
+                                            src={pet.photo_url}
+                                            alt={pet.name}
+                                            width={70}
+                                            height={70}
+                                            style={{ objectFit: 'cover', borderRadius: '20px' }}
+                                        />
+                                    ) : (
+                                        pet.species?.toLowerCase() === "perro" ? "🐕" : pet.species?.toLowerCase() === "gato" ? "🐈" : "🐾"
+                                    )}
                                 </div>
                                 <div className={styles["pet-main-info"]}>
                                     <h2 className={styles["pet-name"]}>{pet.name}</h2>
-                                    <p className={styles["pet-breed"]}>{pet.breed || pet.species}</p>
+                                    <p className={styles["pet-breed"]}>{pet.breed || pet.species} {pet.gender ? `· ${pet.gender}` : ""}</p>
+                                    {pet.age_months != null && (
+                                        <p style={{ margin: "0.15rem 0 0 0", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                                            {Math.floor(pet.age_months / 12) > 0 ? `${Math.floor(pet.age_months / 12)} años` : ""} {pet.age_months % 12 > 0 ? `${pet.age_months % 12} meses` : ""}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
+
+                            {/* Health Status Badges */}
+                            <div className={styles["health-badges"]}>
+                                <span className={`${styles["health-chip"]} ${pet.is_vaccinated ? styles["chip-ok"] : styles["chip-warn"]}`}>
+                                    💉 {pet.is_vaccinated ? "Vacunado" : "Pendiente"}
+                                </span>
+                                <span className={`${styles["health-chip"]} ${pet.is_sterilized ? styles["chip-ok"] : styles["chip-warn"]}`}>
+                                    ✂️ {pet.is_sterilized ? "Esterilizado" : "No"}
+                                </span>
+                                <span className={`${styles["health-chip"]} ${pet.is_dewormed ? styles["chip-ok"] : styles["chip-warn"]}`}>
+                                    🛡️ {pet.is_dewormed ? "Desparasitado" : "Pendiente"}
+                                </span>
+                            </div>
+
+                            {pet.weight_kg && (
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+                                    <span>⚖️</span>
+                                    <span><strong style={{ color: "#fff" }}>{pet.weight_kg} kg</strong> peso actual</span>
+                                </div>
+                            )}
 
                             <div className={styles["id-badge"]}>
                                 <span>DIGITAL ID:</span> {pet.id.substring(0, 18)}...
