@@ -120,6 +120,18 @@ function PlaceCard({ place }: { place: PetfriendlyPlace }) {
                 }}>
                     {place.category}
                 </div>
+                {(place.has_water_bowls === "si" || place.has_pet_menu === "si") && (
+                    <div style={{
+                        position: "absolute", bottom: "12px", left: "12px", display: "flex", gap: "4px"
+                    }}>
+                        {place.has_water_bowls === "si" && (
+                            <span title="Tienen bebederos" style={{ background: "var(--secondary)", padding: "4px", borderRadius: "50%", fontSize: "0.8rem", width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>💧</span>
+                        )}
+                        {place.has_pet_menu === "si" && (
+                            <span title="Tienen menú pet" style={{ background: "var(--secondary)", padding: "4px", borderRadius: "50%", fontSize: "0.8rem", width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>🍖</span>
+                        )}
+                    </div>
+                )}
             </div>
             <div style={{ padding: "1.2rem", flexGrow: 1, display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
@@ -131,11 +143,15 @@ function PlaceCard({ place }: { place: PetfriendlyPlace }) {
                 </div>
                 <p style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "1rem" }}>📍 {place.address || "Dirección no disponible"}</p>
                 <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", flexGrow: 1 }}>
-                    {place.description ? (place.description.length > 100 ? place.description.substring(0, 100) + "..." : place.description) : "Sin descripción disponible."}
+                    {place.description ? (place.description.length > 80 ? place.description.substring(0, 80) + "..." : place.description) : "Sin descripción disponible."}
                 </p>
-                <button className="btn btn-secondary" style={{ marginTop: "1rem", width: "100%", fontSize: "0.85rem" }}>
-                    Ver Detalles (Pronto)
-                </button>
+
+                <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.7rem", opacity: 0.4 }}>Aceptan: {place.pet_sizes_allowed}</span>
+                    <Link href={`/dashboard/petfriendly/${place.id}`} className="btn btn-secondary" style={{ marginLeft: "auto", fontSize: "0.85rem", padding: "0.4rem 1rem" }}>
+                        Ver Detalles
+                    </Link>
+                </div>
             </div>
         </div>
     );

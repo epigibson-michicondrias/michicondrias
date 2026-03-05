@@ -150,3 +150,6 @@ export async function createPlace(place: PlaceCreate): Promise<PetfriendlyPlace>
         body: JSON.stringify(place),
     });
 }
+export async function getPlaceById(placeId: string): Promise<PetfriendlyPlace> {
+    return apiFetch<PetfriendlyPlace>("perdidas", `/places/${placeId}`);
+}

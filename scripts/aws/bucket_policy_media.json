@@ -11,7 +11,9 @@
                 "arn:aws:s3:::michicondrias-storage-1/cuidadores/*",
                 "arn:aws:s3:::michicondrias-storage-1/paseadores/*",
                 "arn:aws:s3:::michicondrias-storage-1/pets/*",
-                "arn:aws:s3:::michicondrias-storage-1/lost-pets/*"
+                "arn:aws:s3:::michicondrias-storage-1/lost-pets/*",
+                "arn:aws:s3:::michicondrias-storage-1/mascotas/*",
+                "arn:aws:s3:::michicondrias-storage-1/places/*"
             ]
         }
     ]
