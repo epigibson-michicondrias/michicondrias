@@ -40,10 +40,10 @@ class AdoptionListing(BaseModel):
     gallery = Column(JSON, nullable=True) # Lista de URLs de fotos adicionales
 
     # Approval flow
-    is_approved = Column(Boolean, default=False)
+    is_approved = Column(Boolean, default=False, index=True)
 
     # Adoption status: abierto -> en_proceso -> adoptado
-    status = Column(String(50), default="abierto")
+    status = Column(String(50), default="abierto", index=True)
 
     # Once adopted, who adopted it
     adopted_by = Column(String(36), nullable=True)
@@ -56,7 +56,7 @@ class AdoptionRequest(BaseModel):
     listing_id = Column(String(36), index=True, nullable=False)
     user_id = Column(String(36), index=True, nullable=False)
     applicant_name = Column(String(255), nullable=True) # Nombre del solicitante
-    status = Column(String(50), default="PENDING")  # PENDING, REVIEWING, INTERVIEW_SCHEDULED, APPROVED, ADOPTED, REJECTED
+    status = Column(String(50), default="PENDING", index=True)  # PENDING, REVIEWING, INTERVIEW_SCHEDULED, APPROVED, ADOPTED, REJECTED
     
     # Questionnaire fields
     house_type = Column(String(100)) # Casa, Depto, etc.

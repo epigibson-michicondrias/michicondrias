@@ -91,7 +91,24 @@ def get_requests_for_listing(db: Session, listing_id: str):
     return db.query(AdoptionRequest).filter(AdoptionRequest.listing_id == listing_id).all()
 
 def get_requests_by_user(db: Session, user_id: str):
-    return db.query(AdoptionRequest).filter(AdoptionRequest.user_id == user_id).all()
+    """
+    Get all adoption requests for a user.
+    Enriches with pet info from AdoptionListing via a JOIN to avoid N+1 queries.
+    """
+    results = (
+        db.query(AdoptionRequest, AdoptionListing.name.label("pet_name"), AdoptionListing.photo_url.label("pet_photo_url"))
+        .join(AdoptionListing, AdoptionRequest.listing_id == AdoptionListing.id)
+        .filter(AdoptionRequest.user_id == user_id)
+        .all()
+    )
+    
+    final_list = []
+    for req, pet_name, pet_photo_url in results:
+        req.pet_name = pet_name
+        req.pet_photo_url = pet_photo_url
+        final_list.append(req)
+    
+    return final_list
 
 def update_request_status(db: Session, request_id: str, new_status: str):
     """
