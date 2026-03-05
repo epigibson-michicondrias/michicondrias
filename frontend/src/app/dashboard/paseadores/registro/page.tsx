@@ -24,14 +24,44 @@ export default function RegistroPaseadorPage() {
         schedule_preference: "Flexible",
     });
 
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setLoading(true);
         try {
+            let finalPhotoUrl = null;
+
+            if (imageFile) {
+                const ext = imageFile.name.substring(imageFile.name.lastIndexOf('.'));
+                const presigned = await import("@/lib/services/paseadores").then(m => m.getPaseadoresPresignedUrl(ext));
+
+                const uploadRes = await fetch(presigned.url, {
+                    method: "PUT",
+                    body: imageFile,
+                    headers: {
+                        "Content-Type": imageFile.type,
+                    },
+                });
+
+                if (!uploadRes.ok) throw new Error("Error al subir la imagen a S3");
+                finalPhotoUrl = presigned.object_key;
+            }
+
             await registerAsWalker({
                 display_name: form.display_name,
                 bio: form.bio || undefined,
                 location: form.location || undefined,
+                photo_url: finalPhotoUrl || undefined,
                 price_per_walk: form.price_per_walk ? Number(form.price_per_walk) : undefined,
                 price_per_hour: form.price_per_hour ? Number(form.price_per_hour) : undefined,
                 experience_years: form.experience_years ? Number(form.experience_years) : 0,
@@ -75,6 +105,16 @@ export default function RegistroPaseadorPage() {
                 <div className={styles["form-group"]}>
                     <label>Biografía / Presentación</label>
                     <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} placeholder="Cuéntanos sobre ti y tu experiencia con mascotas..." style={{ minHeight: "100px" }} />
+                </div>
+
+                <div className={styles["form-group"]}>
+                    <label>Foto de Perfil / Acción</label>
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                        {imagePreview && (
+                            <img src={imagePreview} alt="Preview" style={{ width: "80px", height: "80px", borderRadius: "12px", objectFit: "cover" }} />
+                        )}
+                        <input type="file" accept="image/*" onChange={handleFileChange} />
+                    </div>
                 </div>
 
                 <div className={styles["form-divider"]} />

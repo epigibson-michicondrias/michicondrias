@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProducts, Product, createProduct, getCategories, Category, getEcommercePresignedUrl } from "@/lib/services/ecommerce";
 import { getCurrentUser, User, hasRole } from "@/lib/auth";
 import dashStyles from "../dashboard.module.css";
@@ -11,22 +12,15 @@ import { toast } from "react-hot-toast";
 import { useCart } from "@/lib/contexts/CartContext";
 
 export default function TiendaPage() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-
+    const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
 
     const [showModal, setShowModal] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [categories, setCategories] = useState<Category[]>([]);
     const [newProduct, setNewProduct] = useState({ name: "", description: "", price: "", stock: "10", category_id: "", specifications: "" });
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-    // Check if user is a seller or admin natively
-    const [isSeller, setIsSeller] = useState(false);
 
     // Cart Global State hook
     const { addToCart, cartCount, setIsCartOpen } = useCart();
@@ -39,30 +33,32 @@ export default function TiendaPage() {
         }
     };
 
+    const { data: user } = useQuery({
+        queryKey: ["current-user"],
+        queryFn: getCurrentUser
+    });
+
+    const isSeller = hasRole("vendedor") || hasRole("admin");
+
+    const { data: products = [], isLoading: loadingProducts } = useQuery<Product[]>({
+        queryKey: ["products"],
+        queryFn: () => getProducts(),
+        staleTime: 1000 * 60 * 5,
+    });
+
+    const { data: categories = [] } = useQuery({
+        queryKey: ["categories"],
+        queryFn: getCategories,
+        staleTime: 1000 * 60 * 60, // 1 hour
+    });
+
+    const loading = loadingProducts;
+
     useEffect(() => {
-        async function load() {
-            try {
-                const u = await getCurrentUser();
-                setCurrentUser(u);
-
-                setIsSeller(hasRole("vendedor") || hasRole("admin"));
-
-                const data = await getProducts();
-                setProducts(data);
-
-                const cats = await getCategories();
-                setCategories(cats);
-                if (cats.length > 0) {
-                    setNewProduct(prev => ({ ...prev, category_id: cats[0].id }));
-                }
-            } catch (err) {
-                console.error("Error al cargar productos de la tienda", err);
-            } finally {
-                setLoading(false);
-            }
+        if (categories.length > 0 && !newProduct.category_id) {
+            setNewProduct(prev => ({ ...prev, category_id: categories[0].id }));
         }
-        load();
-    }, []);
+    }, [categories]);
 
     const filtered = products.filter(p => {
         const matchesQuery = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -106,7 +102,8 @@ export default function TiendaPage() {
                 specifications: newProduct.specifications,
                 image_url: finalImageUrl || undefined
             });
-            setProducts([added, ...products]);
+
+            queryClient.invalidateQueries({ queryKey: ["products"] });
             setShowModal(false);
             setNewProduct({ name: "", description: "", price: "", stock: "10", category_id: categories[0]?.id || "", specifications: "" });
             setImageFile(null);
@@ -197,7 +194,16 @@ export default function TiendaPage() {
                 <div className={styles["products-grid"]}>
                     {filtered.map(product => (
                         <div key={product.id} className={styles["product-card"]}>
-                            <Link href={`/dashboard/tienda/producto/${product.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                            <Link
+                                href={`/dashboard/tienda/producto/${product.id}`}
+                                style={{ textDecoration: "none", color: "inherit" }}
+                                onMouseEnter={() => {
+                                    queryClient.prefetchQuery({
+                                        queryKey: ["product", product.id],
+                                        queryFn: () => import("@/lib/services/ecommerce").then(m => m.getProduct(product.id))
+                                    });
+                                }}
+                            >
                                 <div className={styles["product-image"]} style={{
                                     backgroundImage: product.image_url ? `url(${product.image_url})` : "none"
                                 }}>

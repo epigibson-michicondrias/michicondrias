@@ -41,7 +41,23 @@ export default function MisMascotasPage() {
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
+
+        const newPetOptimistic: Pet = {
+            id: `temp-${Date.now()}`,
+            ...form,
+            age_months: form.age_months ? parseInt(form.age_months) : null,
+            weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
+            owner_id: user!.id,
+            is_active: true,
+            created_at: new Date().toISOString(),
+        } as any as Pet;
+
         try {
+            // Optimistic Update
+            queryClient.setQueryData(["user-pets", user?.id], (old: Pet[] | undefined) => {
+                return old ? [newPetOptimistic, ...old] : [newPetOptimistic];
+            });
+
             await createPet({
                 ...form,
                 age_months: form.age_months ? parseInt(form.age_months) : null,
@@ -49,8 +65,8 @@ export default function MisMascotasPage() {
                 owner_id: user!.id,
                 is_active: true,
             });
-            // Finalize by invalidating cache
-            queryClient.invalidateQueries({ queryKey: ["user-pets", user?.id] });
+
+            toast.success("🐾 Mascota registrada con éxito");
             setShowModal(false);
             setForm({
                 name: "", species: "perro", breed: "", age_months: "", size: "mediano", description: "", photo_url: "",
@@ -59,10 +75,13 @@ export default function MisMascotasPage() {
                 social_cats: true, social_dogs: true, social_children: true,
                 weight_kg: "", microchip_number: ""
             });
-            toast.success("🐾 Mascota registrada con éxito");
         } catch (error: any) {
+            // Rollback on error
+            queryClient.invalidateQueries({ queryKey: ["user-pets", user?.id] });
             toast.error(error.message || "Error al registrar mascota");
         } finally {
+            // Invalidate to sync with real DB ID
+            queryClient.invalidateQueries({ queryKey: ["user-pets", user?.id] });
             setSubmitting(false);
         }
     };

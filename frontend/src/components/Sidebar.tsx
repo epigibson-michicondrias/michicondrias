@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { logout, getUserRole } from "@/lib/auth";
+import { logout, getUserRole, getCurrentUser } from "@/lib/auth";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getUserPets } from "@/lib/services/mascotas";
 import styles from "./Sidebar.module.css";
 
 interface MenuItem {
@@ -41,6 +43,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     const pathname = usePathname();
+    const queryClient = useQueryClient();
     const [role, setRole] = useState<string>("user"); // Default to user for SSR
     const [mounted, setMounted] = useState(false);
 
@@ -119,6 +122,24 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                             key={item.href}
                             href={item.href}
                             onClick={onClose}
+                            onMouseEnter={async () => {
+                                // Prefetching data based on destination
+                                if (item.href === "/dashboard/mascotas") {
+                                    const user = await queryClient.ensureQueryData({
+                                        queryKey: ["current-user"],
+                                        queryFn: () => import("@/lib/auth").then(m => m.getCurrentUser())
+                                    });
+                                    if (user?.id) {
+                                        queryClient.prefetchQuery({
+                                            queryKey: ["user-pets", user.id],
+                                            queryFn: () => import("@/lib/services/mascotas").then(m => m.getUserPets(user.id))
+                                        });
+                                    }
+                                } else if (item.href === "/dashboard/adopciones") {
+                                    // Example for another service
+                                    // queryClient.prefetchQuery({ queryKey: ["adoptions"], queryFn: ... });
+                                }
+                            }}
                             className={`${styles.sidebar__link} ${item.href === "/dashboard"
                                 ? pathname === "/dashboard" ? styles["sidebar__link--active"] : ""
                                 : pathname.startsWith(item.href) ? styles["sidebar__link--active"] : ""

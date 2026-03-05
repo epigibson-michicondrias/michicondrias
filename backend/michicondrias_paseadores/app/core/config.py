@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     AWS_SECRET_ACCESS_KEY: str | None = None
     AWS_SESSION_TOKEN: str | None = None
     AWS_REGION: str = "us-east-1"
-    S3_BUCKET_NAME: str = "michicondrias-media"
+    S3_BUCKET_NAME: str = "michicondrias-storage-1"
 
     @property
     def CORE_SERVICE_URL(self) -> str:

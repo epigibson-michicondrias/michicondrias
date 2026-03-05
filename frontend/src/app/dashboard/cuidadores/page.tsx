@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { listSitters, Sitter } from "@/lib/services/cuidadores";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { listSitters, Sitter, getSitter } from "@/lib/services/cuidadores";
 import Link from "next/link";
 import dashStyles from "../dashboard.module.css";
 
 export default function CuidadoresPage() {
+    const queryClient = useQueryClient();
     const [search, setSearch] = useState("");
     const [serviceFilter, setServiceFilter] = useState<string>("");
 
@@ -31,9 +32,14 @@ export default function CuidadoresPage() {
                         Deja a tu mascota en las mejores manos mientras no estás
                     </p>
                 </div>
-                <Link href="/dashboard/cuidadores/registro" className="btn btn-primary">
-                    🐾 Quiero ser Cuidador
-                </Link>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                    <Link href="/dashboard/cuidadores/solicitudes" className="btn btn-secondary">
+                        📋 Mis Solicitudes
+                    </Link>
+                    <Link href="/dashboard/cuidadores/registro" className="btn btn-primary">
+                        🐾 Quiero ser Cuidador
+                    </Link>
+                </div>
             </div>
 
             {/* Search & Filters */}
@@ -89,7 +95,17 @@ export default function CuidadoresPage() {
                     gap: "1.5rem",
                 }}>
                     {filtered.map((sitter) => (
-                        <SitterCard key={sitter.id} sitter={sitter} />
+                        <div
+                            key={sitter.id}
+                            onMouseEnter={() => {
+                                queryClient.prefetchQuery({
+                                    queryKey: ["sitter", sitter.id],
+                                    queryFn: () => getSitter(sitter.id),
+                                });
+                            }}
+                        >
+                            <SitterCard sitter={sitter} />
+                        </div>
                     ))}
                 </div>
             )}

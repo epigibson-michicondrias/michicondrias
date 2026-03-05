@@ -25,14 +25,44 @@ export default function RegistroCuidadorPage() {
         experience_years: "",
     });
 
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setLoading(true);
         try {
+            let finalPhotoUrl = null;
+
+            if (imageFile) {
+                const ext = imageFile.name.substring(imageFile.name.lastIndexOf('.'));
+                const presigned = await import("@/lib/services/cuidadores").then(m => m.getCuidadoresPresignedUrl(ext));
+
+                const uploadRes = await fetch(presigned.url, {
+                    method: "PUT",
+                    body: imageFile,
+                    headers: {
+                        "Content-Type": imageFile.type,
+                    },
+                });
+
+                if (!uploadRes.ok) throw new Error("Error al subir la imagen a S3");
+                finalPhotoUrl = presigned.object_key;
+            }
+
             await registerAsSitter({
                 display_name: form.display_name,
                 bio: form.bio || undefined,
                 location: form.location || undefined,
+                photo_url: finalPhotoUrl || undefined,
                 price_per_day: form.price_per_day ? Number(form.price_per_day) : undefined,
                 price_per_visit: form.price_per_visit ? Number(form.price_per_visit) : undefined,
                 service_type: form.service_type,
@@ -77,6 +107,16 @@ export default function RegistroCuidadorPage() {
                 <div className={styles["form-group"]}>
                     <label>Biografía / Presentación</label>
                     <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} placeholder="Cuéntanos sobre ti, tu hogar y tu experiencia cuidando mascotas..." style={{ minHeight: "100px" }} />
+                </div>
+
+                <div className={styles["form-group"]}>
+                    <label>Foto de Perfil / Espacio</label>
+                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                        {imagePreview && (
+                            <img src={imagePreview} alt="Preview" style={{ width: "80px", height: "80px", borderRadius: "12px", objectFit: "cover" }} />
+                        )}
+                        <input type="file" accept="image/*" onChange={handleFileChange} />
+                    </div>
                 </div>
 
                 <div className={styles["form-divider"]} />

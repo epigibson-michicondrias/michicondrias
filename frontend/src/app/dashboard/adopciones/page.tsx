@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getUserRole } from "@/lib/auth";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCurrentUser } from "@/lib/auth";
 import { getListings, Listing } from "@/lib/services/adopciones";
 import dashStyles from "../dashboard.module.css";
 import styles from "./adopciones.module.css";
@@ -23,10 +24,8 @@ const SPECIES_LABEL: Record<string, string> = {
 };
 
 export default function AdopcionesPage() {
-    const [isAdmin, setIsAdmin] = useState(false);
+    const queryClient = useQueryClient();
     const [isMounted, setIsMounted] = useState(false);
-    const [listings, setListings] = useState<Listing[]>([]);
-    const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<"grid" | "list" | "compact">("grid");
 
     // Filters & Search
@@ -36,22 +35,24 @@ export default function AdopcionesPage() {
 
     useEffect(() => {
         setIsMounted(true);
-        const currentRole = getUserRole();
-        setIsAdmin(currentRole === "admin");
-
-        async function load() {
-            try {
-                const data = await getListings();
-                // Filter only approved ones for regular users
-                setListings(currentRole === "admin" ? data : data.filter(d => d.is_approved));
-            } catch {
-                console.error("Error loading listings");
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
     }, []);
+
+    const { data: user } = useQuery({
+        queryKey: ["current-user"],
+        queryFn: getCurrentUser
+    });
+
+    const role = user?.role_name || "consumidor";
+    const isAdmin = role === "admin";
+
+    const { data: listings = [], isLoading: loading } = useQuery({
+        queryKey: ["listings", role],
+        queryFn: async () => {
+            const data = await getListings();
+            return isAdmin ? data : data.filter(d => d.is_approved);
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes fresh
+    });
 
     // Computed filtered list
     const filteredListings = listings.filter((listing) => {
@@ -229,6 +230,12 @@ export default function AdopcionesPage() {
                                             href={`/dashboard/adopciones/mascota/${listing.id}`}
                                             className={styles["pet-card__adopt-btn"]}
                                             style={{ textDecoration: "none", textAlign: 'center' }}
+                                            onMouseEnter={() => {
+                                                queryClient.prefetchQuery({
+                                                    queryKey: ["listing", listing.id],
+                                                    queryFn: () => import("@/lib/services/adopciones").then(m => m.getListing(listing.id))
+                                                });
+                                            }}
                                         >
                                             {viewMode === "compact" ? "Adoptar" : "Leer Historia y Adoptar 👈"}
                                         </Link>
@@ -238,6 +245,12 @@ export default function AdopcionesPage() {
                                                 href={`/dashboard/adopciones/mascota/${listing.id}`}
                                                 className={styles["pet-card__adopt-btn"]}
                                                 style={{ textDecoration: "none", flex: 1, textAlign: 'center' }}
+                                                onMouseEnter={() => {
+                                                    queryClient.prefetchQuery({
+                                                        queryKey: ["listing", listing.id],
+                                                        queryFn: () => import("@/lib/services/adopciones").then(m => m.getListing(listing.id))
+                                                    });
+                                                }}
                                             >
                                                 {viewMode === "compact" ? "👁️" : "Ver Detalle"}
                                             </Link>

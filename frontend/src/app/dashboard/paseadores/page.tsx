@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { listWalkers, Walker } from "@/lib/services/paseadores";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { listWalkers, Walker, getWalker } from "@/lib/services/paseadores";
 import Link from "next/link";
 import dashStyles from "../dashboard.module.css";
 
 export default function PaseadoresPage() {
+    const queryClient = useQueryClient();
     const [search, setSearch] = useState("");
 
     const { data: walkers = [], isLoading } = useQuery({
@@ -28,9 +29,14 @@ export default function PaseadoresPage() {
                         Encuentra al paseador perfecto para tu mascota
                     </p>
                 </div>
-                <Link href="/dashboard/paseadores/registro" className="btn btn-primary">
-                    🐾 Quiero ser Paseador
-                </Link>
+                <div style={{ display: "flex", gap: "1rem" }}>
+                    <Link href="/dashboard/paseadores/solicitudes" className="btn btn-secondary">
+                        📋 Mis Solicitudes
+                    </Link>
+                    <Link href="/dashboard/paseadores/registro" className="btn btn-primary">
+                        🐾 Quiero ser Paseador
+                    </Link>
+                </div>
             </div>
 
             {/* Search bar */}
@@ -72,7 +78,17 @@ export default function PaseadoresPage() {
                     gap: "1.5rem",
                 }}>
                     {filtered.map((walker) => (
-                        <WalkerCard key={walker.id} walker={walker} />
+                        <div
+                            key={walker.id}
+                            onMouseEnter={() => {
+                                queryClient.prefetchQuery({
+                                    queryKey: ["walker", walker.id],
+                                    queryFn: () => getWalker(walker.id),
+                                });
+                            }}
+                        >
+                            <WalkerCard walker={walker} />
+                        </div>
                     ))}
                 </div>
             )}
