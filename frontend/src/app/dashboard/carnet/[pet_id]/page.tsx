@@ -31,6 +31,13 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
 
     const [recordForm, setRecordForm] = useState({ reason_for_visit: "", diagnosis: "", treatment: "", weight_kg: "", notes: "" });
     const [vaccineForm, setVaccineForm] = useState({ name: "", next_due_date: "", batch_number: "", notes: "" });
+    const [prescriptionsForm, setPrescriptionsForm] = useState<{
+        medication_name: string;
+        dosage: string;
+        frequency_hours: number;
+        duration_days: number;
+        instructions: string;
+    }[]>([]);
 
     useEffect(() => {
         async function loadData() {
@@ -66,17 +73,17 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
         try {
             const added = await createRecord({
                 pet_id,
-                veterinarian_id: user?.id || null,
-                clinic_id: null,
                 reason_for_visit: recordForm.reason_for_visit,
                 diagnosis: recordForm.diagnosis,
                 treatment: recordForm.treatment,
                 notes: recordForm.notes,
-                weight_kg: recordForm.weight_kg ? parseFloat(recordForm.weight_kg) : null,
+                weight_kg: recordForm.weight_kg ? parseFloat(recordForm.weight_kg) : undefined,
+                prescriptions: prescriptionsForm,
             });
             setRecords([added, ...records]);
             setShowRecordModal(false);
             setRecordForm({ reason_for_visit: "", diagnosis: "", treatment: "", weight_kg: "", notes: "" });
+            setPrescriptionsForm([]);
             toast.success("Consulta agregada al expediente");
         } catch (error: any) {
             toast.error(error.message || "Error al añadir consulta");
@@ -257,6 +264,7 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                                                         <span className={styles["medical-tag"]}>🩺 CONSULTA</span>
                                                         {record.weight_kg && <span className={styles["medical-tag"]} style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4' }}>⚖️ {record.weight_kg} kg</span>}
+                                                        {record.temperature_c && <span className={styles["medical-tag"]} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>🌡️ {record.temperature_c} °C</span>}
                                                     </div>
 
                                                     {record.diagnosis && (
@@ -279,6 +287,28 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                                                         </p>
                                                     )}
                                                 </div>
+
+                                                {record.prescriptions && record.prescriptions.length > 0 && (
+                                                    <div style={{ marginTop: "1.5rem" }}>
+                                                        <h5 style={{ margin: "0 0 0.8rem 0", color: "#10b981", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>💊 Receta Digital</h5>
+                                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1rem" }}>
+                                                            {record.prescriptions.map((p, pIdx) => (
+                                                                <div key={pIdx} style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: "12px", padding: "1rem" }}>
+                                                                    <strong style={{ display: "block", color: "#fff", marginBottom: "0.5rem" }}>{p.medication_name}</strong>
+                                                                    <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                                                                        <span><span style={{ color: "#34d399" }}>Dosis:</span> {p.dosage}</span>
+                                                                        <span><span style={{ color: "#34d399" }}>Frecuencia:</span> Cada {p.frequency_hours} horas</span>
+                                                                        <span><span style={{ color: "#34d399" }}>Duración:</span> {p.duration_days} días</span>
+                                                                        {p.instructions && <span style={{ marginTop: "0.3rem", background: "rgba(0,0,0,0.2)", padding: "0.4rem", borderRadius: "6px" }}>📝 {p.instructions}</span>}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <p style={{ margin: "1rem 0 0 0", fontSize: "0.75rem", color: "#6b7280", textAlign: "right", fontStyle: "italic" }}>
+                                                            ⏰ Las alarmas se han programado automáticamente.
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -369,8 +399,63 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                                     <textarea className="form-input" rows={3} value={recordForm.diagnosis} onChange={e => setRecordForm({ ...recordForm, diagnosis: e.target.value })} placeholder="Escribe el diagnóstico profesional..."></textarea>
                                 </div>
                                 <div style={{ marginTop: "1rem" }}>
-                                    <label>Tratamiento / Receta Médica</label>
-                                    <textarea className="form-input" rows={4} value={recordForm.treatment} onChange={e => setRecordForm({ ...recordForm, treatment: e.target.value })} placeholder="Prescripciones y pasos a seguir..."></textarea>
+                                    <label>Tratamiento General</label>
+                                    <textarea className="form-input" rows={3} value={recordForm.treatment} onChange={e => setRecordForm({ ...recordForm, treatment: e.target.value })} placeholder="Pasos a seguir o recomendaciones..."></textarea>
+                                </div>
+
+                                <div style={{ marginTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem" }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                                        <h4 style={{ margin: 0, color: "#10b981", fontSize: "1.1rem" }}>💊 Recetas Digitales</h4>
+                                        <button
+                                            type="button"
+                                            onClick={() => setPrescriptionsForm([...prescriptionsForm, { medication_name: "", dosage: "", frequency_hours: 8, duration_days: 5, instructions: "" }])}
+                                            style={{ background: "rgba(16,185,129,0.2)", color: "#34d399", border: "1px solid rgba(16,185,129,0.3)", borderRadius: "6px", padding: "0.4rem 0.8rem", cursor: "pointer", fontSize: "0.85rem" }}
+                                        >
+                                            + Agregar Medicamento
+                                        </button>
+                                    </div>
+
+                                    {prescriptionsForm.length === 0 ? (
+                                        <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", textAlign: "center", fontStyle: "italic" }}>No se han agregado medicamentos.</p>
+                                    ) : (
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                            {prescriptionsForm.map((p, idx) => (
+                                                <div key={idx} style={{ background: "rgba(0,0,0,0.2)", padding: "1rem", borderRadius: "8px", position: "relative" }}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setPrescriptionsForm(prescriptionsForm.filter((_, i) => i !== idx))}
+                                                        style={{ position: "absolute", top: "10px", right: "10px", background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "1.2rem" }}
+                                                    >
+                                                        &times;
+                                                    </button>
+                                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "0.8rem" }}>
+                                                        <div>
+                                                            <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Medicamento *</label>
+                                                            <input type="text" className="form-input" required value={p.medication_name} onChange={e => { const newP = [...prescriptionsForm]; newP[idx].medication_name = e.target.value; setPrescriptionsForm(newP); }} placeholder="Ej: Paracetamol" />
+                                                        </div>
+                                                        <div>
+                                                            <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Dosis *</label>
+                                                            <input type="text" className="form-input" required value={p.dosage} onChange={e => { const newP = [...prescriptionsForm]; newP[idx].dosage = e.target.value; setPrescriptionsForm(newP); }} placeholder="Ej: 1 tableta" />
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "0.8rem" }}>
+                                                        <div>
+                                                            <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Cada cuántas horas *</label>
+                                                            <input type="number" min="1" className="form-input" required value={p.frequency_hours} onChange={e => { const newP = [...prescriptionsForm]; newP[idx].frequency_hours = parseInt(e.target.value); setPrescriptionsForm(newP); }} />
+                                                        </div>
+                                                        <div>
+                                                            <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Por cuántos días *</label>
+                                                            <input type="number" min="1" className="form-input" required value={p.duration_days} onChange={e => { const newP = [...prescriptionsForm]; newP[idx].duration_days = parseInt(e.target.value); setPrescriptionsForm(newP); }} />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Indicaciones adicionales</label>
+                                                        <input type="text" className="form-input" value={p.instructions} onChange={e => { const newP = [...prescriptionsForm]; newP[idx].instructions = e.target.value; setPrescriptionsForm(newP); }} placeholder="Ej: Dar con alimento" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
