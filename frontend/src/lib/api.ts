@@ -8,6 +8,8 @@ const API_URLS = {
     ecommerce: `${BASE_URL}/ecommerce/api/v1`,
     mascotas: `${BASE_URL}/mascotas/api/v1`,
     perdidas: `${BASE_URL}/perdidas/api/v1`,
+    paseadores: `${BASE_URL}/paseadores/api/v1`,
+    cuidadores: `${BASE_URL}/cuidadores/api/v1`,
 };
 
 type ServiceName = keyof typeof API_URLS;
