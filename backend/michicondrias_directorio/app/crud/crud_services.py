@@ -278,8 +278,20 @@ def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_
     if not appt:
         return None
 
+    if appt.status not in ["pending", "confirmed"]:
+        raise ValueError("Solo se pueden reagendar citas pendientes o confirmadas.")
+
     d = date.fromisoformat(new_date)
     start = time.fromisoformat(new_start_time)
+
+    # Validate against clinic availability (respects schedule and exceptions)
+    available_slots = get_available_slots(db, appt.clinic_id, new_date, appt.service_id)
+    is_valid_slot = any(
+        slot["start_time"] == start.strftime("%H:%M") 
+        for slot in available_slots
+    )
+    if not is_valid_slot:
+        raise ValueError("El horario seleccionado no está disponible o la clínica está cerrada.")
 
     # Calculate new end time
     service = db.query(ClinicService).filter(ClinicService.id == appt.service_id).first()
@@ -299,8 +311,9 @@ def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_
     if existing:
         raise ValueError("El nuevo horario ya está reservado.")
 
-    # Mark original as rescheduled
+    # Mark original as rescheduled and store the reason here
     appt.status = "rescheduled"
+    appt.cancellation_reason = "Reagendada a una nueva fecha/hora"
     db.commit()
 
     # Create new appointment with the updated time
@@ -315,7 +328,7 @@ def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_
         end_time=end_dt.time(),
         status="pending",
         notes=appt.notes,
-        cancellation_reason="Reagendada de la cita original"
+        cancellation_reason=None  # The new appointment shouldn't have a cancellation reason
     )
     db.add(new_appt)
     db.commit()
