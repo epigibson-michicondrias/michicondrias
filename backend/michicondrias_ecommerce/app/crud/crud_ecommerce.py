@@ -4,6 +4,7 @@ from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
 from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate, OrderCreate
 
 def _attach_rating_info(db: Session, product: Product):
+    """Attach rating info for a single product (used for single-product endpoints)."""
     if not product:
         return product
     stats = db.query(
@@ -14,6 +15,30 @@ def _attach_rating_info(db: Session, product: Product):
     product.average_rating = float(stats.avg_rating) if stats.avg_rating else 0.0
     product.review_count = stats.count or 0
     return product
+
+def _batch_attach_ratings(db: Session, products: list):
+    """Attach rating info for a LIST of products in a SINGLE SQL query (avoids N+1)."""
+    if not products:
+        return products
+    
+    product_ids = [p.id for p in products]
+    
+    # Single aggregated query for ALL products at once
+    stats = db.query(
+        Review.product_id,
+        func.avg(Review.rating).label("avg_rating"),
+        func.count(Review.id).label("count")
+    ).filter(Review.product_id.in_(product_ids)).group_by(Review.product_id).all()
+    
+    # Build a lookup dict: product_id -> (avg_rating, count)
+    ratings_map = {s.product_id: (float(s.avg_rating) if s.avg_rating else 0.0, s.count or 0) for s in stats}
+    
+    for p in products:
+        avg_r, cnt = ratings_map.get(p.id, (0.0, 0))
+        p.average_rating = avg_r
+        p.review_count = cnt
+    
+    return products
 
 # CRUD PRODUCTS
 def get_product(db: Session, product_id: str):
@@ -29,15 +54,11 @@ def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = N
         query = query.filter(Product.seller_id == seller_id)
     
     products = query.offset(skip).limit(limit).all()
-    for p in products:
-        _attach_rating_info(db, p)
-    return products
+    return _batch_attach_ratings(db, products)
 
 def get_pending_products(db: Session):
     products = db.query(Product).filter(Product.is_approved == False).all()
-    for p in products:
-        _attach_rating_info(db, p)
-    return products
+    return _batch_attach_ratings(db, products)
 
 # ... (approve_product and others remain same, skipping to new Review CRUD)
 
