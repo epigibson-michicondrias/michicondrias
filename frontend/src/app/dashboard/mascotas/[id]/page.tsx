@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getPetById, updatePet, Pet } from "@/lib/services/mascotas";
+import { getPetById, updatePet, Pet, getMascotasPresignedUrl } from "@/lib/services/mascotas";
 import { createSubscriptionSession } from "@/lib/services/ecommerce";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../mascotas.module.css";
@@ -19,6 +19,7 @@ export default function GestionMascotaPage() {
 
     const [isEditing, setIsEditing] = useState(false);
     const [isUpgrading, setIsUpgrading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [form, setForm] = useState<Partial<Pet>>({});
 
     const { data: pet, isLoading, error } = useQuery({
@@ -82,6 +83,67 @@ export default function GestionMascotaPage() {
         } catch (error: any) {
             toast.error(error.message || "Error de conexión con Stripe");
             setIsUpgrading(false);
+        }
+    };
+
+    const handleUploadGalleryImage = async () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.multiple = true;
+        input.onchange = async (e) => {
+            const files = (e.target as HTMLInputElement).files;
+            if (!files || files.length === 0) return;
+            setIsUploading(true);
+            try {
+                const currentGallery = pet?.gallery ? [...pet.gallery] : [];
+                for (const file of Array.from(files)) {
+                    const ext = file.name.split('.').pop() || 'jpg';
+                    const { url, object_key } = await getMascotasPresignedUrl(ext);
+                    await fetch(url, {
+                        method: 'PUT',
+                        body: file,
+                        headers: { 'Content-Type': file.type },
+                    });
+                    currentGallery.push(object_key);
+                }
+                await updatePet(petId, { gallery: currentGallery });
+                queryClient.invalidateQueries({ queryKey: ['pet', petId] });
+                queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+                toast.success(`📸 ${files.length} foto(s) subidas con éxito`);
+            } catch (err: any) {
+                toast.error(err.message || 'Error al subir imagen');
+            } finally {
+                setIsUploading(false);
+            }
+        };
+        input.click();
+    };
+
+    const handleSetAsProfile = async (url: string) => {
+        try {
+            await updatePet(petId, { photo_url: url });
+            queryClient.invalidateQueries({ queryKey: ['pet', petId] });
+            queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+            toast.success('⭐ Foto de perfil actualizada');
+        } catch {
+            toast.error('Error al cambiar foto de perfil');
+        }
+    };
+
+    const handleDeleteGalleryImage = async (urlToDelete: string) => {
+        const updated = (pet?.gallery || []).filter(u => u !== urlToDelete);
+        const updates: Partial<Pet> = { gallery: updated };
+        if (pet?.photo_url === urlToDelete) {
+            updates.photo_url = updated[0] || null;
+        }
+        try {
+            await updatePet(petId, updates);
+            queryClient.invalidateQueries({ queryKey: ['pet', petId] });
+            queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+            toast.success('🗑️ Foto eliminada');
+        } catch {
+            toast.error('Error al eliminar foto');
         }
     };
 
@@ -181,6 +243,68 @@ export default function GestionMascotaPage() {
                                 <p className={styles["info-text"]}>
                                     {pet.description || "Este pequeño compañero aún no tiene una historia escrita, pero cada día a tu lado es un capítulo nuevo."}
                                 </p>
+                            </div>
+
+                            {/* Photo Gallery */}
+                            <div className={styles["info-block"]}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                    <h3>📸 Galería de Fotos</h3>
+                                    <button
+                                        onClick={handleUploadGalleryImage}
+                                        disabled={isUploading}
+                                        style={{
+                                            background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.15))',
+                                            border: '1px solid rgba(124, 58, 237, 0.3)',
+                                            color: '#fff',
+                                            padding: '0.6rem 1.2rem',
+                                            borderRadius: '12px',
+                                            fontWeight: 600,
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease',
+                                        }}
+                                    >
+                                        {isUploading ? '⏳ Subiendo...' : '📤 Subir Fotos'}
+                                    </button>
+                                </div>
+                                {pet.gallery && pet.gallery.length > 0 ? (
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem' }}>
+                                        {pet.gallery.map((url, i) => (
+                                            <div key={i} style={{
+                                                position: 'relative',
+                                                borderRadius: '16px',
+                                                overflow: 'hidden',
+                                                aspectRatio: '1',
+                                                border: pet.photo_url === url ? '2px solid #a78bfa' : '1px solid rgba(255,255,255,0.06)',
+                                                transition: 'all 0.3s ease',
+                                            }}>
+                                                <img src={url} alt={`${pet.name} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                {pet.photo_url === url && (
+                                                    <div style={{ position: 'absolute', top: '6px', left: '6px', background: 'rgba(139, 92, 246, 0.85)', borderRadius: '8px', padding: '2px 8px', fontSize: '0.65rem', fontWeight: 700, color: '#fff' }}>⭐ Perfil</div>
+                                                )}
+                                                <div style={{
+                                                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                                                    background: 'linear-gradient(transparent, rgba(0,0,0,0.85))',
+                                                    padding: '0.5rem', display: 'flex', justifyContent: 'center', gap: '0.4rem',
+                                                    opacity: 0, transition: 'opacity 0.3s',
+                                                }}
+                                                    onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                                                    onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+                                                >
+                                                    {pet.photo_url !== url && (
+                                                        <button onClick={() => handleSetAsProfile(url)} style={{ background: 'rgba(139,92,246,0.3)', border: '1px solid rgba(139,92,246,0.5)', color: '#fff', borderRadius: '8px', padding: '4px 10px', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 600 }}>⭐ Perfil</button>
+                                                    )}
+                                                    <button onClick={() => handleDeleteGalleryImage(url)} style={{ background: 'rgba(239,68,68,0.3)', border: '1px solid rgba(239,68,68,0.5)', color: '#fff', borderRadius: '8px', padding: '4px 10px', fontSize: '0.7rem', cursor: 'pointer', fontWeight: 600 }}>🗑️</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                        <span style={{ fontSize: '2.5rem', display: 'block', marginBottom: '0.5rem' }}>📷</span>
+                                        Aún no hay fotos. ¡Sube las mejores de {pet.name}!
+                                    </div>
+                                )}
                             </div>
 
                             {/* Michi-Tracker Pro Banner */}
@@ -305,8 +429,17 @@ export default function GestionMascotaPage() {
                                 <textarea className="form-input" rows={4} value={form.description || ""} onChange={e => setForm({ ...form, description: e.target.value })} />
                             </div>
                             <div style={{ marginTop: "1rem" }}>
-                                <label>URL de la Foto</label>
-                                <input type="text" className="form-input" value={form.photo_url || ""} onChange={e => setForm({ ...form, photo_url: e.target.value })} />
+                                <label>Galería de Fotos</label>
+                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.25rem 0 0.75rem 0' }}>Las fotos se gestionan desde la vista de perfil. Cambia a "Ver Perfil Cinemático" para subir, eliminar o cambiar la foto de perfil.</p>
+                                {form.photo_url && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'rgba(139,92,246,0.05)', borderRadius: '12px', border: '1px solid rgba(139,92,246,0.15)' }}>
+                                        <img src={form.photo_url} alt="Perfil" style={{ width: '50px', height: '50px', borderRadius: '12px', objectFit: 'cover' }} />
+                                        <div>
+                                            <span style={{ fontSize: '0.8rem', color: '#a78bfa', fontWeight: 600 }}>⭐ Foto de perfil actual</span>
+                                            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0.15rem 0 0 0', wordBreak: 'break-all' }}>{form.photo_url.split('/').pop()}</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

@@ -19,6 +19,13 @@ class Settings(BaseSettings):
 
     # API Gateway Configuration
     API_GATEWAY_URL: str = "http://localhost:8000"
+
+    # AWS S3 Configuration
+    AWS_ACCESS_KEY_ID: str | None = None
+    AWS_SECRET_ACCESS_KEY: str | None = None
+    AWS_SESSION_TOKEN: str | None = None
+    AWS_REGION: str = "us-east-1"
+    S3_BUCKET_NAME: str = "michicondrias-media"
     
     @property
     def CORE_SERVICE_URL(self) -> str:

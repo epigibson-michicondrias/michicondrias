@@ -40,6 +40,10 @@ export default function NuevaAdopcionPage() {
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
+    // Gallery Control State
+    const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+    const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+
     const speciesOptions = [
         { value: "perro", label: "Perro", icon: "🐕" },
         { value: "gato", label: "Gato", icon: "🐈" },
@@ -63,6 +67,25 @@ export default function NuevaAdopcionPage() {
             };
             reader.readAsDataURL(file);
         }
+    };
+
+    const handleGalleryFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files);
+            setGalleryFiles(prev => [...prev, ...newFiles]);
+            newFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setGalleryPreviews(prev => [...prev, reader.result as string]);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    const removeGalleryImage = (index: number) => {
+        setGalleryFiles(prev => prev.filter((_, i) => i !== index));
+        setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
     };
 
     async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -95,6 +118,19 @@ export default function NuevaAdopcionPage() {
                 finalPhotoUrl = presigned.object_key;
             }
 
+            // 1.5. Upload gallery images to S3
+            const galleryUrls: string[] = [];
+            for (const gFile of galleryFiles) {
+                const gExt = gFile.name.split(".").pop() || "jpg";
+                const gPresigned = await getAdopcionesPresignedUrl(gExt);
+                await fetch(gPresigned.url, {
+                    method: "PUT",
+                    body: gFile,
+                    headers: { "Content-Type": gFile.type || "application/octet-stream" },
+                });
+                galleryUrls.push(gPresigned.object_key);
+            }
+
             // 2. Create the listing
             await createListing({
                 name: formData.name,
@@ -118,7 +154,7 @@ export default function NuevaAdopcionPage() {
                 gender: formData.gender,
                 location: formData.location || null,
                 is_emergency: formData.is_emergency,
-                gallery: null, // Placeholder for now
+                gallery: galleryUrls.length > 0 ? galleryUrls : null,
             });
             setSuccess(true);
         } catch (err: unknown) {
@@ -205,6 +241,36 @@ export default function NuevaAdopcionPage() {
                             📸 Cambiar Fotografía
                         </div>
                     )}
+                </div>
+
+                {/* Gallery Upload Section */}
+                <p className={styles["form-section-title"]}>📷 Fotos Adicionales <span style={{ fontWeight: 400, fontSize: '0.85rem', color: 'var(--text-muted)' }}>(Opcional)</span></p>
+                <div style={{
+                    border: '1px dashed rgba(6, 182, 212, 0.3)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '1.5rem',
+                    marginBottom: '2rem',
+                    background: 'rgba(255,255,255,0.01)',
+                }}>
+                    {galleryPreviews.length > 0 && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+                            {galleryPreviews.map((preview, i) => (
+                                <div key={i} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', aspectRatio: '1' }}>
+                                    <img src={preview} alt={`Gallery ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeGalleryImage(i)}
+                                        style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239,68,68,0.85)', border: 'none', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', fontSize: '0.7rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >✕</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.75rem', borderRadius: '12px', background: 'rgba(6,182,212,0.05)', border: '1px solid rgba(6,182,212,0.15)', color: '#06b6d4', fontWeight: 600, fontSize: '0.9rem', transition: 'all 0.3s ease' }}>
+                        <input type="file" accept="image/*" multiple onChange={handleGalleryFilesChange} style={{ display: 'none' }} />
+                        📤 Agregar más fotos
+                    </label>
+                    <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Sin límite de imágenes. Mientras más fotos, mejor visibilidad tendrá la publicación.</p>
                 </div>
 
                 <p className={styles["form-section-title"]}>Información Básica</p>

@@ -1,5 +1,14 @@
 import { apiFetch } from "../api";
 
+export interface PresignedUrlResponse {
+    url: string;
+    object_key: string;
+}
+
+export async function getMascotasPresignedUrl(ext: string): Promise<PresignedUrlResponse> {
+    return apiFetch<PresignedUrlResponse>("mascotas", `/pets/presigned-url?ext=${ext}`);
+}
+
 export interface Pet {
     id: string;
     owner_id: string;
