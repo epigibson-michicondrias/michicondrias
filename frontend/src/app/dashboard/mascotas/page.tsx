@@ -24,17 +24,19 @@ export default function MisMascotasPage() {
         weight_kg: "", microchip_number: ""
     });
 
-    const { data: user } = useQuery({
+    const { data: user, isLoading: loadingUser } = useQuery({
         queryKey: ["current-user"],
         queryFn: getCurrentUser
     });
 
-    const { data: pets = [], isLoading: loading } = useQuery({
+    const { data: pets = [], isPending: loadingPets } = useQuery({
         queryKey: ["user-pets", user?.id],
         queryFn: () => getUserPets(user!.id),
         enabled: !!user?.id,
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
+
+    const loading = loadingUser || loadingPets;
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
