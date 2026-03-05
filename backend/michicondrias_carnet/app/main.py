@@ -61,9 +61,14 @@ async def observability_middleware(request: Request, call_next):
             f"EXCEPTION {request.method} {request.url.path} - CorrID: {correlation_id} - "
             f"Error: {type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
         )
-        # Return a generic 500 but keep the correlation ID for the client/logs
+        import json
+        error_detail = f"Internal Server Error: {str(e)}"
+        content = json.dumps({
+            "detail": error_detail,
+            "correlation_id": correlation_id
+        })
         return Response(
-            content='{"detail": "Internal Server Error", "correlation_id": "'+correlation_id+'"}',
+            content=content,
             status_code=500,
             media_type="application/json",
             headers={"X-Correlation-ID": correlation_id}
