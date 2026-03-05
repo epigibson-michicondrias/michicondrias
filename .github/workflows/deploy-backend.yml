@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [core, adopciones, mascotas, perdidas, carnet, directorio, ecommerce]
+        service: [core, adopciones, mascotas, perdidas, carnet, directorio, ecommerce, paseadores, cuidadores]
         
     steps:
     - name: Checkout code
