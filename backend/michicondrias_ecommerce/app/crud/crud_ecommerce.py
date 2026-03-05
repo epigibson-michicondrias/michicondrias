@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
 from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate, OrderCreate
@@ -160,13 +160,13 @@ def create_order(db: Session, order_in: OrderCreate, user_id: str):
         raise e
 
 def get_user_orders(db: Session, user_id: str, skip: int = 0, limit: int = 20):
-    return db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    return db.query(Order).options(joinedload(Order.items)).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
 def get_order(db: Session, order_id: str):
-    return db.query(Order).filter(Order.id == order_id).first()
+    return db.query(Order).options(joinedload(Order.items)).filter(Order.id == order_id).first()
 
 def get_all_orders(db: Session, skip: int = 0, limit: int = 50):
-    return db.query(Order).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    return db.query(Order).options(joinedload(Order.items)).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
 def update_order_status(db: Session, order_id: str, status: str):
     db_order = get_order(db, order_id)

@@ -43,8 +43,8 @@ class Product(Base):
     subcategory_id = Column(String, ForeignKey("subcategories.id"), nullable=True)
     
     image_url = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True)
-    is_approved = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True, index=True)
+    is_approved = Column(Boolean, default=False, index=True)
     seller_id = Column(String, index=True, nullable=True)
     
     specifications = Column(Text, nullable=True) # JSON or formatted text for tech specs
