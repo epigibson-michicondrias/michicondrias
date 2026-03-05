@@ -22,16 +22,13 @@ graph TD
     AGW -->|/carnet/*| L5[Lambda: Carnet]
     AGW -->|/directorio/*| L6[Lambda: Directorio]
     AGW -->|/ecommerce/*| L7[Lambda: Ecommerce]
+    AGW -->|/paseadores/*| L8[Lambda: Paseadores]
+    AGW -->|/cuidadores/*| L9[Lambda: Cuidadores]
 
-    L1 --> DB[(Neon Serverless Postgres)]
-    L2 --> DB
-    L3 --> DB
-    L4 --> DB
-    L5 --> DB
-    L6 --> DB
-    L7 --> DB
+    L1 & L2 & L3 & L4 & L5 & L6 & L7 & L8 & L9 --> DB[(Neon Serverless Postgres)]
 
     L1 --> S3[(AWS S3: Image Storage)]
+    L8 & L9 --> S3
 ```
 
 ## Core Components
@@ -46,7 +43,7 @@ Acts as the single entry point (`https://kowly51wia.execute-api.us-east-1.amazon
 - **Routing**: Maps routes using `$default` catches or prefixes to the respective AWS Lambda function.
 
 ### 3. Backend (FastAPI + Mangum on AWS Lambda)
-The backend is composed of **7 independent microservices** written in Python (FastAPI). 
+The backend is composed of **9 independent microservices** written in Python (FastAPI). 
 Since FastAPI requires an ASGI server (like Uvicorn) to run, we implemented **Mangum**, an adapter that wraps the FastAPI app and translates AWS API Gateway/Lambda events into ASGI scope requests.
 
 *Features:*

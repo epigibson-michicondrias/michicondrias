@@ -1,0 +1,8 @@
+{
+    "label": "🚀 Tutorial: Deploy a Lambda",
+    "position": 4,
+    "link": {
+        "type": "generated-index",
+        "description": "Guía paso a paso para desplegar un nuevo microservicio en AWS Lambda + API Gateway. Aplica para cualquier servicio nuevo que se agregue al proyecto Michicondrias."
+    }
+}
