@@ -135,9 +135,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                             queryFn: () => import("@/lib/services/mascotas").then(m => m.getUserPets(user.id))
                                         });
                                     }
-                                } else if (item.href === "/dashboard/adopciones") {
-                                    // Example for another service
-                                    // queryClient.prefetchQuery({ queryKey: ["adoptions"], queryFn: ... });
+                                } else if (item.href === "/dashboard/petfriendly") {
+                                    queryClient.prefetchQuery({
+                                        queryKey: ["petfriendly-places", ""],
+                                        queryFn: () => import("@/lib/services/mascotas").then(m => m.getPlaces())
+                                    });
                                 }
                             }}
                             className={`${styles.sidebar__link} ${item.href === "/dashboard"
