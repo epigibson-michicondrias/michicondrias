@@ -177,7 +177,7 @@ export default function PetMedicalRecordPage(props: { params: Promise<{ pet_id: 
                                 style={{ objectFit: 'cover' }}
                             />
                         ) : (
-                            pet.species === "Perro" ? "🐕" : pet.species === "Gato" ? "🐈" : "🐾"
+                            pet.species?.toLowerCase() === "perro" ? "🐕" : pet.species?.toLowerCase() === "gato" ? "🐈" : "🐾"
                         )}
                     </div>
                     <h2 className={styles["pet-name"]}>{pet.name}</h2>
