@@ -25,21 +25,20 @@ export default function DashboardHomePage() {
     const [metrics, setMetrics] = useState<AnalyticsMetrics | null>(null);
 
     useEffect(() => {
+        setMounted(true);
+        const currentRole = getUserRole();
+        setRole(currentRole);
+
         async function load() {
             try {
                 const u = await getCurrentUser();
                 setUser(u);
-                const currentRole = getUserRole();
-                setRole(currentRole);
 
                 if (currentRole === "admin") {
                     const data = await getAdminAnalytics();
                     setMetrics(data);
                 }
             } catch { }
-            finally {
-                setMounted(true);
-            }
         }
         load();
     }, []);
