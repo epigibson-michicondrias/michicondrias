@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import dashStyles from "../../dashboard.module.css";
 import { useSearchParams } from "next/navigation";
 
-export default function PagoExitosoPage() {
+function PagoExitosoContent() {
     const searchParams = useSearchParams();
     const sessionId = searchParams.get("session_id");
     const [mounted, setMounted] = useState(false);
@@ -44,5 +44,13 @@ export default function PagoExitosoPage() {
                 </Link>
             </div>
         </div>
+    );
+}
+
+export default function PagoExitosoPage() {
+    return (
+        <Suspense fallback={<div className={dashStyles["loading-container"]}><p>Procesando recibo...</p></div>}>
+            <PagoExitosoContent />
+        </Suspense>
     );
 }

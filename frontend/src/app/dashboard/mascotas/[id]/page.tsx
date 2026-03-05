@@ -7,7 +7,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPetById, updatePet, Pet } from "@/lib/services/mascotas";
 import { createSubscriptionSession } from "@/lib/services/ecommerce";
-import { getMedicalHistoryByPet, MedicalRecord } from "@/lib/services/medical";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../mascotas.module.css";
 import { toast } from "react-hot-toast";
@@ -25,12 +24,6 @@ export default function GestionMascotaPage() {
     const { data: pet, isLoading, error } = useQuery({
         queryKey: ["pet", petId],
         queryFn: () => getPetById(petId),
-        enabled: !!petId,
-    });
-
-    const { data: medicalHistory = [], isLoading: isLoadingHistory } = useQuery({
-        queryKey: ["medicalHistory", petId],
-        queryFn: () => getMedicalHistoryByPet(petId),
         enabled: !!petId,
     });
 
@@ -251,65 +244,17 @@ export default function GestionMascotaPage() {
                             </div>
 
                             {/* Medical History */}
+                            {/* Medical History Shortcut */}
                             <div className={styles["info-block"]} style={{ marginTop: '2rem' }}>
-                                <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>🩺 Expediente Médico y Recetas</h3>
-                                {isLoadingHistory ? (
-                                    <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Cargando historial...</p>
-                                ) : medicalHistory.length === 0 ? (
-                                    <div style={{ background: "rgba(255,255,255,0.02)", border: "1px dashed rgba(255,255,255,0.1)", borderRadius: "16px", padding: "2rem", textAlign: "center" }}>
-                                        <p style={{ color: "var(--text-secondary)", margin: 0 }}>Aún no hay registros médicos para {pet.name}.</p>
-                                        <p style={{ color: "var(--text-secondary)", fontSize: "0.8rem", marginTop: "0.5rem" }}>Cuando asistas a una cita, aquí aparecerán las recetas digitales.</p>
-                                    </div>
-                                ) : (
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                                        {medicalHistory.map((record, idx) => (
-                                            <div key={record.id || idx} style={{ background: "linear-gradient(145deg, rgba(30,30,40,0.8), rgba(20,20,30,0.6))", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: "1.5rem", position: "relative", overflow: "hidden" }}>
-                                                <div style={{ position: "absolute", top: 0, left: 0, width: "4px", height: "100%", background: "#10b981" }} />
-
-                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
-                                                    <div>
-                                                        <h4 style={{ margin: 0, color: "#fff", fontSize: "1.1rem" }}>{record.diagnosis}</h4>
-                                                        <p style={{ margin: "0.2rem 0 0 0", color: "var(--text-secondary)", fontSize: "0.8rem" }}>
-                                                            {record.created_at ? new Date(record.created_at).toLocaleDateString("es-MX", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : "Registro"}
-                                                        </p>
-                                                    </div>
-                                                    <div style={{ display: "flex", gap: "1rem" }}>
-                                                        {record.weight_kg && <span style={{ background: "rgba(255,255,255,0.05)", padding: "0.3rem 0.6rem", borderRadius: "8px", fontSize: "0.75rem", color: "#a78bfa" }}>⚖️ {record.weight_kg} kg</span>}
-                                                        {record.temperature_c && <span style={{ background: "rgba(255,255,255,0.05)", padding: "0.3rem 0.6rem", borderRadius: "8px", fontSize: "0.75rem", color: "#f87171" }}>🌡️ {record.temperature_c}°C</span>}
-                                                    </div>
-                                                </div>
-
-                                                {record.clinical_notes && (
-                                                    <div style={{ background: "rgba(0,0,0,0.2)", padding: "1rem", borderRadius: "12px", marginBottom: "1rem", fontSize: "0.85rem", color: "var(--text-secondary)", fontStyle: "italic" }}>
-                                                        "{record.clinical_notes}"
-                                                    </div>
-                                                )}
-
-                                                {record.prescriptions && record.prescriptions.length > 0 && (
-                                                    <div style={{ marginTop: "1.5rem" }}>
-                                                        <h5 style={{ margin: "0 0 0.8rem 0", color: "#10b981", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>💊 Receta Digital</h5>
-                                                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1rem" }}>
-                                                            {record.prescriptions.map((p, pIdx) => (
-                                                                <div key={pIdx} style={{ background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.15)", borderRadius: "12px", padding: "1rem" }}>
-                                                                    <strong style={{ display: "block", color: "#fff", marginBottom: "0.5rem" }}>{p.medication_name}</strong>
-                                                                    <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-                                                                        <span><span style={{ color: "#34d399" }}>Dosis:</span> {p.dosage}</span>
-                                                                        <span><span style={{ color: "#34d399" }}>Frecuencia:</span> Cada {p.frequency_hours} horas</span>
-                                                                        <span><span style={{ color: "#34d399" }}>Duración:</span> {p.duration_days} días</span>
-                                                                        {p.instructions && <span style={{ marginTop: "0.3rem", background: "rgba(0,0,0,0.2)", padding: "0.4rem", borderRadius: "6px" }}>📝 {p.instructions}</span>}
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                        <p style={{ margin: "1rem 0 0 0", fontSize: "0.75rem", color: "#6b7280", textAlign: "right" }}>
-                                                            Las alarmas se han programado automáticamente.
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>🩺 Expediente Clínico de {pet.name}</h3>
+                                <div style={{ background: "rgba(139, 92, 246, 0.05)", border: "1px solid rgba(139, 92, 246, 0.2)", borderRadius: "16px", padding: "1.5rem" }}>
+                                    <p style={{ color: "var(--text-secondary)", marginBottom: "1rem" }}>
+                                        Consulta el historial médico oficial, recetas digitales, recordatorios de medicación y vacunas de tu compañero en su Carnet Digital interactivo.
+                                    </p>
+                                    <Link href={`/dashboard/carnet/${pet.id}`} className={styles["btn-premium"]} style={{ width: "100%", justifyContent: "center" }}>
+                                        Ir al Carnet Clínico de {pet.name} ➡️
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </div>

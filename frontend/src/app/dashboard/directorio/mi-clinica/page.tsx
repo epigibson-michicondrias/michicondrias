@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-    getMyClinics, updateClinic, Clinic, ClinicCreate, deleteClinic,
-    getClinicServices, createClinicService, deleteClinicService, ClinicServiceItem,
+    getMyClinics, updateClinic, Clinic, deleteClinic, ClinicCreate,
+    getClinicServices, createClinicService, updateClinicService, deleteClinicService, ClinicServiceItem,
     getClinicSchedule, setClinicSchedule, ClinicScheduleItem,
-    getClinicAppointments, confirmAppointment, completeAppointment, AppointmentItem,
+    getClinicAppointments, confirmAppointment, completeAppointment, AppointmentItem
 } from "@/lib/services/directorio";
-import { createMedicalRecord, MedicalRecordCreate, Prescription } from "@/lib/services/medical";
+import { createRecord, MedicalRecordCreate, Prescription } from "@/lib/services/carnet";
 import { hasRole } from "@/lib/auth";
 import dashStyles from "../../dashboard.module.css";
 import { toast } from "react-hot-toast";
@@ -56,7 +56,7 @@ export default function MiClinicaPage() {
     // Medical Record
     const [recordModalOpen, setRecordModalOpen] = useState(false);
     const [selectedApptForRecord, setSelectedApptForRecord] = useState<AppointmentItem | null>(null);
-    const [recordForm, setRecordForm] = useState<MedicalRecordCreate>({ pet_id: "", diagnosis: "", prescriptions: [] });
+    const [recordForm, setRecordForm] = useState<MedicalRecordCreate>({ pet_id: "", reason_for_visit: "", prescriptions: [] });
     const [savingRecord, setSavingRecord] = useState(false);
 
     useEffect(() => {
@@ -193,9 +193,18 @@ export default function MiClinicaPage() {
     }
 
     // --- Medical Records ---
-    function openRecordModal(appt: AppointmentItem) {
+    const handleOpenRecordModal = (appt: AppointmentItem) => {
         setSelectedApptForRecord(appt);
-        setRecordForm({ pet_id: appt.pet_id, diagnosis: "", weight_kg: undefined, temperature_c: undefined, clinical_notes: "", prescriptions: [] });
+        setRecordForm({
+            pet_id: appt.pet_id,
+            reason_for_visit: `Revisión para ${appt.service_name || "cita"}`,
+            diagnosis: "",
+            treatment: "",
+            notes: "",
+            temperature_c: undefined,
+            weight_kg: undefined,
+            prescriptions: []
+        });
         setRecordModalOpen(true);
     }
 
@@ -225,9 +234,18 @@ export default function MiClinicaPage() {
 
         setSavingRecord(true);
         try {
-            await createMedicalRecord(selectedApptForRecord.id, recordForm);
+            const payload = {
+                ...recordForm,
+                appointment_id: selectedApptForRecord.id,
+                clinic_id: selectedApptForRecord.clinic_id,
+                vet_id: selectedApptForRecord.vet_id,
+            };
+            await createRecord(payload);
 
-            // Si la cita no estaba completada, en el backend se autocompleta. Actualizamos UI:
+            // If the appointment isn't already completed, complete it automatically
+            if (selectedApptForRecord.status !== 'completed') {
+                await completeAppointment(selectedApptForRecord.id);
+            }
             setAppointments(prev => prev.map(a => a.id === selectedApptForRecord.id ? { ...a, status: "completed" } : a));
 
             toast.success("Expediente y recetas guardados correctamente 🩺");
@@ -446,7 +464,7 @@ export default function MiClinicaPage() {
                                                     {appt.status === "pending" && <button onClick={() => handleConfirm(appt.id)} className="btn btn-primary" style={{ borderRadius: "10px", padding: "0.4rem 1rem", fontSize: "0.8rem", background: "linear-gradient(135deg, #10b981, #059669)" }}>✅ Confirmar</button>}
                                                     {appt.status === "confirmed" && <button onClick={() => handleComplete(appt.id)} className="btn btn-primary" style={{ borderRadius: "10px", padding: "0.4rem 1rem", fontSize: "0.8rem" }}>🎉 Completar</button>}
                                                     {["confirmed", "completed"].includes(appt.status) && (
-                                                        <button onClick={() => openRecordModal(appt)} className="btn btn-secondary" style={{ borderRadius: "10px", padding: "0.4rem 1rem", fontSize: "0.8rem", background: "rgba(139,92,246,0.15)", color: "#a78bfa", borderColor: "rgba(139,92,246,0.3)" }}>🩺 Expediente</button>
+                                                        <button onClick={() => handleOpenRecordModal(appt)} className="btn btn-secondary" style={{ borderRadius: "10px", padding: "0.4rem 1rem", fontSize: "0.8rem", background: "rgba(139,92,246,0.15)", color: "#a78bfa", borderColor: "rgba(139,92,246,0.3)" }}>🩺 Expediente</button>
                                                     )}
                                                 </div>
                                             </div>
@@ -497,7 +515,7 @@ export default function MiClinicaPage() {
                                 </div>
                                 <div>
                                     <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>Notas Clínicas (Opcional)</label>
-                                    <textarea className="form-input" rows={3} value={recordForm.clinical_notes || ""} onChange={e => setRecordForm({ ...recordForm, clinical_notes: e.target.value })} placeholder="Hallazgos en la exploración, recomendaciones generales..." />
+                                    <textarea className="form-input" rows={3} value={recordForm.notes || ""} onChange={e => setRecordForm({ ...recordForm, notes: e.target.value })} placeholder="Hallazgos en la exploración, recomendaciones generales..." />
                                 </div>
                             </div>
 

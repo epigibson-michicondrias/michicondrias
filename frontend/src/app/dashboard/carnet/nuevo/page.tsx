@@ -20,12 +20,11 @@ export default function NuevoCarnetPage() {
             await createRecord({
                 pet_id: form.get("pet_id") as string,
                 reason_for_visit: form.get("reason") as string,
-                diagnosis: (form.get("diagnosis") as string) || null,
-                treatment: (form.get("treatment") as string) || null,
-                weight_kg: form.get("weight") ? Number(form.get("weight")) : null,
-                notes: (form.get("notes") as string) || null,
-                veterinarian_id: null,
-                clinic_id: null,
+                diagnosis: (form.get("diagnosis") as string) || undefined,
+                treatment: (form.get("treatment") as string) || undefined,
+                weight_kg: form.get("weight") ? Number(form.get("weight")) : undefined,
+                notes: (form.get("notes") as string) || undefined,
+                prescriptions: [],
             });
             router.push("/dashboard/carnet");
         } catch (err: unknown) {
