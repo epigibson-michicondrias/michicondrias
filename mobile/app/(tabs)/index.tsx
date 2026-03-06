@@ -33,7 +33,7 @@ export default function DashboardScreen() {
             <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/menu' as any)}>
               <MenuIcon size={24} color={theme.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.notifBtn}>
+            <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/notificaciones')}>
               <Bell size={24} color={theme.text} />
               <View style={styles.notifDot} />
             </TouchableOpacity>
@@ -44,7 +44,7 @@ export default function DashboardScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Tus Mascotas</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/mascotas')}>
             <Text style={[styles.seeAll, { color: theme.tint }]}>Ver todas</Text>
           </TouchableOpacity>
         </View>
@@ -54,7 +54,7 @@ export default function DashboardScreen() {
             <Text style={{ color: theme.textMuted }}>Cargando tus mejores amigos...</Text>
           </View>
         ) : pets.length === 0 ? (
-          <TouchableOpacity style={styles.addPetEmpty}>
+          <TouchableOpacity style={styles.addPetEmpty} onPress={() => router.push('/mascotas/nuevo')}>
             <Plus size={32} color={theme.textMuted} />
             <Text style={styles.addPetText}>Agrega a tu primer mascota</Text>
           </TouchableOpacity>
@@ -65,7 +65,7 @@ export default function DashboardScreen() {
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.petCard}>
+              <TouchableOpacity style={styles.petCard} onPress={() => router.push(`/mascotas/${item.id}` as any)}>
                 <Image
                   source={{ uri: item.photo_url || 'https://via.placeholder.com/150' }}
                   style={styles.petImage}
