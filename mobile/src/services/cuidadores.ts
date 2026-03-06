@@ -53,3 +53,31 @@ export async function requestSit(sitterId: string, data: Partial<SitRequest>): P
 export async function getMySitRequests(): Promise<SitRequest[]> {
     return apiFetch<SitRequest[]>("cuidadores", "/sitters/requests/me");
 }
+
+export async function getIncomingSitRequests(): Promise<SitRequest[]> {
+    return apiFetch<SitRequest[]>("cuidadores", "/sitters/requests/incoming");
+}
+
+export async function updateSitRequestStatus(requestId: string, status: string): Promise<SitRequest> {
+    return apiFetch<SitRequest>("cuidadores", `/sitters/requests/${requestId}/status?status=${status}`, {
+        method: "PATCH",
+    });
+}
+
+export async function registerAsSitter(data: Partial<Sitter>): Promise<Sitter> {
+    return apiFetch<Sitter>("cuidadores", "/sitters/", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function updateSitter(id: string, data: Partial<Sitter>): Promise<Sitter> {
+    return apiFetch<Sitter>("cuidadores", `/sitters/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function getMySitterProfile(): Promise<Sitter> {
+    return apiFetch<Sitter>("cuidadores", "/sitters/me/profile");
+}

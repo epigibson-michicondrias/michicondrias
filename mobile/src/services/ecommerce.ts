@@ -71,8 +71,32 @@ export async function getProducts(category?: string, sellerId?: string): Promise
     return apiFetch<Product[]>("ecommerce", `/products/${qs}`);
 }
 
+export async function getMyProducts(): Promise<Product[]> {
+    return apiFetch<Product[]>("ecommerce", "/products/seller/me");
+}
+
 export async function getProduct(productId: string): Promise<Product> {
     return apiFetch<Product>("ecommerce", `/products/${productId}`);
+}
+
+export async function createProduct(productData: Partial<Product>): Promise<Product> {
+    return apiFetch<Product>("ecommerce", "/products/", {
+        method: "POST",
+        body: JSON.stringify(productData),
+    });
+}
+
+export async function updateProduct(productId: string, data: Partial<Product>): Promise<Product> {
+    return apiFetch<Product>("ecommerce", `/products/${productId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteProduct(productId: string): Promise<void> {
+    return apiFetch<void>("ecommerce", `/products/${productId}`, {
+        method: "DELETE",
+    });
 }
 
 // REVIEWS
@@ -85,6 +109,20 @@ export async function createOrder(data: OrderCreate): Promise<Order> {
     return apiFetch<Order>("ecommerce", "/orders/", {
         method: "POST",
         body: JSON.stringify(data),
+    });
+}
+
+export async function getMyOrders(): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", "/orders/me");
+}
+
+export async function getSellerOrders(): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", "/orders/seller/me");
+}
+
+export async function updateOrderStatus(orderId: string, status: string): Promise<Order> {
+    return apiFetch<Order>("ecommerce", `/orders/${orderId}/status?status=${status}`, {
+        method: "PATCH",
     });
 }
 

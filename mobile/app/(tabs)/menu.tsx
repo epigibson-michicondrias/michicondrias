@@ -27,8 +27,11 @@ export default function MenuScreen() {
                 { id: 'mascotas', icon: Bone, label: 'Mis Mascotas', route: '/mascotas', color: '#7c3aed' },
                 { id: 'solicitudes', icon: Heart, label: 'Mis Solicitudes Adopción', route: '/adopciones/mis-solicitudes', color: '#ec4899' },
                 { id: 'citas', icon: Calendar, label: 'Mis Citas Médicas', route: '/directorio/citas', color: '#10b981' },
+                user?.role_name === 'veterinario' && { id: 'mi-clinica', icon: Stethoscope, label: 'Mi Clínica (Gestión)', route: '/mi-clinica', color: '#7c3aff' },
+                (user?.role_name === 'walker' || user?.role_name === 'sitter') && { id: 'pro-gestion', icon: Activity, label: 'Panel Profesional', route: '/servicios-pro/gestion', color: '#6366f1' },
+                user?.role_name === 'vendedor' && { id: 'vendedor-dashboard', icon: ShoppingBag, label: 'Mi Tienda (Ventas)', route: '/tienda/vendedor', color: '#f43f5e' },
                 { id: 'compras', icon: CreditCard, label: 'Historial de Compras', route: '/tienda/compras', color: '#f59e0b' },
-            ]
+            ].filter(Boolean) as any[]
         },
         {
             title: 'Servicios',
@@ -42,7 +45,8 @@ export default function MenuScreen() {
         user?.role_name === 'admin' ? {
             title: 'Administración',
             data: [
-                { id: 'verificaciones', icon: ShieldAlert, label: 'Control KYC', route: '/admin/verificaciones', color: '#ef4444' },
+                { id: 'moderacion', icon: ShieldAlert, label: 'Centro de Moderación', route: '/admin/moderacion', color: '#8b5cf6' },
+                { id: 'verificaciones', icon: UserCheck, label: 'Control KYC', route: '/admin/verificaciones', color: '#ef4444' },
                 { id: 'stats', icon: Activity, label: 'Analíticas Globales', route: '/admin/stats', color: '#3b82f6' },
                 { id: 'config', icon: Settings, label: 'Configuración Sistema', route: '/admin/config', color: '#64748b' },
             ]
