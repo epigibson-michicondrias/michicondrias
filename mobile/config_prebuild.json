@@ -1,0 +1,237 @@
+
+{
+  name: [32m'mobile'[39m,
+  slug: [32m'mobile'[39m,
+  version: [32m'1.0.0'[39m,
+  orientation: [32m'portrait'[39m,
+  icon: [32m'./assets/images/icon.png'[39m,
+  scheme: [32m'mobile'[39m,
+  userInterfaceStyle: [32m'automatic'[39m,
+  plugins: [
+    [32m'expo-router'[39m,
+    [
+      [32m'expo-updates'[39m,
+      {
+        checkOnLaunch: [32m'ALWAYS'[39m,
+        enabled: [33mtrue[39m
+      }
+    ]
+  ],
+  runtimeVersion: [32m'1.0.0'[39m,
+  owner: [32m'michicondrias'[39m,
+  description: [90mundefined[39m,
+  sdkVersion: [32m'55.0.0'[39m,
+  platforms: [
+    [32m'ios'[39m,
+    [32m'android'[39m,
+    [32m'web'[39m
+  ],
+  splash: {
+    image: [32m'./assets/images/splash-icon.png'[39m,
+    resizeMode: [32m'contain'[39m,
+    backgroundColor: [32m'#ffffff'[39m
+  },
+  ios: {
+    supportsTablet: [33mtrue[39m,
+    bundleIdentifier: [32m'com.placeholder.appid'[39m
+  },
+  android: {
+    predictiveBackGestureEnabled: [33mfalse[39m,
+    package: [32m'com.michicondrias.mobile'[39m,
+    permissions: [
+      [32m'android.permission.RECORD_AUDIO'[39m,
+      [32m'android.permission.READ_EXTERNAL_STORAGE'[39m,
+      [32m'android.permission.WRITE_EXTERNAL_STORAGE'[39m,
+      [32m'android.permission.INTERNET'[39m,
+      [32m'android.permission.ACCESS_COARSE_LOCATION'[39m,
+      [32m'android.permission.ACCESS_FINE_LOCATION'[39m
+    ],
+    adaptiveIcon: {
+      backgroundColor: [32m'#E6F4FE'[39m,
+      foregroundImage: [32m'./assets/images/android-icon-foreground.png'[39m,
+      backgroundImage: [32m'./assets/images/android-icon-background.png'[39m,
+      monochromeImage: [32m'./assets/images/android-icon-monochrome.png'[39m
+    },
+    config: {
+      updates: {
+        channel: [32m'production'[39m
+      }
+    }
+  },
+  web: {
+    bundler: [32m'metro'[39m,
+    output: [32m'static'[39m,
+    favicon: [32m'./assets/images/favicon.png'[39m
+  },
+  experiments: {
+    typedRoutes: [33mtrue[39m
+  },
+  updates: {
+    url: [32m'https://u.expo.dev/c72bd27d-390a-4496-b147-196b189cc981'[39m,
+    channel: [32m'production'[39m
+  },
+  extra: {
+    eas: {
+      projectId: [32m'c72bd27d-390a-4496-b147-196b189cc981'[39m
+    },
+    router: {}
+  },
+  _internal: {
+    isDebug: [33mfalse[39m,
+    projectRoot: [32m'C:\\desarrollos\\michicondrias\\mobile'[39m,
+    staticConfigPath: [32m'C:\\desarrollos\\michicondrias\\mobile\\app.json'[39m,
+    packageJsonPath: [32m'C:\\desarrollos\\michicondrias\\mobile\\package.json'[39m,
+    autolinkedModules: [
+      [32m'@expo/dom-webview'[39m,
+      [32m'@expo/log-box'[39m,
+      [32m'expo'[39m,
+      [32m'expo-asset'[39m,
+      [32m'expo-constants'[39m,
+      [32m'expo-eas-client'[39m,
+      [32m'expo-file-system'[39m,
+      [32m'expo-font'[39m,
+      [32m'expo-glass-effect'[39m,
+      [32m'expo-image'[39m,
+      [32m'expo-image-loader'[39m,
+      [32m'expo-image-picker'[39m,
+      [32m'expo-json-utils'[39m,
+      [32m'expo-keep-awake'[39m,
+      [32m'expo-linking'[39m,
+      [32m'expo-location'[39m,
+      [32m'expo-manifests'[39m,
+      [32m'expo-modules-core'[39m,
+      [32m'expo-router'[39m,
+      [32m'expo-secure-store'[39m,
+      [32m'expo-splash-screen'[39m,
+      [32m'expo-structured-headers'[39m,
+      [32m'expo-symbols'[39m,
+      [32m'expo-system-ui'[39m,
+      [32m'expo-updates'[39m,
+      [32m'expo-updates-interface'[39m,
+      [32m'expo-web-browser'[39m
+    ],
+    dynamicConfigPath: {},
+    pluginHistory: {
+      [32m'expo-updates'[39m: {
+        name: [32m'expo-updates'[39m,
+        version: [32m'55.0.12'[39m
+      },
+      [32m'react-native-maps'[39m: {
+        name: [32m'react-native-maps'[39m,
+        version: [32m'UNVERSIONED'[39m
+      },
+      [32m'expo-ads-admob'[39m: {
+        name: [32m'expo-ads-admob'[39m,
+        version: [32m'UNVERSIONED'[39m
+      },
+      [32m'expo-apple-authentication'[39m: {
+        name: [32m'expo-apple-authentication'[39m,
+        version: [32m'UNVERSIONED'[39m
+      },
+      [32m'expo-contacts'[39m: {
+        name: [32m'expo-contacts'[39m,
+        version: [32m'UNVERSIONED'[39m
+      },
+      [32m'expo-notifications'[39m: {
+        name: [32m'expo-notifications'[39m,
+        version: [32m'UNVERSIONED'[39m
+      },
+      [32m'expo-document-picker'[39m: {
+        name: [32m'expo-document-picker'[39m,
+        version: [32m'UNVERSIONED'[39m
+      },
+      [32m'expo-system-ui'[39m: {
+        name: [32m'expo-system-ui'[39m,
+        version: [32m'55.0.9'[39m
+      },
+      [32m'expo-splash-screen'[39m: {
+        name: [32m'expo-splash-screen'[39m,
+        version: [32m'55.0.10'[39m
+      },
+      [32m'expo-navigation-bar'[39m: {
+        name: [32m'expo-navigation-bar'[39m,
+        version: [32m'UNVERSIONED'[39m
+      },
+      [32m'expo-image-picker'[39m: {
+        name: [32m'expo-image-picker'[39m,
+        version: [32m'55.0.11'[39m
+      },
+      [32m'expo-file-system'[39m: {
+        name: [32m'expo-file-system'[39m,
+        version: [32m'55.0.10'[39m
+      },
+      [32m'expo-location'[39m: {
+        name: [32m'expo-location'[39m,
+        version: [32m'55.1.2'[39m
+      }
+    }
+  },
+  mods: {
+    ios: {
+      infoPlist: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      podfile: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      expoPlist: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      podfileProperties: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      appDelegate: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      entitlements: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      dangerous: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      splashScreenStoryboard: [AsyncFunction: interceptingMod] {
+        isProvider: [33mtrue[39m,
+        isIntrospective: [33mtrue[39m
+      },
+      xcodeproj: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      }
+    },
+    android: {
+      manifest: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      strings: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      gradleProperties: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      dangerous: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      colors: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      styles: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      mainActivity: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      colorsNight: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      settingsGradle: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      projectBuildGradle: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      },
+      appBuildGradle: [AsyncFunction: interceptingMod] {
+        isProvider: [33mfalse[39m
+      }
+    }
+  }
+}
+

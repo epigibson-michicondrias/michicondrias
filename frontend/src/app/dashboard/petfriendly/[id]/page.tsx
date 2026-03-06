@@ -3,17 +3,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { getPlaceById } from "@/lib/services/perdidas";
-import dashStyles from "../dashboard.module.css";
-import styles from "../modules.module.css";
+import dashStyles from "../../dashboard.module.css";
+import styles from "../../modules.module.css";
 import Link from "next/link";
 
 export default function PlaceDetailPage() {
-    const { id } = useParams();
+    const params = useParams();
+    const id = params?.id as string;
     const router = useRouter();
 
     const { data: place, isLoading, error } = useQuery({
         queryKey: ["petfriendly-place", id],
-        queryFn: () => getPlaceById(id as string),
+        queryFn: () => getPlaceById(id),
+        enabled: !!id,
     });
 
     if (isLoading) return (
@@ -37,7 +39,7 @@ export default function PlaceDetailPage() {
         <div className={dashStyles.container}>
             <div className={dashStyles["page-header"]}>
                 <div>
-                    <Link href="/dashboard/petfriendly" style={{ decoration: "none", color: "var(--secondary)", fontSize: "0.9rem", display: "block", marginBottom: "0.5rem" }}>
+                    <Link href="/dashboard/petfriendly" style={{ textDecoration: "none", color: "var(--secondary)", fontSize: "0.9rem", display: "block", marginBottom: "0.5rem" }}>
                         ← Volver al explorador
                     </Link>
                     <h1 className={dashStyles["page-title"]}>{place.name}</h1>
@@ -76,7 +78,7 @@ export default function PlaceDetailPage() {
                                     ⭐ Calificación
                                 </h4>
                                 <p style={{ margin: 0, fontWeight: 700, fontSize: "1.2rem", color: "#fbbf24" }}>
-                                    {place.rating.toFixed(1)} / 5.0
+                                    {(place.rating || 0).toFixed(1)} / 5.0
                                 </p>
                             </div>
                         </div>
@@ -94,7 +96,7 @@ export default function PlaceDetailPage() {
                                     background: place.has_water_bowls === "si" ? "rgba(34, 197, 94, 0.2)" : "rgba(255,255,255,0.05)",
                                     color: place.has_water_bowls === "si" ? "#4ade80" : "inherit"
                                 }}>
-                                    {place.has_water_bowls.toUpperCase()}
+                                    {(place.has_water_bowls || "no").toUpperCase()}
                                 </span>
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -104,7 +106,7 @@ export default function PlaceDetailPage() {
                                     background: place.has_pet_menu === "si" ? "rgba(34, 197, 94, 0.2)" : "rgba(255,255,255,0.05)",
                                     color: place.has_pet_menu === "si" ? "#4ade80" : "inherit"
                                 }}>
-                                    {place.has_pet_menu.toUpperCase()}
+                                    {(place.has_pet_menu || "no").toUpperCase()}
                                 </span>
                             </div>
                         </div>
@@ -113,8 +115,8 @@ export default function PlaceDetailPage() {
                     <div className={styles.card} style={{ padding: "2rem" }}>
                         <h3 style={{ marginTop: 0 }}>Contacto y Ubicación</h3>
                         <p style={{ opacity: 0.7, fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-                            📍 {place.address}<br />
-                            {place.city}, {place.state || ""}
+                            📍 {place.address || "Dirección no disponible"}<br />
+                            {place.city || ""}{place.state ? `, ${place.state}` : ""}
                         </p>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -135,7 +137,7 @@ export default function PlaceDetailPage() {
                     </div>
 
                     <p style={{ fontSize: "0.8rem", opacity: 0.4, textAlign: "center" }}>
-                        Registrado por el usuario: {place.added_by.substring(0, 8)}... el {new Date(place.created_at || "").toLocaleDateString()}
+                        Registrado por el usuario: {(place.added_by || "").substring(0, 8)}... el {place.created_at ? new Date(place.created_at).toLocaleDateString() : "Fecha desconocida"}
                     </p>
                 </div>
             </div>

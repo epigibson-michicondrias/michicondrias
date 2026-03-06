@@ -39,6 +39,7 @@ export interface PetfriendlyPlace {
     category: string;
     address: string | null;
     city: string | null;
+    state: string | null;
     description: string | null;
     image_url: string | null;
     latitude: number | null;
