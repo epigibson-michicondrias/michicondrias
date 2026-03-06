@@ -6,7 +6,7 @@ import { getReports, LostPetReport } from '../../src/services/perdidas';
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { Search, Filter, Crosshair, Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, Clock, MapPin } from 'lucide-react-native';
+import { Search, Filter, Crosshair, Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, Clock, MapPin, ChevronLeft } from 'lucide-react-native';
 // @ts-ignore
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -91,8 +91,16 @@ export default function PerdidasScreen() {
             {/* Header / Premium Portal */}
             <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[2]}>
                 <View style={styles.header}>
-                    <Text style={[styles.screenTitle, { color: theme.text }]}>Red de Mascotas</Text>
-                    <Text style={[styles.screenSubtitle, { color: theme.textMuted }]}>La comunidad Michicondrias te ayuda.</Text>
+                    <View style={styles.headerTop}>
+                        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                            <ChevronLeft size={24} color={theme.text} />
+                        </TouchableOpacity>
+                        <Text style={[styles.screenTitle, { color: theme.text }]}>Mascotas Perdidas</Text>
+                        <TouchableOpacity style={styles.plusBtn} onPress={() => router.push('/perdidas/nuevo')}>
+                            <Plus size={24} color={theme.text} />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={[styles.screenSubtitle, { color: theme.textMuted }]}>La comunidad Michicondrias te ayuda a reunirte con tu mejor amigo.</Text>
                 </View>
 
                 {/* Stats Strip */}
@@ -252,12 +260,31 @@ const styles = StyleSheet.create({
     header: {
         paddingTop: 60,
         paddingHorizontal: 24,
-        paddingBottom: 20,
+        paddingBottom: 16,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    backBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    plusBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     screenTitle: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: '900',
-        letterSpacing: -0.5,
     },
     screenSubtitle: {
         fontSize: 14,

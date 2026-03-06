@@ -45,6 +45,7 @@ export default function PetfriendlyDetalleScreen() {
                         <TouchableOpacity style={styles.circleBtn} onPress={() => router.back()}>
                             <ChevronLeft size={24} color="#fff" />
                         </TouchableOpacity>
+                        <Text style={styles.headerTitle}>Detalles del Lugar</Text>
                         <TouchableOpacity style={styles.circleBtn}>
                             <Share2 size={20} color="#fff" />
                         </TouchableOpacity>
@@ -187,6 +188,14 @@ const styles = StyleSheet.create({
         right: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '900',
+        color: '#fff',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: { width: -1, height: 1 },
+        textShadowRadius: 10
     },
     circleBtn: {
         width: 48,

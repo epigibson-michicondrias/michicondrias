@@ -6,7 +6,7 @@ import { getPlaces, PetfriendlyPlace } from '../../src/services/petfriendly';
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Search, Map as MapIcon, List, Star, MapPin } from 'lucide-react-native';
+import { ChevronLeft, Search, Map as MapIcon, List, Star, MapPin, Plus } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -56,21 +56,26 @@ export default function PetfriendlyScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.overlayHeader}>
+            <View style={[styles.overlayHeader, { backgroundColor: theme.background }]}>
                 <View style={styles.headerTop}>
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <ChevronLeft size={24} color={theme.text} />
                     </TouchableOpacity>
-                    <View style={[styles.searchBar, { backgroundColor: theme.surface }]}>
-                        <Search size={20} color={theme.textMuted} />
-                        <TextInput
-                            placeholder="Restaurantes, Parques..."
-                            placeholderTextColor={theme.textMuted}
-                            style={[styles.searchInput, { color: theme.text }]}
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                        />
-                    </View>
+                    <Text style={[styles.headerTitle, { color: theme.text }]}>Lugares Pet Friendly</Text>
+                    <TouchableOpacity style={styles.plusBtn} onPress={() => router.push('/petfriendly/nuevo')}>
+                        <Plus size={24} color={theme.text} />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={[styles.searchBar, { backgroundColor: theme.surface, marginBottom: 16 }]}>
+                    <Search size={20} color={theme.textMuted} />
+                    <TextInput
+                        placeholder="Restaurantes, Parques..."
+                        placeholderTextColor={theme.textMuted}
+                        style={[styles.searchInput, { color: theme.text }]}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                    />
                 </View>
 
                 <View style={styles.toggleContainer}>
@@ -92,42 +97,10 @@ export default function PetfriendlyScreen() {
             </View>
 
             {viewMode === 'map' ? (
-                <MapView
-                    style={styles.map}
-                    initialRegion={{
-                        latitude: 19.4326,
-                        longitude: -99.1332,
-                        latitudeDelta: 0.1,
-                        longitudeDelta: 0.1,
-                    }}
-                    customMapStyle={mapStyle}
-                >
-                    {filteredPlaces.map((place) => (
-                        <Marker
-                            key={place.id}
-                            coordinate={{
-                                latitude: place.latitude || 19.4326,
-                                longitude: place.longitude || -99.1332,
-                            }}
-                        >
-                            <View style={[styles.customMarker, { backgroundColor: theme.primary }]}>
-                                <Text style={styles.markerEmoji}>
-                                    {place.category.toLowerCase().includes('restaurante') ? '🍴' :
-                                        place.category.toLowerCase().includes('parque') ? '🌳' : '🏘️'}
-                                </Text>
-                            </View>
-                            <Callout tooltip onPress={() => router.push(`/petfriendly/${place.id}` as any)}>
-                                <View style={[styles.callout, { backgroundColor: theme.surface }]}>
-                                    <Text style={[styles.calloutTitle, { color: theme.text }]}>{place.name}</Text>
-                                    <Text style={[styles.calloutSub, { color: theme.textMuted }]}>{place.category}</Text>
-                                    <TouchableOpacity style={[styles.calloutBtn, { backgroundColor: theme.primary }]}>
-                                        <Text style={styles.calloutBtnText}>Ver info</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </Callout>
-                        </Marker>
-                    ))}
-                </MapView>
+                <View style={[styles.mapWrapper, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
+                    <MapPin size={32} color={theme.textMuted} />
+                    <Text style={{ color: theme.textMuted, marginTop: 8, fontWeight: '700' }}>Mapa en mantenimiento</Text>
+                </View>
             ) : (
                 <FlatList
                     data={filteredPlaces}
@@ -170,15 +143,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     overlayHeader: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
         paddingTop: 60,
         paddingHorizontal: 24,
         paddingBottom: 20,
-        backgroundColor: 'transparent',
+        zIndex: 100,
     },
     headerTop: {
         flexDirection: 'row',
@@ -230,6 +198,31 @@ const styles = StyleSheet.create({
     toggleText: {
         fontSize: 13,
         fontWeight: '800',
+    },
+    headerTitle: {
+        flex: 1,
+        fontSize: 20,
+        fontWeight: '900',
+        textAlign: 'center',
+    },
+    plusBtn: {
+        width: 48,
+        height: 48,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    mapWrapper: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 16,
+    },
+    mapPlaceholderText: {
+        fontSize: 18,
+        fontWeight: '800',
+    },
+    mapPlaceholderSub: {
+        fontSize: 12,
     },
     map: {
         width: width,

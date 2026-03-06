@@ -118,7 +118,7 @@ export default function NuevoLugarScreen() {
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <ChevronLeft size={24} color={theme.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.title, { color: theme.text }]}>Registrar Lugar</Text>
+                    <Text style={[styles.title, { color: theme.text }]}>Registrar Lugar Pet Friendly</Text>
                     <View style={{ width: 44 }} />
                 </View>
 
@@ -163,23 +163,9 @@ export default function NuevoLugarScreen() {
                         </ScrollView>
 
                         <Text style={[styles.label, { color: theme.text }]}>Ubicación en el Mapa</Text>
-                        <View style={styles.mapWrapper}>
-                            {location && (
-                                <MapView
-                                    style={styles.map}
-                                    initialRegion={{
-                                        ...location,
-                                        latitudeDelta: 0.005,
-                                        longitudeDelta: 0.005,
-                                    }}
-                                    onPress={(e) => setLocation(e.nativeEvent.coordinate)}
-                                >
-                                    <Marker coordinate={location} />
-                                </MapView>
-                            )}
-                            <View style={styles.mapOverlay}>
-                                <MapPin size={24} color={theme.primary} />
-                            </View>
+                        <View style={[styles.mapWrapper, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
+                            <MapPin size={32} color={theme.textMuted} />
+                            <Text style={{ color: theme.textMuted, marginTop: 8, fontWeight: '700' }}>Mapa en mantenimiento</Text>
                         </View>
 
                         <Text style={[styles.label, { color: theme.text }]}>Dirección (Opcional)</Text>

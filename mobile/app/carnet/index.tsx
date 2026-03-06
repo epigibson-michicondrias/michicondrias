@@ -103,7 +103,7 @@ export default function CarnetListScreen() {
                     <ChevronLeft size={24} color={theme.text} />
                 </TouchableOpacity>
                 <View style={{ flex: 1 }}>
-                    <Text style={[styles.title, { color: theme.text }]}>📋 Carnet Clínico</Text>
+                    <Text style={[styles.title, { color: theme.text }]}>Expedientes Digitales</Text>
                     <Text style={[styles.subtitle, { color: theme.textMuted }]}>Historiales médicos digitales</Text>
                 </View>
                 <TouchableOpacity

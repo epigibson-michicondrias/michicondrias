@@ -95,7 +95,7 @@ export default function AdopcionesScreen() {
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <ChevronLeft size={24} color={theme.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.title, { color: theme.text }]}>Huellas Libres</Text>
+                    <Text style={[styles.title, { color: theme.text }]}>Mascotas en Adopción</Text>
                     <TouchableOpacity style={[styles.addBtn, { backgroundColor: theme.primary }]} onPress={() => router.push('/adopciones/nuevo')}>
                         <Plus size={24} color="#fff" />
                     </TouchableOpacity>
