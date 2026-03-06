@@ -181,30 +181,10 @@ export default function PerdidasDetailScreen() {
                     </Text>
 
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Última Ubicación Conocida</Text>
-                    <View style={[styles.mapWrapper, { borderColor: theme.border }]}>
-                        <MapView
-                            style={styles.map}
-                            customMapStyle={mapStyle}
-                            region={{
-                                latitude: report.current_lat ?? report.latitude ?? 19.4326,
-                                longitude: report.current_lng ?? report.longitude ?? -99.1332,
-                                latitudeDelta: 0.005,
-                                longitudeDelta: 0.005,
-                            }}
-                            scrollEnabled={false}
-                            zoomEnabled={false}
-                        >
-                            <Marker
-                                coordinate={{
-                                    latitude: report.current_lat ?? report.latitude ?? 19.4326,
-                                    longitude: report.current_lng ?? report.longitude ?? -99.1332,
-                                }}
-                            >
-                                <View style={[styles.miniMarker, { borderColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
-                                    <Image source={{ uri: report.image_url || 'https://via.placeholder.com/50' }} style={styles.miniMarkerImg} />
-                                </View>
-                            </Marker>
-                        </MapView>
+                    {/* Map Detail Debug: Replaced MapView with View */}
+                    <View style={[styles.mapWrapper, { borderColor: theme.border, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
+                        <MapPin size={32} color={theme.textMuted} />
+                        <Text style={{ color: theme.textMuted, fontSize: 10, marginTop: 8, fontWeight: '700' }}>Mapa no disponible</Text>
                     </View>
 
                     {isOwner && !report.is_resolved && (

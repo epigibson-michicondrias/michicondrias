@@ -191,36 +191,10 @@ export default function PerdidasScreen() {
 
                 {/* Content Area */}
                 {viewMode === 'map' ? (
-                    <View style={styles.mapContainer}>
-                        <MapView
-                            style={styles.map}
-                            initialRegion={{
-                                latitude: 19.4326,
-                                longitude: -99.1332,
-                                latitudeDelta: 0.12,
-                                longitudeDelta: 0.08,
-                            }}
-                            customMapStyle={mapStyle}
-                        >
-                            {filteredReports.map((report) => (
-                                <Marker
-                                    key={report.id}
-                                    coordinate={{
-                                        latitude: (report.has_tracker && report.current_lat) ? report.current_lat : (report.latitude || 19.4326),
-                                        longitude: (report.has_tracker && report.current_lng) ? report.current_lng : (report.longitude || -99.1332),
-                                    }}
-                                    onPress={() => router.push(`/perdidas/${report.id}`)}
-                                >
-                                    <View style={[styles.markerBase, { borderColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
-                                        <Image
-                                            source={{ uri: report.image_url || 'https://via.placeholder.com/100' }}
-                                            style={styles.markerImg}
-                                        />
-                                        {report.has_tracker && <View style={styles.markerPulse} />}
-                                    </View>
-                                </Marker>
-                            ))}
-                        </MapView>
+                    <View style={[styles.mapContainer, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
+                        <MapPin size={48} color={theme.textMuted} />
+                        <Text style={{ color: theme.textMuted, marginTop: 16, fontWeight: '700' }}>Mapa en mantenimiento</Text>
+                        <Text style={{ color: theme.textMuted, fontSize: 12 }}>(Falta Google Maps API Key en Android)</Text>
                     </View>
                 ) : (
                     <View style={styles.feed}>
