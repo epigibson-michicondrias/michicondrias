@@ -63,9 +63,9 @@ export default function PerdidasDetailScreen() {
                         source={{ uri: report.image_url || 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=800' }}
                         style={styles.heroImage}
                     />
-                    <LinearGradient
-                        colors={['rgba(15, 23, 42, 0.7)', 'rgba(15, 23, 42, 0)', 'rgba(15, 23, 42, 0.9)']}
-                        style={styles.heroOverlay}
+                    {/* Hero Overlay Debug: Replaced LinearGradient with View */}
+                    <View
+                        style={[styles.heroOverlay, { backgroundColor: 'rgba(15, 23, 42, 0.4)' }]}
                     />
 
                     <TouchableOpacity style={styles.floatingBack} onPress={() => router.back()}>

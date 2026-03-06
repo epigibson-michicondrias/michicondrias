@@ -120,12 +120,9 @@ export default function PerdidasScreen() {
                     </View>
                 </View>
 
-                {/* Premium Banner */}
-                <LinearGradient
-                    colors={['rgba(16, 185, 129, 0.1)', 'rgba(8, 145, 178, 0.1)']}
-                    style={styles.premiumBanner}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                {/* Premium Banner Debug: Replaced LinearGradient with View */}
+                <View
+                    style={[styles.premiumBanner, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}
                 >
                     <View style={styles.premiumTextContainer}>
                         <View style={styles.membershipBadge}>
@@ -138,7 +135,7 @@ export default function PerdidasScreen() {
                     <TouchableOpacity style={styles.premiumBtn}>
                         <Wifi size={20} color="#fff" />
                     </TouchableOpacity>
-                </LinearGradient>
+                </View>
 
                 {/* Toolbar / Search */}
                 <View style={[styles.toolbar, { backgroundColor: theme.background }]}>
