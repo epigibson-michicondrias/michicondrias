@@ -18,7 +18,6 @@ import {
     FileText,
     Activity
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -128,7 +127,7 @@ export default function AdminVerificacionesScreen() {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             {/* Header */}
-            <LinearGradient colors={[theme.primary + '20', 'transparent']} style={styles.header}>
+            <View style={[styles.header, { backgroundColor: theme.primary + '20' }]}>
                 <View style={styles.headerTop}>
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <ChevronLeft size={24} color={theme.text} />
@@ -137,7 +136,7 @@ export default function AdminVerificacionesScreen() {
                 </View>
                 <Text style={[styles.title, { color: theme.text }]}>Revisión KYC</Text>
                 <Text style={[styles.subtitle, { color: theme.textMuted }]}>Valida la identidad de los adoptantes para garantizar la seguridad.</Text>
-            </LinearGradient>
+            </View>
 
             {isLoading ? (
                 <View style={styles.center}>

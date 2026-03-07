@@ -25,7 +25,6 @@ import {
     Heart,
     Bone
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -305,7 +304,7 @@ export default function AdminModerationScreen() {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             {/* Header */}
-            <LinearGradient colors={[theme.primary + '20', 'transparent']} style={styles.header}>
+            <View style={[styles.header, { backgroundColor: theme.primary + '20' }]}>
                 <View style={styles.headerTop}>
                     <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
                         <ChevronLeft size={24} color={theme.text} />
@@ -317,7 +316,7 @@ export default function AdminModerationScreen() {
                 </View>
                 <Text style={[styles.title, { color: theme.text }]}>Admin Moderation Hub</Text>
                 <Text style={[styles.subtitle, { color: theme.textMuted }]}>Revisa y aprueba el contenido antes de que sea público.</Text>
-            </LinearGradient>
+            </View>
 
             {/* Tabs */}
             <View style={styles.tabsContainer}>
