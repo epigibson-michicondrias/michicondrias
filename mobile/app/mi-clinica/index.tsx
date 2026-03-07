@@ -3,6 +3,9 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics, getClinicAppointments, Clinic } from '../../src/services/directorio';
+import { getClinicMetrics } from '../../src/services/metrics';
+import { getCriticalPatients } from '../../src/services/patients';
+import { getClinicAlerts } from '../../src/services/alerts';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, PlusCircle, ChevronRight, MapPin, Star, Clock } from 'lucide-react-native';
@@ -21,14 +24,59 @@ export default function MiClinicaScreen() {
         queryFn: getMyClinics,
     });
 
-    // For simplicity, we manage the first clinic if multiple exist
     const clinic = clinics[0];
+
+    // Obtener datos reales de APIs
+    const { data: veterinaryMetrics, isLoading: loadingMetrics } = useQuery({
+        queryKey: ['clinic-metrics', clinic?.id],
+        queryFn: () => getClinicMetrics(clinic!.id),
+        enabled: !!clinic?.id,
+        refetchInterval: 60000, // Refrescar cada minuto
+    });
+
+    const { data: criticalPatients, isLoading: loadingPatients } = useQuery({
+        queryKey: ['critical-patients', clinic?.id],
+        queryFn: () => getCriticalPatients(clinic!.id),
+        enabled: !!clinic?.id,
+        refetchInterval: 30000, // Refrescar cada 30 segundos
+    });
+
+    const { data: veterinaryAlerts, isLoading: loadingAlerts } = useQuery({
+        queryKey: ['clinic-alerts', clinic?.id],
+        queryFn: () => getClinicAlerts(clinic!.id),
+        enabled: !!clinic?.id,
+        refetchInterval: 15000, // Refrescar cada 15 segundos
+    });
 
     const { data: appointments = [], isLoading: loadingAppointments } = useQuery({
         queryKey: ['clinic-appointments', clinic?.id],
-        queryFn: () => getClinicAppointments(clinic!.id),
+        queryFn: () => getClinicAppointments(clinic?.id || '0'),
         enabled: !!clinic?.id,
     });
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayAppointments = appointments.filter(a => a.date === todayStr);
+    const pendingAppointments = appointments.filter(a => a.status === 'pending');
+
+    // Datos por defecto si las APIs no responden
+    const metrics = veterinaryMetrics || {
+        todayAppointments: 0,
+        pendingConfirmations: 0,
+        surgeriesToday: 0,
+        emergencyCases: 0,
+        vaccinationsToday: 0,
+        checkupsToday: 0,
+        labResultsPending: 0,
+        prescriptionsActive: 0,
+        inventoryAlerts: 0,
+        dailyRevenue: 0,
+        occupancyRate: 0,
+        newPatientsToday: 0,
+        criticalPatients: 0
+    };
+
+    const alerts = veterinaryAlerts || [];
+    const patients = criticalPatients || [];
 
     if (loadingClinics) {
         return (
@@ -56,7 +104,7 @@ export default function MiClinicaScreen() {
                     </Text>
                     <TouchableOpacity
                         style={[styles.primaryBtn, { backgroundColor: theme.primary }]}
-                        onPress={() => router.push('/directorio/nuevo-lugar')}
+                        onPress={() => router.push('/directorio/nuevo-lugar' as any)}
                     >
                         <PlusCircle size={20} color="#fff" />
                         <Text style={styles.primaryBtnText}>Registrar Clínica</Text>
@@ -65,10 +113,6 @@ export default function MiClinicaScreen() {
             </View>
         );
     }
-
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todayAppointments = appointments.filter(a => a.date === todayStr);
-    const pendingAppointments = appointments.filter(a => a.status === 'pending');
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
@@ -113,12 +157,12 @@ export default function MiClinicaScreen() {
 
                 {/* Stats Grid */}
                 <View style={styles.statsGrid}>
-                    <TouchableOpacity style={[styles.statItem, { backgroundColor: theme.surface }]} onPress={() => router.push('/mi-clinica/agenda')}>
+                    <TouchableOpacity style={[styles.statItem, { backgroundColor: theme.surface }]} onPress={() => router.push('/mi-clinica/agenda' as any)}>
                         <Calendar size={24} color={theme.primary} />
                         <Text style={[styles.statValue, { color: theme.text }]}>{todayAppointments.length}</Text>
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Citas Hoy</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.statItem, { backgroundColor: theme.surface }]} onPress={() => router.push('/mi-clinica/agenda')}>
+                    <TouchableOpacity style={[styles.statItem, { backgroundColor: theme.surface }]} onPress={() => router.push('/mi-clinica/agenda' as any)}>
                         <Activity size={24} color="#f59e0b" />
                         <Text style={[styles.statValue, { color: theme.text }]}>{pendingAppointments.length}</Text>
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Por Confirmar</Text>
@@ -177,7 +221,7 @@ export default function MiClinicaScreen() {
                 {/* Latest Activity / Pending Items */}
                 <View style={styles.activityHeader}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Citas Pendientes</Text>
-                    <TouchableOpacity onPress={() => router.push('/mi-clinica/agenda')}>
+                    <TouchableOpacity onPress={() => router.push('/mi-clinica/agenda' as any)}>
                         <Text style={{ color: theme.primary, fontWeight: '700' }}>Ver todo</Text>
                     </TouchableOpacity>
                 </View>
@@ -193,7 +237,7 @@ export default function MiClinicaScreen() {
                         <TouchableOpacity
                             key={appt.id}
                             style={[styles.activityItem, { backgroundColor: theme.surface }]}
-                            onPress={() => router.push('/mi-clinica/agenda')}
+                            onPress={() => router.push('/mi-clinica/agenda' as any)}
                         >
                             <View style={[styles.apptIcon, { backgroundColor: theme.primary + '15' }]}>
                                 <Text style={{ fontSize: 18 }}>📅</Text>
