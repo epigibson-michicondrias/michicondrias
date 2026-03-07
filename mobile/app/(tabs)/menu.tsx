@@ -27,9 +27,9 @@ export default function MenuScreen() {
                 { id: 'mascotas', icon: Bone, label: 'Mis Mascotas', route: '/mascotas', color: '#7c3aed' },
                 { id: 'solicitudes', icon: Heart, label: 'Mis Solicitudes Adopción', route: '/adopciones/mis-solicitudes', color: '#ec4899' },
                 { id: 'citas', icon: Calendar, label: 'Mis Citas Médicas', route: '/directorio/citas', color: '#10b981' },
-                user?.role_name === 'veterinario' && { id: 'mi-clinica', icon: Stethoscope, label: 'Mi Clínica (Gestión)', route: '/mi-clinica', color: '#7c3aff' },
-                (user?.role_name === 'walker' || user?.role_name === 'sitter') && { id: 'pro-gestion', icon: Activity, label: 'Panel Profesional', route: '/servicios-pro/gestion', color: '#6366f1' },
-                user?.role_name === 'vendedor' && { id: 'vendedor-dashboard', icon: ShoppingBag, label: 'Mi Tienda (Ventas)', route: '/tienda/vendedor', color: '#f43f5e' },
+                user?.role_id === 'veterinario' && { id: 'mi-clinica', icon: Stethoscope, label: 'Mi Clínica (Gestión)', route: '/mi-clinica', color: '#7c3aff' },
+                (user?.role_id === 'walker' || user?.role_id === 'sitter') && { id: 'pro-gestion', icon: Activity, label: 'Panel Profesional', route: '/servicios-pro/gestion', color: '#6366f1' },
+                user?.role_id === 'vendedor' && { id: 'vendedor-dashboard', icon: ShoppingBag, label: 'Mi Tienda (Ventas)', route: '/tienda/vendedor', color: '#f43f5e' },
                 { id: 'compras', icon: CreditCard, label: 'Historial de Compras', route: '/tienda/compras', color: '#f59e0b' },
             ].filter(Boolean) as any[]
         },
@@ -42,11 +42,15 @@ export default function MenuScreen() {
                 { id: 'perdidas', icon: Search, label: 'Mascotas Perdidas', route: '/perdidas', color: '#ef4444' },
                 { id: 'tienda', icon: ShoppingBag, label: 'Tienda de Productos', route: '/tienda', color: '#f43f5e' },
                 { id: 'directorio', icon: Stethoscope, label: 'Directorio Veterinario', route: '/directorio', color: '#06b6d4' },
-            ]
+                // Solo mostrar para usuarios que no son admin
+                user?.role_id !== 'admin' && { id: 'adopciones', icon: Heart, label: 'Adopciones', route: '/adopciones', color: '#ec4899' },
+                user?.role_id !== 'admin' && { id: 'mascotas', icon: Bone, label: 'Mis Mascotas', route: '/mascotas', color: '#7c3aed' },
+            ].filter(Boolean) as any[]
         },
-        user?.role_name === 'admin' ? {
+        user?.role_id === 'admin' ? {
             title: 'Administración',
             data: [
+                { id: 'panel-admin', icon: ShieldAlert, label: 'Panel de Administración', route: '/admin', color: '#7c3aed' },
                 { id: 'moderacion', icon: ShieldAlert, label: 'Centro de Moderación', route: '/admin/moderacion', color: '#8b5cf6' },
                 { id: 'verificaciones', icon: UserCheck, label: 'Control KYC', route: '/admin/verificaciones', color: '#ef4444' },
                 { id: 'stats', icon: Activity, label: 'Analíticas Globales', route: '/admin/stats', color: '#3b82f6' },
@@ -58,7 +62,7 @@ export default function MenuScreen() {
             data: [
                 { id: 'perfil', icon: Users, label: 'Detalles de Perfil', route: '/two', color: theme.text },
                 // Solo mostrar para usuarios que no son profesionales
-                !user?.role_name || user?.role_name === 'consumidor' ? 
+                !user?.role_id || user?.role_id === 'consumidor' ? 
                     { id: 'partner', icon: ShieldAlert, label: 'Convertirse en Partner', route: '/perfil/partner', color: '#7c3aed' } : 
                     null,
                 { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: theme.textMuted },

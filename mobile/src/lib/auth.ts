@@ -14,7 +14,7 @@ export interface User {
     email: string;
     full_name: string;
     is_active: boolean;
-    role_name: string;
+    role_id: string;
     verification_status: "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
     id_front_url?: string;
     id_back_url?: string;
