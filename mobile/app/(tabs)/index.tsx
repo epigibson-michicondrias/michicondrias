@@ -33,7 +33,7 @@ export default function DashboardScreen() {
             <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/menu' as any)}>
               <MenuIcon size={24} color={theme.text} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/notificaciones')}>
+            <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/notificaciones' as any)}>
               <Bell size={24} color={theme.text} />
               <View style={styles.notifDot} />
             </TouchableOpacity>

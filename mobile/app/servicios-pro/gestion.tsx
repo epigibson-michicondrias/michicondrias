@@ -71,7 +71,7 @@ export default function ProfessionalGestionScreen() {
                     </Text>
                 </View>
                 <Text style={[styles.dateText, { color: theme.textMuted }]}>
-                    {item.type === 'walk' ? item.requested_date : `${item.start_date} - ${item.end_date}`}
+                    {item.type === 'walk' ? (item as any).requested_date : `${(item as any).start_date} - ${(item as any).end_date}`}
                 </Text>
             </View>
 
@@ -84,10 +84,10 @@ export default function ProfessionalGestionScreen() {
                     <Bone size={16} color={theme.textMuted} />
                     <Text style={[styles.infoLabel, { color: theme.text }]}>Mascota ID: {item.pet_id.substring(0, 8)}...</Text>
                 </View>
-                {item.pickup_address && (
+                {item.type === 'walk' && (item as any).pickup_address && (
                     <View style={styles.infoRow}>
                         <MapPin size={16} color={theme.textMuted} />
-                        <Text style={[styles.infoLabel, { color: theme.text }]} numberOfLines={1}>{item.pickup_address}</Text>
+                        <Text style={[styles.infoLabel, { color: theme.text }]} numberOfLines={1}>{(item as any).pickup_address}</Text>
                     </View>
                 )}
                 {item.notes && (
@@ -140,7 +140,7 @@ export default function ProfessionalGestionScreen() {
                     <Text style={[styles.headerTitle, { color: theme.text }]}>Panel Profesional</Text>
                     <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Gestiona tus solicitudes</Text>
                 </View>
-                <TouchableOpacity style={styles.settingsBtn} onPress={() => router.push('/servicios-pro/perfil')}>
+                <TouchableOpacity style={styles.settingsBtn} onPress={() => router.push('/servicios-pro/perfil' as any)}>
                     <Settings size={22} color={theme.textMuted} />
                 </TouchableOpacity>
             </View>

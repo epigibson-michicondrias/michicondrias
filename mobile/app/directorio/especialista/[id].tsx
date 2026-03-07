@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { getVets } from '../../../src/services/directorio';
-import Colors from '../../../constants/Colors';
+import { getVets } from '@/src/services/directorio';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Phone, Mail, Award, ShieldCheck, Calendar, Briefcase, Info } from 'lucide-react-native';
 
@@ -17,7 +17,7 @@ export default function SpecialistDetailScreen() {
 
     const { data: specialists = [], isLoading } = useQuery({
         queryKey: ['vet', id],
-        queryFn: () => getVets(), // Ideally would be getVetById, but getVets works for now
+        queryFn: () => getVets(),
     });
 
     const specialist = specialists.find(v => v.id === id);

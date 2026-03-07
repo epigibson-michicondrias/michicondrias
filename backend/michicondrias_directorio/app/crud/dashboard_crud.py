@@ -326,7 +326,16 @@ def get_today_surgeries(db: Session, clinic_id: str) -> List[Surgeries]:
 # Helper functions
 def format_time_ago(dt: datetime) -> str:
     """Formatear fecha relativa (ej: "Hace 5 minutos")"""
+    if dt is None:
+        return "Desconocido"
+    
+    # Asegurar que ambas fechas tengan timezone
     now = datetime.now()
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=now.tzinfo)
+    elif now.tzinfo is None:
+        now = now.replace(tzinfo=dt.tzinfo)
+    
     diff = now - dt
     
     if diff < timedelta(minutes=1):
@@ -340,3 +349,32 @@ def format_time_ago(dt: datetime) -> str:
     else:
         days = diff.days
         return f"Hace {days} día{'s' if days != 1 else ''}"
+
+def mark_alert_as_read(
+    db: Session,
+    alert_id: str
+) -> Optional[ClinicAlerts]:
+    """Marcar una alerta como leída"""
+    alert = db.query(ClinicAlerts).filter(ClinicAlerts.id == alert_id).first()
+    
+    if alert:
+        alert.is_read = True
+        alert.read_at = datetime.now()
+        db.commit()
+        db.refresh(alert)
+    
+    return alert
+
+def delete_alert(
+    db: Session,
+    alert_id: str
+) -> bool:
+    """Eliminar una alerta"""
+    alert = db.query(ClinicAlerts).filter(ClinicAlerts.id == alert_id).first()
+    
+    if alert:
+        db.delete(alert)
+        db.commit()
+        return True
+    
+    return False

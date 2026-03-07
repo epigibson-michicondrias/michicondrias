@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { getMyProducts, getSellerOrders, Product, Order } from '../../../src/services/ecommerce';
-import { useAuth } from '../../../src/contexts/AuthContext';
-import Colors from '../../../constants/Colors';
+import { getMyProducts, getSellerOrders, Product, Order } from '@/src/services/ecommerce';
+import { useAuth } from '@/src/contexts/AuthContext';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, PlusCircle, Package, ShoppingsBag, TrendingUp, DollarSign, List, Briefcase, ChevronRight, Settings, Activity, Star } from 'lucide-react-native';
+import { ChevronLeft, PlusCircle, Package, ShoppingBag, TrendingUp, DollarSign, List, Briefcase, ChevronRight, Settings, Activity, Star } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -50,7 +50,7 @@ export default function VendedorDashboardScreen() {
                     <Text style={[styles.headerTitle, { color: theme.text }]}>Mi Tienda</Text>
                     <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Panel de Vendedor</Text>
                 </View>
-                <TouchableOpacity style={[styles.configBtn, { backgroundColor: theme.surface }]} onPress={() => router.push('/tienda/vendedor/config')}>
+                <TouchableOpacity style={[styles.configBtn, { backgroundColor: theme.surface }]} onPress={() => router.push('/tienda/vendedor/config' as any)}>
                     <Settings size={20} color={theme.text} />
                 </TouchableOpacity>
             </View>
@@ -105,7 +105,7 @@ export default function VendedorDashboardScreen() {
                 <View style={styles.menuGrid}>
                     <TouchableOpacity
                         style={[styles.menuItem, { backgroundColor: theme.surface }]}
-                        onPress={() => router.push('/tienda/vendedor/productos')}
+                        onPress={() => router.push('/tienda/vendedor/productos' as any)}
                     >
                         <View style={[styles.iconBox, { backgroundColor: '#10b98115' }]}>
                             <List size={24} color="#10b981" />
@@ -116,10 +116,10 @@ export default function VendedorDashboardScreen() {
 
                     <TouchableOpacity
                         style={[styles.menuItem, { backgroundColor: theme.surface }]}
-                        onPress={() => router.push('/tienda/vendedor/ordenes')}
+                        onPress={() => router.push('/tienda/vendedor/ordenes' as any)}
                     >
                         <View style={[styles.iconBox, { backgroundColor: '#3b82f615' }]}>
-                            <ShoppingsBag size={24} color="#3b82f6" />
+                            <ShoppingBag size={24} color="#3b82f6" />
                         </View>
                         <Text style={[styles.menuLabel, { color: theme.text }]}>Pedidos</Text>
                         <Text style={[styles.menuSub, { color: theme.textMuted }]}>Envíos y estados</Text>
@@ -129,7 +129,7 @@ export default function VendedorDashboardScreen() {
                 {/* Latest Products */}
                 <View style={styles.listHeader}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Tus Productos</Text>
-                    <TouchableOpacity onPress={() => router.push('/tienda/vendedor/productos')}>
+                    <TouchableOpacity onPress={() => router.push('/tienda/vendedor/productos' as any)}>
                         <Text style={{ color: theme.primary, fontWeight: '700' }}>Ver todos</Text>
                     </TouchableOpacity>
                 </View>
@@ -140,7 +140,7 @@ export default function VendedorDashboardScreen() {
                         <Text style={[styles.emptyText, { color: theme.textMuted }]}>Aún no tienes productos a la venta</Text>
                         <TouchableOpacity
                             style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                            onPress={() => router.push('/tienda/vendedor/productos/nuevo')}
+                            onPress={() => router.push('/tienda/vendedor/productos/nuevo' as any)}
                         >
                             <PlusCircle size={20} color="#fff" />
                             <Text style={styles.addBtnText}>Añadir Primer Producto</Text>

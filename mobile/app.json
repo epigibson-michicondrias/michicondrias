@@ -24,7 +24,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.michicondrias.mobile",
-      "versionCode": 2,
+      "versionCode": 3,
       "config": {
         "googleMaps": {
           "apiKey": "TU_API_KEY_AQUI"
@@ -51,7 +51,6 @@
     },
     "updates": {
       "url": "https://u.expo.dev/c72bd27d-390a-4496-b147-196b189cc981",
-      "channel": "production",
       "requestHeaders": {
         "expo-channel-name": "production"
       }

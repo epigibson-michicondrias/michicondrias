@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Dimensions, Image, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPendingVerifications, verifyUser } from '../../../src/services/moderacion';
-import Colors from '../../../constants/Colors';
+import { getPendingVerifications, verifyUser } from '@/src/services/moderacion';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import {
     ShieldCheck,

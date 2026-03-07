@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, ScrollView, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getListingRequests, updateRequestStatus, AdoptionRequest, getListing } from '../../../src/services/adopciones';
-import Colors from '../../../constants/Colors';
+import { getListingRequests, updateRequestStatus, AdoptionRequest, getListing } from '@/src/services/adopciones';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, User, Home, Heart, Check, X, Info, Phone, Mail, Clock } from 'lucide-react-native';
 

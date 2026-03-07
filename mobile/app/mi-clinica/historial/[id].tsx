@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { getClinicAppointments, AppointmentItem } from '../../../src/services/directorio';
-import { createRecord, MedicalRecordCreate } from '../../../src/services/carnet';
-import Colors from '../../../constants/Colors';
+import { getClinicAppointments, AppointmentItem } from '@/src/services/directorio';
+import { createRecord, MedicalRecordCreate } from '@/src/services/carnet';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Plus, Trash2, ClipboardList, Stethoscope, Pill, AlertCircle, Save } from 'lucide-react-native';
 

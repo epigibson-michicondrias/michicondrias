@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { getClinic, getClinicServices, getClinicReviews, getClinicRating } from '../../../src/services/directorio';
-import Colors from '../../../constants/Colors';
+import { getClinic, getClinicServices, getClinicReviews, getClinicRating } from '@/src/services/directorio';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, MapPin, Phone, Globe, Clock, Star, Info, Calendar } from 'lucide-react-native';
 

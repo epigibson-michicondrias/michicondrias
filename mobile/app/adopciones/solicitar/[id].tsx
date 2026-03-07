@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { getListing, requestAdoption, AdoptionRequestCreate } from '../../../src/services/adopciones';
-import { useAuth } from '../../../src/contexts/AuthContext';
-import Colors from '../../../constants/Colors';
+import { getListing, requestAdoption, AdoptionRequestCreate } from '@/src/services/adopciones';
+import { useAuth } from '@/src/contexts/AuthContext';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Home, Users, Heart, Check, Info, ShieldAlert, Lock, Sparkles, PartyPopper } from 'lucide-react-native';
 

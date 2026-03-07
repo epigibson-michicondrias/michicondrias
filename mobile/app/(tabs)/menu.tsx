@@ -36,8 +36,10 @@ export default function MenuScreen() {
         {
             title: 'Servicios',
             data: [
-                { id: 'paseadores', icon: UserCheck, label: 'Paseadores de Perros', route: '/servicios-pro?type=walker', color: '#6366f1' },
-                { id: 'cuidadores', icon: Home, label: 'Cuidadores / Pensiones', route: '/servicios-pro?type=sitter', color: '#8b5cf6' },
+                { id: 'paseadores', icon: UserCheck, label: 'Paseadores de Perros', route: '/paseadores', color: '#6366f1' },
+                { id: 'cuidadores', icon: Home, label: 'Cuidadores / Pensiones', route: '/cuidadores', color: '#8b5cf6' },
+                { id: 'petfriendly', icon: MapPin, label: 'Lugares Petfriendly', route: '/petfriendly', color: '#10b981' },
+                { id: 'perdidas', icon: Search, label: 'Mascotas Perdidas', route: '/perdidas', color: '#ef4444' },
                 { id: 'tienda', icon: ShoppingBag, label: 'Tienda de Productos', route: '/tienda', color: '#f43f5e' },
                 { id: 'directorio', icon: Stethoscope, label: 'Directorio Veterinario', route: '/directorio', color: '#06b6d4' },
             ]
@@ -55,8 +57,12 @@ export default function MenuScreen() {
             title: 'Cuenta',
             data: [
                 { id: 'perfil', icon: Users, label: 'Detalles de Perfil', route: '/two', color: theme.text },
+                // Solo mostrar para usuarios que no son profesionales
+                !user?.role_name || user?.role_name === 'consumidor' ? 
+                    { id: 'partner', icon: ShieldAlert, label: 'Convertirse en Partner', route: '/perfil/partner', color: '#7c3aed' } : 
+                    null,
                 { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: theme.textMuted },
-            ]
+            ].filter(Boolean) as any[]
         }
     ].filter(Boolean) as any[];
 

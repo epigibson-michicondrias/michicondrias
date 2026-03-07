@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMyProducts, deleteProduct, updateProduct, Product } from '../../../src/services/ecommerce';
-import Colors from '../../../constants/Colors';
+import { getMyProducts, deleteProduct, updateProduct, Product } from '@/src/services/ecommerce';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Plus, Edit3, Trash2, Eye, EyeOff, Package, Search, Filter, MoreVertical } from 'lucide-react-native';
 
@@ -74,7 +74,7 @@ export default function VendedorProductosScreen() {
                         </Text>
                     </View>
                     <View style={styles.actions}>
-                        <TouchableOpacity style={styles.iconBtn} onPress={() => router.push(`/tienda/vendedor/productos/edit/${item.id}` as any)}>
+                        <TouchableOpacity style={styles.iconBtn} onPress={() => router.push(`/tienda/vendedor/productos/${item.id}` as any)}>
                             <Edit3 size={18} color={theme.textMuted} />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.iconBtn} onPress={() => handleDelete(item.id)}>
@@ -99,7 +99,7 @@ export default function VendedorProductosScreen() {
                 </View>
                 <TouchableOpacity
                     style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/tienda/vendedor/productos/nuevo')}
+                    onPress={() => router.push('/tienda/vendedor/productos/nuevo' as any)}
                 >
                     <Plus size={24} color="#fff" />
                 </TouchableOpacity>

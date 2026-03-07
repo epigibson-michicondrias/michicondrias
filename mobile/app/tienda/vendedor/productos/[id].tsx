@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getProduct, createProduct, updateProduct, getCategories, Category } from '../../../src/services/ecommerce';
-import Colors from '../../../constants/Colors';
+import { getProduct, createProduct, updateProduct, getCategories, Category } from '@/src/services/ecommerce';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Save, Package, Image as ImageIcon, Tag, DollarSign, List, Info, CheckCircle2 } from 'lucide-react-native';
 

@@ -96,7 +96,7 @@ export default function MisCitasScreen() {
                     <View style={[styles.actions, { borderTopColor: 'rgba(255,255,255,0.05)' }]}>
                         <TouchableOpacity
                             style={[styles.actionBtn, styles.rescheduleBtn]}
-                            onPress={() => router.push(`/directorio/citas/agendar/${item.clinic_id}?service_id=${item.service_id}&reschedule_id=${item.id}&pet_id=${item.pet_id}`)}
+                            onPress={() => router.push(`/directorio/citas/agendar/${item.clinic_id}?service_id=${item.service_id}&reschedule_id=${item.id}&pet_id=${item.pet_id}` as any)}
                         >
                             <RefreshCcw size={16} color={theme.text} />
                             <Text style={[styles.actionBtnText, { color: theme.text }]}>Reagendar</Text>

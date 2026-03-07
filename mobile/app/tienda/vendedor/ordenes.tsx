@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getSellerOrders, updateOrderStatus, Order } from '../../../src/services/ecommerce';
-import Colors from '../../../constants/Colors';
+import { getSellerOrders, updateOrderStatus, Order } from '@/src/services/ecommerce';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Package, Clock, Truck, CheckCircle, XCircle, MoreHorizontal, User, MapPin, DollarSign } from 'lucide-react-native';
 
