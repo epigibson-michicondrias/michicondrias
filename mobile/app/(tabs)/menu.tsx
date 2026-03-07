@@ -53,26 +53,26 @@ function AdminStats() {
 
     if (stats.loading) {
         return (
-            <View style={[styles.statsContainer, { backgroundColor: '#f3f4f6' }]}>
+            <View style={[styles.statsContainer, { backgroundColor: '#1f2937' }]}>
                 <View style={styles.statItem}>
-                    <View style={[styles.statIcon, { backgroundColor: '#e5e7eb' }]}>
+                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
                         <Users size={20} color="#9ca3af" />
                     </View>
-                    <Text style={[styles.statNumber, { color: '#6b7280' }]}>--</Text>
+                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>--</Text>
                     <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
                 </View>
                 <View style={styles.statItem}>
-                    <View style={[styles.statIcon, { backgroundColor: '#e5e7eb' }]}>
+                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
                         <Building size={20} color="#9ca3af" />
                     </View>
-                    <Text style={[styles.statNumber, { color: '#6b7280' }]}>--</Text>
+                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>--</Text>
                     <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
                 </View>
                 <View style={styles.statItem}>
-                    <View style={[styles.statIcon, { backgroundColor: '#e5e7eb' }]}>
+                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
                         <Package size={20} color="#9ca3af" />
                     </View>
-                    <Text style={[styles.statNumber, { color: '#6b7280' }]}>--</Text>
+                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>--</Text>
                     <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
                 </View>
             </View>
@@ -80,27 +80,27 @@ function AdminStats() {
     }
 
     return (
-        <View style={[styles.statsContainer, { backgroundColor: '#f8fafc' }]}>
+        <View style={[styles.statsContainer, { backgroundColor: '#1f2937' }]}>
             <View style={styles.statItem}>
-                <View style={[styles.statIcon, { backgroundColor: '#7c3aed20' }]}>
-                    <Users size={20} color="#7c3aed" />
+                <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
+                    <Users size={20} color="#8b5cf6" />
                 </View>
-                <Text style={[styles.statNumber, { color: '#1f2937' }]}>{stats.usuarios.toLocaleString()}</Text>
-                <Text style={[styles.statLabel, { color: '#6b7280' }]}>Usuarios</Text>
+                <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{stats.usuarios.toLocaleString()}</Text>
+                <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Usuarios</Text>
             </View>
             <View style={styles.statItem}>
-                <View style={[styles.statIcon, { backgroundColor: '#10b98120' }]}>
+                <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
                     <Building size={20} color="#10b981" />
                 </View>
-                <Text style={[styles.statNumber, { color: '#1f2937' }]}>{stats.clinicas.toLocaleString()}</Text>
-                <Text style={[styles.statLabel, { color: '#6b7280' }]}>Clínicas</Text>
+                <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{stats.clinicas.toLocaleString()}</Text>
+                <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Clínicas</Text>
             </View>
             <View style={styles.statItem}>
-                <View style={[styles.statIcon, { backgroundColor: '#f59e0b20' }]}>
+                <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
                     <Package size={20} color="#f59e0b" />
                 </View>
-                <Text style={[styles.statNumber, { color: '#1f2937' }]}>{stats.productos.toLocaleString()}</Text>
-                <Text style={[styles.statLabel, { color: '#6b7280' }]}>Productos</Text>
+                <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{stats.productos.toLocaleString()}</Text>
+                <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Productos</Text>
             </View>
         </View>
     );
@@ -195,24 +195,21 @@ export default function MenuScreen() {
                     <View style={styles.headerOverlay}>
                         <View style={styles.profileSection}>
                             <View style={styles.avatarContainer}>
-                                <View style={[styles.avatarRing, { backgroundColor: '#fff', borderColor: theme.primary }]}>
-                                    <Text style={[styles.avatarText, { color: theme.primary }]}>
+                                <View style={[styles.avatarRing, { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }]}>
+                                    <Text style={[styles.avatarText, { color: '#fff' }]}>
                                         {user?.full_name?.charAt(0)?.toUpperCase() || 'A'}
                                     </Text>
-                                </View>
-                                <View style={[styles.crownBadge, { backgroundColor: '#fbbf24' }]}>
-                                    <Crown size={12} color="#fff" />
                                 </View>
                             </View>
                             <View style={styles.profileInfo}>
                                 <Text style={[styles.userName, { color: '#fff' }]}>
                                     {user?.full_name || 'Admin User'}
                                 </Text>
-                                <Text style={[styles.userRole, { color: '#fbbf24' }]}>
-                                    Administrador del Sistema
+                                <Text style={[styles.userRole, { color: 'rgba(255,255,255,0.8)' }]}>
+                                    Administrador
                                 </Text>
-                                <View style={[styles.statusBadge, { backgroundColor: '#10b981' }]}>
-                                    <Text style={[styles.statusText, { color: '#fff' }]}>Activo</Text>
+                                <View style={[styles.statusBadge, { backgroundColor: 'rgba(16,185,129,0.2)' }]}>
+                                    <Text style={[styles.statusText, { color: '#10b981' }]}>Activo</Text>
                                 </View>
                             </View>
                         </View>
@@ -376,13 +373,12 @@ const styles = StyleSheet.create({
     },
     avatarContainer: {
         marginRight: 16,
-        position: 'relative',
     },
     avatarRing: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        borderWidth: 3,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        borderWidth: 2,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -397,8 +393,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatarText: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: '600',
     },
     profileInfo: {
         flex: 1,
