@@ -11,7 +11,7 @@ export const ROLE_IDS = {
     PASEADOR: "ef24d39d-50b6-44f4-8388-e72bf8a949a4",
 } as const;
 
-// Nombres de roles por ID
+// Nombres de roles (usados actualmente por la API)
 export const ROLE_NAMES = {
     [ROLE_IDS.VETERINARIO]: "veterinario",
     [ROLE_IDS.ADMIN]: "admin",
@@ -44,43 +44,51 @@ export const ROLE_COLORS = {
 } as const;
 
 // Funciones helper
-export const getRoleName = (roleId: string): string => {
-    return ROLE_NAMES[roleId as keyof typeof ROLE_NAMES] || "desconocido";
+export const getRoleName = (roleId?: string, roleName?: string): string => {
+    // Priorizar role_name (viene de la API)
+    if (roleName) return roleName;
+    // Fallback a role_id si está disponible
+    if (roleId) return ROLE_NAMES[roleId as keyof typeof ROLE_NAMES] || "desconocido";
+    return "desconocido";
 };
 
-export const getRoleDescription = (roleId: string): string => {
-    const roleName = getRoleName(roleId);
-    return ROLE_DESCRIPTIONS[roleName as keyof typeof ROLE_DESCRIPTIONS] || "Rol no definido";
+export const getRoleDescription = (roleId?: string, roleName?: string): string => {
+    const name = getRoleName(roleId, roleName);
+    return ROLE_DESCRIPTIONS[name as keyof typeof ROLE_DESCRIPTIONS] || "Rol no definido";
 };
 
-export const getRoleEmoji = (roleId: string): string => {
-    const roleName = getRoleName(roleId);
-    return ROLE_EMOJIS[roleName as keyof typeof ROLE_EMOJIS] || "❓";
+export const getRoleEmoji = (roleId?: string, roleName?: string): string => {
+    const name = getRoleName(roleId, roleName);
+    return ROLE_EMOJIS[name as keyof typeof ROLE_EMOJIS] || "❓";
 };
 
-export const getRoleColor = (roleId: string): string => {
-    const roleName = getRoleName(roleId);
-    return ROLE_COLORS[roleName as keyof typeof ROLE_COLORS] || "#6b7280";
+export const getRoleColor = (roleId?: string, roleName?: string): string => {
+    const name = getRoleName(roleId, roleName);
+    return ROLE_COLORS[name as keyof typeof ROLE_COLORS] || "#6b7280";
 };
 
-export const isAdmin = (roleId: string): boolean => {
-    return roleId === ROLE_IDS.ADMIN;
+export const isAdmin = (roleId?: string, roleName?: string): boolean => {
+    const name = getRoleName(roleId, roleName);
+    return name === "admin";
 };
 
-export const isVeterinario = (roleId: string): boolean => {
-    return roleId === ROLE_IDS.VETERINARIO;
+export const isVeterinario = (roleId?: string, roleName?: string): boolean => {
+    const name = getRoleName(roleId, roleName);
+    return name === "veterinario";
 };
 
-export const isConsumidor = (roleId: string): boolean => {
-    return roleId === ROLE_IDS.CONSUMIDOR;
+export const isConsumidor = (roleId?: string, roleName?: string): boolean => {
+    const name = getRoleName(roleId, roleName);
+    return name === "consumidor";
 };
 
-export const isPaseador = (roleId: string): boolean => {
-    return roleId === ROLE_IDS.PASEADOR;
+export const isPaseador = (roleId?: string, roleName?: string): boolean => {
+    const name = getRoleName(roleId, roleName);
+    return name === "paseador";
 };
 
-export const isProfesional = (roleId: string): boolean => {
-    return isVeterinario(roleId) || isPaseador(roleId);
+export const isProfesional = (roleId?: string, roleName?: string): boolean => {
+    return isVeterinario(roleId, roleName) || isPaseador(roleId, roleName);
 };
 
 // Tipo para role_id
