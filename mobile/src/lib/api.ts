@@ -4,8 +4,8 @@ const BASE_URL = "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
 
 const API_URLS = {
     core: `${BASE_URL}/core/api/v1`,
-    adopciones: `${BASE_URL}/adopciones/api/v1/adopciones`,
-    directorio: `${BASE_URL}/directorio/api/v1/directorio`,
+    adopciones: `${BASE_URL}/adopciones/api/v1`,
+    directorio: `${BASE_URL}/directorio/api/v1`,
     carnet: `${BASE_URL}/carnet/api/v1`,
     ecommerce: `${BASE_URL}/ecommerce/api/v1`,
     mascotas: `${BASE_URL}/mascotas/api/v1`,
