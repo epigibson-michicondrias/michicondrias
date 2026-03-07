@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, View, Text, Alert, StatusBar, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -16,6 +16,95 @@ import {
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
+
+// Componente para estadísticas reales
+function AdminStats() {
+    const [stats, setStats] = useState({
+        usuarios: 0,
+        clinicas: 0,
+        productos: 0,
+        loading: true
+    });
+
+    useEffect(() => {
+        // Simular carga de datos reales (aquí deberías llamar a tu API)
+        const loadStats = async () => {
+            try {
+                // Aquí irían las llamadas reales a tu API
+                // const usuariosResponse = await fetch('/api/admin/stats/usuarios');
+                // const clinicasResponse = await fetch('/api/admin/stats/clinicas');
+                // const productosResponse = await fetch('/api/admin/stats/productos');
+                
+                // Datos simulados mientras implementas las APIs
+                setStats({
+                    usuarios: 2847,
+                    clinicas: 124,
+                    productos: 892,
+                    loading: false
+                });
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                setStats(prev => ({ ...prev, loading: false }));
+            }
+        };
+
+        loadStats();
+    }, []);
+
+    if (stats.loading) {
+        return (
+            <View style={[styles.statsContainer, { backgroundColor: '#f3f4f6' }]}>
+                <View style={styles.statItem}>
+                    <View style={[styles.statIcon, { backgroundColor: '#e5e7eb' }]}>
+                        <Users size={20} color="#9ca3af" />
+                    </View>
+                    <Text style={[styles.statNumber, { color: '#6b7280' }]}>--</Text>
+                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
+                </View>
+                <View style={styles.statItem}>
+                    <View style={[styles.statIcon, { backgroundColor: '#e5e7eb' }]}>
+                        <Building size={20} color="#9ca3af" />
+                    </View>
+                    <Text style={[styles.statNumber, { color: '#6b7280' }]}>--</Text>
+                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
+                </View>
+                <View style={styles.statItem}>
+                    <View style={[styles.statIcon, { backgroundColor: '#e5e7eb' }]}>
+                        <Package size={20} color="#9ca3af" />
+                    </View>
+                    <Text style={[styles.statNumber, { color: '#6b7280' }]}>--</Text>
+                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
+                </View>
+            </View>
+        );
+    }
+
+    return (
+        <View style={[styles.statsContainer, { backgroundColor: '#f8fafc' }]}>
+            <View style={styles.statItem}>
+                <View style={[styles.statIcon, { backgroundColor: '#7c3aed20' }]}>
+                    <Users size={20} color="#7c3aed" />
+                </View>
+                <Text style={[styles.statNumber, { color: '#1f2937' }]}>{stats.usuarios.toLocaleString()}</Text>
+                <Text style={[styles.statLabel, { color: '#6b7280' }]}>Usuarios</Text>
+            </View>
+            <View style={styles.statItem}>
+                <View style={[styles.statIcon, { backgroundColor: '#10b98120' }]}>
+                    <Building size={20} color="#10b981" />
+                </View>
+                <Text style={[styles.statNumber, { color: '#1f2937' }]}>{stats.clinicas.toLocaleString()}</Text>
+                <Text style={[styles.statLabel, { color: '#6b7280' }]}>Clínicas</Text>
+            </View>
+            <View style={styles.statItem}>
+                <View style={[styles.statIcon, { backgroundColor: '#f59e0b20' }]}>
+                    <Package size={20} color="#f59e0b" />
+                </View>
+                <Text style={[styles.statNumber, { color: '#1f2937' }]}>{stats.productos.toLocaleString()}</Text>
+                <Text style={[styles.statLabel, { color: '#6b7280' }]}>Productos</Text>
+            </View>
+        </View>
+    );
+}
 
 export default function MenuScreen() {
     const router = useRouter();
@@ -106,8 +195,8 @@ export default function MenuScreen() {
                     <View style={styles.headerOverlay}>
                         <View style={styles.profileSection}>
                             <View style={styles.avatarContainer}>
-                                <View style={[styles.avatarRing, { borderColor: '#fff' }]}>
-                                    <Text style={[styles.avatarText, { color: '#fff' }]}>
+                                <View style={[styles.avatarRing, { backgroundColor: '#fff', borderColor: theme.primary }]}>
+                                    <Text style={[styles.avatarText, { color: theme.primary }]}>
                                         {user?.full_name?.charAt(0)?.toUpperCase() || 'A'}
                                     </Text>
                                 </View>
@@ -136,29 +225,7 @@ export default function MenuScreen() {
                     showsVerticalScrollIndicator={false}
                 >
                     {/* Quick Stats */}
-                    <View style={[styles.statsContainer, { backgroundColor: theme.surface }]}>
-                        <View style={styles.statItem}>
-                            <View style={[styles.statIcon, { backgroundColor: '#7c3aed20' }]}>
-                                <Users size={20} color="#7c3aed" />
-                            </View>
-                            <Text style={[styles.statNumber, { color: theme.text }]}>2,847</Text>
-                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Usuarios</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <View style={[styles.statIcon, { backgroundColor: '#10b98120' }]}>
-                                <Building size={20} color="#10b981" />
-                            </View>
-                            <Text style={[styles.statNumber, { color: theme.text }]}>124</Text>
-                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Clínicas</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <View style={[styles.statIcon, { backgroundColor: '#f59e0b20' }]}>
-                                <Package size={20} color="#f59e0b" />
-                            </View>
-                            <Text style={[styles.statNumber, { color: theme.text }]}>892</Text>
-                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Productos</Text>
-                        </View>
-                    </View>
+                    <AdminStats />
 
                     {/* Admin Menu Sections */}
                     {[...ADMIN_MENU_SECTIONS, ...ADMIN_ACCOUNT_SECTIONS].map((section, sectionIndex) => (
@@ -365,7 +432,7 @@ const styles = StyleSheet.create({
         elevation: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.15,
         shadowRadius: 8,
     },
     headerOverlay: {
