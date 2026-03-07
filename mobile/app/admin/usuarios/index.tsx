@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { adminUsersService, AdminUser, UserStats } from '../../../src/services/adminUsers';
 import {
     Users,
     ChevronLeft,
@@ -29,16 +30,8 @@ import {
 
 const { width } = Dimensions.get('window');
 
-interface User {
-    id: string;
-    full_name: string;
-    email: string;
-    phone?: string;
-    role: string;
-    is_active: boolean;
-    created_at: string;
-    last_login?: string;
-    clinic_id?: string;
+interface User extends AdminUser {
+    // La interfaz AdminUser ya contiene todos los campos necesarios
 }
 
 export default function AdminUsersScreen() {
@@ -49,65 +42,22 @@ export default function AdminUsersScreen() {
     const [searchText, setSearchText] = useState('');
     const [filterRole, setFilterRole] = useState('all');
 
-    // Mock data - reemplazar con API real
+    // API real de usuarios
     const { data: users = [], isLoading } = useQuery({
         queryKey: ['admin-users'],
-        queryFn: async () => [
-            {
-                id: '1',
-                full_name: 'Dr. Juan Pérez',
-                email: 'juan.perez@veterinaria.com',
-                phone: '+1 234 567 8901',
-                role: 'ADMIN',
-                is_active: true,
-                created_at: '2024-01-15T10:30:00Z',
-                last_login: '2024-03-06T14:25:00Z',
-                clinic_id: 'clinic-1'
-            },
-            {
-                id: '2',
-                full_name: 'Dra. María González',
-                email: 'maria.gonzalez@veterinaria.com',
-                phone: '+1 234 567 8902',
-                role: 'VETERINARIAN',
-                is_active: true,
-                created_at: '2024-02-20T09:15:00Z',
-                last_login: '2024-03-06T08:30:00Z',
-                clinic_id: 'clinic-2'
-            },
-            {
-                id: '3',
-                full_name: 'Lic. Carlos Rodríguez',
-                email: 'carlos.rodriguez@veterinaria.com',
-                phone: '+1 234 567 8903',
-                role: 'RECEPCIONIST',
-                is_active: false,
-                created_at: '2024-01-10T16:45:00Z',
-                last_login: '2024-03-05T16:20:00Z',
-                clinic_id: 'clinic-1'
-            },
-            {
-                id: '4',
-                full_name: 'Ana Martínez',
-                email: 'ana.martinez@veterinaria.com',
-                phone: '+1 234 567 8904',
-                role: 'USER',
-                is_active: true,
-                created_at: '2024-03-01T11:30:00Z',
-                last_login: '2024-03-06T12:15:00Z',
-                clinic_id: 'clinic-3'
-            }
-        ]
+        queryFn: () => adminUsersService.getUsers(),
     });
 
     const toggleUserStatus = useMutation({
-        mutationFn: async ({ userId, isActive }: { userId: string, isActive: boolean }) => {
-            // Mock API call - reemplazar con API real
-            await new Promise(resolve => setTimeout(resolve, 500));
-            Alert.alert("Éxito", `Usuario ${isActive ? 'activado' : 'desactivado'} correctamente.`);
+        mutationFn: async (userId: string) => {
+            return adminUsersService.toggleUserStatus(userId);
         },
-        onSuccess: () => {
+        onSuccess: (data, variables) => {
+            Alert.alert("Éxito", `Usuario ${data.is_active ? 'activado' : 'desactivado'} correctamente.`);
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+        },
+        onError: (error: any) => {
+            Alert.alert("Error", error.message || "No se pudo cambiar el estado del usuario");
         }
     });
 
@@ -122,23 +72,25 @@ export default function AdminUsersScreen() {
                         text: "Eliminar",
                         style: "destructive",
                         onPress: async () => {
-                            // Mock API call - reemplazar con API real
-                            await new Promise(resolve => setTimeout(resolve, 500));
-                            Alert.alert("Éxito", "Usuario eliminado correctamente.");
+                            return adminUsersService.deleteUser(userId);
                         }
                     }
                 ]
             );
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            Alert.alert("Éxito", "Usuario eliminado correctamente.");
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+        },
+        onError: (error: any) => {
+            Alert.alert("Error", error.message || "No se pudo eliminar el usuario");
         }
     });
 
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.full_name.toLowerCase().includes(searchText.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchText.toLowerCase());
-        const matchesRole = filterRole === 'all' || user.role === filterRole;
+        const matchesRole = filterRole === 'all' || user.role_name === filterRole;
         return matchesSearch && matchesRole;
     });
 
@@ -172,9 +124,9 @@ export default function AdminUsersScreen() {
                     <Text style={[styles.userName, { color: theme.text }]}>{item.full_name}</Text>
                     <Text style={[styles.userEmail, { color: theme.textMuted }]}>{item.email}</Text>
                     <View style={styles.userMeta}>
-                        <View style={[styles.roleBadge, { backgroundColor: getRoleColor(item.role) + '20' }]}>
-                            <Text style={[styles.roleText, { color: getRoleColor(item.role) }]}>
-                                {getRoleLabel(item.role)}
+                        <View style={[styles.roleBadge, { backgroundColor: getRoleColor(item.role_name || 'USER') + '20' }]}>
+                            <Text style={[styles.roleText, { color: getRoleColor(item.role_name || 'USER') }]}>
+                                {getRoleLabel(item.role_name || 'USER')}
                             </Text>
                         </View>
                         <View style={[styles.statusBadge, { backgroundColor: item.is_active ? '#10b98120' : '#ef444420' }]}>
@@ -199,7 +151,7 @@ export default function AdminUsersScreen() {
                 
                 <TouchableOpacity
                     style={[styles.actionButton, styles.statusButton]}
-                    onPress={() => toggleUserStatus.mutate({ userId: item.id, isActive: !item.is_active })}
+                    onPress={() => toggleUserStatus.mutate(item.id)}
                     disabled={toggleUserStatus.isPending}
                 >
                     {item.is_active ? <EyeOff size={14} color={theme.textMuted} /> : <Eye size={14} color={theme.primary} />}

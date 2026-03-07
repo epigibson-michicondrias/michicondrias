@@ -287,3 +287,71 @@ def verify_user_kyc(
     db.commit()
     db.refresh(user)
     return _add_kyc_presigned_urls(user)
+
+@router.post("/{user_id}/toggle-status", response_model=UserResponse)
+def toggle_user_status(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.require_role("admin")),
+) -> Any:
+    """
+    Toggle user active/inactive status. (Admin only)
+    """
+    user = crud.crud_user.get_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    user.is_active = not user.is_active
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return _add_kyc_presigned_urls(user)
+
+@router.delete("/{user_id}", response_model=dict)
+def delete_user(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.require_role("admin")),
+) -> Any:
+    """
+    Delete a user. (Admin only)
+    """
+    user = crud.crud_user.remove_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    return {"message": "Usuario eliminado correctamente", "user_id": user_id}
+
+@router.get("/stats/summary", response_model=dict)
+def get_users_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.require_role("admin")),
+) -> Any:
+    """
+    Get users statistics summary. (Admin only)
+    """
+    total_users = crud.crud_user.count_total_users(db)
+    active_users = db.query(User).filter(User.is_active == True).count()
+    
+    # Count by roles
+    from app.models.role import Role
+    roles = db.query(Role).all()
+    role_stats = {}
+    for role in roles:
+        role_stats[role.name] = crud.crud_user.count_users_by_role(db, role.id)
+    
+    # Count by verification status
+    pending_verifications = crud.crud_user.count_users_by_status(db, "PENDING")
+    verified_users = crud.crud_user.count_users_by_status(db, "VERIFIED")
+    
+    return {
+        "total_users": total_users,
+        "active_users": active_users,
+        "inactive_users": total_users - active_users,
+        "role_distribution": role_stats,
+        "verification_status": {
+            "pending": pending_verifications,
+            "verified": verified_users,
+            "rejected": crud.crud_user.count_users_by_status(db, "REJECTED")
+        }
+    }
