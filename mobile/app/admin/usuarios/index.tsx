@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Dimensions, FlatList, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Dimensions, FlatList, TextInput, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Colors from '@/constants/Colors';
@@ -137,7 +137,7 @@ export default function AdminUsersScreen() {
                     </View>
                 </View>
                 <TouchableOpacity style={styles.moreButton}>
-                    <MoreVertical size={16} color={theme.textMuted} />
+                    <MoreVertical size={14} color={theme.textMuted} />
                 </TouchableOpacity>
             </View>
 
@@ -146,7 +146,7 @@ export default function AdminUsersScreen() {
                     style={[styles.actionButton, styles.editButton, { borderColor: theme.primary }]}
                     onPress={() => Alert.alert("Editar", "Función de edición de usuario - en desarrollo")}
                 >
-                    <Edit size={14} color={theme.primary} />
+                    <Edit size={12} color={theme.primary} />
                 </TouchableOpacity>
                 
                 <TouchableOpacity
@@ -154,7 +154,7 @@ export default function AdminUsersScreen() {
                     onPress={() => toggleUserStatus.mutate(item.id)}
                     disabled={toggleUserStatus.isPending}
                 >
-                    {item.is_active ? <EyeOff size={14} color={theme.textMuted} /> : <Eye size={14} color={theme.primary} />}
+                    {item.is_active ? <EyeOff size={12} color={theme.textMuted} /> : <Eye size={12} color={theme.primary} />}
                 </TouchableOpacity>
                 
                 <TouchableOpacity
@@ -162,7 +162,7 @@ export default function AdminUsersScreen() {
                     onPress={() => deleteUser.mutate(item.id)}
                     disabled={deleteUser.isPending}
                 >
-                    <Trash2 size={14} color="#ef4444" />
+                    <Trash2 size={12} color="#ef4444" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -170,30 +170,32 @@ export default function AdminUsersScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
+            <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
+            
+            {/* Header Premium */}
+            <View style={[styles.premiumHeader, { backgroundColor: theme.primary }]}>
                 <View style={styles.headerContent}>
-                    <Users size={32} color={theme.primary} />
-                    <View style={styles.headerText}>
-                        <View style={styles.headerText}>
-                        <Text style={[styles.title, { color: theme.text }]}>Gestión de Usuarios</Text>
-                        <Text style={[styles.subtitle, { color: theme.textMuted }]}>Administra usuarios, roles y permisos del sistema</Text>
+                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                        <ChevronLeft size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <View style={styles.headerInfo}>
+                        <Text style={styles.title}>Gestión de Usuarios</Text>
+                        <Text style={styles.subtitle}>Administra usuarios, roles y permisos del sistema</Text>
                     </View>
+                    <View style={styles.headerIcon}>
+                        <Users size={28} color="#fff" />
                     </View>
                 </View>
             </View>
 
-            {/* Search and Filters */}
+            {/* Search and Filters Premium */}
             <View style={styles.searchSection}>
-                <View style={[styles.searchContainer, { backgroundColor: theme.surface }]}>
-                    <Search size={20} color={theme.textMuted} style={styles.searchIcon} />
+                <View style={[styles.searchContainer, { backgroundColor: '#1f2937' }]}>
+                    <Search size={16} color="#9ca3af" style={styles.searchIcon} />
                     <TextInput
-                        style={[styles.searchInput, { color: theme.text }]}
+                        style={[styles.searchInput, { color: '#f3f4f6' }]}
                         placeholder="Buscar usuarios..."
-                        placeholderTextColor={theme.textMuted}
+                        placeholderTextColor="#6b7280"
                         value={searchText}
                         onChangeText={setSearchText}
                     />
@@ -205,13 +207,13 @@ export default function AdminUsersScreen() {
                             key={role}
                             style={[
                                 styles.filterChip,
-                                filterRole === role && { backgroundColor: theme.primary }
+                                filterRole === role && styles.filterChipActive
                             ]}
                             onPress={() => setFilterRole(role)}
                         >
                             <Text style={[
                                 styles.filterText,
-                                { color: filterRole === role ? '#fff' : theme.textMuted }
+                                filterRole === role && styles.filterTextActive
                             ]}>
                                 {role === 'all' ? 'Todos' : getRoleLabel(role)}
                             </Text>
@@ -220,27 +222,29 @@ export default function AdminUsersScreen() {
                 </ScrollView>
             </View>
 
-            {/* Stats Cards */}
+            {/* Stats Section Premium */}
             <View style={styles.statsSection}>
-                <View style={[styles.statCard, { backgroundColor: theme.surface }]}>
-                    <Users size={24} color={theme.primary} />
-                    <View style={styles.statContent}>
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{users.length}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Total Usuarios</Text>
+                <View style={[styles.statCard, { backgroundColor: '#1f2937' }]}>
+                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
+                        <Users size={18} color="#8b5cf6" />
                     </View>
+                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{users.length}</Text>
+                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Total</Text>
                 </View>
-                <View style={[styles.statCard, { backgroundColor: theme.surface }]}>
-                    <ShieldCheck size={24} color="#10b981" />
-                    <View style={styles.statContent}>
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{users.filter(u => u.is_active).length}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Activos</Text>
+                <View style={[styles.statCard, { backgroundColor: '#1f2937' }]}>
+                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
+                        <ShieldCheck size={18} color="#10b981" />
                     </View>
+                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{users.filter(u => u.is_active).length}</Text>
+                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Activos</Text>
                 </View>
-                <View style={[styles.statCard, { backgroundColor: theme.surface }]}>
-                    <Plus size={24} color={theme.primary} />
+                <View style={[styles.statCard, { backgroundColor: '#1f2937' }]}>
+                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
+                        <Plus size={18} color="#3b82f6" />
+                    </View>
                     <TouchableOpacity style={styles.statContent} onPress={() => Alert.alert("Nuevo Usuario", "Función de creación de usuario - en desarrollo")}>
-                        <Text style={[styles.statNumber, { color: theme.primary }]}>+</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Nuevo Usuario</Text>
+                        <Text style={[styles.statNumber, { color: '#3b82f6' }]}>+</Text>
+                        <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Nuevo</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -272,187 +276,228 @@ export default function AdminUsersScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: {
+    container: { 
+        flex: 1 
+    },
+    premiumHeader: {
+        paddingTop: 50,
+        paddingHorizontal: 16,
+        paddingBottom: 20,
+        borderBottomLeftRadius: 16,
+        borderBottomRightRadius: 16,
+        elevation: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+    },
+    headerContent: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 24,
-        backgroundColor: 'rgba(0,0,0,0.02)',
     },
     backBtn: {
-        width: 44,
-        height: 44,
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerInfo: {
+        flex: 1,
+        marginLeft: 12,
+        marginRight: 12,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#fff',
+        marginBottom: 2,
+    },
+    subtitle: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.7)',
+        fontWeight: '500',
+    },
+    headerIcon: {
+        width: 48,
+        height: 48,
         borderRadius: 12,
         backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    headerContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    headerText: {
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '900',
-        color: '#fff',
-    },
-    subtitle: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: 'rgba(255,255,255,0.8)',
-    },
     searchSection: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        marginBottom: 20,
-        gap: 12,
+        paddingHorizontal: 16,
+        marginBottom: 12,
+        gap: 10,
     },
     searchContainer: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 10,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 2,
     },
     searchIcon: {
-        marginRight: 12,
+        marginRight: 8,
     },
     searchInput: {
         flex: 1,
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '500',
     },
     filterScroll: {
-        maxWidth: width * 0.4,
+        maxWidth: width * 0.35,
     },
     filterChip: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        marginRight: 8,
+        borderColor: '#374151',
+        marginRight: 6,
+        backgroundColor: '#1f2937',
+    },
+    filterChipActive: {
+        backgroundColor: '#3b82f6',
+        borderColor: '#3b82f6',
     },
     filterText: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: '600',
+        color: '#9ca3af',
+    },
+    filterTextActive: {
+        color: '#fff',
     },
     statsSection: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        marginBottom: 20,
-        gap: 12,
+        paddingHorizontal: 16,
+        marginBottom: 16,
+        gap: 10,
     },
     statCard: {
         flex: 1,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: 16,
-        padding: 16,
+        borderRadius: 12,
+        padding: 12,
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    statIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    statNumber: {
+        fontSize: 16,
+        fontWeight: '700',
+        marginBottom: 2,
+    },
+    statLabel: {
+        fontSize: 10,
+        fontWeight: '500',
     },
     statContent: {
         alignItems: 'center',
-        gap: 4,
-    },
-    statNumber: {
-        fontSize: 20,
-        fontWeight: '900',
-        color: '#fff',
-    },
-    statLabel: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: 'rgba(255,255,255,0.8)',
     },
     usersList: {
-        paddingHorizontal: 24,
+        paddingHorizontal: 16,
         paddingBottom: 40,
     },
     userCard: {
-        backgroundColor: 'rgba(255,255,255,0.05)',
         borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
+        padding: 12,
+        marginBottom: 10,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: 'rgba(0,0,0,0.05)',
     },
     userHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 12,
     },
     avatar: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         backgroundColor: '#3b82f6',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
     },
     avatarText: {
-        fontSize: 18,
-        fontWeight: '800',
+        fontSize: 16,
+        fontWeight: '700',
         color: '#fff',
     },
     userInfo: {
         flex: 1,
     },
     userName: {
-        fontSize: 16,
-        fontWeight: '800',
-        marginBottom: 4,
+        fontSize: 15,
+        fontWeight: '700',
+        marginBottom: 2,
     },
     userEmail: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: '500',
     },
     userMeta: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 6,
+        marginTop: 6,
     },
     roleBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
     },
     roleText: {
-        fontSize: 10,
-        fontWeight: '800',
+        fontSize: 9,
+        fontWeight: '700',
     },
     statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
     },
     statusText: {
-        fontSize: 9,
-        fontWeight: '800',
+        fontSize: 8,
+        fontWeight: '700',
     },
     moreButton: {
         padding: 4,
     },
     userActions: {
         flexDirection: 'row',
-        gap: 8,
+        gap: 6,
+        marginTop: 12,
     },
     actionButton: {
-        width: 36,
-        height: 36,
+        width: 32,
+        height: 32,
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
