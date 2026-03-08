@@ -8,8 +8,10 @@ import { getCriticalPatients } from '../../src/services/patients';
 import { getClinicAlerts } from '../../src/services/alerts';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, PlusCircle, ChevronRight, MapPin, Star, Clock } from 'lucide-react-native';
+import { ChevronLeft, Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, PlusCircle, ChevronRight, MapPin, Star, Clock, Heart } from 'lucide-react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +20,7 @@ export default function MiClinicaScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
     const { user } = useAuth();
+    const insets = useSafeAreaInsets();
 
     const { data: clinics = [], isLoading: loadingClinics } = useQuery({
         queryKey: ['my-clinics'],
@@ -90,11 +93,16 @@ export default function MiClinicaScreen() {
     if (!clinic) {
         return (
             <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Mi Clínica</Text>
+                <View style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}>
+                    <View style={styles.headerTop}>
+                        <TouchableOpacity style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} onPress={() => router.back()}>
+                            <ChevronLeft size={22} color="#fff" />
+                        </TouchableOpacity>
+                        <View style={styles.headerInfo}>
+                            <Text style={styles.title}>Mi Clínica</Text>
+                        </View>
+                        <View style={{ width: 44 }} />
+                    </View>
                 </View>
                 <View style={styles.emptyContainer}>
                     <Stethoscope size={80} color={theme.textMuted} strokeWidth={1} />
@@ -115,57 +123,81 @@ export default function MiClinicaScreen() {
     }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>{clinic.name}</Text>
-                    <View style={styles.locationRow}>
-                        <MapPin size={12} color={theme.textMuted} />
-                        <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>{clinic.city || 'Ubicación no definida'}</Text>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            {/* Header Premium */}
+            <LinearGradient
+                colors={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
+                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
+            >
+                <View style={styles.headerTop}>
+                    <TouchableOpacity 
+                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        onPress={() => router.back()}
+                    >
+                        <ChevronLeft size={22} color="#fff" />
+                    </TouchableOpacity>
+                    <View style={styles.headerInfo}>
+                        <Text style={styles.title}>{clinic.name}</Text>
+                        <View style={styles.badgeContainer}>
+                            <View style={styles.liveDot} />
+                            <Text style={styles.subtitle}>{clinic.city || 'Sede Central'}</Text>
+                        </View>
                     </View>
+                    <TouchableOpacity 
+                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        onPress={() => router.push(`/mi-clinica/config/${clinic.id}` as any)}
+                    >
+                        <Settings size={22} color="#fff" />
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={[styles.configBtn, { backgroundColor: theme.surface }]} onPress={() => router.push(`/mi-clinica/config/${clinic.id}` as any)}>
-                    <Settings size={20} color={theme.text} />
-                </TouchableOpacity>
-            </View>
+            </LinearGradient>
+
+            <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
 
             <View style={styles.content}>
                 {/* Clinic Profile Quick View */}
-                <View style={[styles.profileCard, { backgroundColor: theme.surface }]}>
+                <View style={[styles.profileCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <Image
                         source={{ uri: clinic.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=400' }}
                         style={styles.clinicLogo}
                     />
                     <View style={styles.profileInfo}>
                         <View style={styles.statusBox}>
-                            <View style={[styles.statusBadge, { backgroundColor: clinic.is_approved ? '#10b98120' : '#f59e0b20' }]}>
+                            <View style={[styles.statusBadge, { backgroundColor: clinic.is_approved ? '#10b98115' : '#f59e0b15' }]}>
                                 <Text style={[styles.statusText, { color: clinic.is_approved ? '#10b981' : '#f59e0b' }]}>
-                                    {clinic.is_approved ? '✓ Clínica Verificada' : '⏳ Pendiente de Aprobación'}
+                                    {clinic.is_approved ? '✓ VERIFICADA' : '⏳ PENDIENTE'}
                                 </Text>
                             </View>
                         </View>
-                        <View style={styles.ratingRow}>
-                            <Star size={14} color="#facc15" fill="#facc15" />
-                            <Text style={[styles.ratingText, { color: theme.text }]}>Premium Provider</Text>
-                        </View>
+                        <Text style={[styles.ratingText, { color: theme.text, fontSize: 14, fontWeight: '800' }]}>Clínica Asociada</Text>
                     </View>
                 </View>
 
-                {/* Stats Grid */}
+                {/* Stats Grid Refined */}
                 <View style={styles.statsGrid}>
-                    <TouchableOpacity style={[styles.statItem, { backgroundColor: theme.surface }]} onPress={() => router.push('/mi-clinica/agenda' as any)}>
-                        <Calendar size={24} color={theme.primary} />
-                        <Text style={[styles.statValue, { color: theme.text }]}>{todayAppointments.length}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Citas Hoy</Text>
+                    <TouchableOpacity 
+                        style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]} 
+                        onPress={() => router.push('/mi-clinica/agenda' as any)}
+                    >
+                        <View style={[styles.statIconBox, { backgroundColor: theme.primary + '15' }]}>
+                            <Calendar size={20} color={theme.primary} />
+                        </View>
+                        <View>
+                            <Text style={[styles.statValue, { color: theme.text }]}>{todayAppointments.length}</Text>
+                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Citas hoy</Text>
+                        </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.statItem, { backgroundColor: theme.surface }]} onPress={() => router.push('/mi-clinica/agenda' as any)}>
-                        <Activity size={24} color="#f59e0b" />
-                        <Text style={[styles.statValue, { color: theme.text }]}>{pendingAppointments.length}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Por Confirmar</Text>
+                    <TouchableOpacity 
+                        style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]} 
+                        onPress={() => router.push('/mi-clinica/agenda' as any)}
+                    >
+                        <View style={[styles.statIconBox, { backgroundColor: '#f59e0b15' }]}>
+                            <Activity size={20} color="#f59e0b" />
+                        </View>
+                        <View>
+                            <Text style={[styles.statValue, { color: theme.text }]}>{pendingAppointments.length}</Text>
+                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Pendientes</Text>
+                        </View>
                     </TouchableOpacity>
                 </View>
 
@@ -253,45 +285,128 @@ export default function MiClinicaScreen() {
                     ))
                 )}
             </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 20, fontWeight: '900' },
-    locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
-    headerSubtitle: { fontSize: 12, fontWeight: '600' },
-    configBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    content: { paddingHorizontal: 24, paddingBottom: 100 },
-    profileCard: { flexDirection: 'row', padding: 20, borderRadius: 28, alignItems: 'center', gap: 20, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    clinicLogo: { width: 70, height: 70, borderRadius: 35, borderWidth: 3, borderColor: '#7c3aed' },
-    profileInfo: { flex: 1, gap: 6 },
+    premiumHeader: { 
+        paddingHorizontal: 24, 
+        paddingBottom: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        zIndex: 10,
+    },
+    headerTop: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+    },
+    backBtn: { 
+        width: 44, 
+        height: 44, 
+        borderRadius: 14, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    headerInfo: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    headerAction: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    title: { 
+        fontSize: 18, 
+        fontWeight: '900', 
+        color: '#fff', 
+        letterSpacing: -0.5 
+    },
+    badgeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 2,
+    },
+    liveDot: { 
+        width: 6, 
+        height: 6, 
+        borderRadius: 3, 
+        backgroundColor: '#10b981' 
+    },
+    subtitle: { 
+        fontSize: 11, 
+        fontWeight: '700', 
+        color: 'rgba(255,255,255,0.8)',
+    },
+    contentScroll: {
+        flex: 1,
+    },
+    content: { 
+        paddingHorizontal: 24, 
+        paddingTop: 24,
+        paddingBottom: 100 
+    },
+    profileCard: { 
+        flexDirection: 'row', 
+        padding: 16, 
+        borderRadius: 24, 
+        alignItems: 'center', 
+        gap: 16, 
+        marginBottom: 24, 
+        borderWidth: 1, 
+    },
+    clinicLogo: { width: 60, height: 60, borderRadius: 30 },
+    profileInfo: { flex: 1, gap: 4 },
     statusBox: { flexDirection: 'row', alignItems: 'center' },
-    statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start' },
-    statusText: { fontSize: 10, fontWeight: '800' },
+    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' },
+    statusText: { fontSize: 10, fontWeight: '900' },
     ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     ratingText: { fontSize: 12, fontWeight: '700' },
-    statsGrid: { flexDirection: 'row', gap: 16, marginBottom: 32 },
-    statItem: { flex: 1, padding: 20, borderRadius: 24, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    statValue: { fontSize: 22, fontWeight: '900' },
-    statLabel: { fontSize: 11, fontWeight: '700' },
-    sectionTitle: { fontSize: 18, fontWeight: '900', marginBottom: 20 },
-    menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginBottom: 32 },
-    menuItem: { width: (width - 64) / 2, padding: 20, borderRadius: 28, gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    iconBox: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    menuLabel: { fontSize: 16, fontWeight: '800' },
-    menuSub: { fontSize: 12, fontWeight: '600' },
-    activityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    statsGrid: { flexDirection: 'row', gap: 12, marginBottom: 32 },
+    statItem: { 
+        flex: 1, 
+        flexDirection: 'row',
+        padding: 16, 
+        borderRadius: 20, 
+        alignItems: 'center', 
+        gap: 12, 
+        borderWidth: 1, 
+    },
+    statIconBox: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    statValue: { fontSize: 18, fontWeight: '900' },
+    statLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+    sectionTitle: { fontSize: 14, fontWeight: '900', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 },
+    menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 32 },
+    menuItem: { 
+        width: (width - 60) / 2, 
+        padding: 16, 
+        borderRadius: 24, 
+        gap: 12, 
+        borderWidth: 1, 
+    },
+    iconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    menuLabel: { fontSize: 15, fontWeight: '800' },
+    menuSub: { fontSize: 11, fontWeight: '600' },
+    activityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
     emptyRecent: { padding: 30, borderRadius: 24, alignItems: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.1)' },
-    activityItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 20, gap: 16, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    apptIcon: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+    activityItem: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 20, gap: 14, marginBottom: 10, borderWidth: 1 },
+    apptIcon: { width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
     apptInfo: { flex: 1, gap: 2 },
-    apptTitle: { fontSize: 15, fontWeight: '800' },
-    apptSub: { fontSize: 12, fontWeight: '600' },
+    apptTitle: { fontSize: 14, fontWeight: '800' },
+    apptSub: { fontSize: 11, fontWeight: '600' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40, gap: 20, marginTop: 100 },
     emptyTitle: { fontSize: 20, fontWeight: '900', textAlign: 'center' },

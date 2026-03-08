@@ -1,11 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { getAdminAnalytics, AnalyticsMetrics } from '../../src/services/analytics';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import Colors from '../../constants/Colors';
+import { useQuery } from '@tanstack/react-query';
+import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Users, ShieldCheck, Activity, BarChart2 } from 'lucide-react-native';
+import { getAdminAnalytics } from '@/src/services/analytics';
+import { ChevronLeft, Users, ShieldCheck, Activity, BarChart2, TrendingUp, Calendar } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -13,9 +15,9 @@ export default function AdminStatsScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
-
+    const insets = useSafeAreaInsets();
     const { data: metrics, isLoading } = useQuery({
-        queryKey: ['admin-stats'],
+        queryKey: ['admin-analytics'],
         queryFn: getAdminAnalytics,
     });
 
@@ -23,6 +25,7 @@ export default function AdminStatsScreen() {
         return (
             <View style={[styles.center, { backgroundColor: theme.background }]}>
                 <ActivityIndicator size="large" color={theme.primary} />
+                <Text style={[styles.loadingText, { color: theme.textMuted, marginTop: 16 }]}>Compilando datos...</Text>
             </View>
         );
     }
@@ -31,15 +34,30 @@ export default function AdminStatsScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View>
-                    <Text style={[styles.title, { color: theme.text }]}>Métricas</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Resumen global de plataforma</Text>
+            {/* Header Premium */}
+            <LinearGradient
+                colors={['#3b82f6', '#3b82f6E6', '#3b82f6CC']}
+                style={[styles.header, { paddingTop: insets.top + 12 }]}
+            >
+                <View style={styles.headerTop}>
+                    <TouchableOpacity 
+                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        onPress={() => router.back()}
+                    >
+                        <ChevronLeft size={22} color="#fff" />
+                    </TouchableOpacity>
+                    <View style={styles.headerInfo}>
+                        <Text style={styles.title}>Estadísticas</Text>
+                        <View style={styles.badgeContainer}>
+                            <View style={styles.liveDot} />
+                            <Text style={styles.subtitle}>Métricas en Tiempo Real</Text>
+                        </View>
+                    </View>
+                    <View style={styles.headerAction}>
+                        <TrendingUp size={22} color="#fff" style={{ opacity: 0.8 }} />
+                    </View>
                 </View>
-            </View>
+            </LinearGradient>
 
             <ScrollView contentContainerStyle={styles.scroll}>
                 <View style={styles.grid}>
@@ -49,17 +67,28 @@ export default function AdminStatsScreen() {
                     <StatCard label="Admins" value={kpis.system_admins} icon={<BarChart2 size={20} color="#3b82f6" />} color="#3b82f6" theme={theme} />
                 </View>
 
-                <View style={[styles.chartBox, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Distribución de Roles</Text>
+                <View style={[styles.chartBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <View style={styles.sectionHeader}>
+                        <BarChart2 size={20} color={theme.primary} />
+                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Distribución de Roles</Text>
+                    </View>
                     {Object.entries(role_distribution).map(([role, count]) => (
                         <View key={role} style={styles.roleItem}>
                             <View style={styles.roleInfo}>
                                 <Text style={[styles.roleName, { color: theme.text }]}>{role.toUpperCase()}</Text>
-                                <Text style={[styles.roleCount, { color: theme.textMuted }]}>{count}</Text>
+                                <Text style={[styles.rolePercentage, { color: theme.primary }]}>
+                                    {((count / kpis.total_users) * 100).toFixed(1)}%
+                                </Text>
                             </View>
-                            <View style={[styles.progressBar, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
-                                <View style={[styles.progressFill, { width: `${(count / kpis.total_users) * 100}%`, backgroundColor: theme.primary }]} />
+                            <View style={[styles.progressBar, { backgroundColor: theme.background }]}>
+                                <LinearGradient
+                                    colors={[theme.primary, theme.primary + '88']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={[styles.progressFill, { width: `${Math.max((count / kpis.total_users) * 100, 5)}%` }]}
+                                />
                             </View>
+                            <Text style={[styles.roleCount, { color: theme.textMuted }]}>{count} usuarios registrados</Text>
                         </View>
                     ))}
                 </View>
@@ -70,114 +99,176 @@ export default function AdminStatsScreen() {
 
 function StatCard({ label, value, icon, color, theme }: any) {
     return (
-        <View style={[styles.card, { backgroundColor: theme.surface }]}>
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>{icon}</View>
-            <Text style={[styles.cardValue, { color: theme.text }]}>{value}</Text>
-            <Text style={[styles.cardLabel, { color: theme.textMuted }]}>{label}</Text>
+            <View>
+                <Text style={[styles.cardValue, { color: theme.text }]}>{value}</Text>
+                <Text style={[styles.cardLabel, { color: theme.textMuted }]}>{label.toUpperCase()}</Text>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    container: { flex: 1 },
+    center: { 
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        padding: 40,
     },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
+    loadingText: { 
+        fontSize: 14, 
+        fontWeight: '700', 
+        letterSpacing: 0.5 
+    },
+    header: { 
+        paddingHorizontal: 24, 
+        paddingBottom: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        zIndex: 10,
+    },
+    headerTop: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
         alignItems: 'center',
     },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 24,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
+    backBtn: { 
+        width: 44, 
+        height: 44, 
+        borderRadius: 14, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
     },
-    backBtn: {
+    headerInfo: {
+        flex: 1,
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    headerAction: {
         width: 44,
         height: 44,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    title: {
-        fontSize: 24,
-        fontWeight: '900',
+    title: { 
+        fontSize: 18, 
+        fontWeight: '900', 
+        color: '#fff', 
+        letterSpacing: -0.5 
     },
-    subtitle: {
-        fontSize: 13,
-    },
-    scroll: {
-        padding: 24,
-        gap: 24,
-    },
-    grid: {
+    badgeContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 16,
-    },
-    card: {
-        width: (width - 64) / 2,
-        padding: 20,
-        borderRadius: 24,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
-    },
-    iconBox: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        justifyContent: 'center',
         alignItems: 'center',
+        gap: 6,
+        marginTop: 2,
+    },
+    liveDot: { 
+        width: 6, 
+        height: 6, 
+        borderRadius: 3, 
+        backgroundColor: '#10b981' 
+    },
+    subtitle: { 
+        fontSize: 12, 
+        fontWeight: '700', 
+        color: 'rgba(255,255,255,0.8)',
+    },
+    scroll: { 
+        padding: 20, 
+        paddingBottom: 60, 
+        paddingTop: 12,
+        gap: 24 
+    },
+    grid: { 
+        flexDirection: 'row', 
+        flexWrap: 'wrap', 
+        gap: 16 
+    },
+    card: { 
+        width: (width - 56) / 2, 
+        padding: 20, 
+        borderRadius: 28, 
+        borderWidth: 1,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+    },
+    iconBox: { 
+        width: 48, 
+        height: 48, 
+        borderRadius: 16, 
+        justifyContent: 'center', 
+        alignItems: 'center', 
         marginBottom: 16,
+        elevation: 2,
     },
-    cardValue: {
-        fontSize: 22,
-        fontWeight: '900',
-        marginBottom: 4,
+    cardValue: { 
+        fontSize: 26, 
+        fontWeight: '900', 
+        letterSpacing: -0.5 
     },
-    cardLabel: {
-        fontSize: 12,
-        fontWeight: '700',
+    cardLabel: { 
+        fontSize: 10, 
+        fontWeight: '800', 
+        marginTop: 4, 
+        letterSpacing: 1 
     },
-    chartBox: {
-        padding: 24,
-        borderRadius: 32,
+    chartBox: { 
+        padding: 24, 
+        borderRadius: 32, 
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
     },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        marginBottom: 24,
+    sectionHeader: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        gap: 12, 
+        marginBottom: 28 
     },
-    roleItem: {
-        marginBottom: 20,
+    sectionTitle: { 
+        fontSize: 18, 
+        fontWeight: '900' 
     },
-    roleInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
+    roleItem: { 
+        marginBottom: 24 
     },
-    roleName: {
-        fontSize: 12,
-        fontWeight: '800',
+    roleInfo: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: 10 
     },
-    roleCount: {
-        fontSize: 12,
-        fontWeight: '600',
+    roleName: { 
+        fontSize: 13, 
+        fontWeight: '800', 
+        letterSpacing: 0.5 
     },
-    progressBar: {
-        height: 8,
-        borderRadius: 4,
+    rolePercentage: { 
+        fontSize: 13, 
+        fontWeight: '900' 
+    },
+    roleCount: { 
+        fontSize: 11, 
+        fontWeight: '700', 
+        marginTop: 8, 
+        textAlign: 'right' 
+    },
+    progressBar: { 
+        height: 12, 
+        borderRadius: 6, 
         overflow: 'hidden',
+        elevation: 1,
     },
-    progressFill: {
-        height: '100%',
-        borderRadius: 4,
+    progressFill: { 
+        height: '100%', 
+        borderRadius: 6 
     }
 });

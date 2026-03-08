@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/contexts/AuthContext';
 import Colors from '../../constants/Colors';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { ROLE_IDS, isAdmin, isVeterinario, isPaseador, getRoleName } from '../../src/constants/roles';
+import { isAdmin, isVeterinario, isPaseador } from '../../src/constants/roles';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     Home, Bone, Heart, MapPin, ShoppingBag,
     Stethoscope, ShieldAlert, History, Activity,
@@ -12,95 +14,35 @@ import {
     Users, Calendar, CreditCard, MessageCircle,
     UserCheck, Search, Crown, Star, TrendingUp,
     Database, Building, User, Package, Briefcase,
-    Lock, Shield, BarChart3, Settings2
+    Lock, Shield, BarChart3, Settings2, Zap, LayoutGrid
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
-// Componente para estadísticas reales
-function AdminStats() {
-    const [stats, setStats] = useState({
-        usuarios: 0,
-        clinicas: 0,
-        productos: 0,
-        loading: true
-    });
-
-    useEffect(() => {
-        // Simular carga de datos reales (aquí deberías llamar a tu API)
-        const loadStats = async () => {
-            try {
-                // Aquí irían las llamadas reales a tu API
-                // const usuariosResponse = await fetch('/api/admin/stats/usuarios');
-                // const clinicasResponse = await fetch('/api/admin/stats/clinicas');
-                // const productosResponse = await fetch('/api/admin/stats/productos');
-                
-                // Datos simulados mientras implementas las APIs
-                setStats({
-                    usuarios: 2847,
-                    clinicas: 124,
-                    productos: 892,
-                    loading: false
-                });
-            } catch (error) {
-                console.error('Error loading stats:', error);
-                setStats(prev => ({ ...prev, loading: false }));
-            }
-        };
-
-        loadStats();
-    }, []);
-
-    if (stats.loading) {
-        return (
-            <View style={[styles.statsContainer, { backgroundColor: '#1f2937' }]}>
-                <View style={styles.statItem}>
-                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
-                        <Users size={20} color="#9ca3af" />
-                    </View>
-                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>--</Text>
-                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
-                </View>
-                <View style={styles.statItem}>
-                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
-                        <Building size={20} color="#9ca3af" />
-                    </View>
-                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>--</Text>
-                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
-                </View>
-                <View style={styles.statItem}>
-                    <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
-                        <Package size={20} color="#9ca3af" />
-                    </View>
-                    <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>--</Text>
-                    <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Cargando...</Text>
-                </View>
-            </View>
-        );
-    }
-
+// Componente para estadísticas reales (con diseño premium)
+function PremiumStats({ isAdmin }: { isAdmin?: boolean }) {
     return (
-        <View style={[styles.statsContainer, { backgroundColor: '#1f2937' }]}>
-            <View style={styles.statItem}>
-                <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
-                    <Users size={20} color="#8b5cf6" />
+        <View style={styles.statsStrip}>
+            <View style={styles.statGlassCard}>
+                <Users size={18} color="#fff" />
+                <View>
+                    <Text style={styles.statValText}>2.8k</Text>
+                    <Text style={styles.statLabText}>Usuarios</Text>
                 </View>
-                <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{stats.usuarios.toLocaleString()}</Text>
-                <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Usuarios</Text>
             </View>
-            <View style={styles.statItem}>
-                <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
-                    <Building size={20} color="#10b981" />
+            <View style={styles.statGlassCard}>
+                <Activity size={18} color="#fff" />
+                <View>
+                    <Text style={styles.statValText}>124</Text>
+                    <Text style={styles.statLabText}>Clínicas</Text>
                 </View>
-                <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{stats.clinicas.toLocaleString()}</Text>
-                <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Clínicas</Text>
             </View>
-            <View style={styles.statItem}>
-                <View style={[styles.statIcon, { backgroundColor: '#374151' }]}>
-                    <Package size={20} color="#f59e0b" />
+            <View style={styles.statGlassCard}>
+                <TrendingUp size={18} color="#fff" />
+                <View>
+                    <Text style={styles.statValText}>+15%</Text>
+                    <Text style={styles.statLabText}>Crecimiento</Text>
                 </View>
-                <Text style={[styles.statNumber, { color: '#f3f4f6' }]}>{stats.productos.toLocaleString()}</Text>
-                <Text style={[styles.statLabel, { color: '#9ca3af' }]}>Productos</Text>
             </View>
         </View>
     );
@@ -108,9 +50,11 @@ function AdminStats() {
 
 export default function MenuScreen() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const { user, signOut } = useAuth();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+    const isUserAdmin = isAdmin(user?.role_id, user?.role_name);
 
     const handleSignOut = () => {
         Alert.alert(
@@ -118,229 +62,214 @@ export default function MenuScreen() {
             '¿Estás seguro de que quieres cerrar sesión?',
             [
                 { text: 'Cancelar', style: 'cancel' },
-                { 
-                    text: 'Cerrar Sesión', 
-                    style: 'destructive',
-                    onPress: () => signOut()
-                }
+                { text: 'Cerrar Sesión', style: 'destructive', onPress: () => signOut() }
             ]
         );
     };
 
-    // Si es admin, mostrar solo opciones de administración
-    if (isAdmin(user?.role_id, user?.role_name)) {
-        const ADMIN_MENU_SECTIONS = [
-            {
-                title: '🏥 Panel Principal',
-                data: [
-                    { id: 'panel-admin', icon: Crown, label: 'Dashboard Principal', route: '/admin', color: '#7c3aed', description: 'Vista general del sistema' },
-                ]
-            },
-            {
-                title: '👥 Gestión de Usuarios',
-                data: [
-                    { id: 'usuarios', icon: Users, label: 'Usuarios', route: '/admin/usuarios', color: '#3b82f6', description: 'Administrar todos los usuarios' },
-                    { id: 'roles', icon: Lock, label: 'Roles y Permisos', route: '/admin/roles', color: '#f97316', description: 'Configurar roles del sistema' },
-                ]
-            },
-            {
-                title: '🏢 Gestión de Servicios',
-                data: [
-                    { id: 'categorias', icon: Database, label: 'Categorías', route: '/admin/categorias', color: '#10b981', description: 'Gestionar categorías' },
-                    { id: 'clinicas', icon: Building, label: 'Clínicas', route: '/admin/clinicas', color: '#06b6d4', description: 'Administrar clínicas veterinarias' },
-                    { id: 'veterinarios', icon: UserCheck, label: 'Veterinarios', route: '/admin/veterinarios', color: '#8b5cf6', description: 'Gestionar profesionales' },
-                    { id: 'servicios', icon: Briefcase, label: 'Servicios', route: '/admin/servicios', color: '#14b8a6', description: 'Configurar servicios' },
-                ]
-            },
-            {
-                title: '🛍️ Gestión de Contenido',
-                data: [
-                    { id: 'mascotas-registradas', icon: Bone, label: 'Mascotas', route: '/admin/mascotas', color: '#f59e0b', description: 'Ver todas las mascotas' },
-                    { id: 'productos', icon: Package, label: 'Productos', route: '/admin/productos', color: '#ef4444', description: 'Gestionar tienda' },
-                ]
-            },
-            {
-                title: '🛡️ Control y Moderación',
-                data: [
-                    { id: 'moderacion', icon: Shield, label: 'Moderación', route: '/admin/moderacion', color: '#8b5cf6', description: 'Revisar contenido' },
-                    { id: 'verificaciones', icon: UserCheck, label: 'Verificaciones KYC', route: '/admin/verificaciones', color: '#ef4444', description: 'Validar identidades' },
-                ]
-            },
-            {
-                title: '📊 Análisis y Configuración',
-                data: [
-                    { id: 'stats', icon: BarChart3, label: 'Estadísticas', route: '/admin/stats', color: '#3b82f6', description: 'Análisis del sistema' },
-                    { id: 'config', icon: Settings2, label: 'Configuración', route: '/admin/config', color: '#64748b', description: 'Ajustes generales' },
-                ]
-            }
-        ];
+    const ADMIN_SECTIONS = [
+        {
+            title: 'Configuración y Más',
+            icon: Settings,
+            data: [
+                { id: 'stats', icon: BarChart3, label: 'Analíticas', route: '/admin/stats', color: '#10b981', desc: 'Rendimiento global' },
+                { id: 'config', icon: Settings2, label: 'Configuración', route: '/admin/config', color: '#64748b', desc: 'Ajustes del sistema' },
+            ]
+        }
+    ];
 
-        const ADMIN_ACCOUNT_SECTIONS = [
-            {
-                title: '👤 Cuenta',
-                data: [
-                    { id: 'perfil', icon: User, label: 'Mi Perfil', route: '/two', color: theme.text, description: 'Gestionar mi cuenta' },
-                    { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: theme.textMuted, description: 'Soporte y ayuda' },
-                    { id: 'logout', icon: LogOut, label: 'Cerrar Sesión', onPress: handleSignOut, color: '#ef4444', description: 'Salir del sistema' },
-                ]
-            }
-        ];
+    const PRO_SECTION = (user?.role_name === 'veterinario' || user?.role_name === 'paseador' || user?.role_name === 'cuidador' || user?.role_name === 'vendedor') ? [
+        {
+            title: 'Mis Herramientas Pro',
+            icon: Briefcase,
+            data: [
+                ...(user?.role_name === 'veterinario' ? [
+                    { id: 'directorio-v', icon: Stethoscope, label: 'Mi Directorio', route: '/directorio/nuevo', color: '#06b6d4', desc: 'Gestionar lugares' },
+                    { id: 'citas-v', icon: Calendar, label: 'Agenda Citas', route: '/directorio/citas', color: '#10b981', desc: 'Pacientes y horarios' },
+                ] : []),
+                ...(user?.role_name === 'vendedor' ? [
+                    { id: 'v-pedidos', icon: Package, label: 'Pedidos Recibidos', route: '/tienda/vendedor/pedidos', color: '#10b981', desc: 'Gestión de ventas' },
+                ] : []),
+                ...(user?.role_name === 'paseador' || user?.role_name === 'cuidador' ? [
+                    { id: 'p-servicios', icon: Activity, label: 'Mis Servicios', route: '/servicios-pro', color: '#6366f1', desc: 'Perfil profesional' },
+                ] : []),
+            ]
+        }
+    ] : [];
 
-        return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
-                
-                {/* Header Premium */}
-                <View style={[styles.premiumHeader, { backgroundColor: theme.primary }]}>
-                    <View style={styles.headerOverlay}>
-                        <View style={styles.profileSection}>
-                            <View style={styles.avatarContainer}>
-                                <View style={[styles.avatarRing, { backgroundColor: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }]}>
-                                    <Text style={[styles.avatarText, { color: '#fff' }]}>
-                                        {user?.full_name?.charAt(0)?.toUpperCase() || 'A'}
-                                    </Text>
-                                </View>
-                            </View>
-                            <View style={styles.profileInfo}>
-                                <Text style={[styles.userName, { color: '#fff' }]}>
-                                    {user?.full_name || 'Admin User'}
-                                </Text>
-                                <Text style={[styles.userRole, { color: 'rgba(255,255,255,0.8)' }]}>
-                                    Administrador
-                                </Text>
-                                <View style={[styles.statusBadge, { backgroundColor: 'rgba(16,185,129,0.2)' }]}>
-                                    <Text style={[styles.statusText, { color: '#10b981' }]}>Activo</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </View>
-
-                <ScrollView 
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    {/* Quick Stats */}
-                    <AdminStats />
-
-                    {/* Admin Menu Sections */}
-                    {[...ADMIN_MENU_SECTIONS, ...ADMIN_ACCOUNT_SECTIONS].map((section, sectionIndex) => (
-                        <View key={sectionIndex} style={styles.sectionContainer}>
-                            <View style={styles.sectionHeader}>
-                                <Text style={[styles.sectionTitle, { color: theme.text }]}>{section.title}</Text>
-                            </View>
-                            <View style={styles.sectionGrid}>
-                                {section.data.map((item, itemIndex) => (
-                                    <TouchableOpacity
-                                        key={item.id}
-                                        style={[styles.premiumMenuItem, { backgroundColor: theme.surface }]}
-                                        onPress={() => item.onPress ? item.onPress() : router.push(item.route as any)}
-                                        activeOpacity={0.7}
-                                    >
-                                        <View style={[styles.menuItemHeader, { borderBottomColor: theme.border }]}>
-                                            <View style={[styles.iconContainer, { backgroundColor: item.color + '20' }]}>
-                                                <item.icon size={20} color={item.color} />
-                                            </View>
-                                            <View style={styles.menuItemInfo}>
-                                                <Text style={[styles.menuItemLabel, { color: theme.text }]}>{item.label}</Text>
-                                                <Text style={[styles.menuItemDescription, { color: theme.textMuted }]}>{item.description}</Text>
-                                            </View>
-                                            <ChevronRight size={18} color={theme.textMuted} />
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>
-        );
-    }
-
-    // Para usuarios no admin, mostrar el menú normal
-    const MENU_SECTIONS = [
+    const USER_SECTIONS = [
         {
             title: 'Mi Actividad',
+            icon: Activity,
             data: [
-                { id: 'mascotas', icon: Bone, label: 'Mis Mascotas', route: '/mascotas', color: '#7c3aed' },
-                { id: 'solicitudes', icon: Heart, label: 'Mis Solicitudes Adopción', route: '/adopciones/mis-solicitudes', color: '#ec4899' },
-                { id: 'citas', icon: Calendar, label: 'Mis Citas Médicas', route: '/directorio/citas', color: '#10b981' },
-                isVeterinario(user?.role_id, user?.role_name) && { id: 'mi-clinica', icon: Stethoscope, label: 'Mi Clínica (Gestión)', route: '/mi-clinica', color: '#7c3aff' },
-                isPaseador(user?.role_id, user?.role_name) && { id: 'pro-gestion', icon: Activity, label: 'Panel Profesional', route: '/servicios-pro/gestion', color: '#6366f1' },
-                user?.role_name === 'vendedor' && { id: 'vendedor-dashboard', icon: ShoppingBag, label: 'Mi Tienda (Ventas)', route: '/tienda/vendedor', color: '#f43f5e' },
-                { id: 'compras', icon: CreditCard, label: 'Historial de Compras', route: '/tienda/compras', color: '#f59e0b' },
-            ].filter(Boolean) as any[]
+                { id: 'mascotas', icon: Bone, label: 'Mis Mascotas', route: '/mascotas', color: '#7c3aed', desc: 'Registro y cuidados' },
+                { id: 'solicitudes', icon: Heart, label: 'Adopciones', route: '/adopciones/mis-solicitudes', color: '#ec4899', desc: 'Seguimiento de trámites' },
+                { id: 'citas', icon: Calendar, label: 'Citas Médicas', route: '/directorio/citas', color: '#10b981', desc: 'Agenda veterinaria' },
+                { id: 'compras', icon: CreditCard, label: 'Mis Compras', route: '/tienda/compras', color: '#f59e0b', desc: 'Historial de tienda' },
+            ]
         },
         {
-            title: 'Servicios',
+            title: 'Directorio y Salud',
+            icon: Building,
             data: [
-                { id: 'paseadores', icon: UserCheck, label: 'Paseadores de Perros', route: '/paseadores', color: '#6366f1' },
-                { id: 'cuidadores', icon: Home, label: 'Cuidadores / Pensiones', route: '/cuidadores', color: '#8b5cf6' },
-                { id: 'petfriendly', icon: MapPin, label: 'Lugares Petfriendly', route: '/petfriendly', color: '#10b981' },
-                { id: 'perdidas', icon: Search, label: 'Mascotas Perdidas', route: '/perdidas', color: '#ef4444' },
-                { id: 'tienda', icon: ShoppingBag, label: 'Tienda de Productos', route: '/tienda', color: '#f43f5e' },
-                { id: 'directorio', icon: Stethoscope, label: 'Directorio Veterinario', route: '/directorio', color: '#06b6d4' },
-                { id: 'adopciones', icon: Heart, label: 'Adopciones', route: '/adopciones', color: '#ec4899' },
-                { id: 'mascotas', icon: Bone, label: 'Mis Mascotas', route: '/mascotas', color: '#7c3aed' },
-            ].filter(Boolean) as any[]
+                { id: 'clinicas', icon: Building, label: 'Clínicas', route: '/directorio?type=clinic', color: '#10b981', desc: 'Centros veterinarios' },
+                { id: 'directorio', icon: Stethoscope, label: 'Veterinarios', route: '/directorio', color: '#06b6d4', desc: 'Busca profesionales' },
+                { id: 'petfriendly', icon: MapPin, label: 'Petfriendly', route: '/petfriendly', color: '#14b8a6', desc: 'Lugares para ir' },
+            ]
         },
         {
-            title: 'Cuenta',
+            title: 'Servicios y Cuidados',
+            icon: LayoutGrid,
             data: [
-                { id: 'perfil', icon: Users, label: 'Detalles de Perfil', route: '/two', color: theme.text },
-                // Solo mostrar para usuarios que no son profesionales
-                (!user?.role_name || user.role_name === 'consumidor') ? 
-                    { id: 'partner', icon: ShieldAlert, label: 'Convertirse en Partner', route: '/perfil/partner', color: '#7c3aed' } : 
-                    null,
-                { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: theme.textMuted },
-            ].filter(Boolean) as any[]
+                { id: 'paseadores', icon: UserCheck, label: 'Paseadores', route: '/paseadores', color: '#6366f1', desc: 'Encuentra ayuda' },
+                { id: 'cuidadores', icon: Home, label: 'Cuidadores', route: '/cuidadores', color: '#8b5cf6', desc: 'Pensiones Michi' },
+            ]
+        },
+        {
+            title: 'Tienda y Comunidad',
+            icon: ShoppingBag,
+            data: [
+                { id: 'tienda', icon: ShoppingBag, label: 'Tienda Online', route: '/tienda', color: '#f43f5e', desc: 'Todo para tu michi' },
+                { id: 'perdidas', icon: Search, label: 'Mascotas Perdidas', route: '/perdidas', color: '#ef4444', desc: 'Sección de ayuda' },
+            ]
         }
-    ].filter(Boolean) as any[];
+    ];
+
+    const PROFILE_SECTIONS = [
+        {
+            title: 'Mi Perfil',
+            icon: User,
+            data: [
+                { id: 'perfil', icon: Users, label: 'Mis Datos', route: '/two', color: theme.text, desc: 'Información de cuenta' },
+                { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: theme.textMuted, desc: 'Soporte y FAQ' },
+            ]
+        }
+    ];
+
+    const renderHeader = () => (
+        <LinearGradient
+            colors={[theme.primary, theme.primary + 'EE', theme.primary + 'CC']}
+            style={[styles.premiumHeader, { paddingTop: insets.top + 20 }]}
+        >
+            <View style={styles.profileRow}>
+                <View style={styles.avatarContainer}>
+                    <View style={styles.avatarGlass}>
+                        <Text style={styles.avatarText}>
+                            {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                        </Text>
+                    </View>
+                    {isUserAdmin && (
+                        <View style={styles.adminBadge}>
+                            <Crown size={10} color="#fff" />
+                        </View>
+                    )}
+                </View>
+                <View style={styles.profileMasterInfo}>
+                    <Text style={styles.welcomeText}>¡Hola!</Text>
+                    <Text style={styles.profileName}>{user?.full_name || 'Explorador'}</Text>
+                    <View style={[styles.roleLabel, { backgroundColor: isUserAdmin ? '#f59e0b40' : 'rgba(255,255,255,0.15)' }]}>
+                        <Text style={[styles.roleText, { color: isUserAdmin ? '#fcd34d' : '#fff' }]}>
+                            {isUserAdmin ? 'Administrador' : user?.role_name || 'Usuario'}
+                        </Text>
+                    </View>
+                </View>
+            </View>
+            <PremiumStats isAdmin={isUserAdmin} />
+        </LinearGradient>
+    );
+
+    const renderMenuItem = (item: any) => (
+        <TouchableOpacity
+            key={item.id}
+            activeOpacity={0.7}
+            style={[styles.menuCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+            onPress={() => item.onPress ? item.onPress() : router.push(item.route as any)}
+        >
+            <View style={[styles.menuIconBox, { backgroundColor: item.color + '15' }]}>
+                <item.icon size={20} color={item.color} />
+            </View>
+            <View style={styles.menuInfo}>
+                <Text style={[styles.menuLabel, { color: theme.text }]}>{item.label}</Text>
+                <Text style={[styles.menuDesc, { color: theme.textMuted }]} numberOfLines={1}>{item.desc}</Text>
+            </View>
+            <ChevronRight size={16} color={theme.textMuted} />
+        </TouchableOpacity>
+    );
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.headerTitle, { color: theme.text }]}>Menú Principal</Text>
-                <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Todo Michicondrias en un solo lugar</Text>
-            </View>
+            <StatusBar barStyle="light-content" />
+            
+            <ScrollView 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 60 }}
+            >
+                {renderHeader()}
 
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-                {MENU_SECTIONS.map((section, idx) => (
-                    <View key={idx} style={styles.sectionContainer}>
-                        <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>{section.title.toUpperCase()}</Text>
-                        <View style={[styles.sectionCard, { backgroundColor: theme.surface }]}>
-                            {section.data.map((item: any, itemIdx: number) => (
-                                <TouchableOpacity
-                                    key={item.id}
-                                    style={[
-                                        styles.menuItem,
-                                        itemIdx < section.data.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }
-                                    ]}
-                                    onPress={() => item.id === 'perfil' ? router.push('/two') : router.push(item.route as any)}
+                <View style={styles.content}>
+                    {(() => {
+                        let bannerProps: { title: string, sub: string, route: string, colors: [string, string], icon: any } | null = null;
+                        if (isUserAdmin) {
+                            bannerProps = { title: 'Panel Admin', sub: 'Administración global', route: '/admin', colors: ['#7c3aed', '#6d28d9'], icon: Shield };
+                        } else if (user?.role_name === 'veterinario') {
+                            bannerProps = { title: 'Consultorio', sub: 'Operaciones clínicas', route: '/mi-clinica', colors: ['#06b6d4', '#0891b2'], icon: Stethoscope };
+                        } else if (user?.role_name === 'paseador' || user?.role_name === 'cuidador') {
+                            bannerProps = { title: 'Mis Tareas', sub: 'Solicitudes y servicios', route: '/servicios-pro/gestion', colors: ['#6366f1', '#4338ca'], icon: Activity };
+                        } else if (user?.role_name === 'vendedor') {
+                            bannerProps = { title: 'Mi Tienda', sub: 'Gestión de catálogo', route: '/tienda/vendedor', colors: ['#10b981', '#059669'], icon: ShoppingBag };
+                        }
+
+                        if (!bannerProps) return null;
+
+                        return (
+                            <View style={styles.adminQuickAccess}>
+                                <TouchableOpacity 
+                                    style={[styles.adminBanner, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                                    onPress={() => router.push(bannerProps.route as any)}
                                 >
-                                    <View style={[styles.iconBox, { backgroundColor: item.color + '15' }]}>
-                                        <item.icon size={20} color={item.color} />
+                                    <LinearGradient
+                                        colors={bannerProps.colors}
+                                        style={styles.absGradient}
+                                        start={{x:0, y:0}}
+                                        end={{x:1, y:1}}
+                                    />
+                                    <View style={styles.bannerIcon}>
+                                        <bannerProps.icon size={24} color="#fff" />
                                     </View>
-                                    <Text style={[styles.menuLabel, { color: theme.text }]}>{item.label}</Text>
-                                    <ChevronRight size={18} color={theme.textMuted} />
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.bannerTitle}>{bannerProps.title}</Text>
+                                        <Text style={styles.bannerSub}>{bannerProps.sub}</Text>
+                                    </View>
+                                    <ChevronRight size={20} color="#fff" />
                                 </TouchableOpacity>
-                            ))}
+                            </View>
+                        );
+                    })()}
+
+                    {([...(isUserAdmin ? ADMIN_SECTIONS : []), ...PRO_SECTION, ...USER_SECTIONS, ...PROFILE_SECTIONS]).map((section, idx) => (
+                        <View key={idx} style={styles.section}>
+                            <View style={styles.sectionHeader}>
+                                {section.icon && <section.icon size={16} color={theme.textMuted} />}
+                                <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>{section.title.toUpperCase()}</Text>
+                            </View>
+                            <View style={styles.grid}>
+                                {section.data.map(renderMenuItem)}
+                            </View>
                         </View>
+                    ))}
+
+                    <TouchableOpacity 
+                        style={[styles.logoutBtn, { borderColor: theme.border }]}
+                        onPress={handleSignOut}
+                    >
+                        <LogOut size={20} color="#ef4444" />
+                        <Text style={styles.logoutText}>Cerrar Sesión</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.footer}>
+                        <Text style={[styles.footerText, { color: theme.textMuted }]}>Michicondrias Mobile v1.5.0</Text>
+                        <Text style={[styles.footerText, { color: theme.textMuted }]}>Mantenido con el alma para tus mascotas</Text>
                     </View>
-                ))}
-
-                <TouchableOpacity
-                    style={[styles.logoutBtn, { borderTopColor: theme.border }]}
-                    onPress={signOut}
-                >
-                    <LogOut size={20} color="#ef4444" />
-                    <Text style={styles.logoutText}>Cerrar Sesión</Text>
-                </TouchableOpacity>
-
-                <View style={styles.footer}>
-                    <Text style={[styles.footerText, { color: theme.textMuted }]}>Michicondrias Mobile v1.1.0</Text>
-                    <Text style={[styles.footerText, { color: theme.textMuted }]}>Hecho con ❤️ para tus michis</Text>
                 </View>
             </ScrollView>
         </View>
@@ -348,227 +277,130 @@ export default function MenuScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        paddingTop: 60,
+    container: { flex: 1 },
+    premiumHeader: {
         paddingHorizontal: 24,
-        paddingBottom: 32,
+        paddingBottom: 60,
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.2,
+        shadowRadius: 15,
     },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 8,
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        marginTop: 4,
-        opacity: 0.7,
-    },
-    profileSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    avatarContainer: {
-        marginRight: 16,
-    },
-    avatarRing: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        borderWidth: 2,
+    profileRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+    avatarContainer: { position: 'relative' },
+    avatarGlass: {
+        width: 64,
+        height: 64,
+        borderRadius: 24,
+        backgroundColor: 'rgba(255,255,255,0.25)',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.4)',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    crownBadge: {
+    avatarText: { fontSize: 28, fontWeight: '900', color: '#fff' },
+    adminBadge: {
         position: 'absolute',
         top: -4,
         right: -4,
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        backgroundColor: '#f59e0b',
+        width: 22,
+        height: 22,
+        borderRadius: 11,
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#fff',
     },
-    avatarText: {
-        fontSize: 22,
-        fontWeight: '600',
+    profileMasterInfo: { flex: 1 },
+    welcomeText: { fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
+    profileName: { fontSize: 24, fontWeight: '900', color: '#fff' },
+    roleLabel: { 
+        paddingHorizontal: 10, 
+        paddingVertical: 3, 
+        borderRadius: 8, 
+        marginTop: 6, 
+        alignSelf: 'flex-start' 
     },
-    profileInfo: {
-        flex: 1,
-    },
-    userName: {
-        fontSize: 20,
-        fontWeight: '700',
-        marginBottom: 4,
-    },
-    userRole: {
-        fontSize: 14,
-        fontWeight: '500',
-        marginBottom: 8,
-    },
-    statusBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-        borderRadius: 12,
-        alignSelf: 'flex-start',
-    },
-    statusText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    premiumHeader: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 40,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-    },
-    headerOverlay: {
-        flex: 1,
-    },
-    scrollView: {
-        flex: 1,
-    },
-    scrollContent: {
-        padding: 16,
-    },
-    statsContainer: {
+    roleText: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
+    statsStrip: {
         flexDirection: 'row',
-        padding: 20,
-        borderRadius: 16,
-        marginBottom: 20,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    statItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    statIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    statNumber: {
-        fontSize: 24,
-        fontWeight: '700',
-        marginBottom: 4,
-    },
-    statLabel: {
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    sectionContainer: {
-        marginBottom: 24,
-    },
-    sectionHeader: {
-        marginBottom: 12,
-        paddingHorizontal: 4,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 8,
-    },
-    sectionGrid: {
+        marginTop: 32,
         gap: 12,
     },
-    premiumMenuItem: {
-        borderRadius: 16,
+    statGlassCard: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        gap: 10,
+    },
+    statValText: { fontSize: 15, fontWeight: '900', color: '#fff' },
+    statLabText: { fontSize: 9, fontWeight: '600', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' },
+    content: { padding: 24, marginTop: -30 },
+    adminQuickAccess: { marginBottom: 32 },
+    adminBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        borderRadius: 28,
+        borderWidth: 1,
+        overflow: 'hidden',
+        gap: 16,
+        elevation: 8,
+        shadowColor: '#7c3aed',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+    },
+    absGradient: { ...StyleSheet.absoluteFillObject },
+    bannerIcon: {
+        width: 52,
+        height: 52,
+        borderRadius: 18,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    bannerTitle: { fontSize: 18, fontWeight: '900', color: '#fff' },
+    bannerSub: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+    section: { marginBottom: 32 },
+    sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16, paddingHorizontal: 8 },
+    sectionTitle: { fontSize: 11, fontWeight: '900', letterSpacing: 1.5 },
+    grid: { gap: 12 },
+    menuCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
         padding: 16,
-        elevation: 3,
+        borderRadius: 24,
+        borderWidth: 1,
+        gap: 16,
+        elevation: 2,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.05)',
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
     },
-    menuItemHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingBottom: 8,
-        borderBottomWidth: 1,
-    },
-    iconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 16,
-    },
-    menuItemInfo: {
-        flex: 1,
-    },
-    menuItemLabel: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    menuItemDescription: {
-        fontSize: 13,
-        lineHeight: 18,
-    },
-    menuItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 8,
-    },
-    menuLabel: {
-        fontSize: 16,
-        fontWeight: '500',
-        flex: 1,
-    },
-    sectionCard: {
-        marginBottom: 16,
-        borderRadius: 12,
-        overflow: 'hidden',
-    },
-    iconBox: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 16,
-    },
+    menuIconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    menuInfo: { flex: 1 },
+    menuLabel: { fontSize: 16, fontWeight: '800' },
+    menuDesc: { fontSize: 12, fontWeight: '500', marginTop: 2 },
     logoutBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 12,
-        paddingVertical: 24,
-        marginTop: 10,
-        borderTopWidth: 1,
-    },
-    logoutText: {
-        color: '#ef4444',
-        fontSize: 16,
-        fontWeight: '800',
-    },
-    footer: {
         padding: 20,
-        alignItems: 'center',
+        borderRadius: 24,
+        borderWidth: 1,
+        gap: 12,
+        marginTop: 12,
     },
-    footerText: {
-        fontSize: 12,
-        opacity: 0.5,
-    },
+    logoutText: { fontSize: 16, fontWeight: '900', color: '#ef4444' },
+    footer: { paddingVertical: 40, alignItems: 'center' },
+    footerText: { fontSize: 11, fontWeight: '600', opacity: 0.5, marginBottom: 4 }
 });

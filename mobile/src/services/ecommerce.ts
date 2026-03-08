@@ -141,7 +141,26 @@ export async function createDonation(amount: number, message?: string): Promise<
     });
 }
 
-// CATEGORIES
 export async function getCategories(): Promise<Category[]> {
     return apiFetch<Category[]>("ecommerce", "/categories/");
+}
+
+export async function createCategory(data: Partial<Category>): Promise<Category> {
+    return apiFetch<Category>("ecommerce", "/categories/", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function updateCategory(id: string, data: Partial<Category>): Promise<Category> {
+    return apiFetch<Category>("ecommerce", `/categories/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+    return apiFetch<void>("ecommerce", `/categories/${id}`, {
+        method: "DELETE",
+    });
 }

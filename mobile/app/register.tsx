@@ -1,34 +1,39 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text } from 'react-native';
-import { login } from '../src/lib/auth';
+import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, View, Text, Image } from 'react-native';
+import { register } from '../src/lib/auth';
 import { useAuth } from '../src/contexts/AuthContext';
 import Colors from '../constants/Colors';
 import { useTheme } from '../src/contexts/ThemeContext';
-import { Mail, Lock, LogIn, UserPlus } from 'lucide-react-native';
+import { Mail, Lock, User, UserPlus, ArrowLeft } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const { signIn } = useAuth();
+    
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
 
-    const handleLogin = async () => {
-        if (!email || !password) {
-            alert("Por favor llena todos los campos");
+    const handleRegister = async () => {
+        if (!email || !password || !fullName) {
+            Alert.alert("Campos incompletos", "Por favor llena todos los campos requeridos.");
             return;
         }
 
         setLoading(true);
         try {
-            const data = await login(email, password);
-            await signIn(data.access_token);
+            await register(email, password, fullName);
+            Alert.alert(
+                "¡Cuenta creada!",
+                "Tu cuenta ha sido creada exitosamente. Ahora puedes iniciar sesión.",
+                [{ text: "OK", onPress: () => router.replace('/login') }]
+            );
         } catch (error: any) {
-            alert(error.message || "Error al iniciar sesión");
+            Alert.alert("Error de registro", error.message || "No se pudo crear la cuenta.");
         } finally {
             setLoading(false);
         }
@@ -37,7 +42,7 @@ export default function LoginScreen() {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <LinearGradient
-                colors={[theme.primary, theme.background]}
+                colors={['#10b981', theme.background]} // Emerald for register
                 style={[StyleSheet.absoluteFillObject, { opacity: 0.6 }]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -51,6 +56,13 @@ export default function LoginScreen() {
                     contentContainerStyle={[styles.scrollContent, { backgroundColor: 'transparent' }]}
                     showsVerticalScrollIndicator={false}
                 >
+                    <TouchableOpacity 
+                        style={styles.backBtn}
+                        onPress={() => router.back()}
+                    >
+                        <ArrowLeft size={24} color="#fff" />
+                    </TouchableOpacity>
+
                     <View style={styles.logoContainer}>
                         <View style={styles.logoIconBox}>
                             <Image 
@@ -59,18 +71,32 @@ export default function LoginScreen() {
                                 resizeMode="contain"
                             />
                         </View>
-                        <Text style={styles.appName}>Michicondrias</Text>
-                        <Text style={styles.tagline}>Cuidado Integral para tus Mascotas</Text>
+                        <Text style={styles.appName}>Únete a Michicondrias</Text>
+                        <Text style={styles.tagline}>Sé parte de nuestra comunidad michi</Text>
                     </View>
 
                     <LinearGradient
                         colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
                         style={styles.glassCard}
                     >
-                        <Text style={styles.welcomeText}>¡Hola de nuevo! ✨</Text>
-                        <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+                        <Text style={styles.welcomeText}>Crea tu cuenta ✨</Text>
+                        <Text style={styles.subtitle}>Es rápido y sencillo</Text>
 
                         <View style={styles.form}>
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Nombre Completo</Text>
+                                <View style={[styles.inputWrapper, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
+                                    <User size={18} color="rgba(255,255,255,0.6)" />
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Tu Nombre"
+                                        placeholderTextColor="rgba(255,255,255,0.3)"
+                                        value={fullName}
+                                        onChangeText={setFullName}
+                                    />
+                                </View>
+                            </View>
+
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Correo Electrónico</Text>
                                 <View style={[styles.inputWrapper, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
@@ -103,8 +129,8 @@ export default function LoginScreen() {
                             </View>
 
                             <TouchableOpacity
-                                style={[styles.loginBtn, loading && styles.disabledBtn]}
-                                onPress={handleLogin}
+                                style={[styles.registerBtn, loading && styles.disabledBtn]}
+                                onPress={handleRegister}
                                 disabled={loading}
                                 activeOpacity={0.8}
                             >
@@ -113,29 +139,24 @@ export default function LoginScreen() {
                                     style={[StyleSheet.absoluteFillObject, { borderRadius: 24 }]}
                                 />
                                 {loading ? (
-                                    <Text style={styles.loginBtnText}>Entrando...</Text>
+                                    <Text style={styles.registerBtnText}>Creando cuenta...</Text>
                                 ) : (
                                     <>
-                                        <Text style={styles.loginBtnText}>Entrar</Text>
-                                        <LogIn size={20} color="#fff" />
+                                        <Text style={styles.registerBtnText}>Registrarme</Text>
+                                        <UserPlus size={20} color="#fff" />
                                     </>
                                 )}
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={styles.forgotBtn}>
-                                <Text style={styles.forgotBtnText}>¿Olvidaste tu contraseña?</Text>
                             </TouchableOpacity>
                         </View>
                     </LinearGradient>
 
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>¿No tienes cuenta?</Text>
+                        <Text style={styles.footerText}>¿Ya tienes cuenta?</Text>
                         <TouchableOpacity 
-                            style={styles.registerLink}
-                            onPress={() => router.push('/register' as any)}
+                            style={styles.loginLink}
+                            onPress={() => router.replace('/login')}
                         >
-                            <Text style={styles.registerText}>Regístrate aquí</Text>
-                            <UserPlus size={16} color="#fff" />
+                            <Text style={styles.loginLinkText}>Inicia sesión aquí</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -160,21 +181,30 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         padding: 24,
-        paddingTop: 80,
+        paddingTop: 60,
         backgroundColor: 'transparent',
     },
-    logoContainer: {
-        alignItems: 'center',
-        marginBottom: 40,
-        backgroundColor: 'transparent',
-    },
-    logoIconBox: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+    backBtn: {
+        width: 44,
+        height: 44,
+        borderRadius: 15,
+        backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 20,
+    },
+    logoContainer: {
+        alignItems: 'center',
+        marginBottom: 32,
+        backgroundColor: 'transparent',
+    },
+    logoIconBox: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
         overflow: 'hidden',
     },
     logoImage: {
@@ -182,19 +212,20 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     appName: {
-        fontSize: 36,
+        fontSize: 28,
         fontWeight: '900',
         color: '#fff',
-        letterSpacing: -1,
+        textAlign: 'center',
     },
     tagline: {
-        fontSize: 16,
+        fontSize: 14,
         color: 'rgba(255,255,255,0.6)',
         marginTop: 4,
         fontWeight: '600',
+        textAlign: 'center',
     },
     glassCard: {
-        padding: 32,
+        padding: 28,
         borderRadius: 40,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.15)',
@@ -202,31 +233,32 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     welcomeText: {
-        fontSize: 26,
+        fontSize: 24,
         fontWeight: '900',
         color: '#fff',
-        marginBottom: 8,
+        marginBottom: 6,
     },
     subtitle: {
-        fontSize: 15,
+        fontSize: 14,
         color: 'rgba(255,255,255,0.5)',
-        marginBottom: 32,
+        marginBottom: 28,
         fontWeight: '500',
     },
     form: {
-        gap: 20,
+        gap: 18,
         backgroundColor: 'transparent',
     },
     inputGroup: {
-        gap: 10,
+        gap: 8,
         backgroundColor: 'transparent',
     },
     label: {
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: '900',
         color: 'rgba(255,255,255,0.7)',
         marginLeft: 4,
         letterSpacing: 1,
+        textTransform: 'uppercase',
     },
     inputWrapper: {
         flexDirection: 'row',
@@ -235,19 +267,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)',
-        height: 60,
-        gap: 14,
+        height: 56,
+        gap: 12,
     },
     input: {
         flex: 1,
-        fontSize: 16,
+        fontSize: 15,
         color: '#fff',
         fontWeight: '600',
     },
-    loginBtn: {
-        backgroundColor: '#7c3aed',
+    registerBtn: {
+        backgroundColor: '#10b981',
         borderRadius: 24,
-        height: 64,
+        height: 60,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -258,43 +290,34 @@ const styles = StyleSheet.create({
     disabledBtn: {
         opacity: 0.6,
     },
-    loginBtnText: {
+    registerBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: '900',
     },
-    forgotBtn: {
-        alignItems: 'center',
-        marginTop: 8,
-    },
-    forgotBtnText: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: 14,
-        fontWeight: '600',
-    },
     footer: {
-        marginTop: 40,
+        marginTop: 32,
         alignItems: 'center',
-        gap: 12,
+        gap: 8,
+        paddingBottom: 40,
         backgroundColor: 'transparent',
     },
     footerText: {
         color: 'rgba(255,255,255,0.5)',
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '600',
     },
-    registerLink: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+    loginLink: {
+        backgroundColor: 'rgba(255,255,255,0.05)',
         paddingHorizontal: 20,
         paddingVertical: 10,
-        borderRadius: 16,
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
-    registerText: {
+    loginLinkText: {
         color: '#fff',
         fontWeight: '900',
-        fontSize: 15,
+        fontSize: 14,
     },
 });

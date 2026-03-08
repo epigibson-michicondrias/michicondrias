@@ -101,3 +101,17 @@ export async function verifyUser(userId: string, status: 'VERIFIED' | 'REJECTED'
         method: "POST"
     });
 }
+
+// --- Solicitudes de Adopción ---
+export async function approveAdoptionRequest(requestId: string): Promise<any> {
+    return apiFetch<any>("adopciones", `/pets/admin/requests/${requestId}/approve`, {
+        method: "POST"
+    });
+}
+
+export async function rejectAdoptionRequest(requestId: string): Promise<any> {
+    // Usamos el endpoint de status mandando 'rechazado'
+    return apiFetch<any>("adopciones", `/pets/admin/requests/${requestId}/status?status=rechazado`, {
+        method: "PUT"
+    });
+}

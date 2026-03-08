@@ -12,6 +12,7 @@ export interface AdminUser {
     last_login?: string;
     phone?: string;
     clinic_id?: string;
+    specialty?: string;
 }
 
 export interface UserStats {
@@ -67,15 +68,41 @@ class AdminUsersService {
         });
     }
 
+    // Actualizar usuario existente
+    async updateUser(userId: string, userData: Partial<AdminUser> & { password?: string }): Promise<AdminUser> {
+        return apiFetch('core', `${this.baseUrl}/${userId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(userData),
+        });
+    }
+
     // Obtener usuarios pendientes de verificación
     async getPendingVerifications(): Promise<AdminUser[]> {
         return apiFetch('core', `${this.baseUrl}/pending-verifications`);
     }
 
-    // Verificar/rechazar KYC de usuario
-    async verifyUserKYC(userId: string, status: 'VERIFIED' | 'REJECTED'): Promise<AdminUser> {
-        return apiFetch('core', `${this.baseUrl}/${userId}/verify?status=${status}`, {
+    // --- Roles ---
+    async getRoles(): Promise<any[]> {
+        return apiFetch('core', '/roles/');
+    }
+
+    async createRole(data: any): Promise<any> {
+        return apiFetch('core', '/roles/', {
             method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateRole(id: string, data: any): Promise<any> {
+        return apiFetch('core', `/roles/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteRole(id: string): Promise<void> {
+        return apiFetch('core', `/roles/${id}`, {
+            method: 'DELETE',
         });
     }
 }

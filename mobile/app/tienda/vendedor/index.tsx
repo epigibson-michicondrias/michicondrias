@@ -7,6 +7,8 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, PlusCircle, Package, ShoppingBag, TrendingUp, DollarSign, List, Briefcase, ChevronRight, Settings, Activity, Star } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -15,6 +17,7 @@ export default function VendedorDashboardScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
     const { user } = useAuth();
+    const insets = useSafeAreaInsets();
 
     const { data: products = [], isLoading: loadingProducts } = useQuery({
         queryKey: ['my-products'],
@@ -40,20 +43,36 @@ export default function VendedorDashboardScreen() {
     const pendingOrders = orders.filter(o => o.status === 'pending').length;
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Mi Tienda</Text>
-                    <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Panel de Vendedor</Text>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            {/* Header Premium */}
+            <LinearGradient
+                colors={['#10b981', '#059669', '#047857']}
+                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
+            >
+                <View style={styles.headerTop}>
+                    <TouchableOpacity 
+                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        onPress={() => router.back()}
+                    >
+                        <ChevronLeft size={22} color="#fff" />
+                    </TouchableOpacity>
+                    <View style={styles.headerInfo}>
+                        <Text style={styles.title}>Mi Tienda</Text>
+                        <View style={styles.badgeContainer}>
+                            <View style={[styles.liveDot, { backgroundColor: '#fff' }]} />
+                            <Text style={styles.subtitle}>Panel de Vendedor</Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity 
+                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        onPress={() => router.push('/tienda/vendedor/config' as any)}
+                    >
+                        <Settings size={22} color="#fff" />
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={[styles.configBtn, { backgroundColor: theme.surface }]} onPress={() => router.push('/tienda/vendedor/config' as any)}>
-                    <Settings size={20} color={theme.text} />
-                </TouchableOpacity>
-            </View>
+            </LinearGradient>
+
+            <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
 
             <View style={styles.content}>
                 {/* Sales Summary Card */}
@@ -173,51 +192,128 @@ export default function VendedorDashboardScreen() {
                     ))
                 )}
             </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 24, fontWeight: '900' },
-    headerSubtitle: { fontSize: 13, fontWeight: '600' },
-    configBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    content: { paddingHorizontal: 24, paddingBottom: 100 },
-    summaryCard: { padding: 24, borderRadius: 32, gap: 20, marginBottom: 24, elevation: 8, shadowColor: '#7c3aed', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20 },
+    premiumHeader: { 
+        paddingHorizontal: 24, 
+        paddingBottom: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        zIndex: 10,
+    },
+    headerTop: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+    },
+    backBtn: { 
+        width: 44, 
+        height: 44, 
+        borderRadius: 14, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    headerInfo: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    headerAction: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    title: { 
+        fontSize: 18, 
+        fontWeight: '900', 
+        color: '#fff', 
+        letterSpacing: -0.5 
+    },
+    badgeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 2,
+    },
+    liveDot: { 
+        width: 6, 
+        height: 6, 
+        borderRadius: 3, 
+    },
+    subtitle: { 
+        fontSize: 11, 
+        fontWeight: '700', 
+        color: 'rgba(255,255,255,0.8)',
+    },
+    contentScroll: {
+        flex: 1,
+    },
+    content: { 
+        paddingHorizontal: 24, 
+        paddingTop: 24,
+        paddingBottom: 100 
+    },
+    summaryCard: { 
+        padding: 24, 
+        borderRadius: 32, 
+        gap: 20, 
+        marginBottom: 24, 
+        elevation: 8, 
+        shadowColor: '#10b981', 
+        shadowOffset: { width: 0, height: 10 }, 
+        shadowOpacity: 0.3, 
+        shadowRadius: 20 
+    },
     summaryTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    summaryLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: '700' },
-    summaryValue: { color: '#fff', fontSize: 32, fontWeight: '900', marginTop: 4 },
+    summaryLabel: { color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: '700', textTransform: 'uppercase' },
+    summaryValue: { color: '#fff', fontSize: 36, fontWeight: '900', marginTop: 4 },
     summaryIconBox: { width: 48, height: 48, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center' },
-    summaryBottom: { flexDirection: 'row', alignItems: 'center', gap: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)' },
+    summaryBottom: { flexDirection: 'row', alignItems: 'center', gap: 24, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.15)' },
     summaryStat: { flex: 1 },
     summaryStatLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '700' },
     summaryStatValue: { color: '#fff', fontSize: 18, fontWeight: '800', marginTop: 2 },
     summaryDivider: { width: 1, height: 24, backgroundColor: 'rgba(255,255,255,0.2)' },
     statsGrid: { flexDirection: 'row', gap: 12, marginBottom: 32 },
-    statItem: { flex: 1, padding: 16, borderRadius: 20, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    statItem: { 
+        flex: 1, 
+        padding: 16, 
+        borderRadius: 20, 
+        alignItems: 'center', 
+        gap: 6, 
+        borderWidth: 1, 
+    },
     statItemValue: { fontSize: 18, fontWeight: '900' },
-    statItemLabel: { fontSize: 10, fontWeight: '700' },
-    sectionTitle: { fontSize: 18, fontWeight: '900', marginBottom: 20 },
-    menuGrid: { flexDirection: 'row', gap: 16, marginBottom: 32 },
-    menuItem: { flex: 1, padding: 20, borderRadius: 28, gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    iconBox: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    menuLabel: { fontSize: 16, fontWeight: '800' },
-    menuSub: { fontSize: 12, fontWeight: '600' },
-    listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    statItemLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+    sectionTitle: { fontSize: 14, fontWeight: '900', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 },
+    menuGrid: { flexDirection: 'row', gap: 12, marginBottom: 32 },
+    menuItem: { 
+        flex: 1, 
+        padding: 20, 
+        borderRadius: 28, 
+        gap: 12, 
+        borderWidth: 1, 
+    },
+    iconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    menuLabel: { fontSize: 15, fontWeight: '800' },
+    menuSub: { fontSize: 11, fontWeight: '600' },
+    listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
     emptyCard: { padding: 40, borderRadius: 28, alignItems: 'center', borderStyle: 'dashed', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', gap: 16 },
     emptyText: { fontSize: 14, fontWeight: '600', textAlign: 'center' },
     addBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 16 },
     addBtnText: { color: '#fff', fontWeight: '800', fontSize: 14 },
-    productItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 24, gap: 16, marginBottom: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    productThumb: { width: 64, height: 64, borderRadius: 16 },
+    productItem: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 24, gap: 14, marginBottom: 10, borderWidth: 1 },
+    productThumb: { width: 60, height: 60, borderRadius: 14 },
     productInfo: { flex: 1, gap: 4 },
-    productName: { fontSize: 15, fontWeight: '800' },
-    productPrice: { fontSize: 14, fontWeight: '900' },
-    stockRow: { marginTop: 4 },
-    stockBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' },
-    stockText: { fontSize: 10, fontWeight: '800' },
+    productName: { fontSize: 14, fontWeight: '800' },
+    productPrice: { fontSize: 13, fontWeight: '900' },
+    stockRow: { marginTop: 2 },
+    stockBadge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, alignSelf: 'flex-start' },
+    stockText: { fontSize: 9, fontWeight: '900' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 }
 });

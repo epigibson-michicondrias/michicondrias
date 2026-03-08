@@ -7,7 +7,9 @@ import { getIncomingSitRequests, updateSitRequestStatus, SitRequest } from '../.
 import { useAuth } from '../../src/contexts/AuthContext';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Calendar, Clock, MapPin, Bone, User, CheckCircle2, XCircle, MoreHorizontal, Settings, Activity, Heart } from 'lucide-react-native';
+import { ChevronLeft, Calendar, Clock, MapPin, Bone, User, CheckCircle2, XCircle, MoreHorizontal, Settings, Activity, Heart, Star, ChevronRight } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +20,7 @@ export default function ProfessionalGestionScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
     const { user } = useAuth();
+    const insets = useSafeAreaInsets();
 
     const [filter, setFilter] = useState('pending');
     const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -132,37 +135,53 @@ export default function ProfessionalGestionScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Panel Profesional</Text>
-                    <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Gestiona tus solicitudes</Text>
+            {/* Header Premium */}
+            <LinearGradient
+                colors={['#6366f1', '#4338ca', '#3730a3']}
+                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
+            >
+                <View style={styles.headerTop}>
+                    <TouchableOpacity 
+                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        onPress={() => router.back()}
+                    >
+                        <ChevronLeft size={22} color="#fff" />
+                    </TouchableOpacity>
+                    <View style={styles.headerInfo}>
+                        <Text style={styles.title}>Servicios Pro</Text>
+                        <View style={styles.badgeContainer}>
+                            <View style={[styles.liveDot, { backgroundColor: '#10b981' }]} />
+                            <Text style={styles.subtitle}>Gestión de Solicitudes</Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity 
+                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        onPress={() => router.push('/servicios-pro/perfil' as any)}
+                    >
+                        <User size={22} color="#fff" />
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.settingsBtn} onPress={() => router.push('/servicios-pro/perfil' as any)}>
-                    <Settings size={22} color={theme.textMuted} />
-                </TouchableOpacity>
-            </View>
+            </LinearGradient>
 
-            {/* Stats Summary */}
-            <View style={styles.statsRow}>
-                <View style={[styles.statBox, { backgroundColor: theme.surface }]}>
-                    <Activity size={20} color={theme.primary} />
-                    <Text style={[styles.statValue, { color: theme.text }]}>{allRequests.length}</Text>
-                    <Text style={[styles.statLabel, { color: theme.textMuted }]}>Totales</Text>
+            <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+
+                {/* Stats Summary Refined */}
+                <View style={styles.statsRow}>
+                    <View style={[styles.statBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                        <Activity size={18} color="#6366f1" />
+                        <View>
+                            <Text style={[styles.statValue, { color: theme.text }]}>{allRequests.length}</Text>
+                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Totales</Text>
+                        </View>
+                    </View>
+                    <View style={[styles.statBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                        <Clock size={18} color="#f59e0b" />
+                        <View>
+                            <Text style={[styles.statValue, { color: theme.text }]}>{allRequests.filter(r => r.status === 'pending').length}</Text>
+                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Pendientes</Text>
+                        </View>
+                    </View>
                 </View>
-                <View style={[styles.statBox, { backgroundColor: theme.surface }]}>
-                    <Clock size={20} color="#f59e0b" />
-                    <Text style={[styles.statValue, { color: theme.text }]}>{allRequests.filter(r => r.status === 'pending').length}</Text>
-                    <Text style={[styles.statLabel, { color: theme.textMuted }]}>Pendientes</Text>
-                </View>
-                <View style={[styles.statBox, { backgroundColor: theme.surface }]}>
-                    <Heart size={20} color="#ec4899" />
-                    <Text style={[styles.statValue, { color: theme.text }]}>{allRequests.filter(r => r.status === 'accepted').length}</Text>
-                    <Text style={[styles.statLabel, { color: theme.textMuted }]}>Activas</Text>
-                </View>
-            </View>
 
             {/* Filter Tabs */}
             <View style={styles.tabsRow}>
@@ -193,63 +212,134 @@ export default function ProfessionalGestionScreen() {
                 </ScrollView>
             </View>
 
-            {(loadingWalks || loadingSits) ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
-            ) : (
-                <FlatList
-                    data={filtered}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderItem}
-                    contentContainerStyle={styles.list}
-                    ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <Bone size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay solicitudes en esta categoría</Text>
-                        </View>
-                    }
-                />
-            )}
+                {(loadingWalks || loadingSits) ? (
+                    <View style={styles.centerLoading}>
+                        <ActivityIndicator size="large" color="#6366f1" />
+                    </View>
+                ) : filtered.length === 0 ? (
+                    <View style={styles.empty}>
+                        <Bone size={64} color={theme.textMuted} strokeWidth={1} />
+                        <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay solicitudes en esta categoría</Text>
+                    </View>
+                ) : (
+                    <View style={styles.list}>
+                        {filtered.map(item => renderItem({ item }))}
+                    </View>
+                )}
+            </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 24, fontWeight: '900' },
-    headerSubtitle: { fontSize: 13, fontWeight: '600' },
-    settingsBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-    statsRow: { flexDirection: 'row', paddingHorizontal: 24, gap: 12, marginBottom: 24 },
-    statBox: { flex: 1, padding: 16, borderRadius: 20, alignItems: 'center', gap: 4, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    premiumHeader: { 
+        paddingHorizontal: 24, 
+        paddingBottom: 18,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        zIndex: 10,
+    },
+    headerTop: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+    },
+    backBtn: { 
+        width: 44, 
+        height: 44, 
+        borderRadius: 14, 
+        justifyContent: 'center', 
+        alignItems: 'center' 
+    },
+    headerInfo: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    headerAction: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    title: { 
+        fontSize: 18, 
+        fontWeight: '900', 
+        color: '#fff', 
+        letterSpacing: -0.5 
+    },
+    badgeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 2,
+    },
+    liveDot: { 
+        width: 6, 
+        height: 6, 
+        borderRadius: 3, 
+    },
+    subtitle: { 
+        fontSize: 11, 
+        fontWeight: '700', 
+        color: 'rgba(255,255,255,0.8)',
+    },
+    contentScroll: {
+        flex: 1,
+    },
+    statsRow: { 
+        flexDirection: 'row', 
+        paddingHorizontal: 24, 
+        gap: 12, 
+        marginTop: 24,
+        marginBottom: 16 
+    },
+    statBox: { 
+        flex: 1, 
+        flexDirection: 'row',
+        padding: 16, 
+        borderRadius: 20, 
+        alignItems: 'center', 
+        gap: 12, 
+        borderWidth: 1, 
+    },
     statValue: { fontSize: 18, fontWeight: '900' },
-    statLabel: { fontSize: 10, fontWeight: '700' },
+    statLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
     tabsRow: { marginBottom: 16 },
     tabsScroll: { paddingHorizontal: 24, gap: 8 },
-    tab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1 },
-    tabText: { fontSize: 13, fontWeight: '600' },
+    tab: { 
+        paddingHorizontal: 16, 
+        paddingVertical: 10, 
+        borderRadius: 14, 
+        borderWidth: 1,
+        backgroundColor: 'rgba(255,255,255,0.03)'
+    },
+    tabText: { fontSize: 13, fontWeight: '700' },
     list: { padding: 24, paddingBottom: 100 },
-    card: { borderRadius: 24, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    typeBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+    card: { 
+        borderRadius: 24, 
+        padding: 18, 
+        marginBottom: 16, 
+        borderWidth: 1, 
+    },
+    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+    typeBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
     typeText: { fontSize: 10, fontWeight: '900' },
-    dateText: { fontSize: 12, fontWeight: '600' },
-    cardBody: { gap: 12, marginBottom: 16 },
+    dateText: { fontSize: 11, fontWeight: '700' },
+    cardBody: { gap: 10, marginBottom: 14 },
     infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    infoLabel: { fontSize: 14, fontWeight: '600' },
-    notesBox: { padding: 12, borderRadius: 12, borderLeftWidth: 3, borderLeftColor: '#7c3aed' },
-    notesText: { fontSize: 13, fontWeight: '500', fontStyle: 'italic' },
-    cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
+    infoLabel: { fontSize: 13, fontWeight: '600' },
+    notesBox: { padding: 12, borderRadius: 12, borderLeftWidth: 3, borderLeftColor: '#6366f1' },
+    notesText: { fontSize: 12, fontWeight: '500', fontStyle: 'italic' },
+    cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
     priceText: { fontSize: 18, fontWeight: '900' },
     actionRow: { flexDirection: 'row', gap: 8 },
     actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
-    btnText: { color: '#fff', fontSize: 12, fontWeight: '800' },
-    statusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+    btnText: { color: '#fff', fontSize: 11, fontWeight: '900' },
+    statusBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
     statusLabel: { fontSize: 10, fontWeight: '900' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    empty: { paddingTop: 100, alignItems: 'center', gap: 20 },
-    emptyText: { fontSize: 16, fontWeight: '600', textAlign: 'center' }
+    centerLoading: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 100 },
+    empty: { paddingTop: 60, alignItems: 'center', gap: 16 },
+    emptyText: { fontSize: 14, fontWeight: '700', textAlign: 'center' }
 });
