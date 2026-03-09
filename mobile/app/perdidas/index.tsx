@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions, ScrollView, TextInput, ActivityIndicator } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useQuery } from '@tanstack/react-query';
 import { getReports, LostPetReport } from '../../src/services/perdidas';
 import { useRouter } from 'expo-router';
@@ -199,10 +199,50 @@ export default function PerdidasScreen() {
 
                 {/* Content Area */}
                 {viewMode === 'map' ? (
-                    <View style={[styles.mapContainer, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
-                        <MapPin size={48} color={theme.textMuted} />
-                        <Text style={{ color: theme.textMuted, marginTop: 16, fontWeight: '700' }}>Mapa en mantenimiento</Text>
-                        <Text style={{ color: theme.textMuted, fontSize: 12 }}>(Falta Google Maps API Key en Android)</Text>
+                    <View style={styles.mapContainer}>
+                        <MapView
+                            provider={PROVIDER_DEFAULT}
+                            style={styles.map}
+                            initialRegion={{
+                                latitude: 19.4326,
+                                longitude: -99.1332,
+                                latitudeDelta: 0.1,
+                                longitudeDelta: 0.1,
+                            }}
+                            mapType="none"
+                        >
+                            <UrlTile
+                                urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                maximumZ={19}
+                                flipY={false}
+                            />
+                            {filteredReports.map((report) => (
+                                <Marker
+                                    key={report.id}
+                                    coordinate={{
+                                        latitude: report.latitude || 19.4326,
+                                        longitude: report.longitude || -99.1332,
+                                    }}
+                                >
+                                    <View style={[styles.markerBase, { borderColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
+                                        <Image
+                                            source={{ uri: report.image_url || 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=400' }}
+                                            style={styles.markerImg}
+                                        />
+                                        {report.has_tracker && <View style={styles.markerPulse} />}
+                                    </View>
+                                    <Callout tooltip onPress={() => router.push(`/perdidas/${report.id}`)}>
+                                        <View style={[styles.callout, { backgroundColor: theme.surface }]}>
+                                            <Text style={[styles.calloutTitle, { color: theme.text }]}>{report.pet_name}</Text>
+                                            <Text style={[styles.calloutSub, { color: theme.textMuted }]}>{report.report_type === 'lost' ? 'Perdida' : 'Encontrada'}</Text>
+                                            <View style={[styles.calloutBtn, { backgroundColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
+                                                <Text style={styles.calloutBtnText}>Ver Reporte</Text>
+                                            </View>
+                                        </View>
+                                    </Callout>
+                                </Marker>
+                            ))}
+                        </MapView>
                     </View>
                 ) : (
                     <View style={styles.feed}>
@@ -580,5 +620,30 @@ const styles = StyleSheet.create({
         marginTop: 16,
         fontSize: 14,
         fontWeight: '600',
-    }
+    },
+    callout: {
+        width: 180,
+        padding: 12,
+        borderRadius: 16,
+        alignItems: 'center',
+        gap: 4,
+    },
+    calloutTitle: {
+        fontSize: 15,
+        fontWeight: '800',
+    },
+    calloutSub: {
+        fontSize: 12,
+        marginBottom: 8,
+    },
+    calloutBtn: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    calloutBtnText: {
+        color: '#fff',
+        fontSize: 11,
+        fontWeight: '700',
+    },
 });

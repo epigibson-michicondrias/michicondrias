@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -163,9 +163,40 @@ export default function NuevoLugarScreen() {
                         </ScrollView>
 
                         <Text style={[styles.label, { color: theme.text }]}>Ubicación en el Mapa</Text>
-                        <View style={[styles.mapWrapper, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
-                            <MapPin size={32} color={theme.textMuted} />
-                            <Text style={{ color: theme.textMuted, marginTop: 8, fontWeight: '700' }}>Mapa en mantenimiento</Text>
+                        <View style={styles.mapWrapper}>
+                            <MapView
+                                provider={PROVIDER_DEFAULT}
+                                style={styles.map}
+                                initialRegion={{
+                                    latitude: location?.latitude || 19.4326,
+                                    longitude: location?.longitude || -99.1332,
+                                    latitudeDelta: 0.0122,
+                                    longitudeDelta: 0.0121,
+                                }}
+                                onRegionChangeComplete={(region) => {
+                                    setLocation({
+                                        latitude: region.latitude,
+                                        longitude: region.longitude
+                                    });
+                                }}
+                                mapType="none"
+                            >
+                                <UrlTile
+                                    urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    maximumZ={19}
+                                    flipY={false}
+                                />
+                                {location && (
+                                    <Marker
+                                        coordinate={location}
+                                        draggable
+                                        onDragEnd={(e) => setLocation(e.nativeEvent.coordinate)}
+                                    />
+                                )}
+                            </MapView>
+                            <View style={styles.mapOverlay} pointerEvents="none">
+                                <MapPin size={32} color={theme.primary} />
+                            </View>
                         </View>
 
                         <Text style={[styles.label, { color: theme.text }]}>Dirección (Opcional)</Text>

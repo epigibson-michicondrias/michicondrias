@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "Michicondrias",
     "slug": "mobile",
@@ -8,8 +8,8 @@
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
+      "image": "./assets/images/logo.jpg",
+      "resizeMode": "contain",
       "backgroundColor": "#1a0b2e"
     },
     "ios": {
@@ -24,10 +24,10 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.michicondrias.mobile",
-      "versionCode": 4,
+      "versionCode": 5,
       "config": {
         "googleMaps": {
-          "apiKey": "TU_API_KEY_AQUI"
+          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || "TU_API_KEY_AQUI"
         }
       }
     },
@@ -63,4 +63,4 @@
     },
     "owner": "michicondrias"
   }
-}
+};

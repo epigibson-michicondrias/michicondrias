@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, TextInput, ActivityIndicator, Dimensions } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useQuery } from '@tanstack/react-query';
 import { getPlaces, PetfriendlyPlace } from '../../src/services/petfriendly';
 import { useRouter } from 'expo-router';
@@ -97,9 +97,46 @@ export default function PetfriendlyScreen() {
             </View>
 
             {viewMode === 'map' ? (
-                <View style={[styles.mapWrapper, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
-                    <MapPin size={32} color={theme.textMuted} />
-                    <Text style={{ color: theme.textMuted, marginTop: 8, fontWeight: '700' }}>Mapa en mantenimiento</Text>
+                <View style={styles.mapWrapper}>
+                    <MapView
+                        provider={PROVIDER_DEFAULT}
+                        style={styles.map}
+                        initialRegion={{
+                            latitude: 19.4326,
+                            longitude: -99.1332,
+                            latitudeDelta: 0.0522,
+                            longitudeDelta: 0.0421,
+                        }}
+                        mapType="none"
+                    >
+                        <UrlTile
+                            urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            maximumZ={19}
+                            flipY={false}
+                        />
+                        {filteredPlaces.map((place) => (
+                            <Marker
+                                key={place.id}
+                                coordinate={{
+                                    latitude: place.latitude || 19.4326,
+                                    longitude: place.longitude || -99.1332,
+                                }}
+                            >
+                                <View style={[styles.customMarker, { backgroundColor: theme.primary }]}>
+                                    <Text style={styles.markerEmoji}>🐾</Text>
+                                </View>
+                                <Callout tooltip onPress={() => router.push(`/petfriendly/${place.id}` as any)}>
+                                    <View style={[styles.callout, { backgroundColor: theme.surface }]}>
+                                        <Text style={[styles.calloutTitle, { color: theme.text }]}>{place.name}</Text>
+                                        <Text style={[styles.calloutSub, { color: theme.textMuted }]}>{place.category}</Text>
+                                        <View style={[styles.calloutBtn, { backgroundColor: theme.primary }]}>
+                                            <Text style={styles.calloutBtnText}>Ver Detalles</Text>
+                                        </View>
+                                    </View>
+                                </Callout>
+                            </Marker>
+                        ))}
+                    </MapView>
                 </View>
             ) : (
                 <FlatList

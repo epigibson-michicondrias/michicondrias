@@ -1,7 +1,7 @@
 import { apiFetch, setToken, removeToken, getToken } from "./api";
 import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
 const ROLE_KEY = 'user_role';
 
 export interface LoginResponse {

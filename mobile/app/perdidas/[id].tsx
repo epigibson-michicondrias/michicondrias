@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Linking, Alert, ActivityIndicator } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getReportById, LostPetReport, resolveReport } from '../../src/services/perdidas';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -181,10 +181,39 @@ export default function PerdidasDetailScreen() {
                     </Text>
 
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Última Ubicación Conocida</Text>
-                    {/* Map Detail Debug: Replaced MapView with View */}
-                    <View style={[styles.mapWrapper, { borderColor: theme.border, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.surface }]}>
-                        <MapPin size={32} color={theme.textMuted} />
-                        <Text style={{ color: theme.textMuted, fontSize: 10, marginTop: 8, fontWeight: '700' }}>Mapa no disponible</Text>
+                    <View style={styles.mapWrapper}>
+                        <MapView
+                            provider={PROVIDER_DEFAULT}
+                            style={styles.map}
+                            initialRegion={{
+                                latitude: report.latitude || 19.4326,
+                                longitude: report.longitude || -99.1332,
+                                latitudeDelta: 0.01,
+                                longitudeDelta: 0.01,
+                            }}
+                            scrollEnabled={false}
+                            zoomEnabled={false}
+                            mapType="none"
+                        >
+                            <UrlTile
+                                urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                maximumZ={19}
+                                flipY={false}
+                            />
+                            <Marker
+                                coordinate={{
+                                    latitude: report.latitude || 19.4326,
+                                    longitude: report.longitude || -99.1332,
+                                }}
+                            >
+                                <View style={[styles.miniMarker, { borderColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
+                                    <Image
+                                        source={{ uri: report.image_url || 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=400' }}
+                                        style={styles.miniMarkerImg}
+                                    />
+                                </View>
+                            </Marker>
+                        </MapView>
                     </View>
 
                     {isOwner && !report.is_resolved && (
@@ -527,5 +556,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 10,
-    }
+    },
 });

@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
 
 const API_URLS = {
     core: `${BASE_URL}/core/api/v1`,
