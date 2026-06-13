@@ -52,7 +52,7 @@ def create_prescription(
     if not clinic or clinic.owner_user_id != user_id:
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
-    # Assume expiry date is 7 days from now if not provided
+    generate_link = prescription_data.get("generatePurchaseLink", False)
     
     new_prescription = Prescriptions(
         clinic_id=clinic_id,
@@ -66,7 +66,19 @@ def create_prescription(
     db.commit()
     db.refresh(new_prescription)
     
-    return {"id": str(new_prescription.id), "message": "Prescription created successfully"}
+    response_data = {
+        "id": str(new_prescription.id), 
+        "message": "Prescription created successfully"
+    }
+    
+    if generate_link:
+        # Generate the unified checkout/purchase link targeting the ecommerce platform
+        purchase_url = f"https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/checkout?prescription_id={new_prescription.id}"
+        response_data["purchase_link"] = purchase_url
+        response_data["message"] += " and purchase link generated"
+        
+    return response_data
+
 
 @router.put("/{presc_id}")
 def update_prescription_status(
