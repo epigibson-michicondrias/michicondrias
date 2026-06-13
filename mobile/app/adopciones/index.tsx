@@ -305,7 +305,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        backdropFilter: 'blur(10px)',
     },
     genderText: {
         fontSize: 16,

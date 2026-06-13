@@ -281,7 +281,7 @@ export interface SurgeryItem {
     surgery_name: string;
     surgery_type: string;
     scheduled_date: string; // ISO DateTime
-    estimated_duration_minutes: number;
+    estimated_duration_minutes?: number;
     status: string; // "scheduled", "in-progress", "completed", "cancelled"
     operating_room?: string;
     notes?: string;

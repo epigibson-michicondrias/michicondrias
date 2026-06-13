@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { getProduct, getReviews } from '@/src/services/ecommerce';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useCart } from '../../../src/contexts/CartContext';
+import { useCart } from '@/src/contexts/CartContext';
 import { ChevronLeft, ShoppingCart, Star, ShieldCheck, Truck, RotateCcw, Minus, Plus, Heart } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
