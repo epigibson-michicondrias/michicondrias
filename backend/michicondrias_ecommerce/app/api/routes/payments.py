@@ -199,4 +199,35 @@ def _notify_mascotas_service_by_sub(sub_id: str, active: bool):
             resp = client.patch(url, json=payload, timeout=10.0)
             logger.info(f"Mascotas service revocation by sub {sub_id} status: {resp.status_code}")
     except Exception as e:
-        logger.error(f"Failed to revoke Mascotas service sub {sub_id}: {e}")
+        logger.error(f"Failed to revoke sub {sub_id}: {e}")
+
+
+@router.post("/billing/portal-session")
+async def create_billing_portal_session(
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Create a Stripe Billing Portal session for unified subscription/billing management."""
+    if not settings.STRIPE_SECRET_KEY:
+        mock_url = f"{settings.FRONTEND_URL}/dashboard/billing-mock?user_id={user_id}"
+        return {"url": mock_url}
+
+    try:
+        customers = stripe.Customer.list(limit=1)
+        if customers and len(customers.data) > 0:
+            customer_id = customers.data[0].id
+        else:
+            customer = stripe.Customer.create(
+                email=f"user-{user_id}@example.com",
+                metadata={"user_id": user_id}
+            )
+            customer_id = customer.id
+
+        session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=f"{settings.FRONTEND_URL}/dashboard/billing",
+        )
+        return {"url": session.url}
+    except Exception as e:
+        logger.exception("Billing portal session creation failed")
+        fallback_url = f"{settings.FRONTEND_URL}/dashboard/billing-mock?user_id={user_id}&error={str(e)}"
+        return {"url": fallback_url}
