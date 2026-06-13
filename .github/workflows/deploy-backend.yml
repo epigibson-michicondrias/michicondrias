@@ -58,6 +58,8 @@ jobs:
             --s3-bucket michicondrias-storage-1 \
             --s3-key deployments/${{ matrix.service }}.zip \
             --region us-east-1
+          echo "Esperando a que la actualización del código se complete..."
+          aws lambda wait function-updated --function-name michicondrias-${{ matrix.service }} --region us-east-1
         else
           echo "La función NO existe. Obteniendo rol de IAM desde core..."
           ROLE_ARN=$(aws lambda get-function-configuration --function-name michicondrias-core --region us-east-1 --query "Role" --output text)
@@ -71,6 +73,8 @@ jobs:
             --timeout 30 \
             --memory-size 256 \
             --region us-east-1
+          echo "Esperando a que la nueva función esté activa..."
+          aws lambda wait function-active --function-name michicondrias-${{ matrix.service }} --region us-east-1
         fi
 
         # 1.5 Copiar variables de entorno desde core y configurar PROXY_PREFIX para el servicio actual
