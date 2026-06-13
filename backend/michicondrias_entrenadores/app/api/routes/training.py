@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.api import deps
 from app.crud import crud_training
+from app.models.training import PetTrainingGoal
 from app.schemas.training import (
     TrainingProgramCreate,
     TrainingProgramResponse,
@@ -122,3 +123,37 @@ def read_provider_enrollments(
     Get all training enrollments requested from the logged-in trainer. Requires 'entrenador' role.
     """
     return crud_training.get_enrollments_for_trainer(db=db, trainer_id=current_user_id)
+
+
+@router.post("/goals/{goal_id}/review-video", response_model=PetTrainingGoalResponse)
+def review_pet_goal_video(
+    goal_id: str,
+    approved: bool,
+    notes: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.require_entrenador)
+) -> Any:
+    """
+    Approve or reject a pet's training progress video. Requires 'entrenador' role.
+    """
+    goal = db.query(PetTrainingGoal).filter(PetTrainingGoal.id == goal_id).first()
+    if not goal:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="La meta de adiestramiento no existe."
+        )
+    
+    # Check if trainer is indeed the owner of the program
+    if goal.program:
+        if goal.program.trainer_id != current_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tiene permisos para calificar esta meta de adiestramiento."
+            )
+            
+    goal.status = "completed" if approved else "in_progress"
+    goal.progress_notes = notes
+    db.commit()
+    db.refresh(goal)
+    return goal

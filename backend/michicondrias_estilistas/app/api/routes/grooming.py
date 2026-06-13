@@ -1,10 +1,12 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import date
 
 from app.api import deps
 from app.db.session import get_db
 from app.crud import crud_grooming
+from app.models.grooming import GroomingAppointment
 from app.schemas.grooming import (
     GroomingAppointmentCreate,
     GroomingAppointmentUpdatePhotos,
@@ -119,3 +121,27 @@ def read_provider_appointments(
     Get all grooming appointments requested from the logged-in groomer. Requires 'estilista' role.
     """
     return crud_grooming.get_appointments_for_provider(db=db, groomer_id=current_user_id)
+
+
+@router.get("/groomers/{groomer_id}/available-slots", response_model=List[str])
+def read_available_slots(
+    groomer_id: str,
+    target_date: date,
+    *,
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Get all available grooming slots for a stylist on a specific date.
+    """
+    appointments = db.query(GroomingAppointment).filter(
+        GroomingAppointment.groomer_id == groomer_id,
+        GroomingAppointment.date == target_date,
+        GroomingAppointment.status != "cancelled"
+    ).all()
+    
+    taken_hours = {appt.time.strftime("%H:%M") for appt in appointments}
+    
+    # 9:00 AM to 5:00 PM standard business hours
+    all_hours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+    available = [h for h in all_hours if h not in taken_hours]
+    return available

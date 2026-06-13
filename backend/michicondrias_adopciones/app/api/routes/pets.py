@@ -13,7 +13,11 @@ from app.schemas.pet import (
     ListingResponse,
     AdoptionRequestCreate,
     AdoptionRequestResponse,
-    PresignedUrlResponse
+    PresignedUrlResponse,
+    AdoptionFormCreate,
+    AdoptionFormResponse,
+    AdoptionContractCreate,
+    AdoptionContractResponse
 )
 
 router = APIRouter()
@@ -343,3 +347,74 @@ async def approve_adoption(
     # 4. If pet creation succeeded, finalize the adoption in local DB
     result = crud.approve_adoption(db, request_id)
     return result
+
+
+# ========================================
+# ADOPTION FORMS & CONTRACTS FLOWS
+# ========================================
+
+@router.post("/adoptions/forms", response_model=AdoptionFormResponse)
+def submit_adoption_form(
+    *,
+    db: Session = Depends(get_db),
+    form_in: AdoptionFormCreate,
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Submit a detailed adoption questionnaire/form for a pet."""
+    # Verify the pet/listing exists
+    listing = crud.get_listing(db, form_in.pet_id)
+    if not listing:
+        raise HTTPException(status_code=404, detail="La mascota/publicación no existe")
+    if listing.status != "abierto":
+        raise HTTPException(status_code=400, detail="Esta mascota ya no está disponible para adopción")
+    
+    return crud.create_adoption_form(db=db, form_in=form_in, applicant_id=user_id)
+
+
+@router.get("/adoptions/refuge/applications", response_model=List[AdoptionFormResponse])
+def get_refuge_applications(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """List all adoption applications/forms received for listings published by this refuge/user."""
+    if role not in ["refugio", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo usuarios con rol refugio o admin pueden listar aplicaciones",
+        )
+    return crud.get_adoption_forms_for_refuge(db=db, refuge_id=user_id)
+
+
+@router.post("/adoptions/contracts/sign", response_model=AdoptionContractResponse)
+def sign_adoption_contract(
+    *,
+    db: Session = Depends(get_db),
+    contract_in: AdoptionContractCreate,
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """Sign an adoption contract (requires refugio/admin/association role)."""
+    # Verify the form exists and is approved
+    form = crud.get_adoption_form(db, contract_in.form_id)
+    if not form:
+        raise HTTPException(status_code=404, detail="El formulario de adopción no existe")
+    
+    # Verify that the refuge signing the contract actually published the listing
+    listing = crud.get_listing(db, form.pet_id)
+    if not listing:
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    
+    if role != "admin" and listing.published_by != user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permiso para firmar contratos para esta mascota",
+        )
+    
+    # Create the contract
+    contract = crud.create_adoption_contract(db=db, contract_in=contract_in)
+    # Update form status to 'approved' if not already
+    crud.update_adoption_form_status(db, form.id, "approved")
+    return contract
+

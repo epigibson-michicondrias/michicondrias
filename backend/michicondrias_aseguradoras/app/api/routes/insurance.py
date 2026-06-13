@@ -237,3 +237,38 @@ def subscribe_to_plan(
     )
 
     return crud.create_policy(db, policy_in=policy_create)
+
+
+@router.post("/claims/{claim_id}/verify-receipt", response_model=dict)
+def verify_claim_receipt(
+    claim_id: str,
+    db: Session = Depends(get_db),
+    current_insurer_id: str = Depends(deps.require_aseguradora)
+):
+    """
+    Verify claim receipts against clinic records. Mock validation.
+    """
+    claim = crud.get_claim_by_id(db, claim_id=claim_id)
+    if not claim:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reclamación no encontrada"
+        )
+        
+    if claim.policy.insurer_id != current_insurer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para modificar una reclamación de esta póliza"
+        )
+        
+    # Perform mock validation: check if medical_receipt_url is present
+    is_valid = True if claim.medical_receipt_url else False
+    
+    return {
+        "claim_id": claim_id,
+        "is_valid": is_valid,
+        "receipt_url": claim.medical_receipt_url,
+        "amount_claimed": claim.amount_claimed,
+        "status": "verified" if is_valid else "invalid_receipt",
+        "message": "Recibo verificado exitosamente" if is_valid else "Falta el recibo médico"
+    }

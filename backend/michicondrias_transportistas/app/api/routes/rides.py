@@ -7,6 +7,7 @@ import math
 from app.api import deps
 from app.db.session import get_db
 from app.crud import crud_ride
+from app.models.ride import PetRide
 from app.schemas.ride import (
     PetRideCreate,
     PetRideOut,
@@ -156,3 +157,87 @@ def estimate_fare(
         estimated_duration_minutes=round(duration_min, 1),
         estimated_fare=round(estimated_fare, 2)
     )
+
+
+@router.post("/{ride_id}/start", response_model=PetRideOut)
+def start_ride(
+    ride_id: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.require_transportista)
+) -> Any:
+    """
+    Start the pet ride. Updates status to 'in_transit'. Requires 'transportista' role.
+    """
+    ride = db.query(PetRide).filter(PetRide.id == ride_id).first()
+    if not ride:
+        raise HTTPException(status_code=404, detail="Viaje no encontrado")
+    if ride.driver_id != current_user_id:
+        raise HTTPException(status_code=403, detail="No eres el conductor de este viaje")
+    
+    ride.status = "in_transit"
+    db.commit()
+    db.refresh(ride)
+    return ride
+
+
+@router.post("/{ride_id}/finish", response_model=PetRideOut)
+def finish_ride(
+    ride_id: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.require_transportista)
+) -> Any:
+    """
+    Complete the pet ride. Updates status to 'completed'. Requires 'transportista' role.
+    """
+    ride = db.query(PetRide).filter(PetRide.id == ride_id).first()
+    if not ride:
+        raise HTTPException(status_code=404, detail="Viaje no encontrado")
+    if ride.driver_id != current_user_id:
+        raise HTTPException(status_code=403, detail="No eres el conductor de este viaje")
+    
+    ride.status = "completed"
+    db.commit()
+    db.refresh(ride)
+    return ride
+
+
+@router.get("/history/driver", response_model=dict)
+def read_driver_ride_history(
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.require_transportista)
+) -> Any:
+    """
+    Get the ride log history for the current driver, including cumulative earnings. Requires 'transportista' role.
+    """
+    rides = db.query(PetRide).filter(
+        PetRide.driver_id == current_user_id,
+        PetRide.status == "completed"
+    ).all()
+    
+    total_earnings = sum(ride.price for ride in rides if ride.price)
+    
+    # We map rides to PetRideOut format manually for list representation
+    rides_out = []
+    for ride in rides:
+        rides_out.append({
+            "id": ride.id,
+            "driver_id": ride.driver_id,
+            "pet_id": ride.pet_id,
+            "origin_address": ride.origin_address,
+            "destination_address": ride.destination_address,
+            "price": ride.price,
+            "requires_carrier": ride.requires_carrier,
+            "current_lat": ride.current_lat,
+            "current_lng": ride.current_lng,
+            "status": ride.status
+        })
+        
+    return {
+        "driver_id": current_user_id,
+        "total_earnings": round(total_earnings, 2),
+        "rides_count": len(rides),
+        "rides": rides_out
+    }

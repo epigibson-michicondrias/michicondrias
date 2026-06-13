@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Integer, Text, Boolean, Float, JSON
+from sqlalchemy import Column, String, Integer, Text, Boolean, Float, JSON, ForeignKey, DateTime
+from sqlalchemy.sql import func
 from app.models.base import BaseModel
 
 
@@ -70,3 +71,27 @@ class AdoptionRequest(BaseModel):
     financial_commitment = Column(Boolean, default=False) # Compromiso de gastos médicos/alimento
     reason = Column(Text) # Por qué quiere adoptar
     previous_experience = Column(Text) # Experiencia previa con mascotas
+
+
+class AdoptionForm(BaseModel):
+    __tablename__ = "adoption_forms"
+
+    pet_id = Column(String(36), nullable=False, index=True)
+    applicant_id = Column(String(36), nullable=False, index=True)
+    has_other_pets = Column(Boolean, default=False)
+    has_yard = Column(Boolean, default=False)
+    hours_left_alone = Column(Integer, default=0)
+    experience_level = Column(String(50), nullable=True)
+    compatibility_score = Column(Integer, default=0)
+    status = Column(String(20), default="submitted")  # 'submitted', 'under_review', 'approved', 'rejected'
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class AdoptionContract(BaseModel):
+    __tablename__ = "adoption_contracts"
+
+    form_id = Column(String(36), ForeignKey("adoption_forms.id", ondelete="CASCADE"), nullable=False, index=True)
+    refuge_id = Column(String(36), nullable=False, index=True)
+    terms = Column(Text, nullable=False)
+    signed_contract_url = Column(String(500), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

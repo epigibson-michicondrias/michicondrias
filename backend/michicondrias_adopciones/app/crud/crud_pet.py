@@ -1,6 +1,12 @@
 from sqlalchemy.orm import Session
-from app.models.pet import AdoptionListing, AdoptionRequest
-from app.schemas.pet import ListingCreate, ListingUpdate, AdoptionRequestCreate
+from app.models.pet import AdoptionListing, AdoptionRequest, AdoptionForm, AdoptionContract
+from app.schemas.pet import (
+    ListingCreate,
+    ListingUpdate,
+    AdoptionRequestCreate,
+    AdoptionFormCreate,
+    AdoptionContractCreate
+)
 
 
 # ============================
@@ -262,4 +268,82 @@ def get_all_pending_requests(db: Session, skip: int = 0, limit: int = 100):
         final_list.append(req)
     
     return final_list
+
+
+# ============================
+# ADOPTION FORMS & CONTRACTS
+# ============================
+
+def calculate_form_compatibility(form: AdoptionForm) -> int:
+    score = 60
+    if form.has_yard:
+        score += 20
+    if form.hours_left_alone and form.hours_left_alone > 8:
+        score -= 20
+    elif form.hours_left_alone and form.hours_left_alone <= 4:
+        score += 10
+    if form.experience_level in ["intermediate", "expert", "intermedio", "experto"]:
+        score += 10
+    return max(0, min(100, score))
+
+def create_adoption_form(db: Session, form_in: AdoptionFormCreate, applicant_id: str):
+    db_form = AdoptionForm(
+        pet_id=form_in.pet_id,
+        applicant_id=applicant_id,
+        has_other_pets=form_in.has_other_pets,
+        has_yard=form_in.has_yard,
+        hours_left_alone=form_in.hours_left_alone,
+        experience_level=form_in.experience_level,
+        status="submitted",
+    )
+    db_form.compatibility_score = calculate_form_compatibility(db_form)
+    db.add(db_form)
+    db.commit()
+    db.refresh(db_form)
+    return db_form
+
+def get_adoption_form(db: Session, form_id: str):
+    return db.query(AdoptionForm).filter(AdoptionForm.id == form_id).first()
+
+def get_adoption_forms_for_pet(db: Session, pet_id: str):
+    return db.query(AdoptionForm).filter(AdoptionForm.pet_id == pet_id).all()
+
+def get_adoption_forms_by_applicant(db: Session, applicant_id: str):
+    return db.query(AdoptionForm).filter(AdoptionForm.applicant_id == applicant_id).all()
+
+def get_adoption_forms_for_refuge(db: Session, refuge_id: str):
+    # Retrieve all forms where the listing was published by refuge_id
+    return (
+        db.query(AdoptionForm)
+        .join(AdoptionListing, AdoptionForm.pet_id == AdoptionListing.id)
+        .filter(AdoptionListing.published_by == refuge_id)
+        .all()
+    )
+
+def update_adoption_form_status(db: Session, form_id: str, status: str):
+    form = get_adoption_form(db, form_id)
+    if form:
+        form.status = status
+        db.commit()
+        db.refresh(form)
+    return form
+
+def create_adoption_contract(db: Session, contract_in: AdoptionContractCreate):
+    db_contract = AdoptionContract(
+        form_id=contract_in.form_id,
+        refuge_id=contract_in.refuge_id,
+        terms=contract_in.terms,
+        signed_contract_url=contract_in.signed_contract_url
+    )
+    db.add(db_contract)
+    db.commit()
+    db.refresh(db_contract)
+    return db_contract
+
+def get_adoption_contract(db: Session, contract_id: str):
+    return db.query(AdoptionContract).filter(AdoptionContract.id == contract_id).first()
+
+def get_adoption_contracts_by_refuge(db: Session, refuge_id: str):
+    return db.query(AdoptionContract).filter(AdoptionContract.refuge_id == refuge_id).all()
+
 

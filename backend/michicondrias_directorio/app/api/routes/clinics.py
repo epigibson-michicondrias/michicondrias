@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.api import deps
 from app.db.session import get_db
-from app.schemas.clinic import ClinicCreate, ClinicUpdate, ClinicResponse
+from app.schemas.clinic import ClinicCreate, ClinicUpdate, ClinicResponse, VeterinarianResponse
 
 router = APIRouter()
 
@@ -84,6 +84,70 @@ def delete_my_clinic(
     crud.crud_clinic.remove_clinic(db, clinic_id)
     return {"message": "Clínica eliminada exitosamente"}
 
+# --- CLINIC VETERINARIAN MANAGEMENT ---
+
+@router.get("/{clinic_id}/veterinarians", response_model=List[VeterinarianResponse])
+def read_clinic_veterinarians(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """Retrieve approved veterinarians belonging to a specific clinic."""
+    clinic = crud.crud_clinic.get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    return crud.crud_clinic.get_veterinarians(db, skip=skip, limit=limit, clinic_id=clinic_id)
+
+@router.post("/{clinic_id}/veterinarians/{vet_id}", response_model=VeterinarianResponse)
+def associate_veterinarian(
+    clinic_id: str,
+    vet_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Associate a veterinarian to the clinic. Only the clinic owner can perform this."""
+    clinic = crud.crud_clinic.get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    if clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para gestionar este hospital")
+    
+    vet = crud.crud_clinic.get_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinario no encontrado")
+        
+    vet.clinic_id = clinic_id
+    db.add(vet)
+    db.commit()
+    db.refresh(vet)
+    return vet
+
+@router.delete("/{clinic_id}/veterinarians/{vet_id}", response_model=dict)
+def dissociate_veterinarian(
+    clinic_id: str,
+    vet_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Dissociate/remove a veterinarian from the clinic. Only the clinic owner can perform this."""
+    clinic = crud.crud_clinic.get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    if clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para gestionar este hospital")
+    
+    vet = crud.crud_clinic.get_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinario no encontrado")
+    if vet.clinic_id != clinic_id:
+        raise HTTPException(status_code=400, detail="El veterinario no pertenece a esta clínica")
+        
+    vet.clinic_id = None
+    db.add(vet)
+    db.commit()
+    return {"message": "Veterinario desasociado del hospital exitosamente"}
+
 # --- ADMIN ENDPOINTS FOR MODERATION ---
 
 @router.get("/admin/pending", response_model=List[ClinicResponse])
@@ -117,4 +181,45 @@ def reject_clinic(
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     return {"message": "Clínica eliminada exitosamente"}
+
+
+# --- HOSPITAL DIGITAL MANAGEMENT ---
+
+@router.get("/hospitals/clinics", response_model=List[ClinicResponse])
+def read_hospital_clinics(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """List all clinics/hospitals owned by the current hospital/admin user."""
+    if role not in ["hospital", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo usuarios con rol hospital o administrador pueden listar sus clínicas.",
+        )
+    return crud.crud_clinic.get_clinics_by_owner(db, owner_user_id=user_id)
+
+
+@router.get("/hospitals/veterinarians", response_model=List[VeterinarianResponse])
+def read_hospital_veterinarians(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """List all veterinarians associated with any clinic owned by the hospital."""
+    if role not in ["hospital", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo usuarios con rol hospital o administrador pueden listar sus veterinarios.",
+        )
+    # Find all clinics owned by the hospital
+    my_clinics = crud.crud_clinic.get_clinics_by_owner(db, owner_user_id=user_id)
+    clinic_ids = [c.id for c in my_clinics]
+    
+    from app.models.clinic import Veterinarian
+    if not clinic_ids:
+        return []
+    vets = db.query(Veterinarian).filter(Veterinarian.clinic_id.in_(clinic_ids)).all()
+    return vets
+
 

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List
+from datetime import datetime
 
 
 # ============================
@@ -90,4 +91,51 @@ class AdoptionRequestResponse(AdoptionRequestCreate):
 
     class Config:
         from_attributes = True
+
+
+# ============================
+# ADOPTION FORM
+# ============================
+
+class AdoptionFormBase(BaseModel):
+    pet_id: str
+    has_other_pets: Optional[bool] = False
+    has_yard: Optional[bool] = False
+    hours_left_alone: Optional[int] = 0
+    experience_level: Optional[str] = None
+
+class AdoptionFormCreate(AdoptionFormBase):
+    pass
+
+class AdoptionFormResponse(AdoptionFormBase):
+    id: str
+    applicant_id: str
+    compatibility_score: int
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# ============================
+# ADOPTION CONTRACT
+# ============================
+
+class AdoptionContractBase(BaseModel):
+    form_id: str
+    refuge_id: str
+    terms: str
+    signed_contract_url: Optional[str] = None
+
+class AdoptionContractCreate(AdoptionContractBase):
+    pass
+
+class AdoptionContractResponse(AdoptionContractBase):
+    id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 

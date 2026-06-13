@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.api import deps
 from app.crud import crud_laboratory
+from app.models.laboratory import LabOrder, LabResult
 from app.schemas.laboratory import (
     LabOrderCreate,
     LabOrderOut,
@@ -148,3 +149,53 @@ def read_provider_appointments(
     Get all lab appointments requested from the logged-in laboratory. Requires 'laboratorio' role.
     """
     return crud_laboratory.get_appointments_for_provider(db=db, lab_id=current_user_id)
+
+
+@router.get("/alerts/anomalies", response_model=List[LabResultOut])
+def read_lab_anomalies(
+    *,
+    db: Session = Depends(deps.get_db),
+    current_user_id: str = Depends(deps.require_laboratorio)
+):
+    """
+    List all anomaly lab results processed by this laboratory. Requires 'laboratorio' role.
+    """
+    return db.query(LabResult).join(LabOrder).filter(
+        LabOrder.lab_id == current_user_id,
+        LabResult.is_anomaly == True
+    ).all()
+
+
+@router.patch("/orders/{order_id}/status", response_model=LabOrderOut)
+def update_lab_order_status(
+    order_id: str,
+    status_str: str,
+    *,
+    db: Session = Depends(deps.get_db),
+    current_user_id: str = Depends(deps.require_laboratorio)
+):
+    """
+    Update the status of a lab order (e.g. sample_collected, processing). Requires 'laboratorio' role.
+    """
+    order = db.query(LabOrder).filter(LabOrder.id == order_id).first()
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="La orden de laboratorio no existe"
+        )
+    if order.lab_id != current_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para modificar esta orden"
+        )
+    
+    if status_str not in ["pending", "sample_collected", "completed", "cancelled"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Estado inválido. Valores permitidos: pending, sample_collected, completed, cancelled"
+        )
+        
+    order.status = status_str
+    db.commit()
+    db.refresh(order)
+    return order

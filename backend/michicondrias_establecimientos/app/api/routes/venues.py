@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.api import deps
 from app.db.session import get_db
 from app.crud import crud_venue
+from app.models.venue import ClaimedCoupon, VenueReview
 from app.schemas.venue import (
     VenueCreate,
     VenueUpdate,
@@ -178,3 +179,70 @@ def read_venue_reviews(
             detail="Establecimiento no encontrado"
         )
     return crud_venue.get_reviews_for_venue(db=db, venue_id=venue_id)
+
+
+@router.post("/coupons/redeem", response_model=ClaimedCouponOut)
+def redeem_venue_coupon(
+    coupon_code: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.require_establecimiento)
+) -> Any:
+    """
+    Redeem/validate a claimed coupon code. Requires 'establecimiento' role (the venue owner).
+    """
+    coupon = db.query(ClaimedCoupon).filter(
+        ClaimedCoupon.coupon_code == coupon_code,
+        ClaimedCoupon.status == "active"
+    ).first()
+    
+    if not coupon:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Cupón no encontrado o ya canjeado."
+        )
+        
+    # Check if this user owns the venue
+    venue = crud_venue.get_venue_by_id(db, venue_id=coupon.venue_id)
+    if not venue or venue.owner_id != current_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permisos para canjear cupones de este establecimiento."
+        )
+        
+    coupon.status = "redeemed"
+    db.commit()
+    db.refresh(coupon)
+    return coupon
+
+
+@router.get("/{venue_id}/score", response_model=dict)
+def read_venue_score(
+    venue_id: str,
+    *,
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Retrieve average rating score and total reviews count for a venue. Public endpoint.
+    """
+    venue = crud_venue.get_venue_by_id(db, venue_id=venue_id)
+    if not venue:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Establecimiento no encontrado"
+        )
+        
+    reviews = db.query(VenueReview).filter(VenueReview.venue_id == venue_id).all()
+    if not reviews:
+        return {
+            "venue_id": venue_id,
+            "average_rating": 0.0,
+            "reviews_count": 0
+        }
+        
+    avg_rating = sum(r.rating for r in reviews) / len(reviews)
+    return {
+        "venue_id": venue_id,
+        "average_rating": round(avg_rating, 2),
+        "reviews_count": len(reviews)
+    }

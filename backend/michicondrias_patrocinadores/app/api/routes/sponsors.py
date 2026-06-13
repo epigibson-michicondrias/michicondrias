@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -105,3 +105,18 @@ def read_campaign_stats(
         # Pre-populate / ensure stats record exists
         crud_sponsor.get_or_create_stats(db=db, campaign_id=camp.id)
     return campaigns
+
+
+@router.get("/campaigns/geo-target", response_model=List[SponsorCampaignOut])
+def read_geo_targeted_campaigns(
+    lat: float,
+    lng: float,
+    radius_meters: Optional[int] = 5000,
+    *,
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Retrieve active sponsor campaigns that match target geo-coordinates (Mock filter). Public endpoint.
+    """
+    # For now, return all active campaigns as a mock of matching the coords
+    return crud_sponsor.get_active_campaigns_and_increment_views(db=db)

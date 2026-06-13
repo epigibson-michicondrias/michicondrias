@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from app.api.deps import RoleChecker, get_current_user_id
 from app.db.session import get_db
+from app.models.funerary import PetDeath, PetMemorialPost
 from app.schemas.funerary import (
     PetDeathCreate,
     PetDeathResponse,
@@ -142,3 +143,45 @@ def read_provider_bookings(
     funerary_id = current_user.get("sub")
     bookings = crud_funerary.get_bookings_for_provider(db, provider_id=funerary_id)
     return bookings
+
+@router.get("/certificate/{death_id}/pdf", response_model=dict)
+def download_death_certificate(
+    death_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Generate and retrieve the digital death certificate PDF URL/data.
+    """
+    death_report = db.query(PetDeath).filter(PetDeath.id == death_id).first()
+    if not death_report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reporte de defunción no encontrado."
+        )
+    
+    # Return mock certificate details and dummy URL
+    return {
+        "death_id": death_id,
+        "pet_id": death_report.pet_id,
+        "funerary_id": death_report.funerary_id,
+        "date_of_death": death_report.date_of_death.isoformat(),
+        "cremation_type": death_report.cremation_type,
+        "certificate_url": f"https://michicondrias-storage-1.s3.amazonaws.com/certificates/cert-{death_id}.pdf",
+        "qr_code_link": f"https://michicondrias.app/funerary/memorial/{death_report.pet_id}"
+    }
+
+@router.get("/memorial/{pet_id}/feed", response_model=List[PetMemorialPostResponse])
+def read_memorial_feed(
+    pet_id: str,
+    db: Session = Depends(get_db),
+    sort_by: Optional[str] = "date"
+):
+    """
+    Retrieve all memorial posts for a pet sorted by date.
+    """
+    query = db.query(PetMemorialPost).filter(PetMemorialPost.pet_id == pet_id)
+    if sort_by == "date":
+        query = query.order_by(PetMemorialPost.created_at.desc())
+    else:
+        query = query.order_by(PetMemorialPost.created_at.asc())
+    return query.all()
