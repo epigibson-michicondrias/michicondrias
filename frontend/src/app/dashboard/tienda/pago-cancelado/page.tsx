@@ -5,26 +5,34 @@ import dashStyles from "../../dashboard.module.css";
 
 export default function PagoCanceladoPage() {
     return (
-        <div style={{ maxWidth: "600px", margin: "4rem auto", textAlign: "center", animation: "fadeIn 0.5s ease-out" }}>
-            <div style={{ fontSize: "6rem", marginBottom: "1rem" }}>😿</div>
-            <h1 className={dashStyles["page-title"]}>Pago Interrumpido</h1>
-            <p className={dashStyles["page-subtitle"]} style={{ marginBottom: "2rem" }}>
-                Parece que decidiste no completar la transacción o hubo un problema con la plataforma de pagos.
-            </p>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", textAlign: "center" }}>
+            <div style={{
+                background: "var(--bg-glass)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "var(--radius-lg)",
+                padding: "3rem 2rem",
+                maxWidth: "500px",
+                width: "100%",
+                boxShadow: "0 8px 32px rgba(239, 68, 68, 0.1)"
+            }}>
+                <div style={{
+                    width: "80px", height: "80px", borderRadius: "50%", background: "rgba(239, 68, 68, 0.2)",
+                    color: "#ef4444", display: "flex", alignItems: "center", justifyContent: "center",
+                    margin: "0 auto 1.5rem", fontSize: "2.5rem"
+                }}>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                </div>
 
-            <div style={{ background: "rgba(239, 68, 68, 0.05)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: "var(--radius-lg)", padding: "2rem", backdropFilter: "blur(20px)" }}>
-                <p style={{ color: "#ef4444", margin: "0", fontWeight: "600" }}>
-                    No te preocupes, no se ha realizado ningún cargo a tu tarjeta.
+                <h1 className={dashStyles["page-title"]} style={{ marginBottom: "0.5rem", color: "#f87171" }}>Pago Cancelado</h1>
+                <p className={dashStyles["page-subtitle"]} style={{ marginBottom: "2rem" }}>
+                    El proceso de pago fue interrumpido. No se han realizado cargos a tu tarjeta.
                 </p>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", marginTop: "0.5rem" }}>
-                    Tus artículos seguirán guardados en tu carrito para cuando decidas volver.
-                </p>
-            </div>
 
-            <div style={{ marginTop: "3rem" }}>
-                <Link href="/dashboard/tienda" className="btn btn-primary" style={{ display: "inline-block", padding: "1rem 2rem", fontSize: "1.1rem" }}>
-                    Regresar a la Tienda 🛒
-                </Link>
+                <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+                    <Link href="/dashboard/tienda" className="btn btn-primary">
+                        Regresar a la Tienda
+                    </Link>
+                </div>
             </div>
         </div>
     );

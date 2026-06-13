@@ -1,0 +1,13 @@
+app/adopciones/index.tsx(308,9): error TS2345: Argument of type '{ container: { flex: number; }; header: { paddingTop: number; paddingHorizontal: number; paddingBottom: number; }; headerTop: { flexDirection: "row"; justifyContent: "space-between"; alignItems: "center"; marginBottom: number; }; ... 35 more ...; speciesTagText: { ...; }; }' is not assignable to parameter of type '{ container: { flex: number; }; header: { paddingTop: number; paddingHorizontal: number; paddingBottom: number; }; headerTop: { flexDirection: "row"; justifyContent: "space-between"; alignItems: "center"; marginBottom: number; }; ... 35 more ...; speciesTagText: { ...; }; } & NamedStyles<...>'.
+  Property 'genderBadge' is incompatible with index signature.
+    Object literal may only specify known properties, and 'backdropFilter' does not exist in type 'TextStyle | ViewStyle | ImageStyle'.
+app/mi-clinica/recetas.tsx(21,73): error TS2345: Argument of type '{ patientId: string; medications: { name: string; dosage: string; frequency: string; duration: string; }[]; notes: string; }' is not assignable to parameter of type 'PrescriptionCreatePayload | (() => PrescriptionCreatePayload)'.
+  Property 'veterinarianId' is missing in type '{ patientId: string; medications: { name: string; dosage: string; frequency: string; duration: string; }[]; notes: string; }' but required in type 'PrescriptionCreatePayload'.
+app/mi-clinica/recetas.tsx(57,25): error TS2345: Argument of type '{ patientId: string; medications: { name: string; dosage: string; frequency: string; duration: string; }[]; notes: string; }' is not assignable to parameter of type 'SetStateAction<PrescriptionCreatePayload>'.
+  Property 'veterinarianId' is missing in type '{ patientId: string; medications: { name: string; dosage: string; frequency: string; duration: string; }[]; notes: string; }' but required in type 'PrescriptionCreatePayload'.
+app/tienda/producto/[id].tsx(8,25): error TS2307: Cannot find module '../../../../src/contexts/CartContext' or its corresponding type declarations.
+src/contexts/CartContext.tsx(2,26): error TS2307: Cannot find module '@react-native-async-storage/async-storage' or its corresponding type declarations.
+src/services/directorio.ts(295,11): error TS2322: Type '{ id: string; status: string; clinic_id: string; patient_id: string; surgeon_id?: string; surgery_name: string; surgery_type: string; scheduled_date: string; estimated_duration_minutes?: number; operating_room?: string; notes?: string; }' is not assignable to type 'SurgeryItem'.
+  Types of property 'estimated_duration_minutes' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.

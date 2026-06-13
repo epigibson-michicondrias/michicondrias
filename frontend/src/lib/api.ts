@@ -48,10 +48,19 @@ async function apiFetch<T>(
         (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(url, {
-        ...options,
-        headers,
-    });
+    let res: Response;
+    try {
+        res = await fetch(url, {
+            ...options,
+            headers,
+        });
+    } catch (error: any) {
+        // Handle Network/CORS/Offline errors gracefully
+        if (error.name === "TypeError" && error.message.includes("fetch")) {
+            throw new Error("No hay conexión con el servidor. Verifica tu internet.");
+        }
+        throw new Error(error.message || "Error de conexión inesperado.");
+    }
 
     if (res.status === 401 || res.status === 403) {
         removeToken();

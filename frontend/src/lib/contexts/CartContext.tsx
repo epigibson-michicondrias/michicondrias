@@ -99,15 +99,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 shipping_address: address
             };
 
+            toast.loading("Generando orden segura...", { id: "checkout" });
             const order = await createOrder(orderData);
-            toast.success("¡Pedido realizado con éxito!");
+            
+            // Generate Stripe session
+            toast.loading("Redirigiendo a pasarela de pago...", { id: "checkout" });
+            
+            // Using dynamically imported createCheckoutSession to avoid circular dependencies if any
+            const { createCheckoutSession } = await import('@/lib/services/ecommerce');
+            const stripeRes = await createCheckoutSession(order.id);
+            
+            toast.success("¡Orden lista para pago!", { id: "checkout" });
+            
+            // Redirect to Stripe
+            if (stripeRes.url) {
+                window.location.href = stripeRes.url;
+            }
+            
+            // We clear the cart. Normally we might clear it AFTER success,
+            // but since we are redirecting away, doing it now is okay for UX,
+            // or we do it on the success page.
             clearCart();
             setIsCartOpen(false);
             return order;
         } catch (error: any) {
             console.error("Error during checkout", error);
-            const msg = error.detail || "Error al procesar la compra. Verifica el stock.";
-            toast.error(msg);
+            const msg = error.detail || error.message || "Error al procesar la compra.";
+            toast.error(msg, { id: "checkout" });
             return null;
         }
     };

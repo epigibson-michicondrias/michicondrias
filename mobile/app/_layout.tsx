@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 import { ThemeProvider as MichiThemeProvider, useTheme } from '../src/contexts/ThemeContext';
+import { CartProvider } from '../src/contexts/CartContext';
 
 const queryClient = new QueryClient();
 
@@ -80,7 +81,9 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <MichiThemeProvider>
         <AuthProvider>
-          <RootLayoutNav />
+          <CartProvider>
+            <RootLayoutNav />
+          </CartProvider>
         </AuthProvider>
       </MichiThemeProvider>
     </QueryClientProvider>

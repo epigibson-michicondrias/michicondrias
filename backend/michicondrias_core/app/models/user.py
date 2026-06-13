@@ -18,3 +18,8 @@ class User(BaseModel):
     id_front_url = Column(String(512), nullable=True)
     id_back_url = Column(String(512), nullable=True)
     proof_of_address_url = Column(String(512), nullable=True)
+
+    # 2FA (Two-Factor Authentication)
+    is_two_factor_enabled = Column(Boolean, default=False, nullable=False)
+    two_factor_secret = Column(String(100), nullable=True)
+

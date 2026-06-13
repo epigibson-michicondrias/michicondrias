@@ -5,9 +5,16 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class LoginResponse(BaseModel):
+    require_2fa: bool = False
+    temp_token: Optional[str] = None
+    access_token: Optional[str] = None
+    token_type: Optional[str] = None
+
 class TokenPayload(BaseModel):
     sub: Optional[str] = None
     role: Optional[str] = "consumidor"
+    is_temp: Optional[bool] = False
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -17,6 +24,7 @@ class UserBase(BaseModel):
     id_front_url: Optional[str] = None
     id_back_url: Optional[str] = None
     proof_of_address_url: Optional[str] = None
+    is_two_factor_enabled: Optional[bool] = False
 
 class UserCreate(UserBase):
     password: str
@@ -62,3 +70,17 @@ class KYCFinalizeRequest(BaseModel):
     id_front_url: str
     id_back_url: str
     proof_of_address_url: str
+
+class TwoFactorSetupResponse(BaseModel):
+    secret: str
+    otpauth_url: str
+
+class TwoFactorVerifyRequest(BaseModel):
+    code: str
+    secret: str
+
+class TwoFactorVerifyLoginRequest(BaseModel):
+    temp_token: str
+    code: str
+
+

@@ -244,4 +244,38 @@ export async function rescheduleAppointment(id: string, date: string, startTime:
     return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/reschedule`, { method: "PUT", body: JSON.stringify({ date, start_time: startTime }) });
 }
 
+// ============================================================
+// SURGERIES
+// ============================================================
+
+export interface SurgeryCreate {
+    patient_id: string;
+    surgery_type: string;
+    surgery_name: string;
+    description?: string;
+    scheduled_date: string; // ISO 8601 Date
+    estimated_duration?: number;
+    surgeon_id?: string;
+    operating_room?: string;
+    anesthesia_type?: string;
+    estimated_cost?: number;
+}
+
+export interface SurgeryItem extends SurgeryCreate {
+    id: string;
+    clinic_id: string;
+    status: string;
+    created_at: string;
+}
+
+export async function getClinicSurgeries(clinicId: string): Promise<SurgeryItem[]> {
+    return apiFetch<SurgeryItem[]>("directorio", `/clinics/${clinicId}/surgeries`);
+}
+
+export async function createSurgery(clinicId: string, data: SurgeryCreate): Promise<SurgeryItem> {
+    return apiFetch<SurgeryItem>("directorio", `/clinics/${clinicId}/surgeries/`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
 

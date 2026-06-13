@@ -171,3 +171,22 @@ def moderation_reject_report(
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
     delete_report(db, report_id=report_id)
     return {"detail": "Reporte rechazado y eliminado permanentemente"}
+
+
+@router.get("/{report_id}/matches", response_model=List[LostPetReportOut])
+def read_matching_reports(
+    report_id: str,
+    max_distance_km: float = 10.0,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """
+    Find nearby matching reports for a given report (lost vs found) of the same species.
+    """
+    report = get_report_by_id(db, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+        
+    from app.crud.crud_lost_pets import find_matching_reports
+    return find_matching_reports(db, report=report, max_distance_km=max_distance_km)
+

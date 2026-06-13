@@ -1,0 +1,3 @@
+"""
+Michicondrias Laboratorios App package.
+"""

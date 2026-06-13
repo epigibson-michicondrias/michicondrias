@@ -1,56 +1,55 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, Suspense } from "react";
-import dashStyles from "../../dashboard.module.css";
+import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-
-function PagoExitosoContent() {
-    const searchParams = useSearchParams();
-    const sessionId = searchParams.get("session_id");
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) return null;
-
-    return (
-        <div style={{ maxWidth: "600px", margin: "4rem auto", textAlign: "center", animation: "fadeIn 0.5s ease-out" }}>
-            <div style={{ fontSize: "6rem", marginBottom: "1rem" }}>🎉🐾</div>
-            <h1 className={dashStyles["page-title"]}>¡Michi-Pago Exitoso!</h1>
-            <p className={dashStyles["page-subtitle"]} style={{ marginBottom: "2rem" }}>
-                Tu transacción se ha procesado con máxima seguridad a través de Stripe.
-                El vendedor ya fue notificado y está preparando tu pedido.
-            </p>
-
-            <div style={{ background: "var(--bg-glass)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "var(--radius-lg)", padding: "2rem", boxShadow: "0 10px 30px rgba(16, 185, 129, 0.1)", backdropFilter: "blur(20px)" }}>
-                <h3 style={{ color: "#10b981", margin: "0 0 1rem 0" }}>Detalles del Recibo</h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
-                    ID de Transacción:<br />
-                    <span style={{ fontFamily: "monospace", color: "#fff", display: "inline-block", marginTop: "0.5rem" }}>
-                        {sessionId || "Generando..."}
-                    </span>
-                </p>
-            </div>
-
-            <div style={{ marginTop: "3rem", display: "flex", gap: "1rem", justifyContent: "center" }}>
-                <Link href="/dashboard/tienda" className="btn btn-outline" style={{ display: "inline-block" }}>
-                    Seguir Comprando
-                </Link>
-                <Link href="/dashboard/tienda/compras" className="btn btn-primary" style={{ display: "inline-block" }}>
-                    Ver mis pedidos 📦
-                </Link>
-            </div>
-        </div>
-    );
-}
+import dashStyles from "../../dashboard.module.css";
+import modStyles from "../../modules.module.css";
 
 export default function PagoExitosoPage() {
+    const searchParams = useSearchParams();
+    const sessionId = searchParams?.get("session_id");
+
     return (
-        <Suspense fallback={<div className={dashStyles["loading-container"]}><p>Procesando recibo...</p></div>}>
-            <PagoExitosoContent />
-        </Suspense>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", textAlign: "center" }}>
+            <div style={{
+                background: "var(--bg-glass)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "var(--radius-lg)",
+                padding: "3rem 2rem",
+                maxWidth: "500px",
+                width: "100%",
+                boxShadow: "0 8px 32px rgba(139, 92, 246, 0.1)"
+            }}>
+                <div style={{
+                    width: "80px", height: "80px", borderRadius: "50%", background: "rgba(34, 197, 94, 0.2)",
+                    color: "#22c55e", display: "flex", alignItems: "center", justifyContent: "center",
+                    margin: "0 auto 1.5rem", fontSize: "2.5rem"
+                }}>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                </div>
+
+                <h1 className={dashStyles["page-title"]} style={{ marginBottom: "0.5rem" }}>¡Pago Exitoso!</h1>
+                <p className={dashStyles["page-subtitle"]} style={{ marginBottom: "2rem" }}>
+                    Tu orden ha sido procesada correctamente y notificada al vendedor.
+                </p>
+
+                {sessionId && (
+                    <div style={{ background: "rgba(0,0,0,0.2)", padding: "1rem", borderRadius: "var(--radius-md)", marginBottom: "2rem", fontSize: "0.85rem", color: "var(--text-secondary)", wordBreak: "break-all" }}>
+                        <span style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold", color: "var(--text-muted)" }}>ID DE TRANSACCIÓN STRIPE</span>
+                        {sessionId}
+                    </div>
+                )}
+
+                <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+                    <Link href="/dashboard/tienda" className="btn btn-outline">
+                        Volver a Tienda
+                    </Link>
+                    <Link href="/dashboard/perfil?tab=orders" className="btn btn-primary">
+                        Ver mis Órdenes
+                    </Link>
+                </div>
+            </div>
+        </div>
     );
 }

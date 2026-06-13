@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getPetById, updatePet, Pet, getMascotasPresignedUrl } from "@/lib/services/mascotas";
@@ -14,6 +14,7 @@ import { toast } from "react-hot-toast";
 export default function GestionMascotaPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const petId = params.id as string;
 
@@ -27,6 +28,17 @@ export default function GestionMascotaPage() {
         queryFn: () => getPetById(petId),
         enabled: !!petId,
     });
+
+    useEffect(() => {
+        if (searchParams?.get("subscription") === "success") {
+            toast.success("¡Suscripción a Michi-Tracker Pro activada con éxito! 🛰️", { duration: 5000 });
+            // Clean url
+            router.replace(`/dashboard/mascotas/${petId}`);
+        } else if (searchParams?.get("subscription") === "cancelled") {
+            toast.error("El proceso de suscripción fue cancelado.");
+            router.replace(`/dashboard/mascotas/${petId}`);
+        }
+    }, [searchParams, petId, router]);
 
     useEffect(() => {
         if (pet) {

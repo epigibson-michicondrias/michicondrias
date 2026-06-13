@@ -1,5 +1,5 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Text, Float, Integer, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Boolean, DateTime, Text, Float, Integer
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 from app.db.session import Base
 import uuid
@@ -198,7 +198,7 @@ class LabTests(Base):
     completed_date = Column(DateTime(timezone=True))
     
     # Results
-    results = Column(JSON)  # Flexible structure for different test types
+    results = Column(JSONB)  # Flexible structure for different test types
     interpretation = Column(Text)
     recommendations = Column(Text)
     
@@ -241,11 +241,11 @@ class Surgeries(Base):
     
     # Staff (ajustados a TEXT)
     surgeon_id = Column(String)
-    assistant_ids = Column(JSON)  # Array of assistant vet IDs
+    assistant_ids = Column(JSONB)  # Array of assistant vet IDs
     
     # Operating room
     operating_room = Column(String(20))
-    equipment_needed = Column(JSON)
+    equipment_needed = Column(JSONB)
     
     # Anesthesia
     anesthesia_type = Column(String(50))
@@ -270,3 +270,38 @@ class Surgeries(Base):
 
     def __repr__(self):
         return f"<Surgeries(id={self.id}, surgery_name={self.surgery_name}, status={self.status})>"
+
+
+class Prescriptions(Base):
+    """
+    Prescriptions model for dashboard functionality.
+    This matches the Supabase table structure.
+    """
+    __tablename__ = "prescriptions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    clinic_id = Column(String, nullable=False)  # TEXT en Supabase
+    patient_id = Column(String, nullable=False)  # TEXT en Supabase
+    veterinarian_id = Column(String, nullable=False) # TEXT en Supabase
+    
+    # Medication details
+    medications = Column(JSONB, nullable=False)  # List of objects: {name, dosage, frequency, duration}
+    
+    # Status
+    status = Column(String(20), nullable=False, default="active") # active, filled, expired, cancelled
+    
+    # Notes
+    notes = Column(Text)
+    
+    # Dates
+    issued_date = Column(DateTime(timezone=True), server_default=func.now())
+    expiry_date = Column(DateTime(timezone=True))
+    filled_date = Column(DateTime(timezone=True))
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    def __repr__(self):
+        return f"<Prescriptions(id={self.id}, status={self.status})>"
+

@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Search, ShoppingCart, Filter, Star, ChevronRight, ShoppingBag } from 'lucide-react-native';
+import { useCart } from '../../src/contexts/CartContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 60) / 2;
@@ -14,6 +15,7 @@ export default function TiendaIndexScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
+    const { addToCart, cartCount } = useCart();
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -60,7 +62,10 @@ export default function TiendaIndexScreen() {
                     <Text style={[styles.sellerInfo, { color: theme.textMuted }]}>
                         {item.stock > 0 ? 'En Stock' : 'Agotado'}
                     </Text>
-                    <TouchableOpacity style={[styles.cartBtn, { backgroundColor: theme.primary + '15' }]}>
+                    <TouchableOpacity 
+                        style={[styles.cartBtn, { backgroundColor: theme.primary + '15' }]}
+                        onPress={() => addToCart(item, 1)}
+                    >
                         <ShoppingCart size={16} color={theme.primary} />
                     </TouchableOpacity>
                 </View>
@@ -75,11 +80,16 @@ export default function TiendaIndexScreen() {
                     <Text style={[styles.title, { color: theme.text }]}>Michi-Shop</Text>
                     <Text style={[styles.subtitle, { color: theme.textMuted }]}>Todo para tu mejor amigo</Text>
                 </View>
-                <TouchableOpacity style={[styles.iconBtn, { backgroundColor: theme.surface }]}>
+                <TouchableOpacity 
+                    style={[styles.iconBtn, { backgroundColor: theme.surface }]}
+                    onPress={() => router.push('/tienda/carrito')}
+                >
                     <ShoppingBag size={24} color={theme.text} />
-                    <View style={styles.badge}>
-                        <Text style={styles.badgeText}>0</Text>
-                    </View>
+                    {cartCount > 0 && (
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeText}>{cartCount}</Text>
+                        </View>
+                    )}
                 </TouchableOpacity>
             </View>
 

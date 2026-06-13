@@ -85,6 +85,9 @@ class AdoptionRequestResponse(AdoptionRequestCreate):
     # Info extra anexada de la Mascota
     pet_name: Optional[str] = None
     pet_photo_url: Optional[str] = None
+    compatibility_score: Optional[int] = None
+    vetting_notes: Optional[str] = None
 
     class Config:
         from_attributes = True
+

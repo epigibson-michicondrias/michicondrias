@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics, getClinicAppointments, confirmAppointment, completeAppointment, cancelAppointment, AppointmentItem } from '../../src/services/directorio';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Filter, CheckCircle2, MoreHorizontal, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList } from 'lucide-react-native';
-import { ScrollView } from 'react-native';
+import { ChevronLeft, Filter, CheckCircle2, MoreHorizontal, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
 
 const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
     pending: { label: "Pendiente", emoji: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
@@ -22,6 +21,8 @@ export default function AgendaClinicaScreen() {
     const theme = Colors[colorScheme ?? 'dark'];
 
     const [filter, setFilter] = useState('all');
+    const [showSearch, setShowSearch] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [cancelModal, setCancelModal] = useState<{ visible: boolean; apptId: string | null }>({ visible: false, apptId: null });
     const [cancelReason, setCancelReason] = useState('');
@@ -39,7 +40,9 @@ export default function AgendaClinicaScreen() {
         enabled: !!clinic?.id,
     });
 
-    const filtered = filter === 'all' ? appointments : appointments.filter(a => a.status === filter);
+    const filtered = (filter === 'all' ? appointments : appointments.filter(a => a.status === filter))
+        .filter(a => a.service_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                     a.notes?.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const handleConfirm = async (id: string) => {
         setActionLoading(id);
@@ -162,10 +165,23 @@ export default function AgendaClinicaScreen() {
                     <Text style={[styles.headerTitle, { color: theme.text }]}>Agenda</Text>
                     <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Control de citas recibidas</Text>
                 </View>
-                <TouchableOpacity style={styles.filterBtn} onPress={() => { }}>
-                    <Filter size={20} color={theme.textMuted} />
+                <TouchableOpacity style={styles.filterBtn} onPress={() => setShowSearch(!showSearch)}>
+                    {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
                 </TouchableOpacity>
             </View>
+
+            {showSearch && (
+                <View style={styles.searchContainer}>
+                    <TextInput
+                        style={[styles.searchInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                        placeholder="Buscar cita..."
+                        placeholderTextColor={theme.textMuted}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        autoFocus
+                    />
+                </View>
+            )}
 
             {/* Filter Tabs */}
             <View style={styles.tabsRow}>
@@ -304,5 +320,7 @@ const styles = StyleSheet.create({
     modalActions: { flexDirection: 'row', marginHorizontal: -24, marginTop: 8 },
     modalBtn: { flex: 1, height: 64, justifyContent: 'center', alignItems: 'center' },
     modalBtnText: { fontSize: 15, fontWeight: '700' },
-    modalBtnTextDanger: { fontSize: 15, fontWeight: '800', color: '#fff' }
+    modalBtnTextDanger: { fontSize: 15, fontWeight: '800', color: '#fff' },
+    searchContainer: { paddingHorizontal: 24, paddingBottom: 16 },
+    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, fontWeight: '600' }
 });

@@ -87,3 +87,20 @@ def update_vaccine(db: Session, db_vaccine: Vaccine, vaccine_update: VaccineUpda
     db.commit()
     db.refresh(db_vaccine)
     return db_vaccine
+
+# CRUD MEDICATION REMINDERS
+def get_reminders_by_pet(db: Session, pet_id: str, unread_only: bool = False, skip: int = 0, limit: int = 100):
+    query = db.query(MedicationReminder).filter(MedicationReminder.pet_id == pet_id)
+    if unread_only:
+        query = query.filter(MedicationReminder.sent == False)
+    return query.order_by(MedicationReminder.remind_at.asc()).offset(skip).limit(limit).all()
+
+def check_reminder(db: Session, reminder_id: str):
+    db_reminder = db.query(MedicationReminder).filter(MedicationReminder.id == reminder_id).first()
+    if db_reminder:
+        db_reminder.sent = True
+        db.add(db_reminder)
+        db.commit()
+        db.refresh(db_reminder)
+    return db_reminder
+

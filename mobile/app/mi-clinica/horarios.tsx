@@ -34,6 +34,11 @@ export default function HorariosClinicaScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [holidayModalVisible, setHolidayModalVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    
+    // Time Picker State
+    const [timePickerVisible, setTimePickerVisible] = useState(false);
+    const [timePickerTarget, setTimePickerTarget] = useState<{index: number, field: keyof ScheduleDay, title: string} | null>(null);
+    const [tempTime, setTempTime] = useState('09:00');
 
     // Schedule State
     const [schedule, setSchedule] = useState<ScheduleDay[]>([
@@ -157,7 +162,11 @@ export default function HorariosClinicaScreen() {
                             <Text style={[styles.timeLabel, { color: theme.textMuted }]}>Apertura</Text>
                             <TouchableOpacity
                                 style={[styles.timeButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                                onPress={() => Alert.alert("Hora", "Seleccionar hora de apertura")}
+                                onPress={() => {
+                                    setTempTime(day.openTime);
+                                    setTimePickerTarget({ index, field: 'openTime', title: 'Hora de Apertura' });
+                                    setTimePickerVisible(true);
+                                }}
                             >
                                 <Clock size={16} color={theme.primary} />
                                 <Text style={[styles.timeText, { color: theme.text }]}>{day.openTime}</Text>
@@ -167,7 +176,11 @@ export default function HorariosClinicaScreen() {
                             <Text style={[styles.timeLabel, { color: theme.textMuted }]}>Cierre</Text>
                             <TouchableOpacity
                                 style={[styles.timeButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                                onPress={() => Alert.alert("Hora", "Seleccionar hora de cierre")}
+                                onPress={() => {
+                                    setTempTime(day.closeTime);
+                                    setTimePickerTarget({ index, field: 'closeTime', title: 'Hora de Cierre' });
+                                    setTimePickerVisible(true);
+                                }}
                             >
                                 <Clock size={16} color={theme.primary} />
                                 <Text style={[styles.timeText, { color: theme.text }]}>{day.closeTime}</Text>
@@ -177,7 +190,7 @@ export default function HorariosClinicaScreen() {
 
                     <TouchableOpacity
                         style={[styles.addBreakBtn, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => Alert.alert("Pausa", "Agregar período de pausa")}
+                        onPress={() => Alert.alert("Próximamente", "La gestión de descansos múltiples se habilitará pronto")}
                     >
                         <Plus size={16} color={theme.primary} />
                         <Text style={[styles.addBreakText, { color: theme.primary }]}>Agregar Pausa</Text>
@@ -374,6 +387,59 @@ export default function HorariosClinicaScreen() {
                     </ScrollView>
                 </View>
             </Modal>
+
+            {/* Time Picker Modal */}
+            <Modal
+                visible={timePickerVisible}
+                transparent
+                animationType="fade"
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.timePickerContent, { backgroundColor: theme.background }]}>
+                        <View style={styles.timePickerHeader}>
+                            <Text style={[styles.timePickerTitle, { color: theme.text }]}>
+                                {timePickerTarget?.title || 'Seleccionar Hora'}
+                            </Text>
+                        </View>
+
+                        <View style={styles.timePickerBody}>
+                            <Text style={[styles.label, { color: theme.textMuted, textAlign: 'center', marginBottom: 12 }]}>Formato 24 Horas (HH:MM)</Text>
+                            <TextInput
+                                style={[styles.timeInputModal, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                value={tempTime}
+                                onChangeText={setTempTime}
+                                keyboardType="numbers-and-punctuation"
+                                placeholder="09:00"
+                                placeholderTextColor={theme.textMuted}
+                                maxLength={5}
+                                textAlign="center"
+                            />
+                        </View>
+
+                        <View style={styles.timePickerActions}>
+                            <TouchableOpacity 
+                                style={[styles.timePickerBtn, { backgroundColor: 'rgba(255,255,255,0.1)' }]} 
+                                onPress={() => setTimePickerVisible(false)}
+                            >
+                                <Text style={[styles.timePickerBtnText, { color: theme.text }]}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={[styles.timePickerBtn, { backgroundColor: theme.primary }]}
+                                onPress={() => {
+                                    if (timePickerTarget && tempTime.length === 5 && tempTime.includes(':')) {
+                                        updateDaySchedule(timePickerTarget.index, timePickerTarget.field, tempTime);
+                                        setTimePickerVisible(false);
+                                    } else {
+                                        Alert.alert("Formato Inválido", "Usa el formato HH:MM");
+                                    }
+                                }}
+                            >
+                                <Text style={[styles.timePickerBtnText, { color: '#fff' }]}>Guardar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -439,4 +505,13 @@ const styles = StyleSheet.create({
     input: { height: 56, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, fontSize: 16, fontWeight: '600' },
     textArea: { height: 100, borderRadius: 12, paddingHorizontal: 16, paddingTop: 16, borderWidth: 1, fontSize: 16, textAlignVertical: 'top' },
     modalFooter: { height: 40 },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+    timePickerContent: { width: '80%', borderRadius: 24, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 10 },
+    timePickerHeader: { alignItems: 'center', marginBottom: 20 },
+    timePickerTitle: { fontSize: 18, fontWeight: '800' },
+    timePickerBody: { marginBottom: 24 },
+    timeInputModal: { height: 60, fontSize: 32, fontWeight: '900', borderRadius: 16, borderWidth: 1, letterSpacing: 2 },
+    timePickerActions: { flexDirection: 'row', gap: 12 },
+    timePickerBtn: { flex: 1, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+    timePickerBtnText: { fontSize: 15, fontWeight: '700' }
 });

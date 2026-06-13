@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getProduct, getReviews, createOrder } from '@/src/services/ecommerce';
+import { getProduct, getReviews } from '@/src/services/ecommerce';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useCart } from '../../../src/contexts/CartContext';
 import { ChevronLeft, ShoppingCart, Star, ShieldCheck, Truck, RotateCcw, Minus, Plus, Heart } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -17,6 +18,7 @@ export default function ProductDetailScreen() {
 
     const [quantity, setQuantity] = useState(1);
     const [isFavorite, setIsFavorite] = useState(false);
+    const { addToCart } = useCart();
 
     const { data: product, isLoading } = useQuery({
         queryKey: ['product', id],
@@ -28,18 +30,12 @@ export default function ProductDetailScreen() {
         queryFn: () => getReviews(id as string),
     });
 
-    const buyMutation = useMutation({
-        mutationFn: () => createOrder({
-            items: [{ product_id: id as string, quantity }]
-        }),
-        onSuccess: (order) => {
-            Alert.alert("Orden Creada", `¡Gracias por tu compra! Orden #${order.id.slice(0, 8)}`);
-            router.back();
-        },
-        onError: () => {
-            Alert.alert("Error", "No pudimos procesar tu compra. Inténtalo de nuevo.");
-        }
-    });
+    const handleAddToCart = () => {
+        if (!product) return;
+        addToCart(product, quantity);
+        Alert.alert("Agregado", "El producto se ha añadido a tu bolsa de compras.");
+        router.back();
+    };
 
     if (isLoading) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}><ActivityIndicator size="large" color={theme.primary} /></View>;
     if (!product) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.text }}>Producto no encontrado</Text></View>;
@@ -137,15 +133,17 @@ export default function ProductDetailScreen() {
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: theme.border }]}>
-                <TouchableOpacity style={[styles.cartBtn, { borderColor: theme.primary }]}>
+                <TouchableOpacity 
+                    style={[styles.cartBtn, { borderColor: theme.primary }]}
+                    onPress={handleAddToCart}
+                >
                     <ShoppingCart size={24} color={theme.primary} />
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.buyBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => buyMutation.mutate()}
-                    disabled={buyMutation.isPending}
+                    onPress={handleAddToCart}
                 >
-                    {buyMutation.isPending ? <ActivityIndicator color="#fff" /> : <Text style={styles.buyBtnText}>Comprar Ahora</Text>}
+                    <Text style={styles.buyBtnText}>Agregar a la Bolsa</Text>
                 </TouchableOpacity>
             </View>
         </View>

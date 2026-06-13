@@ -12,8 +12,12 @@ from app.schemas.user import (
     UserMeResponse, 
     KYCPresignedUrlsResponse, 
     KYCPresignedUrl, 
-    KYCFinalizeRequest
+    KYCFinalizeRequest,
+    TwoFactorSetupResponse,
+    TwoFactorVerifyRequest
 )
+import pyotp
+
 from app.models.user import User
 from app.models.role import Role
 
@@ -207,9 +211,14 @@ def upgrade_user_role(
     In a real system, this might require manual admin approval or Stripe subscription.
     For this MVP, we grant the requested role directly if valid.
     """
-    valid_roles = ["veterinario", "paseador", "vendedor", "refugio"]
+    valid_roles = [
+        "veterinario", "paseador", "vendedor", "refugio", 
+        "cuidador", "patrocinador", "establecimiento", "clinica",
+        "hogar_temporal", "funeraria"
+    ]
     if role_name not in valid_roles:
         raise HTTPException(status_code=400, detail="Rol de asociado inválido")
+
     
     role = db.query(Role).filter(Role.name == role_name).first()
     if not role:
@@ -355,3 +364,72 @@ def get_users_stats(
             "rejected": crud.crud_user.count_users_by_status(db, "REJECTED")
         }
     }
+
+@router.post("/me/2fa/setup", response_model=TwoFactorSetupResponse)
+def setup_two_factor(
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Generate a new TOTP secret for 2FA setup.
+    Returns the secret and the otpauth URL for generating a QR code.
+    """
+    if current_user.is_two_factor_enabled:
+        raise HTTPException(status_code=400, detail="2FA ya está habilitado para esta cuenta")
+    
+    # Generate random secret key
+    secret = pyotp.random_base32()
+    totp = pyotp.TOTP(secret)
+    # Generate standard otpauth URL
+    otpauth_url = totp.provisioning_uri(
+        name=current_user.email,
+        issuer_name="Michicondrias"
+    )
+    
+    return {
+        "secret": secret,
+        "otpauth_url": otpauth_url
+    }
+
+@router.post("/me/2fa/enable", response_model=UserResponse)
+def enable_two_factor(
+    body: TwoFactorVerifyRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Enable 2FA for the account after verifying a code from the setup process.
+    """
+    if current_user.is_two_factor_enabled:
+        raise HTTPException(status_code=400, detail="2FA ya está habilitado")
+        
+    # Verify the code using the secret provided
+    totp = pyotp.TOTP(body.secret)
+    if not totp.verify(body.code):
+        raise HTTPException(status_code=400, detail="Código de verificación inválido")
+        
+    # Save to database
+    user = crud.crud_user.enable_two_factor(db, db_user=current_user, secret=body.secret)
+    return _add_kyc_presigned_urls(user)
+
+@router.post("/me/2fa/disable", response_model=UserResponse)
+def disable_two_factor(
+    body: TwoFactorVerifyRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Disable 2FA for the account by verifying a code with the current active secret.
+    """
+    if not current_user.is_two_factor_enabled:
+        raise HTTPException(status_code=400, detail="2FA no está habilitado")
+        
+    # Verify code using the stored secret
+    totp = pyotp.TOTP(current_user.two_factor_secret)
+    if not totp.verify(body.code):
+        raise HTTPException(status_code=400, detail="Código de verificación inválido")
+        
+    # Disable in database
+    user = crud.crud_user.disable_two_factor(db, db_user=current_user)
+    return _add_kyc_presigned_urls(user)
+
+

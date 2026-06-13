@@ -7,7 +7,8 @@ import {
     getMyClinics, updateClinic, Clinic, deleteClinic, ClinicCreate,
     getClinicServices, createClinicService, updateClinicService, deleteClinicService, ClinicServiceItem,
     getClinicSchedule, setClinicSchedule, ClinicScheduleItem,
-    getClinicAppointments, confirmAppointment, completeAppointment, AppointmentItem
+    getClinicAppointments, confirmAppointment, completeAppointment, AppointmentItem,
+    getClinicSurgeries, createSurgery, SurgeryItem, SurgeryCreate
 } from "@/lib/services/directorio";
 import { createRecord, MedicalRecordCreate, Prescription } from "@/lib/services/carnet";
 import { hasRole } from "@/lib/auth";
@@ -25,7 +26,7 @@ const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; 
     rescheduled: { label: "Reagendada", emoji: "🔄", color: "#6b7280", bg: "rgba(107,114,128,0.12)", badge: dashStyles["badge-neutral"] },
 };
 
-type Tab = "info" | "services" | "schedule" | "agenda";
+type Tab = "info" | "services" | "schedule" | "agenda" | "cirugias";
 
 export default function MiClinicaPage() {
     const router = useRouter();
@@ -59,6 +60,12 @@ export default function MiClinicaPage() {
     const [recordForm, setRecordForm] = useState<MedicalRecordCreate>({ pet_id: "", reason_for_visit: "", prescriptions: [] });
     const [savingRecord, setSavingRecord] = useState(false);
 
+    // Surgeries
+    const [surgeries, setSurgeries] = useState<SurgeryItem[]>([]);
+    const [showSurgModal, setShowSurgModal] = useState(false);
+    const [surgForm, setSurgForm] = useState<SurgeryCreate>({ patient_id: "pet_mock_123", surgery_name: "", surgery_type: "Electiva", scheduled_date: "", estimated_duration: 60, operating_room: "", estimated_cost: 0 });
+    const [savingSurgery, setSavingSurgery] = useState(false);
+
     useEffect(() => {
         if (!hasRole("veterinario") && !hasRole("admin")) {
             router.push("/dashboard/directorio");
@@ -81,10 +88,11 @@ export default function MiClinicaPage() {
 
     async function loadClinicData(clinicId: string) {
         try {
-            const [svcs, scheds, appts] = await Promise.all([
+            const [svcs, scheds, appts, surgs] = await Promise.all([
                 getClinicServices(clinicId).catch(() => []),
                 getClinicSchedule(clinicId).catch(() => []),
                 getClinicAppointments(clinicId).catch(() => []),
+                getClinicSurgeries(clinicId).catch(() => []),
             ]);
             setServices(svcs);
             // Initialize schedule grid
@@ -100,6 +108,7 @@ export default function MiClinicaPage() {
             });
             setSchedule(grid);
             setAppointments(appts);
+            setSurgeries(surgs);
         } catch { }
     }
 
@@ -254,11 +263,31 @@ export default function MiClinicaPage() {
         finally { setSavingRecord(false); }
     }
 
+    // --- Surgeries ---
+    async function handleAddSurgery() {
+        if (!selectedClinic || !surgForm.surgery_name || !surgForm.scheduled_date) return toast.error("Por favor completa los campos requeridos.");
+        
+        setSavingSurgery(true);
+        try {
+            const scheduled_date_iso = new Date(surgForm.scheduled_date).toISOString();
+            const newSurg = await createSurgery(selectedClinic.id, { ...surgForm, scheduled_date: scheduled_date_iso });
+            setSurgeries([...surgeries, newSurg]);
+            setShowSurgModal(false);
+            setSurgForm({ patient_id: "pet_mock_123", surgery_name: "", surgery_type: "Electiva", scheduled_date: "", estimated_duration: 60, operating_room: "", estimated_cost: 0 });
+            toast.success("Cirugía programada exitosamente 💉");
+        } catch (err: any) {
+            toast.error(err.message || "Error al programar cirugía");
+        } finally {
+            setSavingSurgery(false);
+        }
+    }
+
     const tabs: { key: Tab; label: string; icon: string }[] = [
         { key: "info", label: "Información", icon: "🏥" },
         { key: "services", label: "Servicios", icon: "🏷️" },
         { key: "schedule", label: "Horario", icon: "🕐" },
         { key: "agenda", label: "Agenda", icon: "📅" },
+        { key: "cirugias", label: "Cirugías", icon: "💉" },
     ];
 
     return (
@@ -470,6 +499,97 @@ export default function MiClinicaPage() {
                                             </div>
                                         );
                                     })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {/* TAB: Cirugías */}
+                    {activeTab === "cirugias" && selectedClinic && (
+                        <div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                                <h3 style={{ color: "#fff", margin: 0 }}>💉 Cirugías Programadas ({surgeries.length})</h3>
+                                <button className="btn btn-primary" style={{ borderRadius: "12px", background: "linear-gradient(135deg, #ef4444, #dc2626)" }} onClick={() => setShowSurgModal(true)}>+ Agendar Cirugía</button>
+                            </div>
+                            {surgeries.length === 0 ? (
+                                <div style={{ textAlign: "center", padding: "3rem", background: "rgba(255,255,255,0.02)", borderRadius: "20px", border: "1px dashed rgba(255,255,255,0.08)" }}>
+                                    <p style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🩻</p>
+                                    <p style={{ color: "var(--text-secondary)" }}>No hay cirugías programadas</p>
+                                </div>
+                            ) : (
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1rem" }}>
+                                    {surgeries.map(surg => (
+                                        <div key={surg.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "18px", padding: "1.5rem" }}>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.5rem" }}>
+                                                <div>
+                                                    <p style={{ margin: 0, color: "#fff", fontWeight: 700, fontSize: "1.05rem" }}>{surg.surgery_name}</p>
+                                                    <span style={{ fontSize: "0.7rem", color: "#f87171", background: "rgba(239,68,68,0.1)", padding: "0.15rem 0.5rem", borderRadius: "6px" }}>{surg.surgery_type}</span>
+                                                </div>
+                                                <span style={{ fontSize: "0.8rem", padding: "0.2rem 0.6rem", borderRadius: "10px", background: surg.status === "scheduled" ? "rgba(245,158,11,0.1)" : "rgba(16,185,129,0.1)", color: surg.status === "scheduled" ? "#f59e0b" : "#10b981" }}>
+                                                    {surg.status === "scheduled" ? "⏳ Pendiente" : "✅ Completada"}
+                                                </span>
+                                            </div>
+                                            <p style={{ margin: "0", color: "var(--text-secondary)", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>📅 {new Date(surg.scheduled_date).toLocaleString("es-MX")}</p>
+                                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                                                {surg.operating_room && <span>🏥 Q.: {surg.operating_room}</span>}
+                                                {surg.estimated_duration && <span>⏱️ {surg.estimated_duration} min</span>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Modal Agendar Cirugía */}
+                            {showSurgModal && (
+                                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
+                                    <div style={{ background: "var(--bg-glass)", border: "1px solid var(--border-color)", borderRadius: "24px", padding: "2rem", width: "100%", maxWidth: "500px", animation: "slideUp 0.3s ease-out" }}>
+                                        <h2 style={{ fontSize: "1.3rem", marginBottom: "1.5rem", color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>💉 Agendar Cirugía</h2>
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                            <div>
+                                                <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Nombre de la Cirugía *</label>
+                                                <input className="form-input" value={surgForm.surgery_name} onChange={e => setSurgForm({ ...surgForm, surgery_name: e.target.value })} placeholder="Ej. Ovariohisterectomía" />
+                                            </div>
+                                            <div style={{ display: "flex", gap: "1rem" }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Tipo de Cirugía</label>
+                                                    <select className="form-input" value={surgForm.surgery_type} onChange={e => setSurgForm({ ...surgForm, surgery_type: e.target.value })}>
+                                                        <option value="Electiva">Electiva</option>
+                                                        <option value="Emergencia">Emergencia</option>
+                                                        <option value="Preventiva">Preventiva</option>
+                                                    </select>
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Fecha y Hora *</label>
+                                                    <input className="form-input" type="datetime-local" value={surgForm.scheduled_date} onChange={e => setSurgForm({ ...surgForm, scheduled_date: e.target.value })} />
+                                                </div>
+                                            </div>
+                                            <div style={{ display: "flex", gap: "1rem" }}>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Duración (min)</label>
+                                                    <input className="form-input" type="number" value={surgForm.estimated_duration} onChange={e => setSurgForm({ ...surgForm, estimated_duration: parseInt(e.target.value) })} />
+                                                </div>
+                                                <div style={{ flex: 1 }}>
+                                                    <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Quirófano</label>
+                                                    <input className="form-input" value={surgForm.operating_room} onChange={e => setSurgForm({ ...surgForm, operating_room: e.target.value })} placeholder="Ej. OR-1" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Costo Estimado (MXN)</label>
+                                                <input className="form-input" type="number" value={surgForm.estimated_cost} onChange={e => setSurgForm({ ...surgForm, estimated_cost: parseFloat(e.target.value) })} />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>ID Paciente (Mock)</label>
+                                                <input className="form-input" value={surgForm.patient_id} onChange={e => setSurgForm({ ...surgForm, patient_id: e.target.value })} disabled />
+                                                <span style={{ fontSize: "0.7rem", color: "var(--text-secondary)" }}>En un entorno real, este sería un buscador de mascotas registradas.</span>
+                                            </div>
+
+                                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                                                <button className="btn btn-secondary" style={{ flex: 1, borderRadius: "14px" }} onClick={() => setShowSurgModal(false)}>Cancelar</button>
+                                                <button className="btn btn-primary" style={{ flex: 2, borderRadius: "14px", background: "linear-gradient(135deg, #ef4444, #dc2626)" }} onClick={handleAddSurgery} disabled={savingSurgery}>
+                                                    {savingSurgery ? "Programando..." : "💾 Programar Cirugía"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>

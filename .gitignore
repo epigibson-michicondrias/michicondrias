@@ -26,6 +26,7 @@ out/
 
 # Database
 postgres_data/
+.temp/
 
 # OS/IDE
 .DS_Store

@@ -8,7 +8,7 @@ import { getCriticalPatients } from '../../src/services/patients';
 import { getClinicAlerts } from '../../src/services/alerts';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, PlusCircle, ChevronRight, MapPin, Star, Clock, Heart } from 'lucide-react-native';
+import { ChevronLeft, Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, PlusCircle, ChevronRight, MapPin, Star, Clock, Heart, Package, FlaskConical, FileText, AlertTriangle } from 'lucide-react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -247,6 +247,61 @@ export default function MiClinicaScreen() {
                         </View>
                         <Text style={[styles.menuLabel, { color: theme.text }]}>Horarios</Text>
                         <Text style={[styles.menuSub, { color: theme.textMuted }]}>Disponibilidad</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.menuItem, { backgroundColor: theme.surface }]}
+                        onPress={() => router.push('/mi-clinica/cirugias' as any)}
+                    >
+                        <View style={[styles.iconBox, { backgroundColor: '#ef444415' }]}>
+                            <Stethoscope size={24} color="#ef4444" />
+                        </View>
+                        <Text style={[styles.menuLabel, { color: theme.text }]}>Cirugías</Text>
+                        <Text style={[styles.menuSub, { color: theme.textMuted }]}>Quirófano</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.menuItem, { backgroundColor: theme.surface }]}
+                        onPress={() => router.push('/mi-clinica/inventario' as any)}
+                    >
+                        <View style={[styles.iconBox, { backgroundColor: '#8b5cf615' }]}>
+                            <Package size={24} color="#8b5cf6" />
+                        </View>
+                        <Text style={[styles.menuLabel, { color: theme.text }]}>Inventario</Text>
+                        <Text style={[styles.menuSub, { color: theme.textMuted }]}>Insumos médicos</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.menuItem, { backgroundColor: theme.surface }]}
+                        onPress={() => router.push('/mi-clinica/laboratorio' as any)}
+                    >
+                        <View style={[styles.iconBox, { backgroundColor: '#0ea5e915' }]}>
+                            <FlaskConical size={24} color="#0ea5e9" />
+                        </View>
+                        <Text style={[styles.menuLabel, { color: theme.text }]}>Laboratorio</Text>
+                        <Text style={[styles.menuSub, { color: theme.textMuted }]}>Pruebas y resultados</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.menuItem, { backgroundColor: theme.surface }]}
+                        onPress={() => router.push('/mi-clinica/recetas' as any)}
+                    >
+                        <View style={[styles.iconBox, { backgroundColor: '#10b98115' }]}>
+                            <FileText size={24} color="#10b981" />
+                        </View>
+                        <Text style={[styles.menuLabel, { color: theme.text }]}>Recetas</Text>
+                        <Text style={[styles.menuSub, { color: theme.textMuted }]}>Prescripciones</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.menuItem, { backgroundColor: theme.surface }]}
+                        onPress={() => router.push('/mi-clinica/pacientes' as any)}
+                    >
+                        <View style={[styles.iconBox, { backgroundColor: '#f43f5e15' }]}>
+                            <AlertTriangle size={24} color="#f43f5e" />
+                        </View>
+                        <Text style={[styles.menuLabel, { color: theme.text }]}>Pacientes</Text>
+                        <Text style={[styles.menuSub, { color: theme.textMuted }]}>General y Críticos</Text>
                     </TouchableOpacity>
                 </View>
 

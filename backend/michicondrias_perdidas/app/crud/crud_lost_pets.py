@@ -96,3 +96,57 @@ def delete_report(db: Session, report_id: str) -> bool:
     db.delete(db_report)
     db.commit()
     return True
+
+
+def find_matching_reports(db: Session, report: LostPetReport, max_distance_km: float = 10.0, limit: int = 5) -> List[LostPetReport]:
+    """
+    Find matching reports (if this report is 'lost', find 'found' reports, and vice-versa)
+    for the same species within a given distance.
+    """
+    opposite_type = "found" if report.report_type == "lost" else "lost"
+    
+    query = db.query(LostPetReport).filter(
+        LostPetReport.report_type == opposite_type,
+        LostPetReport.species == report.species,
+        LostPetReport.status == "active",
+        LostPetReport.id != report.id
+    )
+    
+    if report.latitude is not None and report.longitude is not None:
+        # Bounding box delta: 1 degree approx 111km
+        lat_delta = max_distance_km / 111.0
+        lng_delta = max_distance_km / (111.0 * abs(report.latitude + 0.000001) / 90.0) # adjust for longitude variance
+        # Simplify lng_delta calculation
+        import math
+        cos_lat = math.cos(math.radians(report.latitude))
+        lng_delta = max_distance_km / (111.0 * cos_lat) if cos_lat > 0 else lat_delta
+        
+        query = query.filter(
+            LostPetReport.latitude.between(report.latitude - lat_delta, report.latitude + lat_delta),
+            LostPetReport.longitude.between(report.longitude - lng_delta, report.longitude + lng_delta)
+        )
+        
+    results = query.all()
+    
+    # Sort by exact Haversine distance in python if lat/lng are present
+    if report.latitude is not None and report.longitude is not None:
+        import math
+        def haversine_distance(r):
+            if r.latitude is None or r.longitude is None:
+                return float('inf')
+            # R of Earth
+            R = 6371.0
+            lat1, lon1 = math.radians(report.latitude), math.radians(report.longitude)
+            lat2, lon2 = math.radians(r.latitude), math.radians(r.longitude)
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
+            a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            return R * c
+            
+        results.sort(key=haversine_distance)
+        # Filter exact distance
+        results = [r for r in results if haversine_distance(r) <= max_distance_km]
+        
+    return results[:limit]
+

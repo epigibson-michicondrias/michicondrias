@@ -65,3 +65,22 @@ def count_users_by_status(db: Session, status: str) -> int:
 
 def count_users_by_role(db: Session, role_id: str) -> int:
     return db.query(User).filter(User.role_id == role_id).count()
+
+def enable_two_factor(db: Session, db_user: User, secret: str) -> User:
+    db_user.is_two_factor_enabled = True
+    db_user.two_factor_secret = secret
+    db_conn = db
+    db_conn.add(db_user)
+    db_conn.commit()
+    db_conn.refresh(db_user)
+    return db_user
+
+def disable_two_factor(db: Session, db_user: User) -> User:
+    db_user.is_two_factor_enabled = False
+    db_user.two_factor_secret = None
+    db_conn = db
+    db_conn.add(db_user)
+    db_conn.commit()
+    db_conn.refresh(db_user)
+    return db_user
+

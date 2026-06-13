@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import ToasterProvider from "@/components/ui/ToasterProvider";
 import QueryProvider from "@/components/QueryProvider";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import OfflineBanner from "@/components/ui/OfflineBanner";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
@@ -17,10 +19,13 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <QueryProvider>
-          <ToasterProvider />
-          {children}
-        </QueryProvider>
+        <ErrorBoundary>
+          <QueryProvider>
+            <OfflineBanner />
+            <ToasterProvider />
+            {children}
+          </QueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
