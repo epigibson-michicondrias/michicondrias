@@ -50,6 +50,7 @@ jobs:
 
     - name: Deploy to AWS Lambda (via S3)
       run: |
+        # 1. Verificar y desplegar/crear la función Lambda
         if aws lambda get-function --function-name michicondrias-${{ matrix.service }} --region us-east-1 >/dev/null 2>&1; then
           echo "La función existe. Actualizando código..."
           aws lambda update-function-code \
@@ -71,3 +72,58 @@ jobs:
             --memory-size 256 \
             --region us-east-1
         fi
+
+        # 2. Configurar enrutamiento en API Gateway de forma dinámica
+        API_ID="kowly51wia"
+        ACCOUNT_ID="491799435777"
+        REGION="us-east-1"
+        LAMBDA_ARN="arn:aws:lambda:$REGION:$ACCOUNT_ID:function:michicondrias-${{ matrix.service }}"
+
+        echo "Verificando integración de API Gateway para ${{ matrix.service }}..."
+        INTEGRATION_ID=$(aws apigatewayv2 get-integrations --api-id $API_ID --region $REGION --query "Items[?contains(IntegrationUri, '$LAMBDA_ARN')].IntegrationId" --output text)
+
+        if [ -z "$INTEGRATION_ID" ] || [ "$INTEGRATION_ID" = "None" ]; then
+          echo "Creando integración de API Gateway para ${{ matrix.service }}..."
+          INTEGRATION_ID=$(aws apigatewayv2 create-integration \
+            --api-id $API_ID \
+            --integration-type AWS_PROXY \
+            --integration-uri $LAMBDA_ARN \
+            --payload-format-version 2.0 \
+            --region $REGION \
+            --query "IntegrationId" --output text)
+        fi
+        echo "IntegrationId: $INTEGRATION_ID"
+
+        # Verificar y crear ruta base: ANY /${{ matrix.service }}
+        ROUTE_BASE="ANY /${{ matrix.service }}"
+        ROUTE_BASE_ID=$(aws apigatewayv2 get-routes --api-id $API_ID --region $REGION --query "Items[?RouteKey=='$ROUTE_BASE'].RouteId" --output text)
+        if [ -z "$ROUTE_BASE_ID" ] || [ "$ROUTE_BASE_ID" = "None" ]; then
+          echo "Creando ruta base $ROUTE_BASE..."
+          aws apigatewayv2 create-route \
+            --api-id $API_ID \
+            --route-key "$ROUTE_BASE" \
+            --target "integrations/$INTEGRATION_ID" \
+            --region $REGION
+        fi
+
+        # Verificar y crear ruta proxy: ANY /${{ matrix.service }}/{proxy+}
+        ROUTE_PROXY="ANY /${{ matrix.service }}/{proxy+}"
+        ROUTE_PROXY_ID=$(aws apigatewayv2 get-routes --api-id $API_ID --region $REGION --query "Items[?RouteKey=='$ROUTE_PROXY'].RouteId" --output text)
+        if [ -z "$ROUTE_PROXY_ID" ] || [ "$ROUTE_PROXY_ID" = "None" ]; then
+          echo "Creando ruta proxy $ROUTE_PROXY..."
+          aws apigatewayv2 create-route \
+            --api-id $API_ID \
+            --route-key "$ROUTE_PROXY" \
+            --target "integrations/$INTEGRATION_ID" \
+            --region $REGION
+        fi
+
+        # Agregar permisos de ejecución a la Lambda para API Gateway
+        echo "Asegurando permisos de ejecución de Lambda para API Gateway..."
+        aws lambda add-permission \
+          --function-name michicondrias-${{ matrix.service }} \
+          --statement-id apigateway-invoke \
+          --action lambda:InvokeFunction \
+          --principal apigateway.amazonaws.com \
+          --source-arn "arn:aws:execute-api:$REGION:$ACCOUNT_ID:$API_ID/*/*" \
+          --region $REGION >/dev/null 2>&1 || true
