@@ -35,3 +35,19 @@ class BoostedAlertOut(BoostedAlertBase):
 
     class Config:
         from_attributes = True
+
+
+# CampaignStats Schemas
+class CampaignStatsOut(BaseModel):
+    id: str
+    campaign_id: str
+    views_count: int
+    clicks_count: int
+    last_tracked_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class CampaignWithStatsOut(SponsorCampaignOut):
+    stats: Optional[CampaignStatsOut] = None

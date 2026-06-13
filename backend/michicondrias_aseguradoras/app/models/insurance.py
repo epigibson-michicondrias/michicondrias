@@ -1,6 +1,8 @@
 import uuid
-from sqlalchemy import Column, String, Text, Date, Float, ForeignKey
+from sqlalchemy import Column, String, Text, Date, Float, ForeignKey, Boolean, DateTime
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.db.session import Base
 
 class PetInsurancePolicy(Base):
@@ -18,6 +20,7 @@ class PetInsurancePolicy(Base):
 
     claims = relationship("InsuranceClaim", back_populates="policy", cascade="all, delete-orphan")
 
+
 class InsuranceClaim(Base):
     __tablename__ = "insurance_claims"
 
@@ -29,3 +32,19 @@ class InsuranceClaim(Base):
     status = Column(String(20), nullable=False, default="pending")
 
     policy = relationship("PetInsurancePolicy", back_populates="claims")
+
+
+class InsurancePlan(Base):
+    __tablename__ = "insurance_plans"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    insurer_id = Column(String(36), nullable=False, index=True)
+    name = Column(String(150), nullable=False)
+    description = Column(Text, nullable=True)
+    coverage_limit = Column(Float, nullable=False)
+    base_premium = Column(Float, nullable=False)
+    min_age = Column(Float, default=0.0)
+    max_age = Column(Float, default=15.0)
+    allowed_species = Column(ARRAY(String(50)), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

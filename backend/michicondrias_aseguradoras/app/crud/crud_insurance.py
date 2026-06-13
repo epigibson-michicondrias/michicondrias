@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import date
 
-from app.models.insurance import PetInsurancePolicy, InsuranceClaim
-from app.schemas.insurance import PetInsurancePolicyCreate, InsuranceClaimCreate
+from app.models.insurance import PetInsurancePolicy, InsuranceClaim, InsurancePlan
+from app.schemas.insurance import PetInsurancePolicyCreate, InsuranceClaimCreate, InsurancePlanCreate
 
 # --- Policy CRUD Operations ---
 
@@ -53,3 +53,22 @@ def update_claim_status(db: Session, claim_id: str, status: str) -> Optional[Ins
     db.commit()
     db.refresh(db_claim)
     return db_claim
+
+
+# --- Plan CRUD Operations ---
+
+def create_plan(db: Session, plan_in: InsurancePlanCreate, insurer_id: str) -> InsurancePlan:
+    db_plan = InsurancePlan(
+        insurer_id=insurer_id,
+        **plan_in.model_dump()
+    )
+    db.add(db_plan)
+    db.commit()
+    db.refresh(db_plan)
+    return db_plan
+
+def get_active_plans(db: Session) -> List[InsurancePlan]:
+    return db.query(InsurancePlan).filter(InsurancePlan.is_active == True).all()
+
+def get_plan_by_id(db: Session, plan_id: str) -> Optional[InsurancePlan]:
+    return db.query(InsurancePlan).filter(InsurancePlan.id == plan_id).first()

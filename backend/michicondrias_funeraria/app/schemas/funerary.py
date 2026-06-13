@@ -43,3 +43,45 @@ class PetMemorialPostResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# FuneraryService Schemas
+class FuneraryServiceCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    cremation_type: Optional[Literal['individual', 'collective', 'no_cremation']] = None
+    urn_included: Optional[bool] = False
+
+class FuneraryServiceResponse(BaseModel):
+    id: str
+    funerary_id: str
+    name: str
+    description: Optional[str] = None
+    price: float
+    cremation_type: Optional[str] = None
+    urn_included: bool
+    is_active: bool
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+# FuneraryBooking Schemas
+class FuneraryBookingCreate(BaseModel):
+    pet_id: str
+    service_id: str
+    scheduled_date: date
+    notes: Optional[str] = None
+
+class FuneraryBookingResponse(BaseModel):
+    id: str
+    client_id: str
+    pet_id: str
+    service_id: str
+    scheduled_date: date
+    status: str
+    notes: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True

@@ -3,14 +3,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.api import deps
 from app.db.session import get_db
-from app.crud.crud_venue import (
-    create_venue,
-    get_venue_by_id,
-    update_venue,
-    delete_venue,
-    search_venues
+from app.crud import crud_venue
+from app.schemas.venue import (
+    VenueCreate,
+    VenueUpdate,
+    Venue,
+    ClaimedCouponOut,
+    VenueReviewCreate,
+    VenueReviewOut,
 )
-from app.schemas.venue import VenueCreate, VenueUpdate, Venue
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ def register_venue(
     """
     Register a pet friendly establishment. Requires 'establecimiento' role.
     """
-    return create_venue(db, venue_in=venue_in, owner_id=owner_id)
+    return crud_venue.create_venue(db, venue_in=venue_in, owner_id=owner_id)
 
 @router.get("/search", response_model=List[Venue])
 def search_for_venues(
@@ -40,7 +41,7 @@ def search_for_venues(
     """
     Search for venues by name, address, or amenity (uses PostgreSQL JSONB filter).
     """
-    return search_venues(
+    return crud_venue.search_venues(
         db,
         q=q,
         name=name,
@@ -58,7 +59,7 @@ def read_venue(
     """
     Get a specific pet friendly venue by ID.
     """
-    venue = get_venue_by_id(db, venue_id=venue_id)
+    venue = crud_venue.get_venue_by_id(db, venue_id=venue_id)
     if not venue:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -77,7 +78,7 @@ def update_existing_venue(
     """
     Update a pet friendly establishment. Only the owner can update.
     """
-    db_venue = get_venue_by_id(db, venue_id=venue_id)
+    db_venue = crud_venue.get_venue_by_id(db, venue_id=venue_id)
     if not db_venue:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -88,7 +89,7 @@ def update_existing_venue(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tiene permisos para modificar este establecimiento"
         )
-    return update_venue(db, db_venue=db_venue, venue_in=venue_in)
+    return crud_venue.update_venue(db, db_venue=db_venue, venue_in=venue_in)
 
 @router.delete("/{venue_id}", response_model=dict)
 def delete_existing_venue(
@@ -100,7 +101,7 @@ def delete_existing_venue(
     """
     Delete a pet friendly establishment. Only the owner can delete.
     """
-    db_venue = get_venue_by_id(db, venue_id=venue_id)
+    db_venue = crud_venue.get_venue_by_id(db, venue_id=venue_id)
     if not db_venue:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -111,5 +112,69 @@ def delete_existing_venue(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tiene permisos para eliminar este establecimiento"
         )
-    delete_venue(db, venue_id=venue_id)
+    crud_venue.delete_venue(db, venue_id=venue_id)
     return {"message": "Establecimiento eliminado exitosamente"}
+
+
+# New Coupon Claiming Endpoints
+@router.post("/{venue_id}/coupons/claim", response_model=ClaimedCouponOut)
+def claim_venue_coupon(
+    venue_id: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.get_current_user_id)
+) -> Any:
+    """
+    Claim the active discount coupon of a pet friendly venue. Requires authentication.
+    """
+    venue = crud_venue.get_venue_by_id(db, venue_id=venue_id)
+    if not venue:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Establecimiento no encontrado"
+        )
+    if not venue.discount_coupon:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Este establecimiento no tiene un cupón de descuento activo actualmente."
+        )
+    return crud_venue.claim_coupon(db=db, venue_id=venue_id, client_id=current_user_id, coupon_code=venue.discount_coupon)
+
+
+# New Venue Review Endpoints
+@router.post("/{venue_id}/reviews", response_model=VenueReviewOut, status_code=status.HTTP_201_CREATED)
+def write_venue_review(
+    venue_id: str,
+    *,
+    db: Session = Depends(get_db),
+    review_in: VenueReviewCreate,
+    current_user_id: str = Depends(deps.get_current_user_id)
+) -> Any:
+    """
+    Write a rating and review for a pet friendly establishment. Requires authentication.
+    """
+    venue = crud_venue.get_venue_by_id(db, venue_id=venue_id)
+    if not venue:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Establecimiento no encontrado"
+        )
+    return crud_venue.create_review(db=db, venue_id=venue_id, client_id=current_user_id, review_in=review_in)
+
+
+@router.get("/{venue_id}/reviews", response_model=List[VenueReviewOut])
+def read_venue_reviews(
+    venue_id: str,
+    *,
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Get all user reviews and ratings for a venue. Public endpoint.
+    """
+    venue = crud_venue.get_venue_by_id(db, venue_id=venue_id)
+    if not venue:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Establecimiento no encontrado"
+        )
+    return crud_venue.get_reviews_for_venue(db=db, venue_id=venue_id)

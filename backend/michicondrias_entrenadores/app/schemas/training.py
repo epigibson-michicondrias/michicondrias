@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import date, datetime
 
 # ==========================================
 # TRAINING PROGRAM SCHEMAS
@@ -50,6 +51,29 @@ class PetTrainingGoalUpdate(BaseModel):
 
 class PetTrainingGoalResponse(PetTrainingGoalBase):
     id: str
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================
+# TRAINING ENROLLMENT SCHEMAS
+# ==========================================
+
+class TrainingEnrollmentCreate(BaseModel):
+    pet_id: str = Field(..., max_length=36)
+    program_id: str = Field(..., max_length=36)
+    start_date: date
+
+class TrainingEnrollmentResponse(BaseModel):
+    id: str
+    client_id: str
+    pet_id: str
+    program_id: str
+    start_date: date
+    status: str
+    total_paid: float
+    created_at: datetime
 
     class Config:
         from_attributes = True

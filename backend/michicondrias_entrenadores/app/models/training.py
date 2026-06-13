@@ -1,6 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, Date, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.db.session import Base
 
 class TrainingProgram(Base):
@@ -28,3 +29,16 @@ class PetTrainingGoal(Base):
     video_proof_url = Column(String(500), nullable=True)
 
     program = relationship("TrainingProgram", back_populates="goals")
+
+
+class TrainingEnrollment(Base):
+    __tablename__ = "training_enrollments"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    client_id = Column(String(36), nullable=False, index=True)
+    pet_id = Column(String(36), nullable=False, index=True)
+    program_id = Column(String(36), ForeignKey("training_programs.id", ondelete="CASCADE"), nullable=False, index=True)
+    start_date = Column(Date, nullable=False)
+    status = Column(String(20), default="active")  # 'active', 'completed', 'cancelled'
+    total_paid = Column(Float, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

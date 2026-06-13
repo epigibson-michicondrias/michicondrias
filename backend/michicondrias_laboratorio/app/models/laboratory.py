@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, Float, Boolean, ForeignKey
+from sqlalchemy import Column, String, DateTime, Float, Boolean, ForeignKey, Date, Time, Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -35,3 +35,32 @@ class LabResult(Base):
 
     # Relationship back to LabOrder
     order = relationship("LabOrder", back_populates="results")
+
+
+class LabTestCatalog(Base):
+    __tablename__ = "lab_test_catalog"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    lab_id = Column(String(36), nullable=False, index=True)
+    name = Column(String(150), nullable=False)
+    description = Column(Text, nullable=True)
+    price = Column(Float, nullable=False)
+    reference_range = Column(String(50), nullable=True)
+    unit = Column(String(20), nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class LabAppointment(Base):
+    __tablename__ = "lab_appointments"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    client_id = Column(String(36), nullable=False, index=True)
+    pet_id = Column(String(36), nullable=False, index=True)
+    lab_id = Column(String(36), nullable=False, index=True)
+    test_id = Column(String(36), ForeignKey("lab_test_catalog.id", ondelete="CASCADE"), nullable=False, index=True)
+    scheduled_date = Column(Date, nullable=False)
+    scheduled_time = Column(Time, nullable=False)
+    status = Column(String(20), default="pending")  # 'pending', 'confirmed', 'completed', 'cancelled'
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

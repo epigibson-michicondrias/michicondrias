@@ -9,13 +9,12 @@ from app.schemas.funerary import (
     PetDeathResponse,
     PetMemorialPostCreate,
     PetMemorialPostResponse,
+    FuneraryServiceCreate,
+    FuneraryServiceResponse,
+    FuneraryBookingCreate,
+    FuneraryBookingResponse,
 )
-from app.crud.crud_funerary import (
-    get_pet,
-    create_death_report,
-    get_memorial_posts,
-    create_memorial_post,
-)
+from app.crud import crud_funerary
 
 router = APIRouter()
 
@@ -30,7 +29,7 @@ def record_death_report(
     Records a pet's death. Requires 'funeraria' or 'veterinario' role.
     Updates the pet's status to 'in_memoriam' in the database.
     """
-    pet = get_pet(db, death_in.pet_id)
+    pet = crud_funerary.get_pet(db, death_in.pet_id)
     if not pet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -38,7 +37,7 @@ def record_death_report(
         )
     
     funerary_id = current_user.get("sub")
-    death_report = create_death_report(db, death_in=death_in, funerary_id=funerary_id)
+    death_report = crud_funerary.create_death_report(db, death_in=death_in, funerary_id=funerary_id)
     if not death_report:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -54,7 +53,7 @@ def read_memorial_posts(
     """
     Retrieve all memorial posts for a pet.
     """
-    posts = get_memorial_posts(db, pet_id=pet_id)
+    posts = crud_funerary.get_memorial_posts(db, pet_id=pet_id)
     return posts
 
 @router.post("/memorial/post", response_model=PetMemorialPostResponse, status_code=status.HTTP_201_CREATED)
@@ -67,12 +66,79 @@ def create_post(
     """
     Create a new memorial post for a pet. Requires authentication.
     """
-    pet = get_pet(db, post_in.pet_id)
+    pet = crud_funerary.get_pet(db, post_in.pet_id)
     if not pet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="La mascota especificada no existe."
         )
     
-    post = create_memorial_post(db, post_in=post_in, user_id=current_user_id)
+    post = crud_funerary.create_memorial_post(db, post_in=post_in, user_id=current_user_id)
     return post
+
+@router.post("/services", response_model=FuneraryServiceResponse, status_code=status.HTTP_201_CREATED)
+def add_service(
+    *,
+    db: Session = Depends(get_db),
+    service_in: FuneraryServiceCreate,
+    current_user: dict = Depends(RoleChecker(["funeraria"]))
+):
+    """
+    Create a new funerary service package. Requires 'funeraria' role.
+    """
+    funerary_id = current_user.get("sub")
+    service = crud_funerary.create_funerary_service(db, service_in=service_in, funerary_id=funerary_id)
+    return service
+
+@router.get("/services", response_model=List[FuneraryServiceResponse])
+def read_active_services(
+    db: Session = Depends(get_db)
+):
+    """
+    Get all active funerary services. Public endpoint.
+    """
+    services = crud_funerary.get_active_funerary_services(db)
+    return services
+
+@router.post("/bookings", response_model=FuneraryBookingResponse, status_code=status.HTTP_201_CREATED)
+def add_booking(
+    *,
+    db: Session = Depends(get_db),
+    booking_in: FuneraryBookingCreate,
+    current_user_id: str = Depends(get_current_user_id)
+):
+    """
+    Book a funerary service. Requires authentication ('consumidor' or any role).
+    """
+    pet = crud_funerary.get_pet(db, booking_in.pet_id)
+    if not pet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="La mascota especificada no existe."
+        )
+    
+    booking = crud_funerary.create_funerary_booking(db, booking_in=booking_in, client_id=current_user_id)
+    return booking
+
+@router.get("/bookings/client", response_model=List[FuneraryBookingResponse])
+def read_client_bookings(
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id)
+):
+    """
+    Get all bookings for the logged-in client.
+    """
+    bookings = crud_funerary.get_bookings_for_client(db, client_id=current_user_id)
+    return bookings
+
+@router.get("/bookings/provider", response_model=List[FuneraryBookingResponse])
+def read_provider_bookings(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(RoleChecker(["funeraria"]))
+):
+    """
+    Get all bookings requested from the logged-in funerary provider. Requires 'funeraria' role.
+    """
+    funerary_id = current_user.get("sub")
+    bookings = crud_funerary.get_bookings_for_provider(db, provider_id=funerary_id)
+    return bookings

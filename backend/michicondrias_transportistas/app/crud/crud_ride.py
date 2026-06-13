@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from app.models.ride import PetRide
-from app.schemas.ride import PetRideCreate, PetRideUpdate
+from app.models.ride import PetRide, DriverProfile
+from app.schemas.ride import PetRideCreate, PetRideUpdate, DriverProfileCreate
 
 def create_ride(db: Session, ride_in: PetRideCreate) -> PetRide:
     db_ride = PetRide(
@@ -54,3 +54,32 @@ def delete_ride(db: Session, ride_id: str) -> bool:
     db.delete(db_ride)
     db.commit()
     return True
+
+
+# DriverProfile CRUD
+def get_driver_profile(db: Session, driver_id: str) -> Optional[DriverProfile]:
+    return db.query(DriverProfile).filter(DriverProfile.driver_id == driver_id).first()
+
+def create_or_update_driver_profile(
+    db: Session, profile_in: DriverProfileCreate, driver_id: str
+) -> DriverProfile:
+    db_profile = get_driver_profile(db, driver_id)
+    if db_profile:
+        update_data = profile_in.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_profile, key, value)
+    else:
+        db_profile = DriverProfile(
+            driver_id=driver_id,
+            **profile_in.model_dump()
+        )
+        db.add(db_profile)
+    
+    db.commit()
+    db.refresh(db_profile)
+    return db_profile
+
+def get_available_drivers(db: Session) -> List[DriverProfile]:
+    return db.query(DriverProfile).filter(
+        DriverProfile.is_available == True
+    ).all()

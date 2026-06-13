@@ -1,19 +1,17 @@
-from typing import Any
+from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.db.session import get_db
-from app.crud.crud_sponsor import (
-    create_campaign,
-    get_campaign,
-    create_boosted_alert
-)
+from app.crud import crud_sponsor
 from app.schemas.sponsor import (
     SponsorCampaignCreate,
     SponsorCampaignOut,
     BoostedAlertCreate,
-    BoostedAlertOut
+    BoostedAlertOut,
+    CampaignStatsOut,
+    CampaignWithStatsOut,
 )
 
 router = APIRouter()
@@ -28,7 +26,7 @@ def create_new_campaign(
     """
     Create a new ad campaign. Requires 'patrocinador' role.
     """
-    return create_campaign(db, campaign_in=campaign_in, sponsor_id=sponsor_id)
+    return crud_sponsor.create_campaign(db, campaign_in=campaign_in, sponsor_id=sponsor_id)
 
 @router.post("/boost-alert", response_model=BoostedAlertOut, status_code=status.HTTP_201_CREATED)
 def boost_pet_alert(
@@ -41,7 +39,7 @@ def boost_pet_alert(
     Boost a lost pet report alert. Requires 'patrocinador' role.
     """
     if alert_in.campaign_id:
-        campaign = get_campaign(db, alert_in.campaign_id)
+        campaign = crud_sponsor.get_campaign(db, alert_in.campaign_id)
         if not campaign:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -63,4 +61,47 @@ def boost_pet_alert(
                 detail="El monto excede el presupuesto límite de la campaña"
             )
             
-    return create_boosted_alert(db, alert_in=alert_in)
+    return crud_sponsor.create_boosted_alert(db, alert_in=alert_in)
+
+
+# New Stats Endpoints
+@router.get("/campaigns/active", response_model=List[SponsorCampaignOut])
+def read_active_campaigns(
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Get active campaigns for display. Increments views count automatically. Public endpoint.
+    """
+    return crud_sponsor.get_active_campaigns_and_increment_views(db=db)
+
+
+@router.post("/campaigns/{campaign_id}/click", response_model=CampaignStatsOut)
+def record_campaign_click(
+    campaign_id: str,
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Record a click on a campaign banner. Public endpoint.
+    """
+    stats = crud_sponsor.increment_click(db=db, campaign_id=campaign_id)
+    if not stats:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Campaña no encontrada"
+        )
+    return stats
+
+
+@router.get("/campaigns/stats", response_model=List[CampaignWithStatsOut])
+def read_campaign_stats(
+    db: Session = Depends(get_db),
+    sponsor_id: str = Depends(deps.require_patrocinador)
+) -> Any:
+    """
+    Get campaign performance stats (views, clicks). Requires 'patrocinador' role.
+    """
+    campaigns = crud_sponsor.get_campaigns_by_sponsor(db=db, sponsor_id=sponsor_id)
+    for camp in campaigns:
+        # Pre-populate / ensure stats record exists
+        crud_sponsor.get_or_create_stats(db=db, campaign_id=camp.id)
+    return campaigns

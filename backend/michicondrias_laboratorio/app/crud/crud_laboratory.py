@@ -1,7 +1,12 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app.models.laboratory import LabOrder, LabResult
-from app.schemas.laboratory import LabOrderCreate, LabResultsUpload
+from app.models.laboratory import LabOrder, LabResult, LabTestCatalog, LabAppointment
+from app.schemas.laboratory import (
+    LabOrderCreate,
+    LabResultsUpload,
+    LabTestCatalogCreate,
+    LabAppointmentCreate,
+)
 
 def create_order(db: Session, order_in: LabOrderCreate, requesting_vet_id: str) -> LabOrder:
     db_order = LabOrder(
@@ -55,3 +60,37 @@ def get_completed_results_by_pet(db: Session, pet_id: str) -> List[LabResult]:
         LabOrder.pet_id == pet_id,
         LabOrder.status == "completed"
     ).all()
+
+# LabTestCatalog CRUD
+def create_lab_test(db: Session, test_in: LabTestCatalogCreate, lab_id: str) -> LabTestCatalog:
+    db_test = LabTestCatalog(
+        lab_id=lab_id,
+        **test_in.model_dump()
+    )
+    db.add(db_test)
+    db.commit()
+    db.refresh(db_test)
+    return db_test
+
+def get_active_lab_tests(db: Session) -> List[LabTestCatalog]:
+    return db.query(LabTestCatalog).filter(LabTestCatalog.is_active == True).all()
+
+def get_lab_test_by_id(db: Session, test_id: str) -> Optional[LabTestCatalog]:
+    return db.query(LabTestCatalog).filter(LabTestCatalog.id == test_id).first()
+
+# LabAppointment CRUD
+def create_lab_appointment(db: Session, app_in: LabAppointmentCreate, client_id: str) -> LabAppointment:
+    db_app = LabAppointment(
+        client_id=client_id,
+        **app_in.model_dump()
+    )
+    db.add(db_app)
+    db.commit()
+    db.refresh(db_app)
+    return db_app
+
+def get_appointments_for_client(db: Session, client_id: str) -> List[LabAppointment]:
+    return db.query(LabAppointment).filter(LabAppointment.client_id == client_id).all()
+
+def get_appointments_for_provider(db: Session, lab_id: str) -> List[LabAppointment]:
+    return db.query(LabAppointment).filter(LabAppointment.lab_id == lab_id).all()

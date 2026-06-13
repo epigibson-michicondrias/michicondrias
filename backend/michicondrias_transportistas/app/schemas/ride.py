@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
 # Shared properties
 class PetRideBase(BaseModel):
@@ -54,3 +55,41 @@ class RideTrackOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# DriverProfile Schemas
+class DriverProfileCreate(BaseModel):
+    vehicle_model: str
+    vehicle_plate: str
+    max_capacity: Optional[int] = 1
+    has_air_conditioning: Optional[bool] = False
+    has_carriers: Optional[bool] = False
+    is_available: Optional[bool] = True
+
+class DriverProfileOut(BaseModel):
+    id: str
+    driver_id: str
+    vehicle_model: str
+    vehicle_plate: str
+    max_capacity: int
+    has_air_conditioning: bool
+    has_carriers: bool
+    is_available: bool
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# RideEstimate Schemas
+class RideEstimateRequest(BaseModel):
+    origin_lat: float
+    origin_lng: float
+    destination_lat: float
+    destination_lng: float
+    requires_carrier: Optional[bool] = True
+
+class RideEstimateOut(BaseModel):
+    distance_km: float
+    estimated_duration_minutes: float
+    estimated_fare: float

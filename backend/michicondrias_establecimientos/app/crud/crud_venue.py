@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import cast, String
 from typing import Optional, List
-from app.models.venue import PetFriendlyVenue
-from app.schemas.venue import VenueCreate, VenueUpdate
+from app.models.venue import PetFriendlyVenue, ClaimedCoupon, VenueReview
+from app.schemas.venue import VenueCreate, VenueUpdate, VenueReviewCreate
 
 def create_venue(db: Session, *, venue_in: VenueCreate, owner_id: str) -> PetFriendlyVenue:
     db_venue = PetFriendlyVenue(
@@ -70,3 +70,33 @@ def search_venues(
         query = query.filter(PetFriendlyVenue.amenities.has_key(amenity))
         
     return query.offset(skip).limit(limit).all()
+
+
+# ClaimedCoupon CRUD
+def claim_coupon(db: Session, venue_id: str, client_id: str, coupon_code: str) -> ClaimedCoupon:
+    db_coupon = ClaimedCoupon(
+        venue_id=venue_id,
+        client_id=client_id,
+        coupon_code=coupon_code,
+        status="active"
+    )
+    db.add(db_coupon)
+    db.commit()
+    db.refresh(db_coupon)
+    return db_coupon
+
+
+# VenueReview CRUD
+def create_review(db: Session, venue_id: str, client_id: str, review_in: VenueReviewCreate) -> VenueReview:
+    db_review = VenueReview(
+        venue_id=venue_id,
+        client_id=client_id,
+        **review_in.model_dump()
+    )
+    db.add(db_review)
+    db.commit()
+    db.refresh(db_review)
+    return db_review
+
+def get_reviews_for_venue(db: Session, venue_id: str) -> List[VenueReview]:
+    return db.query(VenueReview).filter(VenueReview.venue_id == venue_id).order_by(VenueReview.created_at.desc()).all()

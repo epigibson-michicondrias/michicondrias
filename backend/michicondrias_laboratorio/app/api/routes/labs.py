@@ -4,7 +4,16 @@ from typing import List
 
 from app.api import deps
 from app.crud import crud_laboratory
-from app.schemas.laboratory import LabOrderCreate, LabOrderOut, LabResultsUpload, LabResultOut
+from app.schemas.laboratory import (
+    LabOrderCreate,
+    LabOrderOut,
+    LabResultsUpload,
+    LabResultOut,
+    LabTestCatalogCreate,
+    LabTestCatalogOut,
+    LabAppointmentCreate,
+    LabAppointmentOut,
+)
 
 router = APIRouter()
 
@@ -71,3 +80,71 @@ def get_pet_lab_history(
     Retrieve all completed lab results for a specific pet. Requires a logged-in user.
     """
     return crud_laboratory.get_completed_results_by_pet(db=db, pet_id=pet_id)
+
+
+# New LabTestCatalog Endpoints
+@router.post("/tests", response_model=LabTestCatalogOut, status_code=status.HTTP_201_CREATED)
+def add_lab_test(
+    *,
+    db: Session = Depends(deps.get_db),
+    test_in: LabTestCatalogCreate,
+    current_user_id: str = Depends(deps.require_laboratorio)
+):
+    """
+    Create a new lab test catalog item. Requires 'laboratorio' role.
+    """
+    return crud_laboratory.create_lab_test(db=db, test_in=test_in, lab_id=current_user_id)
+
+
+@router.get("/tests", response_model=List[LabTestCatalogOut])
+def read_active_lab_tests(
+    db: Session = Depends(deps.get_db)
+):
+    """
+    Get all active lab tests. Public endpoint.
+    """
+    return crud_laboratory.get_active_lab_tests(db=db)
+
+
+# New LabAppointment Endpoints
+@router.post("/appointments", response_model=LabAppointmentOut, status_code=status.HTTP_201_CREATED)
+def add_lab_appointment(
+    *,
+    db: Session = Depends(deps.get_db),
+    app_in: LabAppointmentCreate,
+    current_user_id: str = Depends(deps.get_current_user_id)
+):
+    """
+    Book an appointment at a laboratory. Requires user authentication.
+    """
+    test = crud_laboratory.get_lab_test_by_id(db=db, test_id=app_in.test_id)
+    if not test:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El examen de laboratorio especificado no existe."
+        )
+    return crud_laboratory.create_lab_appointment(db=db, app_in=app_in, client_id=current_user_id)
+
+
+@router.get("/appointments/client", response_model=List[LabAppointmentOut])
+def read_client_appointments(
+    *,
+    db: Session = Depends(deps.get_db),
+    current_user_id: str = Depends(deps.get_current_user_id)
+):
+    """
+    Get all lab appointments for the logged-in client.
+    """
+    return crud_laboratory.get_appointments_for_client(db=db, client_id=current_user_id)
+
+
+@router.get("/appointments/provider", response_model=List[LabAppointmentOut])
+def read_provider_appointments(
+    *,
+    db: Session = Depends(deps.get_db),
+    current_user_id: str = Depends(deps.require_laboratorio)
+):
+    """
+    Get all lab appointments requested from the logged-in laboratory. Requires 'laboratorio' role.
+    """
+    return crud_laboratory.get_appointments_for_provider(db=db, lab_id=current_user_id)

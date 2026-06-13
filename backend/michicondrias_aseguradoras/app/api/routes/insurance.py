@@ -1,7 +1,8 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import date
+from datetime import date, timedelta
+import random
 
 from app.api import deps
 from app.db.session import get_db
@@ -19,10 +20,8 @@ def create_new_policy(
     """
     Create a new insurance policy. Requires 'aseguradora' role.
     """
-    # Force insurer_id to be the current logged-in user with role 'aseguradora'
     policy_in.insurer_id = current_insurer_id
     
-    # Check if policy number is unique
     existing_policy = db.query(models.PetInsurancePolicy).filter(
         models.PetInsurancePolicy.policy_number == policy_in.policy_number
     ).first()
@@ -69,20 +68,14 @@ def create_new_claim(
             detail="La póliza asociada no existe"
         )
     
-    # Check if policy is active
     today = date.today()
     if policy.status != "active" or not (policy.start_date <= today <= policy.end_date):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="La póliza asociada no está activa o ya expiró"
         )
-
-    # If the user is a 'consumidor', they should ideally own the pet.
-    # However, let's keep it flexible since it's a microservice, but we check role.
     
-    # Force default claim status as pending upon request
     claim_in.status = "pending"
-    
     return crud.create_claim(db, claim_in=claim_in)
 
 
@@ -109,7 +102,6 @@ def update_claim_status_endpoint(
             detail="Reclamación no encontrada"
         )
         
-    # Verify that the insurer who is trying to update the claim is the owner/insurer of the policy
     if claim.policy.insurer_id != current_insurer_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -117,3 +109,131 @@ def update_claim_status_endpoint(
         )
         
     return crud.update_claim_status(db, claim_id=claim_id, status=claim_update.status)
+
+
+# --- Plan Endpoints ---
+
+@router.post("/plans", response_model=schemas.InsurancePlanOut, status_code=status.HTTP_201_CREATED)
+def add_insurance_plan(
+    *,
+    db: Session = Depends(get_db),
+    plan_in: schemas.InsurancePlanCreate,
+    current_insurer_id: str = Depends(deps.require_aseguradora)
+) -> Any:
+    """
+    Create a new insurance plan/template. Requires 'aseguradora' role.
+    """
+    return crud.create_plan(db, plan_in=plan_in, insurer_id=current_insurer_id)
+
+
+@router.get("/plans", response_model=List[schemas.InsurancePlanOut])
+def read_active_plans(
+    db: Session = Depends(get_db)
+) -> Any:
+    """
+    Get all active insurance plans. Public endpoint.
+    """
+    return crud.get_active_plans(db)
+
+
+@router.post("/quote", response_model=schemas.InsuranceQuoteOut)
+def calculate_quote(
+    *,
+    db: Session = Depends(get_db),
+    quote_req: schemas.InsuranceQuoteRequest
+) -> Any:
+    """
+    Calculate dynamic monthly premium based on pet details.
+    """
+    plan = crud.get_plan_by_id(db, plan_id=quote_req.plan_id)
+    if not plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El plan de seguro no existe"
+        )
+    
+    if not (plan.min_age <= quote_req.pet_age <= plan.max_age):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"La edad de la mascota ({quote_req.pet_age}) está fuera del rango permitido para este plan ({plan.min_age} - {plan.max_age})"
+        )
+        
+    if quote_req.pet_species.lower() not in [s.lower() for s in plan.allowed_species]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"La especie de mascota ({quote_req.pet_species}) no está permitida en este plan"
+        )
+
+    # Dynamic calculation
+    premium = plan.base_premium
+    # Senior pets adjustment
+    if quote_req.pet_age > 5:
+        premium *= (1 + (quote_req.pet_age - 5) * 0.08)
+    
+    # Dog risk adjustment
+    if quote_req.pet_species.lower() == "dog":
+        premium *= 1.12
+        
+    # Pre-existing condition adjustment
+    if quote_req.has_preexisting_conditions:
+        premium *= 1.4
+
+    return schemas.InsuranceQuoteOut(
+        plan_id=plan.id,
+        base_premium=plan.base_premium,
+        calculated_premium=round(premium, 2),
+        coverage_limit=plan.coverage_limit,
+        pet_age=quote_req.pet_age,
+        pet_species=quote_req.pet_species
+    )
+
+
+@router.post("/subscribe", response_model=schemas.PetInsurancePolicy)
+def subscribe_to_plan(
+    *,
+    db: Session = Depends(get_db),
+    sub_req: schemas.InsuranceSubscribeRequest,
+    current_user_id: str = Depends(deps.get_current_user_id)
+) -> Any:
+    """
+    Subscribe a pet to an insurance plan. Creates a PetInsurancePolicy.
+    """
+    plan = crud.get_plan_by_id(db, plan_id=sub_req.plan_id)
+    if not plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El plan de seguro no existe"
+        )
+    
+    # Check if pet already has active policy
+    existing_active = crud.get_active_policy_by_pet_id(db, pet_id=sub_req.pet_id)
+    if existing_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Esta mascota ya cuenta con una póliza de seguro activa"
+        )
+
+    # Calculate quote
+    quote_res = calculate_quote(db=db, quote_req=schemas.InsuranceQuoteRequest(
+        plan_id=sub_req.plan_id,
+        pet_age=sub_req.pet_age,
+        pet_species=sub_req.pet_species,
+        has_preexisting_conditions=sub_req.has_preexisting_conditions
+    ))
+
+    policy_number = f"POL-{random.randint(100000, 999999)}-{sub_req.pet_id[:4].upper()}"
+    start_date = date.today()
+    end_date = start_date + timedelta(days=365) # 1 year validity
+
+    policy_create = schemas.PetInsurancePolicyCreate(
+        pet_id=sub_req.pet_id,
+        insurer_id=plan.insurer_id,
+        policy_number=policy_number,
+        coverage_details=f"Plan contratado: {plan.name}. Límite de cobertura: {plan.coverage_limit}. Especie: {sub_req.pet_species}. Edad al momento de contratación: {sub_req.pet_age}.",
+        start_date=start_date,
+        end_date=end_date,
+        monthly_premium=quote_res.calculated_premium,
+        status="active"
+    )
+
+    return crud.create_policy(db, policy_in=policy_create)

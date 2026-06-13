@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import date, time
+from datetime import date, time, datetime
 
 # Grooming File Schemas
 class GroomingFileBase(BaseModel):
@@ -60,3 +60,24 @@ class GroomingAppointmentOut(GroomingAppointmentBase):
 class GroomingHistory(BaseModel):
     file: Optional[GroomingFileOut] = None
     appointments: List[GroomingAppointmentOut] = []
+
+
+# GroomingService Schemas
+class GroomingServiceCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    duration_minutes: Optional[float] = 60.0
+
+class GroomingServiceOut(BaseModel):
+    id: str
+    groomer_id: str
+    name: str
+    description: Optional[str] = None
+    price: float
+    duration_minutes: float
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app.models.funerary import Pet, PetDeath, PetMemorialPost
-from app.schemas.funerary import PetDeathCreate, PetMemorialPostCreate
+import uuid
+from app.models.funerary import Pet, PetDeath, PetMemorialPost, FuneraryService, FuneraryBooking
+from app.schemas.funerary import PetDeathCreate, PetMemorialPostCreate, FuneraryServiceCreate, FuneraryBookingCreate
 
 def get_pet(db: Session, pet_id: str) -> Optional[Pet]:
     return db.query(Pet).filter(Pet.id == pet_id).first()
@@ -36,3 +37,34 @@ def create_memorial_post(db: Session, *, post_in: PetMemorialPostCreate, user_id
     db.commit()
     db.refresh(db_post)
     return db_post
+
+def create_funerary_service(db: Session, *, service_in: FuneraryServiceCreate, funerary_id: str) -> FuneraryService:
+    db_service = FuneraryService(
+        funerary_id=funerary_id,
+        **service_in.model_dump()
+    )
+    db.add(db_service)
+    db.commit()
+    db.refresh(db_service)
+    return db_service
+
+def get_active_funerary_services(db: Session) -> List[FuneraryService]:
+    return db.query(FuneraryService).filter(FuneraryService.is_active == True).all()
+
+def create_funerary_booking(db: Session, *, booking_in: FuneraryBookingCreate, client_id: str) -> FuneraryBooking:
+    db_booking = FuneraryBooking(
+        client_id=client_id,
+        **booking_in.model_dump()
+    )
+    db.add(db_booking)
+    db.commit()
+    db.refresh(db_booking)
+    return db_booking
+
+def get_bookings_for_client(db: Session, client_id: str) -> List[FuneraryBooking]:
+    return db.query(FuneraryBooking).filter(FuneraryBooking.client_id == client_id).all()
+
+def get_bookings_for_provider(db: Session, provider_id: str) -> List[FuneraryBooking]:
+    return db.query(FuneraryBooking).join(
+        FuneraryService, FuneraryBooking.service_id == FuneraryService.id
+    ).filter(FuneraryService.funerary_id == provider_id).all()

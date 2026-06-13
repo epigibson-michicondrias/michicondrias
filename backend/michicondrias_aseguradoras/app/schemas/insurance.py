@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from datetime import date
+from datetime import date, datetime
 from typing import Optional, List
 
 # --- Claims Schemas ---
@@ -54,3 +54,54 @@ class PetInsurancePolicyInDBBase(PetInsurancePolicyBase):
 
 class PetInsurancePolicy(PetInsurancePolicyInDBBase):
     claims: List[InsuranceClaim] = []
+
+
+# --- Plans Schemas ---
+
+class InsurancePlanCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    coverage_limit: float
+    base_premium: float
+    min_age: Optional[int] = 0
+    max_age: Optional[int] = 15
+    allowed_species: List[str]
+
+class InsurancePlanOut(BaseModel):
+    id: str
+    insurer_id: str
+    name: str
+    description: Optional[str] = None
+    coverage_limit: float
+    base_premium: float
+    min_age: int
+    max_age: int
+    allowed_species: List[str]
+    is_active: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+# --- Quote and Subscription Schemas ---
+
+class InsuranceQuoteRequest(BaseModel):
+    plan_id: str
+    pet_age: int
+    pet_species: str  # 'dog', 'cat', etc.
+    has_preexisting_conditions: Optional[bool] = False
+
+class InsuranceQuoteOut(BaseModel):
+    plan_id: str
+    base_premium: float
+    calculated_premium: float
+    coverage_limit: float
+    pet_age: int
+    pet_species: str
+
+class InsuranceSubscribeRequest(BaseModel):
+    pet_id: str
+    plan_id: str
+    pet_age: int
+    pet_species: str
+    has_preexisting_conditions: Optional[bool] = False
