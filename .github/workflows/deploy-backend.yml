@@ -73,6 +73,15 @@ jobs:
             --region us-east-1
         fi
 
+        # 1.5 Copiar variables de entorno desde core y configurar PROXY_PREFIX para el servicio actual
+        echo "Copiando variables de entorno desde core para ${{ matrix.service }}..."
+        ENV_VARS=$(aws lambda get-function-configuration --function-name michicondrias-core --region us-east-1 --query "Environment.Variables" --output json)
+        UPDATED_ENV=$(echo $ENV_VARS | jq '. + {"PROXY_PREFIX": "/${{ matrix.service }}"}')
+        aws lambda update-function-configuration \
+          --function-name michicondrias-${{ matrix.service }} \
+          --environment "Variables=$UPDATED_ENV" \
+          --region us-east-1
+
         # 2. Configurar enrutamiento en API Gateway de forma dinámica
         API_ID="kowly51wia"
         ACCOUNT_ID="491799435777"
