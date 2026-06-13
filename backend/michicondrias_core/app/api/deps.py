@@ -44,6 +44,16 @@ def get_current_active_user(
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+def get_current_user_id(
+    current_user: User = Depends(get_current_active_user)
+) -> str:
+    return current_user.id
+
+def get_current_user_role(
+    current_user: User = Depends(get_current_active_user)
+) -> str:
+    return current_user.role.name if current_user.role else "consumidor"
+
 def require_role(*allowed_roles: str):
     """
     Dependency factory that checks if the current user has one of the allowed roles.
