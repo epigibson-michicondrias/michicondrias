@@ -50,7 +50,24 @@ jobs:
 
     - name: Deploy to AWS Lambda (via S3)
       run: |
-        aws lambda update-function-code \
-          --function-name michicondrias-${{ matrix.service }} \
-          --s3-bucket michicondrias-storage-1 \
-          --s3-key deployments/${{ matrix.service }}.zip
+        if aws lambda get-function --function-name michicondrias-${{ matrix.service }} --region us-east-1 >/dev/null 2>&1; then
+          echo "La función existe. Actualizando código..."
+          aws lambda update-function-code \
+            --function-name michicondrias-${{ matrix.service }} \
+            --s3-bucket michicondrias-storage-1 \
+            --s3-key deployments/${{ matrix.service }}.zip \
+            --region us-east-1
+        else
+          echo "La función NO existe. Obteniendo rol de IAM desde core..."
+          ROLE_ARN=$(aws lambda get-function-configuration --function-name michicondrias-core --region us-east-1 --query "Role" --output text)
+          echo "Creando función Lambda michicondrias-${{ matrix.service }}..."
+          aws lambda create-function \
+            --function-name michicondrias-${{ matrix.service }} \
+            --runtime python3.11 \
+            --role $ROLE_ARN \
+            --handler app.main.handler \
+            --code S3Bucket=michicondrias-storage-1,S3Key=deployments/${{ matrix.service }}.zip \
+            --timeout 30 \
+            --memory-size 256 \
+            --region us-east-1
+        fi
