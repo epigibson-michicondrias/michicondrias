@@ -7,6 +7,7 @@ import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Search, ShoppingCart, Filter, Star, ChevronRight, ShoppingBag } from 'lucide-react-native';
 import { useCart } from '../../src/contexts/CartContext';
+import KeyboardScreen from '../../src/components/KeyboardScreen';
 
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 60) / 2;
@@ -36,10 +37,10 @@ export default function TiendaIndexScreen() {
 
     const renderProductItem = ({ item }: { item: Product }) => (
         <TouchableOpacity
-            style={[styles.productCard, { backgroundColor: theme.surface }]}
+            style={[styles.productCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
             onPress={() => router.push(`/tienda/producto/${item.id}` as any)}
         >
-            <View style={styles.imageContainer}>
+            <View style={[styles.imageContainer, { backgroundColor: theme.overlay }]}>
                 <Image
                     source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=500' }}
                     style={styles.productImage}
@@ -74,7 +75,7 @@ export default function TiendaIndexScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <KeyboardScreen style={{ backgroundColor: theme.background }}>
             <View style={styles.header}>
                 <View>
                     <Text style={[styles.title, { color: theme.text }]}>Michi-Shop</Text>
@@ -94,7 +95,7 @@ export default function TiendaIndexScreen() {
             </View>
 
             <View style={styles.searchContainer}>
-                <View style={[styles.searchBar, { backgroundColor: theme.surface }]}>
+                <View style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Search size={20} color={theme.textMuted} />
                     <TextInput
                         placeholder="Busca premios, juguetes, camas..."
@@ -114,7 +115,7 @@ export default function TiendaIndexScreen() {
                     <TouchableOpacity
                         style={[
                             styles.categoryItem,
-                            !selectedCategory && { backgroundColor: theme.primary }
+                            { backgroundColor: !selectedCategory ? theme.primary : theme.borderLight }
                         ]}
                         onPress={() => setSelectedCategory(null)}
                     >
@@ -127,7 +128,7 @@ export default function TiendaIndexScreen() {
                             key={cat.id}
                             style={[
                                 styles.categoryItem,
-                                selectedCategory === cat.name && { backgroundColor: theme.primary }
+                                { backgroundColor: selectedCategory === cat.name ? theme.primary : theme.borderLight }
                             ]}
                             onPress={() => setSelectedCategory(cat.name)}
                         >
@@ -158,7 +159,7 @@ export default function TiendaIndexScreen() {
                     }
                 />
             )}
-        </View>
+        </KeyboardScreen>
     );
 }
 
@@ -220,7 +221,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     searchInput: {
         flex: 1,
@@ -237,7 +237,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     categoryText: {
         fontSize: 14,
@@ -253,13 +252,11 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         padding: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     imageContainer: {
         width: '100%',
         height: 140,
         borderRadius: 18,
-        backgroundColor: 'rgba(255,255,255,0.03)',
         marginBottom: 12,
         overflow: 'hidden',
         position: 'relative',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSellerOrders, updateOrderStatus, Order } from '@/src/services/ecommerce';
 import Colors from '@/constants/Colors';
@@ -30,9 +31,9 @@ export default function VendedorOrdenesScreen() {
         mutationFn: ({ id, status }: { id: string; status: string }) => updateOrderStatus(id, status),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
-            Alert.alert("Éxito", "Estado del pedido actualizado");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Estado del pedido actualizado' });
         },
-        onError: () => Alert.alert("Error", "No se pudo actualizar el estado"),
+        onError: () => showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estado' }),
     });
 
     const filteredOrders = orders.filter(o => filter === 'all' ? true : o.status === filter);

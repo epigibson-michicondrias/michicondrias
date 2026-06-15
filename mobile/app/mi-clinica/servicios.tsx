@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics, getClinicServices, createClinicService, updateClinicService, deleteClinicService, ClinicServiceItem } from '../../src/services/directorio';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, Plus, Pencil, Trash2, Clock, DollarSign, Tag, Briefcase, ChevronRight, X, AlertTriangle } from 'lucide-react-native';
 
 export default function ServiciosClinicaScreen() {
@@ -57,7 +58,7 @@ export default function ServiciosClinicaScreen() {
 
     const handleSave = async () => {
         if (!name || !price || !duration) {
-            Alert.alert("Error", "Por favor completa los campos obligatorios");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
             return;
         }
 
@@ -81,32 +82,29 @@ export default function ServiciosClinicaScreen() {
             setModalVisible(false);
             resetForm();
         } catch (e) {
-            Alert.alert("Error", "No se pudo guardar el servicio");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar el servicio' });
         } finally {
             setLoadingAction(false);
         }
     };
 
     const handleDelete = (id: string) => {
-        Alert.alert(
-            "Eliminar Servicio",
-            "¿Estás seguro de que deseas eliminar este servicio del catálogo?",
-            [
-                { text: "Cancelar", style: "cancel" },
-                {
-                    text: "Eliminar",
-                    style: "destructive",
-                    onPress: async () => {
-                        try {
-                            await deleteClinicService(id);
-                            refetch();
-                        } catch (e) {
-                            Alert.alert("Error", "No se pudo eliminar el servicio");
-                        }
-                    }
+        showAlert({
+            type: 'warning',
+            title: 'Eliminar Servicio',
+            message: '¿Estás seguro de que deseas eliminar este servicio del catálogo?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: async () => {
+                try {
+                    await deleteClinicService(id);
+                    refetch();
+                } catch (e) {
+                    showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el servicio' });
                 }
-            ]
-        );
+            }
+        });
     };
 
     const renderItem = ({ item }: { item: ClinicServiceItem }) => (

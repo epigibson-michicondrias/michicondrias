@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert, Switch, Modal, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics, Clinic } from '../../src/services/directorio';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, Clock, Calendar, Plus, X, Save, Info, Globe } from 'lucide-react-native';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 
 interface ScheduleDay {
     day: string;
@@ -80,10 +82,10 @@ export default function HorariosClinicaScreen() {
         setLoading(true);
         try {
             // En producción: llamar a la API para guardar horarios
-            Alert.alert("Éxito", "Horarios actualizados correctamente");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Horarios actualizados correctamente' });
             router.back();
         } catch (error) {
-            Alert.alert("Error", "No se pudo actualizar los horarios");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar los horarios' });
         } finally {
             setLoading(false);
         }
@@ -91,7 +93,7 @@ export default function HorariosClinicaScreen() {
 
     const handleAddHoliday = () => {
         if (!holidayName || !holidayDate) {
-            Alert.alert("Error", "Por favor completa el nombre y la fecha");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa el nombre y la fecha' });
             return;
         }
 
@@ -108,28 +110,22 @@ export default function HorariosClinicaScreen() {
         setHolidayDate('');
         setHolidayReason('');
         setHolidayModalVisible(false);
-        Alert.alert("Éxito", "Día festivo agregado correctamente");
+        showAlert({ type: 'success', title: 'Éxito', message: 'Día festivo agregado correctamente' });
     };
 
     const handleDeleteHoliday = (id: string) => {
-        Alert.alert(
-            "Eliminar Día Festivo",
-            "¿Estás seguro de eliminar este día festivo?",
-            [
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                },
-                {
-                    text: "Eliminar",
-                    style: "destructive",
-                    onPress: () => {
-                        setHolidays(holidays.filter(h => h.id !== id));
-                        Alert.alert("Eliminado", "Día festivo eliminado correctamente");
-                    }
-                }
-            ]
-        );
+        showAlert({
+            type: 'warning',
+            title: 'Eliminar Día Festivo',
+            message: '¿Estás seguro de eliminar este día festivo?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => {
+                setHolidays(holidays.filter(h => h.id !== id));
+                showAlert({ type: 'success', title: 'Eliminado', message: 'Día festivo eliminado correctamente' });
+            }
+        });
     };
 
     const renderDaySchedule = (day: ScheduleDay, index: number) => (
@@ -190,7 +186,7 @@ export default function HorariosClinicaScreen() {
 
                     <TouchableOpacity
                         style={[styles.addBreakBtn, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => Alert.alert("Próximamente", "La gestión de descansos múltiples se habilitará pronto")}
+                        onPress={() => showAlert({ type: 'info', title: 'Próximamente', message: 'La gestión de descansos múltiples se habilitará pronto' })}
                     >
                         <Plus size={16} color={theme.primary} />
                         <Text style={[styles.addBreakText, { color: theme.primary }]}>Agregar Pausa</Text>
@@ -313,7 +309,7 @@ export default function HorariosClinicaScreen() {
                         </View>
                         <Switch
                             value={clinic.has_emergency}
-                            onValueChange={() => Alert.alert("Configuración", "Esta opción se configura en el perfil de la clínica")}
+                            onValueChange={() => showAlert({ type: 'info', title: 'Configuración', message: 'Esta opción se configura en el perfil de la clínica' })}
                             trackColor={{ false: '#767577', true: '#ef444480' }}
                             thumbColor={clinic.has_emergency ? '#ef4444' : '#f4f3f4'}
                         />
@@ -350,7 +346,7 @@ export default function HorariosClinicaScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView style={styles.modalContent}>
+                    <KeyboardScreen style={{ paddingHorizontal: 24 }}>
                         <View style={styles.formGroup}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>Nombre del Festivo *</Text>
                             <TextInput
@@ -384,7 +380,7 @@ export default function HorariosClinicaScreen() {
                         </View>
 
                         <View style={styles.modalFooter} />
-                    </ScrollView>
+                    </KeyboardScreen>
                 </View>
             </Modal>
 
@@ -430,7 +426,7 @@ export default function HorariosClinicaScreen() {
                                         updateDaySchedule(timePickerTarget.index, timePickerTarget.field, tempTime);
                                         setTimePickerVisible(false);
                                     } else {
-                                        Alert.alert("Formato Inválido", "Usa el formato HH:MM");
+                                        showAlert({ type: 'error', title: 'Formato Inválido', message: 'Usa el formato HH:MM' });
                                     }
                                 }}
                             >

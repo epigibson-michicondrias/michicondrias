@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery } from '@tanstack/react-query';
 import { getClinic, getClinicServices, getClinicReviews, getClinicRating } from '@/src/services/directorio';
 import Colors from '@/constants/Colors';
@@ -107,7 +108,7 @@ export default function ClinicDetailScreen() {
                             <TouchableOpacity
                                 key={service.id}
                                 style={[styles.serviceItem, { backgroundColor: theme.surface }]}
-                                onPress={() => Alert.alert("Agendar", `¿Deseas agendar ${service.name}?`)}
+                                onPress={() => showAlert({ type: 'info', title: 'Agendar', message: `¿Deseas agendar ${service.name}?` })}
                             >
                                 <View style={{ flex: 1 }}>
                                     <Text style={[styles.serviceName, { color: theme.text }]}>{service.name}</Text>

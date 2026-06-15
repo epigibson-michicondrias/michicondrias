@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { getProduct, getReviews } from '@/src/services/ecommerce';
 import Colors from '@/constants/Colors';
@@ -33,7 +34,7 @@ export default function ProductDetailScreen() {
     const handleAddToCart = () => {
         if (!product) return;
         addToCart(product, quantity);
-        Alert.alert("Agregado", "El producto se ha añadido a tu bolsa de compras.");
+        showAlert({ type: 'success', title: 'Agregado', message: 'El producto se ha añadido a tu bolsa de compras.' });
         router.back();
     };
 
@@ -47,10 +48,10 @@ export default function ProductDetailScreen() {
                     <Image source={{ uri: product.image_url || 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1000' }} style={styles.productImage} />
 
                     <View style={styles.headerActions}>
-                        <TouchableOpacity style={styles.circleBtn} onPress={() => router.back()}>
+                        <TouchableOpacity style={[styles.circleBtn, { backgroundColor: theme.border, borderColor: theme.border }]} onPress={() => router.back()}>
                             <ChevronLeft size={24} color={theme.text} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.circleBtn} onPress={() => setIsFavorite(!isFavorite)}>
+                        <TouchableOpacity style={[styles.circleBtn, { backgroundColor: theme.border, borderColor: theme.border }]} onPress={() => setIsFavorite(!isFavorite)}>
                             <Heart size={24} color={isFavorite ? '#ef4444' : theme.text} fill={isFavorite ? '#ef4444' : 'transparent'} />
                         </TouchableOpacity>
                     </View>
@@ -73,7 +74,7 @@ export default function ProductDetailScreen() {
 
                     <View style={styles.quantitySection}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Cantidad</Text>
-                        <View style={[styles.quantityPicker, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.quantityPicker, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <TouchableOpacity onPress={() => setQuantity(Math.max(1, quantity - 1))}>
                                 <Minus size={20} color={theme.text} />
                             </TouchableOpacity>
@@ -115,7 +116,7 @@ export default function ProductDetailScreen() {
                                 </TouchableOpacity>
                             </View>
                             {reviews.slice(0, 2).map((review) => (
-                                <View key={review.id} style={[styles.reviewItem, { backgroundColor: theme.surface }]}>
+                                <View key={review.id} style={[styles.reviewItem, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                                     <View style={styles.reviewHeader}>
                                         <View style={styles.starsRow}>
                                             {[1, 2, 3, 4, 5].map(s => (
@@ -181,11 +182,9 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: 'rgba(255,255,255,0.1)',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
     },
     content: {
         padding: 24,
@@ -244,7 +243,6 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     quantityValue: {
         fontSize: 18,
@@ -288,7 +286,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     reviewHeader: {
         flexDirection: 'row',

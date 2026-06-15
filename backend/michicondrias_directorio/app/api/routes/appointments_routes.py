@@ -78,6 +78,26 @@ def read_my_appointments(
     return result
 
 
+@router.get("/{appointment_id}", response_model=AppointmentResponse)
+def read_appointment(
+    appointment_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Get a specific appointment by ID."""
+    appt = crud_services.get_appointment(db, appointment_id)
+    if not appt:
+        raise HTTPException(status_code=404, detail="Cita no encontrada")
+    
+    # Check permissions: user must be the owner of the appointment or the clinic owner
+    clinic = get_clinic(db, appt.clinic_id)
+    if appt.user_id != user_id and (not clinic or clinic.owner_user_id != user_id):
+        raise HTTPException(status_code=403, detail="No tienes permisos para ver esta cita")
+    
+    svc = crud_services.get_service(db, appt.service_id)
+    return _serialize_appointment(appt, svc, clinic)
+
+
 @router.get("/clinic/{clinic_id}", response_model=List[AppointmentResponse])
 def read_clinic_appointments(
     clinic_id: str,

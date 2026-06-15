@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, ScrollView, Modal } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getListingRequests, updateRequestStatus, AdoptionRequest, getListing } from '@/src/services/adopciones';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, User, Home, Heart, Check, X, Info, Phone, Mail, Clock } from 'lucide-react-native';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function VerSolicitudesScreen() {
     const { id } = useLocalSearchParams();
@@ -31,23 +32,24 @@ export default function VerSolicitudesScreen() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['listing-requests', id] });
             setSelectedRequest(null);
-            Alert.alert("Éxito", "Estado de la solicitud actualizado.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Estado de la solicitud actualizado.' });
         },
         onError: () => {
-            Alert.alert("Error", "No se pudo actualizar la solicitud.");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la solicitud.' });
         }
     });
 
     const handleStatusUpdate = (requestId: string, status: string) => {
         const action = status === 'aprobado' ? 'aprobar' : 'rechazar';
-        Alert.alert(
-            "Confirmar Acción",
-            `¿Estás seguro de que deseas ${action} esta solicitud?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Confirmar", onPress: () => mutation.mutate({ requestId, status }) }
-            ]
-        );
+        showAlert({
+            type: 'warning',
+            title: 'Confirmar Acción',
+            message: `¿Estás seguro de que deseas ${action} esta solicitud?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Confirmar',
+            onButtonPress: () => mutation.mutate({ requestId, status }),
+        });
     };
 
     const renderRequestItem = ({ item }: { item: AdoptionRequest }) => (

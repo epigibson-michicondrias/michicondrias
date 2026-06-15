@@ -26,19 +26,12 @@ export interface InventoryCreatePayload {
     isMedication?: boolean;
 }
 
-export const MOCK_INVENTORY: InventoryItem[] = [
-    { id: "1", name: "Amoxicilina 500mg", category: "medicamentos", unit: "Cajas", currentStock: 5, minStock: 10, maxStock: 50, supplier: "PharmaVet", isCritical: true, lastRestockedAt: "2024-05-01" },
-    { id: "2", name: "Vacuna Rabia", category: "vacunas", unit: "Dosis", currentStock: 25, minStock: 15, maxStock: 100, supplier: "BioPet", isCritical: false, lastRestockedAt: "2024-04-15" },
-    { id: "3", name: "Jeringas 3ml", category: "insumos", unit: "Cajas", currentStock: 2, minStock: 5, maxStock: 20, supplier: "MedSupply", isCritical: true, lastRestockedAt: "2024-03-20" },
-    { id: "4", name: "Alimento Premium Perro", category: "alimentos", unit: "Sacos", currentStock: 12, minStock: 5, maxStock: 30, supplier: "NutriPet", isCritical: false, lastRestockedAt: "2024-04-28" }
-];
-
 export async function getClinicInventory(clinicId: string): Promise<InventoryItem[]> {
-    return Promise.resolve(MOCK_INVENTORY);
+    return apiFetch<InventoryItem[]>("directorio", `/clinics/${clinicId}/inventory`);
 }
 
 export async function getCriticalInventory(clinicId: string): Promise<InventoryItem[]> {
-    return Promise.resolve(MOCK_INVENTORY.filter(item => item.isCritical));
+    return apiFetch<InventoryItem[]>("directorio", `/clinics/${clinicId}/inventory/critical`);
 }
 
 export async function addInventoryItem(clinicId: string, item: InventoryCreatePayload): Promise<{id: string, message: string}> {

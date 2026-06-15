@@ -47,11 +47,11 @@ export default function PetCarnetDetailScreen() {
     }
 
     const renderRecordItem = ({ item }: { item: MedicalRecord }) => (
-        <View style={[styles.recordCard, { backgroundColor: theme.surface }]}>
-            <View style={styles.recordTimelineLine} />
-            <View style={[styles.timelineDot, { backgroundColor: theme.primary }]} />
+            <View style={[styles.recordCard, { backgroundColor: theme.surface }]}>
+            <View style={[styles.recordTimelineLine, { backgroundColor: theme.borderLight }]} />
+            <View style={[styles.timelineDot, { backgroundColor: theme.primary, borderColor: theme.background }]} />
 
-            <View style={styles.recordContent}>
+            <View style={[styles.recordContent, { backgroundColor: theme.overlay, borderColor: theme.borderLight }]}>
                 <View style={styles.cardHeader}>
                     <View style={[styles.dateBox, { backgroundColor: theme.primary + '10' }]}>
                         <Calendar size={12} color={theme.primary} />
@@ -59,7 +59,7 @@ export default function PetCarnetDetailScreen() {
                             {new Date(item.date).toLocaleDateString()}
                         </Text>
                     </View>
-                    <View style={styles.consultTypeTag}>
+                        <View style={[styles.consultTypeTag, { backgroundColor: theme.overlay }]}>
                         <Text style={[styles.consultTypeText, { color: theme.textMuted }]}>CONSULTA</Text>
                     </View>
                 </View>
@@ -110,7 +110,7 @@ export default function PetCarnetDetailScreen() {
                         </View>
                         <View style={styles.prescriptionsList}>
                             {item.prescriptions.map((p, idx) => (
-                                <View key={idx} style={styles.prescriptionItem}>
+                                <View key={idx} style={[styles.prescriptionItem, { backgroundColor: theme.inputBg }]}>
                                     <Text style={[styles.medName, { color: theme.text }]}>{p.medication_name}</Text>
                                     <Text style={[styles.medDose, { color: theme.textMuted }]}>{p.dosage} · Cada {p.frequency_hours}h por {p.duration_days}d</Text>
                                 </View>
@@ -125,7 +125,7 @@ export default function PetCarnetDetailScreen() {
     const renderVaccineItem = ({ item }: { item: Vaccine }) => {
         const isNextDue = item.next_due_date && new Date(item.next_due_date) < new Date();
         return (
-            <View style={[styles.vaccineCard, { backgroundColor: theme.surface }]}>
+            <View style={[styles.vaccineCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                 <View style={[styles.vaccineIconBox, { backgroundColor: isNextDue ? '#ef4444' : theme.primary }]}>
                     <Syringe size={22} color="#fff" />
                 </View>
@@ -162,20 +162,20 @@ export default function PetCarnetDetailScreen() {
             <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[1]}>
                 <View style={[styles.hero, { backgroundColor: theme.primary + '08' }]}>
                     <View style={styles.headerTop}>
-                        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                        <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]} onPress={() => router.back()}>
                             <ChevronLeft size={24} color={theme.text} />
                         </TouchableOpacity>
                         <View style={styles.medicalIdTag}>
                             <Text style={styles.medicalIdText}>PATIENT_ID: {pet?.id.substring(0, 12)}</Text>
                         </View>
-                        <TouchableOpacity style={styles.backBtn}>
+                        <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]}>
                             <Activity size={20} color={theme.text} />
                         </TouchableOpacity>
                     </View>
 
                     <View style={styles.heroContent}>
                         <View style={styles.avatarWrapper}>
-                            <View style={styles.avatarBorder}>
+                            <View style={[styles.avatarBorder, { backgroundColor: theme.border, borderColor: theme.border }]}>
                                 {pet?.photo_url ? (
                                     <Image source={{ uri: pet.photo_url }} style={styles.heroPetImage} />
                                 ) : (
@@ -184,7 +184,7 @@ export default function PetCarnetDetailScreen() {
                                     </View>
                                 )}
                             </View>
-                            <View style={[styles.speciesBadge, { backgroundColor: theme.primary }]}>
+                            <View style={[styles.speciesBadge, { backgroundColor: theme.primary, borderColor: theme.background }]}>
                                 <Text style={{ fontSize: 16 }}>{pet?.species === 'perro' ? '🐶' : '🐱'}</Text>
                             </View>
                         </View>
@@ -219,7 +219,7 @@ export default function PetCarnetDetailScreen() {
                     </View>
                 </View>
 
-                <View style={[styles.tabsWrapper, { backgroundColor: theme.background }]}>
+                    <View style={[styles.tabsWrapper, { backgroundColor: theme.background, borderTopColor: theme.borderLight }]}>
                     <View style={styles.tabsContainer}>
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'records' && { borderBottomColor: theme.primary }]}
@@ -294,11 +294,9 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     medicalIdTag: {
         backgroundColor: 'rgba(0,0,0,0.3)',
@@ -324,9 +322,7 @@ const styles = StyleSheet.create({
         height: 110,
         borderRadius: 36,
         padding: 4,
-        backgroundColor: 'rgba(255,255,255,0.1)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
     },
     heroPetImage: {
         width: '100%',
@@ -354,7 +350,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: '#0f0f1a', // Assuming dark bg
     },
     heroPetName: {
         fontSize: 28,
@@ -381,7 +376,6 @@ const styles = StyleSheet.create({
     tabsWrapper: {
         paddingTop: 10,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.03)',
     },
     tabsContainer: {
         flexDirection: 'row',
@@ -417,7 +411,6 @@ const styles = StyleSheet.create({
         top: 10,
         bottom: -40,
         width: 2,
-        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     timelineDot: {
         position: 'absolute',
@@ -427,14 +420,11 @@ const styles = StyleSheet.create({
         height: 10,
         borderRadius: 5,
         borderWidth: 2,
-        borderColor: '#0f0f1a',
     },
     recordContent: {
         borderRadius: 24,
         padding: 20,
-        backgroundColor: 'rgba(255,255,255,0.02)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     cardHeader: {
         flexDirection: 'row',
@@ -455,7 +445,6 @@ const styles = StyleSheet.create({
         fontWeight: '900',
     },
     consultTypeTag: {
-        backgroundColor: 'rgba(255,255,255,0.03)',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 6,
@@ -543,7 +532,6 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     prescriptionItem: {
-        backgroundColor: 'rgba(0,0,0,0.2)',
         padding: 10,
         borderRadius: 10,
     },
@@ -564,7 +552,6 @@ const styles = StyleSheet.create({
         gap: 16,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     vaccineIconBox: {
         width: 52,

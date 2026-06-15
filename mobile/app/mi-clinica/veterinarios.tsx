@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, Alert, ActivityIndicator, Modal, TextInput, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, Modal, TextInput, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getMyClinics, Clinic } from '../../src/services/directorio';
+import { getMyClinics, Clinic, getVets, createVet, updateVet, dissociateVeterinarian } from '../../src/services/directorio';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { ChevronLeft, Plus, Users, Mail, Phone, Star, Edit, Trash2, X, Stethoscope, ShieldCheck, Calendar } from 'lucide-react-native';
 
 // Mock data - en producción esto vendría de la API
@@ -76,10 +78,10 @@ export default function VeterinariosClinicaScreen() {
 
     const clinic = clinics[0];
 
-    // Mock query - en producción usar useQuery con API real
-    const { data: veterinarians = mockVets, isLoading: loadingVets } = useQuery({
+    // Query real de veterinarios
+    const { data: veterinarians = [], isLoading: loadingVets } = useQuery({
         queryKey: ['clinic-vets', clinic?.id],
-        queryFn: () => Promise.resolve(mockVets),
+        queryFn: () => clinic ? getVets(clinic.id) : Promise.resolve([]),
         enabled: !!clinic?.id,
     });
 
@@ -96,136 +98,155 @@ export default function VeterinariosClinicaScreen() {
 
     const handleEdit = (vet: any) => {
         setEditingVet(vet);
-        setName(vet.name);
-        setEmail(vet.email);
-        setPhone(vet.phone);
-        setSpecialty(vet.specialty);
-        setLicenseNumber(vet.license_number);
-        setExperience(vet.experience_years.toString());
+        setName(vet.name || `${vet.first_name || ''} ${vet.last_name || ''}`.trim());
+        setEmail(vet.email || '');
+        setPhone(vet.phone || '');
+        setSpecialty(vet.specialty || '');
+        setLicenseNumber(vet.license_number || '');
+        setExperience(vet.experience_years?.toString() || '0');
         setBio(vet.bio || '');
         setModalVisible(true);
     };
 
     const handleDelete = (vet: any) => {
-        Alert.alert(
-            "Eliminar Veterinario",
-            `¿Estás seguro de eliminar a ${vet.name} de tu clínica?`,
-            [
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                },
-                {
-                    text: "Eliminar",
-                    style: "destructive",
-                    onPress: () => {
-                        Alert.alert("Eliminado", "Veterinario eliminado correctamente");
-                        // En producción: llamar a la API para eliminar
-                    }
+        const vetName = vet.name || `${vet.first_name || ''} ${vet.last_name || ''}`.trim();
+        showAlert({
+            type: 'warning',
+            title: 'Desasociar Veterinario',
+            message: `¿Estás seguro de desasociar a ${vetName} de tu clínica?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Desasociar',
+            onButtonPress: async () => {
+                try {
+                    setLoadingAction(true);
+                    await dissociateVeterinarian(clinic.id, vet.id);
+                    showAlert({ type: 'success', title: 'Éxito', message: 'Veterinario desasociado correctamente' });
+                    queryClient.invalidateQueries({ queryKey: ['clinic-vets', clinic.id] });
+                } catch (err: any) {
+                    showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo desasociar' });
+                } finally {
+                    setLoadingAction(false);
                 }
-            ]
-        );
+            }
+        });
     };
 
     const handleSave = async () => {
         if (!name || !email || !specialty) {
-            Alert.alert("Error", "Por favor completa los campos obligatorios");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
             return;
         }
 
         setLoadingAction(true);
         try {
+            const [firstName, lastName] = name.split(' ');
+            const vetData = {
+                first_name: firstName || name,
+                last_name: lastName || '',
+                email,
+                phone,
+                specialty,
+                license_number: licenseNumber,
+                bio,
+                photo_url: editingVet?.photo_url || null,
+                clinic_id: clinic.id
+            };
+
             if (editingVet) {
-                // En producción: llamar a la API para actualizar
-                Alert.alert("Éxito", "Veterinario actualizado correctamente");
+                await updateVet(editingVet.id, vetData);
+                showAlert({ type: 'success', title: 'Éxito', message: 'Veterinario actualizado correctamente' });
             } else {
-                // En producción: llamar a la API para crear
-                Alert.alert("Éxito", "Veterinario agregado correctamente");
+                await createVet(vetData);
+                showAlert({ type: 'success', title: 'Éxito', message: 'Veterinario agregado correctamente' });
             }
             setModalVisible(false);
             resetForm();
-            // Refetch data
-            queryClient.invalidateQueries({ queryKey: ['clinic-vets'] });
-        } catch (error) {
-            Alert.alert("Error", "No se pudo guardar el veterinario");
+            queryClient.invalidateQueries({ queryKey: ['clinic-vets', clinic.id] });
+        } catch (error: any) {
+            showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo guardar el veterinario' });
         } finally {
             setLoadingAction(false);
         }
     };
 
-    const renderVeterinarioItem = ({ item }: { item: any }) => (
-        <View style={[styles.vetCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <View style={styles.vetHeader}>
-                <View style={styles.vetInfo}>
-                    <Image source={{ uri: item.photo_url }} style={styles.vetAvatar} />
-                    <View style={styles.vetDetails}>
-                        <Text style={[styles.vetName, { color: theme.text }]}>{item.name}</Text>
-                        <Text style={[styles.vetSpecialty, { color: theme.primary }]}>{item.specialty}</Text>
-                        <View style={styles.vetMeta}>
-                            <View style={styles.ratingContainer}>
-                                <Star size={14} color="#fbbf24" fill="#fbbf24" />
-                                <Text style={[styles.ratingText, { color: theme.text }]}>
-                                    {item.rating}
+    const renderVeterinarioItem = ({ item }: { item: any }) => {
+        const vetName = item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim();
+        const fallbackPhoto = 'https://images.unsplash.com/photo-1559839731-f7b2eff31c3f?q=80&w=400';
+        return (
+            <View style={[styles.vetCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <View style={styles.vetHeader}>
+                    <View style={styles.vetInfo}>
+                        <Image source={{ uri: item.photo_url || fallbackPhoto }} style={styles.vetAvatar} />
+                        <View style={styles.vetDetails}>
+                            <Text style={[styles.vetName, { color: theme.text }]}>{vetName}</Text>
+                            <Text style={[styles.vetSpecialty, { color: theme.primary }]}>{item.specialty || 'General'}</Text>
+                            <View style={styles.vetMeta}>
+                                <View style={styles.ratingContainer}>
+                                    <Star size={14} color="#fbbf24" fill="#fbbf24" />
+                                    <Text style={[styles.ratingText, { color: theme.text }]}>
+                                        {item.rating || '5.0'}
+                                    </Text>
+                                </View>
+                                <Text style={[styles.experienceText, { color: theme.textMuted }]}>
+                                    {item.experience_years || '5'} años exp.
                                 </Text>
                             </View>
-                            <Text style={[styles.experienceText, { color: theme.textMuted }]}>
-                                {item.experience_years} años exp.
-                            </Text>
                         </View>
                     </View>
-                </View>
-                <View style={[styles.statusBadge, { 
-                    backgroundColor: item.is_active ? '#10b98120' : '#ef444420' 
-                }]}>
-                    <Text style={[styles.statusText, { 
-                        color: item.is_active ? '#10b981' : '#ef4444' 
+                    <View style={[styles.statusBadge, { 
+                        backgroundColor: item.is_active !== false ? '#10b98120' : '#ef444420' 
                     }]}>
-                        {item.is_active ? 'Activo' : 'Inactivo'}
+                        <Text style={[styles.statusText, { 
+                            color: item.is_active !== false ? '#10b981' : '#ef4444' 
+                        }]}>
+                            {item.is_active !== false ? 'Activo' : 'Inactivo'}
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={styles.vetContact}>
+                    <View style={styles.contactRow}>
+                        <Mail size={14} color={theme.textMuted} />
+                        <Text style={[styles.contactText, { color: theme.textMuted }]}>{item.email}</Text>
+                    </View>
+                    <View style={styles.contactRow}>
+                        <Phone size={14} color={theme.textMuted} />
+                        <Text style={[styles.contactText, { color: theme.textMuted }]}>{item.phone || 'Sin teléfono'}</Text>
+                    </View>
+                </View>
+
+                {item.bio && (
+                    <Text style={[styles.vetBio, { color: theme.textMuted }]} numberOfLines={2}>
+                        {item.bio}
                     </Text>
+                )}
+
+                <View style={styles.vetFooter}>
+                    <View style={styles.licenseContainer}>
+                        <ShieldCheck size={14} color={theme.primary} />
+                        <Text style={[styles.licenseText, { color: theme.textMuted }]}>
+                            Cédula: {item.license_number || 'N/A'}
+                        </Text>
+                    </View>
+                    <View style={styles.actionButtons}>
+                        <TouchableOpacity
+                            style={[styles.actionBtn, { backgroundColor: theme.primary + '15' }]}
+                            onPress={() => handleEdit(item)}
+                        >
+                            <Edit size={16} color={theme.primary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.actionBtn, { backgroundColor: '#ef444420' }]}
+                            onPress={() => handleDelete(item)}
+                        >
+                            <Trash2 size={16} color="#ef4444" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
-
-            <View style={styles.vetContact}>
-                <View style={styles.contactRow}>
-                    <Mail size={14} color={theme.textMuted} />
-                    <Text style={[styles.contactText, { color: theme.textMuted }]}>{item.email}</Text>
-                </View>
-                <View style={styles.contactRow}>
-                    <Phone size={14} color={theme.textMuted} />
-                    <Text style={[styles.contactText, { color: theme.textMuted }]}>{item.phone}</Text>
-                </View>
-            </View>
-
-            {item.bio && (
-                <Text style={[styles.vetBio, { color: theme.textMuted }]} numberOfLines={2}>
-                    {item.bio}
-                </Text>
-            )}
-
-            <View style={styles.vetFooter}>
-                <View style={styles.licenseContainer}>
-                    <ShieldCheck size={14} color={theme.primary} />
-                    <Text style={[styles.licenseText, { color: theme.textMuted }]}>
-                        Cédula: {item.license_number}
-                    </Text>
-                </View>
-                <View style={styles.actionButtons}>
-                    <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => handleEdit(item)}
-                    >
-                        <Edit size={16} color={theme.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: '#ef444420' }]}
-                        onPress={() => handleDelete(item)}
-                    >
-                        <Trash2 size={16} color="#ef4444" />
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </View>
-    );
+        );
+    };
 
     if (loadingClinics) {
         return (
@@ -330,7 +351,7 @@ export default function VeterinariosClinicaScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+                    <KeyboardScreen style={{ paddingHorizontal: 24 }}>
                         <View style={styles.formGroup}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>Nombre Completo *</Text>
                             <TextInput
@@ -408,7 +429,7 @@ export default function VeterinariosClinicaScreen() {
                         </View>
 
                         <View style={styles.modalFooter} />
-                    </ScrollView>
+                    </KeyboardScreen>
                 </View>
             </Modal>
         </View>

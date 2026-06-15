@@ -36,7 +36,7 @@ export default function PagoCanceladoScreen() {
                 </View>
 
                 {/* Cancellation Reason */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <View style={styles.cardHeader}>
                         <AlertTriangle size={20} color="#ef4444" />
                         <Text style={[styles.cardTitle, { color: theme.text }]}>
@@ -50,7 +50,7 @@ export default function PagoCanceladoScreen() {
                 </View>
 
                 {/* Order Details */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>
                         Detalles del Intento
                     </Text>
@@ -95,7 +95,7 @@ export default function PagoCanceladoScreen() {
                 </View>
 
                 {/* Troubleshooting */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>
                         Soluciones Comunes
                     </Text>
@@ -125,7 +125,7 @@ export default function PagoCanceladoScreen() {
                 </View>
 
                 {/* Contact Support */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>
                         ¿Necesitas Ayuda?
                     </Text>
@@ -179,7 +179,7 @@ export default function PagoCanceladoScreen() {
                 </View>
 
                 {/* Security Notice */}
-                <View style={[styles.securityCard, { backgroundColor: theme.surface }]}>
+                <View style={[styles.securityCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <View style={styles.securityHeader}>
                         <AlertTriangle size={16} color="#f59e0b" />
                         <Text style={[styles.securityTitle, { color: theme.text }]}>
@@ -234,7 +234,6 @@ const styles = StyleSheet.create({
         padding: 20,
         marginBottom: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     cardHeader: {
         flexDirection: 'row',
@@ -341,7 +340,6 @@ const styles = StyleSheet.create({
         padding: 20,
         marginBottom: 40,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     securityHeader: {
         flexDirection: 'row',

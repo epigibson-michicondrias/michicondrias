@@ -1,22 +1,25 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, Dimensions, Alert, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, Dimensions, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, Briefcase, Plus, Search, MoreVertical, Settings2, Activity, ShieldCheck } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert } from '@/src/components/AppAlert';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { getAllServices, ClinicServiceItem } from '@/src/services/directorio';
 
 const { width } = Dimensions.get('window');
 
-// Mock data para servicios
-const MOCK_SERVICIOS = [
-    { id: '1', name: 'Consulta General', category: 'Médico', price: 450, status: 'Activo', icon: 'stethoscope', color: '#3b82f6' },
-    { id: '2', name: 'Vacunación Triple', category: 'Médico', price: 600, status: 'Activo', icon: 'shield', color: '#10b981' },
-    { id: '3', name: 'Peluquería Canina', category: 'Estética', price: 350, status: 'Activo', icon: 'scissors', color: '#8b5cf6' },
-    { id: '4', name: 'Paseo 1 Hora', category: 'Cuidado', price: 150, status: 'Activo', icon: 'dog', color: '#f59e0b' },
-    { id: '5', name: 'Hospedaje Noche', category: 'Cuidado', price: 400, status: 'Pausado', icon: 'home', color: '#f43f5e' },
-];
+const CATEGORY_COLORS: Record<string, string> = {
+    Médico: '#3b82f6',
+    Estética: '#8b5cf6',
+    Cuidado: '#f59e0b',
+    Consultas: '#3b82f6',
+    Preventiva: '#10b981',
+    Especialidad: '#ef4444',
+};
 
 export default function AdminServiciosScreen() {
     const router = useRouter();
@@ -24,23 +27,39 @@ export default function AdminServiciosScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
 
-    const renderServiceCard = ({ item }: { item: typeof MOCK_SERVICIOS[0] }) => (
-        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <View style={[styles.iconBox, { backgroundColor: item.color + '15' }]}>
-                <Briefcase size={22} color={item.color} />
+    const { data: servicios = [], isLoading } = useQuery({
+        queryKey: ['admin-services'],
+        queryFn: getAllServices,
+    });
+
+    const renderServiceCard = ({ item }: { item: ClinicServiceItem }) => {
+        const color = CATEGORY_COLORS[item.category || ''] || '#6b7280';
+        return (
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>
+                    <Briefcase size={22} color={color} />
+                </View>
+                <View style={styles.cardInfo}>
+                    <Text style={[styles.serviceName, { color: theme.text }]}>{item.name}</Text>
+                    <Text style={[styles.serviceCat, { color: theme.textMuted }]}>{item.category || 'Sin categoría'}{item.price != null ? ` • $${item.price}` : ''}</Text>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: item.is_active ? '#10b98120' : '#f43f5e20' }]}>
+                    <Text style={[styles.statusText, { color: item.is_active ? '#10b981' : '#f43f5e' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
+                </View>
+                <TouchableOpacity style={styles.moreBtn}>
+                    <MoreVertical size={20} color={theme.textMuted} />
+                </TouchableOpacity>
             </View>
-            <View style={styles.cardInfo}>
-                <Text style={[styles.serviceName, { color: theme.text }]}>{item.name}</Text>
-                <Text style={[styles.serviceCat, { color: theme.textMuted }]}>{item.category} • ${item.price}</Text>
+        );
+    };
+
+    if (isLoading) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color="#14b8a6" />
             </View>
-            <View style={[styles.statusBadge, { backgroundColor: item.status === 'Activo' ? '#10b98120' : '#f43f5e20' }]}>
-                <Text style={[styles.statusText, { color: item.status === 'Activo' ? '#10b981' : '#f43f5e' }]}>{item.status}</Text>
-            </View>
-            <TouchableOpacity style={styles.moreBtn}>
-                <MoreVertical size={20} color={theme.textMuted} />
-            </TouchableOpacity>
-        </View>
-    );
+        );
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -65,19 +84,19 @@ export default function AdminServiciosScreen() {
                     </View>
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => Alert.alert("Nuevo Servicio", "Abrir formulario de alta")}
+                        onPress={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
                     >
                         <Plus size={22} color="#fff" />
                     </TouchableOpacity>
                 </View>
                 <View style={styles.headerStats}>
                     <View style={styles.statMini}>
-                        <Text style={styles.statVal}>24</Text>
+                        <Text style={styles.statVal}>{servicios.filter(s => s.is_active).length}</Text>
                         <Text style={styles.statLab}>Activos</Text>
                     </View>
                     <View style={styles.statDivider} />
                     <View style={styles.statMini}>
-                        <Text style={styles.statVal}>8</Text>
+                        <Text style={styles.statVal}>{new Set(servicios.map(s => s.category).filter(Boolean)).size}</Text>
                         <Text style={styles.statLab}>Categorías</Text>
                     </View>
                 </View>
@@ -95,7 +114,7 @@ export default function AdminServiciosScreen() {
             </View>
 
             <FlatList
-                data={MOCK_SERVICIOS}
+                data={servicios}
                 renderItem={renderServiceCard}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.list}

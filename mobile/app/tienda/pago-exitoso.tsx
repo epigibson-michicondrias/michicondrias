@@ -36,7 +36,7 @@ export default function PagoExitosoScreen() {
                 </View>
 
                 {/* Order Details */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>
                         Detalles del Pedido
                     </Text>
@@ -79,7 +79,7 @@ export default function PagoExitosoScreen() {
                 </View>
 
                 {/* Shipping Information */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>
                         Información de Envío
                     </Text>
@@ -102,7 +102,7 @@ export default function PagoExitosoScreen() {
                 </View>
 
                 {/* Contact Support */}
-                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>
                         ¿Necesitas Ayuda?
                     </Text>
@@ -146,7 +146,7 @@ export default function PagoExitosoScreen() {
                 </View>
 
                 {/* Review Request */}
-                <View style={[styles.reviewCard, { backgroundColor: theme.surface }]}>
+                <View style={[styles.reviewCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <View style={styles.reviewHeader}>
                         <Star size={20} color="#f59e0b" />
                         <Text style={[styles.reviewTitle, { color: theme.text }]}>
@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
         padding: 20,
         marginBottom: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     cardTitle: {
         fontSize: 18,
@@ -286,7 +285,6 @@ const styles = StyleSheet.create({
         padding: 20,
         marginBottom: 40,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     reviewHeader: {
         flexDirection: 'row',

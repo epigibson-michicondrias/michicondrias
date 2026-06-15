@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getWalker, Walker } from '../../src/services/paseadores';
@@ -8,6 +8,7 @@ import {
     MapPin, Star, Clock, Users, Phone, MessageCircle, Calendar, 
     Shield, ChevronLeft, Heart, Share2, Dog, Cat, CheckCircle 
 } from 'lucide-react-native';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
@@ -83,55 +84,29 @@ export default function WalkerDetailScreen() {
     }
 
     const handleContact = () => {
-        Alert.alert(
-            "Contactar Paseador",
-            "¿Cómo deseas contactar a este paseador?",
-            [
-                {
-                    text: "Llamar",
-                    onPress: () => {
-                        // Implementar llamada telefónica
-                        Alert.alert("Llamada", "Función de llamada no disponible en este momento");
-                    }
-                },
-                {
-                    text: "Mensaje",
-                    onPress: () => {
-                        // Implementar mensaje
-                        Alert.alert("Mensaje", "Abriendro chat con el paseador...");
-                    }
-                },
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                }
-            ]
-        );
+        showAlert({
+            type: 'info',
+            title: 'Contactar Paseador',
+            message: '¿Cómo deseas contactar a este paseador?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Mensaje',
+            onButtonPress: () => {
+                showAlert({ type: 'info', title: 'Mensaje', message: 'Abriendro chat con el paseador...' });
+            },
+        });
     };
 
     const handleBook = () => {
-        Alert.alert(
-            "Reservar Paseo",
-            "¿Para cuándo necesitas el servicio de paseo?",
-            [
-                {
-                    text: "Hoy",
-                    onPress: () => Alert.alert("Reserva", "Redirigiendo a agenda...")
-                },
-                {
-                    text: "Mañana", 
-                    onPress: () => Alert.alert("Reserva", "Redirigiendo a agenda...")
-                },
-                {
-                    text: "Otra fecha",
-                    onPress: () => Alert.alert("Reserva", "Redirigiendo a calendario...")
-                },
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                }
-            ]
-        );
+        showAlert({
+            type: 'info',
+            title: 'Reservar Paseo',
+            message: '¿Para cuándo necesitas el servicio de paseo?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Hoy',
+            onButtonPress: () => showAlert({ type: 'info', title: 'Reserva', message: 'Redirigiendo a agenda...' }),
+        });
     };
 
     return (

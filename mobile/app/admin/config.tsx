@@ -8,7 +8,8 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { systemService, SystemSettings } from '@/src/services/system';
-import { Alert, ActivityIndicator } from 'react-native';
+import { showAlert } from '@/src/components/AppAlert';
+import { ActivityIndicator } from 'react-native';
 
 export default function AdminConfigScreen() {
     const router = useRouter();
@@ -27,19 +28,19 @@ export default function AdminConfigScreen() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-system-settings'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const syncMutation = useMutation({
         mutationFn: systemService.syncDatabase,
-        onSuccess: (data) => Alert.alert("Éxito", data.message || "Sincronización completada."),
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onSuccess: (data) => showAlert({ type: 'success', title: 'Éxito', message: data.message || 'Sincronización completada.' }),
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const cacheMutation = useMutation({
         mutationFn: systemService.clearCache,
-        onSuccess: (data) => Alert.alert("Éxito", data.message || "Caché global limpiada."),
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onSuccess: (data) => showAlert({ type: 'success', title: 'Éxito', message: data.message || 'Caché global limpiada.' }),
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     if (isLoading) {

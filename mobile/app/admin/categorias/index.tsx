@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, TextInput, Modal } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, TextInput, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCategories, createCategory, updateCategory, deleteCategory, Category } from '@/src/services/ecommerce';
@@ -8,6 +8,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Plus, Package, Edit2, Trash2, X } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert } from '@/src/components/AppAlert';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 
 export default function AdminCategoriasScreen() {
     const router = useRouter();
@@ -28,30 +30,30 @@ export default function AdminCategoriasScreen() {
     const createMutation = useMutation({
         mutationFn: createCategory,
         onSuccess: () => {
-            Alert.alert("Éxito", "Categoría creada correctamente.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Categoría creada correctamente.' });
             setModalVisible(false);
             queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }: { id: string, data: Partial<Category> }) => updateCategory(id, data),
         onSuccess: () => {
-            Alert.alert("Éxito", "Categoría actualizada correctamente.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Categoría actualizada correctamente.' });
             setModalVisible(false);
             queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const deleteMutation = useMutation({
         mutationFn: deleteCategory,
         onSuccess: () => {
-            Alert.alert("Éxito", "Categoría eliminada.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Categoría eliminada.' });
             queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const handleAction = (category?: Category) => {
@@ -64,14 +66,15 @@ export default function AdminCategoriasScreen() {
     };
 
     const handleDelete = (id: string, name: string) => {
-        Alert.alert(
-            "Eliminar Categoría",
-            `¿Estás seguro de eliminar "${name}"? Esta acción no se puede deshacer.`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Eliminar", style: "destructive", onPress: () => deleteMutation.mutate(id) }
-            ]
-        );
+        showAlert({
+            type: 'error',
+            title: 'Eliminar Categoría',
+            message: `¿Estás seguro de eliminar "${name}"? Esta acción no se puede deshacer.`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => deleteMutation.mutate(id),
+        });
     };
 
     const renderItem = ({ item }: { item: Category }) => (
@@ -157,6 +160,7 @@ export default function AdminCategoriasScreen() {
                             </TouchableOpacity>
                         </View>
                         
+                        <KeyboardScreen>
                         <View style={styles.form}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>NOMBRE</Text>
                             <TextInput
@@ -198,6 +202,7 @@ export default function AdminCategoriasScreen() {
                                 )}
                             </TouchableOpacity>
                         </View>
+                        </KeyboardScreen>
                     </View>
                 </View>
             </Modal>

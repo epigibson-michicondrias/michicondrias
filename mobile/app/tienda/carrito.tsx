@@ -96,7 +96,7 @@ export default function CarritoScreen() {
                             <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Envío</Text>
                             <Text style={[styles.summaryValue, { color: '#10b981' }]}>Gratis</Text>
                         </View>
-                        <View style={styles.divider} />
+                        <View style={[styles.divider, { backgroundColor: theme.border }]} />
                         <View style={styles.summaryRow}>
                             <Text style={[styles.totalLabel, { color: theme.text }]}>Total</Text>
                             <Text style={[styles.totalValue, { color: theme.primary }]}>${cartTotal.toFixed(2)}</Text>
@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
     },
     divider: {
         height: 1,
-        backgroundColor: 'rgba(255,255,255,0.1)',
         marginVertical: 12,
     },
     totalLabel: {

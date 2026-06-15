@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics } from '../../src/services/directorio';
 import { getClinicLabTests, requestLabTest, LabTestCreatePayload } from '../../src/services/laboratory';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, FlaskConical, TestTube2, CheckCircle2, Clock, PlusCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 
 export default function LaboratorioScreen() {
     const router = useRouter();
@@ -46,7 +48,7 @@ export default function LaboratorioScreen() {
 
     const handleSaveTest = async () => {
         if (!newTest.patientId || !newTest.testName || !newTest.testType) {
-            Alert.alert("Error", "ID de Paciente, Tipo y Nombre son obligatorios");
+            showAlert({ type: 'error', title: 'Error', message: 'ID de Paciente, Tipo y Nombre son obligatorios' });
             return;
         }
         setLoadingAction(true);
@@ -54,9 +56,9 @@ export default function LaboratorioScreen() {
             await requestLabTest(clinic!.id, newTest);
             setModalVisible(false);
             setNewTest({ patientId: '', testType: '', testName: '', description: '' });
-            Alert.alert("Éxito", "Prueba solicitada correctamente");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Prueba solicitada correctamente' });
         } catch (error) {
-            Alert.alert("Error", "No se pudo solicitar la prueba");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo solicitar la prueba' });
         } finally {
             setLoadingAction(false);
         }
@@ -153,7 +155,7 @@ export default function LaboratorioScreen() {
                     <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Solicitar Prueba</Text>
                         
-                        <ScrollView showsVerticalScrollIndicator={false}>
+                        <KeyboardScreen>
                             <Text style={[styles.inputLabel, { color: theme.text }]}>ID del Paciente *</Text>
                             <TextInput
                                 style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
@@ -190,7 +192,7 @@ export default function LaboratorioScreen() {
                                 placeholderTextColor={theme.textMuted}
                                 multiline
                             />
-                        </ScrollView>
+                        </KeyboardScreen>
 
                         <View style={styles.modalActions}>
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>

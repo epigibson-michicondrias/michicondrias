@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, RefreshControl, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getListings, getListingRequests, updateRequestStatus, AdoptionRequest, Listing } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Users, Clock, CheckCircle, XCircle, AlertCircle, Heart, Home, Filter } from 'lucide-react-native';
+import { showAlert } from '@/src/components/AppAlert';
 
 const STATUS_LABELS: Record<string, { label: string; color: string; icon: string }> = {
     PENDING: { label: "Pendiente", color: "#f59e0b", icon: "⏳" },
@@ -66,17 +67,15 @@ export default function SolicitudesAdopcionScreen() {
 
     const handleStatusUpdate = (requestId: string, status: string) => {
         const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.PENDING;
-        Alert.alert(
-            "Actualizar Estado",
-            `¿Cambiar estado a "${statusInfo.label}"?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                { 
-                    text: "Confirmar", 
-                    onPress: () => mutation.mutate({ requestId, status })
-                }
-            ]
-        );
+        showAlert({
+            type: 'warning',
+            title: 'Actualizar Estado',
+            message: `¿Cambiar estado a "${statusInfo.label}"?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Confirmar',
+            onButtonPress: () => mutation.mutate({ requestId, status }),
+        });
     };
 
     const filterRequests = (requests: AdoptionRequest[]) => {

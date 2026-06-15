@@ -49,6 +49,90 @@ def get_clinic_alerts_endpoint(
     
     return result
 
+
+@router.get("/clinics/{clinic_id}/alerts/emergency")
+def get_emergency_alerts(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Get emergency alerts for a clinic."""
+    clinic = get_clinic(db, clinic_id)
+    if not clinic or clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos")
+    
+    alerts = get_clinic_alerts(db, clinic_id, unread_only=False)
+    emergency_alerts = [a for a in alerts if a.type == "emergency"]
+    
+    return [{
+        "id": str(a.id),
+        "type": a.type,
+        "title": a.title,
+        "message": a.message,
+        "priority": a.priority,
+        "time": format_time_ago(a.created_at),
+        "icon": a.icon or "AlertTriangle",
+        "color": a.color or "#ef4444",
+        "isRead": a.is_read,
+        "actionUrl": a.action_url or "/dashboard"
+    } for a in emergency_alerts]
+
+
+@router.get("/clinics/{clinic_id}/alerts/inventory")
+def get_inventory_alerts(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Get inventory alerts for a clinic."""
+    clinic = get_clinic(db, clinic_id)
+    if not clinic or clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos")
+    
+    alerts = get_clinic_alerts(db, clinic_id, unread_only=False)
+    inventory_alerts = [a for a in alerts if a.type == "inventory"]
+    
+    return [{
+        "id": str(a.id),
+        "type": a.type,
+        "title": a.title,
+        "message": a.message,
+        "priority": a.priority,
+        "time": format_time_ago(a.created_at),
+        "icon": a.icon or "Package",
+        "color": a.color or "#f59e0b",
+        "isRead": a.is_read,
+        "actionUrl": a.action_url or "/dashboard"
+    } for a in inventory_alerts]
+
+
+@router.get("/clinics/{clinic_id}/alerts/laboratory")
+def get_laboratory_alerts(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Get laboratory alerts for a clinic."""
+    clinic = get_clinic(db, clinic_id)
+    if not clinic or clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos")
+    
+    alerts = get_clinic_alerts(db, clinic_id, unread_only=False)
+    lab_alerts = [a for a in alerts if a.type == "laboratory"]
+    
+    return [{
+        "id": str(a.id),
+        "type": a.type,
+        "title": a.title,
+        "message": a.message,
+        "priority": a.priority,
+        "time": format_time_ago(a.created_at),
+        "icon": a.icon or "FlaskConical",
+        "color": a.color or "#3b82f6",
+        "isRead": a.is_read,
+        "actionUrl": a.action_url or "/dashboard"
+    } for a in lab_alerts]
+
 @router.post("/clinics/{clinic_id}/alerts")
 def create_clinic_alert_endpoint(
     clinic_id: str,

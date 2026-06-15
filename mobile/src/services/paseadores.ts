@@ -29,6 +29,7 @@ export interface WalkRequest {
     pet_id: string;
     status: string;
     requested_date: string;
+    requested_time?: string | null;
     duration_minutes: number;
     pickup_address?: string | null;
     notes?: string | null;

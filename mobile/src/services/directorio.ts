@@ -61,23 +61,16 @@ export interface ClinicRating {
 
 // --- Clinics ---
 
-// --- MOCKS ---
-export const MOCK_CLINICS: Clinic[] = [
-    {
-        id: "C-1", name: "Hospital Veterinario Michicondrias", address: "Av. Central 123", city: "CDMX", state: "CDMX", phone: "555-1234", email: "contacto@michicondrias.com", website: "michicondrias.com", description: "Clínica 24/7", logo_url: null, is_24_hours: true, has_emergency: true, owner_user_id: "U-1", is_approved: true
-    }
-];
-
 export async function getClinics(): Promise<Clinic[]> {
-    return Promise.resolve(MOCK_CLINICS);
+    return apiFetch<Clinic[]>("directorio", "/clinics/");
 }
 
 export async function getClinic(id: string): Promise<Clinic> {
-    return Promise.resolve(MOCK_CLINICS[0]);
+    return apiFetch<Clinic>("directorio", `/clinics/${id}`);
 }
 
 export async function getMyClinics(): Promise<Clinic[]> {
-    return Promise.resolve(MOCK_CLINICS);
+    return apiFetch<Clinic[]>("directorio", "/clinics/me");
 }
 
 export async function createClinic(clinic: ClinicCreate): Promise<Clinic> {
@@ -102,13 +95,9 @@ export async function deleteClinic(id: string): Promise<void> {
 
 // --- Veterinarians ---
 
-export const MOCK_VETS: Vet[] = [
-    { id: "V-1", first_name: "Ana", last_name: "López", specialty: "Cirugía", license_number: "MED-123", phone: "555-0001", email: "ana@vet.com", bio: "Experta en ortopedia", photo_url: null, clinic_id: "C-1", user_id: "U-10" },
-    { id: "V-2", first_name: "Carlos", last_name: "Ruiz", specialty: "Medicina Interna", license_number: "MED-456", phone: "555-0002", email: "carlos@vet.com", bio: null, photo_url: null, clinic_id: "C-1", user_id: "U-11" }
-];
-
 export async function getVets(clinicId?: string): Promise<Vet[]> {
-    return Promise.resolve(MOCK_VETS);
+    const qs = clinicId ? `?clinic_id=${clinicId}` : "";
+    return apiFetch<Vet[]>("directorio", `/veterinarians/${qs}`);
 }
 
 export async function createVet(vet: Omit<Vet, "id" | "user_id">): Promise<Vet> {
@@ -161,8 +150,12 @@ export const MOCK_SERVICES: ClinicServiceItem[] = [
     { id: "S-3", clinic_id: "C-1", name: "Odontología", description: "Limpieza dental profunda", price: 1200, duration_minutes: 60, category: "Especialidad", is_active: true }
 ];
 
+export async function getAllServices(): Promise<ClinicServiceItem[]> {
+    return apiFetch<ClinicServiceItem[]>("directorio", "/catalog/admin/all");
+}
+
 export async function getClinicServices(clinicId: string): Promise<ClinicServiceItem[]> {
-    return Promise.resolve(MOCK_SERVICES);
+    return apiFetch<ClinicServiceItem[]>("directorio", `/catalog/clinics/${clinicId}/services`);
 }
 
 export async function createClinicService(clinicId: string, data: { name: string; description?: string; price?: number; duration_minutes?: number; category?: string }): Promise<ClinicServiceItem> {
@@ -189,17 +182,8 @@ export interface ClinicScheduleItem {
     is_active: boolean;
 }
 
-export const MOCK_SCHEDULE: ClinicScheduleItem[] = [
-    { id: "SCH-1", clinic_id: "C-1", day_of_week: 1, start_time: "08:00", end_time: "20:00", slot_duration_minutes: 30, is_active: true },
-    { id: "SCH-2", clinic_id: "C-1", day_of_week: 2, start_time: "08:00", end_time: "20:00", slot_duration_minutes: 30, is_active: true },
-    { id: "SCH-3", clinic_id: "C-1", day_of_week: 3, start_time: "08:00", end_time: "20:00", slot_duration_minutes: 30, is_active: true },
-    { id: "SCH-4", clinic_id: "C-1", day_of_week: 4, start_time: "08:00", end_time: "20:00", slot_duration_minutes: 30, is_active: true },
-    { id: "SCH-5", clinic_id: "C-1", day_of_week: 5, start_time: "08:00", end_time: "20:00", slot_duration_minutes: 30, is_active: true },
-    { id: "SCH-6", clinic_id: "C-1", day_of_week: 6, start_time: "09:00", end_time: "15:00", slot_duration_minutes: 30, is_active: true }
-];
-
 export async function getClinicSchedule(clinicId: string): Promise<ClinicScheduleItem[]> {
-    return Promise.resolve(MOCK_SCHEDULE);
+    return apiFetch<ClinicScheduleItem[]>("directorio", `/schedule/clinics/${clinicId}/schedule`);
 }
 
 export async function setClinicSchedule(clinicId: string, schedules: { day_of_week: number; start_time: string; end_time: string; slot_duration_minutes?: number }[]): Promise<ClinicScheduleItem[]> {
@@ -231,27 +215,24 @@ export interface AppointmentItem {
     clinic_name: string | null;
 }
 
-export const MOCK_APPOINTMENTS: AppointmentItem[] = [
-    { id: "A-1", clinic_id: "C-1", service_id: "S-1", pet_id: "P-12345", user_id: "U-2", vet_id: "V-1", date: "2024-05-02", start_time: "10:00", end_time: "10:30", status: "confirmed", notes: "Consulta general", service_name: "Consulta General", clinic_name: "Michicondrias", created_at: "2024-05-01T08:00:00Z" },
-    { id: "A-2", clinic_id: "C-1", service_id: "S-2", pet_id: "P-67890", user_id: "U-3", vet_id: "V-2", date: "2024-05-02", start_time: "11:00", end_time: "12:00", status: "pending", notes: "Vacunación múltiple", service_name: "Vacunación", clinic_name: "Michicondrias", created_at: "2024-05-01T09:00:00Z" },
-    { id: "A-3", clinic_id: "C-1", service_id: "S-3", pet_id: "P-11111", user_id: "U-4", vet_id: "V-1", date: "2024-05-01", start_time: "09:00", end_time: "09:30", status: "completed", notes: "Revisión dental", service_name: "Odontología", clinic_name: "Michicondrias", created_at: "2024-04-28T10:00:00Z" }
-];
-
 export async function getAvailableSlots(clinicId: string, date: string, serviceId: string): Promise<AvailableSlot[]> {
-    return Promise.resolve([{ start_time: "10:00", end_time: "10:30" }, { start_time: "11:00", end_time: "11:30" }]);
+    return apiFetch<AvailableSlot[]>("directorio", `/appointments/clinics/${clinicId}/slots?date=${date}&service_id=${serviceId}`);
 }
 
 export async function createAppointment(data: { clinic_id: string; service_id: string; pet_id: string; date: string; start_time: string; notes?: string }): Promise<AppointmentItem> {
-    return Promise.resolve({ ...MOCK_APPOINTMENTS[0], id: `A-${Date.now()}`, ...data });
+    return apiFetch<AppointmentItem>("directorio", "/appointments/", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
 }
 
 export async function getMyAppointments(): Promise<AppointmentItem[]> {
-    return Promise.resolve(MOCK_APPOINTMENTS);
+    return apiFetch<AppointmentItem[]>("directorio", "/appointments/me");
 }
 
 export async function getClinicAppointments(clinicId: string, status?: string): Promise<AppointmentItem[]> {
-    if (status) return Promise.resolve(MOCK_APPOINTMENTS.filter(a => a.status === status));
-    return Promise.resolve(MOCK_APPOINTMENTS);
+    const query = status ? `?status=${status}` : "";
+    return apiFetch<AppointmentItem[]>("directorio", `/appointments/clinic/${clinicId}${query}`);
 }
 
 export async function confirmAppointment(id: string): Promise<AppointmentItem> {
@@ -300,17 +281,83 @@ export interface SurgeryCreate {
     notes?: string;
 }
 
-export const MOCK_SURGERIES: SurgeryItem[] = [
-    { id: "Surg-1", clinic_id: "C-1", patient_id: "P-12345", surgeon_id: "V-1", surgery_name: "Ovariohisterectomía", surgery_type: "elective", scheduled_date: "2024-05-02T08:00:00Z", estimated_duration_minutes: 90, status: "completed", operating_room: "Quirófano 1", notes: "Sin complicaciones", created_at: "2024-04-25T10:00:00Z" },
-    { id: "Surg-2", clinic_id: "C-1", patient_id: "P-67890", surgeon_id: "V-2", surgery_name: "Extracción cuerpo extraño", surgery_type: "emergency", scheduled_date: new Date().toISOString(), estimated_duration_minutes: 120, status: "in-progress", operating_room: "Quirófano 2", notes: "Paciente inestable", created_at: "2024-05-02T10:00:00Z" },
-    { id: "Surg-3", clinic_id: "C-1", patient_id: "P-11111", surgeon_id: "V-1", surgery_name: "Profilaxis Dental", surgery_type: "preventive", scheduled_date: "2024-05-05T10:00:00Z", estimated_duration_minutes: 60, status: "scheduled", operating_room: "Dental 1", notes: "Revisar canino superior", created_at: "2024-05-01T10:00:00Z" }
-];
-
 export async function getClinicSurgeries(clinicId: string): Promise<SurgeryItem[]> {
-    return Promise.resolve(MOCK_SURGERIES);
+    return apiFetch<SurgeryItem[]>("directorio", `/clinics/${clinicId}/surgeries`);
 }
 
 export async function createSurgery(data: SurgeryCreate): Promise<SurgeryItem> {
-    const newSurg: SurgeryItem = { ...data, id: `Surg-${Date.now()}`, status: 'scheduled', estimated_duration_minutes: data.estimated_duration_minutes || 60 };
-    return Promise.resolve(newSurg);
+    return apiFetch<SurgeryItem>("directorio", `/clinics/${data.clinic_id}/surgeries`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
 }
+
+
+
+// --- Hospital specific API calls ---
+
+export async function getHospitalClinics(): Promise<Clinic[]> {
+    return apiFetch<Clinic[]>("directorio", "/clinics/hospitals/clinics");
+}
+
+export async function getHospitalVeterinarians(): Promise<Vet[]> {
+    return apiFetch<Vet[]>("directorio", "/clinics/hospitals/veterinarians");
+}
+
+export async function associateVeterinarian(clinicId: string, vetId: string): Promise<Vet> {
+    return apiFetch<Vet>("directorio", `/clinics/${clinicId}/veterinarians/${vetId}`, {
+        method: "POST",
+    });
+}
+
+export async function dissociateVeterinarian(clinicId: string, vetId: string): Promise<{message: string}> {
+    return apiFetch<{message: string}>("directorio", `/clinics/${clinicId}/veterinarians/${vetId}`, {
+        method: "DELETE",
+    });
+}
+
+
+// --- Telemedicine / Consultations ---
+
+export interface ConsultationItem {
+    id: string;
+    clinic_id?: string;
+    vet_id?: string;
+    pet_id?: string;
+    scheduled_at: string;
+    status: string;
+    room_url?: string;
+    notes?: string;
+    created_at: string;
+}
+
+export interface ConsultationCreate {
+    clinic_id?: string;
+    vet_id?: string;
+    pet_id?: string;
+    scheduled_at: string;
+    notes?: string;
+}
+
+export async function bookConsultation(data: ConsultationCreate): Promise<ConsultationItem> {
+    return apiFetch<ConsultationItem>("directorio", "/consultations/", {
+        method: "POST",
+        body: JSON.stringify(data)
+    });
+}
+
+export async function getMyConsultations(): Promise<ConsultationItem[]> {
+    return apiFetch<ConsultationItem[]>("directorio", "/consultations/me");
+}
+
+export async function getVetConsultations(): Promise<ConsultationItem[]> {
+    return apiFetch<ConsultationItem[]>("directorio", "/consultations/vet/incoming");
+}
+
+export async function updateConsultationStatus(id: string, status: string): Promise<ConsultationItem> {
+    return apiFetch<ConsultationItem>("directorio", `/consultations/${id}/status?status=${status}`, {
+        method: "PATCH"
+    });
+}
+
+

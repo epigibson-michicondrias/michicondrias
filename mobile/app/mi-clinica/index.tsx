@@ -95,7 +95,7 @@ export default function MiClinicaScreen() {
             <View style={[styles.container, { backgroundColor: theme.background }]}>
                 <View style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}>
                     <View style={styles.headerTop}>
-                        <TouchableOpacity style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} onPress={() => router.back()}>
+                        <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
                             <ChevronLeft size={22} color="#fff" />
                         </TouchableOpacity>
                         <View style={styles.headerInfo}>
@@ -131,7 +131,7 @@ export default function MiClinicaScreen() {
             >
                 <View style={styles.headerTop}>
                     <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} 
                         onPress={() => router.back()}
                     >
                         <ChevronLeft size={22} color="#fff" />
@@ -144,7 +144,7 @@ export default function MiClinicaScreen() {
                         </View>
                     </View>
                     <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        style={[styles.headerAction, { backgroundColor: theme.overlayHover }]} 
                         onPress={() => router.push(`/mi-clinica/config/${clinic.id}` as any)}
                     >
                         <Settings size={22} color="#fff" />
@@ -316,7 +316,7 @@ export default function MiClinicaScreen() {
                 {loadingAppointments ? (
                     <ActivityIndicator size="small" color={theme.primary} />
                 ) : pendingAppointments.length === 0 ? (
-                    <View style={[styles.emptyRecent, { backgroundColor: theme.surface }]}>
+                    <View style={[styles.emptyRecent, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                         <Text style={{ color: theme.textMuted, fontWeight: '600' }}>No hay citas pendientes de confirmación</Text>
                     </View>
                 ) : (
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     menuLabel: { fontSize: 15, fontWeight: '800' },
     menuSub: { fontSize: 11, fontWeight: '600' },
     activityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    emptyRecent: { padding: 30, borderRadius: 24, alignItems: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.1)' },
+    emptyRecent: { padding: 30, borderRadius: 24, alignItems: 'center', borderWidth: 1, borderStyle: 'dashed' },
     activityItem: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 20, gap: 14, marginBottom: 10, borderWidth: 1 },
     apptIcon: { width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
     apptInfo: { flex: 1, gap: 2 },

@@ -27,6 +27,16 @@ def read_products(
     products = crud.crud_ecommerce.get_products(db, skip=skip, limit=limit, category=category, seller_id=seller_id)
     return products
 
+@router.get("/seller/me", response_model=List[ProductResponse])
+def read_my_products(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """
+    Retrieve products created by the current seller.
+    """
+    return crud.crud_ecommerce.get_products(db, seller_id=user_id)
+
 @router.get("/{product_id}", response_model=ProductResponse)
 def read_product(
     product_id: str,
@@ -86,6 +96,50 @@ async def create_product(
     except Exception as e:
         logger.exception("Error creating product in database")
         raise HTTPException(status_code=500, detail=f"Error al guardar en base de datos: {str(e)}")
+
+@router.put("/{product_id}", response_model=ProductResponse)
+async def update_product(
+    product_id: str,
+    *,
+    db: Session = Depends(get_db),
+    product_in: ProductUpdate,
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """
+    Update a product. Only the seller can update their own products.
+    """
+    product = crud.crud_ecommerce.get_product(db, product_id=product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.seller_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this product")
+    
+    update_data = product_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(product, field, value)
+    
+    db.add(product)
+    db.commit()
+    db.refresh(product)
+    return product
+
+@router.delete("/{product_id}")
+async def delete_product(
+    product_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """
+    Delete a product. Only the seller can delete their own products.
+    """
+    product = crud.crud_ecommerce.get_product(db, product_id=product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if product.seller_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this product")
+    
+    crud.crud_ecommerce.delete_product(db, product_id)
+    return {"message": "Product deleted successfully"}
 
 @router.post("/{product_id}/reviews", response_model=ReviewResponse)
 def create_product_review(

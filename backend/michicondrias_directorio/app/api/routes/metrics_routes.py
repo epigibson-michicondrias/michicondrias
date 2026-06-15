@@ -122,3 +122,74 @@ def get_weekly_metrics(
     }
     
     return weekly_totals
+
+
+@router.get("/clinics/{clinic_id}/metrics/revenue")
+def get_clinic_revenue(
+    clinic_id: str,
+    period: str = "daily",
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Get revenue metrics for a clinic."""
+    clinic = get_clinic(db, clinic_id)
+    if not clinic or clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos")
+    
+    if period == "daily":
+        metrics = get_daily_metrics(db, clinic_id, date.today())
+        return {
+            "period": "daily",
+            "revenue": float(metrics.daily_revenue) if metrics and metrics.daily_revenue else 0,
+            "date": date.today().isoformat()
+        }
+    elif period == "weekly":
+        start_date = date.today() - timedelta(days=7)
+        weekly_metrics = db.query(ClinicMetrics).filter(
+            ClinicMetrics.clinic_id == clinic_id,
+            ClinicMetrics.metric_date >= start_date
+        ).all()
+        total_revenue = sum(float(m.daily_revenue or 0) for m in weekly_metrics)
+        return {
+            "period": "weekly",
+            "revenue": total_revenue,
+            "start_date": start_date.isoformat(),
+            "end_date": date.today().isoformat()
+        }
+    elif period == "monthly":
+        start_date = date.today() - timedelta(days=30)
+        monthly_metrics = db.query(ClinicMetrics).filter(
+            ClinicMetrics.clinic_id == clinic_id,
+            ClinicMetrics.metric_date >= start_date
+        ).all()
+        total_revenue = sum(float(m.daily_revenue or 0) for m in monthly_metrics)
+        return {
+            "period": "monthly",
+            "revenue": total_revenue,
+            "start_date": start_date.isoformat(),
+            "end_date": date.today().isoformat()
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Periodo no válido. Use: daily, weekly, monthly")
+
+
+@router.get("/clinics/{clinic_id}/metrics/occupancy")
+def get_clinic_occupancy(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Get occupancy metrics for a clinic."""
+    clinic = get_clinic(db, clinic_id)
+    if not clinic or clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos")
+    
+    metrics = get_daily_metrics(db, clinic_id, date.today())
+    occupancy_rate = metrics.occupancy_rate if metrics else 0
+    
+    return {
+        "clinic_id": clinic_id,
+        "occupancy_rate": occupancy_rate,
+        "date": date.today().isoformat(),
+        "status": "high" if occupancy_rate > 80 else "medium" if occupancy_rate > 50 else "low"
+    }

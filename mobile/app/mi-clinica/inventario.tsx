@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Modal, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics } from '../../src/services/directorio';
 import { getClinicInventory, addInventoryItem, InventoryCreatePayload } from '../../src/services/inventory';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, Package, AlertTriangle, PlusCircle, Box, Search, X } from 'lucide-react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import KeyboardScreen from '../../src/components/KeyboardScreen';
 
 export default function InventarioScreen() {
     const router = useRouter();
@@ -57,7 +59,7 @@ export default function InventarioScreen() {
 
     const handleSaveItem = async () => {
         if (!newItem.name || !newItem.unit) {
-            Alert.alert("Error", "El nombre y la unidad son obligatorios");
+            showAlert({ type: 'error', title: 'Error', message: 'El nombre y la unidad son obligatorios' });
             return;
         }
         setLoadingAction(true);
@@ -65,9 +67,9 @@ export default function InventarioScreen() {
             await addInventoryItem(clinic!.id, newItem);
             setModalVisible(false);
             setNewItem({ name: '', category: '', unit: 'unidad', currentStock: 0, minStock: 0 });
-            Alert.alert("Éxito", "Producto agregado al inventario");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Producto agregado al inventario' });
         } catch (error) {
-            Alert.alert("Error", "No se pudo agregar el producto");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo agregar el producto' });
         } finally {
             setLoadingAction(false);
         }
@@ -113,7 +115,7 @@ export default function InventarioScreen() {
                 )}
             </LinearGradient>
 
-            <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
+            <KeyboardScreen>
                 <View style={styles.content}>
                     
                     {/* Critical Alerts Dashboard */}
@@ -176,7 +178,7 @@ export default function InventarioScreen() {
                         ))
                     )}
                 </View>
-            </ScrollView>
+            </KeyboardScreen>
 
             {/* Add Item Modal */}
             <Modal visible={modalVisible} transparent animationType="slide">

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert, Image, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getCurrentUser, logout, type User } from '@/src/lib/auth';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Mail, Phone, MapPin, Calendar, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon } from 'lucide-react-native';
+import { showAlert } from '@/src/components/AppAlert';
+import KeyboardScreen from '../../src/components/KeyboardScreen';
+import { ChevronLeft, Mail, Phone, MapPin, Calendar, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, Palette } from 'lucide-react-native';
 
 export default function PerfilScreen() {
     const router = useRouter();
@@ -48,16 +50,16 @@ export default function PerfilScreen() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user-profile'] });
             setIsEditing(false);
-            Alert.alert("Éxito", "Tu perfil ha sido actualizado");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Tu perfil ha sido actualizado' });
         },
         onError: () => {
-            Alert.alert("Error", "No se pudo actualizar el perfil");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el perfil' });
         }
     });
 
     const handleSave = () => {
         if (!formData.full_name.trim()) {
-            Alert.alert("Error", "El nombre es requerido");
+            showAlert({ type: 'error', title: 'Error', message: 'El nombre es requerido' });
             return;
         }
 
@@ -65,18 +67,15 @@ export default function PerfilScreen() {
     };
 
     const handleLogout = () => {
-        Alert.alert(
-            "Cerrar Sesión",
-            "¿Estás seguro de que deseas cerrar sesión?",
-            [
-                { text: "Cancelar", style: "cancel" },
-                { 
-                    text: "Cerrar Sesión", 
-                    style: "destructive",
-                    onPress: signOut
-                }
-            ]
-        );
+        showAlert({
+            type: 'warning',
+            title: 'Cerrar Sesión',
+            message: '¿Estás seguro de que deseas cerrar sesión?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Cerrar Sesión',
+            onButtonPress: signOut,
+        });
     };
 
     const getRoleIcon = (role: string) => {
@@ -114,7 +113,7 @@ export default function PerfilScreen() {
     }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+        <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <ChevronLeft size={24} color={theme.text} />
@@ -131,9 +130,9 @@ export default function PerfilScreen() {
             </View>
 
             {/* Profile Header */}
-            <View style={[styles.profileHeader, { backgroundColor: theme.surface }]}>
+            <View style={[styles.profileHeader, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                 <View style={styles.avatarContainer}>
-                    <View style={[styles.avatar, { backgroundColor: theme.primary + '20' }]}>
+                    <View style={[styles.avatar, { backgroundColor: theme.primary + '20', borderColor: theme.border }]}>
                         {profile?.id_front_url ? (
                             <Image source={{ uri: profile.id_front_url }} style={styles.avatarImage} />
                         ) : (
@@ -163,7 +162,7 @@ export default function PerfilScreen() {
 
             {/* Edit Form */}
             {isEditing && (
-                <View style={[styles.editCard, { backgroundColor: theme.surface }]}>
+                <View style={[styles.editCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>
                         Editar Información
                     </Text>
@@ -294,7 +293,7 @@ export default function PerfilScreen() {
             )}
 
             {/* Contact Information */}
-            <View style={[styles.card, { backgroundColor: theme.surface }]}>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>
                     Información de Contacto
                 </Text>
@@ -337,13 +336,13 @@ export default function PerfilScreen() {
             </View>
 
             {/* Quick Actions */}
-            <View style={[styles.card, { backgroundColor: theme.surface }]}>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>
                     Acciones Rápidas
                 </Text>
                 
                 <TouchableOpacity
-                    style={styles.actionRow}
+                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
                     onPress={() => router.push('/perfil/verificacion' as any)}
                 >
                     <ShieldCheck size={20} color={theme.primary} />
@@ -359,7 +358,7 @@ export default function PerfilScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={styles.actionRow}
+                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
                     onPress={() => router.push('/mascotas' as any)}
                 >
                     <Heart size={20} color={theme.primary} />
@@ -375,7 +374,7 @@ export default function PerfilScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={styles.actionRow}
+                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
                     onPress={() => router.push('/tienda/compras' as any)}
                 >
                     <ShoppingBag size={20} color={theme.primary} />
@@ -392,13 +391,13 @@ export default function PerfilScreen() {
             </View>
 
             {/* Account Settings */}
-            <View style={[styles.card, { backgroundColor: theme.surface }]}>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>
                     Configuración de Cuenta
                 </Text>
                 
                 <TouchableOpacity
-                    style={styles.actionRow}
+                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
                     onPress={() => router.push('/menu' as any)}
                 >
                     <Settings size={20} color={theme.primary} />
@@ -408,6 +407,22 @@ export default function PerfilScreen() {
                         </Text>
                         <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
                             Preferencias y ajustes de la app
+                        </Text>
+                    </View>
+                    <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
+                    onPress={() => router.push('/perfil/paleta')}
+                >
+                    <Palette size={20} color={theme.primary} />
+                    <View style={styles.actionContent}>
+                        <Text style={[styles.actionTitle, { color: theme.text }]}>
+                            Paleta de Colores
+                        </Text>
+                        <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
+                            Cambia la apariencia de la app
                         </Text>
                     </View>
                     <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
@@ -425,7 +440,7 @@ export default function PerfilScreen() {
             </View>
 
             {/* Bio Section - Temporarily hidden */}
-        </ScrollView>
+        </KeyboardScreen>
     );
 }
 
@@ -466,7 +481,6 @@ const styles = StyleSheet.create({
         padding: 24,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     avatarContainer: {
         alignSelf: 'center',
@@ -479,7 +493,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: 'rgba(255,255,255,0.1)',
     },
     avatarImage: {
         width: '100%',
@@ -525,7 +538,6 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     card: {
         marginHorizontal: 24,
@@ -533,7 +545,6 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     cardTitle: {
         fontSize: 18,
@@ -614,7 +625,6 @@ const styles = StyleSheet.create({
         gap: 12,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
     },
     actionContent: {
         flex: 1,

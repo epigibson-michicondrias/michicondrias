@@ -1,6 +1,8 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
+import uuid
 
 from app.api import deps
 from app.db.session import get_db
@@ -8,6 +10,33 @@ from app.crud.crud_petfriendly import create_place, get_places, get_place_by_id
 from app.schemas.petfriendly import PlaceCreate, PlaceOut
 
 router = APIRouter()
+
+
+class PresignedUrlResponse(BaseModel):
+    url: str
+    object_key: str
+
+
+@router.get("/presigned-url", response_model=PresignedUrlResponse)
+def get_photo_presigned_url(ext: str = "jpg") -> Any:
+    """Generate a presigned URL to upload a pet-friendly place photo."""
+    from app.core.s3 import generate_presigned_url
+    from app.core.config import settings
+    import mimetypes
+
+    clean_ext = ext.replace(".", "")
+    object_name = f"petfriendly/{uuid.uuid4()}.{clean_ext}"
+
+    content_type, _ = mimetypes.guess_type(f"file.{clean_ext}")
+    if not content_type:
+        content_type = "image/jpeg" if clean_ext in ["jpg", "jpeg"] else "application/octet-stream"
+
+    url = generate_presigned_url(object_name, content_type=content_type)
+    if not url:
+        raise HTTPException(status_code=500, detail="No se pudo contactar a AWS S3")
+
+    public_url = f"https://{settings.S3_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{object_name}"
+    return PresignedUrlResponse(url=url, object_key=public_url)
 
 
 @router.get("/", response_model=List[PlaceOut])

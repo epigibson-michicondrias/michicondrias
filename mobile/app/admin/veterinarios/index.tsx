@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { adminUsersService, AdminUser } from '@/src/services/adminUsers';
@@ -9,6 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Plus, UserCheck, Mail, Briefcase, Star, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminVeterinariosScreen() {
     const router = useRouter();
@@ -59,13 +60,13 @@ export default function AdminVeterinariosScreen() {
             <View style={styles.actions}>
                 <TouchableOpacity 
                     style={[styles.btn, { backgroundColor: theme.background }]}
-                    onPress={() => Alert.alert("Perfil", "Ver perfil profesional")}
+                    onPress={() => showAlert({ type: 'info', title: 'Perfil', message: 'Ver perfil profesional' })}
                 >
                     <Text style={[styles.btnText, { color: theme.text }]}>Ver Perfil</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={[styles.btn, { backgroundColor: theme.primary }]}
-                    onPress={() => Alert.alert("Editar", "Editar datos profesionales")}
+                    onPress={() => showAlert({ type: 'info', title: 'Editar', message: 'Editar datos profesionales' })}
                 >
                     <Text style={[styles.btnText, { color: '#fff' }]}>Gestionar</Text>
                 </TouchableOpacity>
@@ -96,7 +97,7 @@ export default function AdminVeterinariosScreen() {
                     </View>
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => Alert.alert("Buscar", "Buscar veterinarios")}
+                        onPress={() => showAlert({ type: 'info', title: 'Buscar', message: 'Buscar veterinarios' })}
                     >
                         <Search size={22} color="#fff" />
                     </TouchableOpacity>

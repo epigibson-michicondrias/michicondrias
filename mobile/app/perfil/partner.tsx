@@ -1,29 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { apiFetch } from '../../src/lib/api';
 import { getCurrentUser } from '../../src/lib/auth';
-import { useColorScheme } from '@/components/useColorScheme';
+import Colors from '../../constants/Colors';
+import { useTheme } from '../../src/contexts/ThemeContext';
 import { ShieldCheck, ShoppingBag, Users, Home, ArrowRight, CheckCircle } from 'lucide-react-native';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-    };
+    const { colorScheme } = useTheme();
+    const theme = Colors[colorScheme];
     const [loading, setLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
@@ -60,7 +48,7 @@ export default function PartnerOnboardingScreen() {
 
     async function handleUpgrade() {
         if (!selectedRole) {
-            Alert.alert("Selecciona un rol", "Por favor selecciona el tipo de cuenta profesional que deseas.");
+            showAlert({ type: 'warning', title: 'Selecciona un rol', message: 'Por favor selecciona el tipo de cuenta profesional que deseas.' });
             return;
         }
 
@@ -74,26 +62,23 @@ export default function PartnerOnboardingScreen() {
             const user = await getCurrentUser();
             if (user) {
                 // Forzar refresh del contexto de autenticación
-                Alert.alert(
-                    "¡Rol Actualizado!", 
-                    `Tu cuenta ha sido actualizada a ${roles.find(r => r.id === selectedRole)?.title}. Redirigiendo...`,
-                    [
-                        {
-                            text: "OK",
-                            onPress: () => {
-                                // Redirigir al dashboard principal
-                                router.replace('/(tabs)');
-                            }
-                        }
-                    ]
-                );
+                showAlert({
+                    type: 'success',
+                    title: '¡Rol Actualizado!',
+                    message: `Tu cuenta ha sido actualizada a ${roles.find(r => r.id === selectedRole)?.title}. Redirigiendo...`,
+                    onButtonPress: () => {
+                        // Redirigir al dashboard principal
+                        router.replace('/(tabs)');
+                    },
+                });
             }
         } catch (error: any) {
             console.error("Error upgrading role:", error);
-            Alert.alert(
-                "Error al actualizar rol", 
-                error.message || "No pudimos actualizar tu rol. Por favor intenta más tarde."
-            );
+            showAlert({
+                type: 'error',
+                title: 'Error al actualizar rol',
+                message: error.message || 'No pudimos actualizar tu rol. Por favor intenta más tarde.',
+            });
         } finally {
             setLoading(false);
         }

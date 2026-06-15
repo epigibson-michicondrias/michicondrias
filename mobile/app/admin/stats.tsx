@@ -41,7 +41,7 @@ export default function AdminStatsScreen() {
             >
                 <View style={styles.headerTop}>
                     <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                        style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} 
                         onPress={() => router.back()}
                     >
                         <ChevronLeft size={22} color="#fff" />

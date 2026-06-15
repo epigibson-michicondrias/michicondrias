@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getSitter, Sitter } from '../../src/services/cuidadores';
@@ -8,6 +8,7 @@ import {
     MapPin, Star, Clock, Home, Users, Phone, MessageCircle, Calendar, 
     Shield, ChevronLeft, Heart, Share2, Dog, Cat, CheckCircle, Sun, Moon
 } from 'lucide-react-native';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function SitterDetailScreen() {
     const router = useRouter();
@@ -83,53 +84,29 @@ export default function SitterDetailScreen() {
     }
 
     const handleContact = () => {
-        Alert.alert(
-            "Contactar Cuidador",
-            "¿Cómo deseas contactar a este cuidador?",
-            [
-                {
-                    text: "Mensaje",
-                    onPress: () => {
-                        Alert.alert("Mensaje", "Abriendro chat con el cuidador...");
-                    }
-                },
-                {
-                    text: "Visitar",
-                    onPress: () => {
-                        Alert.alert("Visita", "Mostrando información de contacto para visita...");
-                    }
-                },
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                }
-            ]
-        );
+        showAlert({
+            type: 'info',
+            title: 'Contactar Cuidador',
+            message: '¿Cómo deseas contactar a este cuidador?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Mensaje',
+            onButtonPress: () => {
+                showAlert({ type: 'info', title: 'Mensaje', message: 'Abriendro chat con el cuidador...' });
+            },
+        });
     };
 
     const handleBook = (serviceType: string) => {
-        Alert.alert(
-            "Reservar Servicio",
-            `¿Para cuándo necesitas el servicio de ${serviceType}?`,
-            [
-                {
-                    text: "Hoy",
-                    onPress: () => Alert.alert("Reserva", "Redirigiendo a agenda...")
-                },
-                {
-                    text: "Mañana", 
-                    onPress: () => Alert.alert("Reserva", "Redirigiendo a agenda...")
-                },
-                {
-                    text: "Otra fecha",
-                    onPress: () => Alert.alert("Reserva", "Redirigiendo a calendario...")
-                },
-                {
-                    text: "Cancelar",
-                    style: "cancel"
-                }
-            ]
-        );
+        showAlert({
+            type: 'info',
+            title: 'Reservar Servicio',
+            message: `¿Para cuándo necesitas el servicio de ${serviceType}?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Hoy',
+            onButtonPress: () => showAlert({ type: 'info', title: 'Reserva', message: 'Redirigiendo a agenda...' }),
+        });
     };
 
     const getServiceIcon = (type: string) => {

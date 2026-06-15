@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createRecord, MedicalRecordCreate } from '../../src/services/carnet';
 import Colors from '../../constants/Colors';
@@ -29,7 +30,7 @@ export default function NuevaConsultaScreen() {
             router.back();
         },
         onError: (error: any) => {
-            Alert.alert("Error", error.message || "No se pudo guardar la consulta.");
+            showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo guardar la consulta.' });
         }
     });
 
@@ -49,7 +50,7 @@ export default function NuevaConsultaScreen() {
 
     const handleSave = () => {
         if (!reason.trim()) {
-            Alert.alert("Campo Requerido", "Por favor ingresa el motivo de la consulta.");
+            showAlert({ type: 'error', title: 'Campo Requerido', message: 'Por favor ingresa el motivo de la consulta.' });
             return;
         }
 

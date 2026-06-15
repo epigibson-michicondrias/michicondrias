@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getClinicAppointments, AppointmentItem } from '@/src/services/directorio';
 import { createRecord, MedicalRecordCreate } from '@/src/services/carnet';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, Plus, Trash2, ClipboardList, Stethoscope, Pill, AlertCircle, Save } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -60,7 +61,7 @@ export default function GenerarFichaMedicaScreen() {
 
     const handleSave = async () => {
         if (!reason || !diagnosis) {
-            Alert.alert("Error", "El motivo y el diagnóstico son obligatorios");
+            showAlert({ type: 'error', title: 'Error', message: 'El motivo y el diagnóstico son obligatorios' });
             return;
         }
 
@@ -84,11 +85,9 @@ export default function GenerarFichaMedicaScreen() {
 
             await createRecord(payload);
 
-            Alert.alert("Éxito", "Ficha médica generada correctamente", [
-                { text: "OK", onPress: () => router.push('/mi-clinica/agenda' as any) }
-            ]);
+            showAlert({ type: 'success', title: 'Éxito', message: 'Ficha médica generada correctamente', onButtonPress: () => router.push('/mi-clinica/agenda' as any) });
         } catch (e) {
-            Alert.alert("Error", "No se pudo guardar la ficha médica");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar la ficha médica' });
         } finally {
             setLoading(false);
         }

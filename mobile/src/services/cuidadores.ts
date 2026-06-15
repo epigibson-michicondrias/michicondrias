@@ -30,6 +30,7 @@ export interface SitRequest {
     service_type: string;
     start_date: string;
     end_date: string;
+    address?: string | null;
     notes?: string | null;
     total_price?: number | null;
 }

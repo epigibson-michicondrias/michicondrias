@@ -9,6 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Users, AlertTriangle, Activity, Search, X } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 
 export default function PacientesScreen() {
     const router = useRouter();

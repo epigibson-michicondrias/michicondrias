@@ -1,46 +1,96 @@
 import React from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar, View, Text } from 'react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery } from '@tanstack/react-query';
 import { getUserPets } from '../../src/services/mascotas';
+import { getUserAppointments } from '../../src/services/citas';
 import Colors from '../../constants/Colors';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { 
-  Plus, MapPin, Bone, Bell, AlertTriangle, Heart, Stethoscope, 
-  ShoppingBag, ShieldCheck, UserCheck, Settings, Activity, 
-  Menu as MenuIcon, ClipboardList, Building, Home, Sparkles, 
-  ChevronRight, Zap, LayoutGrid 
+import {
+  Plus, Bell, Bone, Stethoscope, ShoppingBag, AlertTriangle, Activity,
+  Settings, Home, Sparkles, ChevronRight, Calendar, UserCheck, ShieldCheck,
+  MapPin, Heart, CreditCard, ClipboardList, Building, Package, BarChart3,
+  Menu as MenuIcon, Zap,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const ALL_ACTIONS = [
-  // Salud & Directorio (Priority)
-  { title: 'Clínicas', subtitle: 'Centros cercanos', icon: Building, color: '#10b981', route: '/directorio?type=clinic', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'] },
-  { title: 'Mi Clínica', subtitle: 'Operaciones', icon: Stethoscope, color: '#06b6d4', route: '/mi-clinica', roles: ['admin', 'veterinario'], isManagementFor: ['veterinario'] },
-  { title: 'Veterinarios', subtitle: 'Busca un experto', icon: Stethoscope, color: '#0ea5e9', route: '/directorio', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'] },
-  { title: 'Carnet', subtitle: 'Historial salud', icon: ClipboardList, color: '#3b82f6', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'], route: '/carnet' },
-  { title: 'Perdidos', subtitle: 'Reportes comunes', icon: AlertTriangle, color: '#ef4444', route: '/perdidas', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'] },
+// ── Quick Actions by role ─────────────────────────────────────────
+interface QuickAction {
+  title: string;
+  icon: any;
+  color: string;
+  route?: string;
+  alert?: string;
+}
 
-  // Servicios & Gestión
-  { title: 'Mis Tareas', subtitle: 'Agenda Paseo/Cuidado', icon: Activity, color: '#6366f1', route: '/servicios-pro/gestion', roles: ['admin', 'paseador', 'cuidador'], isManagementFor: ['paseador', 'cuidador'] },
-  { title: 'Paseadores', subtitle: 'Busca paseadores', icon: UserCheck, color: '#8b5cf6', route: '/paseadores', roles: ['admin', 'consumidor'] },
-  { title: 'Cuidadores', subtitle: 'Pensiones Michi', icon: Home, color: '#7c3aed', route: '/cuidadores', roles: ['admin', 'consumidor'] },
-  { title: 'Petfriendly', subtitle: 'Sitios populares', icon: MapPin, color: '#14b8a6', route: '/petfriendly', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'] },
+const QUICK_ACTIONS: Record<string, QuickAction[]> = {
+  consumidor: [
+    { title: 'Buscar Vet', icon: Stethoscope, color: '#0ea5e9', route: '/directorio' },
+    { title: 'Mis Citas', icon: Calendar, color: '#8b5cf6', route: '/directorio/citas' },
+    { title: 'Tienda', icon: ShoppingBag, color: '#ec4899', route: '/tienda' },
+    { title: 'Perdidos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas' },
+  ],
+  veterinario: [
+    { title: 'Mi Clínica', icon: Building, color: '#06b6d4', route: '/mi-clinica' },
+    { title: 'Agenda', icon: Calendar, color: '#8b5cf6', route: '/mi-clinica/agenda' },
+    { title: 'Laboratorio', icon: Activity, color: '#10b981', route: '/mi-clinica/laboratorio' },
+    { title: 'Pacientes', icon: ClipboardList, color: '#f59e0b', route: '/mi-clinica/pacientes' },
+  ],
+  paseador: [
+    { title: 'Mis Tareas', icon: Activity, color: '#6366f1', route: '/servicios-pro/gestion' },
+    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/paseadores/solicitudes' },
+    { title: 'Calendario', icon: Calendar, color: '#f59e0b', route: '/paseadores/calendario' },
+    { title: 'Perfil Pro', icon: UserCheck, color: '#ec4899', route: '/servicios-pro/perfil' },
+  ],
+  cuidador: [
+    { title: 'Mis Tareas', icon: Activity, color: '#6366f1', route: '/servicios-pro/gestion' },
+    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/cuidadores/solicitudes' },
+    { title: 'Calendario', icon: Calendar, color: '#f59e0b', route: '/cuidadores/calendario' },
+    { title: 'Perfil Pro', icon: UserCheck, color: '#ec4899', route: '/servicios-pro/perfil' },
+  ],
+  admin: [
+    { title: 'Panel', icon: ShieldCheck, color: '#7c3aed', route: '/admin' },
+    { title: 'Verificaciones', icon: UserCheck, color: '#8b5cf6', route: '/admin/verificaciones' },
+    { title: 'Analíticas', icon: BarChart3, color: '#0ea5e9', route: '/admin/stats' },
+    { title: 'Config', icon: Settings, color: '#64748b', route: '/admin/config' },
+  ],
+  vendedor: [
+    { title: 'Mi Tienda', icon: ShoppingBag, color: '#10b981', route: '/tienda/vendedor' },
+    { title: 'Pedidos', icon: Package, color: '#f59e0b', route: '/tienda/vendedor/ordenes' },
+    { title: 'Productos', icon: CreditCard, color: '#8b5cf6', route: '/tienda/vendedor/productos' },
+    { title: 'Analíticas', icon: BarChart3, color: '#0ea5e9', route: '/tienda/vendedor/analytics' },
+  ],
+};
 
-  // Tienda & Comunidad
-  { title: 'Mi Tienda', subtitle: 'Ventas y stock', icon: ShoppingBag, color: '#10b981', route: '/tienda/vendedor', roles: ['admin', 'vendedor'], isManagementFor: ['vendedor'] },
-  { title: 'Tienda', subtitle: 'Artículos Michi', icon: ShoppingBag, color: '#ec4899', route: '/tienda', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'] },
-  { title: 'Adoptar', subtitle: 'Busca un amigo', icon: Heart, color: '#f43f5e', route: '/adopciones', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'] },
-  { title: 'Donar', subtitle: 'Apoyo refugios', icon: Bone, color: '#f59e0b', route: '/donaciones', roles: ['admin', 'consumidor', 'vendedor', 'veterinario', 'paseador', 'cuidador'] },
+// ── Helpers ────────────────────────────────────────────────────────
+const STATUS_COLORS: Record<string, string> = {
+  scheduled: '#f59e0b',
+  confirmed: '#10b981',
+  completed: '#3b82f6',
+  cancelled: '#ef4444',
+};
 
-  // Admin Specific Extra Tools
-  { title: 'Panel Admin', subtitle: 'Gestión central', icon: ShieldCheck, color: '#7c3aed', route: '/admin', roles: ['admin'], isManagementFor: ['admin'] },
-  { title: 'KYC', subtitle: 'Validar usuarios', icon: UserCheck, color: '#8b5cf6', route: '/admin/verificaciones', roles: ['admin'] },
-  { title: 'Ajustes', subtitle: 'Sistema', icon: Settings, color: '#64748b', route: '/admin/config', roles: ['admin'] },
-];
+const STATUS_LABELS: Record<string, string> = {
+  scheduled: 'Programada',
+  confirmed: 'Confirmada',
+  completed: 'Completada',
+  cancelled: 'Cancelada',
+};
 
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  const day = d.getDate();
+  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const month = months[d.getMonth()];
+  const hours = d.getHours().toString().padStart(2, '0');
+  const mins = d.getMinutes().toString().padStart(2, '0');
+  return `${day} ${month} · ${hours}:${mins}`;
+}
+
+// ── Component ─────────────────────────────────────────────────────
 export default function DashboardScreen() {
   const router = useRouter();
   const { user } = useAuth();
@@ -48,119 +98,136 @@ export default function DashboardScreen() {
   const theme = Colors[colorScheme];
   const insets = useSafeAreaInsets();
 
-  const { data: pets = [], isLoading } = useQuery({
+  // ── Data queries ──
+  const { data: pets = [], isLoading: petsLoading } = useQuery({
     queryKey: ['user-pets', user?.id],
     queryFn: () => getUserPets(user!.id),
     enabled: !!user?.id,
   });
 
-  const userActions = ALL_ACTIONS
-    .filter(action => action.roles.includes(user?.role_name || 'consumidor'))
-    .sort((a, b) => {
-      const isAManagement = a.isManagementFor?.includes(user?.role_name || '');
-      const isBManagement = b.isManagementFor?.includes(user?.role_name || '');
-      if (isAManagement && !isBManagement) return -1;
-      if (!isAManagement && isBManagement) return 1;
-      return 0;
-    });
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
+    queryKey: ['user-appointments'],
+    queryFn: getUserAppointments,
+    enabled: !!user?.id,
+  });
 
-  const managementActions = userActions.filter(a => a.isManagementFor?.includes(user?.role_name || ''));
-  const explorerActions = userActions.filter(a => !a.isManagementFor?.includes(user?.role_name || ''));
+  // Only upcoming (scheduled / confirmed), sorted soonest first, max 3
+  const upcomingAppointments = appointments
+    .filter((a) => a.status === 'scheduled' || a.status === 'confirmed')
+    .sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())
+    .slice(0, 3);
 
+  const roleName = user?.role_name || 'consumidor';
+  const actions = QUICK_ACTIONS[roleName] || QUICK_ACTIONS.consumidor;
+
+  // ── Handlers ──
+  const handleAction = (action: QuickAction) => {
+    if (action.alert) {
+      showAlert({ type: 'info', title: 'Michicondrias', message: action.alert });
+    } else if (action.route) {
+      router.push(action.route as any);
+    }
+  };
+
+  // ── Render ──
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
-      <ScrollView 
+
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.scrollViewContent, { backgroundColor: theme.background, paddingBottom: 100 }]}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: theme.background, paddingBottom: 100 }]}
       >
-        {/* Premium Background Gradient */}
+        {/* Background Gradient */}
         <LinearGradient
           colors={[theme.primary, theme.primary + 'AA', theme.background]}
           style={styles.headerGradient}
         />
 
-        {/* Top Bar */}
+        {/* ─── Top Bar ─── */}
         <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={styles.menuIconBox} onPress={() => router.push('/menu' as any)}>
+          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/menu' as any)}>
             <MenuIcon size={24} color="#fff" />
           </TouchableOpacity>
           <View style={styles.topLogo}>
-              <Sparkles size={16} color="#fcd34d" />
-              <Text style={styles.logoText}>MICHICONDRIAS</Text>
+            <Sparkles size={16} color="#fcd34d" />
+            <Text style={styles.logoText}>MICHICONDRIAS</Text>
           </View>
-          <TouchableOpacity style={styles.notifBtn} onPress={() => router.push('/notificaciones' as any)}>
+          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/notificaciones' as any)}>
             <Bell size={24} color="#fff" />
             <View style={styles.notifDot} />
           </TouchableOpacity>
         </View>
 
-        {/* Hero Welcome Card (Glassmorphism) */}
+        {/* ─── Hero Welcome Card ─── */}
         <View style={styles.heroContainer}>
-            <View style={styles.glassCard}>
-                <LinearGradient
-                    colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.05)']}
-                    style={StyleSheet.absoluteFillObject}
-                />
-                <View style={styles.welcomeRow}>
-                    <View style={styles.profileMasterInfo}>
-                        <Text style={styles.welcomeLabel}>BIENVENIDO DE VUELTA</Text>
-                        <Text style={styles.profileName}>{user?.full_name?.split(' ')[0] || 'Michilover'}</Text>
-                    </View>
-                    <View style={styles.avatarMasterContainer}>
-                        <LinearGradient
-                            colors={['#fcd34d', '#f59e0b']}
-                            style={styles.avatarBorder}
-                        >
-                            <View style={styles.avatarInner}>
-                                <Text style={styles.avatarText}>
-                                    {user?.full_name?.charAt(0)?.toUpperCase() || 'M'}
-                                </Text>
-                            </View>
-                        </LinearGradient>
-                    </View>
-                </View>
+          <View style={styles.glassCard}>
+            <LinearGradient
+              colors={['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.05)']}
+              style={StyleSheet.absoluteFillObject}
+            />
 
-                <View style={styles.statsStrip}>
-                    <View style={styles.statMini}>
-                        <Text style={styles.statVal}>{pets.length}</Text>
-                        <Text style={styles.statLab}>Mascotas</Text>
-                    </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statMini}>
-                        <Text style={styles.statVal}>3</Text>
-                        <Text style={styles.statLab}>Citas</Text>
-                    </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statMini}>
-                        <Text style={styles.statVal}>PRO</Text>
-                        <Text style={styles.statLab}>Nivel</Text>
-                    </View>
-                </View>
+            <View style={styles.welcomeRow}>
+              <View style={styles.welcomeInfo}>
+                <Text style={styles.welcomeLabel}>BIENVENIDO DE VUELTA</Text>
+                <Text style={styles.welcomeName}>
+                  {user?.full_name?.split(' ')[0] || 'Michilover'}
+                </Text>
+              </View>
+              <View style={styles.avatarBox}>
+                <LinearGradient colors={['#fcd34d', '#f59e0b']} style={styles.avatarBorder}>
+                  <View style={styles.avatarInner}>
+                    <Text style={styles.avatarText}>
+                      {user?.full_name?.charAt(0)?.toUpperCase() || 'M'}
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </View>
             </View>
+
+            {/* Stats strip */}
+            <View style={styles.statsStrip}>
+              <View style={styles.statItem}>
+                <Text style={styles.statVal}>{pets.length}</Text>
+                <Text style={styles.statLab}>Mascotas</Text>
+              </View>
+              <View style={styles.statDivider} />
+              <TouchableOpacity style={styles.statItem} onPress={() => router.push('/directorio/citas' as any)}>
+                <Text style={styles.statVal}>Ver</Text>
+                <Text style={styles.statLab}>Citas</Text>
+              </TouchableOpacity>
+              <View style={styles.statDivider} />
+              <View style={styles.statItem}>
+                <Text style={styles.statVal}>PRO</Text>
+                <Text style={styles.statLab}>Nivel</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
-        {/* My Pets Horizontal (Premium) */}
+        {/* ─── Mis Mascotas (Horizontal Carousel) ─── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <View style={styles.titleWithIcon}>
-                <Bone size={20} color={theme.primary} />
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Tus Mejores Amigos</Text>
+            <View style={styles.titleRow}>
+              <Bone size={20} color={theme.primary} />
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Mis Mascotas</Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/mascotas')}>
               <Text style={[styles.seeAll, { color: theme.primary }]}>Ver todos</Text>
             </TouchableOpacity>
           </View>
 
-          {isLoading ? (
-            <View style={styles.loadingPets}>
+          {petsLoading ? (
+            <View style={styles.loadingBox}>
               <Activity size={32} color={theme.primary} />
             </View>
           ) : pets.length === 0 ? (
-            <TouchableOpacity style={[styles.addPetEmpty, { backgroundColor: theme.surface, borderColor: theme.border }]} onPress={() => router.push('/mascotas/nuevo')}>
+            <TouchableOpacity
+              style={[styles.emptyPets, { backgroundColor: theme.surface, borderColor: theme.border }]}
+              onPress={() => router.push('/mascotas/nuevo')}
+            >
               <Plus size={32} color={theme.textMuted} />
-              <Text style={styles.addPetText}>Empezar mi familia michi</Text>
+              <Text style={styles.emptyPetsText}>Empezar mi familia michi</Text>
             </TouchableOpacity>
           ) : (
             <ScrollView
@@ -168,31 +235,31 @@ export default function DashboardScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.petsList}
             >
-              <TouchableOpacity 
-                style={[styles.addPetCircular, { backgroundColor: theme.surface, borderColor: theme.border }]}
+              <TouchableOpacity
+                style={[styles.addPetBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
                 onPress={() => router.push('/mascotas/nuevo')}
               >
                 <Plus size={24} color={theme.primary} />
               </TouchableOpacity>
-              
+
               {pets.map((item) => (
-                <TouchableOpacity 
-                    key={item.id} 
-                    style={styles.petHeroCard} 
-                    onPress={() => router.push(`/mascotas/${item.id}` as any)}
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.petCard}
+                  onPress={() => router.push(`/mascotas/${item.id}` as any)}
                 >
                   <Image
                     source={{ uri: item.photo_url || 'https://via.placeholder.com/150' }}
-                    style={styles.petHeroImage}
+                    style={styles.petImage}
                   />
                   <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.8)']}
-                    style={styles.petCardOverlay}
+                    style={styles.petOverlay}
                   />
-                  <View style={styles.petInfoFloating}>
-                    <Text style={styles.petNameHero}>{item.name}</Text>
+                  <View style={styles.petInfo}>
+                    <Text style={styles.petName}>{item.name}</Text>
                     <View style={styles.petTag}>
-                        <Text style={styles.petTagText}>{item.species}</Text>
+                      <Text style={styles.petTagText}>{item.species}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -201,115 +268,149 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        {/* Management Quick Access (Role Based) */}
-        {managementActions.length > 0 && (
-            <View style={[styles.section, { backgroundColor: 'transparent' }]}>
-                <View style={styles.sectionHeader}>
-                    <View style={styles.titleWithIcon}>
-                        <Zap size={20} color="#f59e0b" />
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Gestión Profesional</Text>
-                    </View>
-                </View>
-                <ScrollView 
-                    horizontal 
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.mgmtList}
-                >
-                    {managementActions.map((action, index) => {
-                        const Icon = action.icon;
-                        const displayTitle = (user?.role_name === 'veterinario' && action.route === '/mi-clinica') 
-                            ? 'Consultorio' 
-                            : action.title;
-                        
-                        return (
-                            <TouchableOpacity
-                                key={index}
-                                activeOpacity={0.8}
-                                style={[styles.mgmtCard, { backgroundColor: action.color + 'CC' }]} // More glass-like
-                                onPress={() => router.push(action.route as any)}
-                            >
-                                <LinearGradient
-                                    colors={['rgba(255,255,255,0.3)', 'transparent']}
-                                    style={StyleSheet.absoluteFillObject}
-                                />
-                                <Icon size={24} color="#fff" />
-                                <View style={{ backgroundColor: 'transparent' }}>
-                                    <Text style={styles.mgmtTitle}>{displayTitle}</Text>
-                                    <Text style={styles.mgmtSub}>{action.subtitle}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </ScrollView>
-            </View>
-        )}
-
-        {/* General Explorer Grid */}
+        {/* ─── Acciones Rápidas (2×2 grid) ─── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-             <View style={styles.titleWithIcon}>
-                <LayoutGrid size={20} color={theme.textMuted} />
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Explorar Comunidad</Text>
+            <View style={styles.titleRow}>
+              <Zap size={20} color="#f59e0b" />
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Acciones Rápidas</Text>
             </View>
           </View>
-          <View style={styles.explorerGrid}>
-            {explorerActions.map((action, index) => {
+
+          <View style={styles.actionsGrid}>
+            {actions.map((action, idx) => {
               const Icon = action.icon;
               return (
                 <TouchableOpacity
-                  key={index}
-                  activeOpacity={0.7}
-                  style={[styles.explorerCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                  onPress={() => router.push(action.route as any)}
+                  key={idx}
+                  activeOpacity={0.8}
+                  style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                  onPress={() => handleAction(action)}
                 >
-                  <View style={[styles.explorerIconBox, { backgroundColor: action.color + '15' }]}>
-                    <Icon size={22} color={action.color} />
+                  <View style={[styles.actionIconBox, { backgroundColor: action.color + '18' }]}>
+                    <Icon size={24} color={action.color} />
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.explorerTitle, { color: theme.text }]}>{action.title}</Text>
-                    <Text style={[styles.explorerSub, { color: theme.textMuted }]} numberOfLines={1}>{action.subtitle}</Text>
-                  </View>
-                  <ChevronRight size={16} color={theme.textMuted} />
+                  <Text style={[styles.actionTitle, { color: theme.text }]} numberOfLines={1}>
+                    {action.title}
+                  </Text>
                 </TouchableOpacity>
               );
             })}
           </View>
         </View>
 
-        {/* Promotional / Featured Banner */}
-        <View style={styles.featuredSection}>
-            <TouchableOpacity style={styles.featuredBanner} activeOpacity={0.9}>
-                <LinearGradient
-                    colors={['#ec4899', '#f43f5e']}
-                    style={styles.featuredGradient}
-                    start={{x:0, y:0}}
-                    end={{x:1, y:1}}
-                />
-                <View style={styles.featuredContent}>
-                    <View style={styles.featuredTextCol}>
-                        <Text style={styles.featuredTag}>NUEVO EN TIENDA</Text>
-                        <Text style={styles.featuredTitle}>Michi Box Premium</Text>
-                        <Text style={styles.featuredDesc}>Suscripción mensual de juguetes y snacks</Text>
-                    </View>
-                    <ShoppingBag size={48} color="rgba(255,255,255,0.3)" />
-                </View>
+        {/* ─── Próximas Citas ─── */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.titleRow}>
+              <Calendar size={20} color={theme.primary} />
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Próximas Citas</Text>
+            </View>
+            {upcomingAppointments.length > 0 && (
+              <TouchableOpacity onPress={() => router.push('/directorio/citas' as any)}>
+                <Text style={[styles.seeAll, { color: theme.primary }]}>Ver todas</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {appointmentsLoading ? (
+            <View style={styles.loadingBox}>
+              <Activity size={28} color={theme.primary} />
+            </View>
+          ) : upcomingAppointments.length === 0 ? (
+            <TouchableOpacity
+              style={[styles.emptyCitas, { backgroundColor: theme.surface, borderColor: theme.border }]}
+              onPress={() => router.push('/directorio' as any)}
+            >
+              <LinearGradient
+                colors={[theme.primary + '10', theme.secondary + '08']}
+                style={StyleSheet.absoluteFillObject}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              />
+              <Calendar size={36} color={theme.primary} />
+              <Text style={[styles.emptyCitasTitle, { color: theme.text }]}>Sin citas próximas</Text>
+              <Text style={[styles.emptyCitasDesc, { color: theme.textMuted }]}>
+                Agenda tu primera cita con un veterinario
+              </Text>
+              <View style={[styles.emptyCitasBtn, { backgroundColor: theme.primary }]}>
+                <Text style={styles.emptyCitasBtnText}>Agendar tu primera cita</Text>
+              </View>
             </TouchableOpacity>
+          ) : (
+            <View style={styles.citasList}>
+              {upcomingAppointments.map((appt) => {
+                const statusColor = STATUS_COLORS[appt.status] || '#94a3b8';
+                const statusLabel = STATUS_LABELS[appt.status] || appt.status;
+                return (
+                  <TouchableOpacity
+                    key={appt.id}
+                    style={[styles.citaCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                    activeOpacity={0.8}
+                    onPress={() => router.push('/directorio/citas' as any)}
+                  >
+                    {/* Date badge */}
+                    <View style={[styles.citaDateBadge, { backgroundColor: theme.primary + '15' }]}>
+                      <Calendar size={16} color={theme.primary} />
+                    </View>
+
+                    <View style={styles.citaInfo}>
+                      <Text style={[styles.citaDate, { color: theme.text }]}>
+                        {formatDate(appt.appointment_date)}
+                      </Text>
+                      <Text style={[styles.citaClinic, { color: theme.textMuted }]} numberOfLines={1}>
+                        {appt.clinic_name || 'Clínica'} · {appt.pet_name || 'Mascota'}
+                      </Text>
+                    </View>
+
+                    <View style={[styles.citaStatusBadge, { backgroundColor: statusColor + '18' }]}>
+                      <Text style={[styles.citaStatusText, { color: statusColor }]}>{statusLabel}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </View>
+
+        {/* ─── Banner Promocional ─── */}
+        <View style={styles.bannerSection}>
+          <TouchableOpacity style={styles.banner} activeOpacity={0.9}>
+            <LinearGradient
+              colors={['#ec4899', '#f43f5e']}
+              style={styles.bannerGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            />
+            <View style={styles.bannerContent}>
+              <View style={styles.bannerTextCol}>
+                <Text style={styles.bannerTag}>NUEVO EN TIENDA</Text>
+                <Text style={styles.bannerTitle}>Michi Box Premium</Text>
+                <Text style={styles.bannerDesc}>Suscripción mensual de juguetes y snacks</Text>
+              </View>
+              <ShoppingBag size={48} color="rgba(255,255,255,0.3)" />
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
   );
 }
 
+// ── Styles ────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
+  /* layout */
   container: { flex: 1 },
-  scrollViewContent: { flexGrow: 1 }, // Added to ensure ScrollView content expands
+  scrollContent: { flexGrow: 1 },
   headerGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 480, // Increased to fully cover hero section
+    height: 480,
   },
+
+  /* top bar */
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -317,7 +418,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     zIndex: 10,
   },
-  menuIconBox: {
+  topBarBtn: {
     width: 44,
     height: 44,
     borderRadius: 14,
@@ -326,20 +427,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
+    position: 'relative',
   },
   topLogo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   logoText: { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 2 },
-  notifBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-    position: 'relative'
-  },
   notifDot: {
     position: 'absolute',
     top: 10,
@@ -351,28 +442,43 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#fb7185',
   },
-  heroContainer: {
-    paddingHorizontal: 24,
-    marginTop: 30,
-  },
+
+  /* hero welcome */
+  heroContainer: { paddingHorizontal: 24, marginTop: 30 },
   glassCard: {
     padding: 24,
     borderRadius: 32,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
-    overflow: 'hidden', // Added for internal gradient
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 15,
   },
-  welcomeRow: { flexDirection: 'row', alignItems: 'center', gap: 16, backgroundColor: 'transparent' },
-  profileMasterInfo: { flex: 1, backgroundColor: 'transparent' },
-  welcomeLabel: { fontSize: 10, fontWeight: '900', color: 'rgba(255,255,255,0.7)', letterSpacing: 1.5 },
-  profileName: { fontSize: 26, fontWeight: '900', color: '#fff', marginTop: 2 },
-  avatarMasterContainer: { width: 66, height: 66 },
+  welcomeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: 'transparent',
+  },
+  welcomeInfo: { flex: 1, backgroundColor: 'transparent' },
+  welcomeLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: 'rgba(255,255,255,0.85)',
+    letterSpacing: 1.5,
+  },
+  welcomeName: { fontSize: 26, fontWeight: '900', color: '#fff', marginTop: 2 },
+  avatarBox: { width: 66, height: 66 },
   avatarBorder: { padding: 3, borderRadius: 24, ...StyleSheet.absoluteFillObject },
-  avatarInner: { flex: 1, borderRadius: 21, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+  avatarInner: {
+    flex: 1,
+    borderRadius: 21,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatarText: { fontSize: 24, fontWeight: '900', color: '#7c3aed' },
   statsStrip: {
     flexDirection: 'row',
@@ -380,37 +486,41 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
   },
-  statMini: { alignItems: 'center', flex: 1 },
+  statItem: { alignItems: 'center', flex: 1 },
   statVal: { fontSize: 18, fontWeight: '900', color: '#fff' },
-  statLab: { fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.6)', marginTop: 2 },
-  statDivider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.1)' },
+  statLab: { fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.85)', marginTop: 2 },
+  statDivider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.2)' },
+
+  /* sections */
   section: { marginTop: 32 },
-  sectionHeader: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 24,
-    marginBottom: 16
+    marginBottom: 16,
   },
-  titleWithIcon: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   sectionTitle: { fontSize: 18, fontWeight: '900' },
   seeAll: { fontSize: 14, fontWeight: '700' },
+
+  /* pets carousel */
   petsList: { paddingLeft: 24, paddingRight: 24, gap: 16 },
-  addPetCircular: { 
-    width: 60, 
-    height: 180, 
-    borderRadius: 30, 
-    borderWidth: 1.5, 
+  addPetBtn: {
+    width: 60,
+    height: 180,
+    borderRadius: 30,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
-    justifyContent: 'center', 
-    alignItems: 'center'
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  petHeroCard: { 
-    width: 140, 
-    height: 180, 
-    borderRadius: 32, 
+  petCard: {
+    width: 140,
+    height: 180,
+    borderRadius: 32,
     overflow: 'hidden',
     elevation: 8,
     shadowColor: '#000',
@@ -418,56 +528,114 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
   },
-  petHeroImage: { ...StyleSheet.absoluteFillObject },
-  petCardOverlay: { ...StyleSheet.absoluteFillObject },
-  petInfoFloating: { 
-    position: 'absolute', 
-    bottom: 0, 
-    left: 0, 
-    right: 0, 
-    padding: 16 
-  },
-  petNameHero: { fontSize: 16, fontWeight: '900', color: '#fff' },
-  petTag: { 
-    backgroundColor: 'rgba(255,255,255,0.2)', 
-    paddingHorizontal: 8, 
-    paddingVertical: 2, 
-    borderRadius: 6, 
-    alignSelf: 'flex-start', 
-    marginTop: 4 
+  petImage: { ...StyleSheet.absoluteFillObject },
+  petOverlay: { ...StyleSheet.absoluteFillObject },
+  petInfo: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16 },
+  petName: { fontSize: 16, fontWeight: '900', color: '#fff' },
+  petTag: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 4,
   },
   petTagText: { fontSize: 9, fontWeight: '800', color: '#fff', textTransform: 'uppercase' },
-  mgmtList: { paddingLeft: 24, paddingRight: 24, gap: 12 },
-  mgmtCard: { 
-    width: 160, 
-    padding: 20, 
-    borderRadius: 28, 
+  emptyPets: {
+    marginHorizontal: 24,
+    height: 180,
+    borderRadius: 32,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
     gap: 12,
-    elevation: 10,
+  },
+  emptyPetsText: { fontSize: 14, fontWeight: '700', color: '#64748b' },
+  loadingBox: { height: 180, justifyContent: 'center', alignItems: 'center' },
+
+  /* 2×2 actions grid */
+  actionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 24,
+    gap: 14,
+  },
+  actionCard: {
+    width: '47%' as any,
+    flexBasis: '47%',
+    flexGrow: 0,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 10,
+    elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    overflow: 'hidden'
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
   },
-  mgmtTitle: { fontSize: 16, fontWeight: '900', color: '#fff' },
-  mgmtSub: { fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.8)' },
-  explorerGrid: { paddingHorizontal: 24, gap: 12 },
-  explorerCard: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 14, 
-    borderRadius: 22, 
-    borderWidth: 1, 
-    gap: 14 
+  actionIconBox: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  explorerIconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-  explorerTitle: { fontSize: 15, fontWeight: '800' },
-  explorerSub: { fontSize: 11, fontWeight: '500', marginTop: 1 },
-  featuredSection: { paddingHorizontal: 24, marginTop: 32 },
-  featuredBanner: { 
-    height: 120, 
-    borderRadius: 32, 
+  actionTitle: { fontSize: 14, fontWeight: '800' },
+
+  /* citas */
+  citasList: { paddingHorizontal: 24, gap: 12 },
+  citaCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 22,
+    borderWidth: 1,
+    gap: 14,
+  },
+  citaDateBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  citaInfo: { flex: 1 },
+  citaDate: { fontSize: 14, fontWeight: '800' },
+  citaClinic: { fontSize: 12, fontWeight: '500', marginTop: 2 },
+  citaStatusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  citaStatusText: { fontSize: 10, fontWeight: '800' },
+  emptyCitas: {
+    marginHorizontal: 24,
+    borderRadius: 28,
+    borderWidth: 1,
+    padding: 28,
+    alignItems: 'center',
+    gap: 10,
+    overflow: 'hidden',
+  },
+  emptyCitasTitle: { fontSize: 16, fontWeight: '900', marginTop: 4 },
+  emptyCitasDesc: { fontSize: 13, fontWeight: '500', textAlign: 'center' },
+  emptyCitasBtn: {
+    marginTop: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 16,
+  },
+  emptyCitasBtnText: { fontSize: 13, fontWeight: '800', color: '#fff' },
+
+  /* banner */
+  bannerSection: { paddingHorizontal: 24, marginTop: 32 },
+  banner: {
+    height: 120,
+    borderRadius: 32,
     overflow: 'hidden',
     elevation: 8,
     shadowColor: '#ec4899',
@@ -475,28 +643,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 15,
   },
-  featuredGradient: { ...StyleSheet.absoluteFillObject },
-  featuredContent: { 
-    flex: 1, 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 24, 
-    justifyContent: 'space-between' 
+  bannerGradient: { ...StyleSheet.absoluteFillObject },
+  bannerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 24,
+    justifyContent: 'space-between',
   },
-  featuredTextCol: { flex: 1 },
-  featuredTag: { fontSize: 9, fontWeight: '900', color: 'rgba(255,255,255,0.7)', letterSpacing: 1 },
-  featuredTitle: { fontSize: 20, fontWeight: '900', color: '#fff', marginTop: 2 },
-  featuredDesc: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.9)', marginTop: 4 },
-  loadingPets: { height: 180, justifyContent: 'center', alignItems: 'center' },
-  addPetEmpty: { 
-    marginHorizontal: 24, 
-    height: 180, 
-    borderRadius: 32, 
-    borderWidth: 2, 
-    borderStyle: 'dashed', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    gap: 12 
-  },
-  addPetText: { fontSize: 14, fontWeight: '700', color: '#94a3b8' },
+  bannerTextCol: { flex: 1 },
+  bannerTag: { fontSize: 9, fontWeight: '900', color: 'rgba(255,255,255,0.9)', letterSpacing: 1 },
+  bannerTitle: { fontSize: 20, fontWeight: '900', color: '#fff', marginTop: 2 },
+  bannerDesc: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.95)', marginTop: 4 },
 });

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import * as ImagePicker from 'expo-image-picker';
 import { getKYCPresignedUrls, finalizeKYC } from '../../src/services/kyc';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -39,7 +40,7 @@ export default function VerificationScreen() {
 
     const handleUpload = async () => {
         if (!docs.id_front || !docs.id_back || !docs.proof_of_address) {
-            Alert.alert("Documentos incompletos", "Por favor selecciona los 3 documentos requeridos.");
+            showAlert({ type: 'error', title: 'Documentos incompletos', message: 'Por favor selecciona los 3 documentos requeridos.' });
             return;
         }
 
@@ -81,10 +82,10 @@ export default function VerificationScreen() {
             });
 
             await reloadUser();
-            Alert.alert("¡Enviado!", "Tus documentos están en revisión. Te notificaremos pronto.");
+            showAlert({ type: 'success', title: '¡Enviado!', message: 'Tus documentos están en revisión. Te notificaremos pronto.' });
         } catch (error) {
             console.error("KYC Error:", error);
-            Alert.alert("Error", "Hubo un problema al subir tus documentos. Inténtalo de nuevo.");
+            showAlert({ type: 'error', title: 'Error', message: 'Hubo un problema al subir tus documentos. Inténtalo de nuevo.' });
         } finally {
             setUploading(false);
         }

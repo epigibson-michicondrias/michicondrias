@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import WebMapView from '../../src/components/WebMapView';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import MapView, { Marker, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -68,9 +69,9 @@ export default function NuevoLugarScreen() {
     };
 
     const handleSave = async () => {
-        if (!form.name) return Alert.alert("Error", "El nombre del lugar es obligatorio");
-        if (!location) return Alert.alert("Error", "Debes marcar la ubicación en el mapa");
-        if (!user) return Alert.alert("Error", "Debes estar autenticado");
+        if (!form.name) return showAlert({ type: 'error', title: 'Error', message: 'El nombre del lugar es obligatorio' });
+        if (!location) return showAlert({ type: 'error', title: 'Error', message: 'Debes marcar la ubicación en el mapa' });
+        if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
 
         setLoading(true);
         try {
@@ -101,11 +102,11 @@ export default function NuevoLugarScreen() {
                 rating: 5.0, // Default rating for new places
             });
 
-            Alert.alert("¡Gracias!", "Has contribuido a que más michis y lomitos encuentren lugares geniales.");
+            showAlert({ type: 'success', title: '¡Gracias!', message: 'Has contribuido a que más michis y lomitos encuentren lugares geniales.' });
             router.back();
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "No se pudo registrar el lugar.");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo registrar el lugar.' });
         } finally {
             setLoading(false);
         }
@@ -115,7 +116,7 @@ export default function NuevoLugarScreen() {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             <View style={[styles.container, { backgroundColor: theme.background }]}>
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
                         <ChevronLeft size={24} color={theme.text} />
                     </TouchableOpacity>
                     <Text style={[styles.title, { color: theme.text }]}>Registrar Lugar Pet Friendly</Text>
@@ -164,39 +165,19 @@ export default function NuevoLugarScreen() {
 
                         <Text style={[styles.label, { color: theme.text }]}>Ubicación en el Mapa</Text>
                         <View style={styles.mapWrapper}>
-                            <MapView
-                                provider={PROVIDER_DEFAULT}
+                            <WebMapView
                                 style={styles.map}
-                                initialRegion={{
-                                    latitude: location?.latitude || 19.4326,
-                                    longitude: location?.longitude || -99.1332,
-                                    latitudeDelta: 0.0122,
-                                    longitudeDelta: 0.0121,
-                                }}
-                                onRegionChangeComplete={(region) => {
-                                    setLocation({
-                                        latitude: region.latitude,
-                                        longitude: region.longitude
-                                    });
-                                }}
-                                mapType="none"
-                            >
-                                <UrlTile
-                                    urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    maximumZ={19}
-                                    flipY={false}
-                                />
-                                {location && (
-                                    <Marker
-                                        coordinate={location}
-                                        draggable
-                                        onDragEnd={(e) => setLocation(e.nativeEvent.coordinate)}
-                                    />
-                                )}
-                            </MapView>
-                            <View style={styles.mapOverlay} pointerEvents="none">
-                                <MapPin size={32} color={theme.primary} />
-                            </View>
+                                initialLatitude={location?.latitude || 19.4326}
+                                initialLongitude={location?.longitude || -99.1332}
+                                initialZoom={15}
+                                markers={location ? [{
+                                    id: 'current',
+                                    latitude: location.latitude,
+                                    longitude: location.longitude,
+                                    title: 'Ubicación seleccionada',
+                                    color: theme.primary,
+                                }] : []}
+                            />
                         </View>
 
                         <Text style={[styles.label, { color: theme.text }]}>Dirección (Opcional)</Text>
@@ -368,8 +349,6 @@ const styles = StyleSheet.create({
         height: 200,
         borderRadius: 24,
         overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
     },
     map: {
         width: '100%',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyProducts, deleteProduct, updateProduct, Product } from '@/src/services/ecommerce';
 import Colors from '@/constants/Colors';
@@ -26,9 +27,9 @@ export default function VendedorProductosScreen() {
         mutationFn: deleteProduct,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-products'] });
-            Alert.alert("Éxito", "Producto eliminado correctamente");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Producto eliminado correctamente' });
         },
-        onError: () => Alert.alert("Error", "No se pudo eliminar el producto"),
+        onError: () => showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el producto' }),
     });
 
     const toggleStatusMutation = useMutation({
@@ -39,14 +40,15 @@ export default function VendedorProductosScreen() {
     });
 
     const handleDelete = (id: string) => {
-        Alert.alert(
-            "Eliminar Producto",
-            "¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.",
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Eliminar", style: "destructive", onPress: () => deleteMutation.mutate(id) }
-            ]
-        );
+        showAlert({
+            type: 'warning',
+            title: 'Eliminar Producto',
+            message: '¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => deleteMutation.mutate(id),
+        });
     };
 
     const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));

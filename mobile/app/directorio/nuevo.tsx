@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { createClinic } from '../../src/services/directorio';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -25,21 +26,22 @@ export default function NuevoRegistroProfesionalScreen() {
 
     const handleSubmit = async () => {
         if (!form.name || !form.city || !form.phone) {
-            Alert.alert("Error", "Por favor completa los campos obligatorios (Nombre, Ciudad y Teléfono)");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios (Nombre, Ciudad y Teléfono)' });
             return;
         }
 
         setLoading(true);
         try {
             await createClinic(form);
-            Alert.alert(
-                "¡Éxito!",
-                "Tu solicitud ha sido enviada. Un administrador revisará tu información pronto.",
-                [{ text: "OK", onPress: () => router.back() }]
-            );
+            showAlert({
+                type: 'success',
+                title: '¡Éxito!',
+                message: 'Tu solicitud ha sido enviada. Un administrador revisará tu información pronto.',
+                onButtonPress: () => router.back(),
+            });
         } catch (error) {
             console.error("Error al registrar:", error);
-            Alert.alert("Error", "No pudimos procesar tu registro. Inténtalo de nuevo.");
+            showAlert({ type: 'error', title: 'Error', message: 'No pudimos procesar tu registro. Inténtalo de nuevo.' });
         } finally {
             setLoading(false);
         }

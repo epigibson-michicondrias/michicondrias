@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getClinics, Clinic } from '@/src/services/directorio';
@@ -8,6 +8,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Plus, MapPin, Phone, Hospital, Star, MoreVertical } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminClinicasScreen() {
     const router = useRouter();
@@ -59,7 +60,7 @@ export default function AdminClinicasScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={[styles.actionBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => Alert.alert("Gestión", "Módulo de edición de clínica en desarrollo.")}
+                    onPress={() => showAlert({ type: 'info', title: 'Gestión', message: 'Módulo de edición de clínica en desarrollo.' })}
                 >
                     <Text style={[styles.actionBtnText, { color: '#fff' }]}>Gestionar</Text>
                 </TouchableOpacity>
@@ -90,7 +91,7 @@ export default function AdminClinicasScreen() {
                     </View>
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => Alert.alert("Nueva Clínica", "Abre el formulario de registro")}
+                        onPress={() => showAlert({ type: 'info', title: 'Nueva Clínica', message: 'Abre el formulario de registro' })}
                     >
                         <Plus size={22} color="#fff" />
                     </TouchableOpacity>

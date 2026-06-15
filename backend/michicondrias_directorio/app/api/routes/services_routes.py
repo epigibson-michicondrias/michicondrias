@@ -7,8 +7,19 @@ from app.api import deps
 from app.db.session import get_db
 from app.schemas.services import ClinicServiceCreate, ClinicServiceUpdate, ClinicServiceResponse
 from app.crud.crud_clinic import get_clinic
+from app.models.services import ClinicService
 
 router = APIRouter()
+
+
+@router.get("/admin/all", response_model=List[ClinicServiceResponse])
+def read_all_services_admin(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Admin endpoint: Get all services across all clinics."""
+    return db.query(ClinicService).filter(ClinicService.is_active == True).offset(skip).limit(limit).all()
 
 
 @router.get("/clinics/{clinic_id}/services", response_model=List[ClinicServiceResponse])

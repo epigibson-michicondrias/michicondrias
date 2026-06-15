@@ -36,6 +36,18 @@ def read_my_orders(
     """
     return crud.crud_ecommerce.get_user_orders(db, user_id=user_id, skip=skip, limit=limit)
 
+@router.get("/seller/me", response_model=List[OrderResponse])
+def read_seller_orders(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    skip: int = 0,
+    limit: int = 50,
+) -> Any:
+    """
+    Retrieve orders containing products from the current seller.
+    """
+    return crud.crud_ecommerce.get_seller_orders(db, seller_id=user_id, skip=skip, limit=limit)
+
 @router.get("/{order_id}", response_model=OrderResponse)
 def read_order(
     order_id: str,
@@ -51,6 +63,33 @@ def read_order(
     if order.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to view this order")
     return order
+
+@router.patch("/{order_id}/status", response_model=OrderResponse)
+def update_order_status_seller(
+    order_id: str,
+    status: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """
+    Update order status (Seller can update status for their orders).
+    """
+    order = crud.crud_ecommerce.get_order(db, order_id=order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    
+    # Check if user is the seller of any product in this order
+    from app.models.ecommerce import OrderItem, Product
+    has_seller_product = db.query(OrderItem).join(Product).filter(
+        OrderItem.order_id == order_id,
+        Product.seller_id == user_id
+    ).first()
+    
+    if not has_seller_product and order.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this order")
+    
+    updated_order = crud.crud_ecommerce.update_order_status(db, order_id=order_id, status=status)
+    return updated_order
 
 # --- ADMIN ENDPOINTS ---
 

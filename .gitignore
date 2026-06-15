@@ -40,3 +40,4 @@ ms_logs.txt
 frontend/.next/
 frontend/node_modules/
 backend/michicondrias_core/app/uploads/
+mobile/*.apk

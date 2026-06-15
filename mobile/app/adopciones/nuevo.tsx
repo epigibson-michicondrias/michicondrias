@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
@@ -7,6 +7,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Camera, Dog, Cat, Check, Heart, MapPin } from 'lucide-react-native';
 import { createListing, getAdopcionesPresignedUrl } from '../../src/services/adopciones';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function NuevaAdopcionScreen() {
     const { user } = useAuth();
@@ -52,8 +53,8 @@ export default function NuevaAdopcionScreen() {
     };
 
     const handleSave = async () => {
-        if (!form.name) return Alert.alert("Error", "El nombre es obligatorio");
-        if (!user) return Alert.alert("Error", "Debes estar autenticado");
+        if (!form.name) return showAlert({ type: 'error', title: 'Error', message: 'El nombre es obligatorio' });
+        if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
 
         setLoading(true);
         try {
@@ -83,11 +84,11 @@ export default function NuevaAdopcionScreen() {
                 status: 'available',
             });
 
-            Alert.alert("¡Éxito!", "La publicación de adopción ha sido creada.");
+            showAlert({ type: 'success', title: '¡Éxito!', message: 'La publicación de adopción ha sido creada.' });
             router.back();
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "No se pudo crear la publicación.");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la publicación.' });
         } finally {
             setLoading(false);
         }

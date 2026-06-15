@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView, View, ActivityIndicator, Alert } from 'react-native';
+import React from 'react';
+import { StyleSheet, TouchableOpacity, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
 import { useAuth } from '../../src/contexts/AuthContext';
 import Colors from '../../constants/Colors';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { LogOut, User, Shield, Bell, HelpCircle, Sun, Moon, Monitor, RefreshCw, Cpu, Globe, Database, PawPrint, ChevronRight, Edit3, Settings } from 'lucide-react-native';
-import * as Updates from 'expo-updates';
-import Constants from 'expo-constants';
+import { LogOut, User, Shield, Bell, HelpCircle, Sun, Moon, Monitor, PawPrint, ChevronRight, Edit3, Calendar, CreditCard, ClipboardList } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,54 +15,6 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { themeMode, setThemeMode, colorScheme } = useTheme();
   const theme = Colors[colorScheme];
-
-  const [isChecking, setIsChecking] = useState(false);
-  const [lastUpdateCheck, setLastUpdateCheck] = useState<string | null>(null);
-
-  const onCheckUpdates = async () => {
-    if (__DEV__) {
-      Alert.alert("Modo Desarrollo", "Las actualizaciones OTA están desactivadas en desarrollo.");
-      return;
-    }
-
-    setIsChecking(true);
-    try {
-      const update = await Updates.checkForUpdateAsync();
-      if (update.isAvailable) {
-        Alert.alert(
-          "¡Actualización disponible!",
-          "Se ha encontrado una nueva versión. ¿Quieres descargarla ahora?",
-          [
-            { text: "Más tarde", style: "cancel" },
-            {
-              text: "Actualizar 🚀",
-              onPress: async () => {
-                try {
-                  await Updates.fetchUpdateAsync();
-                  await Updates.reloadAsync();
-                } catch (e) {
-                  Alert.alert("Error", `No se pudo descargar: ${e instanceof Error ? e.message : String(e)}`);
-                }
-              }
-            }
-          ]
-        );
-      } else {
-        Alert.alert("Todo al día", "Ya tienes la última versión instalada. ✨");
-      }
-      setLastUpdateCheck(new Date().toLocaleTimeString());
-    } catch (error: any) {
-      Alert.alert(
-        "Error de Actualización",
-        `Mensaje: ${error.message}\n\n` +
-        `Canal Nativo: ${(Updates as any).channel || 'N/A'}\n` +
-        `Canal Config: ${(Constants.expoConfig?.updates as any)?.channel || 'Not Set'}\n` +
-        `Runtime: ${Updates.runtimeVersion}`
-      );
-    } finally {
-      setIsChecking(false);
-    }
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -108,7 +58,7 @@ export default function ProfileScreen() {
 
                 <TouchableOpacity 
                     style={styles.editIconBtn}
-                    onPress={() => router.push('/perfil')}
+                    onPress={() => router.push('/perfil' as any)}
                 >
                     <Edit3 size={20} color="#fff" />
                 </TouchableOpacity>
@@ -124,26 +74,26 @@ export default function ProfileScreen() {
                 title="Editar Perfil" 
                 theme={theme} 
                 isFirst 
-                onPress={() => router.push('/perfil')}
+                onPress={() => router.push('/perfil' as any)}
             />
             <MenuItem
               icon={<PawPrint size={20} color="#ec4899" />}
               title="Gestión de Adopciones"
               theme={theme}
-              onPress={() => router.push('/adopciones/mis-publicaciones')}
+              onPress={() => router.push('/adopciones/mis-publicaciones' as any)}
             />
             <MenuItem 
                 icon={<Shield size={20} color="#22c55e" />} 
                 title="Seguridad y KYC" 
                 theme={theme} 
-                onPress={() => router.push('/perfil/verificacion')}
+                onPress={() => router.push('/perfil/verificacion' as any)}
             />
             <MenuItem 
                 icon={<Bell size={20} color="#f59e0b" />} 
                 title="Notificaciones" 
                 theme={theme} 
                 isLast 
-                onPress={() => router.push('/notificaciones')}
+                onPress={() => router.push('/notificaciones' as any)}
             />
           </View>
 
@@ -174,23 +124,34 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <Text style={[styles.sectionTitle, { color: theme.textMuted, marginTop: 24 }]}>SISTEMA Y ACTUALIZACIONES</Text>
-          <View style={[styles.sectionCard, { backgroundColor: theme.surface, padding: 20 }]}>
-            <InfoRow icon={<Globe size={18} />} label="Native / Config Channel" value={`${(Updates as any).channel || 'N/A'} / ${(Constants.expoConfig?.updates as any)?.channel || 'N/A'}`} theme={theme} />
-            <InfoRow icon={<Cpu size={18} />} label="Project ID (EAS)" value={Constants.expoConfig?.extra?.eas?.projectId || 'Not Found'} theme={theme} smallValue marginTop={16} />
-            <InfoRow icon={<Database size={18} />} label="Update ID / Runtime" value={`${Updates.updateId || 'Embedded'} / ${Updates.runtimeVersion}`} theme={theme} smallValue marginTop={16} />
-
-            <TouchableOpacity
-              style={[styles.updateBtn, { backgroundColor: theme.primary }]}
-              onPress={onCheckUpdates}
-              disabled={isChecking}
-            >
-              {isChecking ? <ActivityIndicator size="small" color="#fff" /> : <RefreshCw size={18} color="#fff" />}
-              <Text style={styles.updateBtnText}>{isChecking ? "Verificando..." : "Buscar actualizaciones"}</Text>
-            </TouchableOpacity>
-            {lastUpdateCheck && (
-              <Text style={[styles.lastCheck, { color: theme.textMuted }]}>Última verificación: {lastUpdateCheck}</Text>
-            )}
+          <Text style={[styles.sectionTitle, { color: theme.textMuted, marginTop: 24 }]}>MI ACTIVIDAD</Text>
+          <View style={[styles.sectionCard, { backgroundColor: theme.surface }]}>
+            <MenuItem 
+                icon={<PawPrint size={20} color="#7c3aed" />} 
+                title="Mis Mascotas" 
+                theme={theme} 
+                isFirst 
+                onPress={() => router.push('/mascotas' as any)}
+            />
+            <MenuItem 
+                icon={<Calendar size={20} color="#10b981" />} 
+                title="Mis Citas" 
+                theme={theme} 
+                onPress={() => router.push('/directorio/citas' as any)}
+            />
+            <MenuItem 
+                icon={<CreditCard size={20} color="#f59e0b" />} 
+                title="Mis Compras" 
+                theme={theme} 
+                onPress={() => router.push('/tienda/compras' as any)}
+            />
+            <MenuItem 
+                icon={<ClipboardList size={20} color="#3b82f6" />} 
+                title="Carnet de Salud" 
+                theme={theme} 
+                isLast 
+                onPress={() => router.push('/carnet' as any)}
+            />
           </View>
 
           <Text style={[styles.sectionTitle, { color: theme.textMuted, marginTop: 24 }]}>SOPORTE Y LEGAL</Text>
@@ -217,7 +178,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <Text style={[styles.version, { color: theme.textMuted }]}>
-            Michicondrias Mobile v1.1.5 (Adoptions Parity)
+            Michicondrias Mobile v2.0.0
           </Text>
         </View>
       </ScrollView>
@@ -240,20 +201,6 @@ function MenuItem({ icon, title, theme, isFirst, isLast, onPress }: { icon: any,
       <ChevronRight size={18} color={theme.textMuted} opacity={0.5} />
     </TouchableOpacity>
   );
-}
-
-function InfoRow({ icon, label, value, theme, smallValue, marginTop }: { icon: any, label: string, value: string, theme: any, smallValue?: boolean, marginTop?: number }) {
-    return (
-        <View style={[styles.infoRow, marginTop ? { marginTop } : {}]}>
-            <View style={[styles.infoIconBox, { backgroundColor: theme.primary + '10' }]}>
-                {React.cloneElement(icon as React.ReactElement<any>, { color: theme.primary })}
-            </View>
-            <View style={{ flex: 1 }}>
-                <Text style={[styles.infoLabel, { color: theme.textMuted }]}>{label}</Text>
-                <Text style={[styles.infoValue, { color: theme.text, fontSize: smallValue ? 10 : 14 }]}>{value}</Text>
-            </View>
-        </View>
-    );
 }
 
 function ThemeOption({ active, icon, label, onPress, theme }: { active: boolean, icon: any, label: string, onPress: () => void, theme: any }) {
@@ -407,50 +354,6 @@ const styles = StyleSheet.create({
   themeLabel: {
     fontSize: 12,
     fontWeight: '800',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  infoIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  infoLabel: {
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-    marginBottom: 2,
-    opacity: 0.6,
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  updateBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    height: 58,
-    borderRadius: 22,
-    marginTop: 24,
-  },
-  updateBtnText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  lastCheck: {
-    textAlign: 'center',
-    fontSize: 10,
-    marginTop: 10,
-    fontWeight: '600',
-    opacity: 0.5,
   },
   logoutBtn: {
     flexDirection: 'row',

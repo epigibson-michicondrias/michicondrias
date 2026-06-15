@@ -9,8 +9,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 import { ThemeProvider as MichiThemeProvider, useTheme } from '../src/contexts/ThemeContext';
 import { CartProvider } from '../src/contexts/CartContext';
+import { AppAlertProvider } from '@/src/components/AppAlert';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,       // 1 min before data is considered stale
+      gcTime: 5 * 60_000,      // 5 min cache retention
+      retry: 1,                 // 1 retry on failure
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,14 +57,16 @@ function RootLayoutNav() {
   }, [user, isLoading, segments]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="login" />
-        <Stack.Screen name="register" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', headerShown: true }} />
-      </Stack>
-    </ThemeProvider>
+    <AppAlertProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="login" />
+          <Stack.Screen name="register" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', headerShown: true }} />
+        </Stack>
+      </ThemeProvider>
+    </AppAlertProvider>
   );
 }
 

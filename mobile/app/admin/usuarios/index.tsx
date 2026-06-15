@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Dimensions, FlatList, TextInput, StatusBar, SafeAreaView, Platform, RefreshControl, Modal, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, FlatList, TextInput, StatusBar, SafeAreaView, Platform, RefreshControl, Modal, KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -36,6 +36,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ROLE_IDS, ROLE_NAMES, ROLE_COLORS, getRoleName } from '@/src/constants/roles';
+import { showAlert } from '@/src/components/AppAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -73,33 +74,33 @@ export default function AdminUsersScreen() {
             return adminUsersService.toggleUserStatus(userId);
         },
         onSuccess: (data) => {
-            Alert.alert("Éxito", `Usuario ${data.is_active ? 'activado' : 'desactivado'} correctamente.`);
+            showAlert({ type: 'success', title: 'Éxito', message: `Usuario ${data.is_active ? 'activado' : 'desactivado'} correctamente.` });
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
         },
         onError: (error: any) => {
-            Alert.alert("Error", error.message || "No se pudo cambiar el estado del usuario");
+            showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo cambiar el estado del usuario" });
         }
     });
 
     const createUserMutation = useMutation({
         mutationFn: (data: any) => adminUsersService.createUser(data),
         onSuccess: () => {
-            Alert.alert("Éxito", "Usuario creado correctamente.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Usuario creado correctamente.' });
             setModalVisible(false);
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message || "No se pudo crear el usuario")
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo crear el usuario" })
     });
 
     const updateUserMutation = useMutation({
         mutationFn: ({ id, data }: { id: string, data: any }) => adminUsersService.updateUser(id, data),
         onSuccess: () => {
-            Alert.alert("Éxito", "Usuario actualizado correctamente.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Usuario actualizado correctamente.' });
             setModalVisible(false);
             setEditingUser(null);
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message || "No se pudo actualizar el usuario")
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo actualizar el usuario" })
     });
 
     const deleteUserMutation = useMutation({
@@ -107,27 +108,24 @@ export default function AdminUsersScreen() {
             return adminUsersService.deleteUser(userId);
         },
         onSuccess: () => {
-            Alert.alert("Éxito", "Usuario eliminado correctamente.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Usuario eliminado correctamente.' });
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
         },
         onError: (error: any) => {
-            Alert.alert("Error", error.message || "No se pudo eliminar el usuario");
+            showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo eliminar el usuario" });
         }
     });
 
     const handleDeletePress = (userId: string, name: string) => {
-        Alert.alert(
-            "Eliminar Usuario",
-            `¿Estás seguro de eliminar a ${name}? Esta acción no se puede deshacer.`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                {
-                    text: "Eliminar",
-                    style: "destructive",
-                    onPress: () => deleteUserMutation.mutate(userId)
-                }
-            ]
-        );
+        showAlert({
+            type: 'error',
+            title: 'Eliminar Usuario',
+            message: `¿Estás seguro de eliminar a ${name}? Esta acción no se puede deshacer.`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => deleteUserMutation.mutate(userId),
+        });
     };
 
     const filteredUsers = users.filter(user => {
@@ -172,7 +170,7 @@ export default function AdminUsersScreen() {
         <TouchableOpacity 
             activeOpacity={0.7}
             style={[styles.userCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => Alert.alert("Detalles", `Viendo detalles de ${item.full_name}`)}
+            onPress={() => showAlert({ type: 'info', title: 'Detalles', message: `Viendo detalles de ${item.full_name}` })}
         > 
             <View style={styles.userHeader}>
                 <LinearGradient
@@ -247,7 +245,7 @@ export default function AdminUsersScreen() {
                 style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
             >
                 <View style={styles.headerContent}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
                         <ChevronLeft size={22} color="#fff" />
                     </TouchableOpacity>
                     <View style={styles.headerInfo}>
@@ -258,7 +256,7 @@ export default function AdminUsersScreen() {
                         </View>
                     </View>
                     <TouchableOpacity 
-                        style={styles.headerIcon}
+                        style={[styles.headerIcon, { backgroundColor: theme.overlayHover }]}
                         onPress={() => {
                             setEditingUser(null);
                             setFormData({
@@ -519,7 +517,6 @@ const styles = StyleSheet.create({
     backBtn: {
         padding: 8,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.2)',
     },
     headerInfo: {
         flex: 1,
@@ -551,7 +548,6 @@ const styles = StyleSheet.create({
     headerIcon: {
         padding: 10,
         borderRadius: 14,
-        backgroundColor: 'rgba(255,255,255,0.2)',
     },
     statsContainer: {
         flexDirection: 'row',

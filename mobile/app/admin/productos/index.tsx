@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Image, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getProducts, Product } from '@/src/services/ecommerce';
@@ -8,6 +8,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Plus, ShoppingCart, Search, Filter, Box } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminProductosScreen() {
     const router = useRouter();
@@ -40,14 +41,14 @@ export default function AdminProductosScreen() {
                 <View style={styles.actions}>
                     <TouchableOpacity 
                         style={[styles.manageBtn, { backgroundColor: theme.background }]}
-                        onPress={() => Alert.alert("Inventario", "Abrir ajuste de stock")}
+                        onPress={() => showAlert({ type: 'info', title: 'Inventario', message: 'Abrir ajuste de stock' })}
                     >
                         <Box size={14} color={theme.textMuted} />
                         <Text style={[styles.manageBtnText, { color: theme.text }]}>Stock</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style={[styles.manageBtn, { backgroundColor: theme.primary }]}
-                        onPress={() => Alert.alert("Producto", `Gestionar: ${item.name}`)}
+                        onPress={() => showAlert({ type: 'info', title: 'Producto', message: `Gestionar: ${item.name}` })}
                     >
                         <Text style={[styles.manageBtnText, { color: '#fff' }]}>Editar</Text>
                     </TouchableOpacity>
@@ -79,7 +80,7 @@ export default function AdminProductosScreen() {
                     </View>
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => Alert.alert("Nuevo Producto", "Formulario de alta")}
+                        onPress={() => showAlert({ type: 'info', title: 'Nuevo Producto', message: 'Formulario de alta' })}
                     >
                         <Plus size={22} color="#fff" />
                     </TouchableOpacity>

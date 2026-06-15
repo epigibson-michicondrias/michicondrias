@@ -183,6 +183,17 @@ def create_order(db: Session, order_in: OrderCreate, user_id: str):
 def get_user_orders(db: Session, user_id: str, skip: int = 0, limit: int = 20):
     return db.query(Order).options(joinedload(Order.items)).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
+def get_seller_orders(db: Session, seller_id: str, skip: int = 0, limit: int = 50):
+    """Get orders containing products from a specific seller."""
+    # Find order IDs that contain products from this seller
+    order_ids = db.query(OrderItem.order_id).join(Product).filter(Product.seller_id == seller_id).distinct().all()
+    order_ids = [oid[0] for oid in order_ids]
+    
+    if not order_ids:
+        return []
+    
+    return db.query(Order).options(joinedload(Order.items)).filter(Order.id.in_(order_ids)).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+
 def get_order(db: Session, order_id: str):
     return db.query(Order).options(joinedload(Order.items)).filter(Order.id == order_id).first()
 

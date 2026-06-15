@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Switch, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getClinic, updateClinic, ClinicCreate } from '@/src/services/directorio';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, Save, MapPin, Phone, Mail, Globe, Info, Clock, ShieldCheck, Camera } from 'lucide-react-native';
 
 export default function ConfigClinicaScreen() {
@@ -54,17 +55,17 @@ export default function ConfigClinicaScreen() {
 
     const handleSave = async () => {
         if (!form.name) {
-            Alert.alert("Error", "El nombre de la clínica es obligatorio");
+            showAlert({ type: 'error', title: 'Error', message: 'El nombre de la clínica es obligatorio' });
             return;
         }
 
         setLoading(true);
         try {
             await updateClinic(id as string, form);
-            Alert.alert("Éxito", "Perfil de clínica actualizado correctamente");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Perfil de clínica actualizado correctamente' });
             router.back();
         } catch (e) {
-            Alert.alert("Error", "No se pudo actualizar el perfil");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el perfil' });
         } finally {
             setLoading(false);
         }

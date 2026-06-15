@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, ActivityIndicator, Image, Alert, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, ActivityIndicator, Image, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,7 @@ import {
     FileText
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { showAlert } from '@/src/components/AppAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -76,41 +77,38 @@ export default function AdminModerationScreen() {
 
     // Mutations
     const handleAction = async (action: 'approve' | 'reject', type: TabType | 'solicitudes', id: string, name: string) => {
-        Alert.alert(
-            action === 'approve' ? "Aprobar Contenido" : "Rechazar Contenido",
-            `¿Estás seguro de ${action === 'approve' ? 'APROBAR' : 'RECHAZAR'} a: ${name}?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                {
-                    text: action === 'approve' ? "Aprobar" : "Rechazar",
-                    style: action === 'approve' ? "default" : "destructive",
-                    onPress: async () => {
-                        try {
-                            if (type === 'adopciones') {
-                                action === 'approve' ? await ModeracionService.approveAdoption(id) : await ModeracionService.rejectAdoption(id);
-                                queryClient.invalidateQueries({ queryKey: ['pending-adoptions'] });
-                            } else if (type === 'ecommerce') {
-                                action === 'approve' ? await ModeracionService.approveProduct(id) : await ModeracionService.rejectProduct(id);
-                                queryClient.invalidateQueries({ queryKey: ['pending-products'] });
-                            } else if (type === 'perdidas') {
-                                action === 'approve' ? await ModeracionService.approveLostPet(id) : await ModeracionService.rejectLostPet(id);
-                                queryClient.invalidateQueries({ queryKey: ['pending-lost-pets'] });
-                            } else if (type === 'directorio') {
-                                action === 'approve' ? await ModeracionService.approveClinic(id) : await ModeracionService.rejectClinic(id);
-                                queryClient.invalidateQueries({ queryKey: ['pending-clinics'] });
-                                queryClient.invalidateQueries({ queryKey: ['pending-vets'] });
-                            } else if (type === 'solicitudes') {
-                                action === 'approve' ? await ModeracionService.approveAdoptionRequest(id) : await ModeracionService.rejectAdoptionRequest(id);
-                                queryClient.invalidateQueries({ queryKey: ['pending-requests'] });
-                            }
-                            Alert.alert("Éxito", `Contenido procesado correctamente.`);
-                        } catch (e) {
-                            Alert.alert("Error", "No se pudo completar la acción.");
-                        }
+        showAlert({
+            type: action === 'approve' ? 'success' : 'error',
+            title: action === 'approve' ? 'Aprobar Contenido' : 'Rechazar Contenido',
+            message: `¿Estás seguro de ${action === 'approve' ? 'APROBAR' : 'RECHAZAR'} a: ${name}?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: action === 'approve' ? 'Aprobar' : 'Rechazar',
+            onButtonPress: async () => {
+                try {
+                    if (type === 'adopciones') {
+                        action === 'approve' ? await ModeracionService.approveAdoption(id) : await ModeracionService.rejectAdoption(id);
+                        queryClient.invalidateQueries({ queryKey: ['pending-adoptions'] });
+                    } else if (type === 'ecommerce') {
+                        action === 'approve' ? await ModeracionService.approveProduct(id) : await ModeracionService.rejectProduct(id);
+                        queryClient.invalidateQueries({ queryKey: ['pending-products'] });
+                    } else if (type === 'perdidas') {
+                        action === 'approve' ? await ModeracionService.approveLostPet(id) : await ModeracionService.rejectLostPet(id);
+                        queryClient.invalidateQueries({ queryKey: ['pending-lost-pets'] });
+                    } else if (type === 'directorio') {
+                        action === 'approve' ? await ModeracionService.approveClinic(id) : await ModeracionService.rejectClinic(id);
+                        queryClient.invalidateQueries({ queryKey: ['pending-clinics'] });
+                        queryClient.invalidateQueries({ queryKey: ['pending-vets'] });
+                    } else if (type === 'solicitudes') {
+                        action === 'approve' ? await ModeracionService.approveAdoptionRequest(id) : await ModeracionService.rejectAdoptionRequest(id);
+                        queryClient.invalidateQueries({ queryKey: ['pending-requests'] });
                     }
+                    showAlert({ type: 'success', title: 'Éxito', message: 'Contenido procesado correctamente.' });
+                } catch (e) {
+                    showAlert({ type: 'error', title: 'Error', message: 'No se pudo completar la acción.' });
                 }
-            ]
-        );
+            }
+        });
     };
 
     const renderEmpty = () => (

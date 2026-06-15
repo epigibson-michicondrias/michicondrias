@@ -14,7 +14,7 @@ class PlaceBase(BaseModel):
     longitude: Optional[float] = None
     phone: Optional[str] = None
     website: Optional[str] = None
-    rating: Optional[int] = 0
+    rating: Optional[float] = 0
     pet_sizes_allowed: Optional[str] = "todos"
     has_water_bowls: Optional[str] = "no"
     has_pet_menu: Optional[str] = "no"

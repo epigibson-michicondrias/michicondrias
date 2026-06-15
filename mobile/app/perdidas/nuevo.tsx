@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform, Dimensions, ActivityIndicator } from 'react-native';
+import WebMapView, { MapMarker } from '../../src/components/WebMapView';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import MapView, { Marker, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -39,7 +40,7 @@ export default function NuevoReporteScreen() {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert('Permiso denegado', 'Necesitamos tu ubicación para marcar el reporte.');
+                showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Necesitamos tu ubicación para marcar el reporte.' });
                 return;
             }
 
@@ -65,9 +66,9 @@ export default function NuevoReporteScreen() {
     };
 
     const handleSave = async () => {
-        if (!form.pet_name) return Alert.alert("Error", "El nombre o descripción corta es obligatorio");
-        if (!location) return Alert.alert("Error", "Debes marcar la ubicación en el mapa");
-        if (!user) return Alert.alert("Error", "Debes estar autenticado");
+        if (!form.pet_name) return showAlert({ type: 'error', title: 'Error', message: 'El nombre o descripción corta es obligatorio' });
+        if (!location) return showAlert({ type: 'error', title: 'Error', message: 'Debes marcar la ubicación en el mapa' });
+        if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
 
         setLoading(true);
         try {
@@ -98,11 +99,11 @@ export default function NuevoReporteScreen() {
                 status: 'active',
             });
 
-            Alert.alert("¡Reporte Enviado!", "La comunidad ha sido notificada. Gracias por ayudar.");
+            showAlert({ type: 'success', title: '¡Reporte Enviado!', message: 'La comunidad ha sido notificada. Gracias por ayudar.' });
             router.back();
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "No se pudo crear el reporte.");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear el reporte.' });
         } finally {
             setLoading(false);
         }
@@ -235,39 +236,19 @@ export default function NuevoReporteScreen() {
 
                         <Text style={[styles.label, { color: theme.text }]}>Marca en el mapa (Arrastra o presiona)</Text>
                         <View style={styles.mapWrapper}>
-                            <MapView
-                                provider={PROVIDER_DEFAULT}
+                            <WebMapView
                                 style={styles.map}
-                                initialRegion={{
-                                    latitude: location?.latitude || 19.4326,
-                                    longitude: location?.longitude || -99.1332,
-                                    latitudeDelta: 0.0122,
-                                    longitudeDelta: 0.0121,
-                                }}
-                                onRegionChangeComplete={(region) => {
-                                    setLocation({
-                                        latitude: region.latitude,
-                                        longitude: region.longitude
-                                    });
-                                }}
-                                mapType="none"
-                            >
-                                <UrlTile
-                                    urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    maximumZ={19}
-                                    flipY={false}
-                                />
-                                {location && (
-                                    <Marker
-                                        coordinate={location}
-                                        draggable
-                                        onDragEnd={(e) => setLocation(e.nativeEvent.coordinate)}
-                                    />
-                                )}
-                            </MapView>
-                            <View style={styles.mapOverlay} pointerEvents="none">
-                                <MapPin size={32} color={theme.primary} />
-                            </View>
+                                initialLatitude={location?.latitude || 19.4326}
+                                initialLongitude={location?.longitude || -99.1332}
+                                initialZoom={15}
+                                markers={location ? [{
+                                    id: 'current',
+                                    latitude: location.latitude,
+                                    longitude: location.longitude,
+                                    title: 'Ubicación seleccionada',
+                                    color: theme.primary,
+                                }] : []}
+                            />
                         </View>
 
                         <View style={styles.inputGroup}>

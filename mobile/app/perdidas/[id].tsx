@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Linking, Alert, ActivityIndicator } from 'react-native';
-import MapView, { Marker, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+import WebMapView from '../../src/components/WebMapView';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getReportById, LostPetReport, resolveReport } from '../../src/services/perdidas';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -32,7 +33,7 @@ export default function PerdidasDetailScreen() {
         mutationFn: () => resolveReport(id?.toString() || ''),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['perdidas-report', id] });
-            Alert.alert("¡Felicidades!", "Nos alegra mucho que este michi haya regresado a casa. ❤️");
+            showAlert({ type: 'success', title: '¡Felicidades!', message: 'Nos alegra mucho que este michi haya regresado a casa. ❤️' });
         }
     });
 
@@ -181,53 +182,36 @@ export default function PerdidasDetailScreen() {
                     </Text>
 
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Última Ubicación Conocida</Text>
-                    <View style={styles.mapWrapper}>
-                        <MapView
-                            provider={PROVIDER_DEFAULT}
+                    <View style={[styles.mapWrapper, { borderColor: theme.border }]}>
+                        <WebMapView
                             style={styles.map}
-                            initialRegion={{
+                            initialLatitude={report.latitude || 19.4326}
+                            initialLongitude={report.longitude || -99.1332}
+                            initialZoom={16}
+                            markers={[{
+                                id: report.id,
                                 latitude: report.latitude || 19.4326,
                                 longitude: report.longitude || -99.1332,
-                                latitudeDelta: 0.01,
-                                longitudeDelta: 0.01,
-                            }}
-                            scrollEnabled={false}
-                            zoomEnabled={false}
-                            mapType="none"
-                        >
-                            <UrlTile
-                                urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                maximumZ={19}
-                                flipY={false}
-                            />
-                            <Marker
-                                coordinate={{
-                                    latitude: report.latitude || 19.4326,
-                                    longitude: report.longitude || -99.1332,
-                                }}
-                            >
-                                <View style={[styles.miniMarker, { borderColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
-                                    <Image
-                                        source={{ uri: report.image_url || 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=400' }}
-                                        style={styles.miniMarkerImg}
-                                    />
-                                </View>
-                            </Marker>
-                        </MapView>
+                                title: report.pet_name,
+                                description: report.report_type === 'lost' ? '🔴 Perdida' : '🟢 Encontrada',
+                                color: report.report_type === 'lost' ? '#ef4444' : '#6366f1',
+                            }]}
+                        />
                     </View>
 
                     {isOwner && !report.is_resolved && (
                         <TouchableOpacity
                             style={[styles.resolveBtn, { backgroundColor: '#10b981' }]}
                             onPress={() => {
-                                Alert.alert(
-                                    "¿Ya regresó a casa?",
-                                    "Esto marcará el reporte como RESUELTO y se notificará a la comunidad.",
-                                    [
-                                        { text: "Cancelar", style: "cancel" },
-                                        { text: "¡SÍ, YA REGRESÓ!", onPress: () => resolveMutation.mutate() }
-                                    ]
-                                );
+                                showAlert({
+                                    type: 'info',
+                                    title: '¿Ya regresó a casa?',
+                                    message: 'Esto marcará el reporte como RESUELTO y se notificará a la comunidad.',
+                                    showCancel: true,
+                                    cancelText: 'Cancelar',
+                                    buttonText: '¡SÍ, YA REGRESÓ!',
+                                    onButtonPress: () => resolveMutation.mutate(),
+                                });
                             }}
                         >
                             <CheckCircle2 size={24} color="#fff" />

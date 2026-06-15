@@ -1,78 +1,76 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, Bell, Heart, Package, ShieldCheck, MapPin, Bone } from 'lucide-react-native';
 import Colors from '../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { getMyNotifications, Notification } from '@/src/services/notifications';
 
 const { width } = Dimensions.get('window');
 
-const MOCK_NOTIFICATIONS = [
-    {
-        id: '1',
-        title: '¡Mascota encontrada!',
-        description: 'Alguien ha visto una mascota que coincide con tu reporte de "Luna".',
-        type: 'lost',
-        icon: MapPin,
-        color: '#ef4444',
-        time: 'Hace 5 min',
-        read: false,
-    },
-    {
-        id: '2',
-        title: 'Solicitud de Adopción',
-        description: 'Has recibido una nueva solicitud para adoptar a "Michi".',
-        type: 'adoption',
-        icon: Heart,
-        color: '#ec4899',
-        time: 'Hace 1 hora',
-        read: false,
-    },
-    {
-        id: '3',
-        title: 'Pedido en camino',
-        description: 'Tu pedido de "Croquetas Premium" ha salido del almacén.',
-        type: 'store',
-        icon: Package,
-        color: '#f59e0b',
-        time: 'Hace 3 horas',
-        read: true,
-    },
-    {
-        id: '4',
-        title: 'Perfil Verificado',
-        description: '¡Felicidades! Tu cuenta ha sido verificada con éxito.',
-        type: 'system',
-        icon: ShieldCheck,
-        color: '#10b981',
-        time: 'Ayer',
-        read: true,
-    },
-];
+const TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
+    lost: { icon: MapPin, color: '#ef4444' },
+    adoption: { icon: Heart, color: '#ec4899' },
+    store: { icon: Package, color: '#f59e0b' },
+    system: { icon: ShieldCheck, color: '#10b981' },
+    general: { icon: Bell, color: '#3b82f6' },
+};
+
+function formatTimeAgo(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'Ahora';
+    if (diffMin < 60) return `Hace ${diffMin} min`;
+    const diffHrs = Math.floor(diffMin / 60);
+    if (diffHrs < 24) return `Hace ${diffHrs} hora${diffHrs > 1 ? 's' : ''}`;
+    const diffDays = Math.floor(diffHrs / 24);
+    if (diffDays === 1) return 'Ayer';
+    return `Hace ${diffDays} días`;
+}
 
 export default function NotificationsScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
 
-    const renderItem = ({ item }: { item: typeof MOCK_NOTIFICATIONS[0] }) => (
-        <TouchableOpacity
-            style={[styles.notifCard, { backgroundColor: theme.surface }]}
-            activeOpacity={0.7}
-        >
-            <View style={[styles.iconBox, { backgroundColor: item.color + '15' }]}>
-                <item.icon size={22} color={item.color} />
-            </View>
-            <View style={styles.notifContent}>
-                <View style={styles.notifHeader}>
-                    <Text style={[styles.notifTitle, { color: theme.text }]}>{item.title}</Text>
-                    {!item.read && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
+    const { data: notifications = [], isLoading } = useQuery({
+        queryKey: ['notifications'],
+        queryFn: getMyNotifications,
+    });
+
+    const renderItem = ({ item }: { item: Notification }) => {
+        const config = TYPE_CONFIG[item.type] || TYPE_CONFIG.general;
+        const Icon = config.icon;
+        return (
+            <TouchableOpacity
+                style={[styles.notifCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
+                activeOpacity={0.7}
+            >
+                <View style={[styles.iconBox, { backgroundColor: config.color + '15' }]}>
+                    <Icon size={22} color={config.color} />
                 </View>
-                <Text style={[styles.notifDesc, { color: theme.textMuted }]}>{item.description}</Text>
-                <Text style={[styles.notifTime, { color: theme.textMuted }]}>{item.time}</Text>
+                <View style={styles.notifContent}>
+                    <View style={styles.notifHeader}>
+                        <Text style={[styles.notifTitle, { color: theme.text }]}>{item.title}</Text>
+                        {!item.is_read && <View style={[styles.unreadDot, { backgroundColor: theme.primary }]} />}
+                    </View>
+                    <Text style={[styles.notifDesc, { color: theme.textMuted }]}>{item.message}</Text>
+                    <Text style={[styles.notifTime, { color: theme.textMuted }]}>{formatTimeAgo(item.created_at)}</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
+
+    if (isLoading) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={theme.primary} />
             </View>
-        </TouchableOpacity>
-    );
+        );
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -87,7 +85,7 @@ export default function NotificationsScreen() {
             </View>
 
             <FlatList
-                data={MOCK_NOTIFICATIONS}
+                data={notifications}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
@@ -142,7 +140,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         gap: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     iconBox: {
         width: 48,

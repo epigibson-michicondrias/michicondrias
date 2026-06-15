@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery } from '@tanstack/react-query';
 import { getIncomingWalkRequests, updateWalkRequestStatus, WalkRequest } from '../../src/services/paseadores';
 import { getIncomingSitRequests, updateSitRequestStatus, SitRequest } from '../../src/services/cuidadores';
@@ -57,9 +58,9 @@ export default function ProfessionalGestionScreen() {
                 await updateSitRequestStatus(id, newStatus);
                 refetchSits();
             }
-            Alert.alert("Éxito", `Solicitud ${newStatus === 'accepted' ? 'aceptada' : 'rechazada'} correctamente`);
+            showAlert({ type: 'success', title: 'Éxito', message: `Solicitud ${newStatus === 'accepted' ? 'aceptada' : 'rechazada'} correctamente` });
         } catch (e) {
-            Alert.alert("Error", "No se pudo actualizar el estatus");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estatus' });
         } finally {
             setActionLoading(null);
         }

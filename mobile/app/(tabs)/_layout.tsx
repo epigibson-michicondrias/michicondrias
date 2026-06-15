@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
-import { Home, User, Menu } from 'lucide-react-native';
+import { Home, Compass, ShoppingBag, User, Menu } from 'lucide-react-native';
 
 import { useTheme } from '../../src/contexts/ThemeContext';
 import Colors from '../../constants/Colors';
@@ -13,12 +13,25 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.tint,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textMuted,
         tabBarStyle: {
-          backgroundColor: theme.background,
+          backgroundColor: theme.surface,
           borderTopColor: theme.border,
-          height: Platform.OS === 'ios' ? 88 : 64,
+          borderTopWidth: 0.5,
+          height: Platform.OS === 'ios' ? 88 : 68,
           paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          paddingTop: 8,
+          elevation: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '700',
+          letterSpacing: 0.3,
         },
         headerStyle: {
           backgroundColor: theme.background,
@@ -33,21 +46,45 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Inicio',
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Home size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="explorar"
+        options={{
+          title: 'Explorar',
+          tabBarIcon: ({ color, focused }) => (
+            <Compass size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="tienda-tab"
+        options={{
+          title: 'Tienda',
+          tabBarIcon: ({ color, focused }) => (
+            <ShoppingBag size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="two"
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <User size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="menu"
         options={{
           title: 'Más',
-          tabBarIcon: ({ color }) => <Menu size={24} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Menu size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
     </Tabs>

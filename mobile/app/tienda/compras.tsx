@@ -1,57 +1,63 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, Package, Clock, ShoppingBag } from 'lucide-react-native';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { getMyOrders, Order } from '@/src/services/ecommerce';
 
-const MOCK_COMPRAS = [
-    {
-        id: 'ORD-5542',
-        item_name: 'Pack Croquetas Premium (10kg)',
-        image: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=400',
-        total: '$850.00',
-        status: 'delivered',
-        status_label: 'Entregado',
-        date: '02 Mar 2026',
-        color: '#10b981',
-    },
-    {
-        id: 'ORD-5210',
-        item_name: 'Juguete Interactivo Michi-Zap',
-        image: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?q=80&w=400',
-        total: '$320.00',
-        status: 'shipped',
-        status_label: 'En Camino',
-        date: '05 Mar 2026',
-        color: '#3b82f6',
-    },
-];
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+    pending: { label: 'Pendiente', color: '#f59e0b' },
+    paid: { label: 'Pagado', color: '#3b82f6' },
+    shipped: { label: 'En Camino', color: '#3b82f6' },
+    delivered: { label: 'Entregado', color: '#10b981' },
+    cancelled: { label: 'Cancelado', color: '#ef4444' },
+};
 
 export default function ComprasScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
 
-    const renderItem = ({ item }: { item: typeof MOCK_COMPRAS[0] }) => (
-        <TouchableOpacity style={[styles.card, { backgroundColor: theme.surface }]}>
-            <Image source={{ uri: item.image }} style={styles.itemImage} />
-            <View style={styles.content}>
-                <View style={styles.headerRow}>
-                    <Text style={[styles.orderId, { color: theme.textMuted }]}>{item.id}</Text>
-                    <View style={[styles.statusBadge, { backgroundColor: item.color + '15' }]}>
-                        <Text style={[styles.statusText, { color: item.color }]}>{item.status_label}</Text>
+    const { data: orders = [], isLoading } = useQuery({
+        queryKey: ['my-orders'],
+        queryFn: getMyOrders,
+    });
+
+    const renderItem = ({ item }: { item: Order }) => {
+        const statusInfo = STATUS_MAP[item.status] || { label: item.status, color: '#666' };
+        const date = new Date(item.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+        return (
+            <TouchableOpacity style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                <View style={[styles.itemImagePlaceholder, { backgroundColor: theme.borderLight }]}>
+                    <Package size={32} color={theme.textMuted} />
+                </View>
+                <View style={styles.content}>
+                    <View style={styles.headerRow}>
+                        <Text style={[styles.orderId, { color: theme.textMuted }]}>{item.id.slice(0, 8)}</Text>
+                        <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '15' }]}>
+                            <Text style={[styles.statusText, { color: statusInfo.color }]}>{statusInfo.label}</Text>
+                        </View>
+                    </View>
+                    <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={1}>Pedido #{item.id.slice(0, 8)}</Text>
+                    <View style={styles.footerRow}>
+                        <Text style={[styles.price, { color: theme.text }]}>${item.total_amount.toFixed(2)}</Text>
+                        <View style={[styles.dot, { backgroundColor: theme.border }]} />
+                        <Text style={[styles.date, { color: theme.textMuted }]}>{date}</Text>
                     </View>
                 </View>
-                <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={1}>{item.item_name}</Text>
-                <View style={styles.footerRow}>
-                    <Text style={[styles.price, { color: theme.text }]}>{item.total}</Text>
-                    <View style={[styles.dot, { backgroundColor: theme.border }]} />
-                    <Text style={[styles.date, { color: theme.textMuted }]}>{item.date}</Text>
-                </View>
+            </TouchableOpacity>
+        );
+    };
+
+    if (isLoading) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={theme.primary} />
             </View>
-        </TouchableOpacity>
-    );
+        );
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -64,7 +70,7 @@ export default function ComprasScreen() {
             </View>
 
             <FlatList
-                data={MOCK_COMPRAS}
+                data={orders}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
@@ -114,12 +120,13 @@ const styles = StyleSheet.create({
         gap: 16,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
-    itemImage: {
+    itemImagePlaceholder: {
         width: 80,
         height: 80,
         borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     content: {
         flex: 1,

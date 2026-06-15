@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProduct, createProduct, updateProduct, getCategories, Category } from '@/src/services/ecommerce';
 import Colors from '@/constants/Colors';
@@ -53,7 +54,7 @@ export default function VendedorProductoFormScreen() {
 
     const handleSave = async () => {
         if (!formData.name || !formData.price || !formData.stock) {
-            Alert.alert("Error", "Por favor completa los campos obligatorios");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
             return;
         }
 
@@ -72,10 +73,10 @@ export default function VendedorProductoFormScreen() {
             }
 
             queryClient.invalidateQueries({ queryKey: ['my-products'] });
-            Alert.alert("Éxito", `Producto ${isEditing ? 'actualizado' : 'creado'} correctamente`);
+            showAlert({ type: 'success', title: 'Éxito', message: `Producto ${isEditing ? 'actualizado' : 'creado'} correctamente` });
             router.back();
         } catch (e) {
-            Alert.alert("Error", "No se pudo guardar el producto");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar el producto' });
         } finally {
             setSaving(false);
         }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminUsersService } from '@/src/services/adminUsers';
@@ -10,6 +10,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Shield, ShieldCheck, ShieldAlert, Plus, Edit3, Trash2, X } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert } from '@/src/components/AppAlert';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 
 type Role = {
     id: string;
@@ -38,30 +40,30 @@ export default function AdminRolesScreen() {
     const createMutation = useMutation({
         mutationFn: (data: any) => adminUsersService.createRole(data),
         onSuccess: () => {
-            Alert.alert("Éxito", "Rol creado correctamente.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Rol creado correctamente.' });
             setModalVisible(false);
             queryClient.invalidateQueries({ queryKey: ['admin-roles'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }: { id: string, data: any }) => adminUsersService.updateRole(id, data),
         onSuccess: () => {
-            Alert.alert("Éxito", "Rol actualizado correctamente.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Rol actualizado correctamente.' });
             setModalVisible(false);
             queryClient.invalidateQueries({ queryKey: ['admin-roles'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => adminUsersService.deleteRole(id),
         onSuccess: () => {
-            Alert.alert("Éxito", "Rol eliminado.");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Rol eliminado.' });
             queryClient.invalidateQueries({ queryKey: ['admin-roles'] });
         },
-        onError: (error: any) => Alert.alert("Error", error.message)
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
     });
 
     const handleAction = (role?: Role) => {
@@ -74,14 +76,15 @@ export default function AdminRolesScreen() {
     };
 
     const handleDelete = (id: string, name: string) => {
-        Alert.alert(
-            "Eliminar Rol",
-            `¿Estás seguro de eliminar "${name}"?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Eliminar", style: "destructive", onPress: () => deleteMutation.mutate(id) }
-            ]
-        );
+        showAlert({
+            type: 'error',
+            title: 'Eliminar Rol',
+            message: `¿Estás seguro de eliminar "${name}"?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => deleteMutation.mutate(id),
+        });
     };
 
     const renderItem = ({ item }: { item: Role }) => (
@@ -170,6 +173,7 @@ export default function AdminRolesScreen() {
                             </TouchableOpacity>
                         </View>
                         
+                        <KeyboardScreen>
                         <View style={styles.form}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>NOMBRE</Text>
                             <TextInput
@@ -211,6 +215,7 @@ export default function AdminRolesScreen() {
                                 )}
                             </TouchableOpacity>
                         </View>
+                        </KeyboardScreen>
                     </View>
                 </View>
             </Modal>

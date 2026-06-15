@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
+from pydantic import BaseModel, EmailStr
 
 from app.core import security
 from app.core.config import settings
@@ -13,6 +14,15 @@ from app.schemas.user import Token, LoginResponse, TwoFactorVerifyLoginRequest, 
 import pyotp
 
 router = APIRouter()
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
 @router.post("/login/access-token", response_model=LoginResponse)
 def login_access_token(
@@ -97,4 +107,65 @@ def verify_login_2fa(
         ),
         "token_type": "bearer",
     }
+
+
+@router.post("/forgot-password")
+def forgot_password(
+    body: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Send a password reset email. Always returns success to prevent email enumeration.
+    """
+    user = db.query(User).filter(User.email == body.email).first()
+    
+    if user and user.is_active:
+        reset_token = security.create_access_token(
+            user.id, 
+            role=user.role.name if user.role else "consumidor",
+            expires_delta=timedelta(minutes=30),
+            is_temp=True
+        )
+        
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[PASSWORD RESET] Token for {body.email}: {reset_token}")
+    
+    return {"message": "Si el correo existe, recibirás un enlace para restablecer tu contraseña"}
+
+
+@router.post("/reset-password")
+def reset_password(
+    body: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Reset password using a valid reset token.
+    """
+    try:
+        payload = jwt.decode(
+            body.token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+        )
+        token_data = TokenPayload(**payload)
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token inválido o expirado",
+        )
+    
+    if not token_data.is_temp:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token no válido para reset de contraseña",
+        )
+    
+    user = db.query(User).filter(User.id == token_data.sub).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    user.hashed_password = security.get_password_hash(body.new_password)
+    db.add(user)
+    db.commit()
+    
+    return {"message": "Contraseña actualizada correctamente"}
 

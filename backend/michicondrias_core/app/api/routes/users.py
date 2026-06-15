@@ -8,6 +8,7 @@ from app.api import deps
 from app.db.session import get_db
 from app.schemas.user import (
     UserCreate, 
+    UserUpdate,
     UserResponse, 
     UserMeResponse, 
     KYCPresignedUrlsResponse, 
@@ -264,6 +265,31 @@ def _add_kyc_presigned_urls(user_data: Any) -> dict:
             if presigned:
                 res[attr] = presigned
     return res
+
+@router.patch("/{user_id}", response_model=UserResponse)
+def update_user(
+    user_id: str,
+    *,
+    db: Session = Depends(get_db),
+    user_in: UserUpdate,
+    current_user: User = Depends(deps.require_role("admin")),
+) -> Any:
+    """
+    Update a user. (Admin only)
+    """
+    user = crud.crud_user.get_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    update_data = user_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(user, field, value)
+    
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return _add_kyc_presigned_urls(user)
+
 
 @router.get("/pending-verifications", response_model=List[UserResponse])
 def read_pending_verifications(

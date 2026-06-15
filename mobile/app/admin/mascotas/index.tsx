@@ -1,21 +1,23 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Dimensions, Image, Alert, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Dimensions, Image, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, Bone, Search, Filter, Plus, Heart, Shield } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { showAlert } from '@/src/components/AppAlert';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { getAllPets, Pet } from '@/src/services/mascotas';
 
 const { width } = Dimensions.get('window');
 
-const MOCK_MASCOTAS = [
-    { id: '1', name: 'Luna', species: 'Perro', breed: 'Husky', owner: 'Juan Perez', status: 'Verificada', color: '#3b82f6' },
-    { id: '2', name: 'Simba', species: 'Gato', breed: 'Persa', owner: 'Maria Garcia', status: 'Pendiente', color: '#f59e0b' },
-    { id: '3', name: 'Rocky', species: 'Perro', breed: 'Bulldog', owner: 'Carlos Lopez', status: 'Verificada', color: '#ef4444' },
-    { id: '4', name: 'Milo', species: 'Perro', breed: 'Poodle', owner: 'Ana Martinez', status: 'Verificada', color: '#10b981' },
-    { id: '5', name: 'Nala', species: 'Gato', breed: 'Siames', owner: 'Elena Ruiz', status: 'Verificada', color: '#8b5cf6' },
-];
+const SPECIES_COLORS: Record<string, string> = {
+    Perro: '#3b82f6',
+    Gato: '#8b5cf6',
+    Ave: '#10b981',
+    Conejo: '#f59e0b',
+};
 
 export default function AdminMascotasScreen() {
     const router = useRouter();
@@ -23,22 +25,38 @@ export default function AdminMascotasScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
 
-    const renderPetCard = ({ item }: { item: typeof MOCK_MASCOTAS[0] }) => (
-        <TouchableOpacity style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <View style={[styles.avatarBox, { backgroundColor: item.color + '20' }]}>
-                <Bone size={24} color={item.color} />
-            </View>
-            <View style={styles.cardInfo}>
-                <View style={styles.nameRow}>
-                    <Text style={[styles.petName, { color: theme.text }]}>{item.name}</Text>
-                    {item.status === 'Verificada' && <Shield size={14} color="#3b82f6" fill="#3b82f630" />}
+    const { data: mascotas = [], isLoading } = useQuery({
+        queryKey: ['admin-mascotas'],
+        queryFn: getAllPets,
+    });
+
+    const renderPetCard = ({ item }: { item: Pet }) => {
+        const color = SPECIES_COLORS[item.species] || '#6b7280';
+        return (
+            <TouchableOpacity style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <View style={[styles.avatarBox, { backgroundColor: color + '20' }]}>
+                    <Bone size={24} color={color} />
                 </View>
-                <Text style={[styles.petDetails, { color: theme.textMuted }]}>{item.species} • {item.breed}</Text>
-                <Text style={[styles.ownerName, { color: theme.primary }]}>Dueño: {item.owner}</Text>
+                <View style={styles.cardInfo}>
+                    <View style={styles.nameRow}>
+                        <Text style={[styles.petName, { color: theme.text }]}>{item.name}</Text>
+                        {item.is_vaccinated && <Shield size={14} color="#3b82f6" fill="#3b82f630" />}
+                    </View>
+                    <Text style={[styles.petDetails, { color: theme.textMuted }]}>{item.species}{item.breed ? ` • ${item.breed}` : ''}</Text>
+                    <Text style={[styles.ownerName, { color: theme.primary }]}>Dueño: {item.owner_id}</Text>
+                </View>
+                <ChevronLeft size={18} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+            </TouchableOpacity>
+        );
+    };
+
+    if (isLoading) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color="#f59e0b" />
             </View>
-            <ChevronLeft size={18} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
-        </TouchableOpacity>
-    );
+        );
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -63,20 +81,20 @@ export default function AdminMascotasScreen() {
                     </View>
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => Alert.alert("Nueva Mascota", "Formulario de registro")}
+                        onPress={() => showAlert({ type: 'info', title: 'Nueva Mascota', message: 'Formulario de registro' })}
                     >
                         <Plus size={22} color="#fff" />
                     </TouchableOpacity>
                 </View>
                 <View style={styles.headerStats}>
                     <View style={styles.statMini}>
-                        <Text style={styles.statVal}>1,428</Text>
+                        <Text style={styles.statVal}>{mascotas.length}</Text>
                         <Text style={styles.statLab}>Población</Text>
                     </View>
                     <View style={styles.statDivider} />
                     <View style={styles.statMini}>
-                        <Text style={styles.statVal}>56</Text>
-                        <Text style={styles.statLab}>Nuevos</Text>
+                        <Text style={styles.statVal}>{mascotas.filter(m => m.is_vaccinated).length}</Text>
+                        <Text style={styles.statLab}>Vacunadas</Text>
                     </View>
                 </View>
             </LinearGradient>
@@ -96,7 +114,7 @@ export default function AdminMascotasScreen() {
             </View>
 
             <FlatList
-                data={MOCK_MASCOTAS}
+                data={mascotas}
                 renderItem={renderPetCard}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.list}

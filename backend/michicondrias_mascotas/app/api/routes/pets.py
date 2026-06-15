@@ -139,6 +139,18 @@ def get_user_pets(user_id: str, db: Session = Depends(get_db)) -> Any:
     print(f"[MASCOTAS] Found {len(pets)} pets for user {user_id}")
     return pets
 
+
+@router.get("/admin/all", response_model=List[PetResponse])
+def get_all_pets_admin(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Admin endpoint: Get all pets across all users."""
+    pets = db.query(Pet).filter(Pet.is_active == True).offset(skip).limit(limit).all()
+    return pets
+
+
 @router.get("/{pet_id}", response_model=PetResponse)
 def get_pet_by_id(pet_id: str, db: Session = Depends(get_db)) -> Any:
     """Get a specific permanent pet by its ID."""

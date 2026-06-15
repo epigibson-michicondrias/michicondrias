@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
@@ -7,6 +7,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Camera, Dog, Cat, Check } from 'lucide-react-native';
 import { createPet, getMascotasPresignedUrl } from '../../src/services/mascotas';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function NuevaMascotaScreen() {
     const { user } = useAuth();
@@ -44,8 +45,8 @@ export default function NuevaMascotaScreen() {
     };
 
     const handleSave = async () => {
-        if (!form.name) return Alert.alert("Error", "El nombre es obligatorio");
-        if (!user) return Alert.alert("Error", "Debes estar autenticado");
+        if (!form.name) return showAlert({ type: 'error', title: 'Error', message: 'El nombre es obligatorio' });
+        if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
 
         setLoading(true);
         try {
@@ -75,11 +76,11 @@ export default function NuevaMascotaScreen() {
                 photo_url,
             } as any);
 
-            Alert.alert("¡Éxito!", `${form.name} ha sido registrado correctamente.`);
+            showAlert({ type: 'success', title: '¡Éxito!', message: `${form.name} ha sido registrado correctamente.` });
             router.back();
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "No se pudo registrar la mascota.");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo registrar la mascota.' });
         } finally {
             setLoading(false);
         }

@@ -22,7 +22,7 @@ class PetfriendlyPlace(Base):
 
     phone = Column(String(30), nullable=True)
     website = Column(String(255), nullable=True)
-    rating = Column(Integer, default=0)  # 1-5
+    rating = Column(Float, default=0)  # 1-5
 
     pet_sizes_allowed = Column(String(60), default="todos")  # pequeños, medianos, grandes, todos
     has_water_bowls = Column(String(10), default="no")

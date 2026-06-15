@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyClinics, getClinicSurgeries, createSurgery, SurgeryItem } from '../../src/services/directorio';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, Filter, Plus, Stethoscope, Clock, MapPin, CheckCircle2, AlertCircle, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
@@ -30,6 +31,7 @@ export default function CirugiasScreen() {
     const [showSearch, setShowSearch] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
+    const [selectedPatientId, setSelectedPatientId] = useState('');
 
     // Form State
     const [surgName, setSurgName] = useState('');
@@ -53,7 +55,7 @@ export default function CirugiasScreen() {
     const createMutation = useMutation({
         mutationFn: () => createSurgery({
             clinic_id: clinic!.id,
-            patient_id: "pet_mock_123", // Reemplazar con selector real
+            patient_id: selectedPatientId,
             surgery_name: surgName,
             surgery_type: surgType,
             scheduled_date: surgDate || new Date().toISOString().slice(0, 16),
@@ -64,16 +66,17 @@ export default function CirugiasScreen() {
             queryClient.invalidateQueries({ queryKey: ['clinic-surgeries'] });
             setModalVisible(false);
             setSurgName('');
-            Alert.alert("Éxito", "Cirugía programada correctamente.");
+            setSelectedPatientId('');
+            showAlert({ type: 'success', title: 'Éxito', message: 'Cirugía programada correctamente.' });
         },
         onError: () => {
-            Alert.alert("Error", "No se pudo programar la cirugía.");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo programar la cirugía.' });
         }
     });
 
     const handleCreate = () => {
-        if (!surgName || !surgDate) {
-            Alert.alert("Campos requeridos", "Por favor ingresa el nombre de la cirugía y la fecha.");
+        if (!surgName || !surgDate || !selectedPatientId) {
+            showAlert({ type: 'warning', title: 'Campos requeridos', message: 'Por favor ingresa el nombre de la cirugía, la fecha y selecciona un paciente.' });
             return;
         }
         createMutation.mutate();
@@ -237,6 +240,17 @@ export default function CirugiasScreen() {
                                     placeholderTextColor={theme.textMuted}
                                     value={surgName}
                                     onChangeText={setSurgName}
+                                />
+                            </View>
+
+                            <View style={styles.formGroup}>
+                                <Text style={[styles.label, { color: theme.text }]}>ID del Paciente</Text>
+                                <TextInput
+                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                    placeholder="Ej: pet_abc123"
+                                    placeholderTextColor={theme.textMuted}
+                                    value={selectedPatientId}
+                                    onChangeText={setSelectedPatientId}
                                 />
                             </View>
 

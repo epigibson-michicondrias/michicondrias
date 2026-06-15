@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics, getClinicAppointments, confirmAppointment, completeAppointment, cancelAppointment, AppointmentItem } from '../../src/services/directorio';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, Filter, CheckCircle2, MoreHorizontal, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
 
 const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
@@ -50,7 +51,7 @@ export default function AgendaClinicaScreen() {
             await confirmAppointment(id);
             refetch();
         } catch (e) {
-            Alert.alert("Error", "No se pudo confirmar la cita");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo confirmar la cita' });
         } finally {
             setActionLoading(null);
         }
@@ -70,7 +71,7 @@ export default function AgendaClinicaScreen() {
             setCancelReason('');
             refetch();
         } catch (e) {
-            Alert.alert("Error", "No se pudo cancelar la cita");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo cancelar la cita' });
         } finally {
             setActionLoading(null);
         }

@@ -33,11 +33,11 @@ export default function CarnetListScreen() {
 
     const renderPetItem = ({ item }: { item: Pet }) => (
         <TouchableOpacity
-            style={[styles.petCard, { backgroundColor: theme.surface }]}
+            style={[styles.petCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
             onPress={() => router.push(`/carnet/${item.id}` as any)}
         >
             <View style={styles.cardHeader}>
-                <View style={styles.imageWrapper}>
+                <View style={[styles.imageWrapper, { borderColor: theme.border }]}>
                     {item.photo_url ? (
                         <Image source={{ uri: item.photo_url }} style={styles.petImage} />
                     ) : (
@@ -80,7 +80,7 @@ export default function CarnetListScreen() {
                 />
             </View>
 
-            <View style={styles.cardFooter}>
+            <View style={[styles.cardFooter, { borderTopColor: theme.borderLight }]}>
                 <View style={styles.idBox}>
                     <Text style={[styles.idLabel, { color: theme.textMuted }]}>DIGITAL ID:</Text>
                     <Text style={[styles.idValue, { color: theme.text }]}>{item.id.substring(0, 12)}...</Text>
@@ -99,7 +99,7 @@ export default function CarnetListScreen() {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]} onPress={() => router.back()}>
                     <ChevronLeft size={24} color={theme.text} />
                 </TouchableOpacity>
                 <View style={{ flex: 1 }}>
@@ -207,11 +207,9 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     addBtn: {
         width: 44,
@@ -301,7 +299,6 @@ const styles = StyleSheet.create({
         borderRadius: 28,
         padding: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
@@ -320,7 +317,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
     },
     petImage: {
         width: '100%',
@@ -381,7 +377,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingTop: 16,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.05)',
     },
     idBox: {
         flexDirection: 'row',

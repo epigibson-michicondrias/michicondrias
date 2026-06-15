@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -7,66 +7,8 @@ import {
     Calendar, Clock, MapPin, Home, ChevronRight, Filter, 
     Search, User, Star, MessageCircle, CheckCircle, XCircle, AlertCircle, Sun, Moon
 } from 'lucide-react-native';
-
-// Mock data - en producción esto vendría de la API
-const mockRequests = [
-    {
-        id: '1',
-        sitter_name: 'María González',
-        client_name: 'Carlos Rodríguez',
-        pet_name: 'Max',
-        pet_type: 'Perro',
-        service_type: 'daycare',
-        start_date: '2024-01-15',
-        end_date: '2024-01-15',
-        status: 'pending',
-        price: 40,
-        location: 'Polanco, CDMX',
-        rating: null,
-    },
-    {
-        id: '2',
-        sitter_name: 'Ana Martínez',
-        client_name: 'Laura Torres',
-        pet_name: 'Luna',
-        pet_type: 'Gato',
-        service_type: 'boarding',
-        start_date: '2024-01-14',
-        end_date: '2024-01-16',
-        status: 'confirmed',
-        price: 120,
-        location: 'Condesa, CDMX',
-        rating: null,
-    },
-    {
-        id: '3',
-        sitter_name: 'María González',
-        client_name: 'Juan López',
-        pet_name: 'Rocky',
-        pet_type: 'Perro',
-        service_type: 'daycare',
-        start_date: '2024-01-10',
-        end_date: '2024-01-10',
-        status: 'completed',
-        price: 35,
-        location: 'Roma Norte, CDMX',
-        rating: 5,
-    },
-    {
-        id: '4',
-        sitter_name: 'Ana Martínez',
-        client_name: 'Pedro Ramírez',
-        pet_name: 'Mishi',
-        pet_type: 'Gato',
-        service_type: 'boarding',
-        start_date: '2024-01-08',
-        end_date: '2024-01-09',
-        status: 'cancelled',
-        price: 80,
-        location: 'San Ángel, CDMX',
-        rating: null,
-    },
-];
+import { showAlert } from '@/src/components/AppAlert';
+import { getIncomingSitRequests, SitRequest } from '@/src/services/cuidadores';
 
 export default function SitterRequestsScreen() {
     const router = useRouter();
@@ -92,17 +34,15 @@ export default function SitterRequestsScreen() {
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Mock query - en producción usar useQuery con API real
     const { data: requests = [], isLoading } = useQuery({
         queryKey: ['sitter-requests'],
-        queryFn: () => Promise.resolve(mockRequests),
+        queryFn: getIncomingSitRequests,
     });
 
-    const filteredRequests = requests.filter((request: any) => {
+    const filteredRequests = requests.filter((request: SitRequest) => {
         const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-        const matchesSearch = request.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            request.pet_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            request.location.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = request.pet_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (request.address || '').toLowerCase().includes(searchQuery.toLowerCase());
         return matchesStatus && matchesSearch;
     });
 
@@ -163,13 +103,13 @@ export default function SitterRequestsScreen() {
             default:
                 return {
                     icon: Home,
-                    label: 'Cuidado',
+                    label: type || 'Cuidado',
                     color: theme.primary
                 };
         }
     };
 
-    const renderRequestItem = ({ item }: { item: any }) => {
+    const renderRequestItem = ({ item }: { item: SitRequest }) => {
         const statusConfig = getStatusConfig(item.status);
         const serviceConfig = getServiceConfig(item.service_type);
         const StatusIcon = statusConfig.icon;
@@ -184,33 +124,28 @@ export default function SitterRequestsScreen() {
             <TouchableOpacity
                 style={[styles.requestCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
                 onPress={() => {
-                    Alert.alert(
-                        "Detalles de la Solicitud",
-                        `Cliente: ${item.client_name}\nMascota: ${item.pet_name}\nFechas: ${dateDisplay}\nServicio: ${serviceConfig.label}\nEstado: ${statusConfig.label}`,
-                        [
-                            {
-                                text: "Ver Detalles",
-                                onPress: () => Alert.alert("Detalles", "Función de detalles en desarrollo...")
-                            },
-                            {
-                                text: "Cancelar",
-                                style: "cancel"
-                            }
-                        ]
-                    );
+                    showAlert({
+                        type: 'info',
+                        title: 'Detalles de la Solicitud',
+                        message: `Mascota: ${item.pet_id}\nFechas: ${dateDisplay}\nServicio: ${serviceConfig.label}\nEstado: ${statusConfig.label}`,
+                        showCancel: true,
+                        cancelText: 'Cancelar',
+                        buttonText: 'Ver Detalles',
+                        onButtonPress: () => showAlert({ type: 'info', title: 'Detalles', message: 'Función de detalles en desarrollo...' }),
+                    });
                 }}
             >
                 <View style={styles.requestHeader}>
                     <View style={styles.clientInfo}>
                         <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary + '20' }]}>
                             <Text style={[styles.avatarText, { color: theme.secondary }]}>
-                                {item.client_name.charAt(0).toUpperCase()}
+                                {item.pet_id.charAt(0).toUpperCase()}
                             </Text>
                         </View>
                         <View style={styles.clientDetails}>
-                            <Text style={[styles.clientName, { color: theme.text }]}>{item.client_name}</Text>
+                            <Text style={[styles.clientName, { color: theme.text }]}>{item.pet_id}</Text>
                             <Text style={[styles.petInfo, { color: theme.textMuted }]}>
-                                {item.pet_name} • {item.pet_type}
+                                Cliente: {item.client_user_id}
                             </Text>
                         </View>
                     </View>
@@ -238,12 +173,14 @@ export default function SitterRequestsScreen() {
                 </View>
 
                 <View style={styles.requestDetails}>
-                    <View style={styles.detailRow}>
-                        <MapPin size={14} color={theme.textMuted} />
-                        <Text style={[styles.detailText, { color: theme.textMuted }]}>
-                            {item.location}
-                        </Text>
-                    </View>
+                    {item.address && (
+                        <View style={styles.detailRow}>
+                            <MapPin size={14} color={theme.textMuted} />
+                            <Text style={[styles.detailText, { color: theme.textMuted }]}>
+                                {item.address}
+                            </Text>
+                        </View>
+                    )}
                     <View style={styles.detailRow}>
                         <Clock size={14} color={theme.textMuted} />
                         <Text style={[styles.detailText, { color: theme.textMuted }]}>
@@ -258,33 +195,24 @@ export default function SitterRequestsScreen() {
                 <View style={styles.requestFooter}>
                     <View style={styles.priceContainer}>
                         <Text style={[styles.priceText, { color: theme.primary }]}>
-                            ${item.price}
+                            ${item.total_price ?? 0}
                         </Text>
                         <Text style={[styles.priceLabel, { color: theme.textMuted }]}>
                             total
                         </Text>
                     </View>
-                    
-                    {item.status === 'completed' && item.rating && (
-                        <View style={styles.ratingContainer}>
-                            <Star size={14} color="#fbbf24" fill="#fbbf24" />
-                            <Text style={[styles.ratingText, { color: theme.text }]}>
-                                {item.rating}.0
-                            </Text>
-                        </View>
-                    )}
 
                     {item.status === 'pending' && (
                         <View style={styles.actionButtons}>
                             <TouchableOpacity
                                 style={[styles.actionButton, { backgroundColor: '#ef4444' }]}
-                                onPress={() => Alert.alert("Rechazar", "¿Rechazar esta solicitud?")}
+                                onPress={() => showAlert({ type: 'warning', title: 'Rechazar', message: '¿Rechazar esta solicitud?' })}
                             >
                                 <Text style={styles.actionButtonText}>Rechazar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                                onPress={() => Alert.alert("Aceptar", "¿Aceptar esta solicitud?")}
+                                onPress={() => showAlert({ type: 'success', title: 'Aceptar', message: '¿Aceptar esta solicitud?' })}
                             >
                                 <Text style={styles.actionButtonText}>Aceptar</Text>
                             </TouchableOpacity>
@@ -294,7 +222,7 @@ export default function SitterRequestsScreen() {
                     {item.status === 'confirmed' && (
                         <TouchableOpacity
                             style={[styles.contactButton, { backgroundColor: theme.secondary }]}
-                            onPress={() => Alert.alert("Contactar", "Abriendro chat con el cliente...")}
+                            onPress={() => showAlert({ type: 'info', title: 'Contactar', message: 'Abriendo chat con el cliente...' })}
                         >
                             <MessageCircle size={16} color="#fff" />
                             <Text style={styles.contactButtonText}>Contactar</Text>
@@ -309,11 +237,19 @@ export default function SitterRequestsScreen() {
 
     const statusFilters = [
         { id: 'all', label: 'Todas', count: requests.length },
-        { id: 'pending', label: 'Pendientes', count: requests.filter((r: any) => r.status === 'pending').length },
-        { id: 'confirmed', label: 'Confirmadas', count: requests.filter((r: any) => r.status === 'confirmed').length },
-        { id: 'completed', label: 'Completadas', count: requests.filter((r: any) => r.status === 'completed').length },
-        { id: 'cancelled', label: 'Canceladas', count: requests.filter((r: any) => r.status === 'cancelled').length },
+        { id: 'pending', label: 'Pendientes', count: requests.filter((r: SitRequest) => r.status === 'pending').length },
+        { id: 'confirmed', label: 'Confirmadas', count: requests.filter((r: SitRequest) => r.status === 'confirmed').length },
+        { id: 'completed', label: 'Completadas', count: requests.filter((r: SitRequest) => r.status === 'completed').length },
+        { id: 'cancelled', label: 'Canceladas', count: requests.filter((r: SitRequest) => r.status === 'cancelled').length },
     ];
+
+    if (isLoading) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={theme.primary} />
+            </View>
+        );
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>

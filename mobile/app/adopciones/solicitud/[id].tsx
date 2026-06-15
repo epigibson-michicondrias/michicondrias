@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getListing, getListingRequests, updateRequestStatus, approveAdoption, AdoptionRequest, Listing } from '@/src/services/adopciones';
@@ -7,6 +7,8 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, User, Home, Calendar, Clock, CheckCircle, XCircle, Heart, Mail, Phone, FileText, Send } from 'lucide-react-native';
+import { showAlert } from '@/src/components/AppAlert';
+import KeyboardScreen from '../../../src/components/KeyboardScreen';
 
 const STATUS_LABELS: Record<string, { label: string; color: string; icon: string }> = {
     PENDING: { label: "Pendiente", color: "#f59e0b", icon: "⏳" },
@@ -48,10 +50,10 @@ export default function ProcesarSolicitudScreen() {
         mutationFn: (status: string) => updateRequestStatus(id as string, status),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['adoption-request', id] });
-            Alert.alert("Éxito", "Estado actualizado correctamente");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Estado actualizado correctamente' });
         },
         onError: () => {
-            Alert.alert("Error", "No se pudo actualizar el estado");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estado' });
         }
     });
 
@@ -59,10 +61,10 @@ export default function ProcesarSolicitudScreen() {
         mutationFn: () => approveAdoption(id as string),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['adoption-request', id] });
-            Alert.alert("¡Éxito!", "Adopción aprobada exitosamente");
+            showAlert({ type: 'success', title: '¡Éxito!', message: 'Adopción aprobada exitosamente' });
         },
         onError: () => {
-            Alert.alert("Error", "No se pudo aprobar la adopción");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo aprobar la adopción' });
         }
     });
 
@@ -70,36 +72,31 @@ export default function ProcesarSolicitudScreen() {
         const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.PENDING;
         
         if (status === 'INTERVIEW_SCHEDULED' && !interviewDate) {
-            Alert.alert("Error", "Por favor selecciona una fecha para la entrevista");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una fecha para la entrevista' });
             return;
         }
 
-        Alert.alert(
-            "Confirmar Acción",
-            `¿Cambiar estado a "${statusInfo.label}"?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                { 
-                    text: "Confirmar", 
-                    onPress: () => statusMutation.mutate(status)
-                }
-            ]
-        );
+        showAlert({
+            type: 'warning',
+            title: 'Confirmar Acción',
+            message: `¿Cambiar estado a "${statusInfo.label}"?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Confirmar',
+            onButtonPress: () => statusMutation.mutate(status),
+        });
     };
 
     const handleApprove = () => {
-        Alert.alert(
-            "Aprobar Adopción",
-            "¿Estás seguro de que deseas aprobar esta adopción? Esta acción es irreversible.",
-            [
-                { text: "Cancelar", style: "cancel" },
-                { 
-                    text: "Aprobar", 
-                    style: "destructive",
-                    onPress: () => approveMutation.mutate()
-                }
-            ]
-        );
+        showAlert({
+            type: 'warning',
+            title: 'Aprobar Adopción',
+            message: '¿Estás seguro de que deseas aprobar esta adopción? Esta acción es irreversible.',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Aprobar',
+            onButtonPress: () => approveMutation.mutate(),
+        });
     };
 
     if (isLoading) {
@@ -130,7 +127,7 @@ export default function ProcesarSolicitudScreen() {
     const statusInfo = STATUS_LABELS[request.status] || STATUS_LABELS.PENDING;
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+        <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <ChevronLeft size={24} color={theme.text} />
@@ -361,7 +358,7 @@ export default function ProcesarSolicitudScreen() {
                     </TouchableOpacity>
                 )}
             </View>
-        </ScrollView>
+        </KeyboardScreen>
     );
 }
 

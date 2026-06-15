@@ -4,27 +4,28 @@ export default {
     "slug": "mobile",
     "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.jpg",
+    "icon": "./assets/images/icon.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/logo.jpg",
-      "resizeMode": "contain",
-      "backgroundColor": "#1a0b2e"
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#0f0522"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#1a0b2e",
-        "foregroundImage": "./assets/images/logo.jpg",
+        "backgroundColor": "#0f0522",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.michicondrias.mobile",
       "versionCode": 5,
+      "newArchEnabled": false,
       "config": {
         "googleMaps": {
           "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || "TU_API_KEY_AQUI"
@@ -43,6 +44,12 @@ export default {
         {
           "checkOnLaunch": "ALWAYS",
           "enabled": true
+        }
+      ],
+      [
+        "react-native-maps",
+        {
+          "androidGoogleMapsApiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY || "TU_API_KEY_AQUI"
         }
       ]
     ],

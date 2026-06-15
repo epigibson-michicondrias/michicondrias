@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert, Dimensions, Image, ActivityIndicator, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
@@ -21,6 +21,7 @@ import {
     Grid
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { showAlert } from '@/src/components/AppAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -40,24 +41,21 @@ export default function AdminVerificacionesScreen() {
         mutationFn: ({ userId, status }: { userId: string, status: 'VERIFIED' | 'REJECTED' }) => verifyUser(userId, status),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['pending-verifications'] });
-            Alert.alert("Éxito", `El usuario ha sido ${variables.status === 'VERIFIED' ? 'verificado' : 'rechazado'} correctamente.`);
+            showAlert({ type: 'success', title: 'Éxito', message: `El usuario ha sido ${variables.status === 'VERIFIED' ? 'verificado' : 'rechazado'} correctamente.` });
         },
-        onError: () => Alert.alert("Error", "No se pudo procesar la verificación."),
+        onError: () => showAlert({ type: 'error', title: 'Error', message: 'No se pudo procesar la verificación.' }),
     });
 
     const handleAction = (userId: string, name: string, status: 'VERIFIED' | 'REJECTED') => {
-        Alert.alert(
-            status === 'VERIFIED' ? "Aprobar Identidad" : "Rechazar Identidad",
-            `¿Estás seguro de ${status === 'VERIFIED' ? 'APROBAR' : 'RECHAZAR'} la identidad de ${name}?`,
-            [
-                { text: "Cancelar", style: "cancel" },
-                {
-                    text: status === 'VERIFIED' ? "Aprobar" : "Rechazar",
-                    style: status === 'VERIFIED' ? "default" : "destructive",
-                    onPress: () => verifyMutation.mutate({ userId, status })
-                }
-            ]
-        );
+        showAlert({
+            type: status === 'VERIFIED' ? 'info' : 'error',
+            title: status === 'VERIFIED' ? 'Aprobar Identidad' : 'Rechazar Identidad',
+            message: `¿Estás seguro de ${status === 'VERIFIED' ? 'APROBAR' : 'RECHAZAR'} la identidad de ${name}?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: status === 'VERIFIED' ? 'Aprobar' : 'Rechazar',
+            onButtonPress: () => verifyMutation.mutate({ userId, status }),
+        });
     };
 
     const DocPreview = ({ url, label }: { url?: string, label: string }) => (
@@ -66,7 +64,7 @@ export default function AdminVerificacionesScreen() {
             {url ? (
                 <TouchableOpacity
                     style={[styles.docPreview, { backgroundColor: theme.background, borderColor: theme.border }]}
-                    onPress={() => Alert.alert("Documento", "Aquí se abriría el visor de documentos a pantalla completa.")}
+                    onPress={() => showAlert({ type: 'info', title: 'Documento', message: 'Aquí se abriría el visor de documentos a pantalla completa.' })}
                 >
                     <Image source={{ uri: url }} style={styles.docImage} resizeMode="cover" />
                     <View style={styles.docOverlay}>

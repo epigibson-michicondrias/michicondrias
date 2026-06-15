@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyWalkerProfile, updateWalker, Walker } from '../../src/services/paseadores';
 import { getMySitterProfile, updateSitter, Sitter } from '../../src/services/cuidadores';
@@ -78,10 +79,10 @@ export default function ProfessionalProfileScreen() {
                 });
                 queryClient.invalidateQueries({ queryKey: ['my-sitter-profile'] });
             }
-            Alert.alert("Éxito", "Perfil actualizado correctamente");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Perfil actualizado correctamente' });
             router.back();
         } catch (e) {
-            Alert.alert("Error", "No se pudo guardar el perfil");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar el perfil' });
         } finally {
             setSaving(false);
         }

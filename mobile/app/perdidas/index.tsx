@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions, ScrollView, TextInput, ActivityIndicator } from 'react-native';
-import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useQuery } from '@tanstack/react-query';
 import { getReports, LostPetReport } from '../../src/services/perdidas';
 import { useRouter } from 'expo-router';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Search, Filter, Crosshair, Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, Clock, MapPin, ChevronLeft } from 'lucide-react-native';
+import WebMapView from '../../src/components/WebMapView';
 // @ts-ignore
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -17,7 +17,7 @@ export default function PerdidasScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'dark'];
 
-    const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+    const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<'all' | 'lost' | 'found'>('all');
     const [filterSpecies, setFilterSpecies] = useState('all');
@@ -200,49 +200,18 @@ export default function PerdidasScreen() {
                 {/* Content Area */}
                 {viewMode === 'map' ? (
                     <View style={styles.mapContainer}>
-                        <MapView
-                            provider={PROVIDER_DEFAULT}
+                        <WebMapView
                             style={styles.map}
-                            initialRegion={{
-                                latitude: 19.4326,
-                                longitude: -99.1332,
-                                latitudeDelta: 0.1,
-                                longitudeDelta: 0.1,
-                            }}
-                            mapType="none"
-                        >
-                            <UrlTile
-                                urlTemplate="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                maximumZ={19}
-                                flipY={false}
-                            />
-                            {filteredReports.map((report) => (
-                                <Marker
-                                    key={report.id}
-                                    coordinate={{
-                                        latitude: report.latitude || 19.4326,
-                                        longitude: report.longitude || -99.1332,
-                                    }}
-                                >
-                                    <View style={[styles.markerBase, { borderColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
-                                        <Image
-                                            source={{ uri: report.image_url || 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=400' }}
-                                            style={styles.markerImg}
-                                        />
-                                        {report.has_tracker && <View style={styles.markerPulse} />}
-                                    </View>
-                                    <Callout tooltip onPress={() => router.push(`/perdidas/${report.id}`)}>
-                                        <View style={[styles.callout, { backgroundColor: theme.surface }]}>
-                                            <Text style={[styles.calloutTitle, { color: theme.text }]}>{report.pet_name}</Text>
-                                            <Text style={[styles.calloutSub, { color: theme.textMuted }]}>{report.report_type === 'lost' ? 'Perdida' : 'Encontrada'}</Text>
-                                            <View style={[styles.calloutBtn, { backgroundColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}>
-                                                <Text style={styles.calloutBtnText}>Ver Reporte</Text>
-                                            </View>
-                                        </View>
-                                    </Callout>
-                                </Marker>
-                            ))}
-                        </MapView>
+                            markers={filteredReports.filter(r => r.latitude && r.longitude).map((report) => ({
+                                id: report.id,
+                                latitude: report.latitude || 19.4326,
+                                longitude: report.longitude || -99.1332,
+                                title: report.pet_name,
+                                description: report.report_type === 'lost' ? '🔴 Perdida' : '🟢 Encontrada',
+                                color: report.report_type === 'lost' ? '#ef4444' : '#6366f1',
+                            }))}
+                            onMarkerPress={(id) => router.push(`/perdidas/${id}`)}
+                        />
                     </View>
                 ) : (
                     <View style={styles.feed}>

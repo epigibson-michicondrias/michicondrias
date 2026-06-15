@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createVaccine, Vaccine } from '../../src/services/carnet';
 import Colors from '../../constants/Colors';
@@ -26,13 +27,13 @@ export default function NuevaVacunaScreen() {
             router.back();
         },
         onError: (error: any) => {
-            Alert.alert("Error", error.message || "No se pudo registrar la vacuna.");
+            showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo registrar la vacuna.' });
         }
     });
 
     const handleSave = () => {
         if (!name.trim()) {
-            Alert.alert("Campo Requerido", "Por favor ingresa el nombre de la vacuna.");
+            showAlert({ type: 'error', title: 'Campo Requerido', message: 'Por favor ingresa el nombre de la vacuna.' });
             return;
         }
 

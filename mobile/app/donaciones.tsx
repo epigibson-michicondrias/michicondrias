@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
 import { createDonation } from '../src/services/ecommerce';
 import Colors from '../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -20,21 +21,24 @@ export default function DonacionesScreen() {
     const handleDonation = async () => {
         const numAmount = parseFloat(amount);
         if (isNaN(numAmount) || numAmount <= 0) {
-            Alert.alert("Error", "Por favor ingresa un monto válido");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor ingresa un monto válido' });
             return;
         }
 
         setLoading(true);
         try {
             await createDonation(numAmount, message);
-            Alert.alert(
-                "¡Gracias!",
-                "Tu donación ha sido procesada con éxito. Cada peso cuenta para ayudar a un michi.",
-                [{ text: "OK", onPress: () => router.back() }]
-            );
+            showAlert({
+                type: 'success',
+                title: '¡Gracias!',
+                message: 'Tu donación ha sido procesada con éxito. Cada peso cuenta para ayudar a un michi.',
+                showCancel: false,
+                buttonText: 'OK',
+                onButtonPress: () => router.back(),
+            });
         } catch (error) {
             console.error("Donation Error:", error);
-            Alert.alert("Error", "No pudimos procesar tu donación. Inténtalo de nuevo.");
+            showAlert({ type: 'error', title: 'Error', message: 'No pudimos procesar tu donación. Inténtalo de nuevo.' });
         } finally {
             setLoading(false);
         }
@@ -47,7 +51,7 @@ export default function DonacionesScreen() {
         >
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={[styles.hero, { backgroundColor: theme.primary + '15' }]}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight }]} onPress={() => router.back()}>
                         <ChevronLeft size={24} color={theme.text} />
                     </TouchableOpacity>
 
@@ -71,7 +75,7 @@ export default function DonacionesScreen() {
                                 key={amt}
                                 style={[
                                     styles.amountBtn,
-                                    { backgroundColor: theme.surface },
+                                    { backgroundColor: theme.surface, borderColor: theme.borderLight },
                                     amount === amt.toString() && { borderColor: theme.primary, borderWidth: 2 }
                                 ]}
                                 onPress={() => setAmount(amt.toString())}
@@ -85,7 +89,7 @@ export default function DonacionesScreen() {
 
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.textMuted }]}>Monto personalizado (MXN)</Text>
-                        <View style={[styles.inputContainer, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputContainer, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <DollarSign size={20} color={theme.primary} />
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
@@ -100,7 +104,7 @@ export default function DonacionesScreen() {
 
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.textMuted }]}>Mensaje de aliento (Opcional)</Text>
-                        <View style={[styles.textAreaContainer, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.textAreaContainer, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <MessageCircle size={20} color={theme.primary} style={{ marginTop: 12 }} />
                             <TextInput
                                 style={[styles.textArea, { color: theme.text }]}
@@ -153,7 +157,6 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 20,
@@ -209,7 +212,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     amountText: {
         fontSize: 18,
@@ -231,7 +233,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     input: {
         flex: 1,
@@ -244,7 +245,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     textArea: {
         flex: 1,

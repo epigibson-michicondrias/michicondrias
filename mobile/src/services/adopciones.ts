@@ -148,3 +148,59 @@ export async function approveAdoption(requestId: string): Promise<AdoptionReques
         method: "POST",
     });
 }
+
+export interface AdoptionForm {
+    id: string;
+    pet_id: string;
+    has_other_pets: boolean;
+    has_yard: boolean;
+    hours_left_alone: number;
+    experience_level: string | null;
+    applicant_id: string;
+    compatibility_score: number;
+    status: string;
+    created_at: string;
+}
+
+export interface AdoptionFormCreate {
+    pet_id: string;
+    has_other_pets: boolean;
+    has_yard: boolean;
+    hours_left_alone: number;
+    experience_level: string;
+}
+
+export interface AdoptionContract {
+    id: string;
+    form_id: string;
+    refuge_id: string;
+    terms: string;
+    signed_contract_url: string | null;
+    created_at: string;
+}
+
+export interface AdoptionContractCreate {
+    form_id: string;
+    refuge_id: string;
+    terms: string;
+    signed_contract_url?: string;
+}
+
+export async function submitAdoptionForm(data: AdoptionFormCreate): Promise<AdoptionForm> {
+    return apiFetch<AdoptionForm>("adopciones", "/pets/adoptions/forms", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function getRefugeApplications(): Promise<AdoptionForm[]> {
+    return apiFetch<AdoptionForm[]>("adopciones", "/pets/adoptions/refuge/applications");
+}
+
+export async function signAdoptionContract(data: AdoptionContractCreate): Promise<AdoptionContract> {
+    return apiFetch<AdoptionContract>("adopciones", "/pets/adoptions/contracts/sign", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+

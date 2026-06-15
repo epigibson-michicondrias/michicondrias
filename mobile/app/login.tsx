@@ -1,141 +1,173 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Dimensions } from 'react-native';
 import { login } from '../src/lib/auth';
 import { useAuth } from '../src/contexts/AuthContext';
 import Colors from '../constants/Colors';
 import { useTheme } from '../src/contexts/ThemeContext';
-import { Mail, Lock, LogIn, UserPlus } from 'lucide-react-native';
+import { Mail, Lock, LogIn, UserPlus, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { showAlert } from '@/src/components/AppAlert';
+
+const { width } = Dimensions.get('window');
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const { signIn } = useAuth();
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
+    const isDark = colorScheme === 'dark';
 
     const handleLogin = async () => {
         if (!email || !password) {
-            alert("Por favor llena todos los campos");
+            showAlert({ type: 'warning', title: 'Campos vacíos', message: 'Por favor ingresa tu email y contraseña' });
             return;
         }
-
         setLoading(true);
         try {
             const data = await login(email, password);
             await signIn(data.access_token);
         } catch (error: any) {
-            alert(error.message || "Error al iniciar sesión");
+            showAlert({ type: 'error', title: 'Error al iniciar sesión', message: error.message || 'Credenciales incorrectas' });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={[styles.container, { backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }]}>
+            <StatusBar style={isDark ? 'light' : 'dark'} />
             <LinearGradient
-                colors={[theme.primary, theme.background]}
-                style={[StyleSheet.absoluteFillObject, { opacity: 0.6 }]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                colors={isDark
+                    ? ['#0ea5e9', '#081a2e', '#0a1628']
+                    : ['#bae6fd', '#e0f2fe', '#f0f9ff']
+                }
+                style={StyleSheet.absoluteFillObject}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
             />
+
+            {/* Decorative circles */}
+            <View style={[styles.decoCircle1, { backgroundColor: isDark ? 'rgba(14,165,233,0.08)' : 'rgba(14,165,233,0.06)' }]} />
+            <View style={[styles.decoCircle2, { backgroundColor: isDark ? 'rgba(6,182,212,0.06)' : 'rgba(6,182,212,0.05)' }]} />
+
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1, backgroundColor: 'transparent' }}
+                style={{ flex: 1 }}
             >
-                <ScrollView 
-                    style={{ flex: 1, backgroundColor: 'transparent' }}
-                    contentContainerStyle={[styles.scrollContent, { backgroundColor: 'transparent' }]}
+                <ScrollView
+                    contentContainerStyle={styles.scroll}
                     showsVerticalScrollIndicator={false}
+                    bounces={false}
                 >
-                    <View style={styles.logoContainer}>
-                        <View style={styles.logoIconBox}>
-                            <Image 
+                    {/* Logo */}
+                    <View style={styles.logoSection}>
+                        <View style={[styles.logoRing, { borderColor: isDark ? 'rgba(14,165,233,0.3)' : 'rgba(14,165,233,0.2)' }]}>
+                            <Image
                                 source={require('../assets/images/logo.jpg')}
                                 style={styles.logoImage}
                                 resizeMode="contain"
                             />
                         </View>
-                        <Text style={styles.appName}>Michicondrias</Text>
-                        <Text style={styles.tagline}>Cuidado Integral para tus Mascotas</Text>
+                        <Text style={[styles.appName, { color: isDark ? '#fff' : '#0c4a6e' }]}>Michicondrias</Text>
+                        <View style={styles.taglineRow}>
+                            <Sparkles size={14} color={theme.primary} />
+                            <Text style={[styles.tagline, { color: isDark ? 'rgba(255,255,255,0.6)' : '#0369a1' }]}>Cuidado integral para tus mascotas</Text>
+                        </View>
                     </View>
 
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-                        style={styles.glassCard}
-                    >
-                        <Text style={styles.welcomeText}>¡Hola de nuevo! ✨</Text>
-                        <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
+                    {/* Card */}
+                    <View style={[styles.card, {
+                        backgroundColor: isDark ? 'rgba(15,36,56,0.9)' : 'rgba(255,255,255,0.95)',
+                        borderColor: isDark ? 'rgba(14,165,233,0.15)' : 'rgba(14,165,233,0.12)',
+                        shadowColor: isDark ? '#0ea5e9' : '#0ea5e9',
+                    }]}>
+                        <Text style={[styles.cardTitle, { color: isDark ? '#fff' : '#0c4a6e' }]}>Bienvenido</Text>
+                        <Text style={[styles.cardSubtitle, { color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }]}>Inicia sesión en tu cuenta</Text>
 
-                        <View style={styles.form}>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Correo Electrónico</Text>
-                                <View style={[styles.inputWrapper, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
-                                    <Mail size={18} color="rgba(255,255,255,0.6)" />
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="tu@email.com"
-                                        placeholderTextColor="rgba(255,255,255,0.3)"
-                                        value={email}
-                                        onChangeText={setEmail}
-                                        autoCapitalize="none"
-                                        keyboardType="email-address"
-                                    />
-                                </View>
-                            </View>
-
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Contraseña</Text>
-                                <View style={[styles.inputWrapper, { backgroundColor: 'rgba(255,255,255,0.05)' }]}>
-                                    <Lock size={18} color="rgba(255,255,255,0.6)" />
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="••••••••"
-                                        placeholderTextColor="rgba(255,255,255,0.3)"
-                                        value={password}
-                                        onChangeText={setPassword}
-                                        secureTextEntry
-                                    />
-                                </View>
-                            </View>
-
-                            <TouchableOpacity
-                                style={[styles.loginBtn, loading && styles.disabledBtn]}
-                                onPress={handleLogin}
-                                disabled={loading}
-                                activeOpacity={0.8}
-                            >
-                                <LinearGradient
-                                    colors={['rgba(255,255,255,0.2)', 'transparent']}
-                                    style={[StyleSheet.absoluteFillObject, { borderRadius: 24 }]}
+                        {/* Email */}
+                        <View style={styles.field}>
+                            <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Email</Text>
+                            <View style={[styles.inputRow, {
+                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                                borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+                            }]}>
+                                <Mail size={18} color={theme.primary} />
+                                <TextInput
+                                    style={[styles.input, { color: isDark ? '#fff' : '#0f172a' }]}
+                                    placeholder="tu@email.com"
+                                    placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                    textContentType="emailAddress"
                                 />
-                                {loading ? (
-                                    <Text style={styles.loginBtnText}>Entrando...</Text>
-                                ) : (
-                                    <>
-                                        <Text style={styles.loginBtnText}>Entrar</Text>
-                                        <LogIn size={20} color="#fff" />
-                                    </>
-                                )}
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={styles.forgotBtn}>
-                                <Text style={styles.forgotBtnText}>¿Olvidaste tu contraseña?</Text>
-                            </TouchableOpacity>
+                            </View>
                         </View>
-                    </LinearGradient>
 
-                    <View style={styles.footer}>
-                        <Text style={styles.footerText}>¿No tienes cuenta?</Text>
-                        <TouchableOpacity 
-                            style={styles.registerLink}
-                            onPress={() => router.push('/register' as any)}
+                        {/* Password */}
+                        <View style={styles.field}>
+                            <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Contraseña</Text>
+                            <View style={[styles.inputRow, {
+                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+                                borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+                            }]}>
+                                <Lock size={18} color={theme.primary} />
+                                <TextInput
+                                    style={[styles.input, { color: isDark ? '#fff' : '#0f172a', flex: 1 }]}
+                                    placeholder="Tu contraseña"
+                                    placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                    textContentType="password"
+                                />
+                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+                                    {showPassword ? (
+                                        <EyeOff size={18} color={isDark ? 'rgba(255,255,255,0.35)' : '#94a3b8'} />
+                                    ) : (
+                                        <Eye size={18} color={isDark ? 'rgba(255,255,255,0.35)' : '#94a3b8'} />
+                                    )}
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        {/* Forgot password */}
+                        <TouchableOpacity onPress={() => router.push('/forgot-password')} style={styles.forgotRow}>
+                            <Text style={[styles.forgotText, { color: theme.primary }]}>¿Olvidaste tu contraseña?</Text>
+                        </TouchableOpacity>
+
+                        {/* Login button */}
+                        <TouchableOpacity
+                            style={[styles.loginBtn, { backgroundColor: theme.primary }, loading && { opacity: 0.7 }]}
+                            onPress={handleLogin}
+                            disabled={loading}
+                            activeOpacity={0.85}
                         >
-                            <Text style={styles.registerText}>Regístrate aquí</Text>
-                            <UserPlus size={16} color="#fff" />
+                            {loading ? (
+                                <ActivityIndicator color="#fff" size="small" />
+                            ) : (
+                                <>
+                                    <Text style={styles.loginBtnText}>Entrar</Text>
+                                    <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Footer */}
+                    <View style={styles.footer}>
+                        <Text style={[styles.footerLabel, { color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }]}>
+                            ¿No tienes cuenta?
+                        </Text>
+                        <TouchableOpacity onPress={() => router.push('/register')} activeOpacity={0.7}>
+                            <Text style={[styles.footerLink, { color: theme.primary }]}> Regístrate aquí</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -147,154 +179,138 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'transparent',
     },
-    keyboardView: {
-        flex: 1,
-        backgroundColor: 'transparent',
+    decoCircle1: {
+        position: 'absolute',
+        top: -80,
+        right: -60,
+        width: 240,
+        height: 240,
+        borderRadius: 120,
     },
-    scrollView: {
-        flex: 1,
-        backgroundColor: 'transparent',
+    decoCircle2: {
+        position: 'absolute',
+        bottom: 120,
+        left: -100,
+        width: 200,
+        height: 200,
+        borderRadius: 100,
     },
-    scrollContent: {
+    scroll: {
         flexGrow: 1,
-        padding: 24,
+        paddingHorizontal: 28,
         paddingTop: 80,
-        backgroundColor: 'transparent',
+        paddingBottom: 48,
+        justifyContent: 'center',
     },
-    logoContainer: {
+    logoSection: {
         alignItems: 'center',
         marginBottom: 40,
-        backgroundColor: 'transparent',
     },
-    logoIconBox: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
+    logoRing: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        borderWidth: 3,
+        padding: 4,
+        marginBottom: 16,
         overflow: 'hidden',
     },
     logoImage: {
         width: '100%',
         height: '100%',
+        borderRadius: 46,
     },
     appName: {
-        fontSize: 36,
+        fontSize: 32,
         fontWeight: '900',
-        color: '#fff',
-        letterSpacing: -1,
+        letterSpacing: -0.5,
     },
-    tagline: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.6)',
-        marginTop: 4,
-        fontWeight: '600',
-    },
-    glassCard: {
-        padding: 32,
-        borderRadius: 40,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.15)',
-        overflow: 'hidden',
-        backgroundColor: 'transparent',
-    },
-    welcomeText: {
-        fontSize: 26,
-        fontWeight: '900',
-        color: '#fff',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 15,
-        color: 'rgba(255,255,255,0.5)',
-        marginBottom: 32,
-        fontWeight: '500',
-    },
-    form: {
-        gap: 20,
-        backgroundColor: 'transparent',
-    },
-    inputGroup: {
-        gap: 10,
-        backgroundColor: 'transparent',
-    },
-    label: {
-        fontSize: 12,
-        fontWeight: '900',
-        color: 'rgba(255,255,255,0.7)',
-        marginLeft: 4,
-        letterSpacing: 1,
-    },
-    inputWrapper: {
+    taglineRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 20,
-        paddingHorizontal: 16,
+        gap: 6,
+        marginTop: 6,
+    },
+    tagline: {
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    card: {
+        borderRadius: 28,
+        padding: 28,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        height: 60,
-        gap: 14,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 24,
+        elevation: 8,
+    },
+    cardTitle: {
+        fontSize: 24,
+        fontWeight: '900',
+        marginBottom: 4,
+    },
+    cardSubtitle: {
+        fontSize: 14,
+        fontWeight: '500',
+        marginBottom: 28,
+    },
+    field: {
+        marginBottom: 18,
+    },
+    fieldLabel: {
+        fontSize: 13,
+        fontWeight: '700',
+        marginBottom: 8,
+        marginLeft: 4,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        borderWidth: 1.5,
+        height: 54,
+        gap: 12,
     },
     input: {
         flex: 1,
-        fontSize: 16,
-        color: '#fff',
-        fontWeight: '600',
+        fontSize: 15,
+        fontWeight: '500',
+    },
+    forgotRow: {
+        alignItems: 'flex-end',
+        marginBottom: 24,
+        marginTop: -4,
+    },
+    forgotText: {
+        fontSize: 13,
+        fontWeight: '700',
     },
     loginBtn: {
-        backgroundColor: '#7c3aed',
-        borderRadius: 24,
-        height: 64,
+        height: 56,
+        borderRadius: 16,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 12,
-        marginTop: 10,
-        overflow: 'hidden',
-    },
-    disabledBtn: {
-        opacity: 0.6,
+        gap: 10,
     },
     loginBtnText: {
         color: '#fff',
-        fontSize: 18,
-        fontWeight: '900',
-    },
-    forgotBtn: {
-        alignItems: 'center',
-        marginTop: 8,
-    },
-    forgotBtnText: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '800',
     },
     footer: {
-        marginTop: 40,
-        alignItems: 'center',
-        gap: 12,
-        backgroundColor: 'transparent',
-    },
-    footerText: {
-        color: 'rgba(255,255,255,0.5)',
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    registerLink: {
         flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 16,
+        justifyContent: 'center',
+        marginTop: 32,
     },
-    registerText: {
-        color: '#fff',
-        fontWeight: '900',
-        fontSize: 15,
+    footerLabel: {
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    footerLink: {
+        fontSize: 14,
+        fontWeight: '800',
     },
 });

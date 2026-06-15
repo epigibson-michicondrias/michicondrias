@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -7,66 +7,8 @@ import {
     Calendar, Clock, MapPin, Dog, ChevronRight, Filter, 
     Search, User, Star, MessageCircle, CheckCircle, XCircle, AlertCircle
 } from 'lucide-react-native';
-
-// Mock data - en producción esto vendría de la API
-const mockRequests = [
-    {
-        id: '1',
-        walker_name: 'Carlos Rodríguez',
-        client_name: 'María González',
-        pet_name: 'Max',
-        pet_type: 'Perro',
-        date: '2024-01-15',
-        time: '10:00 AM',
-        duration: '1 hora',
-        status: 'pending',
-        price: 25,
-        location: 'Polanco, CDMX',
-        rating: null,
-    },
-    {
-        id: '2',
-        walker_name: 'Ana Martínez',
-        client_name: 'Juan López',
-        pet_name: 'Luna',
-        pet_type: 'Perro',
-        date: '2024-01-14',
-        time: '2:00 PM',
-        duration: '30 min',
-        status: 'confirmed',
-        price: 20,
-        location: 'Condesa, CDMX',
-        rating: 5,
-    },
-    {
-        id: '3',
-        walker_name: 'Carlos Rodríguez',
-        client_name: 'Laura Torres',
-        pet_name: 'Mishi',
-        pet_type: 'Gato',
-        date: '2024-01-13',
-        time: '11:00 AM',
-        duration: '45 min',
-        status: 'completed',
-        price: 22,
-        location: 'Roma Norte, CDMX',
-        rating: 4,
-    },
-    {
-        id: '4',
-        walker_name: 'Ana Martínez',
-        client_name: 'Pedro Ramírez',
-        pet_name: 'Rocky',
-        pet_type: 'Perro',
-        date: '2024-01-12',
-        time: '3:00 PM',
-        duration: '1 hora',
-        status: 'cancelled',
-        price: 25,
-        location: 'San Ángel, CDMX',
-        rating: null,
-    },
-];
+import { showAlert } from '@/src/components/AppAlert';
+import { getIncomingWalkRequests, WalkRequest } from '@/src/services/paseadores';
 
 export default function WalkerRequestsScreen() {
     const router = useRouter();
@@ -92,17 +34,15 @@ export default function WalkerRequestsScreen() {
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Mock query - en producción usar useQuery con API real
     const { data: requests = [], isLoading } = useQuery({
         queryKey: ['walker-requests'],
-        queryFn: () => Promise.resolve(mockRequests),
+        queryFn: getIncomingWalkRequests,
     });
 
-    const filteredRequests = requests.filter((request: any) => {
+    const filteredRequests = requests.filter((request: WalkRequest) => {
         const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-        const matchesSearch = request.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            request.pet_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            request.location.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = request.pet_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (request.pickup_address || '').toLowerCase().includes(searchQuery.toLowerCase());
         return matchesStatus && matchesSearch;
     });
 
@@ -146,7 +86,7 @@ export default function WalkerRequestsScreen() {
         }
     };
 
-    const renderRequestItem = ({ item }: { item: any }) => {
+    const renderRequestItem = ({ item }: { item: WalkRequest }) => {
         const statusConfig = getStatusConfig(item.status);
         const StatusIcon = statusConfig.icon;
 
@@ -154,33 +94,28 @@ export default function WalkerRequestsScreen() {
             <TouchableOpacity
                 style={[styles.requestCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
                 onPress={() => {
-                    Alert.alert(
-                        "Detalles de la Solicitud",
-                        `Cliente: ${item.client_name}\nMascota: ${item.pet_name}\nFecha: ${item.date}\nEstado: ${statusConfig.label}`,
-                        [
-                            {
-                                text: "Ver Detalles",
-                                onPress: () => Alert.alert("Detalles", "Función de detalles en desarrollo...")
-                            },
-                            {
-                                text: "Cancelar",
-                                style: "cancel"
-                            }
-                        ]
-                    );
+                    showAlert({
+                        type: 'info',
+                        title: 'Detalles de la Solicitud',
+                        message: `Mascota: ${item.pet_id}\nFecha: ${item.requested_date}\nEstado: ${statusConfig.label}`,
+                        showCancel: true,
+                        cancelText: 'Cancelar',
+                        buttonText: 'Ver Detalles',
+                        onButtonPress: () => showAlert({ type: 'info', title: 'Detalles', message: 'Función de detalles en desarrollo...' }),
+                    });
                 }}
             >
                 <View style={styles.requestHeader}>
                     <View style={styles.clientInfo}>
                         <View style={[styles.avatarPlaceholder, { backgroundColor: theme.primary + '20' }]}>
                             <Text style={[styles.avatarText, { color: theme.primary }]}>
-                                {item.client_name.charAt(0).toUpperCase()}
+                                {item.pet_id.charAt(0).toUpperCase()}
                             </Text>
                         </View>
                         <View style={styles.clientDetails}>
-                            <Text style={[styles.clientName, { color: theme.text }]}>{item.client_name}</Text>
+                            <Text style={[styles.clientName, { color: theme.text }]}>{item.pet_id}</Text>
                             <Text style={[styles.petInfo, { color: theme.textMuted }]}>
-                                {item.pet_name} • {item.pet_type}
+                                Cliente: {item.client_user_id}
                             </Text>
                         </View>
                     </View>
@@ -196,53 +131,46 @@ export default function WalkerRequestsScreen() {
                     <View style={styles.detailRow}>
                         <Calendar size={14} color={theme.textMuted} />
                         <Text style={[styles.detailText, { color: theme.textMuted }]}>
-                            {item.date} • {item.time}
+                            {item.requested_date}
                         </Text>
                     </View>
                     <View style={styles.detailRow}>
                         <Clock size={14} color={theme.textMuted} />
                         <Text style={[styles.detailText, { color: theme.textMuted }]}>
-                            Duración: {item.duration}
+                            Duración: {item.duration_minutes} min
                         </Text>
                     </View>
-                    <View style={styles.detailRow}>
-                        <MapPin size={14} color={theme.textMuted} />
-                        <Text style={[styles.detailText, { color: theme.textMuted }]}>
-                            {item.location}
-                        </Text>
-                    </View>
+                    {item.pickup_address && (
+                        <View style={styles.detailRow}>
+                            <MapPin size={14} color={theme.textMuted} />
+                            <Text style={[styles.detailText, { color: theme.textMuted }]}>
+                                {item.pickup_address}
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 <View style={styles.requestFooter}>
                     <View style={styles.priceContainer}>
                         <Text style={[styles.priceText, { color: theme.primary }]}>
-                            ${item.price}
+                            ${item.total_price ?? 0}
                         </Text>
                         <Text style={[styles.priceLabel, { color: theme.textMuted }]}>
                             por paseo
                         </Text>
                     </View>
-                    
-                    {item.status === 'completed' && item.rating && (
-                        <View style={styles.ratingContainer}>
-                            <Star size={14} color="#fbbf24" fill="#fbbf24" />
-                            <Text style={[styles.ratingText, { color: theme.text }]}>
-                                {item.rating}.0
-                            </Text>
-                        </View>
-                    )}
 
                     {item.status === 'pending' && (
                         <View style={styles.actionButtons}>
                             <TouchableOpacity
                                 style={[styles.actionButton, { backgroundColor: '#ef4444' }]}
-                                onPress={() => Alert.alert("Rechazar", "¿Rechazar esta solicitud?")}
+                                onPress={() => showAlert({ type: 'warning', title: 'Rechazar', message: '¿Rechazar esta solicitud?' })}
                             >
                                 <Text style={styles.actionButtonText}>Rechazar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                                onPress={() => Alert.alert("Aceptar", "¿Aceptar esta solicitud?")}
+                                onPress={() => showAlert({ type: 'success', title: 'Aceptar', message: '¿Aceptar esta solicitud?' })}
                             >
                                 <Text style={styles.actionButtonText}>Aceptar</Text>
                             </TouchableOpacity>
@@ -252,7 +180,7 @@ export default function WalkerRequestsScreen() {
                     {item.status === 'confirmed' && (
                         <TouchableOpacity
                             style={[styles.contactButton, { backgroundColor: theme.secondary }]}
-                            onPress={() => Alert.alert("Contactar", "Abriendro chat con el cliente...")}
+                            onPress={() => showAlert({ type: 'info', title: 'Contactar', message: 'Abriendo chat con el cliente...' })}
                         >
                             <MessageCircle size={16} color="#fff" />
                             <Text style={styles.contactButtonText}>Contactar</Text>
@@ -267,11 +195,19 @@ export default function WalkerRequestsScreen() {
 
     const statusFilters = [
         { id: 'all', label: 'Todas', count: requests.length },
-        { id: 'pending', label: 'Pendientes', count: requests.filter((r: any) => r.status === 'pending').length },
-        { id: 'confirmed', label: 'Confirmadas', count: requests.filter((r: any) => r.status === 'confirmed').length },
-        { id: 'completed', label: 'Completadas', count: requests.filter((r: any) => r.status === 'completed').length },
-        { id: 'cancelled', label: 'Canceladas', count: requests.filter((r: any) => r.status === 'cancelled').length },
+        { id: 'pending', label: 'Pendientes', count: requests.filter((r: WalkRequest) => r.status === 'pending').length },
+        { id: 'confirmed', label: 'Confirmadas', count: requests.filter((r: WalkRequest) => r.status === 'confirmed').length },
+        { id: 'completed', label: 'Completadas', count: requests.filter((r: WalkRequest) => r.status === 'completed').length },
+        { id: 'cancelled', label: 'Canceladas', count: requests.filter((r: WalkRequest) => r.status === 'cancelled').length },
     ];
+
+    if (isLoading) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
+                <ActivityIndicator size="large" color={theme.primary} />
+            </View>
+        );
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>

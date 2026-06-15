@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Alert, KeyboardAvoidingView, Platform, ActivityIndicator, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getListing, requestAdoption, AdoptionRequestCreate } from '@/src/services/adopciones';
@@ -7,6 +7,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { ChevronLeft, Home, Users, Heart, Check, Info, ShieldAlert, Lock, Sparkles, PartyPopper } from 'lucide-react-native';
+import { showAlert } from '@/src/components/AppAlert';
 
 const { width } = Dimensions.get('window');
 
@@ -131,10 +132,10 @@ export default function SolicitarAdopcionScreen() {
 
     const handleNext = () => {
         if (step === 1) {
-            if (!form.applicant_name) return Alert.alert("Error", "Tu nombre es obligatorio");
+            if (!form.applicant_name) return showAlert({ type: 'error', title: 'Error', message: 'Tu nombre es obligatorio' });
             setStep(2);
         } else if (step === 2) {
-            if (!form.hours_alone && form.hours_alone !== 0) return Alert.alert("Error", "Indica las horas que pasará solo");
+            if (!form.hours_alone && form.hours_alone !== 0) return showAlert({ type: 'error', title: 'Error', message: 'Indica las horas que pasará solo' });
             setStep(3);
         }
     };
@@ -145,8 +146,8 @@ export default function SolicitarAdopcionScreen() {
     };
 
     const handleSubmit = async () => {
-        if (!form.reason) return Alert.alert("Error", "Cuéntanos por qué deseas adoptar");
-        if (!form.financial_commitment) return Alert.alert("Error", "Debes aceptar el compromiso financiero");
+        if (!form.reason) return showAlert({ type: 'error', title: 'Error', message: 'Cuéntanos por qué deseas adoptar' });
+        if (!form.financial_commitment) return showAlert({ type: 'error', title: 'Error', message: 'Debes aceptar el compromiso financiero' });
 
         setLoading(true);
         try {
@@ -154,7 +155,7 @@ export default function SolicitarAdopcionScreen() {
             setSuccess(true);
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", (error as Error).message || "No se pudo enviar la solicitud.");
+            showAlert({ type: 'error', title: 'Error', message: (error as Error).message || 'No se pudo enviar la solicitud.' });
         } finally {
             setLoading(false);
         }

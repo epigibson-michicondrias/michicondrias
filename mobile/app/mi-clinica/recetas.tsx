@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getMyClinics } from '../../src/services/directorio';
 import { getClinicPrescriptions, createPrescription, PrescriptionCreatePayload } from '../../src/services/prescriptions';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { ChevronLeft, FileText, PlusCircle, AlertCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 
 export default function RecetasScreen() {
     const router = useRouter();
@@ -48,7 +50,7 @@ export default function RecetasScreen() {
 
     const handleSavePrescription = async () => {
         if (!newPresc.patientId || !newPresc.medications[0].name) {
-            Alert.alert("Error", "ID de Paciente y al menos un medicamento son obligatorios");
+            showAlert({ type: 'error', title: 'Error', message: 'ID de Paciente y al menos un medicamento son obligatorios' });
             return;
         }
         setLoadingAction(true);
@@ -61,9 +63,9 @@ export default function RecetasScreen() {
                 medications: [{ name: '', dosage: '', frequency: '', duration: '' }],
                 notes: ''
             });
-            Alert.alert("Éxito", "Receta emitida correctamente");
+            showAlert({ type: 'success', title: 'Éxito', message: 'Receta emitida correctamente' });
         } catch (error) {
-            Alert.alert("Error", "No se pudo crear la receta");
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la receta' });
         } finally {
             setLoadingAction(false);
         }
@@ -158,7 +160,7 @@ export default function RecetasScreen() {
                     <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Nueva Receta</Text>
                         
-                        <ScrollView showsVerticalScrollIndicator={false}>
+                        <KeyboardScreen>
                             <Text style={[styles.inputLabel, { color: theme.text }]}>ID del Paciente *</Text>
                             <TextInput
                                 style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
@@ -233,7 +235,7 @@ export default function RecetasScreen() {
                                 multiline
                             />
                             <View style={{ height: 40 }} />
-                        </ScrollView>
+                        </KeyboardScreen>
 
                         <View style={styles.modalActions}>
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>

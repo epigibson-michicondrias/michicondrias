@@ -31,29 +31,29 @@ export interface AppointmentCreate {
 
 // Authenticated
 export async function createAppointment(data: AppointmentCreate): Promise<Appointment> {
-    return apiFetch<Appointment>("core", "/appointments/", {
+    return apiFetch<Appointment>("directorio", "/appointments/", {
         method: "POST",
         body: JSON.stringify(data),
     });
 }
 
 export async function getUserAppointments(): Promise<Appointment[]> {
-    return apiFetch<Appointment[]>("core", "/appointments/me");
+    return apiFetch<Appointment[]>("directorio", "/appointments/me");
 }
 
 export async function updateAppointment(id: string, data: Partial<Appointment>): Promise<Appointment> {
-    return apiFetch<Appointment>("core", `/appointments/${id}`, {
+    return apiFetch<Appointment>("directorio", `/appointments/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
     });
 }
 
 export async function cancelAppointment(id: string): Promise<Appointment> {
-    return apiFetch<Appointment>("core", `/appointments/${id}/cancel`, {
+    return apiFetch<Appointment>("directorio", `/appointments/${id}/cancel`, {
         method: "POST",
     });
 }
 
 export async function getAppointment(id: string): Promise<Appointment> {
-    return apiFetch<Appointment>("core", `/appointments/${id}`);
+    return apiFetch<Appointment>("directorio", `/appointments/${id}`);
 }

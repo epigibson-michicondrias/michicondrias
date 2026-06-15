@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Alert, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { showAlert } from '@/src/components/AppAlert';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getClinic, Clinic } from '@/src/services/directorio';
 import { getUserPets, Pet } from '@/src/services/mascotas';
@@ -40,19 +42,19 @@ export default function AgendarCitaScreen() {
         mutationFn: (data: any) => createAppointment(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
-            Alert.alert(
-                "¡Cita Agendada!",
-                "Tu cita ha sido programada exitosamente. Te contactaremos pronto para confirmar.",
-                [
-                    { text: "OK", onPress: () => router.push('/directorio/citas' as any) }
-                ]
-            );
+            showAlert({
+                type: 'success',
+                title: '¡Cita Agendada!',
+                message: 'Tu cita ha sido programada exitosamente. Te contactaremos pronto para confirmar.',
+                onButtonPress: () => router.push('/directorio/citas' as any),
+            });
         },
         onError: (error: any) => {
-            Alert.alert(
-                "Error",
-                error.message || "No se pudo agendar la cita. Por favor, intenta nuevamente."
-            );
+            showAlert({
+                type: 'error',
+                title: 'Error',
+                message: error.message || 'No se pudo agendar la cita. Por favor, intenta nuevamente.',
+            });
         }
     });
 
@@ -65,22 +67,22 @@ export default function AgendarCitaScreen() {
 
     const handleAgendar = () => {
         if (!selectedPet) {
-            Alert.alert("Error", "Por favor selecciona una mascota");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una mascota' });
             return;
         }
 
         if (!selectedDate) {
-            Alert.alert("Error", "Por favor selecciona una fecha");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una fecha' });
             return;
         }
 
         if (!selectedTime) {
-            Alert.alert("Error", "Por favor selecciona una hora");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una hora' });
             return;
         }
 
         if (!reason.trim()) {
-            Alert.alert("Error", "Por favor describe el motivo de la cita");
+            showAlert({ type: 'error', title: 'Error', message: 'Por favor describe el motivo de la cita' });
             return;
         }
 
@@ -122,7 +124,7 @@ export default function AgendarCitaScreen() {
     }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+        <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <ChevronLeft size={24} color={theme.text} />
@@ -340,7 +342,7 @@ export default function AgendarCitaScreen() {
                     </Text>
                 </TouchableOpacity>
             </View>
-        </ScrollView>
+        </KeyboardScreen>
     );
 }
 

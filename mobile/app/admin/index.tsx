@@ -173,7 +173,7 @@ export default function AdminScreen() {
                 style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
             >
                 <View style={styles.headerTop}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
                         <ChevronLeft size={22} color="#fff" />
                     </TouchableOpacity>
                     <View style={styles.headerInfo}>
@@ -292,7 +292,6 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
     },

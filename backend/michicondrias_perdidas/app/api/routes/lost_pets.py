@@ -3,6 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime
 import httpx
+import uuid
+from pydantic import BaseModel
 
 from app.api import deps
 from app.db.session import get_db
@@ -13,6 +15,50 @@ from app.crud.crud_lost_pets import (
 from app.schemas.lost_pet import LostPetReportCreate, LostPetReportUpdate, LostPetReportOut, TrackerLocationUpdate
 
 router = APIRouter()
+
+
+class PresignedUrlResponse(BaseModel):
+    url: str
+    object_key: str
+
+
+@router.get("/presigned-url", response_model=PresignedUrlResponse)
+def get_photo_presigned_url(ext: str = "jpg") -> Any:
+    """Generate a presigned URL to upload a lost pet report photo."""
+    from app.core.s3 import generate_presigned_url
+    from app.core.config import settings
+    import mimetypes
+
+    clean_ext = ext.replace(".", "")
+    object_name = f"perdidas/{uuid.uuid4()}.{clean_ext}"
+
+    content_type, _ = mimetypes.guess_type(f"file.{clean_ext}")
+    if not content_type:
+        content_type = "image/jpeg" if clean_ext in ["jpg", "jpeg"] else "application/octet-stream"
+
+    url = generate_presigned_url(object_name, content_type=content_type)
+    if not url:
+        raise HTTPException(status_code=500, detail="No se pudo contactar a AWS S3")
+
+    public_url = f"https://{settings.S3_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{object_name}"
+    return PresignedUrlResponse(url=url, object_key=public_url)
+
+
+@router.post("/{report_id}/resolve", response_model=LostPetReportOut)
+def resolve_report(
+    report_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Mark a lost pet report as resolved (pet found)."""
+    existing = get_report_by_id(db, report_id)
+    if not existing:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    if existing.reporter_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para resolver este reporte")
+    
+    update_data = LostPetReportUpdate(status="resolved", is_resolved=True)
+    return update_report(db, report_id=report_id, report_in=update_data)
 
 
 @router.get("/", response_model=List[LostPetReportOut])
