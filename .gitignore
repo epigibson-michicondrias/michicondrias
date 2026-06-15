@@ -27,6 +27,8 @@ out/
 # Database
 postgres_data/
 .temp/
+*.sqlite
+*.db
 
 # OS/IDE
 .DS_Store
@@ -35,9 +37,30 @@ postgres_data/
 *.swp
 *.swo
 
+# Build artifacts
+mobile/android/app/build/
+mobile/android/.gradle/
+*.apk
+*.keystore
+*.jks
+
+# Debug/Test scripts
+debug_*
+diagnosticar_*
+test_*
+verificar_*
+crear_datos_*
+*_debug.*
+*.log
+
+# SQL dumps
+*.sql.bak
+*.dump
+
 # Project specific
 ms_logs.txt
 frontend/.next/
 frontend/node_modules/
 backend/michicondrias_core/app/uploads/
-mobile/*.apk
+mobile/ts_errors.txt
+mobile/test-export.js
