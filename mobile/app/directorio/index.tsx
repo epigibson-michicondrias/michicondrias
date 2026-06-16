@@ -1,119 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, TextInput, ScrollView, Dimensions } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { getClinics, getVets, Clinic, Vet } from '../../src/services/directorio';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Search, MapPin, Phone, Star, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useClinicsAndVets } from '@/src/hooks/directorio';
+import type { Clinic, Vet } from '@/src/types/directorio';
+import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building, Clock, Navigation } from 'lucide-react-native';
+import DataList from '@/src/components/data/DataList';
+import BackButton from '@/src/components/BackButton';
+import { StatusBar } from 'expo-status-bar';
+// @ts-ignore
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
 export default function DirectorioIndexScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const { user } = useAuth();
-
-    const [activeTab, setActiveTab] = useState<'clinics' | 'vets'>('clinics');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterService, setFilterService] = useState('all');
-    const [isVet, setIsVet] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [canRegister, setCanRegister] = useState(false);
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-        // Check roles
-        const vetRole = user?.role_name === 'veterinario';
-        const adminRole = user?.role_name === 'admin';
-        setIsVet(vetRole);
-        setIsAdmin(adminRole);
-        setCanRegister(vetRole || adminRole);
-    }, [user]);
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['directorio-clinics'],
-        queryFn: getClinics,
-    });
-
-    const { data: vets = [], isLoading: loadingVets } = useQuery({
-        queryKey: ['directorio-vets'],
-        queryFn: () => getVets(),
-    });
-
-    const filteredClinics = clinics.filter(c => {
-        const matchesQuery = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (c.city?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-        const matchesService = filterService === "all"
-            || (filterService === "24h" && c.is_24_hours)
-            || (filterService === "emergencia" && c.has_emergency);
-        return matchesQuery && matchesService;
-    });
-
-    const filteredVets = vets.filter(v => {
-        const fullName = `${v.first_name} ${v.last_name}`.toLowerCase();
-        const matchesQuery = fullName.includes(searchQuery.toLowerCase()) ||
-            (v.specialty?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-        return matchesQuery;
-    });
+    const { theme, isDark } = useTheme();
+    const {
+        filteredClinics,
+        filteredVets,
+        loadingClinics,
+        loadingVets,
+        isLoading,
+        activeTab,
+        setActiveTab,
+        searchQuery,
+        setSearchQuery,
+        filterService,
+        setFilterService,
+        canRegister,
+        isMounted,
+        resultsCount,
+    } = useClinicsAndVets();
 
     const renderClinicItem = ({ item }: { item: Clinic }) => (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: theme.surface }]}
+            style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={() => router.push(`/directorio/clinica/${item.id}` as any)}
+            activeOpacity={0.8}
         >
             <View style={styles.cardHeader}>
-                <View style={[styles.avatarPlaceholder, { backgroundColor: theme.primary + '20' }]}>
+                <View style={[styles.avatarPlaceholder, { backgroundColor: theme.primaryLight, borderColor: theme.primary + '30' }]}>
                     <Text style={[styles.avatarText, { color: theme.primary }]}>
                         {item.name.charAt(0).toUpperCase()}
                     </Text>
                 </View>
                 <View style={styles.cardMainInfo}>
-                    <Text style={[styles.cardTitle, { color: theme.text }]}>{item.name}</Text>
+                    <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
                     <View style={styles.locationRow}>
-                        <MapPin size={14} color={theme.textMuted} />
-                        <Text style={[styles.cardSubtitle, { color: theme.textMuted }]}>
-                            {item.city || "Ciudad no disp."}, {item.state || "MX"}
+                        <MapPin size={13} color={theme.textMuted} />
+                        <Text style={[styles.cardSubtitle, { color: theme.textMuted }]} numberOfLines={1}>
+                            {item.city || "Ciudad"}, {item.state || "MX"}
                         </Text>
                     </View>
                 </View>
+                <ChevronRight size={20} color={theme.textMuted} />
             </View>
 
             <View style={styles.cardBody}>
                 <View style={styles.tagsRow}>
                     {item.is_24_hours && (
-                        <View style={[styles.tag, { backgroundColor: '#3b82f620' }]}>
-                            <Text style={[styles.tagText, { color: '#60a5fa' }]}>🕒 24 Horas</Text>
+                        <View style={[styles.tag, { backgroundColor: theme.infoLight }]}>
+                            <Clock size={12} color={theme.info} />
+                            <Text style={[styles.tagText, { color: theme.info }]}>24 Horas</Text>
                         </View>
                     )}
                     {item.has_emergency && (
-                        <View style={[styles.tag, { backgroundColor: '#ef444420' }]}>
-                            <Text style={[styles.tagText, { color: '#f87171' }]}>🚨 Urgencias</Text>
+                        <View style={[styles.tag, { backgroundColor: theme.errorLight }]}>
+                            <Navigation size={12} color={theme.error} />
+                            <Text style={[styles.tagText, { color: theme.error }]}>Urgencias</Text>
                         </View>
                     )}
                     {!item.is_24_hours && !item.has_emergency && (
-                        <View style={[styles.tag, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
-                            <Text style={[styles.tagText, { color: theme.textMuted }]}>🕐 Horario Regular</Text>
+                        <View style={[styles.tag, { backgroundColor: theme.overlay }]}>
+                            <Clock size={12} color={theme.textMuted} />
+                            <Text style={[styles.tagText, { color: theme.textMuted }]}>Horario Regular</Text>
                         </View>
                     )}
                 </View>
-                <Text style={[styles.description, { color: theme.textMuted }]}>
-                    {item.description
-                        ? (item.description.length > 95 ? item.description.substring(0, 95) + "..." : item.description)
-                        : "Clínica veterinaria inscrita en la red Michicondrias."}
-                </Text>
+                {item.description && (
+                    <Text style={[styles.description, { color: theme.textMuted }]} numberOfLines={2}>
+                        {item.description}
+                    </Text>
+                )}
             </View>
 
-            <View style={styles.cardFooter}>
+            <View style={[styles.cardFooter, { borderTopColor: theme.border }]}>
                 {item.phone && (
                     <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: 'transparent', borderColor: theme.border, borderWidth: 1 }]}
-                        onPress={() => {/* Handle phone call */ }}
+                        style={[styles.actionBtn, { backgroundColor: theme.overlay, borderColor: theme.border }]}
+                        onPress={() => {}}
                     >
-                        <Phone size={16} color={theme.text} />
+                        <Phone size={15} color={theme.text} />
                         <Text style={[styles.actionBtnText, { color: theme.text }]}>Llamar</Text>
                     </TouchableOpacity>
                 )}
@@ -122,7 +100,6 @@ export default function DirectorioIndexScreen() {
                     onPress={() => router.push(`/directorio/clinica/${item.id}` as any)}
                 >
                     <Text style={[styles.actionBtnText, { color: '#fff' }]}>Ver Perfil</Text>
-                    <ChevronRight size={16} color="#fff" />
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -130,441 +107,388 @@ export default function DirectorioIndexScreen() {
 
     const renderVetItem = ({ item }: { item: Vet }) => (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: theme.surface }]}
+            style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={() => router.push(`/directorio/especialista/${item.id}` as any)}
+            activeOpacity={0.8}
         >
             <View style={styles.cardHeader}>
-                <View style={[styles.avatarPlaceholder, { borderRadius: 14, backgroundColor: '#10b98120', borderColor: '#10b98130' }]}>
-                    <Text style={[styles.avatarText, { color: '#10b981' }]}>
+                <View style={[styles.avatarPlaceholder, { backgroundColor: theme.successLight, borderColor: theme.success + '30' }]}>
+                    <Text style={[styles.avatarText, { color: theme.success }]}>
                         {item.first_name.charAt(0).toUpperCase()}
                     </Text>
                 </View>
                 <View style={styles.cardMainInfo}>
-                    <Text style={[styles.cardTitle, { color: theme.text }]}>{item.first_name} {item.last_name}</Text>
+                    <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>
+                        {item.first_name} {item.last_name}
+                    </Text>
                     <View style={styles.locationRow}>
-                        <ShieldCheck size={14} color="#10b981" />
-                        <Text style={[styles.cardSubtitle, { color: '#10b981', fontWeight: '700' }]}>
+                        <ShieldCheck size={13} color={theme.success} />
+                        <Text style={[styles.cardSubtitle, { color: theme.success, fontWeight: '700' }]}>
                             {item.specialty || "Médico Veterinario"}
                         </Text>
                     </View>
                 </View>
-            </View>
-            
-            <View style={styles.cardBody}>
-                <Text style={[styles.description, { color: theme.textMuted, marginBottom: 20 }]}>
-                    {item.bio || "Profesional de la salud animal verificado en Michicondrias."}
-                </Text>
-                <View style={[styles.certificationBox, { backgroundColor: '#10b98110', borderColor: '#10b98120' }]}>
-                    <ShieldCheck size={14} color="#10b981" />
-                    <Text style={[styles.certificationText, { color: '#10b981' }]}>
-                        <Text style={{ fontWeight: '700' }}>Cédula:</Text> {item.license_number ? "Verificada" : "En Validación"}
-                    </Text>
-                </View>
+                <ChevronRight size={20} color={theme.textMuted} />
             </View>
 
-            <View style={styles.cardFooter}>
-                {item.phone && (
-                    <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: '#10b981' }]}
-                        onPress={() => {/* Handle phone call */ }}
-                    >
-                        <Phone size={16} color="#fff" />
-                        <Text style={[styles.actionBtnText, { color: '#fff' }]}>Contactar Profesional</Text>
-                    </TouchableOpacity>
-                )}
+            {item.bio && (
+                <Text style={[styles.description, { color: theme.textMuted, marginTop: 12 }]} numberOfLines={2}>
+                    {item.bio}
+                </Text>
+            )}
+
+            <View style={[styles.certificationBox, { backgroundColor: theme.successLight, borderColor: theme.success + '20' }]}>
+                <ShieldCheck size={14} color={theme.success} />
+                <Text style={[styles.certificationText, { color: theme.success }]}>
+                    Cédula: {item.license_number ? "Verificada" : "En Validación"}
+                </Text>
             </View>
         </TouchableOpacity>
     );
 
-    return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+    const listHeaderComponent = (
+        <>
+            {/* Header */}
             <View style={styles.header}>
-                <View style={styles.titleSection}>
-                    <Text style={[styles.title, { color: theme.text }]}>Directorio Médico</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Encuentra salud de calidad para tu mejor amigo en la red Michicondrias</Text>
+                <View style={styles.headerRow}>
+                    <BackButton onPress={() => router.back()} />
+                    <Text style={[styles.title, { color: isDark ? '#fff' : '#0c4a6e' }]}>Directorio Médico</Text>
                 </View>
-                
-                <View style={styles.tabsContainer}>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'clinics' && styles.tabActive]}
-                        onPress={() => setActiveTab('clinics')}
-                    >
-                        <Hospital size={18} color={activeTab === 'clinics' ? theme.text : theme.textMuted} />
-                        <Text style={[styles.tabText, { color: activeTab === 'clinics' ? theme.text : theme.textMuted }]}>Clínicas y Hospitales</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'vets' && styles.tabActive]}
-                        onPress={() => setActiveTab('vets')}
-                    >
-                        <Stethoscope size={18} color={activeTab === 'vets' ? theme.text : theme.textMuted} />
-                        <Text style={[styles.tabText, { color: activeTab === 'vets' ? theme.text : theme.textMuted }]}>Especialistas Independientes</Text>
-                    </TouchableOpacity>
-                </View>
+                <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.6)' : '#0369a1' }]}>
+                    Encuentra salud de calidad para tu mejor amigo
+                </Text>
             </View>
 
-            <View style={[styles.toolbar, { backgroundColor: theme.surface }]}>
-                <View style={styles.searchContainer}>
-                    <Search size={20} color={theme.textMuted} style={styles.searchIcon} />
-                    <TextInput
-                        placeholder={activeTab === 'clinics' ? "Buscar por nombre o ciudad..." : "Buscar por nombre o especialidad..."}
-                        placeholderTextColor={theme.textMuted}
-                        style={[styles.searchInput, { color: theme.text, backgroundColor: 'transparent', paddingLeft: 48 }]}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
-                </View>
-                
-                {activeTab === 'clinics' && (
-                    <View style={styles.filterContainer}>
-                        <TouchableOpacity
-                            style={[styles.filterButton, filterService === 'all' && styles.filterButtonActive, { backgroundColor: filterService === 'all' ? theme.primary : theme.surface }]}
-                            onPress={() => setFilterService('all')}
-                        >
-                            <Text style={[styles.filterButtonText, { color: filterService === 'all' ? '#fff' : theme.text }]}>Todas</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.filterButton, filterService === '24h' && styles.filterButtonActive, { backgroundColor: filterService === '24h' ? theme.primary : theme.surface }]}
-                            onPress={() => setFilterService('24h')}
-                        >
-                            <Text style={[styles.filterButtonText, { color: filterService === '24h' ? '#fff' : theme.text }]}>🕒 24 Horas</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.filterButton, filterService === 'emergencia' && styles.filterButtonActive, { backgroundColor: filterService === 'emergencia' ? theme.primary : theme.surface }]}
-                            onPress={() => setFilterService('emergencia')}
-                        >
-                            <Text style={[styles.filterButtonText, { color: filterService === 'emergencia' ? '#fff' : theme.text }]}>🚨 Urgencias</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
+            {/* Tabs */}
+            <View style={styles.tabsContainer}>
+                <TouchableOpacity
+                    style={[styles.tab, {
+                        backgroundColor: activeTab === 'clinics' ? theme.primary : theme.surface,
+                        borderColor: activeTab === 'clinics' ? theme.primary : theme.border,
+                    }]}
+                    onPress={() => setActiveTab('clinics')}
+                >
+                    <Hospital size={18} color={activeTab === 'clinics' ? '#fff' : theme.textMuted} />
+                    <Text style={[styles.tabText, { color: activeTab === 'clinics' ? '#fff' : theme.text }]}>
+                        Clínicas
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tab, {
+                        backgroundColor: activeTab === 'vets' ? theme.primary : theme.surface,
+                        borderColor: activeTab === 'vets' ? theme.primary : theme.border,
+                    }]}
+                    onPress={() => setActiveTab('vets')}
+                >
+                    <Stethoscope size={18} color={activeTab === 'vets' ? '#fff' : theme.textMuted} />
+                    <Text style={[styles.tabText, { color: activeTab === 'vets' ? '#fff' : theme.text }]}>
+                        Especialistas
+                    </Text>
+                </TouchableOpacity>
             </View>
 
-            {/* Mi Clínica Banner for Vet/Admin */}
-            {isMounted && canRegister && (
-                <View style={[styles.miClinicaBanner, { backgroundColor: theme.primary + '15', borderColor: theme.primary + '30' }]}>
-                    <View style={styles.miClinicaContent}>
-                        <View style={styles.miClinicaIcon}>
-                            <Building size={24} color={theme.primary} />
-                        </View>
-                        <View style={styles.miClinicaText}>
-                            <Text style={[styles.miClinicaTitle, { color: theme.primary }]}>Panel de Mi Clínica</Text>
-                            <Text style={[styles.miClinicaSubtitle, { color: theme.textMuted }]}>Edita tu información, gestiona especialistas y ve tus reseñas</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity
-                        style={[styles.miClinicaButton, { backgroundColor: theme.primary }]}
-                        onPress={() => router.push('/mi-clinica' as any)}
-                    >
-                        <Text style={styles.miClinicaButtonText}>Administrar →</Text>
-                    </TouchableOpacity>
+            {/* Search */}
+            <View style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <Search size={18} color={theme.textMuted} />
+                <TextInput
+                    placeholder={activeTab === 'clinics' ? "Buscar clínica o ciudad..." : "Buscar veterinario..."}
+                    placeholderTextColor={theme.textMuted}
+                    style={[styles.searchInput, { color: theme.text }]}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+            </View>
+
+            {/* Filters (clinics only) */}
+            {activeTab === 'clinics' && (
+                <View style={styles.filterRow}>
+                    {[
+                        { key: 'all', label: 'Todas' },
+                        { key: '24h', label: '24 Horas' },
+                        { key: 'emergencia', label: 'Urgencias' },
+                    ].map(f => (
+                        <TouchableOpacity
+                            key={f.key}
+                            style={[styles.filterChip, {
+                                backgroundColor: filterService === f.key ? theme.primary : theme.surface,
+                                borderColor: filterService === f.key ? theme.primary : theme.border,
+                            }]}
+                            onPress={() => setFilterService(f.key)}
+                        >
+                            <Text style={[styles.filterText, {
+                                color: filterService === f.key ? '#fff' : theme.text,
+                            }]}>{f.label}</Text>
+                        </TouchableOpacity>
+                    ))}
                 </View>
             )}
 
-            {/* Registrar Clínica Button */}
+            {/* Mi Clínica Banner */}
+            {isMounted && canRegister && (
+                <TouchableOpacity
+                    style={[styles.miClinicaBanner, { backgroundColor: theme.primaryLight, borderColor: theme.primary + '30' }]}
+                    onPress={() => router.push('/mi-clinica' as any)}
+                >
+                    <View style={styles.miClinicaContent}>
+                        <View style={[styles.miClinicaIcon, { backgroundColor: theme.primary + '20' }]}>
+                            <Building size={22} color={theme.primary} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.miClinicaTitle, { color: theme.primary }]}>Mi Clínica</Text>
+                            <Text style={[styles.miClinicaSubtitle, { color: theme.textMuted }]}>Gestiona tu información</Text>
+                        </View>
+                        <ChevronRight size={20} color={theme.primary} />
+                    </View>
+                </TouchableOpacity>
+            )}
+
+            {/* Register button */}
             {isMounted && canRegister && activeTab === 'clinics' && (
                 <TouchableOpacity
                     style={[styles.registerButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/directorio/nuevo-lugar' as any)}
+                    onPress={() => router.push('/directorio/nuevo' as any)}
                 >
                     <Plus size={18} color="#fff" />
                     <Text style={styles.registerButtonText}>Registrar mi Clínica</Text>
                 </TouchableOpacity>
             )}
 
-            {(activeTab === 'clinics' ? loadingClinics : loadingVets) ? (
-                <View style={styles.loadingContainer}>
-                    <Text style={{ color: theme.textMuted }}>Buscando profesionales...</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={(activeTab === 'clinics' ? filteredClinics : filteredVets) as any}
+            {/* Loading */}
+            {isLoading && (
+                <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+            )}
+
+            {/* Results count */}
+            {!loadingClinics && !loadingVets && (
+                <Text style={[styles.resultsCount, { color: theme.textMuted }]}>
+                    {resultsCount} resultados
+                </Text>
+            )}
+        </>
+    );
+
+    const listEmptyComponent = !loadingClinics && !loadingVets ? (
+        <View style={styles.emptyState}>
+            <Search size={48} color={theme.textMuted} />
+            <Text style={[styles.emptyTitle, { color: theme.text }]}>Sin resultados</Text>
+            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
+                No encontramos lo que buscas. Intenta con otros términos.
+            </Text>
+        </View>
+    ) : null;
+
+    return (
+        <View style={[styles.container, { backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }]}>
+            <StatusBar style={isDark ? 'light' : 'dark'} />
+            <LinearGradient
+                colors={isDark ? ['#0ea5e9', '#081a2e'] : ['#bae6fd', '#f0f9ff']}
+                style={StyleSheet.absoluteFillObject}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 0.4 }}
+            />
+
+            {activeTab === 'clinics' ? (
+                <DataList<Clinic>
+                    data={filteredClinics}
                     keyExtractor={(item) => item.id}
-                    renderItem={activeTab === 'clinics' ? renderClinicItem as any : renderVetItem as any}
-                    contentContainerStyle={styles.list}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={{ color: theme.textMuted, textAlign: 'center' }}>No encontramos resultados para tu búsqueda.</Text>
-                        </View>
-                    }
+                    renderItem={renderClinicItem}
+                    contentStyle={styles.list}
+                    header={listHeaderComponent}
+                    isLoading={isLoading}
+                    emptyTitle="Sin resultados"
+                    emptySubtitle="No encontramos lo que buscas. Intenta con otros términos."
+                />
+            ) : (
+                <DataList<Vet>
+                    data={filteredVets}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderVetItem}
+                    contentStyle={styles.list}
+                    header={listHeaderComponent}
+                    isLoading={isLoading}
+                    emptyTitle="Sin resultados"
+                    emptySubtitle="No encontramos lo que buscas. Intenta con otros términos."
                 />
             )}
-        </ScrollView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+    container: { flex: 1 },
     header: {
         paddingTop: 60,
         paddingHorizontal: 24,
-        paddingBottom: 20,
+        paddingBottom: 8,
     },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 14,
-        marginTop: 4,
-    },
-    searchContainer: {
-        position: 'relative',
-        marginBottom: 0,
-    },
-    searchBar: {
+    headerTop: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        height: 56,
-        borderRadius: 16,
+        marginBottom: 8,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 12,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        marginBottom: 6,
     },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
-        paddingLeft: 48,
-    },
+    title: { fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
+    subtitle: { fontSize: 14, marginTop: 4, fontWeight: '500' },
     tabsContainer: {
         flexDirection: 'row',
         paddingHorizontal: 24,
         marginBottom: 16,
-        gap: 8,
+        gap: 10,
     },
     tab: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 12,
+        paddingVertical: 14,
+        borderRadius: 14,
         gap: 8,
-        backgroundColor: 'rgba(255,255,255,0.03)',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderWidth: 1.5,
     },
-    tabActive: {
-        backgroundColor: 'rgba(124, 58, 237, 0.1)',
-        borderColor: 'rgba(124, 58, 237, 0.3)',
-    },
-    tabText: {
-        fontSize: 14,
-        fontWeight: '700',
-    },
-    toolbar: {
-        marginHorizontal: 24,
-        marginBottom: 16,
-        padding: 20,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
-    },
-    searchIcon: {
-        position: 'absolute',
-        left: 16,
-        zIndex: 1,
-    },
-    filterContainer: {
+    tabText: { fontSize: 14, fontWeight: '800' },
+    searchBar: {
         flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 24,
+        marginBottom: 12,
+        paddingHorizontal: 16,
+        height: 50,
+        borderRadius: 16,
+        borderWidth: 1.5,
+        gap: 12,
+    },
+    searchInput: { flex: 1, fontSize: 15, fontWeight: '500' },
+    filterRow: {
+        flexDirection: 'row',
+        paddingHorizontal: 24,
+        marginBottom: 16,
         gap: 8,
-        marginTop: 12,
     },
-    filterButton: {
-        paddingHorizontal: 12,
+    filterChip: {
+        paddingHorizontal: 14,
         paddingVertical: 8,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderRadius: 10,
+        borderWidth: 1.5,
     },
-    filterButtonActive: {
-        borderColor: 'transparent',
-    },
-    filterButtonText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
+    filterText: { fontSize: 13, fontWeight: '700' },
     miClinicaBanner: {
         marginHorizontal: 24,
-        marginBottom: 16,
-        padding: 20,
-        borderRadius: 20,
+        marginBottom: 12,
+        padding: 16,
+        borderRadius: 18,
         borderWidth: 1,
     },
     miClinicaContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
-        marginBottom: 16,
+        gap: 12,
     },
     miClinicaIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 12,
-        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+        width: 44,
+        height: 44,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    miClinicaText: {
-        flex: 1,
-    },
-    miClinicaTitle: {
-        fontSize: 16,
-        fontWeight: '800',
-        marginBottom: 2,
-    },
-    miClinicaSubtitle: {
-        fontSize: 13,
-        lineHeight: 18,
-    },
-    miClinicaButton: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 12,
-    },
-    miClinicaButtonText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '700',
-    },
+    miClinicaTitle: { fontSize: 15, fontWeight: '800' },
+    miClinicaSubtitle: { fontSize: 12, fontWeight: '500', marginTop: 2 },
     registerButton: {
-        marginHorizontal: 24,
-        marginBottom: 16,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        borderRadius: 16,
-    },
-    registerButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '800',
-    },
-    list: {
-        paddingHorizontal: 24,
-        paddingBottom: 100,
-    },
-    card: {
-        borderRadius: 24,
-        padding: 16,
+        marginHorizontal: 24,
         marginBottom: 16,
+        paddingVertical: 14,
+        borderRadius: 14,
+    },
+    registerButtonText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    resultsCount: {
+        fontSize: 12,
+        fontWeight: '600',
+        paddingHorizontal: 24,
+        marginBottom: 12,
+    },
+    list: { paddingHorizontal: 24, paddingBottom: 100 },
+    card: {
+        borderRadius: 20,
+        padding: 18,
+        marginBottom: 14,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: 14,
     },
-    logoPlaceholder: {
-        width: 56,
-        height: 56,
+    avatarPlaceholder: {
+        width: 52,
+        height: 52,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 1.5,
     },
-    cardMainInfo: {
-        flex: 1,
-    },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: '800',
-    },
+    avatarText: { fontSize: 22, fontWeight: '800' },
+    cardMainInfo: { flex: 1 },
+    cardTitle: { fontSize: 16, fontWeight: '800' },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        marginTop: 4,
+        marginTop: 3,
     },
-    cardSubtitle: {
-        fontSize: 13,
+    cardSubtitle: { fontSize: 13, fontWeight: '500' },
+    cardBody: { marginTop: 14 },
+    tagsRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+    tag: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 8,
     },
+    tagText: { fontSize: 11, fontWeight: '700' },
+    description: { fontSize: 13, lineHeight: 18, marginTop: 10 },
     cardFooter: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 16,
-        gap: 12,
-    },
-    avatarPlaceholder: {
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-    },
-    avatarText: {
-        fontSize: 24,
-        fontWeight: '800',
-    },
-    cardBody: {
-        marginTop: 16,
-        marginBottom: 16,
-    },
-    tagsRow: {
-        flexDirection: 'row',
-        gap: 8,
-        marginBottom: 12,
-        flexWrap: 'wrap',
-    },
-    tag: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    tagText: {
-        fontSize: 11,
-        fontWeight: '600',
-    },
-    description: {
-        fontSize: 14,
-        lineHeight: 20,
+        marginTop: 14,
+        paddingTop: 14,
+        borderTopWidth: 1,
+        gap: 10,
     },
     actionBtn: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 10,
+        paddingVertical: 11,
+        borderRadius: 12,
         gap: 6,
-        flex: 1,
+        borderWidth: 1,
     },
-    actionBtnText: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    titleSection: {
-        marginBottom: 20,
-    },
+    actionBtnText: { fontSize: 13, fontWeight: '700' },
     certificationBox: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        padding: 8,
-        borderRadius: 10,
+        padding: 10,
+        borderRadius: 12,
         borderWidth: 1,
+        marginTop: 12,
     },
-    certificationText: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    certificationText: { fontSize: 12, fontWeight: '700' },
     emptyState: {
-        paddingTop: 40,
-    }
+        alignItems: 'center',
+        paddingTop: 60,
+        paddingHorizontal: 40,
+    },
+    emptyTitle: { fontSize: 18, fontWeight: '800', marginTop: 16, marginBottom: 6 },
+    emptyText: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
 });
