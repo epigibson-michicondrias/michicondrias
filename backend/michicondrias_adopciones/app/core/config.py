@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Michicondrias Adopciones API"
-    API_V1_STR: str = "/api/v1/adopciones"
+    API_V1_STR: str = "/api/v1"
     
     # Database Connection
     DATABASE_URL: str | None = None

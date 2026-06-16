@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Michicondrias Directorio API"
-    API_V1_STR: str = "/api/v1/directorio"
+    API_V1_STR: str = "/api/v1"
     
     # Database Connection - Supabase
     DATABASE_URL: str = "postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres"
