@@ -16,15 +16,16 @@ SERVICES = [
 ]
 
 # Using the Session Pooler URL strictly for IPv4 compatibility on AWS Lambda
-SUPABASE_URL = "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require"
+SUPABASE_URL = "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require"
 
 for service_dir in SERVICES:
     print(f"\n--- Processing {service_dir} ---")
     lambda_name = service_dir.replace("_", "-")
     
     # 1. Update local .env
-    env_path = os.path.join(r"C:\desarrollos\michicondrias\backend", service_dir, ".env")
+    env_path = os.path.join(os.path.dirname(__file__), service_dir, ".env")
     if os.path.exists(env_path):
+
         with open(env_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
         

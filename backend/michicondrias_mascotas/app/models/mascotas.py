@@ -59,15 +59,25 @@ class LostPet(Base):
 class PetfriendlyPlace(Base):
     __tablename__ = "petfriendly_places"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
-    name = Column(String, index=True, nullable=False)
-    category = Column(String, index=True, nullable=False) # e.g. "restaurant", "park", "hotel"
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    added_by = Column(String, nullable=False, index=True)
+
+    name = Column(String(200), nullable=False)
+    category = Column(String(60), nullable=False)
+    address = Column(String(300), nullable=True)
+    city = Column(String(100), nullable=True)
     description = Column(Text, nullable=True)
-    address = Column(String, nullable=False)
-    city = Column(String, nullable=True)
-    state = Column(String, nullable=True)
+    image_url = Column(Text, nullable=True)
+
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-    rating = Column(Float, default=0.0)
-    image_url = Column(String, nullable=True)
-    created_by_user_id = Column(String, nullable=False)
+
+    phone = Column(String(30), nullable=True)
+    website = Column(String(255), nullable=True)
+    rating = Column(Float, default=0)
+
+    pet_sizes_allowed = Column(String(60), default="todos")
+    has_water_bowls = Column(String(10), default="no")
+    has_pet_menu = Column(String(10), default="no")
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

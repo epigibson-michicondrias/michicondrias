@@ -42,8 +42,7 @@ def get_places(db: Session, skip: int = 0, limit: int = 100, category: str = Non
     return query.offset(skip).limit(limit).all()
 
 def create_place(db: Session, place: PetfriendlyPlaceCreate, user_id: str):
-    db_place = PetfriendlyPlace(**place.model_dump())
-    db_place.created_by_user_id = user_id
+    db_place = PetfriendlyPlace(added_by=user_id, **place.model_dump())
     db.add(db_place)
     db.commit()
     db.refresh(db_place)

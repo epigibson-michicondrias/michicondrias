@@ -35,14 +35,18 @@ class LostPetResponse(LostPetBase):
 class PetfriendlyPlaceBase(BaseModel):
     name: str
     category: str
-    description: Optional[str] = None
-    address: str
+    address: Optional[str] = None
     city: Optional[str] = None
-    state: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    rating: Optional[float] = 0.0
-    image_url: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    rating: Optional[float] = 0
+    pet_sizes_allowed: Optional[str] = "todos"
+    has_water_bowls: Optional[str] = "no"
+    has_pet_menu: Optional[str] = "no"
 
 class PetfriendlyPlaceCreate(PetfriendlyPlaceBase):
     pass
@@ -56,7 +60,8 @@ class PetfriendlyPlaceUpdate(BaseModel):
 
 class PetfriendlyPlaceResponse(PetfriendlyPlaceBase):
     id: str
-    created_by_user_id: str
+    added_by: str
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
