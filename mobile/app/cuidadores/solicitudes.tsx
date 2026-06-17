@@ -176,7 +176,12 @@ export default function SitterRequestsScreen() {
             </View>
 
             {/* Status Filters */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer}>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.filtersContainer}
+                contentContainerStyle={styles.filtersContentContainer}
+            >
                 {statusFilters.map((filter) => (
                     <FilterChip
                         key={filter.id}
@@ -211,8 +216,10 @@ export default function SitterRequestsScreen() {
 
 const styles = StyleSheet.create({
     filtersContainer: {
-        paddingHorizontal: 24,
         marginBottom: 16,
+    },
+    filtersContentContainer: {
+        paddingHorizontal: 24,
         gap: 8,
     },
     list: {
