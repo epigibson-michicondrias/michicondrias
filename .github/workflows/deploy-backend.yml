@@ -80,7 +80,7 @@ jobs:
         # 1.5 Copiar variables de entorno desde core y configurar PROXY_PREFIX para el servicio actual
         echo "Copiando variables de entorno desde core para ${{ matrix.service }}..."
         ENV_VARS=$(aws lambda get-function-configuration --function-name michicondrias-core --region us-east-1 --query "Environment.Variables" --output json)
-        UPDATED_ENV=$(echo $ENV_VARS | jq -c '. + {"PROXY_PREFIX": "/${{ matrix.service }}"}')
+        UPDATED_ENV=$(echo $ENV_VARS | jq -c '. + {"PROXY_PREFIX": "/${{ matrix.service }}", "DATABASE_URL": "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require"}')
         FINAL_ENV_JSON=$(jq -c -n --argjson vars "$UPDATED_ENV" '{"Variables": $vars}')
         aws lambda update-function-configuration \
           --function-name michicondrias-${{ matrix.service }} \
