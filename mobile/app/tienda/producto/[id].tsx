@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -16,9 +16,11 @@ const { width } = Dimensions.get('window');
 export default function ProductDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { product, reviews, isLoading, goBack } = useProduct();
+    const { product, reviews, isLoading, goBack, handleCreateReview, isCreatingReview } = useProduct();
     const [quantity, setQuantity] = useState(1);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [formRating, setFormRating] = useState(5);
+    const [formComment, setFormComment] = useState('');
     const { addToCart } = useCart();
 
     const handleAddToCart = () => {
@@ -59,6 +61,19 @@ export default function ProductDetailScreen() {
                                 <Text style={[styles.reviewCount, { color: theme.textMuted }]}>({product.review_count || 0} reviews)</Text>
                             </View>
                         </View>
+                        
+                        {/* Stock / Availability */}
+                        <View style={styles.stockRow}>
+                            <Text style={[styles.stockLabel, { color: theme.textMuted }]}>Disponibilidad: </Text>
+                            <Text 
+                                style={[
+                                    styles.stockValue, 
+                                    { color: product.stock > 0 ? '#10b981' : '#ef4444', fontWeight: '800' }
+                                ]}
+                            >
+                                {product.stock > 0 ? `En Stock (${product.stock} unidades)` : 'Agotado'}
+                            </Text>
+                        </View>
                     </View>
 
                     <View style={[styles.divider, { backgroundColor: theme.border }]} />
@@ -83,6 +98,15 @@ export default function ProductDetailScreen() {
                         </Text>
                     </View>
 
+                    {product.specifications ? (
+                        <View style={styles.tabsSection}>
+                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Especificaciones Técnicas</Text>
+                            <Text style={[styles.description, { color: theme.textMuted }]}>
+                                {product.specifications}
+                            </Text>
+                        </View>
+                    ) : null}
+
                     <View style={styles.benefitSection}>
                         <View style={styles.benefitItem}>
                             <Truck size={20} color={theme.primary} />
@@ -98,15 +122,37 @@ export default function ProductDetailScreen() {
                         </View>
                     </View>
 
-                    {reviews.length > 0 && (
-                        <View style={styles.reviewsSection}>
-                            <View style={styles.sectionHeader}>
-                                <Text style={[styles.sectionTitle, { color: theme.text }]}>Reseñas</Text>
-                                <TouchableOpacity>
-                                    <Text style={{ color: theme.primary, fontWeight: '700' }}>Ver todas</Text>
-                                </TouchableOpacity>
+                    {/* Sección de Reseñas y Calificaciones */}
+                    <View style={styles.reviewsSection}>
+                        <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 12 }]}>Reseñas y Opiniones</Text>
+                        
+                        {/* Tarjeta de Resumen */}
+                        <View style={[styles.ratingSummaryCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                            <View style={styles.summaryLeft}>
+                                <Text style={[styles.bigRating, { color: theme.text }]}>
+                                    {product.average_rating?.toFixed(1) || '5.0'}
+                                </Text>
+                                <View style={styles.starsRow}>
+                                    {[1, 2, 3, 4, 5].map((s) => {
+                                        const isFilled = s <= Math.round(product.average_rating || 5);
+                                        return <Star key={s} size={14} color="#facc15" fill={isFilled ? "#facc15" : "transparent"} />;
+                                    })}
+                                </View>
+                                <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
+                                    {product.review_count || 0} {product.review_count === 1 ? 'opinión' : 'opiniones'}
+                                </Text>
                             </View>
-                            {reviews.slice(0, 2).map((review) => (
+                            <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
+                            <View style={styles.summaryRight}>
+                                <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
+                                    Calificaciones reales proporcionadas por clientes verificados en Michi-Shop.
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* Listado de opiniones */}
+                        {reviews.length > 0 ? (
+                            reviews.map((review) => (
                                 <View key={review.id} style={[styles.reviewItem, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                                     <View style={styles.reviewHeader}>
                                         <View style={styles.starsRow}>
@@ -116,11 +162,64 @@ export default function ProductDetailScreen() {
                                         </View>
                                         <Text style={[styles.reviewDate, { color: theme.textMuted }]}>{new Date(review.created_at).toLocaleDateString()}</Text>
                                     </View>
-                                    <Text style={[styles.reviewComment, { color: theme.text }]}>{review.comment}</Text>
+                                    {review.comment ? (
+                                        <Text style={[styles.reviewComment, { color: theme.text }]}>{review.comment}</Text>
+                                    ) : null}
                                 </View>
-                            ))}
+                            ))
+                        ) : (
+                            <Text style={[styles.emptyReviews, { color: theme.textMuted }]}>
+                                Aún no hay opiniones para este producto. ¡Sé el primero en calificarlo!
+                            </Text>
+                        )}
+
+                        {/* Formulario de Calificación */}
+                        <View style={[styles.writeReviewCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar este producto</Text>
+                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>Toca las estrellas para calificar y deja tu comentario</Text>
+                            
+                            <View style={styles.interactiveStars}>
+                                {[1, 2, 3, 4, 5].map((starVal) => (
+                                    <TouchableOpacity 
+                                        key={starVal} 
+                                        onPress={() => setFormRating(starVal)}
+                                        style={styles.starTouch}
+                                    >
+                                        <Star 
+                                            size={30} 
+                                            color="#facc15" 
+                                            fill={starVal <= formRating ? "#facc15" : "transparent"} 
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+
+                            <TextInput
+                                style={[styles.commentInput, { 
+                                    backgroundColor: theme.background, 
+                                    borderColor: theme.borderLight, 
+                                    color: theme.text 
+                                }]}
+                                placeholder="Escribe tu opinión aquí (opcional)..."
+                                placeholderTextColor={theme.textMuted}
+                                value={formComment}
+                                onChangeText={setFormComment}
+                                multiline
+                                numberOfLines={3}
+                            />
+
+                            <TouchableOpacity 
+                                style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
+                                onPress={() => {
+                                    handleCreateReview({ rating: formRating, comment: formComment.trim() || undefined });
+                                    setFormComment('');
+                                }}
+                                disabled={isCreatingReview}
+                            >
+                                <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
+                            </TouchableOpacity>
                         </View>
-                    )}
+                    </View>
                 </View>
             </ScrollView>
 
@@ -321,5 +420,104 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: '800',
-    }
+    },
+    stockRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    stockLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    stockValue: {
+        fontSize: 14,
+    },
+    ratingSummaryCard: {
+        flexDirection: 'row',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    summaryLeft: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingRight: 16,
+        minWidth: 90,
+    },
+    bigRating: {
+        fontSize: 36,
+        fontWeight: '900',
+        lineHeight: 42,
+    },
+    totalReviewsText: {
+        fontSize: 11,
+        fontWeight: '600',
+        marginTop: 4,
+    },
+    summarySeparator: {
+        width: 1,
+        height: '80%',
+        marginHorizontal: 4,
+    },
+    summaryRight: {
+        flex: 1,
+        paddingLeft: 12,
+    },
+    summaryDescription: {
+        fontSize: 12,
+        lineHeight: 18,
+    },
+    emptyReviews: {
+        fontSize: 14,
+        textAlign: 'center',
+        marginVertical: 20,
+        fontStyle: 'italic',
+    },
+    writeReviewCard: {
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        marginTop: 20,
+        gap: 12,
+    },
+    writeReviewTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+    },
+    writeReviewSubtitle: {
+        fontSize: 12,
+        lineHeight: 18,
+    },
+    interactiveStars: {
+        flexDirection: 'row',
+        gap: 8,
+        marginVertical: 4,
+    },
+    starTouch: {
+        padding: 4,
+    },
+    commentInput: {
+        borderWidth: 1,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        fontSize: 14,
+        minHeight: 80,
+        textAlignVertical: 'top',
+    },
+    submitReviewBtn: {
+        borderRadius: 16,
+        height: 48,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    submitReviewBtnText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '700',
+    },
 });
