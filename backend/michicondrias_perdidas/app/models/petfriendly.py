@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Text, DateTime, Float, Integer
+from sqlalchemy import Column, String, Text, DateTime, Float, Integer, ForeignKey
 from sqlalchemy.sql import func
 from app.db.session import Base
 
@@ -28,4 +28,15 @@ class PetfriendlyPlace(Base):
     has_water_bowls = Column(String(10), default="no")
     has_pet_menu = Column(String(10), default="no")
 
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class PetfriendlyReview(Base):
+    __tablename__ = "petfriendly_reviews"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    place_id = Column(String, ForeignKey("petfriendly_places.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(String, nullable=False, index=True)
+    rating = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

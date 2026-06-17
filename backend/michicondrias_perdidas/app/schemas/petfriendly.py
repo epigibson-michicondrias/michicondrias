@@ -31,3 +31,20 @@ class PlaceOut(PlaceBase):
 
     class Config:
         from_attributes = True
+
+
+class PetfriendlyReviewCreate(BaseModel):
+    rating: int
+    comment: Optional[str] = None
+
+
+class PetfriendlyReviewOut(BaseModel):
+    id: str
+    place_id: str
+    user_id: str
+    rating: int
+    comment: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

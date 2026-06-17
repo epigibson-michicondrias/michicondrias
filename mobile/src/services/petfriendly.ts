@@ -42,3 +42,31 @@ export async function createPlace(placeData: Partial<PetfriendlyPlace>): Promise
         body: JSON.stringify(placeData)
     });
 }
+
+export interface PetfriendlyReview {
+    id: string;
+    place_id: string;
+    user_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+}
+
+export interface PetfriendlyReviewCreate {
+    rating: number;
+    comment: string;
+}
+
+export async function getPlaceReviews(placeId: string): Promise<PetfriendlyReview[]> {
+    return apiFetch<PetfriendlyReview[]>("perdidas", `/places/${placeId}/reviews`);
+}
+
+export async function createPlaceReview(
+    placeId: string,
+    data: PetfriendlyReviewCreate
+): Promise<PetfriendlyReview> {
+    return apiFetch<PetfriendlyReview>("perdidas", `/places/${placeId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}

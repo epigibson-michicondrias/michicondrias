@@ -7,7 +7,7 @@ import uuid
 from app.api import deps
 from app.db.session import get_db
 from app.crud.crud_petfriendly import create_place, get_places, get_place_by_id
-from app.schemas.petfriendly import PlaceCreate, PlaceOut
+from app.schemas.petfriendly import PlaceCreate, PlaceOut, PetfriendlyReviewCreate, PetfriendlyReviewOut
 
 router = APIRouter()
 
@@ -66,3 +66,49 @@ def add_place(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     return create_place(db, place_in=place_in, user_id=user_id)
+
+
+@router.post("/{place_id}/reviews", response_model=PetfriendlyReviewOut)
+def create_place_review(
+    *,
+    db: Session = Depends(get_db),
+    place_id: str,
+    review_in: PetfriendlyReviewCreate,
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Leave a review for a pet-friendly place."""
+    from app.models.petfriendly import PetfriendlyReview, PetfriendlyPlace
+    from sqlalchemy.sql import func
+    
+    place = db.query(PetfriendlyPlace).filter(PetfriendlyPlace.id == place_id).first()
+    if not place:
+        raise HTTPException(status_code=404, detail="Lugar no encontrado")
+
+    if not (1 <= review_in.rating <= 5):
+        raise HTTPException(status_code=400, detail="La calificación debe estar entre 1 y 5 estrellas")
+
+    db_review = PetfriendlyReview(
+        place_id=place_id,
+        user_id=user_id,
+        **review_in.model_dump(),
+    )
+    db.add(db_review)
+    db.commit()
+
+    # Recalculate average rating of the place
+    avg = db.query(func.avg(PetfriendlyReview.rating)).filter(PetfriendlyReview.place_id == place_id).scalar()
+    place.rating = float(avg) if avg else 0.0
+    db.commit()
+
+    db.refresh(db_review)
+    return db_review
+
+
+@router.get("/{place_id}/reviews", response_model=List[PetfriendlyReviewOut])
+def read_place_reviews(
+    place_id: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Get all reviews for a specific pet-friendly place."""
+    from app.models.petfriendly import PetfriendlyReview
+    return db.query(PetfriendlyReview).filter(PetfriendlyReview.place_id == place_id).order_by(PetfriendlyReview.created_at.desc()).all()
