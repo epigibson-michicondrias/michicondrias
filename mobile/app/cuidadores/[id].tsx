@@ -6,6 +6,7 @@ import { useSitterDetail } from '@/src/hooks/cuidadores';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { showAlert } from '@/src/components/AppAlert';
 import { 
     MapPin, Star, Clock, Home, Users, Phone, MessageCircle, Calendar, 
     Shield, Heart, Share2, Dog, Cat, CheckCircle, Sun, Moon
@@ -38,6 +39,9 @@ export default function SitterDetailScreen() {
         handleSubmitSitRequest,
         isRequestingSit,
     } = useSitterDetail();
+
+    const [contactModalVisible, setContactModalVisible] = React.useState(false);
+    const [contactMessage, setContactMessage] = React.useState('');
 
     const getServiceIcon = (type: string) => {
         switch (type) {
@@ -252,7 +256,7 @@ export default function SitterDetailScreen() {
                 <View style={styles.actionContainer}>
                     <TouchableOpacity
                         style={[styles.contactButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                        onPress={handleContact}
+                        onPress={() => setContactModalVisible(true)}
                     >
                         <MessageCircle size={20} color={theme.primary} />
                         <Text style={[styles.contactButtonText, { color: theme.primary }]}>Enviar Mensaje</Text>
@@ -342,6 +346,55 @@ export default function SitterDetailScreen() {
                                 {isRequestingSit ? <ActivityIndicator color="#fff" size="small" /> : (
                                     <Text style={styles.modalSubmitText}>Enviar Solicitud</Text>
                                 )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Contact Modal */}
+            <Modal visible={contactModalVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+                        <Text style={[styles.modalTitle, { color: theme.text }]}>Enviar Mensaje</Text>
+                        
+                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Escribe tu mensaje para {sitter.display_name}</Text>
+                        <TextInput
+                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                            value={contactMessage}
+                            onChangeText={setContactMessage}
+                            placeholder="Hola, me gustaría saber si tienes disponibilidad para..."
+                            placeholderTextColor={theme.textMuted}
+                            multiline
+                        />
+
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity 
+                                style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} 
+                                onPress={() => {
+                                    setContactModalVisible(false);
+                                    setContactMessage('');
+                                }}
+                            >
+                                <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
+                                onPress={() => {
+                                    if (!contactMessage.trim()) {
+                                        showAlert({ type: 'error', title: 'Mensaje Vacío', message: 'Por favor escribe un mensaje antes de enviar.' });
+                                        return;
+                                    }
+                                    setContactModalVisible(false);
+                                    setContactMessage('');
+                                    showAlert({ 
+                                        type: 'success', 
+                                        title: '¡Mensaje Enviado!', 
+                                        message: `Tu mensaje ha sido enviado a ${sitter.display_name}. Se pondrá en contacto contigo pronto.` 
+                                    });
+                                }}
+                            >
+                                <Text style={styles.modalSubmitText}>Enviar Mensaje</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

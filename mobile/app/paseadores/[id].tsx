@@ -10,6 +10,7 @@ import {
     Shield, Heart, Share2, Dog, Cat, CheckCircle 
 } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { showAlert } from '@/src/components/AppAlert';
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
@@ -44,6 +45,8 @@ export default function WalkerDetailScreen() {
 
     const [formRating, setFormRating] = React.useState(5);
     const [formComment, setFormComment] = React.useState('');
+    const [contactModalVisible, setContactModalVisible] = React.useState(false);
+    const [contactMessage, setContactMessage] = React.useState('');
 
     if (isLoading) {
         return (
@@ -366,7 +369,7 @@ export default function WalkerDetailScreen() {
             <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
                 <TouchableOpacity
                     style={[styles.contactBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                    onPress={handleContact}
+                    onPress={() => setContactModalVisible(true)}
                 >
                     <MessageCircle size={20} color={theme.primary} />
                     <Text style={[styles.contactBtnText, { color: theme.primary }]}>Enviar Mensaje</Text>
@@ -451,6 +454,55 @@ export default function WalkerDetailScreen() {
                                 {isRequestingWalk ? <ActivityIndicator color="#fff" size="small" /> : (
                                     <Text style={styles.modalSubmitText}>Enviar Solicitud</Text>
                                 )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Contact Modal */}
+            <Modal visible={contactModalVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+                        <Text style={[styles.modalTitle, { color: theme.text }]}>Enviar Mensaje</Text>
+                        
+                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Escribe tu mensaje para {walker.display_name}</Text>
+                        <TextInput
+                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                            value={contactMessage}
+                            onChangeText={setContactMessage}
+                            placeholder="Hola, me gustaría saber si tienes disponibilidad para..."
+                            placeholderTextColor={theme.textMuted}
+                            multiline
+                        />
+
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity 
+                                style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} 
+                                onPress={() => {
+                                    setContactModalVisible(false);
+                                    setContactMessage('');
+                                }}
+                            >
+                                <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
+                                onPress={() => {
+                                    if (!contactMessage.trim()) {
+                                        showAlert({ type: 'error', title: 'Mensaje Vacío', message: 'Por favor escribe un mensaje antes de enviar.' });
+                                        return;
+                                    }
+                                    setContactModalVisible(false);
+                                    setContactMessage('');
+                                    showAlert({ 
+                                        type: 'success', 
+                                        title: '¡Mensaje Enviado!', 
+                                        message: `Tu mensaje ha sido enviado a ${walker.display_name}. Se pondrá en contacto contigo pronto.` 
+                                    });
+                                }}
+                            >
+                                <Text style={styles.modalSubmitText}>Enviar Mensaje</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
