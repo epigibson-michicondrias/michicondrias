@@ -1,8 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminDashboard } from '@/src/hooks/admin';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import {
     Users,
     UserCheck,
@@ -12,50 +14,16 @@ import {
     ShoppingCart,
     BarChart3,
     Settings,
-    ChevronLeft,
     AlertTriangle,
     Heart,
-    Star,
-    Grid,
-    Info
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useQuery } from '@tanstack/react-query';
-import { adminUsersService } from '@/src/services/adminUsers';
-import { getClinics } from '@/src/services/directorio';
 
 const { width } = Dimensions.get('window');
 
-type AdminModule = {
-    key: string;
-    title: string;
-    description: string;
-    icon: any;
-    color: string;
-    route: string;
-};
-
 export default function AdminScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-
-    const { data: stats } = useQuery({
-        queryKey: ['admin-stats'],
-        queryFn: () => adminUsersService.getUsersStats(),
-    });
-
-    const { data: clinics = [] } = useQuery({
-        queryKey: ['admin-clinics'],
-        queryFn: () => getClinics(),
-    });
-
-    const totalUsers = stats?.total_users || 0;
-    const vetCount = stats?.role_distribution?.['veterinario'] || 0;
-    const consumerCount = stats?.role_distribution?.['consumidor'] || 0;
-    const sitterCount = (stats?.role_distribution?.['paseador'] || 0) + (stats?.role_distribution?.['cuidador'] || 0);
+    const { theme } = useTheme();
+    const { totalUsers, vetCount, sitterCount, clinicCount } = useAdminDashboard();
 
     const moduleGroups = [
         {
@@ -166,23 +134,12 @@ export default function AdminScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'CC', theme.primary + '99']}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Panel Admin</Text>
-                        <Text style={styles.subtitle}>Gestor Central Michicondrias</Text>
-                    </View>
-                    <View style={{ width: 40 }} />
-                </View>
-            </LinearGradient>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Panel Admin"
+                showBack
+                gradient={[theme.primary, theme.primary + 'CC', theme.primary + '99']}
+            />
 
             <ScrollView 
                 style={styles.content} 
@@ -203,7 +160,7 @@ export default function AdminScreen() {
                     <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                         <MapPin size={18} color="#10b981" />
                         <View>
-                            <Text style={[styles.statNumber, { color: theme.text }]}>{clinics.length}</Text>
+                            <Text style={[styles.statNumber, { color: theme.text }]}>{clinicCount}</Text>
                             <Text style={[styles.statLabel, { color: theme.textMuted }]}>Clínicas</Text>
                         </View>
                     </View>
@@ -264,52 +221,11 @@ export default function AdminScreen() {
                     </View>
                 </View>
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    premiumHeader: {
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-    },
-    headerTop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    backBtn: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerContent: {
-        display: 'none',
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#fff',
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: 'rgba(255,255,255,0.8)',
-        marginTop: 2,
-    },
     content: {
         flex: 1,
     },

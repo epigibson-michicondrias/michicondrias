@@ -59,6 +59,20 @@ export interface ClinicRating {
     total_reviews: number;
 }
 
+export interface VetReview {
+    id: string;
+    vet_id: string;
+    user_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string | null;
+}
+
+export interface VetRating {
+    average_rating: number;
+    total_reviews: number;
+}
+
 // --- Clinics ---
 
 export async function getClinics(): Promise<Clinic[]> {
@@ -129,6 +143,21 @@ export async function createClinicReview(clinicId: string, rating: number, comme
 
 export async function getClinicRating(clinicId: string): Promise<ClinicRating> {
     return apiFetch<ClinicRating>("directorio", `/reviews/clinics/${clinicId}/rating`);
+}
+
+export async function getVetReviews(vetId: string): Promise<VetReview[]> {
+    return apiFetch<VetReview[]>("directorio", `/reviews/vets/${vetId}/reviews`);
+}
+
+export async function createVetReview(vetId: string, rating: number, comment?: string): Promise<VetReview> {
+    return apiFetch<VetReview>("directorio", `/reviews/vets/${vetId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({ rating, comment: comment || null }),
+    });
+}
+
+export async function getVetRating(vetId: string): Promise<VetRating> {
+    return apiFetch<VetRating>("directorio", `/reviews/vets/${vetId}/rating`);
 }
 
 // --- Services Catalog ---
@@ -360,4 +389,47 @@ export async function updateConsultationStatus(id: string, status: string): Prom
     });
 }
 
+// --- Schedule Exceptions ---
 
+export interface ScheduleException {
+    id: string;
+    clinic_id: string;
+    date: string;
+    reason?: string | null;
+    is_closed: boolean;
+    custom_start_time?: string | null;
+    custom_end_time?: string | null;
+}
+
+export async function getScheduleExceptions(clinicId: string): Promise<ScheduleException[]> {
+    return apiFetch<ScheduleException[]>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions`);
+}
+
+export async function addScheduleException(clinicId: string, data: Partial<ScheduleException>): Promise<ScheduleException> {
+    return apiFetch<ScheduleException>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+// --- Clinic Metrics & Alerts ---
+
+export async function getWeeklyMetrics(clinicId: string): Promise<any> {
+    return apiFetch<any>("directorio", `/clinics/${clinicId}/metrics/weekly`);
+}
+
+export async function getUnreadAlertCount(clinicId: string): Promise<{ count: number }> {
+    return apiFetch<{ count: number }>("directorio", `/clinics/${clinicId}/alerts/unread`);
+}
+
+export async function deleteAlert(alertId: string): Promise<void> {
+    return apiFetch<void>("directorio", `/clinics/alerts/${alertId}`, {
+        method: "DELETE",
+    });
+}
+
+// --- Surgeries (today) ---
+
+export async function getTodaySurgeries(clinicId: string): Promise<SurgeryItem[]> {
+    return apiFetch<SurgeryItem[]>("directorio", `/clinics/${clinicId}/surgeries/today`);
+}

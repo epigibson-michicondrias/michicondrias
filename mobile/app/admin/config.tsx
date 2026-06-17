@@ -1,47 +1,22 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
-import { useRouter } from 'expo-router';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, ActivityIndicator } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminConfig } from '@/src/hooks/admin/useAdminConfig';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, Settings, ShieldCheck, Zap, Globe, Bell, Database, HardDrive, Cpu, Cloud, Lock } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { systemService, SystemSettings } from '@/src/services/system';
-import { showAlert } from '@/src/components/AppAlert';
-import { ActivityIndicator } from 'react-native';
 
 export default function AdminConfigScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    const queryClient = useQueryClient();
-
-    const { data: settings, isLoading } = useQuery({
-        queryKey: ['admin-system-settings'],
-        queryFn: systemService.getSettings,
-    });
-
-    const updateMutation = useMutation({
-        mutationFn: (data: Partial<SystemSettings>) => systemService.updateSettings(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-system-settings'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const syncMutation = useMutation({
-        mutationFn: systemService.syncDatabase,
-        onSuccess: (data) => showAlert({ type: 'success', title: 'Éxito', message: data.message || 'Sincronización completada.' }),
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const cacheMutation = useMutation({
-        mutationFn: systemService.clearCache,
-        onSuccess: (data) => showAlert({ type: 'success', title: 'Éxito', message: data.message || 'Caché global limpiada.' }),
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
+    const { theme } = useTheme();
+    const {
+        currentSettings,
+        isLoading,
+        toggleSetting,
+        syncDatabase,
+        clearCache,
+        isSyncing,
+        isClearing,
+    } = useAdminConfig();
 
     if (isLoading) {
         return (
@@ -51,39 +26,17 @@ export default function AdminConfigScreen() {
         );
     }
 
-    const currentSettings = settings || {
-        maintenance_mode: false,
-        debug_mode: false,
-        ota_updates_enabled: true,
-        push_notifications_enabled: true,
-    } as SystemSettings;
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={['#64748b', '#64748bE6', '#64748bCC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Configuración</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Parámetros de Sistema</Text>
-                        </View>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Configuración"
+                gradient={['#64748b', '#64748bE6', '#64748bCC']}
+                rightElement={
                     <View style={styles.headerAction}>
                         <Settings size={22} color="#fff" style={{ opacity: 0.8 }} />
                     </View>
-                </View>
-            </LinearGradient>
+                }
+            />
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
                 <View style={styles.section}>
@@ -97,7 +50,7 @@ export default function AdminConfigScreen() {
                             label="Modo Mantenimiento"
                             desc="Desactiva el acceso a la app"
                             value={currentSettings.maintenance_mode}
-                            onToggle={() => updateMutation.mutate({ maintenance_mode: !currentSettings.maintenance_mode })}
+                            onToggle={() => toggleSetting('maintenance_mode')}
                             theme={theme}
                         />
                         <ConfigRow
@@ -105,7 +58,7 @@ export default function AdminConfigScreen() {
                             label="Modo Debug"
                             desc="Habilitar logs detallados"
                             value={currentSettings.debug_mode}
-                            onToggle={() => updateMutation.mutate({ debug_mode: !currentSettings.debug_mode })}
+                            onToggle={() => toggleSetting('debug_mode')}
                             theme={theme}
                             isLast
                         />
@@ -123,7 +76,7 @@ export default function AdminConfigScreen() {
                             label="Updates OTA"
                             desc="Actualizaciones automáticas"
                             value={currentSettings.ota_updates_enabled}
-                            onToggle={() => updateMutation.mutate({ ota_updates_enabled: !currentSettings.ota_updates_enabled })}
+                            onToggle={() => toggleSetting('ota_updates_enabled')}
                             theme={theme}
                         />
                         <ConfigRow
@@ -131,7 +84,7 @@ export default function AdminConfigScreen() {
                             label="Push Notifications"
                             desc="Servicio de mensajería Firebase"
                             value={currentSettings.push_notifications_enabled}
-                            onToggle={() => updateMutation.mutate({ push_notifications_enabled: !currentSettings.push_notifications_enabled })}
+                            onToggle={() => toggleSetting('push_notifications_enabled')}
                             theme={theme}
                             isLast
                         />
@@ -148,8 +101,8 @@ export default function AdminConfigScreen() {
                             icon={Database} 
                             label="Sync Base de Datos" 
                             theme={theme} 
-                            onPress={() => syncMutation.mutate()}
-                            loading={syncMutation.isPending}
+                            onPress={syncDatabase}
+                            loading={isSyncing}
                         />
                         <ActionRow 
                             icon={HardDrive} 
@@ -157,13 +110,13 @@ export default function AdminConfigScreen() {
                             theme={theme} 
                             color="#ef4444" 
                             isLast 
-                            onPress={() => cacheMutation.mutate()}
-                            loading={cacheMutation.isPending}
+                            onPress={clearCache}
+                            loading={isClearing}
                         />
                     </View>
                 </View>
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -204,59 +157,16 @@ function ActionRow({ icon: Icon, label, theme, color, isLast, onPress, loading }
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
+    center: {
         flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 8,
     },
     headerAction: {
         width: 44,
         height: 44,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
     },
     scroll: { 
         padding: 20, 
@@ -307,10 +217,5 @@ const styles = StyleSheet.create({
         fontSize: 12, 
         marginTop: 2, 
         fontWeight: '600' 
-    },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
 });

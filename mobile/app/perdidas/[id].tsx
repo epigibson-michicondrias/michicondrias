@@ -1,77 +1,57 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Linking, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import WebMapView from '../../src/components/WebMapView';
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getReportById, LostPetReport, resolveReport } from '../../src/services/perdidas';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, MapPin, Phone, Clock, AlertTriangle, Crosshair, Wifi, Battery, Navigation, Share2, Heart, CheckCircle2, User, Info, Scale, Fingerprint, Calendar } from 'lucide-react-native';
+import { useReportDetail } from '@/src/hooks/perdidas/useReportDetail';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import BackButton from '@/src/components/BackButton';
+import { MapPin, Phone, Clock, AlertTriangle, Wifi, Battery, Navigation, Share2, Heart, CheckCircle2, Info, Scale, Fingerprint, Calendar } from 'lucide-react-native';
 // @ts-ignore
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '../../src/contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 
 export default function PerdidasDetailScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
-    const router = useRouter();
-    const { user } = useAuth();
-    const queryClient = useQueryClient();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: report, isLoading, error } = useQuery({
-        queryKey: ['perdidas-report', id],
-        queryFn: () => getReportById(id?.toString() || ''),
-        enabled: !!id,
-        refetchInterval: (query) => (query.state.data?.has_tracker ? 5000 : false),
-    });
-
-    const resolveMutation = useMutation({
-        mutationFn: () => resolveReport(id?.toString() || ''),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['perdidas-report', id] });
-            showAlert({ type: 'success', title: '¡Felicidades!', message: 'Nos alegra mucho que este michi haya regresado a casa. ❤️' });
-        }
-    });
+    const { theme } = useTheme();
+    const {
+        report, isLoading, error, isOwner,
+        handleResolve, handleCall, goBack,
+    } = useReportDetail();
 
     if (isLoading) return (
-        <View style={[styles.center, { backgroundColor: theme.background }]}>
-            <ActivityIndicator size="large" color={theme.primary} />
-            <Text style={[styles.loadingText, { color: theme.textMuted }]}>Localizando michi...</Text>
-        </View>
+        <ScreenContainer>
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color={theme.primary} />
+                <Text style={[styles.loadingText, { color: theme.textMuted }]}>Localizando michi...</Text>
+            </View>
+        </ScreenContainer>
     );
 
     if (error || !report) return (
-        <View style={[styles.center, { backgroundColor: theme.background }]}>
-            <AlertTriangle size={48} color={theme.error} />
-            <Text style={{ color: theme.error, marginTop: 16 }}>Error al cargar el reporte</Text>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                <Text style={{ color: '#fff' }}>Regresar</Text>
-            </TouchableOpacity>
-        </View>
+        <ScreenContainer>
+            <View style={styles.center}>
+                <AlertTriangle size={48} color={theme.error} />
+                <Text style={{ color: theme.error, marginTop: 16 }}>Error al cargar el reporte</Text>
+                <TouchableOpacity onPress={goBack} style={styles.backBtn}>
+                    <Text style={{ color: '#fff' }}>Regresar</Text>
+                </TouchableOpacity>
+            </View>
+        </ScreenContainer>
     );
 
-    const isOwner = user?.id === report.reporter_id;
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer noPadding>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.hero}>
                     <Image
                         source={{ uri: report.image_url || 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=800' }}
                         style={styles.heroImage}
                     />
-                    {/* Hero Overlay Debug: Replaced LinearGradient with View */}
                     <View
                         style={[styles.heroOverlay, { backgroundColor: 'rgba(15, 23, 42, 0.4)' }]}
                     />
 
-                    <TouchableOpacity style={styles.floatingBack} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color="#fff" />
-                    </TouchableOpacity>
+                    <BackButton onPress={goBack} color="#fff" style={{ backgroundColor: 'rgba(15, 23, 42, 0.4)' }} />
 
                     <View style={styles.heroContent}>
                         <View style={styles.statusRow}>
@@ -202,17 +182,7 @@ export default function PerdidasDetailScreen() {
                     {isOwner && !report.is_resolved && (
                         <TouchableOpacity
                             style={[styles.resolveBtn, { backgroundColor: '#10b981' }]}
-                            onPress={() => {
-                                showAlert({
-                                    type: 'info',
-                                    title: '¿Ya regresó a casa?',
-                                    message: 'Esto marcará el reporte como RESUELTO y se notificará a la comunidad.',
-                                    showCancel: true,
-                                    cancelText: 'Cancelar',
-                                    buttonText: '¡SÍ, YA REGRESÓ!',
-                                    onButtonPress: () => resolveMutation.mutate(),
-                                });
-                            }}
+                            onPress={handleResolve}
                         >
                             <CheckCircle2 size={24} color="#fff" />
                             <Text style={styles.resolveBtnText}>Marcar como Reunido</Text>
@@ -232,40 +202,18 @@ export default function PerdidasDetailScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.callBtn, { backgroundColor: report.report_type === 'lost' ? '#ef4444' : '#6366f1' }]}
-                        onPress={() => Linking.openURL(`tel:${report.contact_phone || '5551234567'}`)}
+                        onPress={handleCall}
                     >
                         <Phone size={20} color="#fff" />
                         <Text style={styles.callText}>Contactar</Text>
                     </TouchableOpacity>
                 </View>
             </View>
-        </View>
+        </ScreenContainer>
     );
 }
 
-const mapStyle = [
-    { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
-    { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] },
-    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] },
-    { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
-    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
-    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#263c3f" }] },
-    { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] },
-    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] },
-    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] },
-    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] },
-    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#746855" }] },
-    { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1f2835" }] },
-    { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] },
-    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] },
-    { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#515c6d" }] },
-    { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#17263c" }] }
-];
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     center: {
         flex: 1,
         justifyContent: 'center',
@@ -287,18 +235,6 @@ const styles = StyleSheet.create({
     },
     heroOverlay: {
         ...StyleSheet.absoluteFillObject,
-    },
-    floatingBack: {
-        position: 'absolute',
-        top: 60,
-        left: 24,
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(15, 23, 42, 0.4)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 10,
     },
     heroContent: {
         position: 'absolute',
@@ -463,18 +399,6 @@ const styles = StyleSheet.create({
     },
     map: {
         flex: 1,
-    },
-    miniMarker: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        borderWidth: 3,
-        backgroundColor: '#fff',
-        overflow: 'hidden',
-    },
-    miniMarkerImg: {
-        width: '100%',
-        height: '100%',
     },
     resolveBtn: {
         height: 64,

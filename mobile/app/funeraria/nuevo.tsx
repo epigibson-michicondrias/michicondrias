@@ -3,15 +3,14 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-nativ
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { createFuneraryService } from '../../src/services/funerary';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { ChevronLeft, Heart, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
+import { Heart, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 export default function NuevaFunerariaScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme, isDark } = useTheme();
 
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
@@ -55,9 +54,7 @@ export default function NuevaFunerariaScreen() {
     return (
         <KeyboardScreen style={{ backgroundColor: theme.background }}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
+                <BackButton onPress={() => router.back()} />
                 <Text style={[styles.title, { color: theme.text }]}>Nuevo Servicio</Text>
                 <Text style={[styles.subtitle, { color: theme.textMuted }]}>Registra un servicio funerario</Text>
             </View>
@@ -155,15 +152,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingBottom: 20,
     },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
+
     title: {
         fontSize: 28,
         fontWeight: '900',

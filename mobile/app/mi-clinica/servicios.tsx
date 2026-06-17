@@ -1,111 +1,21 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyClinics, getClinicServices, createClinicService, updateClinicService, deleteClinicService, ClinicServiceItem } from '../../src/services/directorio';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, Plus, Pencil, Trash2, Clock, DollarSign, Tag, Briefcase, ChevronRight, X, AlertTriangle } from 'lucide-react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useClinicServices } from '@/src/hooks/clinica/useClinicServices';
+import { ClinicServiceItem } from '@/src/services/directorio';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Plus, Pencil, Trash2, Clock, Tag, Briefcase, X, AlertTriangle } from 'lucide-react-native';
 
 export default function ServiciosClinicaScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [editingService, setEditingService] = useState<ClinicServiceItem | null>(null);
-    const [loadingAction, setLoadingAction] = useState(false);
-
-    // Form State
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [price, setPrice] = useState('');
-    const [duration, setDuration] = useState('30');
-    const [category, setCategory] = useState('General');
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-
-    const clinic = clinics[0];
-
-    const { data: services = [], isLoading: loadingServices, refetch } = useQuery({
-        queryKey: ['clinic-services-pro', clinic?.id],
-        queryFn: () => getClinicServices(clinic!.id),
-        enabled: !!clinic?.id,
-    });
-
-    const resetForm = () => {
-        setName('');
-        setDescription('');
-        setPrice('');
-        setDuration('30');
-        setCategory('General');
-        setEditingService(null);
-    };
-
-    const handleEdit = (service: ClinicServiceItem) => {
-        setEditingService(service);
-        setName(service.name);
-        setDescription(service.description || '');
-        setPrice(service.price?.toString() || '');
-        setDuration(service.duration_minutes.toString());
-        setCategory(service.category || 'General');
-        setModalVisible(true);
-    };
-
-    const handleSave = async () => {
-        if (!name || !price || !duration) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
-            return;
-        }
-
-        setLoadingAction(true);
-        try {
-            const payload = {
-                name,
-                description,
-                price: parseFloat(price),
-                duration_minutes: parseInt(duration),
-                category,
-            };
-
-            if (editingService) {
-                await updateClinicService(editingService.id, payload);
-            } else {
-                await createClinicService(clinic!.id, payload);
-            }
-
-            refetch();
-            setModalVisible(false);
-            resetForm();
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar el servicio' });
-        } finally {
-            setLoadingAction(false);
-        }
-    };
-
-    const handleDelete = (id: string) => {
-        showAlert({
-            type: 'warning',
-            title: 'Eliminar Servicio',
-            message: '¿Estás seguro de que deseas eliminar este servicio del catálogo?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Eliminar',
-            onButtonPress: async () => {
-                try {
-                    await deleteClinicService(id);
-                    refetch();
-                } catch (e) {
-                    showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el servicio' });
-                }
-            }
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        modalVisible, setModalVisible, editingService, loadingAction,
+        name, setName, description, setDescription, price, setPrice,
+        duration, setDuration, category, setCategory,
+        loadingServices, services, handleEdit, handleSave, handleDelete,
+        openCreateModal,
+    } = useClinicServices();
 
     const renderItem = ({ item }: { item: ClinicServiceItem }) => (
         <View style={[styles.card, { backgroundColor: theme.surface }]}>
@@ -148,22 +58,13 @@ export default function ServiciosClinicaScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Servicios</Text>
-                    <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Catálogo de prestaciones</Text>
-                </View>
-                <TouchableOpacity
-                    style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => { resetForm(); setModalVisible(true); }}
-                >
-                    <Plus size={24} color="#fff" />
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Servicios"
+                subtitle="Catálogo de prestaciones"
+                actionIcon={Plus}
+                onAction={openCreateModal}
+            />
 
             {loadingServices ? (
                 <View style={styles.center}>
@@ -275,18 +176,11 @@ export default function ServiciosClinicaScreen() {
                     </View>
                 </KeyboardAvoidingView>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 24, fontWeight: '900' },
-    headerSubtitle: { fontSize: 14, fontWeight: '600' },
-    addBtn: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     list: { padding: 24, paddingBottom: 100 },
     card: { borderRadius: 28, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
     cardMain: { flexDirection: 'row', alignItems: 'center', gap: 16 },

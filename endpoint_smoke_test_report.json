@@ -1,0 +1,1465 @@
+{
+    "core": [
+        {
+            "path": "/api/v1/users/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/users/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/users/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/users/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/users/me/kyc/presigned-urls",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/users/me/kyc/presigned-urls",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/users/pending-verifications",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/users/pending-verifications",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/users/stats/summary",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/users/stats/summary",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/roles/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/roles/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/settings/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/settings/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/settings/public",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/settings/public",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/analytics/dashboard",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/analytics/dashboard",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/search/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/search/",
+            "status_code": 422,
+            "ok": false,
+            "error_detail": {
+                "detail": [
+                    {
+                        "type": "missing",
+                        "loc": [
+                            "query",
+                            "q"
+                        ],
+                        "msg": "Field required",
+                        "input": null
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/api/v1/notifications/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/notifications/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/admin/system/settings",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/admin/system/settings",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/core/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "adopciones": [
+        {
+            "path": "/api/v1/pets/presigned-url",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/pets/presigned-url",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/pets/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/{listing_id}",
+            "method": "GET",
+            "url": "/api/v1/pets/{listing_id}",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['listing_id']"
+        },
+        {
+            "path": "/api/v1/pets/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/pets/me",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Mascota no encontrada"
+            }
+        },
+        {
+            "path": "/api/v1/pets/requests/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/pets/requests/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/admin/pending",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/pets/admin/pending",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/admin/requests/pending",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/pets/admin/requests/pending",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/admin/{listing_id}/requests",
+            "method": "GET",
+            "url": "/api/v1/pets/admin/{listing_id}/requests",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['listing_id']"
+        },
+        {
+            "path": "/api/v1/pets/adoptions/refuge/applications",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/pets/adoptions/refuge/applications",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/adopciones/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "mascotas": [
+        {
+            "path": "/api/v1/lost-pets/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/lost-pets/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/lost-pets/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/lost-pets/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Pet not found"
+            }
+        },
+        {
+            "path": "/api/v1/places/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/places/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/places/{place_id}",
+            "method": "GET",
+            "url": "/api/v1/places/{place_id}",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['place_id']"
+        },
+        {
+            "path": "/api/v1/pets/presigned-url",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/pets/presigned-url",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/user/{user_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/pets/user/a9105cb4-06d0-4628-81b2-9b6e6a863283",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/admin/all",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/pets/admin/all",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/pets/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/pets/adopted-from/{listing_id}",
+            "method": "GET",
+            "url": "/api/v1/pets/adopted-from/{listing_id}",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['listing_id']"
+        },
+        {
+            "path": "/api/v1/pets/{pet_id}/passport/share",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/pets/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0/passport/share",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permiso para compartir el pasaporte de esta mascota"
+            }
+        },
+        {
+            "path": "/api/v1/pets/passport/view/{signed_token}",
+            "method": "GET",
+            "url": "/api/v1/pets/passport/view/{signed_token}",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['signed_token']"
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/mascotas/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "perdidas": [
+        {
+            "path": "/api/v1/reports/presigned-url",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/reports/presigned-url",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reports/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/reports/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reports/mine",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/reports/mine",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reports/{report_id}",
+            "method": "GET",
+            "url": "/api/v1/reports/{report_id}",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['report_id']"
+        },
+        {
+            "path": "/api/v1/reports/admin/pending",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/reports/admin/pending",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reports/{report_id}/matches",
+            "method": "GET",
+            "url": "/api/v1/reports/{report_id}/matches",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['report_id']"
+        },
+        {
+            "path": "/api/v1/places/presigned-url",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/places/presigned-url",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/places/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/places/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/places/{place_id}",
+            "method": "GET",
+            "url": "/api/v1/places/{place_id}",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['place_id']"
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "carnet": [
+        {
+            "path": "/api/v1/records/pet/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/carnet/api/v1/records/pet/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permiso para ver el expediente de esta mascota"
+            }
+        },
+        {
+            "path": "/api/v1/vaccines/pet/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/carnet/api/v1/vaccines/pet/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permiso para ver las vacunas de esta mascota"
+            }
+        },
+        {
+            "path": "/api/v1/reminders/pet/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/carnet/api/v1/reminders/pet/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permiso para ver los recordatorios de esta mascota"
+            }
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/carnet/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "directorio": [
+        {
+            "path": "/api/v1/clinics/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}/veterinarians",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001/veterinarians",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/admin/pending",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/admin/pending",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/hospitals/clinics",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/hospitals/clinics",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/hospitals/veterinarians",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/hospitals/veterinarians",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Clínica no encontrada"
+            }
+        },
+        {
+            "path": "/api/v1/veterinarians/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/veterinarians/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/veterinarians/admin/pending",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/veterinarians/admin/pending",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reviews/clinics/{clinic_id}/reviews",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/reviews/clinics/c001/reviews",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reviews/clinics/{clinic_id}/rating",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/reviews/clinics/c001/rating",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/catalog/admin/all",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/catalog/admin/all",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/catalog/clinics/{clinic_id}/services",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/catalog/clinics/c001/services",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/schedule/clinics/{clinic_id}/schedule",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/schedule/clinics/c001/schedule",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/schedule/clinics/{clinic_id}/schedule/exceptions",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/schedule/clinics/c001/schedule/exceptions",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/appointments/clinics/{clinic_id}/slots",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/appointments/clinics/c001/slots",
+            "status_code": 422,
+            "ok": false,
+            "error_detail": {
+                "detail": [
+                    {
+                        "type": "missing",
+                        "loc": [
+                            "query",
+                            "date"
+                        ],
+                        "msg": "Field required",
+                        "input": null
+                    },
+                    {
+                        "type": "missing",
+                        "loc": [
+                            "query",
+                            "service_id"
+                        ],
+                        "msg": "Field required",
+                        "input": null
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/api/v1/appointments/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/appointments/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/appointments/{appointment_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/appointments/apt-cd854a88-1",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Cita no encontrada"
+            }
+        },
+        {
+            "path": "/api/v1/appointments/clinic/{clinic_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/appointments/clinic/c001",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Solo el dueño puede ver las citas"
+            }
+        },
+        {
+            "path": "/api/v1/consultations/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/consultations/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/consultations/vet/incoming",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/consultations/vet/incoming",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/metrics/daily",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/metrics/daily",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/metrics/weekly",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/metrics/weekly",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/metrics/revenue",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/metrics/revenue",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/metrics/occupancy",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/metrics/occupancy",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/patients/critical",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/patients/critical",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/alerts",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/alerts",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/alerts/emergency",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/alerts/emergency",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/alerts/inventory",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/alerts/inventory",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/alerts/laboratory",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/alerts/laboratory",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/clinics/{clinic_id}/alerts/unread",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/clinics/c001/alerts/unread",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes permisos"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}/surgeries/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001/surgeries/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}/surgeries/today",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001/surgeries/today",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}/inventory/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001/inventory/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Clinic not found or unauthorized"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}/inventory/critical",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001/inventory/critical",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Clinic not found or unauthorized"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}/laboratory/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001/laboratory/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Clinic not found or unauthorized"
+            }
+        },
+        {
+            "path": "/api/v1/clinics/{clinic_id}/prescriptions/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/clinics/c001/prescriptions/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Clinic not found or unauthorized"
+            }
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "ecommerce": [
+        {
+            "path": "/api/v1/products/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/products/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/products/seller/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/products/seller/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/products/{product_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/products/pr001",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/products/presigned-url",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/products/presigned-url",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Product not found"
+            }
+        },
+        {
+            "path": "/api/v1/products/{product_id}/reviews",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/products/pr001/reviews",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/products/admin/pending",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/products/admin/pending",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/categories/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/categories/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/categories/{category_id}/subcategories",
+            "method": "GET",
+            "url": "/api/v1/categories/{category_id}/subcategories",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['category_id']"
+        },
+        {
+            "path": "/api/v1/categories/init-db/seed",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/categories/init-db/seed",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/donations/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/donations/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/orders/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/orders/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/orders/seller/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/orders/seller/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/orders/{order_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/orders/ord-hackminor-1",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not authorized to view this order"
+            }
+        },
+        {
+            "path": "/api/v1/orders/admin/all",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/orders/admin/all",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "paseadores": [
+        {
+            "path": "/api/v1/walkers/presigned-url",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/walkers/presigned-url",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/walkers/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/walkers/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/walkers/{walker_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/walkers/wk001",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/walkers/me/profile",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/walkers/me/profile",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes un perfil de paseador registrado"
+            }
+        },
+        {
+            "path": "/api/v1/walkers/requests/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/walkers/requests/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/walkers/requests/incoming",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/walkers/requests/incoming",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes un perfil de paseador"
+            }
+        },
+        {
+            "path": "/api/v1/walkers/{walker_id}/reviews",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/walkers/wk001/reviews",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/paseadores/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "cuidadores": [
+        {
+            "path": "/api/v1/sitters/presigned-url",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/sitters/presigned-url",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/sitters/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/sitters/",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/sitters/{sitter_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/sitters/st001",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/sitters/me/profile",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/sitters/me/profile",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes un perfil de cuidador registrado"
+            }
+        },
+        {
+            "path": "/api/v1/sitters/requests/me",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/sitters/requests/me",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/sitters/requests/incoming",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/sitters/requests/incoming",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "No tienes un perfil de cuidador"
+            }
+        },
+        {
+            "path": "/api/v1/sitters/{sitter_id}/reviews",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/sitters/st001/reviews",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/cuidadores/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "funeraria": [
+        {
+            "path": "/api/v1/funerary/memorial/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/funeraria/api/v1/funerary/memorial/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/funerary/services",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/funeraria/api/v1/funerary/services",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/funerary/bookings/client",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/funeraria/api/v1/funerary/bookings/client",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/funerary/bookings/provider",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/funeraria/api/v1/funerary/bookings/provider",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Se requiere uno de los siguientes roles: funeraria"
+            }
+        },
+        {
+            "path": "/api/v1/funerary/certificate/{death_id}/pdf",
+            "method": "GET",
+            "url": "/api/v1/funerary/certificate/{death_id}/pdf",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['death_id']"
+        },
+        {
+            "path": "/api/v1/funerary/memorial/{pet_id}/feed",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/funeraria/api/v1/funerary/memorial/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0/feed",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/funeraria/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "laboratorio": [
+        {
+            "path": "/api/v1/labs/pending",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/laboratorio/api/v1/labs/pending",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Se requiere rol de laboratorio"
+            }
+        },
+        {
+            "path": "/api/v1/labs/pet/{pet_id}/history",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/laboratorio/api/v1/labs/pet/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0/history",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/labs/tests",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/laboratorio/api/v1/labs/tests",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/labs/appointments/client",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/laboratorio/api/v1/labs/appointments/client",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/labs/appointments/provider",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/laboratorio/api/v1/labs/appointments/provider",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Se requiere rol de laboratorio"
+            }
+        },
+        {
+            "path": "/api/v1/labs/alerts/anomalies",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/laboratorio/api/v1/labs/alerts/anomalies",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Se requiere rol de laboratorio"
+            }
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/laboratorio/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "aseguradoras": [
+        {
+            "path": "/api/v1/insurance/policies/pet/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/aseguradoras/api/v1/insurance/policies/pet/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/insurance/plans",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/aseguradoras/api/v1/insurance/plans",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/aseguradoras/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "estilistas": [
+        {
+            "path": "/api/v1/grooming/files/{pet_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/estilistas/api/v1/grooming/files/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/grooming/services",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/estilistas/api/v1/grooming/services",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/grooming/appointments/client",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/estilistas/api/v1/grooming/appointments/client",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/grooming/appointments/provider",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/estilistas/api/v1/grooming/appointments/provider",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/grooming/groomers/{groomer_id}/available-slots",
+            "method": "GET",
+            "url": "/api/v1/grooming/groomers/{groomer_id}/available-slots",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['groomer_id']"
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/estilistas/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "entrenadores": [
+        {
+            "path": "/api/v1/training/programs",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/entrenadores/api/v1/training/programs",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/training/enrollments/client",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/entrenadores/api/v1/training/enrollments/client",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/training/enrollments/provider",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/entrenadores/api/v1/training/enrollments/provider",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Se requiere rol de entrenador"
+            }
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/entrenadores/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "transportistas": [
+        {
+            "path": "/api/v1/rides/{id}/track",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/transportistas/api/v1/rides/cd854a88-7fab-44d5-85b2-bf52cb4b8dd0/track",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Viaje no encontrado"
+            }
+        },
+        {
+            "path": "/api/v1/rides/driver-profile",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/transportistas/api/v1/rides/driver-profile",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "No se encontró un perfil de transportista configurado"
+            }
+        },
+        {
+            "path": "/api/v1/rides/drivers/available",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/transportistas/api/v1/rides/drivers/available",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/rides/history/driver",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/transportistas/api/v1/rides/history/driver",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/transportistas/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "patrocinadores": [
+        {
+            "path": "/api/v1/sponsors/campaigns/active",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/patrocinadores/api/v1/sponsors/campaigns/active",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/sponsors/campaigns/stats",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/patrocinadores/api/v1/sponsors/campaigns/stats",
+            "status_code": 403,
+            "ok": false,
+            "error_detail": {
+                "detail": "Se requiere rol de patrocinador"
+            }
+        },
+        {
+            "path": "/api/v1/sponsors/campaigns/geo-target",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/patrocinadores/api/v1/sponsors/campaigns/geo-target",
+            "status_code": 422,
+            "ok": false,
+            "error_detail": {
+                "detail": [
+                    {
+                        "type": "missing",
+                        "loc": [
+                            "query",
+                            "lat"
+                        ],
+                        "msg": "Field required",
+                        "input": null
+                    },
+                    {
+                        "type": "missing",
+                        "loc": [
+                            "query",
+                            "lng"
+                        ],
+                        "msg": "Field required",
+                        "input": null
+                    }
+                ]
+            }
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/patrocinadores/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ],
+    "establecimientos": [
+        {
+            "path": "/api/v1/venues/search",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/establecimientos/api/v1/venues/search",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/venues/{venue_id}",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/establecimientos/api/v1/venues/petfriendly-1",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Establecimiento no encontrado"
+            }
+        },
+        {
+            "path": "/api/v1/venues/{venue_id}/reviews",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/establecimientos/api/v1/venues/petfriendly-1/reviews",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Establecimiento no encontrado"
+            }
+        },
+        {
+            "path": "/api/v1/venues/{venue_id}/score",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/establecimientos/api/v1/venues/petfriendly-1/score",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Establecimiento no encontrado"
+            }
+        },
+        {
+            "path": "/",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/establecimientos/api/v1/",
+            "status_code": 404,
+            "ok": false,
+            "error_detail": {
+                "detail": "Not Found"
+            }
+        }
+    ]
+}

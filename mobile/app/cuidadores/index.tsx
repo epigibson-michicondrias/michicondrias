@@ -1,46 +1,31 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { listSitters, Sitter } from '../../src/services/cuidadores';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Search, Star, MapPin, Clock, Home, Users, ChevronRight, Shield } from 'lucide-react-native';
+import { Sitter } from '../../src/services/cuidadores';
+import { useSitters } from '@/src/hooks/cuidadores';
+import { useTheme } from '@/src/hooks/useTheme';
+import { Star, MapPin, Clock, Home, ChevronRight, Shield } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import SearchBar from '@/src/components/SearchBar';
+import FilterChip from '@/src/components/FilterChip';
 
 export default function CuidadoresScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
+    const { theme } = useTheme();
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [serviceFilter, setServiceFilter] = useState<string>('');
-
-    const { data: sitters = [], isLoading } = useQuery<Sitter[]>({
-        queryKey: ['sitters'],
-        queryFn: () => listSitters(),
-    });
-
-    const filteredSitters = sitters.filter(sitter => {
-        const matchSearch = sitter.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (sitter.location || '').toLowerCase().includes(searchQuery.toLowerCase());
-        const matchService = !serviceFilter || sitter.service_type === serviceFilter || sitter.service_type === 'both';
-        return matchSearch && matchService;
-    });
+    const {
+        sitters,
+        isLoading,
+        refetch,
+        isRefetching,
+        searchQuery,
+        setSearchQuery,
+        serviceFilter,
+        setServiceFilter,
+        hasActiveFilters,
+    } = useSitters();
 
     const renderSitterItem = ({ item }: { item: Sitter }) => (
         <TouchableOpacity
@@ -133,15 +118,8 @@ export default function CuidadoresScreen() {
         </TouchableOpacity>
     );
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🏠 Cuidadores</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Deja a tu mascota en las mejores manos mientras no estás
-                </Text>
-            </View>
-
+    const listHeader = (
+        <>
             <View style={styles.actionButtons}>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
@@ -158,123 +136,51 @@ export default function CuidadoresScreen() {
             </View>
 
             <View style={styles.filtersContainer}>
-                <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <Search size={20} color={theme.textMuted} />
-                    <TextInput
-                        placeholder="🔍 Buscar por nombre o ubicación..."
-                        placeholderTextColor={theme.textMuted}
-                        style={[styles.searchInput, { color: theme.text }]}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
-                </View>
-                
+                <SearchBar
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Buscar por nombre o ubicación..."
+                />
+
                 <View style={styles.serviceFilterContainer}>
-                    <TouchableOpacity
-                        style={[
-                            styles.filterButton,
-                            serviceFilter === '' && styles.filterButtonActive,
-                            { 
-                                backgroundColor: serviceFilter === '' ? theme.primary : theme.surface,
-                                borderColor: theme.border 
-                            }
-                        ]}
-                        onPress={() => setServiceFilter('')}
-                    >
-                        <Text style={[
-                            styles.filterButtonText,
-                            { color: serviceFilter === '' ? '#fff' : theme.text }
-                        ]}>
-                            Todos
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[
-                            styles.filterButton,
-                            serviceFilter === 'daycare' && styles.filterButtonActive,
-                            { 
-                                backgroundColor: serviceFilter === 'daycare' ? theme.primary : theme.surface,
-                                borderColor: theme.border 
-                            }
-                        ]}
-                        onPress={() => setServiceFilter('daycare')}
-                    >
-                        <Text style={[
-                            styles.filterButtonText,
-                            { color: serviceFilter === 'daycare' ? '#fff' : theme.text }
-                        ]}>
-                            🏠 Guardería
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[
-                            styles.filterButton,
-                            serviceFilter === 'boarding' && styles.filterButtonActive,
-                            { 
-                                backgroundColor: serviceFilter === 'boarding' ? theme.primary : theme.surface,
-                                borderColor: theme.border 
-                            }
-                        ]}
-                        onPress={() => setServiceFilter('boarding')}
-                    >
-                        <Text style={[
-                            styles.filterButtonText,
-                            { color: serviceFilter === 'boarding' ? '#fff' : theme.text }
-                        ]}>
-                            🌙 Hospedaje
-                        </Text>
-                    </TouchableOpacity>
+                    <FilterChip label="Todos" active={serviceFilter === ''} onPress={() => setServiceFilter('')} />
+                    <FilterChip label="🏠 Guardería" active={serviceFilter === 'daycare'} onPress={() => setServiceFilter('daycare')} />
+                    <FilterChip label="🌙 Hospedaje" active={serviceFilter === 'boarding'} onPress={() => setServiceFilter('boarding')} />
                 </View>
             </View>
+        </>
+    );
 
-            {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando cuidadores...</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={filteredSitters}
-                    renderItem={renderSitterItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                {searchQuery || serviceFilter ? 
-                                    'No encontramos cuidadores con esos criterios.' : 
-                                    'No hay cuidadores disponibles.'
-                                }
-                            </Text>
-                        </View>
-                    }
-                />
-            )}
-        </View>
+    return (
+        <ScreenContainer>
+            <ScreenHeader
+                title="🏠 Cuidadores"
+                subtitle="Deja a tu mascota en las mejores manos mientras no estás"
+            />
+
+            <DataList
+                data={sitters}
+                renderItem={renderSitterItem}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando cuidadores..."
+                onRefresh={refetch}
+                isRefreshing={isRefetching}
+                header={listHeader}
+                emptyIcon={<Star size={32} color={theme.textMuted} />}
+                emptyTitle={hasActiveFilters
+                    ? 'No encontramos cuidadores con esos criterios.'
+                    : 'No hay cuidadores disponibles.'
+                }
+                contentStyle={styles.list}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
         gap: 12,
         marginBottom: 16,
     },
@@ -291,39 +197,12 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     filtersContainer: {
-        paddingHorizontal: 24,
         marginBottom: 20,
         gap: 12,
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 12,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
     },
     serviceFilterContainer: {
         flexDirection: 'row',
         gap: 8,
-    },
-    filterButton: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 8,
-        borderWidth: 1,
-    },
-    filterButtonActive: {
-        borderColor: 'transparent',
-    },
-    filterButtonText: {
-        fontSize: 12,
-        fontWeight: '600',
     },
     list: {
         paddingHorizontal: 24,
@@ -442,24 +321,5 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 14,
         fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

@@ -1,113 +1,65 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyClinics } from '../../src/services/directorio';
-import { getClinicLabTests, requestLabTest, LabTestCreatePayload } from '../../src/services/laboratory';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, FlaskConical, TestTube2, CheckCircle2, Clock, PlusCircle } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useLaboratory } from '@/src/hooks/clinica/useLaboratory';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import EmptyState from '@/src/components/EmptyState';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
+import { FlaskConical, TestTube2, CheckCircle2, Clock, PlusCircle, Edit3 } from 'lucide-react-native';
 
 export default function LaboratorioScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    const [filter, setFilter] = useState<'pending' | 'completed'>('pending');
-    
-    const [modalVisible, setModalVisible] = useState(false);
-    const [loadingAction, setLoadingAction] = useState(false);
-    const [newTest, setNewTest] = useState<LabTestCreatePayload>({
-        patientId: '', testType: '', testName: '', description: ''
-    });
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-    const clinic = clinics[0];
-
-    const { data: labTests = [], isLoading: loadingTests } = useQuery({
-        queryKey: ['clinic-lab', clinic?.id, filter],
-        queryFn: () => getClinicLabTests(clinic!.id, filter),
-        enabled: !!clinic?.id,
-        refetchInterval: 30000,
-    });
+    const { theme } = useTheme();
+    const {
+        filter, setFilter, modalVisible, setModalVisible, loadingAction,
+        newTest, setNewTest, loadingClinics, loadingTests, labTests, handleSaveTest,
+        resultModalVisible, setResultModalVisible, resultData, setResultData,
+        handleOpenResultModal, handleSaveResults, isSavingResults,
+    } = useLaboratory();
 
     if (loadingClinics) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando laboratorio..." />
+            </ScreenContainer>
         );
     }
 
-    const handleSaveTest = async () => {
-        if (!newTest.patientId || !newTest.testName || !newTest.testType) {
-            showAlert({ type: 'error', title: 'Error', message: 'ID de Paciente, Tipo y Nombre son obligatorios' });
-            return;
-        }
-        setLoadingAction(true);
-        try {
-            await requestLabTest(clinic!.id, newTest);
-            setModalVisible(false);
-            setNewTest({ patientId: '', testType: '', testName: '', description: '' });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Prueba solicitada correctamente' });
-        } catch (error) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo solicitar la prueba' });
-        } finally {
-            setLoadingAction(false);
-        }
-    };
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Premium Header */}
-            <LinearGradient
-                colors={['#0ea5e9', '#0284c7', '#0369a1']}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Laboratorio</Text>
-                        <Text style={styles.subtitle}>{clinic?.name}</Text>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Laboratorio"
+                gradient={['#0ea5e9', '#0284c7', '#0369a1']}
+                rightElement={
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
                         onPress={() => setModalVisible(true)}
                     >
                         <PlusCircle size={20} color="#fff" />
                     </TouchableOpacity>
-                </View>
+                }
+            />
 
-                {/* Glassmorphic Tabs */}
+            {/* Glassmorphic Tabs */}
+            <View style={styles.tabsWrapper}>
                 <View style={styles.tabsContainer}>
                     <TouchableOpacity 
                         style={[styles.tab, filter === 'pending' && styles.activeTab]}
                         onPress={() => setFilter('pending')}
                     >
-                        <Clock size={16} color={filter === 'pending' ? '#0284c7' : '#fff'} />
-                        <Text style={[styles.tabText, { color: filter === 'pending' ? '#0284c7' : '#fff' }]}>Pendientes</Text>
+                        <Clock size={16} color={filter === 'pending' ? '#0284c7' : '#666'} />
+                        <Text style={[styles.tabText, { color: filter === 'pending' ? '#0284c7' : '#666' }]}>Pendientes</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style={[styles.tab, filter === 'completed' && styles.activeTab]}
                         onPress={() => setFilter('completed')}
                     >
-                        <CheckCircle2 size={16} color={filter === 'completed' ? '#0284c7' : '#fff'} />
-                        <Text style={[styles.tabText, { color: filter === 'completed' ? '#0284c7' : '#fff' }]}>Completados</Text>
+                        <CheckCircle2 size={16} color={filter === 'completed' ? '#0284c7' : '#666'} />
+                        <Text style={[styles.tabText, { color: filter === 'completed' ? '#0284c7' : '#666' }]}>Completados</Text>
                     </TouchableOpacity>
                 </View>
-            </LinearGradient>
+            </View>
 
             <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
@@ -115,10 +67,10 @@ export default function LaboratorioScreen() {
                     {loadingTests ? (
                         <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
                     ) : labTests.length === 0 ? (
-                        <View style={[styles.emptyRecent, { backgroundColor: theme.surface }]}>
-                            <TestTube2 size={40} color={theme.textMuted} />
-                            <Text style={{ color: theme.textMuted, fontWeight: '600', marginTop: 12 }}>No hay pruebas en esta categoría</Text>
-                        </View>
+                        <EmptyState
+                            icon={<TestTube2 size={40} color={theme.textMuted} />}
+                            title="No hay pruebas en esta categoría"
+                        />
                     ) : (
                         labTests.map(test => (
                             <View key={test.id} style={[styles.testCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -143,6 +95,16 @@ export default function LaboratorioScreen() {
                                         </Text>
                                     </View>
                                 </View>
+
+                                {filter === 'pending' && (
+                                    <TouchableOpacity
+                                        style={[styles.resultBtn, { backgroundColor: '#0ea5e915' }]}
+                                        onPress={() => handleOpenResultModal(test.id)}
+                                    >
+                                        <Edit3 size={14} color="#0ea5e9" />
+                                        <Text style={[styles.resultBtnText, { color: '#0ea5e9' }]}>Ingresar Resultados</Text>
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         ))
                     )}
@@ -209,35 +171,59 @@ export default function LaboratorioScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+
+            {/* Result Entry Modal */}
+            <Modal visible={resultModalVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+                        <Text style={[styles.modalTitle, { color: theme.text }]}>Ingresar Resultados</Text>
+                        
+                        <KeyboardScreen>
+                            <Text style={[styles.inputLabel, { color: theme.text }]}>Resultados *</Text>
+                            <TextInput
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 100 }]}
+                                value={resultData.results}
+                                onChangeText={t => setResultData({...resultData, results: t})}
+                                placeholder="Ingresa los resultados del examen..."
+                                placeholderTextColor={theme.textMuted}
+                                multiline
+                            />
+
+                            <Text style={[styles.inputLabel, { color: theme.text }]}>Notas Adicionales</Text>
+                            <TextInput
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 80 }]}
+                                value={resultData.notes}
+                                onChangeText={t => setResultData({...resultData, notes: t})}
+                                placeholder="Observaciones..."
+                                placeholderTextColor={theme.textMuted}
+                                multiline
+                            />
+                        </KeyboardScreen>
+
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity style={styles.cancelBtn} onPress={() => setResultModalVisible(false)}>
+                                <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={[styles.saveBtn, { backgroundColor: '#0ea5e9' }]}
+                                onPress={handleSaveResults}
+                                disabled={isSavingResults}
+                            >
+                                {isSavingResults ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Guardar</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    premiumHeader: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 24,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        elevation: 5,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: 20
-    },
-    backBtn: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    headerInfo: { alignItems: 'center' },
-    title: { fontSize: 18, fontWeight: '900', color: '#fff' },
-    subtitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
+    tabsWrapper: { paddingHorizontal: 24, paddingVertical: 16 },
     tabsContainer: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 16,
         padding: 4,
     },
@@ -254,11 +240,6 @@ const styles = StyleSheet.create({
     tabText: { fontSize: 13, fontWeight: '800' },
     contentScroll: { flex: 1 },
     content: { padding: 24, paddingBottom: 100 },
-    emptyRecent: {
-        padding: 40, borderRadius: 24, alignItems: 'center',
-        borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.1)',
-        marginTop: 20
-    },
     testCard: {
         padding: 16, borderRadius: 20, borderWidth: 1,
         marginBottom: 16
@@ -281,5 +262,8 @@ const styles = StyleSheet.create({
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
     cancelBtnText: { fontSize: 15, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' }
+    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    resultBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 10, borderRadius: 12, marginTop: 12 },
+    resultBtnText: { fontSize: 13, fontWeight: '800' },
 });

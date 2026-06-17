@@ -82,3 +82,30 @@ export async function updateSitter(id: string, data: Partial<Sitter>): Promise<S
 export async function getMySitterProfile(): Promise<Sitter> {
     return apiFetch<Sitter>("cuidadores", "/sitters/me/profile");
 }
+
+// --- Sitter Reviews ---
+
+export interface SitterReview {
+    id: string;
+    sitter_id: string;
+    request_id: string;
+    user_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+}
+
+export async function createSitterReview(
+    sitterId: string,
+    requestId: string,
+    data: { rating: number; comment: string }
+): Promise<SitterReview> {
+    return apiFetch<SitterReview>("cuidadores", `/sitters/${sitterId}/requests/${requestId}/review`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function getSitterReviews(sitterId: string): Promise<SitterReview[]> {
+    return apiFetch<SitterReview[]>("cuidadores", `/sitters/${sitterId}/reviews`);
+}

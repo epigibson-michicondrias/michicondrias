@@ -3,14 +3,13 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Keyboa
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { createClinic } from '../../src/services/directorio';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Hospital, MapPin, Phone, Globe, Info, CheckCircle2 } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Hospital, MapPin, Phone, Globe, Info, CheckCircle2 } from 'lucide-react-native';
 
 export default function NuevoRegistroProfesionalScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme, isDark } = useTheme();
 
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
@@ -52,14 +51,8 @@ export default function NuevoRegistroProfesionalScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={[styles.container, { backgroundColor: theme.background }]}
         >
+            <ScreenHeader title="Registrar Negocio" subtitle="Únete a la red médica de Michicondrias" />
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.title, { color: theme.text }]}>Registrar Negocio</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Únete a la red médica de Michicondrias</Text>
-                </View>
 
                 <View style={styles.content}>
                     <View style={styles.inputGroup}>
@@ -181,28 +174,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 14,
-        marginTop: 4,
-    },
+
     content: {
         padding: 24,
         gap: 20,

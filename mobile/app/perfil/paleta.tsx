@@ -5,7 +5,8 @@ import { showAlert } from '@/src/components/AppAlert';
 import Colors from '../../constants/Colors';
 import { palettes, ACTIVE_PALETTE } from '../../constants/palettes';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { ChevronLeft, Check, Palette, RotateCcw } from 'lucide-react-native';
+import { Check, Palette, RotateCcw } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 const PALETTE_KEYS = Object.keys(palettes);
 
@@ -39,9 +40,7 @@ export default function PaletteSettingsScreen() {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             {/* Header */}
             <View style={[styles.header, { borderBottomColor: theme.border }]}>
-                <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
+                <BackButton onPress={() => router.back()} />
                 <Text style={[styles.headerTitle, { color: theme.text }]}>Paleta de Colores</Text>
                 <View style={{ width: 44 }} />
             </View>
@@ -167,13 +166,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingBottom: 16,
         borderBottomWidth: 1,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     headerTitle: {
         fontSize: 18,

@@ -1,56 +1,21 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Modal } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getListingRequests, updateRequestStatus, AdoptionRequest, getListing } from '@/src/services/adopciones';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, User, Home, Heart, Check, X, Info, Phone, Mail, Clock } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, Modal } from 'react-native';
+import { useViewApplications } from '@/src/hooks/adopciones/useViewApplications';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+import { AdoptionRequest } from '@/src/services/adopciones';
+import { User, Home, Heart, Check, X, ChevronLeft } from 'lucide-react-native';
 
 export default function VerSolicitudesScreen() {
-    const { id } = useLocalSearchParams();
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-    const [selectedRequest, setSelectedRequest] = useState<AdoptionRequest | null>(null);
-
-    const { data: requests = [], isLoading } = useQuery({
-        queryKey: ['listing-requests', id],
-        queryFn: () => getListingRequests(id as string),
-    });
-
-    const { data: listing } = useQuery({
-        queryKey: ['adopcion', id],
-        queryFn: () => getListing(id as string),
-    });
-
-    const mutation = useMutation({
-        mutationFn: ({ requestId, status }: { requestId: string, status: string }) =>
-            updateRequestStatus(requestId, status),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['listing-requests', id] });
-            setSelectedRequest(null);
-            showAlert({ type: 'success', title: 'Éxito', message: 'Estado de la solicitud actualizado.' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la solicitud.' });
-        }
-    });
-
-    const handleStatusUpdate = (requestId: string, status: string) => {
-        const action = status === 'aprobado' ? 'aprobar' : 'rechazar';
-        showAlert({
-            type: 'warning',
-            title: 'Confirmar Acción',
-            message: `¿Estás seguro de que deseas ${action} esta solicitud?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Confirmar',
-            onButtonPress: () => mutation.mutate({ requestId, status }),
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        requests, listing, isLoading, selectedRequest,
+        setSelectedRequest, handleStatusUpdate, getStatusColor,
+        goBack, closeModal,
+    } = useViewApplications();
 
     const renderRequestItem = ({ item }: { item: AdoptionRequest }) => (
         <TouchableOpacity
@@ -78,29 +43,17 @@ export default function VerSolicitudesScreen() {
         </TouchableOpacity>
     );
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'aprobado': return '#10b981';
-            case 'rechazado': return '#ef4444';
-            default: return '#f59e0b';
-        }
-    };
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.headerTitleContainer}>
-                    <Text style={[styles.title, { color: theme.text }]}>Solicitudes Recibidas</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Mascota: {listing?.name || 'Cargando...'}</Text>
-                </View>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Solicitudes Recibidas"
+                subtitle={`Mascota: ${listing?.name || 'Cargando...'}`}
+                onBack={goBack}
+            />
 
             {isLoading ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <LoadingOverlay />
                 </View>
             ) : (
                 <FlatList
@@ -109,13 +62,11 @@ export default function VerSolicitudesScreen() {
                     renderItem={renderRequestItem}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <Heart size={60} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyTitle, { color: theme.text }]}>Aún no hay interesados</Text>
-                            <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
-                                Las solicitudes que recibas para {listing?.name} aparecerán aquí.
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon={<Heart size={48} color={theme.textMuted} strokeWidth={1} />}
+                            title="Aún no hay interesados"
+                            subtitle={`Las solicitudes que recibas para ${listing?.name || 'esta mascota'} aparecerán aquí.`}
+                        />
                     }
                 />
             )}
@@ -124,13 +75,13 @@ export default function VerSolicitudesScreen() {
                 visible={!!selectedRequest}
                 animationType="slide"
                 transparent={true}
-                onRequestClose={() => setSelectedRequest(null)}
+                onRequestClose={closeModal}
             >
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                         <View style={styles.modalHeader}>
                             <Text style={[styles.modalTitle, { color: theme.text }]}>Detalle de la Solicitud</Text>
-                            <TouchableOpacity onPress={() => setSelectedRequest(null)} style={styles.closeBtn}>
+                            <TouchableOpacity onPress={closeModal} style={styles.closeBtn}>
                                 <X size={24} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -213,7 +164,7 @@ export default function VerSolicitudesScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -230,39 +181,10 @@ function GridItem({ label, value, theme, icon }: { label: string, value: string,
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        gap: 15,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.03)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitleContainer: {
-        flex: 1,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 12,
     },
     list: {
         padding: 20,
@@ -312,21 +234,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         marginTop: 12,
         gap: 4,
-    },
-    empty: {
-        paddingTop: 100,
-        alignItems: 'center',
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '800',
-        marginTop: 20,
-        marginBottom: 8,
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        textAlign: 'center',
-        paddingHorizontal: 40,
     },
     modalOverlay: {
         flex: 1,
@@ -383,7 +290,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     gridItem: {
-        width: '45%', // Increased for better layout with icons
+        width: '45%',
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,

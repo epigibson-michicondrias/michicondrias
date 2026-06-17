@@ -1,138 +1,52 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
+import { useBookAppointment } from '@/src/hooks/directorio/useBookAppointment';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClinic, Clinic } from '@/src/services/directorio';
-import { getUserPets, Pet } from '@/src/services/mascotas';
-import { createAppointment } from '@/src/services/citas';
-import { useAuth } from '@/src/contexts/AuthContext';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Calendar, Clock, User, Phone, MapPin, Stethoscope, Heart, CheckCircle, AlertCircle } from 'lucide-react-native';
+import DatePicker from '@/src/components/DatePicker';
+import { Calendar, MapPin, Stethoscope, Heart, CheckCircle, AlertCircle } from 'lucide-react-native';
 
 export default function AgendarCitaScreen() {
-    const { clinic_id, service_id, reschedule_id, pet_id } = useLocalSearchParams();
-    const router = useRouter();
-    const { user } = useAuth();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-
-    const [selectedPet, setSelectedPet] = useState<string>(pet_id as string || '');
-    const [selectedDate, setSelectedDate] = useState('');
-    const [selectedTime, setSelectedTime] = useState('');
-    const [reason, setReason] = useState('');
-    const [isEmergency, setIsEmergency] = useState(false);
-
-    const { data: clinic, isLoading: clinicLoading } = useQuery({
-        queryKey: ['clinic', clinic_id],
-        queryFn: () => getClinic(clinic_id as string),
-        enabled: !!clinic_id,
-    });
-
-    const { data: pets = [], isLoading: petsLoading } = useQuery({
-        queryKey: ['user-pets', user?.id],
-        queryFn: () => getUserPets(user!.id),
-        enabled: !!user?.id,
-    });
-
-    const createMutation = useMutation({
-        mutationFn: (data: any) => createAppointment(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
-            showAlert({
-                type: 'success',
-                title: '¡Cita Agendada!',
-                message: 'Tu cita ha sido programada exitosamente. Te contactaremos pronto para confirmar.',
-                onButtonPress: () => router.push('/directorio/citas' as any),
-            });
-        },
-        onError: (error: any) => {
-            showAlert({
-                type: 'error',
-                title: 'Error',
-                message: error.message || 'No se pudo agendar la cita. Por favor, intenta nuevamente.',
-            });
-        }
-    });
-
-    const timeSlots = [
-        '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
-        '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
-        '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
-        '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM'
-    ];
-
-    const handleAgendar = () => {
-        if (!selectedPet) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una mascota' });
-            return;
-        }
-
-        if (!selectedDate) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una fecha' });
-            return;
-        }
-
-        if (!selectedTime) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una hora' });
-            return;
-        }
-
-        if (!reason.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor describe el motivo de la cita' });
-            return;
-        }
-
-        const appointmentData = {
-            clinic_id: clinic_id,
-            pet_id: selectedPet,
-            service_id: service_id || null,
-            appointment_date: `${selectedDate} ${selectedTime}`,
-            reason: reason.trim(),
-            is_emergency: isEmergency,
-            status: 'scheduled'
-        };
-
-        createMutation.mutate(appointmentData);
-    };
+    const { theme } = useTheme();
+    const {
+        clinic, pets, clinicLoading, petsLoading, isRescheduling,
+        selectedPet, selectedDate, selectedTime, reason, isEmergency, isPending,
+        setSelectedPet, setSelectedDate, setSelectedTime, setReason,
+        toggleEmergency, handleAgendar, goBack,
+    } = useBookAppointment();
 
     if (clinicLoading || petsLoading) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
+            <ScreenContainer>
                 <View style={styles.loadingContainer}>
                     <Text style={[styles.loadingText, { color: theme.textMuted }]}>
                         Cargando información...
                     </Text>
                 </View>
-            </View>
+            </ScreenContainer>
         );
     }
 
     if (!clinic) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
+            <ScreenContainer>
                 <View style={styles.errorContainer}>
                     <Text style={[styles.errorText, { color: theme.text }]}>
                         No se encontró la clínica
                     </Text>
                 </View>
-            </View>
+            </ScreenContainer>
         );
     }
 
     return (
         <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>
-                    Agendar Cita
-                </Text>
-            </View>
+            <ScreenHeader
+                title={isRescheduling ? 'Reagendar Cita' : 'Agendar Cita'}
+                onBack={goBack}
+            />
 
             {/* Clinic Info */}
             <View style={[styles.clinicCard, { backgroundColor: theme.surface }]}>
@@ -214,21 +128,14 @@ export default function AgendarCitaScreen() {
                     Fecha de la Cita
                 </Text>
                 
-                <TextInput
-                    style={[styles.dateInput, { 
-                        backgroundColor: theme.background,
-                        borderColor: theme.border,
-                        color: theme.text 
-                    }]}
-                    placeholder="Selecciona una fecha (ej: 15/03/2024)"
-                    placeholderTextColor={theme.textMuted}
+                <DatePicker
                     value={selectedDate}
-                    onChangeText={setSelectedDate}
+                    onChange={setSelectedDate}
+                    mode="date"
+                    label="Fecha"
+                    placeholder="Seleccionar fecha"
+                    minimumDate={new Date()}
                 />
-
-                <Text style={[styles.helperText, { color: theme.textMuted }]}>
-                    Formato: DD/MM/YYYY
-                </Text>
             </View>
 
             {/* Time Selection */}
@@ -237,31 +144,13 @@ export default function AgendarCitaScreen() {
                     Hora Preferida
                 </Text>
                 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={styles.timeSlotsContainer}>
-                        {timeSlots.map((time) => (
-                            <TouchableOpacity
-                                key={time}
-                                style={[
-                                    styles.timeSlot,
-                                    {
-                                        backgroundColor: selectedTime === time ? theme.primary : 'transparent',
-                                        borderColor: selectedTime === time ? theme.primary : theme.border
-                                    }
-                                ]}
-                                onPress={() => setSelectedTime(time)}
-                            >
-                                <Clock size={14} color={selectedTime === time ? '#fff' : theme.text} />
-                                <Text style={[
-                                    styles.timeSlotText,
-                                    { color: selectedTime === time ? '#fff' : theme.text }
-                                ]}>
-                                    {time}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </ScrollView>
+                <DatePicker
+                    value={selectedTime}
+                    onChange={setSelectedTime}
+                    mode="time"
+                    label="Hora"
+                    placeholder="Seleccionar hora"
+                />
             </View>
 
             {/* Reason */}
@@ -303,7 +192,7 @@ export default function AgendarCitaScreen() {
                             borderColor: isEmergency ? '#ef4444' : theme.border
                         }
                     ]}
-                    onPress={() => setIsEmergency(!isEmergency)}
+                    onPress={toggleEmergency}
                 >
                     <Text style={[
                         styles.emergencyText,
@@ -329,16 +218,18 @@ export default function AgendarCitaScreen() {
                     style={[
                         styles.agendarButton,
                         { 
-                            backgroundColor: createMutation.isPending ? theme.textMuted : theme.primary,
-                            opacity: createMutation.isPending ? 0.6 : 1
+                            backgroundColor: isPending ? theme.textMuted : theme.primary,
+                            opacity: isPending ? 0.6 : 1
                         }
                     ]}
                     onPress={handleAgendar}
-                    disabled={createMutation.isPending}
+                    disabled={isPending}
                 >
                     <Calendar size={20} color="#fff" />
                     <Text style={styles.agendarButtonText}>
-                        {createMutation.isPending ? 'Agendando...' : 'Agendar Cita'}
+                        {isPending
+                            ? (isRescheduling ? 'Reagendando...' : 'Agendando...')
+                            : (isRescheduling ? 'Reagendar Cita' : 'Agendar Cita')}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -367,21 +258,6 @@ const styles = StyleSheet.create({
     errorText: {
         fontSize: 18,
         textAlign: 'center',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 20,
-        gap: 16,
-    },
-    backButton: {
-        padding: 8,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '800',
     },
     clinicCard: {
         marginHorizontal: 24,
@@ -471,35 +347,6 @@ const styles = StyleSheet.create({
     petBreed: {
         fontSize: 12,
         marginTop: 2,
-    },
-    dateInput: {
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 16,
-    },
-    helperText: {
-        fontSize: 12,
-        marginTop: 8,
-    },
-    timeSlotsContainer: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    timeSlot: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 8,
-        borderWidth: 1,
-        minWidth: 90,
-    },
-    timeSlotText: {
-        fontSize: 12,
-        fontWeight: '600',
     },
     reasonInput: {
         borderWidth: 1,

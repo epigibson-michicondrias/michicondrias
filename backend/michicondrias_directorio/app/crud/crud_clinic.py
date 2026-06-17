@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models.clinic import Clinic, Veterinarian, ClinicReview
-from app.schemas.clinic import ClinicCreate, ClinicUpdate, VeterinarianCreate, VeterinarianUpdate, ClinicReviewCreate
+from app.models.clinic import Clinic, Veterinarian, ClinicReview, VetReview
+from app.schemas.clinic import ClinicCreate, ClinicUpdate, VeterinarianCreate, VeterinarianUpdate, ClinicReviewCreate, VetReviewCreate
 
 # CRUD CLINICS
 def get_clinic(db: Session, clinic_id: str):
@@ -115,5 +115,26 @@ def create_clinic_review(db: Session, clinic_id: str, user_id: str, review: Clin
 def get_clinic_average_rating(db: Session, clinic_id: str):
     from sqlalchemy import func
     result = db.query(func.avg(ClinicReview.rating)).filter(ClinicReview.clinic_id == clinic_id).scalar()
+    return round(float(result), 1) if result else 0.0
+
+# CRUD VET REVIEWS
+def get_vet_reviews(db: Session, vet_id: str):
+    return db.query(VetReview).filter(VetReview.vet_id == vet_id).order_by(VetReview.created_at.desc()).all()
+
+def create_vet_review(db: Session, vet_id: str, user_id: str, review: VetReviewCreate):
+    db_review = VetReview(
+        vet_id=vet_id,
+        user_id=user_id,
+        rating=review.rating,
+        comment=review.comment,
+    )
+    db.add(db_review)
+    db.commit()
+    db.refresh(db_review)
+    return db_review
+
+def get_vet_average_rating(db: Session, vet_id: str):
+    from sqlalchemy import func
+    result = db.query(func.avg(VetReview.rating)).filter(VetReview.vet_id == vet_id).scalar()
     return round(float(result), 1) if result else 0.0
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.api import deps
 from app.db.session import get_db
-from app.schemas.clinic import ClinicReviewCreate, ClinicReviewResponse
+from app.schemas.clinic import ClinicReviewCreate, ClinicReviewResponse, VetReviewCreate, VetReviewResponse
 
 router = APIRouter()
 
@@ -47,4 +47,46 @@ def get_clinic_rating(
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     avg = crud.crud_clinic.get_clinic_average_rating(db, clinic_id)
     reviews = crud.crud_clinic.get_clinic_reviews(db, clinic_id)
+    return {"average_rating": avg, "total_reviews": len(reviews)}
+
+# --- Veterinarians Reviews ---
+
+@router.get("/vets/{vet_id}/reviews", response_model=List[VetReviewResponse])
+def read_vet_reviews(
+    vet_id: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Get all reviews for a veterinarian (Public endpoint)."""
+    vet = crud.crud_clinic.get_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Especialista no encontrado")
+    return crud.crud_clinic.get_vet_reviews(db, vet_id)
+
+@router.post("/vets/{vet_id}/reviews", response_model=VetReviewResponse)
+def create_vet_review(
+    vet_id: str,
+    *,
+    db: Session = Depends(get_db),
+    review_in: VetReviewCreate,
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Submit a review for a veterinarian (Requires auth)."""
+    vet = crud.crud_clinic.get_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Especialista no encontrado")
+    if review_in.rating < 1 or review_in.rating > 5:
+        raise HTTPException(status_code=400, detail="La calificación debe ser entre 1 y 5")
+    return crud.crud_clinic.create_vet_review(db, vet_id=vet_id, user_id=user_id, review=review_in)
+
+@router.get("/vets/{vet_id}/rating")
+def get_vet_rating(
+    vet_id: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Get the average rating for a veterinarian (Public endpoint)."""
+    vet = crud.crud_clinic.get_veterinarian(db, vet_id)
+    if not vet:
+        raise HTTPException(status_code=404, detail="Especialista no encontrado")
+    avg = crud.crud_clinic.get_vet_average_rating(db, vet_id)
+    reviews = crud.crud_clinic.get_vet_reviews(db, vet_id)
     return {"average_rating": avg, "total_reviews": len(reviews)}

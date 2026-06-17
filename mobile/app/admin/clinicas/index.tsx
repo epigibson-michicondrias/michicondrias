@@ -1,25 +1,18 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClinics, Clinic } from '@/src/services/directorio';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Plus, MapPin, Phone, Hospital, Star, MoreVertical } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminClinics, Clinic } from '@/src/hooks/admin';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import { Plus, MapPin, Phone, Hospital, MoreVertical } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminClinicasScreen() {
     const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: clinics = [], isLoading } = useQuery({
-        queryKey: ['admin-clinics'],
-        queryFn: getClinics,
-    });
+    const { theme } = useTheme();
+    const { clinics, isLoading, isFetching, refetch } = useAdminClinics();
 
     const renderItem = ({ item }: { item: Clinic }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -69,134 +62,37 @@ export default function AdminClinicasScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Clínicas</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Red Veterinaria</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => showAlert({ type: 'info', title: 'Nueva Clínica', message: 'Abre el formulario de registro' })}
-                    >
-                        <Plus size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-            </LinearGradient>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Clínicas"
+                subtitle="Red Veterinaria"
+                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
+                actionIcon={Plus}
+                onAction={() => showAlert({ type: 'info', title: 'Nueva Clínica', message: 'Abre el formulario de registro' })}
+            />
 
-            {isLoading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
-            ) : (
-                <FlatList
-                    data={clinics}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <Hospital size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay clínicas registradas.</Text>
-                        </View>
-                    }
-                />
-            )}
-        </View>
+            <DataList
+                data={clinics}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando clínicas..."
+                onRefresh={() => refetch()}
+                isRefreshing={isFetching}
+                emptyIcon={<Hospital size={48} color={theme.textMuted} strokeWidth={1} />}
+                emptyTitle="No hay clínicas"
+                emptySubtitle="No hay clínicas registradas."
+                contentStyle={styles.list}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     list: { 
         padding: 20, 
         paddingBottom: 100,
         paddingTop: 12 
-    },
-    center: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        marginTop: 100 
-    },
-    empty: { 
-        alignItems: 'center', 
-        marginTop: 60, 
-        paddingHorizontal: 40 
-    },
-    emptyText: { 
-        fontSize: 14, 
-        fontWeight: '700', 
-        marginTop: 20,
-        textAlign: 'center' 
     },
     card: { 
         padding: 20, 

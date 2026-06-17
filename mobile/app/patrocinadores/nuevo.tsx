@@ -6,7 +6,8 @@ import { createCampaign } from '../../src/services/sponsors';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { ChevronLeft, Megaphone, DollarSign, Link, Info } from 'lucide-react-native';
+import { Megaphone, DollarSign, Link, Info } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 export default function NuevoPatrocinadorScreen() {
     const router = useRouter();
@@ -51,9 +52,7 @@ export default function NuevoPatrocinadorScreen() {
     return (
         <KeyboardScreen style={{ backgroundColor: theme.background }}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
+                <BackButton onPress={() => router.back()} />
                 <Text style={[styles.title, { color: theme.text }]}>Nueva Campaña</Text>
                 <Text style={[styles.subtitle, { color: theme.textMuted }]}>Crea una campaña de patrocinio</Text>
             </View>
@@ -138,15 +137,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingBottom: 20,
     },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
+
     title: {
         fontSize: 28,
         fontWeight: '900',

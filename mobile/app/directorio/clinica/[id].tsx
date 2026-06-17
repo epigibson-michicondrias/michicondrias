@@ -1,53 +1,98 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Linking, TextInput, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
-import { useQuery } from '@tanstack/react-query';
-import { getClinic, getClinicServices, getClinicReviews, getClinicRating } from '@/src/services/directorio';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, MapPin, Phone, Globe, Clock, Star, Info, Calendar } from 'lucide-react-native';
+import { useClinicDetail } from '@/src/hooks/directorio/useClinicDetail';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import BackButton from '@/src/components/BackButton';
+import { MapPin, Phone, Globe, Clock, Star, Info, Calendar } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function ClinicDetailScreen() {
-    const { id } = useLocalSearchParams();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme } = useTheme();
+    const { clinic, isLoading, services, rating, reviews, handleCreateReview, isCreatingReview } = useClinicDetail();
+    const [formRating, setFormRating] = React.useState(5);
+    const [formComment, setFormComment] = React.useState('');
 
-    const { data: clinic, isLoading } = useQuery({
-        queryKey: ['clinic', id],
-        queryFn: () => getClinic(id as string),
-    });
+    if (isLoading) return <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: theme.textMuted }}>Cargando clínica...</Text></ScreenContainer>;
+    if (!clinic) return <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: theme.text }}>Clínica no encontrada</Text></ScreenContainer>;
 
-    const { data: services = [] } = useQuery({
-        queryKey: ['clinic-services', id],
-        queryFn: () => getClinicServices(id as string),
-    });
+    const callClinic = () => {
+        if (clinic.phone) {
+            Linking.openURL(`tel:${clinic.phone}`).catch(() => {
+                showAlert({
+                    type: 'error',
+                    title: 'Error',
+                    message: 'No se pudo abrir la aplicación de teléfono.'
+                });
+            });
+        } else {
+            showAlert({
+                type: 'info',
+                title: 'Teléfono no disponible',
+                message: 'Esta clínica no tiene un número registrado.'
+            });
+        }
+    };
 
-    const { data: rating } = useQuery({
-        queryKey: ['clinic-rating', id],
-        queryFn: () => getClinicRating(id as string),
-    });
+    const openWebsite = () => {
+        if (clinic.website) {
+            let url = clinic.website;
+            if (!/^https?:\/\//i.test(url)) {
+                url = `https://${url}`;
+            }
+            Linking.openURL(url).catch(() => {
+                showAlert({
+                    type: 'error',
+                    title: 'Error',
+                    message: 'No se pudo abrir el sitio web.'
+                });
+            });
+        } else {
+            showAlert({
+                type: 'info',
+                title: 'Sitio web no disponible',
+                message: 'Esta clínica no tiene un sitio web registrado.'
+            });
+        }
+    };
 
-    if (isLoading) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.textMuted }}>Cargando clínica...</Text></View>;
-    if (!clinic) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.text }}>Clínica no encontrada</Text></View>;
+    const openMap = () => {
+        const addressPart = [clinic.address, clinic.city, clinic.state].filter(Boolean).join(', ');
+        if (addressPart) {
+            const query = encodeURIComponent(addressPart);
+            const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+            Linking.openURL(url).catch(() => {
+                showAlert({
+                    type: 'error',
+                    title: 'Error',
+                    message: 'No se pudo abrir la aplicación de mapas.'
+                });
+            });
+        } else {
+            showAlert({
+                type: 'info',
+                title: 'Dirección no disponible',
+                message: 'Esta clínica no tiene una dirección registrada.'
+            });
+        }
+    };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
                     <Image
                         source={{ uri: clinic.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=1000' }}
                         style={styles.coverImage}
                     />
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color="#fff" />
-                    </TouchableOpacity>
+                    <BackButton onPress={() => router.back()} color="#fff" style={styles.backBtn} />
                 </View>
 
-                <View style={styles.content}>
+                <View style={[styles.content, { backgroundColor: theme.background }]}>
                     <View style={styles.mainInfo}>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.title, { color: theme.text }]}>{clinic.name}</Text>
@@ -63,15 +108,24 @@ export default function ClinicDetailScreen() {
                     </View>
 
                     <View style={styles.quickActions}>
-                        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface }]}>
+                        <TouchableOpacity 
+                            style={[styles.actionBtn, { backgroundColor: theme.surface }]}
+                            onPress={callClinic}
+                        >
                             <Phone size={20} color={theme.primary} />
                             <Text style={[styles.actionLabel, { color: theme.text }]}>Llamar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface }]}>
+                        <TouchableOpacity 
+                            style={[styles.actionBtn, { backgroundColor: theme.surface }]}
+                            onPress={openWebsite}
+                        >
                             <Globe size={20} color={theme.primary} />
                             <Text style={[styles.actionLabel, { color: theme.text }]}>Sitio Web</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface }]}>
+                        <TouchableOpacity 
+                            style={[styles.actionBtn, { backgroundColor: theme.surface }]}
+                            onPress={openMap}
+                        >
                             <MapPin size={20} color={theme.primary} />
                             <Text style={[styles.actionLabel, { color: theme.text }]}>Cómo llegar</Text>
                         </TouchableOpacity>
@@ -123,6 +177,132 @@ export default function ClinicDetailScreen() {
                             </TouchableOpacity>
                         ))
                     )}
+
+                    {/* Sección de Reseñas y Calificaciones */}
+                    <View style={styles.reviewsSection}>
+                        <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 12 }]}>Reseñas y Opiniones</Text>
+                        
+                        {/* Resumen de Calificación */}
+                        <View style={[styles.ratingSummaryCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                            <View style={styles.summaryLeft}>
+                                <Text style={[styles.bigRating, { color: theme.text }]}>
+                                    {rating?.average_rating?.toFixed(1) || '5.0'}
+                                </Text>
+                                <View style={styles.starsRow}>
+                                    {[1, 2, 3, 4, 5].map((s) => {
+                                        const isFilled = s <= Math.round(rating?.average_rating || 5);
+                                        return <Star key={s} size={16} color="#facc15" fill={isFilled ? "#facc15" : "transparent"} />;
+                                    })}
+                                </View>
+                                <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
+                                    {rating?.total_reviews || 0} {rating?.total_reviews === 1 ? 'opinión' : 'opiniones'}
+                                </Text>
+                            </View>
+                            <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
+                            <View style={styles.summaryRight}>
+                                <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
+                                    Calificación de la comunidad sobre la calidad de atención y servicios de esta clínica.
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* Formulario de Calificación */}
+                        <View style={[styles.writeReviewCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar esta clínica</Text>
+                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>Toca las estrellas para seleccionar tu calificación</Text>
+                            
+                            <View style={styles.interactiveStars}>
+                                {[1, 2, 3, 4, 5].map((starVal) => (
+                                    <TouchableOpacity 
+                                        key={starVal} 
+                                        onPress={() => setFormRating(starVal)}
+                                        style={styles.starTouch}
+                                    >
+                                        <Star 
+                                            size={32} 
+                                            color="#facc15" 
+                                            fill={starVal <= formRating ? "#facc15" : "transparent"} 
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+
+                            <TextInput
+                                style={[styles.commentInput, { 
+                                    backgroundColor: theme.background, 
+                                    borderColor: theme.borderLight, 
+                                    color: theme.text 
+                                }]}
+                                placeholder="Escribe tu opinión aquí (opcional)..."
+                                placeholderTextColor={theme.textMuted}
+                                value={formComment}
+                                onChangeText={setFormComment}
+                                multiline
+                                numberOfLines={3}
+                            />
+
+                            <TouchableOpacity 
+                                style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
+                                onPress={() => {
+                                    handleCreateReview(formRating, formComment.trim() || undefined);
+                                    setFormComment('');
+                                }}
+                                disabled={isCreatingReview}
+                            >
+                                {isCreatingReview ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Listado de Opiniones */}
+                        <View style={styles.reviewsList}>
+                            {reviews.length === 0 ? (
+                                <Text style={[styles.emptyReviewsText, { color: theme.textMuted }]}>
+                                    No hay opiniones para esta clínica aún. ¡Sé el primero en dejar una!
+                                </Text>
+                            ) : (
+                                reviews.map((review) => (
+                                    <View 
+                                        key={review.id} 
+                                        style={[styles.reviewItemCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
+                                    >
+                                        <View style={styles.reviewItemHeader}>
+                                            <View style={[styles.reviewAvatar, { backgroundColor: theme.primary + '15' }]}>
+                                                <Text style={[styles.reviewAvatarText, { color: theme.primary }]}>U</Text>
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={[styles.reviewUserName, { color: theme.text }]}>Usuario</Text>
+                                                <View style={styles.reviewStarsRow}>
+                                                    {[1, 2, 3, 4, 5].map((s) => (
+                                                        <Star 
+                                                            key={s} 
+                                                            size={12} 
+                                                            color="#facc15" 
+                                                            fill={s <= review.rating ? "#facc15" : "transparent"} 
+                                                        />
+                                                    ))}
+                                                </View>
+                                            </View>
+                                            <Text style={[styles.reviewDate, { color: theme.textMuted }]}>
+                                                {review.created_at ? new Date(review.created_at).toLocaleDateString('es-MX', {
+                                                    day: 'numeric',
+                                                    month: 'short',
+                                                }) : ''}
+                                            </Text>
+                                        </View>
+                                        {review.comment && (
+                                            <Text style={[styles.reviewCommentText, { color: theme.textMuted }]}>
+                                                {review.comment}
+                                            </Text>
+                                        )}
+                                    </View>
+                                ))
+                            )}
+                        </View>
+                    </View>
                 </View>
             </ScrollView>
 
@@ -131,7 +311,7 @@ export default function ClinicDetailScreen() {
                     <Text style={styles.bookBtnText}>Agendar Cita General</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -301,5 +481,143 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: '800',
-    }
+    },
+    reviewsSection: {
+        marginTop: 24,
+    },
+    ratingSummaryCard: {
+        flexDirection: 'row',
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    summaryLeft: {
+        alignItems: 'center',
+        paddingRight: 20,
+    },
+    bigRating: {
+        fontSize: 32,
+        fontWeight: '900',
+    },
+    starsRow: {
+        flexDirection: 'row',
+        gap: 2,
+        marginVertical: 6,
+    },
+    totalReviewsText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    summarySeparator: {
+        width: 1,
+        height: '80%',
+    },
+    summaryRight: {
+        flex: 1,
+        paddingLeft: 20,
+    },
+    summaryDescription: {
+        fontSize: 12,
+        lineHeight: 18,
+        fontWeight: '600',
+    },
+    writeReviewCard: {
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        marginBottom: 24,
+    },
+    writeReviewTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        marginBottom: 4,
+    },
+    writeReviewSubtitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginBottom: 16,
+    },
+    interactiveStars: {
+        flexDirection: 'row',
+        gap: 12,
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    starTouch: {
+        padding: 4,
+    },
+    commentInput: {
+        borderRadius: 16,
+        borderWidth: 1,
+        padding: 12,
+        fontSize: 14,
+        height: 80,
+        textAlignVertical: 'top',
+        marginBottom: 16,
+        fontWeight: '600',
+    },
+    submitReviewBtn: {
+        height: 48,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    submitReviewBtnText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    reviewsList: {
+        gap: 12,
+        marginBottom: 12,
+    },
+    emptyReviewsText: {
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+        paddingVertical: 20,
+        fontStyle: 'italic',
+    },
+    reviewItemCard: {
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    reviewItemHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 10,
+    },
+    reviewAvatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    reviewAvatarText: {
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    reviewUserName: {
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    reviewStarsRow: {
+        flexDirection: 'row',
+        gap: 2,
+        marginTop: 2,
+    },
+    reviewDate: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    reviewCommentText: {
+        fontSize: 13,
+        lineHeight: 19,
+        fontWeight: '600',
+    },
 });

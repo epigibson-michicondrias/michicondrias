@@ -1,29 +1,19 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, Package, Clock, ShoppingBag } from 'lucide-react-native';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { getMyOrders, Order } from '@/src/services/ecommerce';
-
-const STATUS_MAP: Record<string, { label: string; color: string }> = {
-    pending: { label: 'Pendiente', color: '#f59e0b' },
-    paid: { label: 'Pagado', color: '#3b82f6' },
-    shipped: { label: 'En Camino', color: '#3b82f6' },
-    delivered: { label: 'Entregado', color: '#10b981' },
-    cancelled: { label: 'Cancelado', color: '#ef4444' },
-};
+import { useTheme } from '@/src/hooks/useTheme';
+import { usePurchases, STATUS_MAP } from '@/src/hooks/ecommerce';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+import { Package, ShoppingBag } from 'lucide-react-native';
+import { Order } from '@/src/services/ecommerce';
 
 export default function ComprasScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: orders = [], isLoading } = useQuery({
-        queryKey: ['my-orders'],
-        queryFn: getMyOrders,
-    });
+    const { theme } = useTheme();
+    const { orders, isLoading } = usePurchases();
 
     const renderItem = ({ item }: { item: Order }) => {
         const statusInfo = STATUS_MAP[item.status] || { label: item.status, color: '#666' };
@@ -34,7 +24,7 @@ export default function ComprasScreen() {
                     <Package size={32} color={theme.textMuted} />
                 </View>
                 <View style={styles.content}>
-                    <View style={styles.headerRow}>
+                    <View style={styles.cardHeader}>
                         <Text style={[styles.orderId, { color: theme.textMuted }]}>{item.id.slice(0, 8)}</Text>
                         <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '15' }]}>
                             <Text style={[styles.statusText, { color: statusInfo.color }]}>{statusInfo.label}</Text>
@@ -53,21 +43,15 @@ export default function ComprasScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando pedidos..." />
+            </ScreenContainer>
         );
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>Mis Compras</Text>
-                <View style={{ width: 44 }} />
-            </View>
+        <ScreenContainer>
+            <ScreenHeader title="Mis Compras" />
 
             <FlatList
                 data={orders}
@@ -75,40 +59,17 @@ export default function ComprasScreen() {
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
                 ListEmptyComponent={
-                    <View style={styles.empty}>
-                        <ShoppingBag size={64} color={theme.textMuted} strokeWidth={1} />
-                        <Text style={[styles.emptyText, { color: theme.textMuted }]}>Aún no has realizado compras</Text>
-                    </View>
+                    <EmptyState
+                        icon={<ShoppingBag size={40} color={theme.textMuted} strokeWidth={1} />}
+                        title="Aún no has realizado compras"
+                    />
                 }
             />
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: {
-        flex: 1,
-        fontSize: 20,
-        fontWeight: '900',
-        textAlign: 'center',
-    },
     list: {
         paddingHorizontal: 20,
         paddingBottom: 40,
@@ -133,10 +94,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 4,
     },
-    headerRow: {
+    cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 4,
     },
     orderId: {
         fontSize: 11,
@@ -174,13 +136,4 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
     },
-    empty: {
-        paddingTop: 100,
-        alignItems: 'center',
-        gap: 20,
-    },
-    emptyText: {
-        fontSize: 16,
-        fontWeight: '600',
-    }
 });

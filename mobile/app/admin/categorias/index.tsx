@@ -1,81 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, TextInput, Modal } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCategories, createCategory, updateCategory, deleteCategory, Category } from '@/src/services/ecommerce';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Plus, Package, Edit2, Trash2, X } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showAlert } from '@/src/components/AppAlert';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminCategories } from '@/src/hooks/admin/useAdminCategories';
+import { Category } from '@/src/services/ecommerce';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
+import { Plus, Package, Edit2, Trash2, X } from 'lucide-react-native';
 
 export default function AdminCategoriasScreen() {
-    const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-    const { data: categories = [], isLoading, refetch } = useQuery({
-        queryKey: ['admin-categories'],
-        queryFn: getCategories,
-    });
-
-    const [formData, setFormData] = useState({ name: '', description: '' });
-
-    const createMutation = useMutation({
-        mutationFn: createCategory,
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Categoría creada correctamente.' });
-            setModalVisible(false);
-            queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: string, data: Partial<Category> }) => updateCategory(id, data),
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Categoría actualizada correctamente.' });
-            setModalVisible(false);
-            queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: deleteCategory,
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Categoría eliminada.' });
-            queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const handleAction = (category?: Category) => {
-        setEditingCategory(category || null);
-        setFormData({
-            name: category?.name || '',
-            description: category?.description || '',
-        });
-        setModalVisible(true);
-    };
-
-    const handleDelete = (id: string, name: string) => {
-        showAlert({
-            type: 'error',
-            title: 'Eliminar Categoría',
-            message: `¿Estás seguro de eliminar "${name}"? Esta acción no se puede deshacer.`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Eliminar',
-            onButtonPress: () => deleteMutation.mutate(id),
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        categories,
+        isLoading,
+        isModalVisible,
+        editingCategory,
+        formData,
+        setFormData,
+        isSaving,
+        handleAction,
+        handleDelete,
+        handleSubmit,
+        closeModal,
+    } = useAdminCategories();
 
     const renderItem = ({ item }: { item: Category }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -100,39 +49,16 @@ export default function AdminCategoriasScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Categorías</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Gestión de Catálogo</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => handleAction()}
-                    >
-                        <Plus size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-            </LinearGradient>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Categorías"
+                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
+                actionIcon={Plus}
+                onAction={() => handleAction()}
+            />
 
             {isLoading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
+                <LoadingOverlay message="Cargando categorías..." />
             ) : (
                 <FlatList
                     data={categories}
@@ -140,10 +66,11 @@ export default function AdminCategoriasScreen() {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <Package size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay categorías creadas.</Text>
-                        </View>
+                        <EmptyState
+                            icon={<Package size={48} color={theme.textMuted} strokeWidth={1} />}
+                            title="No hay categorías"
+                            subtitle="No hay categorías creadas."
+                        />
                     }
                 />
             )}
@@ -155,7 +82,7 @@ export default function AdminCategoriasScreen() {
                             <Text style={[styles.modalTitle, { color: theme.text }]}>
                                 {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
                             </Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <TouchableOpacity onPress={closeModal}>
                                 <X size={24} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -184,16 +111,10 @@ export default function AdminCategoriasScreen() {
 
                             <TouchableOpacity 
                                 style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                                disabled={createMutation.isPending || updateMutation.isPending}
-                                onPress={() => {
-                                    if (editingCategory) {
-                                        updateMutation.mutate({ id: editingCategory.id, data: formData });
-                                    } else {
-                                        createMutation.mutate(formData);
-                                    }
-                                }}
+                                disabled={isSaving}
+                                onPress={handleSubmit}
                             >
-                                {createMutation.isPending || updateMutation.isPending ? (
+                                {isSaving ? (
                                     <ActivityIndicator color="#fff" />
                                 ) : (
                                     <Text style={styles.submitBtnText}>
@@ -206,87 +127,15 @@ export default function AdminCategoriasScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     list: { 
         padding: 20, 
         paddingBottom: 100,
         paddingTop: 12 
-    },
-    center: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        marginTop: 100 
-    },
-    empty: { 
-        alignItems: 'center', 
-        marginTop: 60, 
-        paddingHorizontal: 40 
-    },
-    emptyText: { 
-        fontSize: 14, 
-        fontWeight: '700', 
-        marginTop: 20,
-        textAlign: 'center' 
     },
     card: { 
         flexDirection: 'row', 

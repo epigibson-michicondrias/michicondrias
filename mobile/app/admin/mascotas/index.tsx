@@ -1,16 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Dimensions, Image, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, Bone, Search, Filter, Plus, Heart, Shield } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminPets, Pet } from '@/src/hooks/admin';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import SearchBar from '@/src/components/SearchBar';
+import { ChevronLeft, Bone, Filter, Plus, Shield } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { getAllPets, Pet } from '@/src/services/mascotas';
-
-const { width } = Dimensions.get('window');
 
 const SPECIES_COLORS: Record<string, string> = {
     Perro: '#3b82f6',
@@ -21,14 +19,8 @@ const SPECIES_COLORS: Record<string, string> = {
 
 export default function AdminMascotasScreen() {
     const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: mascotas = [], isLoading } = useQuery({
-        queryKey: ['admin-mascotas'],
-        queryFn: getAllPets,
-    });
+    const { theme } = useTheme();
+    const { mascotas, isLoading, isFetching, refetch, searchText, setSearchText, vaccinatedCount } = useAdminPets();
 
     const renderPetCard = ({ item }: { item: Pet }) => {
         const color = SPECIES_COLORS[item.species] || '#6b7280';
@@ -50,187 +42,100 @@ export default function AdminMascotasScreen() {
         );
     };
 
-    if (isLoading) {
-        return (
-            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color="#f59e0b" />
+    const ListHeader = (
+        <View>
+            {/* Stats in header area */}
+            <View style={styles.statsRow}>
+                <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <Text style={[styles.statVal, { color: theme.text }]}>{mascotas.length}</Text>
+                    <Text style={[styles.statLab, { color: theme.textMuted }]}>Población</Text>
+                </View>
+                <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <Text style={[styles.statVal, { color: theme.text }]}>{vaccinatedCount}</Text>
+                    <Text style={[styles.statLab, { color: theme.textMuted }]}>Vacunadas</Text>
+                </View>
             </View>
-        );
-    }
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={['#f59e0b', '#f59e0bE6', '#f59e0bCC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Mascotas</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Censo Global</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => showAlert({ type: 'info', title: 'Nueva Mascota', message: 'Formulario de registro' })}
-                    >
-                        <Plus size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.headerStats}>
-                    <View style={styles.statMini}>
-                        <Text style={styles.statVal}>{mascotas.length}</Text>
-                        <Text style={styles.statLab}>Población</Text>
-                    </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statMini}>
-                        <Text style={styles.statVal}>{mascotas.filter(m => m.is_vaccinated).length}</Text>
-                        <Text style={styles.statLab}>Vacunadas</Text>
-                    </View>
-                </View>
-            </LinearGradient>
-
+            {/* Search + Filter */}
             <View style={styles.filterRow}>
-                <View style={[styles.searchBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <Search size={20} color={theme.textMuted} />
-                    <TextInput 
-                        placeholder="Buscar por nombre o dueño..." 
-                        placeholderTextColor={theme.textMuted}
-                        style={[styles.searchInput, { color: theme.text }]}
+                <View style={{ flex: 1 }}>
+                    <SearchBar
+                        value={searchText}
+                        onChangeText={setSearchText}
+                        placeholder="Buscar por nombre o dueño..."
                     />
                 </View>
                 <TouchableOpacity style={[styles.filterBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <Filter size={20} color={theme.primary} />
                 </TouchableOpacity>
             </View>
+        </View>
+    );
 
-            <FlatList
+    return (
+        <ScreenContainer>
+            <ScreenHeader
+                title="Mascotas"
+                subtitle="Censo Global"
+                gradient={['#f59e0b', '#f59e0bE6', '#f59e0bCC']}
+                actionIcon={Plus}
+                onAction={() => showAlert({ type: 'info', title: 'Nueva Mascota', message: 'Formulario de registro' })}
+            />
+
+            <DataList
                 data={mascotas}
                 renderItem={renderPetCard}
                 keyExtractor={item => item.id}
-                contentContainerStyle={styles.list}
-                showsVerticalScrollIndicator={false}
+                isLoading={isLoading}
+                loadingMessage="Cargando mascotas..."
+                onRefresh={() => refetch()}
+                isRefreshing={isFetching}
+                emptyIcon={<Bone size={48} color={theme.textMuted} strokeWidth={1} />}
+                emptyTitle="No hay mascotas"
+                emptySubtitle="No hay mascotas registradas."
+                contentStyle={styles.list}
+                header={ListHeader}
             />
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
+    statsRow: {
+        flexDirection: 'row',
+        paddingHorizontal: 20,
+        gap: 12,
+        marginTop: 8,
+        marginBottom: 8,
     },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
+    statItem: {
         flex: 1,
         alignItems: 'center',
-        marginRight: 8,
+        padding: 14,
+        borderRadius: 20,
+        borderWidth: 1,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
     },
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
-    headerStats: { 
-        flexDirection: 'row', 
-        alignItems: 'center',
-        gap: 20, 
-        marginTop: 28 
-    },
-    statMini: { alignItems: 'center' },
     statVal: { 
         fontSize: 22, 
-        fontWeight: '900', 
-        color: '#fff' 
+        fontWeight: '900',
     },
     statLab: { 
         fontSize: 10, 
         fontWeight: '800', 
-        color: 'rgba(255,255,255,0.7)',
         letterSpacing: 0.5,
         marginTop: 2,
-    },
-    statDivider: {
-        width: 1,
-        height: 24,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        textTransform: 'uppercase',
     },
     filterRow: { 
         flexDirection: 'row', 
         paddingHorizontal: 20, 
-        paddingVertical: 16, 
+        paddingVertical: 12, 
         gap: 12, 
-        marginTop: -18,
-        zIndex: 20,
-    },
-    searchBox: { 
-        flex: 1, 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        paddingHorizontal: 16, 
-        height: 54, 
-        borderRadius: 18, 
-        borderWidth: 1.5, 
-        gap: 12, 
-        elevation: 4, 
-        shadowColor: '#000', 
-        shadowOffset: { width: 0, height: 4 }, 
-        shadowOpacity: 0.1, 
-        shadowRadius: 10 
-    },
-    searchInput: { 
-        flex: 1, 
-        fontSize: 15, 
-        fontWeight: '700' 
     },
     filterBtn: { 
         width: 54, 

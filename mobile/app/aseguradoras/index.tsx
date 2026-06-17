@@ -1,36 +1,23 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getActivePlans, InsurancePlan } from '../../src/services/insurance';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useInsurancePlans } from '@/src/hooks/insurance';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { InsurancePlan } from '@/src/services/insurance';
 import { Shield, Clock, DollarSign, ChevronRight, Plus, CheckCircle } from 'lucide-react-native';
 
 export default function AseguradorasScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
+    const { theme } = useTheme();
+    const { user } = useAuth();
+    const { plans, isLoading, refetch, isRefetching } = useInsurancePlans();
 
-    const { data: plans = [], isLoading } = useQuery<InsurancePlan[]>({
-        queryKey: ['insurancePlans'],
-        queryFn: () => getActivePlans(),
-    });
+    const roleName = user?.role_name || '';
+    const isInsurer = roleName === 'aseguradora' || roleName === 'admin';
 
     const renderPlanItem = ({ item }: { item: InsurancePlan }) => (
         <TouchableOpacity
@@ -99,67 +86,49 @@ export default function AseguradorasScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🛡️ Aseguradoras</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Protege a tu mascota con el mejor seguro
-                </Text>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="🛡️ Aseguradoras"
+                subtitle="Protege a tu mascota con el mejor seguro"
+            />
 
             <View style={styles.actionButtons}>
-                <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/aseguradoras/nuevo' as any)}
-                >
-                    <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nuevo Plan</Text>
-                </TouchableOpacity>
+                {isInsurer ? (
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                        onPress={() => router.push('/aseguradoras/nuevo' as any)}
+                    >
+                        <Plus size={18} color="#fff" />
+                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nuevo Plan</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.secondary }]}
+                        onPress={() => router.push('/aseguradoras/mis-polizas' as any)}
+                    >
+                        <Shield size={18} color="#fff" />
+                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Pólizas</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
-            {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando planes...</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={plans}
-                    renderItem={renderPlanItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Shield size={48} color={theme.textMuted} style={{ opacity: 0.5 }} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                No hay planes de seguro disponibles
-                            </Text>
-                        </View>
-                    }
-                />
-            )}
-        </View>
+            <DataList<InsurancePlan>
+                data={plans}
+                renderItem={renderPlanItem}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando planes..."
+                onRefresh={refetch}
+                isRefreshing={isRefetching}
+                emptyIcon={<Shield size={32} color={theme.textMuted} />}
+                emptyTitle="No hay planes de seguro disponibles"
+                contentStyle={styles.list}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
     actionButtons: {
         flexDirection: 'row',
         paddingHorizontal: 24,
@@ -273,25 +242,5 @@ const styles = StyleSheet.create({
     activeText: {
         fontSize: 11,
         fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-        gap: 16,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

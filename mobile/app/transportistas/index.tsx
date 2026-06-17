@@ -1,43 +1,23 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getAvailableDrivers, DriverProfile } from '../../src/services/rides';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Search, Car, Users, Snowflake, Box, CheckCircle2, Plus } from 'lucide-react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useTransporters } from '@/src/hooks/rides/useTransporters';
+import { DriverProfile } from '@/src/services/rides';
+import { useAuth } from '@/src/contexts/AuthContext';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Car, Users, Snowflake, Box, CheckCircle2, Plus, Clock, User } from 'lucide-react-native';
+import SearchBar from '@/src/components/SearchBar';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
 
 export default function TransportistasScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
+    const { theme } = useTheme();
+    const { user } = useAuth();
+    const { searchQuery, setSearchQuery, drivers, isLoading, router } = useTransporters();
 
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: drivers = [], isLoading } = useQuery<DriverProfile[]>({
-        queryKey: ['available-drivers'],
-        queryFn: () => getAvailableDrivers(),
-    });
-
-    const filteredDrivers = drivers.filter(driver =>
-        driver.vehicle_model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        driver.vehicle_plate.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const rawRole = user?.role_name || '';
+    const isDriver = rawRole === 'transportista' || rawRole === 'driver' || rawRole === 'admin';
 
     const renderDriverItem = ({ item }: { item: DriverProfile }) => (
         <TouchableOpacity
@@ -82,77 +62,71 @@ export default function TransportistasScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🚗 Transportistas</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Transporte seguro para tu mascota
-                </Text>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="🚗 Transportistas"
+                subtitle="Transporte seguro para tu mascota"
+            />
 
             <View style={styles.actionButtons}>
-                <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/transportistas/nuevo')}
-                >
-                    <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitar Transporte</Text>
-                </TouchableOpacity>
+                {isDriver ? (
+                    <>
+                        <TouchableOpacity
+                            style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                            onPress={() => router.push('/transportistas/perfil-conductor' as any)}
+                        >
+                            <User size={18} color="#fff" />
+                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mi Vehículo</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.actionButton, { backgroundColor: theme.secondary }]}
+                            onPress={() => router.push('/transportistas/historial' as any)}
+                        >
+                            <Clock size={18} color="#fff" />
+                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Viajes</Text>
+                        </TouchableOpacity>
+                    </>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                        onPress={() => router.push('/transportistas/solicitar' as any)}
+                    >
+                        <Plus size={18} color="#fff" />
+                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitar Transporte</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
-            <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Search size={20} color={theme.textMuted} />
-                <TextInput
-                    placeholder="Buscar por modelo o placa..."
-                    placeholderTextColor={theme.textMuted}
-                    style={[styles.searchInput, { color: theme.text }]}
+            <View style={{ marginHorizontal: 24, marginBottom: 20 }}>
+                <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    placeholder="Buscar por modelo o placa..."
                 />
             </View>
 
             {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando transportistas...</Text>
-                </View>
+                <LoadingOverlay message="Cargando transportistas..." />
             ) : (
                 <FlatList
-                    data={filteredDrivers}
+                    data={drivers}
                     renderItem={renderDriverItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                {searchQuery ? 'No se encontraron transportistas.' : 'No hay transportistas disponibles.'}
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon={<Car size={32} color={theme.textMuted} />}
+                            title={searchQuery ? 'No se encontraron transportistas.' : 'No hay transportistas disponibles.'}
+                        />
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
     actionButtons: {
         flexDirection: 'row',
         paddingHorizontal: 24,
@@ -172,21 +146,6 @@ const styles = StyleSheet.create({
     actionButtonText: {
         fontSize: 14,
         fontWeight: '600',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 24,
-        marginBottom: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 12,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
     },
     list: {
         paddingHorizontal: 24,
@@ -252,24 +211,5 @@ const styles = StyleSheet.create({
     tagText: {
         fontSize: 12,
         fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

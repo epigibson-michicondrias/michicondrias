@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMyClinics, getClinicSurgeries, createSurgery, SurgeryItem } from '../../src/services/directorio';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, Filter, Plus, Stethoscope, Clock, MapPin, CheckCircle2, AlertCircle, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useSurgeries } from '@/src/hooks/clinica';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { SurgeryItem } from '@/src/services/directorio';
+import { Plus, MapPin, Clock, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
     "scheduled": { label: "Programada", color: "#f59e0b", bg: "rgba(245,158,11,0.15)" },
@@ -23,68 +23,33 @@ const TYPE_MAP: Record<string, { label: string; icon: string; color: string }> =
 
 export default function CirugiasScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-
-    const [filter, setFilter] = useState('all');
-    const [showSearch, setShowSearch] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedPatientId, setSelectedPatientId] = useState('');
-
-    // Form State
-    const [surgName, setSurgName] = useState('');
-    const [surgType, setSurgType] = useState('elective');
-    const [surgDate, setSurgDate] = useState('');
-    const [surgDuration, setSurgDuration] = useState('60');
-    const [surgRoom, setSurgRoom] = useState('OR-1');
-
-    const { data: clinics = [] } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-    const clinic = clinics[0];
-
-    const { data: surgeries = [], isLoading } = useQuery({
-        queryKey: ['clinic-surgeries', clinic?.id],
-        queryFn: () => getClinicSurgeries(clinic!.id),
-        enabled: !!clinic?.id,
-    });
-
-    const createMutation = useMutation({
-        mutationFn: () => createSurgery({
-            clinic_id: clinic!.id,
-            patient_id: selectedPatientId,
-            surgery_name: surgName,
-            surgery_type: surgType,
-            scheduled_date: surgDate || new Date().toISOString().slice(0, 16),
-            estimated_duration_minutes: parseInt(surgDuration) || 60,
-            operating_room: surgRoom
-        }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['clinic-surgeries'] });
-            setModalVisible(false);
-            setSurgName('');
-            setSelectedPatientId('');
-            showAlert({ type: 'success', title: 'Éxito', message: 'Cirugía programada correctamente.' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo programar la cirugía.' });
-        }
-    });
-
-    const handleCreate = () => {
-        if (!surgName || !surgDate || !selectedPatientId) {
-            showAlert({ type: 'warning', title: 'Campos requeridos', message: 'Por favor ingresa el nombre de la cirugía, la fecha y selecciona un paciente.' });
-            return;
-        }
-        createMutation.mutate();
-    };
-
-    const filtered = (filter === 'all' ? surgeries : surgeries.filter(s => s.status === filter))
-        .filter(s => s.surgery_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                     s.operating_room?.toLowerCase().includes(searchQuery.toLowerCase()));
+    const { theme } = useTheme();
+    const {
+        filtered,
+        isLoading,
+        filter,
+        setFilter,
+        showSearch,
+        toggleSearch,
+        searchQuery,
+        setSearchQuery,
+        modalVisible,
+        setModalVisible,
+        selectedPatientId,
+        setSelectedPatientId,
+        surgName,
+        setSurgName,
+        surgType,
+        setSurgType,
+        surgDate,
+        setSurgDate,
+        surgDuration,
+        setSurgDuration,
+        surgRoom,
+        setSurgRoom,
+        handleCreate,
+        isCreating,
+    } = useSurgeries();
 
     const renderItem = ({ item }: { item: SurgeryItem }) => {
         const status = STATUS_MAP[item.status] || STATUS_MAP["scheduled"];
@@ -128,19 +93,16 @@ export default function CirugiasScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Quirófano</Text>
-                    <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Gestión de Cirugías</Text>
-                </View>
-                <TouchableOpacity style={styles.filterBtn} onPress={() => setShowSearch(!showSearch)}>
-                    {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Quirófano"
+                subtitle="Gestión de Cirugías"
+                rightElement={
+                    <TouchableOpacity style={styles.filterBtn} onPress={toggleSearch}>
+                        {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
+                    </TouchableOpacity>
+                }
+            />
 
             {showSearch && (
                 <View style={styles.searchContainer}>
@@ -327,9 +289,9 @@ export default function CirugiasScreen() {
                             <TouchableOpacity
                                 style={[styles.submitBtn, { backgroundColor: theme.primary }]}
                                 onPress={handleCreate}
-                                disabled={createMutation.isPending}
+                                disabled={isCreating}
                             >
-                                {createMutation.isPending ? (
+                                {isCreating ? (
                                     <ActivityIndicator color="#fff" />
                                 ) : (
                                     <Text style={styles.submitBtnText}>Agendar Intervención</Text>
@@ -339,17 +301,11 @@ export default function CirugiasScreen() {
                     </View>
                 </KeyboardAvoidingView>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 20, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 22, fontWeight: '900' },
-    headerSubtitle: { fontSize: 13, fontWeight: '600', marginTop: 2 },
     filterBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
     tabsRow: { marginBottom: 10 },
     tabsScroll: { paddingHorizontal: 20, gap: 8 },

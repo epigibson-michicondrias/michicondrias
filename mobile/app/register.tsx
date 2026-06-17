@@ -3,7 +3,8 @@ import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, P
 import { register } from '../src/lib/auth';
 import Colors from '../constants/Colors';
 import { useTheme } from '../src/contexts/ThemeContext';
-import { Mail, Lock, User, UserPlus, ArrowLeft, ArrowRight, Eye, EyeOff, Sparkles, Check } from 'lucide-react-native';
+import { Mail, Lock, User, UserPlus, ArrowRight, Eye, EyeOff, Sparkles, Check } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -69,12 +70,10 @@ export default function RegisterScreen() {
                     bounces={false}
                 >
                     {/* Back button */}
-                    <TouchableOpacity
-                        style={[styles.backBtn, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)' }]}
+                    <BackButton
                         onPress={() => router.back()}
-                    >
-                        <ArrowLeft size={22} color={isDark ? '#fff' : '#334155'} />
-                    </TouchableOpacity>
+                        style={styles.backBtn}
+                    />
 
                     {/* Header */}
                     <View style={styles.headerSection}>
@@ -220,8 +219,6 @@ const styles = StyleSheet.create({
         flexGrow: 1, paddingHorizontal: 28, paddingTop: 60, paddingBottom: 48,
     },
     backBtn: {
-        width: 44, height: 44, borderRadius: 14,
-        justifyContent: 'center', alignItems: 'center',
         marginBottom: 20,
     },
     headerSection: { alignItems: 'center', marginBottom: 28 },

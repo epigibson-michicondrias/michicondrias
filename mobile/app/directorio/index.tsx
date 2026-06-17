@@ -1,12 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ActivityIndicator, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicsAndVets } from '@/src/hooks/directorio';
 import type { Clinic, Vet } from '@/src/types/directorio';
-import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building, Clock, Navigation } from 'lucide-react-native';
+import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building, Clock, Navigation, Star } from 'lucide-react-native';
 import DataList from '@/src/components/data/DataList';
 import BackButton from '@/src/components/BackButton';
+import { showAlert } from '@/src/components/AppAlert';
 import { StatusBar } from 'expo-status-bar';
 // @ts-ignore
 import { LinearGradient } from 'expo-linear-gradient';
@@ -47,11 +48,22 @@ export default function DirectorioIndexScreen() {
                 </View>
                 <View style={styles.cardMainInfo}>
                     <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
-                    <View style={styles.locationRow}>
-                        <MapPin size={13} color={theme.textMuted} />
-                        <Text style={[styles.cardSubtitle, { color: theme.textMuted }]} numberOfLines={1}>
-                            {item.city || "Ciudad"}, {item.state || "MX"}
-                        </Text>
+                    <View style={styles.cardInfoSubrows}>
+                        <View style={styles.locationRow}>
+                            <MapPin size={13} color={theme.textMuted} />
+                            <Text style={[styles.cardSubtitle, { color: theme.textMuted }]} numberOfLines={1}>
+                                {item.city || "Ciudad"}, {item.state || "MX"}
+                            </Text>
+                        </View>
+                        <View style={styles.ratingRowInline}>
+                            <Star size={13} color="#facc15" fill="#facc15" />
+                            <Text style={[styles.ratingTextInline, { color: theme.text }]}>
+                                {item.average_rating ? item.average_rating.toFixed(1) : '5.0'}
+                            </Text>
+                            <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>
+                                ({item.total_reviews || 0})
+                            </Text>
+                        </View>
                     </View>
                 </View>
                 <ChevronRight size={20} color={theme.textMuted} />
@@ -78,6 +90,14 @@ export default function DirectorioIndexScreen() {
                         </View>
                     )}
                 </View>
+                {item.services && item.services.length > 0 && (
+                    <View style={styles.cardServicesRow}>
+                        <Text style={[styles.servicesLabel, { color: theme.primary }]}>Servicios: </Text>
+                        <Text style={[styles.servicesListText, { color: theme.textMuted }]} numberOfLines={1}>
+                            {item.services.join(', ')}
+                        </Text>
+                    </View>
+                )}
                 {item.description && (
                     <Text style={[styles.description, { color: theme.textMuted }]} numberOfLines={2}>
                         {item.description}
@@ -89,7 +109,15 @@ export default function DirectorioIndexScreen() {
                 {item.phone && (
                     <TouchableOpacity
                         style={[styles.actionBtn, { backgroundColor: theme.overlay, borderColor: theme.border }]}
-                        onPress={() => {}}
+                        onPress={() => {
+                            Linking.openURL(`tel:${item.phone}`).catch(() => {
+                                showAlert({
+                                    type: 'error',
+                                    title: 'Error',
+                                    message: 'No se pudo abrir la aplicación de teléfono.'
+                                });
+                            });
+                        }}
                     >
                         <Phone size={15} color={theme.text} />
                         <Text style={[styles.actionBtnText, { color: theme.text }]}>Llamar</Text>
@@ -121,11 +149,22 @@ export default function DirectorioIndexScreen() {
                     <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>
                         {item.first_name} {item.last_name}
                     </Text>
-                    <View style={styles.locationRow}>
-                        <ShieldCheck size={13} color={theme.success} />
-                        <Text style={[styles.cardSubtitle, { color: theme.success, fontWeight: '700' }]}>
-                            {item.specialty || "Médico Veterinario"}
-                        </Text>
+                    <View style={styles.cardInfoSubrows}>
+                        <View style={styles.locationRow}>
+                            <ShieldCheck size={13} color={theme.success} />
+                            <Text style={[styles.cardSubtitle, { color: theme.success, fontWeight: '700' }]}>
+                                {item.specialty || "Médico Veterinario"}
+                            </Text>
+                        </View>
+                        <View style={styles.ratingRowInline}>
+                            <Star size={13} color="#facc15" fill="#facc15" />
+                            <Text style={[styles.ratingTextInline, { color: theme.text }]}>
+                                {item.average_rating ? item.average_rating.toFixed(1) : '5.0'}
+                            </Text>
+                            <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>
+                                ({item.total_reviews || 0})
+                            </Text>
+                        </View>
                     </View>
                 </View>
                 <ChevronRight size={20} color={theme.textMuted} />
@@ -491,4 +530,38 @@ const styles = StyleSheet.create({
     },
     emptyTitle: { fontSize: 18, fontWeight: '800', marginTop: 16, marginBottom: 6 },
     emptyText: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
+    cardInfoSubrows: {
+        marginTop: 4,
+        gap: 4,
+    },
+    ratingRowInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    ratingTextInline: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    ratingCountInline: {
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    cardServicesRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+        backgroundColor: 'rgba(255,255,255,0.02)',
+        padding: 8,
+        borderRadius: 10,
+    },
+    servicesLabel: {
+        fontSize: 12,
+        fontWeight: '800',
+    },
+    servicesListText: {
+        fontSize: 12,
+        fontWeight: '600',
+        flex: 1,
+    },
 });

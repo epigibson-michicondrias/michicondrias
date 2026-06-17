@@ -2,15 +2,14 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import { CheckCircle, Home, ShoppingBag, Package, Truck, Mail, Phone, Star } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 export default function PagoExitosoScreen() {
     const router = useRouter();
     const { user } = useAuth();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme } = useTheme();
     const params = useLocalSearchParams();
 
     const orderId = params.orderId as string;
@@ -20,6 +19,10 @@ export default function PagoExitosoScreen() {
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.content}>
+                <View style={styles.headerTop}>
+                    <BackButton onPress={() => router.back()} />
+                    <View style={{ flex: 1 }} />
+                </View>
                 {/* Success Icon */}
                 <View style={[styles.successIconContainer, { backgroundColor: '#22c55e15' }]}>
                     <CheckCircle size={80} color="#22c55e" />
@@ -174,6 +177,11 @@ const styles = StyleSheet.create({
     },
     content: {
         padding: 24,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
     },
     successIconContainer: {
         width: 160,

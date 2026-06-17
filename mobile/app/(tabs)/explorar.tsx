@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -7,31 +7,13 @@ import {
   View,
   Text,
   TextInput,
-  Animated,
   Dimensions,
 } from 'react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { useAuth } from '../../src/contexts/AuthContext';
-import {
-  Search,
-  Building,
-  Stethoscope,
-  ClipboardList,
-  Sparkles,
-  UserCheck,
-  Home,
-  MapPin,
-  ShoppingBag,
-  CreditCard,
-  Heart,
-  AlertTriangle,
-  Bone,
-  HeartPulse,
-  Briefcase,
-  Store,
-  Users,
-} from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useExplore } from '@/src/hooks/home';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import { Search, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -41,71 +23,23 @@ const CARD_GAP = 12;
 const CARD_HORIZONTAL_PADDING = 24;
 const CARD_WIDTH = (SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 
-type CategoryKey = 'Salud' | 'Servicios' | 'Tienda' | 'Comunidad';
-
-interface ExploreItem {
-  title: string;
-  subtitle: string;
-  icon: React.ComponentType<any>;
-  color: string;
-  route: string;
-  category: CategoryKey;
-}
-
-const CATEGORIES: { key: CategoryKey; label: string; icon: React.ComponentType<any>; color: string }[] = [
-  { key: 'Salud', label: 'Salud', icon: HeartPulse, color: '#10b981' },
-  { key: 'Servicios', label: 'Servicios', icon: Briefcase, color: '#8b5cf6' },
-  { key: 'Tienda', label: 'Tienda', icon: Store, color: '#ec4899' },
-  { key: 'Comunidad', label: 'Comunidad', icon: Users, color: '#f43f5e' },
-];
-
-const EXPLORE_ITEMS: ExploreItem[] = [
-  // Salud
-  { title: 'Clínicas', subtitle: 'Centros cercanos', icon: Building, color: '#10b981', route: '/directorio?type=clinic', category: 'Salud' },
-  { title: 'Veterinarios', subtitle: 'Busca un experto', icon: Stethoscope, color: '#0ea5e9', route: '/directorio', category: 'Salud' },
-  { title: 'Carnet Salud', subtitle: 'Historial médico', icon: ClipboardList, color: '#3b82f6', route: '/carnet', category: 'Salud' },
-  { title: 'Diagnóstico IA', subtitle: 'Análisis inteligente', icon: Sparkles, color: '#8b5cf6', route: '/mascotas/diagnostico-ia', category: 'Salud' },
-
-  // Servicios
-  { title: 'Paseadores', subtitle: 'Busca paseadores', icon: UserCheck, color: '#8b5cf6', route: '/paseadores', category: 'Servicios' },
-  { title: 'Cuidadores', subtitle: 'Pensiones Michi', icon: Home, color: '#7c3aed', route: '/cuidadores', category: 'Servicios' },
-  { title: 'Petfriendly', subtitle: 'Sitios populares', icon: MapPin, color: '#14b8a6', route: '/petfriendly', category: 'Servicios' },
-
-  // Tienda
-  { title: 'Tienda Online', subtitle: 'Artículos Michi', icon: ShoppingBag, color: '#ec4899', route: '/tienda', category: 'Tienda' },
-  { title: 'Mis Compras', subtitle: 'Historial pedidos', icon: CreditCard, color: '#f59e0b', route: '/tienda/compras', category: 'Tienda' },
-
-  // Comunidad
-  { title: 'Adopciones', subtitle: 'Busca un amigo', icon: Heart, color: '#f43f5e', route: '/adopciones', category: 'Comunidad' },
-  { title: 'Mascotas Perdidas', subtitle: 'Reportes activos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas', category: 'Comunidad' },
-  { title: 'Donaciones', subtitle: 'Apoyo refugios', icon: Bone, color: '#f59e0b', route: '/donaciones', category: 'Comunidad' },
-];
-
 export default function ExplorarScreen() {
   const router = useRouter();
-  const { colorScheme } = useTheme();
+  const { theme, isDark } = useTheme();
   const { user } = useAuth();
-  const theme = Colors[colorScheme];
   const insets = useSafeAreaInsets();
 
-  const [selectedCategory, setSelectedCategory] = useState<CategoryKey | null>(null);
-
-  const filteredItems = selectedCategory
-    ? EXPLORE_ITEMS.filter((item) => item.category === selectedCategory)
-    : EXPLORE_ITEMS;
-
-  const handleCategoryPress = (key: CategoryKey) => {
-    setSelectedCategory((prev) => (prev === key ? null : key));
-  };
-
-  // Build rows of 2 for the grid
-  const rows: ExploreItem[][] = [];
-  for (let i = 0; i < filteredItems.length; i += 2) {
-    rows.push(filteredItems.slice(i, i + 2));
-  }
+  const {
+    categories,
+    filteredItems,
+    rows,
+    selectedCategory,
+    handleCategoryPress,
+    clearFilter,
+  } = useExplore();
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       <StatusBar barStyle="light-content" />
 
       <ScrollView
@@ -126,12 +60,12 @@ export default function ExplorarScreen() {
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <View style={[styles.searchBar, { backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.9)', borderColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(124,58,237,0.15)' }]}>
-            <Search size={20} color={colorScheme === 'dark' ? 'rgba(255,255,255,0.5)' : '#94a3b8'} />
+          <View style={[styles.searchBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.9)', borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(124,58,237,0.15)' }]}>
+            <Search size={20} color={isDark ? 'rgba(255,255,255,0.5)' : '#94a3b8'} />
             <TextInput
               style={[styles.searchInput, { color: theme.text }]}
               placeholder="Buscar servicios, tiendas, clínicas..."
-              placeholderTextColor={colorScheme === 'dark' ? 'rgba(255,255,255,0.4)' : '#94a3b8'}
+              placeholderTextColor={isDark ? 'rgba(255,255,255,0.4)' : '#94a3b8'}
               editable={false}
             />
           </View>
@@ -143,7 +77,7 @@ export default function ExplorarScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryList}
         >
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const CatIcon = cat.icon;
             const isSelected = selectedCategory === cat.key;
             return (
@@ -156,7 +90,7 @@ export default function ExplorarScreen() {
                   {
                     backgroundColor: isSelected
                       ? cat.color
-                      : colorScheme === 'dark'
+                      : isDark
                       ? 'rgba(255,255,255,0.08)'
                       : theme.surface,
                     borderColor: isSelected
@@ -187,7 +121,7 @@ export default function ExplorarScreen() {
               : `${filteredItems.length} servicios disponibles`}
           </Text>
           {selectedCategory && (
-            <TouchableOpacity onPress={() => setSelectedCategory(null)}>
+            <TouchableOpacity onPress={clearFilter}>
               <Text style={[styles.clearFilter, { color: theme.primary }]}>Ver todos</Text>
             </TouchableOpacity>
           )}
@@ -257,7 +191,7 @@ export default function ExplorarScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 }
 

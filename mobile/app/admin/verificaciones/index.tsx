@@ -1,62 +1,27 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator, FlatList } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { getPendingVerifications, verifyUser } from '@/src/services/moderacion';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminVerifications } from '@/src/hooks/admin';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
 import {
     ShieldCheck,
-    ChevronLeft,
     CheckCircle2,
     XCircle,
     User,
     Mail,
-    MapPin,
     ExternalLink,
     Image as ImageIcon,
-    FileText,
     Activity,
-    Grid
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { showAlert } from '@/src/components/AppAlert';
-
-const { width } = Dimensions.get('window');
 
 export default function AdminVerificacionesScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    const queryClient = useQueryClient();
-
-    const { data: pendingUsers = [], isLoading } = useQuery({
-        queryKey: ['pending-verifications'],
-        queryFn: getPendingVerifications,
-    });
-
-    const verifyMutation = useMutation({
-        mutationFn: ({ userId, status }: { userId: string, status: 'VERIFIED' | 'REJECTED' }) => verifyUser(userId, status),
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['pending-verifications'] });
-            showAlert({ type: 'success', title: 'Éxito', message: `El usuario ha sido ${variables.status === 'VERIFIED' ? 'verificado' : 'rechazado'} correctamente.` });
-        },
-        onError: () => showAlert({ type: 'error', title: 'Error', message: 'No se pudo procesar la verificación.' }),
-    });
-
-    const handleAction = (userId: string, name: string, status: 'VERIFIED' | 'REJECTED') => {
-        showAlert({
-            type: status === 'VERIFIED' ? 'info' : 'error',
-            title: status === 'VERIFIED' ? 'Aprobar Identidad' : 'Rechazar Identidad',
-            message: `¿Estás seguro de ${status === 'VERIFIED' ? 'APROBAR' : 'RECHAZAR'} la identidad de ${name}?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: status === 'VERIFIED' ? 'Aprobar' : 'Rechazar',
-            onButtonPress: () => verifyMutation.mutate({ userId, status }),
-        });
-    };
+    const { theme } = useTheme();
+    const { pendingUsers, isLoading, isFetching, refetch, verifyMutation, handleAction } = useAdminVerifications();
 
     const DocPreview = ({ url, label }: { url?: string, label: string }) => (
         <View style={styles.docItem}>
@@ -129,143 +94,45 @@ export default function AdminVerificacionesScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Verificaciones</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Supervisión KYC</Text>
-                        </View>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Verificaciones"
+                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
+                rightElement={
                     <View style={styles.headerAction}>
                         <ShieldCheck size={22} color="#fff" style={{ opacity: 0.8 }} />
                     </View>
-                </View>
-            </LinearGradient>
+                }
+            />
 
-            {isLoading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando verificaciones...</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={pendingUsers}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <ShieldCheck size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyTitle, { color: theme.text }]}>¡Felicidades!</Text>
-                            <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>No hay verificaciones de identidad pendientes en este momento.</Text>
-                        </View>
-                    }
-                />
-            )}
-        </View>
+            <DataList
+                data={pendingUsers}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando verificaciones..."
+                onRefresh={() => refetch()}
+                isRefreshing={isFetching}
+                emptyIcon={<ShieldCheck size={48} color={theme.textMuted} strokeWidth={1} />}
+                emptyTitle="¡Felicidades!"
+                emptySubtitle="No hay verificaciones de identidad pendientes en este momento."
+                contentStyle={styles.list}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
     headerAction: {
         width: 44,
         height: 44,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     list: { 
         padding: 20, 
         paddingBottom: 100,
         paddingTop: 12 
-    },
-    center: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        gap: 16,
-        marginTop: 100 
-    },
-    loadingText: { 
-        fontSize: 14, 
-        fontWeight: '700' 
-    },
-    empty: { 
-        alignItems: 'center', 
-        marginTop: 60, 
-        paddingHorizontal: 40 
-    },
-    emptyTitle: { 
-        fontSize: 20, 
-        fontWeight: '900', 
-        marginTop: 20, 
-        marginBottom: 8 
-    },
-    emptySubtitle: { 
-        fontSize: 14, 
-        fontWeight: '600', 
-        textAlign: 'center', 
-        lineHeight: 22 
     },
     card: { 
         borderRadius: 28, 

@@ -1,43 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Camera, Dog, Cat, Check, Heart, MapPin } from 'lucide-react-native';
-import { createListing, getAdopcionesPresignedUrl } from '../../src/services/adopciones';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { showAlert } from '@/src/components/AppAlert';
+import { useTheme } from '@/src/hooks/useTheme';
+import { Camera, Dog, Cat, Heart, MapPin } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { useListingForm } from '@/src/hooks/adopciones/useListingForm';
+
+const SIZES = ['Pequeño', 'Mediano', 'Grande'];
+const ENERGY_LEVELS = ['Baja', 'Media', 'Alta'];
 
 export default function NuevaAdopcionScreen() {
-    const { user } = useAuth();
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [loading, setLoading] = useState(false);
-    const [image, setImage] = useState<string | null>(null);
-    const [form, setForm] = useState({
-        name: '',
-        species: 'perro',
-        breed: '',
-        age_months: '',
-        gender: 'macho',
-        size: 'Mediano',
-        location: '',
-        description: '',
-        is_emergency: false,
-        is_vaccinated: false,
-        is_sterilized: false,
-        is_dewormed: false,
-        social_cats: true,
-        social_dogs: true,
-        social_children: true,
-        temperament: '',
-        energy_level: 'Media',
-    });
-
-    const SIZES = ['Pequeño', 'Mediano', 'Grande'];
+    const { theme } = useTheme();
+    const {
+        form,
+        image,
+        loading,
+        updateField,
+        toggleField,
+        handleImageSelected,
+        handleSave,
+    } = useListingForm();
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -48,62 +31,14 @@ export default function NuevaAdopcionScreen() {
         });
 
         if (!result.canceled) {
-            setImage(result.assets[0].uri);
-        }
-    };
-
-    const handleSave = async () => {
-        if (!form.name) return showAlert({ type: 'error', title: 'Error', message: 'El nombre es obligatorio' });
-        if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
-
-        setLoading(true);
-        try {
-            let photo_url = null;
-
-            if (image) {
-                const ext = image.split('.').pop();
-                const { url, object_key } = await getAdopcionesPresignedUrl(ext || 'jpg');
-
-                const response = await fetch(image);
-                const blob = await response.blob();
-
-                await fetch(url, {
-                    method: 'PUT',
-                    body: blob,
-                    headers: { 'Content-Type': `image/${ext}` }
-                });
-
-                photo_url = `https://michicondrias-storage-1.s3.us-east-1.amazonaws.com/${object_key}`;
-            }
-
-            await createListing({
-                ...form,
-                published_by: user.id,
-                age_months: form.age_months ? parseInt(form.age_months) : null,
-                photo_url,
-                status: 'available',
-            });
-
-            showAlert({ type: 'success', title: '¡Éxito!', message: 'La publicación de adopción ha sido creada.' });
-            router.back();
-        } catch (error) {
-            console.error(error);
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la publicación.' });
-        } finally {
-            setLoading(false);
+            handleImageSelected(result.assets[0].uri);
         }
     };
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.title, { color: theme.text }]}>Poner en Adopción</Text>
-                    <View style={{ width: 44 }} />
-                </View>
+            <ScreenContainer>
+                <ScreenHeader title="Poner en Adopción" />
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
                     <TouchableOpacity style={styles.imageSelector} onPress={pickImage}>
@@ -124,21 +59,21 @@ export default function NuevaAdopcionScreen() {
                             placeholder="Ej. Bolita"
                             placeholderTextColor={theme.textMuted}
                             value={form.name}
-                            onChangeText={(t) => setForm({ ...form, name: t })}
+                            onChangeText={(t) => updateField('name', t)}
                         />
 
                         <Text style={[styles.label, { color: theme.text }]}>Especie</Text>
                         <View style={styles.speciesRow}>
                             <TouchableOpacity
                                 style={[styles.choiceBtn, form.species === 'perro' && { backgroundColor: theme.primary, borderColor: theme.primary }]}
-                                onPress={() => setForm({ ...form, species: 'perro' })}
+                                onPress={() => updateField('species', 'perro')}
                             >
                                 <Dog size={20} color={form.species === 'perro' ? '#fff' : theme.textMuted} />
                                 <Text style={[styles.choiceText, { color: form.species === 'perro' ? '#fff' : theme.textMuted }]}>Perro</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.choiceBtn, form.species === 'gato' && { backgroundColor: theme.secondary, borderColor: theme.secondary }]}
-                                onPress={() => setForm({ ...form, species: 'gato' })}
+                                onPress={() => updateField('species', 'gato')}
                             >
                                 <Cat size={20} color={form.species === 'gato' ? '#fff' : theme.textMuted} />
                                 <Text style={[styles.choiceText, { color: form.species === 'gato' ? '#fff' : theme.textMuted }]}>Gato</Text>
@@ -151,7 +86,7 @@ export default function NuevaAdopcionScreen() {
                             placeholder="Ej. Mestizo"
                             placeholderTextColor={theme.textMuted}
                             value={form.breed}
-                            onChangeText={(t) => setForm({ ...form, breed: t })}
+                            onChangeText={(t) => updateField('breed', t)}
                         />
 
                         <View style={styles.row}>
@@ -163,7 +98,7 @@ export default function NuevaAdopcionScreen() {
                                     placeholderTextColor={theme.textMuted}
                                     keyboardType="numeric"
                                     value={form.age_months}
-                                    onChangeText={(t) => setForm({ ...form, age_months: t })}
+                                    onChangeText={(t) => updateField('age_months', t)}
                                 />
                             </View>
                             <View style={{ width: 20 }} />
@@ -172,13 +107,13 @@ export default function NuevaAdopcionScreen() {
                                 <View style={styles.genderRow}>
                                     <TouchableOpacity
                                         style={[styles.genderBtn, form.gender === 'macho' && { backgroundColor: theme.primary }]}
-                                        onPress={() => setForm({ ...form, gender: 'macho' })}
+                                        onPress={() => updateField('gender', 'macho')}
                                     >
                                         <Text style={[styles.genderBtnText, { color: form.gender === 'macho' ? '#fff' : theme.textMuted }]}>♂️</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.genderBtn, form.gender === 'hembra' && { backgroundColor: theme.secondary }]}
-                                        onPress={() => setForm({ ...form, gender: 'hembra' })}
+                                        onPress={() => updateField('gender', 'hembra')}
                                     >
                                         <Text style={[styles.genderBtnText, { color: form.gender === 'hembra' ? '#fff' : theme.textMuted }]}>♀️</Text>
                                     </TouchableOpacity>
@@ -196,7 +131,7 @@ export default function NuevaAdopcionScreen() {
                                         { backgroundColor: theme.surface },
                                         form.size === size && { backgroundColor: theme.primary, borderColor: theme.primary }
                                     ]}
-                                    onPress={() => setForm({ ...form, size: size })}
+                                    onPress={() => updateField('size', size)}
                                 >
                                     <Text style={[styles.sizeText, { color: form.size === size ? '#fff' : theme.textMuted }]}>{size}</Text>
                                 </TouchableOpacity>
@@ -211,7 +146,7 @@ export default function NuevaAdopcionScreen() {
                                 placeholder="Ej. Ciudad de México, CDMX"
                                 placeholderTextColor={theme.textMuted}
                                 value={form.location}
-                                onChangeText={(t) => setForm({ ...form, location: t })}
+                                onChangeText={(t) => updateField('location', t)}
                             />
                         </View>
 
@@ -222,7 +157,7 @@ export default function NuevaAdopcionScreen() {
                             multiline
                             numberOfLines={4}
                             value={form.description}
-                            onChangeText={(t) => setForm({ ...form, description: t })}
+                            onChangeText={(t) => updateField('description', t)}
                         />
 
                         <Text style={[styles.label, { color: theme.text }]}>Temperamento / Rasgos</Text>
@@ -231,12 +166,12 @@ export default function NuevaAdopcionScreen() {
                             placeholder="Ej. Juguetón, Tranquilo, Miedoso..."
                             placeholderTextColor={theme.textMuted}
                             value={form.temperament}
-                            onChangeText={(t) => setForm({ ...form, temperament: t })}
+                            onChangeText={(t) => updateField('temperament', t)}
                         />
 
                         <Text style={[styles.label, { color: theme.text }]}>Nivel de Energía</Text>
                         <View style={styles.sizeRow}>
-                            {['Baja', 'Media', 'Alta'].map((level) => (
+                            {ENERGY_LEVELS.map((level) => (
                                 <TouchableOpacity
                                     key={level}
                                     style={[
@@ -244,7 +179,7 @@ export default function NuevaAdopcionScreen() {
                                         { backgroundColor: theme.surface },
                                         form.energy_level === level && { backgroundColor: theme.primary, borderColor: theme.primary }
                                     ]}
-                                    onPress={() => setForm({ ...form, energy_level: level })}
+                                    onPress={() => updateField('energy_level', level)}
                                 >
                                     <Text style={[styles.sizeText, { color: form.energy_level === level ? '#fff' : theme.textMuted }]}>{level}</Text>
                                 </TouchableOpacity>
@@ -256,23 +191,23 @@ export default function NuevaAdopcionScreen() {
                         <CustomSwitch
                             label="🚨 ¿Es un Caso Urgente?"
                             active={form.is_emergency}
-                            onPress={() => setForm({ ...form, is_emergency: !form.is_emergency })}
+                            onPress={() => toggleField('is_emergency')}
                             theme={theme}
                             activeColor="#ef4444"
                         />
 
                         <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>Salud</Text>
                         <View style={styles.switchGrid}>
-                            <CustomSwitch label="Vacunado" active={form.is_vaccinated} onPress={() => setForm({ ...form, is_vaccinated: !form.is_vaccinated })} theme={theme} />
-                            <CustomSwitch label="Esterilizado" active={form.is_sterilized} onPress={() => setForm({ ...form, is_sterilized: !form.is_sterilized })} theme={theme} />
-                            <CustomSwitch label="Desparasitado" active={form.is_dewormed} onPress={() => setForm({ ...form, is_dewormed: !form.is_dewormed })} theme={theme} />
+                            <CustomSwitch label="Vacunado" active={form.is_vaccinated} onPress={() => toggleField('is_vaccinated')} theme={theme} />
+                            <CustomSwitch label="Esterilizado" active={form.is_sterilized} onPress={() => toggleField('is_sterilized')} theme={theme} />
+                            <CustomSwitch label="Desparasitado" active={form.is_dewormed} onPress={() => toggleField('is_dewormed')} theme={theme} />
                         </View>
 
                         <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>Socialización</Text>
                         <View style={styles.switchGrid}>
-                            <CustomSwitch label="Apto c/ Gatos" active={form.social_cats} onPress={() => setForm({ ...form, social_cats: !form.social_cats })} theme={theme} />
-                            <CustomSwitch label="Apto c/ Perros" active={form.social_dogs} onPress={() => setForm({ ...form, social_dogs: !form.social_dogs })} theme={theme} />
-                            <CustomSwitch label="Apto c/ Niños" active={form.social_children} onPress={() => setForm({ ...form, social_children: !form.social_children })} theme={theme} />
+                            <CustomSwitch label="Apto c/ Gatos" active={form.social_cats} onPress={() => toggleField('social_cats')} theme={theme} />
+                            <CustomSwitch label="Apto c/ Perros" active={form.social_dogs} onPress={() => toggleField('social_dogs')} theme={theme} />
+                            <CustomSwitch label="Apto c/ Niños" active={form.social_children} onPress={() => toggleField('social_children')} theme={theme} />
                         </View>
                     </View>
                 </ScrollView>
@@ -293,7 +228,7 @@ export default function NuevaAdopcionScreen() {
                         )}
                     </TouchableOpacity>
                 </View>
-            </View>
+            </ScreenContainer>
         </KeyboardAvoidingView>
     );
 }
@@ -313,28 +248,6 @@ function CustomSwitch({ label, active, onPress, theme, activeColor }: { label: s
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '900',
-    },
     scroll: {
         padding: 24,
     },

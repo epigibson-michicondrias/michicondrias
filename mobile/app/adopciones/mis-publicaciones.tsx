@@ -1,21 +1,28 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyListings, Listing } from '../../src/services/adopciones';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Plus, MessageSquare, Edit3, Trash2 } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { Plus, MessageSquare, Edit3, Trash2 } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import { useMyListings } from '@/src/hooks/adopciones/useMyListings';
+import type { Listing } from '@/src/types/adopciones';
 
 export default function MisPublicacionesScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: listings = [], isLoading } = useQuery({
-        queryKey: ['my-adopciones'],
-        queryFn: getMyListings,
-    });
+    const { theme } = useTheme();
+    const {
+        listings,
+        isLoading,
+        isRefetching,
+        refetch,
+        goToNewListing,
+        goToRequests,
+        goToEditListing,
+        handleDelete,
+        isDeleting,
+    } = useMyListings();
 
     const renderItem = ({ item }: { item: Listing }) => (
         <View style={[styles.card, { backgroundColor: theme.surface }]}>
@@ -35,18 +42,29 @@ export default function MisPublicacionesScreen() {
                 <View style={styles.actions}>
                     <TouchableOpacity
                         style={[styles.actionBtn, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => router.push(`/adopciones/ver-solicitudes/${item.id}`)}
+                        onPress={() => goToRequests(item.id)}
                     >
                         <MessageSquare size={16} color={theme.primary} />
                         <Text style={[styles.actionBtnText, { color: theme.primary }]}>Solicitudes</Text>
                     </TouchableOpacity>
 
                     <View style={styles.miniActions}>
-                        <TouchableOpacity style={styles.iconBtn}>
+                        <TouchableOpacity
+                            style={styles.iconBtn}
+                            onPress={() => goToEditListing(item.id)}
+                        >
                             <Edit3 size={18} color={theme.textMuted} />
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconBtn}>
-                            <Trash2 size={18} color="#ef4444" />
+                        <TouchableOpacity
+                            style={styles.iconBtn}
+                            onPress={() => handleDelete(item.id, item.name)}
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? (
+                                <ActivityIndicator size={18} color="#ef4444" />
+                            ) : (
+                                <Trash2 size={18} color="#ef4444" />
+                            )}
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -55,77 +73,32 @@ export default function MisPublicacionesScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>Mis Publicaciones</Text>
-                <TouchableOpacity style={[styles.addBtn, { backgroundColor: theme.primary }]} onPress={() => router.push('/adopciones/nuevo')}>
-                    <Plus size={24} color="#fff" />
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Mis Publicaciones"
+                actionIcon={Plus}
+                onAction={goToNewListing}
+            />
 
-            {isLoading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
-            ) : (
-                <FlatList
-                    data={listings}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderItem}
-                    contentContainerStyle={styles.list}
-                    ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <Text style={{ fontSize: 60, marginBottom: 20 }}>🏠</Text>
-                            <Text style={[styles.emptyTitle, { color: theme.text }]}>No has publicado mascotas</Text>
-                            <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
-                                Si tienes un michi o lomito buscando hogar, ¡publícalo aquí!
-                            </Text>
-                        </View>
-                    }
-                />
-            )}
-        </View>
+            <DataList
+                data={listings}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                isLoading={isLoading}
+                onRefresh={refetch}
+                isRefreshing={isRefetching}
+                contentStyle={styles.list}
+                emptyIcon={<Text style={{ fontSize: 48 }}>🏠</Text>}
+                emptyTitle="No has publicado mascotas"
+                emptySubtitle="Si tienes un michi o lomito buscando hogar, ¡publícalo aquí!"
+                emptyActionLabel="Publicar"
+                onEmptyAction={goToNewListing}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: '900',
-    },
-    addBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     list: {
         padding: 20,
         gap: 16,
@@ -194,18 +167,4 @@ const styles = StyleSheet.create({
     iconBtn: {
         padding: 4,
     },
-    empty: {
-        paddingTop: 100,
-        alignItems: 'center',
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '800',
-        marginBottom: 8,
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        textAlign: 'center',
-        paddingHorizontal: 40,
-    }
 });

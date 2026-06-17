@@ -1,114 +1,52 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, ActivityIndicator, Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { getUserPets, aiSymptomCheck, aiDietPlan, SymptomCheckResponse, DietPlanResponse } from '../../src/services/mascotas';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Sparkles, AlertTriangle, ShieldAlert, Heart, Info, Clipboard, Activity } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAIDiagnosis } from '@/src/hooks/mascotas/useAIDiagnosis';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Sparkles, AlertTriangle, ShieldAlert, Heart, Info, Clipboard, Activity } from 'lucide-react-native';
 import { Picker } from '@react-native-picker/picker';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
 
 const { width } = Dimensions.get('window');
 
 export default function DiagnosticoIAScreen() {
-    const router = useRouter();
-    const { user } = useAuth();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [activeTab, setActiveTab] = useState<'triage' | 'diet'>('triage');
-
-    // Triage State
-    const [symptoms, setSymptoms] = useState('');
-    const [durationHours, setDurationHours] = useState('12');
-    const [triageLoading, setTriageLoading] = useState(false);
-    const [triageResult, setTriageResult] = useState<SymptomCheckResponse | null>(null);
-
-    // Diet Plan State
-    const [selectedPetId, setSelectedPetId] = useState('');
-    const [activityLevel, setActivityLevel] = useState('medio');
-    const [allergies, setAllergies] = useState('');
-    const [targetWeight, setTargetWeight] = useState('');
-    const [dietLoading, setDietLoading] = useState(false);
-    const [dietResult, setDietResult] = useState<DietPlanResponse | null>(null);
-
-    // Fetch user pets for diet planner selection
-    const { data: pets = [], isLoading: loadingPets } = useQuery({
-        queryKey: ['user-pets', user?.id],
-        queryFn: () => user ? getUserPets(user.id) : Promise.resolve([]),
-        enabled: !!user?.id,
-    });
-
-    const handleSymptomCheck = async () => {
-        if (!symptoms.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor ingresa una descripción de los síntomas.' });
-            return;
-        }
-
-        setTriageLoading(true);
-        setTriageResult(null);
-        try {
-            const res = await aiSymptomCheck({
-                symptom_description: symptoms,
-                duration_hours: parseInt(durationHours, 10) || 12,
-            });
-            setTriageResult(res);
-        } catch (err: any) {
-            showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo completar el análisis de la IA.' });
-        } finally {
-            setTriageLoading(false);
-        }
-    };
-
-    const handleDietPlan = async () => {
-        if (!selectedPetId) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una mascota.' });
-            return;
-        }
-
-        setDietLoading(true);
-        setDietResult(null);
-        try {
-            const res = await aiDietPlan(selectedPetId, {
-                activity_level: activityLevel,
-                allergies: allergies.trim() ? allergies : undefined,
-                target_weight_kg: targetWeight ? parseFloat(targetWeight) : undefined,
-            });
-            setDietResult(res);
-        } catch (err: any) {
-            showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo generar el plan de nutrición.' });
-        } finally {
-            setDietLoading(false);
-        }
-    };
-
-    const getTriageColor = (urgency: string) => {
-        switch (urgency.toLowerCase()) {
-            case 'alta': return '#ef4444';
-            case 'media': return '#f59e0b';
-            case 'baja': return '#10b981';
-            default: return theme.primary;
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        activeTab,
+        setActiveTab,
+        symptoms,
+        setSymptoms,
+        durationHours,
+        setDurationHours,
+        triageLoading,
+        triageResult,
+        handleSymptomCheck,
+        selectedPetId,
+        setSelectedPetId,
+        activityLevel,
+        setActivityLevel,
+        allergies,
+        setAllergies,
+        targetWeight,
+        setTargetWeight,
+        dietLoading,
+        dietResult,
+        handleDietPlan,
+        pets,
+        loadingPets,
+        getTriageColor,
+        router,
+    } = useAIDiagnosis();
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <TouchableOpacity style={[styles.backBtn, { borderColor: theme.border }]} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.headerTitleContainer}>
-                    <Sparkles size={20} color="#fcd34d" />
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Michi-IA Asistente</Text>
-                </View>
-                <View style={{ width: 44 }} />
-            </View>
+            <ScreenHeader
+                title="Michi-IA Asistente"
+                leftElement={undefined}
+                rightElement={<View style={{ width: 44 }} />}
+            />
 
             {/* Custom Segmented Control */}
             <View style={[styles.tabBar, { borderColor: theme.border }]}>
@@ -343,37 +281,11 @@ export default function DiagnosticoIAScreen() {
                     </View>
                 )}
             </KeyboardScreen>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingBottom: 16,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        borderWidth: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-    },
     tabBar: {
         flexDirection: 'row',
         marginHorizontal: 24,
@@ -394,10 +306,6 @@ const styles = StyleSheet.create({
     tabText: {
         fontSize: 14,
         fontWeight: '800',
-    },
-    content: {
-        flex: 1,
-        paddingHorizontal: 24,
     },
     formContainer: {
         paddingBottom: 100,

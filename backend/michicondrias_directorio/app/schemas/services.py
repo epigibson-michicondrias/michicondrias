@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, model_validator
+from typing import Optional, Any
 from datetime import date, time, datetime
 
 
@@ -84,9 +84,50 @@ class AppointmentCreate(BaseModel):
     service_id: str
     pet_id: str
     vet_id: Optional[str] = None
-    date: str         # "YYYY-MM-DD"
-    start_time: str   # "09:00"
+    date: Optional[str] = None         # "YYYY-MM-DD"
+    start_time: Optional[str] = None   # "09:00"
     notes: Optional[str] = None
+    
+    # Optional fields sent by the mobile frontend
+    appointment_date: Optional[str] = None
+    reason: Optional[str] = None
+    is_emergency: Optional[bool] = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def parse_appointment_fields(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            # 1. Parse date and start_time from appointment_date if date/start_time are not directly provided
+            appt_date = data.get("appointment_date")
+            if appt_date and not data.get("date") and not data.get("start_time"):
+                parts = appt_date.strip().split()
+                if len(parts) >= 2:
+                    data["date"] = parts[0]
+                    # Combine time part and optional AM/PM indicator
+                    time_part = " ".join(parts[1:])
+                    if "AM" in time_part or "PM" in time_part:
+                        try:
+                            from datetime import datetime as dt_parser
+                            dt = dt_parser.strptime(time_part, "%I:%M %p")
+                            data["start_time"] = dt.strftime("%H:%M")
+                        except Exception:
+                            data["start_time"] = parts[1]
+                    else:
+                        data["start_time"] = parts[1]
+            
+            # 2. Encode is_emergency and reason into notes if notes is not directly provided
+            reason_text = data.get("reason")
+            is_emerg = data.get("is_emergency")
+            
+            if not data.get("notes"):
+                encoded_notes = []
+                if is_emerg:
+                    encoded_notes.append("[EMERGENCIA]")
+                if reason_text:
+                    encoded_notes.append(reason_text.strip())
+                if encoded_notes:
+                    data["notes"] = " ".join(encoded_notes)
+        return data
 
 class AppointmentReschedule(BaseModel):
     date: str
@@ -113,6 +154,12 @@ class AppointmentResponse(BaseModel):
     # Joined fields (populated at route level)
     service_name: Optional[str] = None
     clinic_name: Optional[str] = None
+    
+    # Enrichment fields to match mobile expectations
+    appointment_date: Optional[str] = None
+    pet_name: Optional[str] = None
+    reason: Optional[str] = None
+    is_emergency: bool = False
 
     class Config:
         from_attributes = True

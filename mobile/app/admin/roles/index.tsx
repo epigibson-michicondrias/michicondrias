@@ -1,91 +1,28 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminUsersService } from '@/src/services/adminUsers';
-import { Modal, TextInput } from 'react-native';
-import { useState } from 'react';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Shield, ShieldCheck, ShieldAlert, Plus, Edit3, Trash2, X } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showAlert } from '@/src/components/AppAlert';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminRoles, Role } from '@/src/hooks/admin/useAdminRoles';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-
-type Role = {
-    id: string;
-    name: string;
-    description: string;
-    users_count: number;
-    color: string;
-};
+import { Shield, Plus, Edit3, Trash2, X } from 'lucide-react-native';
 
 export default function AdminRolesScreen() {
-    const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const queryClient = useQueryClient();
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [editingRole, setEditingRole] = useState<Role | null>(null);
-    const [formData, setFormData] = useState({ name: '', description: '' });
-
-    const { data: roles = [], isLoading } = useQuery({
-        queryKey: ['admin-roles'],
-        queryFn: () => adminUsersService.getRoles(),
-    });
-
-    const createMutation = useMutation({
-        mutationFn: (data: any) => adminUsersService.createRole(data),
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Rol creado correctamente.' });
-            setModalVisible(false);
-            queryClient.invalidateQueries({ queryKey: ['admin-roles'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: string, data: any }) => adminUsersService.updateRole(id, data),
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Rol actualizado correctamente.' });
-            setModalVisible(false);
-            queryClient.invalidateQueries({ queryKey: ['admin-roles'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: (id: string) => adminUsersService.deleteRole(id),
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Rol eliminado.' });
-            queryClient.invalidateQueries({ queryKey: ['admin-roles'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message })
-    });
-
-    const handleAction = (role?: Role) => {
-        setEditingRole(role || null);
-        setFormData({
-            name: role?.name || '',
-            description: role?.description || '',
-        });
-        setModalVisible(true);
-    };
-
-    const handleDelete = (id: string, name: string) => {
-        showAlert({
-            type: 'error',
-            title: 'Eliminar Rol',
-            message: `¿Estás seguro de eliminar "${name}"?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Eliminar',
-            onButtonPress: () => deleteMutation.mutate(id),
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        roles,
+        isLoading,
+        isModalVisible,
+        editingRole,
+        formData,
+        setFormData,
+        isSaving,
+        handleAction,
+        handleDelete,
+        handleSubmit,
+        closeModal,
+    } = useAdminRoles();
 
     const renderItem = ({ item }: { item: Role }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -119,39 +56,17 @@ export default function AdminRolesScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={['#ef4444', '#ef4444E6', '#ef4444CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Roles</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Gestión de Permisos</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => handleAction()}
-                    >
-                        <Plus size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-            </LinearGradient>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Roles"
+                subtitle="Gestión de Permisos"
+                gradient={['#ef4444', '#ef4444E6', '#ef4444CC']}
+                actionIcon={Plus}
+                onAction={() => handleAction()}
+            />
 
             {isLoading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
+                <LoadingOverlay message="Cargando roles..." />
             ) : (
                 <FlatList
                     data={roles}
@@ -168,7 +83,7 @@ export default function AdminRolesScreen() {
                             <Text style={[styles.modalTitle, { color: theme.text }]}>
                                 {editingRole ? 'Editar Rol' : 'Nuevo Rol'}
                             </Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <TouchableOpacity onPress={closeModal}>
                                 <X size={24} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -197,16 +112,10 @@ export default function AdminRolesScreen() {
 
                             <TouchableOpacity 
                                 style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                                disabled={createMutation.isPending || updateMutation.isPending}
-                                onPress={() => {
-                                    if (editingRole) {
-                                        updateMutation.mutate({ id: editingRole.id, data: formData });
-                                    } else {
-                                        createMutation.mutate(formData);
-                                    }
-                                }}
+                                disabled={isSaving}
+                                onPress={handleSubmit}
                             >
-                                {createMutation.isPending || updateMutation.isPending ? (
+                                {isSaving ? (
                                     <ActivityIndicator color="#fff" />
                                 ) : (
                                     <Text style={styles.submitBtnText}>
@@ -219,66 +128,11 @@ export default function AdminRolesScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     list: { 
         padding: 20, 
         paddingBottom: 100,
@@ -330,7 +184,6 @@ const styles = StyleSheet.create({
         fontSize: 10, 
         fontWeight: '800' 
     },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     actions: { flexDirection: 'row', gap: 4 },
     modalOverlay: { 
         flex: 1, 

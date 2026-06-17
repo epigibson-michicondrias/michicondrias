@@ -1,57 +1,25 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image, Dimensions } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMyProducts, deleteProduct, updateProduct, Product } from '@/src/services/ecommerce';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Plus, Edit3, Trash2, Eye, EyeOff, Package, Search, Filter, MoreVertical } from 'lucide-react-native';
-
-const { width } = Dimensions.get('window');
+import { useTheme } from '@/src/hooks/useTheme';
+import { useSellerProducts } from '@/src/hooks/ecommerce';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+import { Plus, Edit3, Trash2, Eye, EyeOff, Package } from 'lucide-react-native';
+import { Product } from '@/src/services/ecommerce';
 
 export default function VendedorProductosScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: products = [], isLoading } = useQuery({
-        queryKey: ['my-products'],
-        queryFn: getMyProducts,
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: deleteProduct,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['my-products'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Producto eliminado correctamente' });
-        },
-        onError: () => showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el producto' }),
-    });
-
-    const toggleStatusMutation = useMutation({
-        mutationFn: ({ id, active }: { id: string; active: boolean }) => updateProduct(id, { is_active: !active }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['my-products'] });
-        },
-    });
-
-    const handleDelete = (id: string) => {
-        showAlert({
-            type: 'warning',
-            title: 'Eliminar Producto',
-            message: '¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Eliminar',
-            onButtonPress: () => deleteMutation.mutate(id),
-        });
-    };
-
-    const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const { theme } = useTheme();
+    const {
+        products,
+        filteredProducts,
+        isLoading,
+        handleDelete,
+        toggleProductStatus,
+    } = useSellerProducts();
 
     const renderItem = ({ item }: { item: Product }) => (
         <View style={[styles.productCard, { backgroundColor: theme.surface }]}>
@@ -62,7 +30,7 @@ export default function VendedorProductosScreen() {
             <View style={styles.productDetails}>
                 <View style={styles.productHeader}>
                     <Text style={[styles.productName, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
-                    <TouchableOpacity onPress={() => toggleStatusMutation.mutate({ id: item.id, active: item.is_active })}>
+                    <TouchableOpacity onPress={() => toggleProductStatus(item.id, item.is_active)}>
                         {item.is_active ? <Eye size={20} color={theme.primary} /> : <EyeOff size={20} color={theme.textMuted} />}
                     </TouchableOpacity>
                 </View>
@@ -89,27 +57,17 @@ export default function VendedorProductosScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Mi Catálogo</Text>
-                    <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>{products.length} Productos</Text>
-                </View>
-                <TouchableOpacity
-                    style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/tienda/vendedor/productos/nuevo' as any)}
-                >
-                    <Plus size={24} color="#fff" />
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Mi Catálogo"
+                subtitle={`${products.length} Productos`}
+                actionIcon={Plus}
+                onAction={() => router.push('/tienda/vendedor/productos/nuevo' as any)}
+            />
 
             {isLoading ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <LoadingOverlay />
                 </View>
             ) : (
                 <FlatList
@@ -118,25 +76,18 @@ export default function VendedorProductosScreen() {
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <Package size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>No se encontraron productos</Text>
-                        </View>
+                        <EmptyState
+                            icon={<Package size={40} color={theme.textMuted} strokeWidth={1} />}
+                            title="No se encontraron productos"
+                        />
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 24, fontWeight: '900' },
-    headerSubtitle: { fontSize: 13, fontWeight: '600' },
-    addBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     list: { padding: 24, paddingBottom: 100 },
     productCard: { flexDirection: 'row', borderRadius: 24, padding: 12, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', gap: 16 },
     productImage: { width: 90, height: 90, borderRadius: 16 },
@@ -150,6 +101,4 @@ const styles = StyleSheet.create({
     actions: { flexDirection: 'row', gap: 4 },
     iconBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    empty: { paddingTop: 100, alignItems: 'center', gap: 20 },
-    emptyText: { fontSize: 16, fontWeight: '600', textAlign: 'center' }
 });

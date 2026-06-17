@@ -40,3 +40,11 @@ class ClinicReview(BaseModel):
     user_id = Column(String(36), nullable=False, index=True)
     rating = Column(Integer, nullable=False)  # 1-5
     comment = Column(Text, nullable=True)
+
+class VetReview(BaseModel):
+    __tablename__ = "vet_reviews"
+
+    vet_id = Column(String(36), ForeignKey("veterinarians.id"), nullable=False, index=True)
+    user_id = Column(String(36), nullable=False, index=True)
+    rating = Column(Integer, nullable=False)  # 1-5
+    comment = Column(Text, nullable=True)

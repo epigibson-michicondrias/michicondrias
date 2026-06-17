@@ -1,126 +1,197 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, FlatList, Dimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getPetById, Pet } from '../../src/services/mascotas';
-import { getRecordsByPet, getVaccinesByPet, MedicalRecord, Vaccine } from '../../src/services/carnet';
-import { useAuth } from '../../src/contexts/AuthContext';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Syringe, ClipboardList, Weight, Thermometer, Calendar, User, ShoppingBag, Plus, Activity, Clock, ShieldCheck, AlertCircle } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { usePetCarnet } from '@/src/hooks/carnet/usePetCarnet';
+import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
+import type { ReminderWithDetails } from '@/src/services/reminders';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import { Syringe, ClipboardList, Weight, Thermometer, Calendar, User, ShoppingBag, Plus, Activity, Clock, ShieldCheck, AlertCircle, Bell, Pill, Check, ChevronDown, ChevronUp } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 import WeightSparkline from '../../src/components/WeightSparkline';
 
 const { width, height } = Dimensions.get('window');
 
 export default function PetCarnetDetailScreen() {
-    const { id } = useLocalSearchParams();
-    const { user } = useAuth();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme } = useTheme();
 
-    const [activeTab, setActiveTab] = useState<'records' | 'vaccines'>('records');
+    const {
+        petId,
+        pet,
+        loadingPet,
+        records,
+        loadingRecords,
+        vaccines,
+        loadingVaccines,
+        reminders,
+        loadingReminders,
+        activeTab,
+        setActiveTab,
+        isVet,
+        handleAddRecord,
+        handleAddVaccine,
+        handleCheck,
+    } = usePetCarnet();
 
-    const isVet = user?.role_name === 'veterinario' || user?.role_name === 'admin';
+    const isLoadingTab = useMemo(() => {
+        if (activeTab === 'records') return loadingRecords;
+        if (activeTab === 'vaccines') return loadingVaccines;
+        if (activeTab === 'reminders') return loadingReminders;
+        return false;
+    }, [activeTab, loadingRecords, loadingVaccines, loadingReminders]);
 
-    const { data: pet, isLoading: loadingPet } = useQuery({
-        queryKey: ['pet', id],
-        queryFn: () => getPetById(id as string),
-    });
+    const [expandedRecords, setExpandedRecords] = useState<Record<string, boolean>>({});
 
-    const { data: records = [], isLoading: loadingRecords } = useQuery({
-        queryKey: ['pet-records', id],
-        queryFn: () => getRecordsByPet(id as string),
-    });
+    const toggleExpandRecord = (id: string) => {
+        setExpandedRecords(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
-    const { data: vaccines = [], isLoading: loadingVaccines } = useQuery({
-        queryKey: ['pet-vaccines', id],
-        queryFn: () => getVaccinesByPet(id as string),
-    });
+    const sortedRecords = useMemo(() => {
+        return [...records].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [records]);
 
     if (loadingPet) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
+            <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            </ScreenContainer>
         );
     }
 
-    const renderRecordItem = ({ item }: { item: MedicalRecord }) => (
+    const renderRecordItem = ({ item }: { item: MedicalRecord }) => {
+        const isExpanded = !!expandedRecords[item.id];
+        return (
             <View style={[styles.recordCard, { backgroundColor: theme.surface }]}>
-            <View style={[styles.recordTimelineLine, { backgroundColor: theme.borderLight }]} />
-            <View style={[styles.timelineDot, { backgroundColor: theme.primary, borderColor: theme.background }]} />
+                <View style={[styles.recordTimelineLine, { backgroundColor: theme.borderLight }]} />
+                <View style={[styles.timelineDot, { backgroundColor: theme.primary, borderColor: theme.background }]} />
 
-            <View style={[styles.recordContent, { backgroundColor: theme.overlay, borderColor: theme.borderLight }]}>
-                <View style={styles.cardHeader}>
-                    <View style={[styles.dateBox, { backgroundColor: theme.primary + '10' }]}>
-                        <Calendar size={12} color={theme.primary} />
-                        <Text style={[styles.dateText, { color: theme.primary }]}>
-                            {new Date(item.date).toLocaleDateString()}
-                        </Text>
-                    </View>
-                        <View style={[styles.consultTypeTag, { backgroundColor: theme.overlay }]}>
-                        <Text style={[styles.consultTypeText, { color: theme.textMuted }]}>CONSULTA</Text>
-                    </View>
-                </View>
-
-                <Text style={[styles.reason, { color: theme.text }]}>{item.reason_for_visit}</Text>
-
-                <View style={styles.metricsRow}>
-                    {item.weight_kg && (
-                        <View style={[styles.metricItem, { backgroundColor: '#0891b215' }]}>
-                            <Weight size={12} color="#0891b2" />
-                            <Text style={[styles.metricValue, { color: '#0891b2' }]}>{item.weight_kg} kg</Text>
-                        </View>
-                    )}
-                    {item.temperature_c && (
-                        <View style={[styles.metricItem, { backgroundColor: '#ef444415' }]}>
-                            <Thermometer size={12} color="#ef4444" />
-                            <Text style={[styles.metricValue, { color: '#ef4444' }]}>{item.temperature_c}°C</Text>
-                        </View>
-                    )}
-                </View>
-
-                {item.diagnosis && (
-                    <View style={[styles.diagnosisBox, { backgroundColor: theme.background + '80' }]}>
-                        <Text style={[styles.detailLabel, { color: theme.primary }]}>DIAGNÓSTICO CLÍNICO</Text>
-                        <Text style={[styles.detailText, { color: theme.text }]}>{item.diagnosis}</Text>
-                    </View>
-                )}
-
-                {item.treatment && (
-                    <View style={[styles.treatmentBox, { backgroundColor: theme.background + '80' }]}>
-                        <Text style={[styles.detailLabel, { color: '#0891b2' }]}>TRATAMIENTO</Text>
-                        <Text style={[styles.detailText, { color: theme.text }]}>{item.treatment}</Text>
-                    </View>
-                )}
-
-                {item.notes && (
-                    <View style={styles.notesBox}>
-                        <Text style={[styles.detailLabel, { color: theme.textMuted }]}>NOTAS ADICIONALES</Text>
-                        <Text style={[styles.notesText, { color: theme.textMuted }]}>{item.notes}</Text>
-                    </View>
-                )}
-
-                {item.prescriptions && item.prescriptions.length > 0 && (
-                    <View style={[styles.prescriptionBox, { borderColor: '#10b98140' }]}>
-                        <View style={styles.prescriptionHeader}>
-                            <ShoppingBag size={14} color="#10b981" />
-                            <Text style={styles.prescriptionTitle}>RECETA DIGITAL</Text>
-                        </View>
-                        <View style={styles.prescriptionsList}>
-                            {item.prescriptions.map((p, idx) => (
-                                <View key={idx} style={[styles.prescriptionItem, { backgroundColor: theme.inputBg }]}>
-                                    <Text style={[styles.medName, { color: theme.text }]}>{p.medication_name}</Text>
-                                    <Text style={[styles.medDose, { color: theme.textMuted }]}>{p.dosage} · Cada {p.frequency_hours}h por {p.duration_days}d</Text>
+                <View style={[styles.recordContent, { backgroundColor: theme.overlay, borderColor: theme.borderLight }]}>
+                    <TouchableOpacity 
+                        activeOpacity={0.7}
+                        onPress={() => toggleExpandRecord(item.id)}
+                        style={styles.recordHeaderTrigger}
+                    >
+                        <View style={styles.cardHeader}>
+                            <View style={[styles.dateBox, { backgroundColor: theme.primary + '10' }]}>
+                                <Calendar size={12} color={theme.primary} />
+                                <Text style={[styles.dateText, { color: theme.primary }]}>
+                                    {new Date(item.date).toLocaleDateString()}
+                                </Text>
+                            </View>
+                            <View style={styles.headerRightActions}>
+                                <View style={[styles.consultTypeTag, { backgroundColor: theme.overlay }]}>
+                                    <Text style={[styles.consultTypeText, { color: theme.textMuted }]}>CONSULTA</Text>
                                 </View>
-                            ))}
+                                {isExpanded ? (
+                                    <ChevronUp size={14} color={theme.textMuted} style={{ marginLeft: 8 }} />
+                                ) : (
+                                    <ChevronDown size={14} color={theme.textMuted} style={{ marginLeft: 8 }} />
+                                )}
+                            </View>
                         </View>
-                    </View>
-                )}
+
+                        <Text style={[styles.reason, { color: theme.text }]} numberOfLines={isExpanded ? undefined : 2}>
+                            {item.reason_for_visit}
+                        </Text>
+
+                        {!isExpanded && (
+                            <View style={styles.summaryPillsRow}>
+                                {item.weight_kg && (
+                                    <View style={[styles.summaryPill, { backgroundColor: '#0891b210' }]}>
+                                        <Text style={[styles.summaryPillText, { color: '#0891b2' }]}>⚖️ {item.weight_kg} kg</Text>
+                                    </View>
+                                )}
+                                {item.temperature_c && (
+                                    <View style={[styles.summaryPill, { backgroundColor: '#ef444410' }]}>
+                                        <Text style={[styles.summaryPillText, { color: '#ef4444' }]}>🌡️ {item.temperature_c}°C</Text>
+                                    </View>
+                                )}
+                                {item.prescriptions && item.prescriptions.length > 0 && (
+                                    <View style={[styles.summaryPill, { backgroundColor: '#10b98110' }]}>
+                                        <Text style={[styles.summaryPillText, { color: '#10b981' }]}>💊 Receta</Text>
+                                    </View>
+                                )}
+                                {!item.weight_kg && !item.temperature_c && (!item.prescriptions || item.prescriptions.length === 0) && (
+                                    <View style={[styles.summaryPill, { backgroundColor: theme.borderLight + '40' }]}>
+                                        <Text style={[styles.summaryPillText, { color: theme.textMuted }]}>📄 Visita</Text>
+                                    </View>
+                                )}
+                            </View>
+                        )}
+                    </TouchableOpacity>
+
+                    {isExpanded && (
+                        <View style={styles.expandedDetails}>
+                            <View style={[styles.metricsRow, { borderTopColor: theme.borderLight, borderTopWidth: 1, paddingTop: 12, marginTop: 8 }]}>
+                                {item.weight_kg && (
+                                    <View style={[styles.metricItem, { backgroundColor: '#0891b215' }]}>
+                                        <Weight size={12} color="#0891b2" />
+                                        <Text style={[styles.metricValue, { color: '#0891b2' }]}>{item.weight_kg} kg</Text>
+                                    </View>
+                                )}
+                                {item.temperature_c && (
+                                    <View style={[styles.metricItem, { backgroundColor: '#ef444415' }]}>
+                                        <Thermometer size={12} color="#ef4444" />
+                                        <Text style={[styles.metricValue, { color: '#ef4444' }]}>{item.temperature_c}°C</Text>
+                                    </View>
+                                )}
+                            </View>
+
+                            {item.diagnosis && (
+                                <View style={[styles.diagnosisBox, { backgroundColor: theme.background + '80' }]}>
+                                    <Text style={[styles.detailLabel, { color: theme.primary }]}>DIAGNÓSTICO CLÍNICO</Text>
+                                    <Text style={[styles.detailText, { color: theme.text }]}>{item.diagnosis}</Text>
+                                </View>
+                            )}
+
+                            {item.treatment && (
+                                <View style={[styles.treatmentBox, { backgroundColor: theme.background + '80' }]}>
+                                    <Text style={[styles.detailLabel, { color: '#0891b2' }]}>TRATAMIENTO</Text>
+                                    <Text style={[styles.detailText, { color: theme.text }]}>{item.treatment}</Text>
+                                </View>
+                            )}
+
+                            {item.notes && (
+                                <View style={styles.notesBox}>
+                                    <Text style={[styles.detailLabel, { color: theme.textMuted }]}>NOTAS ADICIONALES</Text>
+                                    <Text style={[styles.notesText, { color: theme.textMuted }]}>{item.notes}</Text>
+                                </View>
+                            )}
+
+                            {item.prescriptions && item.prescriptions.length > 0 && (
+                                <TouchableOpacity
+                                    activeOpacity={0.7}
+                                    onPress={() => router.push({ pathname: `/carnet/receta/${item.id}`, params: { petId: pet?.id } } as any)}
+                                    style={[styles.prescriptionBox, { borderColor: '#10b98140' }]}
+                                >
+                                    <View style={styles.prescriptionHeader}>
+                                        <ShoppingBag size={14} color="#10b981" />
+                                        <Text style={styles.prescriptionTitle}>RECETA DIGITAL (Tocar para ver)</Text>
+                                    </View>
+                                    <View style={styles.prescriptionsList}>
+                                        {item.prescriptions.map((p, idx) => (
+                                            <View key={idx} style={[styles.prescriptionItem, { backgroundColor: theme.inputBg }]}>
+                                                <Text style={[styles.medName, { color: theme.text }]}>{p.medication_name}</Text>
+                                                <Text style={[styles.medDose, { color: theme.textMuted }]}>{p.dosage} · Cada {p.frequency_hours}h por {p.duration_days}d</Text>
+                                                {p.instructions && (
+                                                    <View style={[styles.instructionsContainer, { borderTopColor: theme.borderLight }]}>
+                                                        <Text style={[styles.medInstructions, { color: theme.textMuted }]}>
+                                                            📋 Instrucciones: {p.instructions}
+                                                        </Text>
+                                                    </View>
+                                                )}
+                                            </View>
+                                        ))}
+                                    </View>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
+                </View>
             </View>
-        </View>
-    );
+        );
+    };
 
     const renderVaccineItem = ({ item }: { item: Vaccine }) => {
         const isNextDue = item.next_due_date && new Date(item.next_due_date) < new Date();
@@ -157,18 +228,79 @@ export default function PetCarnetDetailScreen() {
         );
     };
 
+    const renderReminderItem = ({ item }: { item: ReminderWithDetails }) => {
+        const overdue = !item.sent && new Date(item.remind_at).getTime() < Date.now();
+        const statusColor = item.sent ? '#10b981' : overdue ? '#ef4444' : theme.primary;
+        const date = new Date(item.remind_at);
+        const diffMs = date.getTime() - Date.now();
+        const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+        let timeLabel = '';
+        if (item.sent) timeLabel = 'Completado';
+        else if (diffMs < 0) timeLabel = 'Atrasado';
+        else if (diffHours < 1) timeLabel = 'En <1h';
+        else if (diffHours < 24) timeLabel = `En ${diffHours}h`;
+        else if (diffDays === 1) timeLabel = 'Mañana';
+        else timeLabel = `En ${diffDays}d`;
+
+        return (
+            <View style={[styles.reminderCard, { backgroundColor: theme.surface, borderColor: overdue ? '#ef444430' : theme.borderLight }]}>
+                <View style={[styles.reminderIcon, { backgroundColor: statusColor + '15' }]}>
+                    <Pill size={22} color={statusColor} />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <View style={styles.vaccineHeader}>
+                        <Text style={[styles.vaccineName, { color: theme.text }]}>{item.medication_name}</Text>
+                        <View style={[styles.statusBadge, { backgroundColor: item.sent ? '#10b98120' : overdue ? '#ef444420' : '#f59e0b20' }]}>
+                            <Text style={{ color: item.sent ? '#10b981' : overdue ? '#ef4444' : '#f59e0b', fontSize: 9, fontWeight: '900' }}>
+                                {item.sent ? 'COMPLETADO' : overdue ? 'ATRASADO' : 'PENDIENTE'}
+                            </Text>
+                        </View>
+                    </View>
+                    <Text style={[styles.medDose, { color: theme.textMuted, marginBottom: 6 }]}>
+                        {item.dosage} · Cada {item.frequency_hours}h · {item.duration_days}d
+                    </Text>
+                    <View style={styles.vaccineMeta}>
+                        <View style={styles.metaItem}>
+                            <Clock size={12} color={statusColor} />
+                            <Text style={[styles.metaText, { color: statusColor, fontWeight: '700' }]}>
+                                {timeLabel}
+                            </Text>
+                        </View>
+                        <View style={styles.metaItem}>
+                            <Calendar size={12} color={theme.textMuted} />
+                            <Text style={[styles.metaText, { color: theme.textMuted }]}>
+                                {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </Text>
+                        </View>
+                    </View>
+                    {!item.sent && (
+                        <TouchableOpacity
+                            style={[styles.checkBtn, { backgroundColor: theme.primary + '15' }]}
+                            onPress={() => handleCheck(item.id)}
+                        >
+                            <Check size={16} color={theme.primary} />
+                            <Text style={[styles.checkBtnText, { color: theme.primary }]}>Marcar como Tomado</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+            </View>
+        );
+    };
+
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[1]}>
                 <View style={[styles.hero, { backgroundColor: theme.primary + '08' }]}>
                     <View style={styles.headerTop}>
-                        <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]} onPress={() => router.back()}>
-                            <ChevronLeft size={24} color={theme.text} />
-                        </TouchableOpacity>
+                        <BackButton onPress={() => router.back()} />
                         <View style={styles.medicalIdTag}>
                             <Text style={styles.medicalIdText}>PATIENT_ID: {pet?.id.substring(0, 12)}</Text>
                         </View>
-                        <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]}>
+                        <TouchableOpacity
+                            style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]}
+                            onPress={() => router.push({ pathname: '/mascotas/diagnostico-ia', params: { petId: pet?.id } } as any)}
+                        >
                             <Activity size={20} color={theme.text} />
                         </TouchableOpacity>
                     </View>
@@ -194,16 +326,31 @@ export default function PetCarnetDetailScreen() {
                             {pet?.breed || pet?.species} · {pet?.gender} · {pet?.age_months ? `${Math.floor(pet.age_months / 12)}a ${pet.age_months % 12}m` : 'N/A'}
                         </Text>
 
-                        <View style={styles.quickClinicalSummary}>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.quickClinicalSummary}
+                            style={styles.summaryScroll}
+                        >
                             <View style={[styles.clinicalBadge, { backgroundColor: pet?.is_vaccinated ? '#10b98115' : '#ef444415' }]}>
                                 <ShieldCheck size={14} color={pet?.is_vaccinated ? '#10b981' : '#ef4444'} />
                                 <Text style={{ color: pet?.is_vaccinated ? '#10b981' : '#ef4444', fontSize: 11, fontWeight: '800' }}>VACUNACIÓN OK</Text>
                             </View>
+                            {pet?.is_sterilized && (
+                                <View style={[styles.clinicalBadge, { backgroundColor: '#8b5cf615' }]}>
+                                    <Text style={{ color: '#8b5cf6', fontSize: 11, fontWeight: '800' }}>✨ ESTERILIZADO</Text>
+                                </View>
+                            )}
+                            {pet?.is_dewormed && (
+                                <View style={[styles.clinicalBadge, { backgroundColor: '#0ea5e915' }]}>
+                                    <Text style={{ color: '#0ea5e9', fontSize: 11, fontWeight: '800' }}>🐛 DESPARASITADO</Text>
+                                </View>
+                            )}
                             <View style={[styles.clinicalBadge, { backgroundColor: theme.primary + '15' }]}>
                                 <Activity size={14} color={theme.primary} />
                                 <Text style={{ color: theme.primary, fontSize: 11, fontWeight: '800' }}>{records.length} VISITAS</Text>
                             </View>
-                        </View>
+                        </ScrollView>
 
                         {/* Weight Evolution Sparkline */}
                         {records.filter(r => r.weight_kg).length >= 2 && (
@@ -235,36 +382,56 @@ export default function PetCarnetDetailScreen() {
                             <Syringe size={18} color={activeTab === 'vaccines' ? theme.primary : theme.textMuted} />
                             <Text style={[styles.tabText, { color: activeTab === 'vaccines' ? theme.primary : theme.textMuted }]}>Vacunas</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.tab, activeTab === 'reminders' && { borderBottomColor: theme.primary }]}
+                            onPress={() => setActiveTab('reminders')}
+                        >
+                            <Bell size={18} color={activeTab === 'reminders' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'reminders' ? theme.primary : theme.textMuted }]}>Recordatorios</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
 
                 <FlatList
                     scrollEnabled={false}
-                    data={activeTab === 'records' ? records : vaccines}
+                    data={activeTab === 'records' ? sortedRecords : activeTab === 'vaccines' ? vaccines : reminders}
                     keyExtractor={(item: any) => item.id}
-                    renderItem={activeTab === 'records' ? (renderRecordItem as any) : (renderVaccineItem as any)}
+                    renderItem={activeTab === 'records' ? (renderRecordItem as any) : activeTab === 'vaccines' ? (renderVaccineItem as any) : (renderReminderItem as any)}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={{ fontSize: 50, marginBottom: 20 }}>{activeTab === 'records' ? '📝' : '💉'}</Text>
-                            <Text style={[styles.emptyTitle, { color: theme.text }]}>Sin registros aún</Text>
-                            <Text style={{ color: theme.textMuted, textAlign: 'center', paddingHorizontal: 40 }}>
-                                No hay información médica registrada para esta mascota en esta sección.
-                            </Text>
-                        </View>
+                        isLoadingTab ? (
+                            <View style={[styles.emptyState, { minHeight: 200, justifyContent: 'center' }]}>
+                                <ActivityIndicator size="large" color={theme.primary} />
+                                <Text style={[styles.emptyTitle, { color: theme.textMuted, marginTop: 16 }]}>
+                                    Cargando información...
+                                </Text>
+                            </View>
+                        ) : (
+                            <View style={styles.emptyState}>
+                                <Text style={{ fontSize: 50, marginBottom: 20 }}>
+                                    {activeTab === 'records' ? '📝' : activeTab === 'vaccines' ? '💉' : '🔔'}
+                                </Text>
+                                <Text style={[styles.emptyTitle, { color: theme.text }]}>Sin registros aún</Text>
+                                <Text style={{ color: theme.textMuted, textAlign: 'center', paddingHorizontal: 40 }}>
+                                    {activeTab === 'reminders'
+                                        ? 'Los recordatorios de medicamentos se generan automáticamente cuando se crea una consulta con receta.'
+                                        : 'No hay información médica registrada para esta mascota en esta sección.'}
+                                </Text>
+                            </View>
+                        )
                     }
                 />
             </ScrollView>
 
-            {isVet && (
+            {isVet && activeTab !== 'reminders' && (
                 <TouchableOpacity
                     style={[styles.fab, { backgroundColor: activeTab === 'records' ? theme.primary : '#0891b2' }]}
-                    onPress={() => router.push(activeTab === 'records' ? `/carnet/nueva-consulta?pet_id=${id}` : `/carnet/nueva-vacuna?pet_id=${id}` as any)}
+                    onPress={activeTab === 'records' ? handleAddRecord : handleAddVaccine}
                 >
                     <Plus size={28} color="#fff" />
                 </TouchableOpacity>
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -364,6 +531,11 @@ const styles = StyleSheet.create({
     quickClinicalSummary: {
         flexDirection: 'row',
         gap: 12,
+        paddingHorizontal: 24,
+    },
+    summaryScroll: {
+        width: '100%',
+        marginTop: 20,
     },
     clinicalBadge: {
         flexDirection: 'row',
@@ -544,6 +716,22 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '600',
     },
+    reminderCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        borderRadius: 24,
+        gap: 16,
+        marginBottom: 16,
+        borderWidth: 1,
+    },
+    reminderIcon: {
+        width: 52,
+        height: 52,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     vaccineCard: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -569,6 +757,8 @@ const styles = StyleSheet.create({
     vaccineName: {
         fontSize: 16,
         fontWeight: '900',
+        flex: 1,
+        marginRight: 8,
     },
     statusBadge: {
         paddingHorizontal: 8,
@@ -610,5 +800,54 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 15,
         elevation: 8,
-    }
+    },
+    checkBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        paddingVertical: 10,
+        borderRadius: 12,
+        marginTop: 12,
+    },
+    checkBtnText: {
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    instructionsContainer: {
+        marginTop: 6,
+        paddingTop: 6,
+        borderTopWidth: 1,
+    },
+    medInstructions: {
+        fontSize: 12,
+        fontWeight: '600',
+        fontStyle: 'italic',
+        lineHeight: 18,
+    },
+    recordHeaderTrigger: {
+        padding: 2,
+    },
+    headerRightActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    summaryPillsRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginTop: 10,
+    },
+    summaryPill: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    summaryPillText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    expandedDetails: {
+        marginTop: 4,
+    },
 });

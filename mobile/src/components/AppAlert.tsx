@@ -86,7 +86,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
     const Icon = ICONS[alert.type];
     const colors = getAlertColors(alert.type, theme);
 
-    if (!alert.visible && opacity._value === 0) return <>{children}</>;
+    if (!alert.visible) return <>{children}</>;
 
     return (
         <>

@@ -1,25 +1,19 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image, TextInput } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getProducts, Product } from '@/src/services/ecommerce';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Plus, ShoppingCart, Search, Filter, Box } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminProducts, Product } from '@/src/hooks/admin';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import SearchBar from '@/src/components/SearchBar';
+import { Plus, ShoppingCart, Filter, Box } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminProductosScreen() {
     const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: products = [], isLoading } = useQuery({
-        queryKey: ['admin-products'],
-        queryFn: () => getProducts(),
-    });
+    const { theme } = useTheme();
+    const { products, isLoading, isFetching, refetch, searchText, setSearchText } = useAdminProducts();
 
     const renderItem = ({ item }: { item: Product }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -57,155 +51,54 @@ export default function AdminProductosScreen() {
         </View>
     );
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Productos</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Catálogo Maestro</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => showAlert({ type: 'info', title: 'Nuevo Producto', message: 'Formulario de alta' })}
-                    >
-                        <Plus size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-            </LinearGradient>
-
-            <View style={styles.searchBar}>
-                <View style={[styles.searchBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <Search size={20} color={theme.textMuted} />
-                    <TextInput 
-                        placeholder="Buscar producto..." 
-                        placeholderTextColor={theme.textMuted}
-                        style={[styles.searchInput, { color: theme.text }]}
-                    />
-                </View>
-                <TouchableOpacity style={[styles.filterBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <Filter size={20} color={theme.primary} />
-                </TouchableOpacity>
-            </View>
-
-            {isLoading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
-            ) : (
-                <FlatList
-                    data={products}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <ShoppingCart size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay productos en el catálogo.</Text>
-                        </View>
-                    }
+    const ListHeader = (
+        <View style={styles.searchBar}>
+            <View style={{ flex: 1 }}>
+                <SearchBar
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    placeholder="Buscar producto..."
                 />
-            )}
+            </View>
+            <TouchableOpacity style={[styles.filterBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <Filter size={20} color={theme.primary} />
+            </TouchableOpacity>
         </View>
+    );
+
+    return (
+        <ScreenContainer>
+            <ScreenHeader
+                title="Productos"
+                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
+                actionIcon={Plus}
+                onAction={() => showAlert({ type: 'info', title: 'Nuevo Producto', message: 'Formulario de alta' })}
+            />
+
+            <DataList
+                data={products}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando productos..."
+                onRefresh={() => refetch()}
+                isRefreshing={isFetching}
+                emptyIcon={<ShoppingCart size={48} color={theme.textMuted} strokeWidth={1} />}
+                emptyTitle="No hay productos"
+                emptySubtitle="No hay productos en el catálogo."
+                contentStyle={styles.list}
+                header={ListHeader}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     searchBar: { 
         flexDirection: 'row', 
         paddingHorizontal: 20, 
-        paddingVertical: 16, 
+        paddingVertical: 12, 
         gap: 12, 
-        marginTop: -18,
-        zIndex: 20,
-    },
-    searchBox: { 
-        flex: 1, 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        paddingHorizontal: 16, 
-        height: 54, 
-        borderRadius: 18, 
-        borderWidth: 1.5, 
-        gap: 12,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-    },
-    searchInput: { 
-        flex: 1, 
-        fontSize: 15, 
-        fontWeight: '700' 
     },
     filterBtn: { 
         width: 54, 
@@ -224,23 +117,6 @@ const styles = StyleSheet.create({
         padding: 20, 
         paddingBottom: 100, 
         paddingTop: 8 
-    },
-    center: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        marginTop: 100 
-    },
-    empty: { 
-        alignItems: 'center', 
-        marginTop: 60, 
-        paddingHorizontal: 40 
-    },
-    emptyText: { 
-        fontSize: 14, 
-        fontWeight: '700', 
-        marginTop: 20,
-        textAlign: 'center' 
     },
     card: { 
         flexDirection: 'row', 

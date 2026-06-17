@@ -1,35 +1,25 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { getProduct, getReviews } from '@/src/services/ecommerce';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useProduct } from '@/src/hooks/ecommerce';
+import { formatCurrency } from '@/src/utils/formatters';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { useCart } from '@/src/contexts/CartContext';
-import { ChevronLeft, ShoppingCart, Star, ShieldCheck, Truck, RotateCcw, Minus, Plus, Heart } from 'lucide-react-native';
+import { ShoppingCart, Star, ShieldCheck, Truck, RotateCcw, Minus, Plus, Heart } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 const { width } = Dimensions.get('window');
 
 export default function ProductDetailScreen() {
-    const { id } = useLocalSearchParams();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
+    const { theme } = useTheme();
+    const { product, reviews, isLoading, goBack } = useProduct();
     const [quantity, setQuantity] = useState(1);
     const [isFavorite, setIsFavorite] = useState(false);
     const { addToCart } = useCart();
-
-    const { data: product, isLoading } = useQuery({
-        queryKey: ['product', id],
-        queryFn: () => getProduct(id as string),
-    });
-
-    const { data: reviews = [] } = useQuery({
-        queryKey: ['product-reviews', id],
-        queryFn: () => getReviews(id as string),
-    });
 
     const handleAddToCart = () => {
         if (!product) return;
@@ -38,19 +28,20 @@ export default function ProductDetailScreen() {
         router.back();
     };
 
-    if (isLoading) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}><ActivityIndicator size="large" color={theme.primary} /></View>;
-    if (!product) return <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}><Text style={{ color: theme.text }}>Producto no encontrado</Text></View>;
+    if (isLoading) return <ScreenContainer style={styles.center}><LoadingOverlay /></ScreenContainer>;
+    if (!product) return (
+        <ScreenContainer style={styles.center}>
+            <Text style={{ color: theme.text }}>Producto no encontrado</Text>
+        </ScreenContainer>
+    );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={[styles.imageSection, { backgroundColor: theme.surface }]}>
                     <Image source={{ uri: product.image_url || 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1000' }} style={styles.productImage} />
-
                     <View style={styles.headerActions}>
-                        <TouchableOpacity style={[styles.circleBtn, { backgroundColor: theme.border, borderColor: theme.border }]} onPress={() => router.back()}>
-                            <ChevronLeft size={24} color={theme.text} />
-                        </TouchableOpacity>
+                        <BackButton onPress={goBack} color={theme.text} style={[styles.circleBtn, { backgroundColor: theme.border, borderColor: theme.border }]} />
                         <TouchableOpacity style={[styles.circleBtn, { backgroundColor: theme.border, borderColor: theme.border }]} onPress={() => setIsFavorite(!isFavorite)}>
                             <Heart size={24} color={isFavorite ? '#ef4444' : theme.text} fill={isFavorite ? '#ef4444' : 'transparent'} />
                         </TouchableOpacity>
@@ -61,7 +52,7 @@ export default function ProductDetailScreen() {
                     <View style={styles.mainInfo}>
                         <Text style={[styles.title, { color: theme.text }]}>{product.name}</Text>
                         <View style={styles.priceRow}>
-                            <Text style={[styles.price, { color: theme.primary }]}>${product.price.toFixed(2)}</Text>
+                            <Text style={[styles.price, { color: theme.primary }]}>{formatCurrency(product.price)}</Text>
                             <View style={styles.ratingBox}>
                                 <Star size={16} color="#facc15" fill="#facc15" />
                                 <Text style={[styles.ratingText, { color: theme.text }]}>{product.average_rating?.toFixed(1) || '5.0'}</Text>
@@ -133,8 +124,8 @@ export default function ProductDetailScreen() {
                 </View>
             </ScrollView>
 
-            <View style={[styles.footer, { borderTopColor: theme.border }]}>
-                <TouchableOpacity 
+            <View style={[styles.footer, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
+                <TouchableOpacity
                     style={[styles.cartBtn, { borderColor: theme.primary }]}
                     onPress={handleAddToCart}
                 >
@@ -147,13 +138,14 @@ export default function ProductDetailScreen() {
                     <Text style={styles.buyBtnText}>Agregar a la Bolsa</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    center: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     imageSection: {
         height: 400,

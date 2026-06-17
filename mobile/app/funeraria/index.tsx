@@ -1,48 +1,29 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getActiveFuneraryServices, FuneraryService } from '../../src/services/funerary';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Search, Heart, DollarSign, Plus } from 'lucide-react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useFuneraryServices } from '@/src/hooks/funerary/useFuneraryServices';
+import { FuneraryService } from '@/src/services/funerary';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Heart, DollarSign, Plus } from 'lucide-react-native';
+import SearchBar from '@/src/components/SearchBar';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function FunerariaScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
+    const { theme } = useTheme();
+    const { user } = useAuth();
+    const { searchQuery, setSearchQuery, services, isLoading, router } = useFuneraryServices();
 
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: services = [], isLoading } = useQuery<FuneraryService[]>({
-        queryKey: ['funerary-services'],
-        queryFn: () => getActiveFuneraryServices(),
-    });
-
-    const filteredServices = services.filter(service =>
-        service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (service.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const roleName = user?.role_name || '';
+    const isFuneralHome = roleName === 'funeraria' || roleName === 'admin';
 
     const renderServiceItem = ({ item }: { item: FuneraryService }) => (
         <TouchableOpacity
             style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => {}}
+            onPress={() => router.push({ pathname: '/funeraria/reservar', params: { service_id: item.id } } as any)}
         >
             <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, { backgroundColor: theme.secondary + '20' }]}>
@@ -78,77 +59,62 @@ export default function FunerariaScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🕊️ Funeraria</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Servicios funerarios y memorial para tus mascotas
-                </Text>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="🕊️ Funeraria"
+                subtitle="Servicios funerarios y memorial para tus mascotas"
+            />
 
             <View style={styles.actionButtons}>
-                <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/funeraria/nuevo')}
-                >
-                    <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Crear Servicio</Text>
-                </TouchableOpacity>
+                {isFuneralHome ? (
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                        onPress={() => router.push('/funeraria/nuevo-servicio')}
+                    >
+                        <Plus size={18} color="#fff" />
+                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Crear Servicio</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.secondary }]}
+                        onPress={() => router.push('/funeraria/mis-reservas')}
+                    >
+                        <Heart size={18} color="#fff" />
+                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Reservas</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
-            <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Search size={20} color={theme.textMuted} />
-                <TextInput
-                    placeholder="Buscar servicios funerarios..."
-                    placeholderTextColor={theme.textMuted}
-                    style={[styles.searchInput, { color: theme.text }]}
+            <View style={{ marginHorizontal: 24, marginBottom: 20 }}>
+                <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    placeholder="Buscar servicios funerarios..."
                 />
             </View>
 
             {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando servicios...</Text>
-                </View>
+                <LoadingOverlay message="Cargando servicios..." />
             ) : (
                 <FlatList
-                    data={filteredServices}
+                    data={services}
                     renderItem={renderServiceItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                {searchQuery ? 'No se encontraron servicios.' : 'No hay servicios disponibles.'}
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon={<Heart size={32} color={theme.textMuted} />}
+                            title={searchQuery ? 'No se encontraron servicios.' : 'No hay servicios disponibles.'}
+                        />
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
     actionButtons: {
         flexDirection: 'row',
         paddingHorizontal: 24,
@@ -168,21 +134,6 @@ const styles = StyleSheet.create({
     actionButtonText: {
         fontSize: 14,
         fontWeight: '600',
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 24,
-        marginBottom: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 12,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
     },
     list: {
         paddingHorizontal: 24,
@@ -235,24 +186,5 @@ const styles = StyleSheet.create({
     tagText: {
         fontSize: 12,
         fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

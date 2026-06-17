@@ -1,35 +1,27 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator, TextInput, Dimensions } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { getUserPets, Pet } from '../../src/services/mascotas';
-import { useAuth } from '../../src/contexts/AuthContext';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { usePetRecords } from '@/src/hooks/carnet';
+import type { Pet } from '@/src/types/mascotas';
 import { ChevronLeft, Plus, ClipboardList, Syringe, Scissors, Search, Activity, Stethoscope } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
 
 const { width } = Dimensions.get('window');
 
 export default function CarnetListScreen() {
-    const { user } = useAuth();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const [searchId, setSearchId] = useState('');
-
-    const isVetOrAdmin = user?.role_name === 'veterinario' || user?.role_name === 'admin';
-
-    const { data: pets = [], isLoading } = useQuery({
-        queryKey: ['my-pets-carnet', user?.id],
-        queryFn: () => (user?.id ? getUserPets(user.id) : Promise.resolve([])),
-        enabled: !!user?.id,
-    });
-
-    const handleSearch = () => {
-        if (searchId.trim()) {
-            router.push(`/carnet/${searchId.trim()}` as any);
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        pets,
+        isLoading,
+        searchId,
+        setSearchId,
+        handleSearch,
+        isVetOrAdmin,
+    } = usePetRecords();
 
     const renderPetItem = ({ item }: { item: Pet }) => (
         <TouchableOpacity
@@ -96,87 +88,70 @@ export default function CarnetListScreen() {
         </TouchableOpacity>
     );
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={{ flex: 1 }}>
-                    <Text style={[styles.title, { color: theme.text }]}>Expedientes Digitales</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Historiales médicos digitales</Text>
+    const listHeader = (
+        <>
+            {isVetOrAdmin && (
+                <View style={[styles.medicalTerminal, { backgroundColor: '#0891b220', borderColor: '#0891b240' }]}>
+                    <View style={styles.terminalHeader}>
+                        <View style={styles.terminalIconBox}>
+                            <Stethoscope size={20} color="#0891b2" />
+                        </View>
+                        <View>
+                            <Text style={styles.terminalTitle}>Modo Médico Habilitado</Text>
+                            <Text style={styles.terminalSubtitle}>Acceso global por ID de paciente</Text>
+                        </View>
+                    </View>
+                    <View style={styles.searchRow}>
+                        <TextInput
+                            style={[styles.terminalInput, { backgroundColor: 'rgba(0,0,0,0.2)', color: '#fff' }]}
+                            placeholder="Introduce el ID del paciente..."
+                            placeholderTextColor="rgba(255,255,255,0.4)"
+                            value={searchId}
+                            onChangeText={setSearchId}
+                            autoCapitalize="none"
+                        />
+                        <TouchableOpacity
+                            style={[styles.searchBtn, { backgroundColor: '#0891b2' }]}
+                            onPress={handleSearch}
+                            disabled={!searchId.trim()}
+                        >
+                            <Search size={20} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <TouchableOpacity
-                    style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/mascotas/nuevo')}
-                >
-                    <Plus size={20} color="#fff" />
-                </TouchableOpacity>
+            )}
+            <View style={styles.statsSummary}>
+                <Activity size={16} color={theme.textMuted} />
+                <Text style={[styles.statsText, { color: theme.textMuted }]}>
+                    {pets.length} {pets.length === 1 ? 'Carnet activo' : 'Carnets activos'}
+                </Text>
             </View>
+        </>
+    );
 
-            <FlatList
+    return (
+        <ScreenContainer>
+            <ScreenHeader
+                title="Expedientes Digitales"
+                subtitle="Historiales médicos digitales"
+                actionIcon={Plus}
+                onAction={() => router.push('/mascotas/nuevo')}
+            />
+
+            <DataList<Pet>
                 data={pets}
                 keyExtractor={(item) => item.id}
                 renderItem={renderPetItem}
-                contentContainerStyle={styles.list}
-                ListHeaderComponent={
-                    <>
-                        {isVetOrAdmin && (
-                            <View style={[styles.medicalTerminal, { backgroundColor: '#0891b220', borderColor: '#0891b240' }]}>
-                                <View style={styles.terminalHeader}>
-                                    <View style={styles.terminalIconBox}>
-                                        <Stethoscope size={20} color="#0891b2" />
-                                    </View>
-                                    <View>
-                                        <Text style={styles.terminalTitle}>Modo Médico Habilitado</Text>
-                                        <Text style={styles.terminalSubtitle}>Acceso global por ID de paciente</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.searchRow}>
-                                    <TextInput
-                                        style={[styles.terminalInput, { backgroundColor: 'rgba(0,0,0,0.2)', color: '#fff' }]}
-                                        placeholder="Introduce el ID del paciente..."
-                                        placeholderTextColor="rgba(255,255,255,0.4)"
-                                        value={searchId}
-                                        onChangeText={setSearchId}
-                                        autoCapitalize="none"
-                                    />
-                                    <TouchableOpacity
-                                        style={[styles.searchBtn, { backgroundColor: '#0891b2' }]}
-                                        onPress={handleSearch}
-                                        disabled={!searchId.trim()}
-                                    >
-                                        <Search size={20} color="#fff" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        )}
-                        <View style={styles.statsSummary}>
-                            <Activity size={16} color={theme.textMuted} />
-                            <Text style={[styles.statsText, { color: theme.textMuted }]}>
-                                {pets.length} {pets.length === 1 ? 'Carnet activo' : 'Carnets activos'}
-                            </Text>
-                        </View>
-                    </>
-                }
-                ListEmptyComponent={
-                    <View style={styles.emptyState}>
-                        <Text style={styles.emptyIcon}>🩺</Text>
-                        <Text style={[styles.emptyTitle, { color: theme.text }]}>Sin expedientes</Text>
-                        <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
-                            Registra a tu mascota para generar su carnet clínico digital.
-                        </Text>
-                        <TouchableOpacity
-                            style={[styles.registerBtn, { backgroundColor: theme.primary }]}
-                            onPress={() => router.push('/mascotas/nuevo')}
-                        >
-                            <Plus size={20} color="#fff" />
-                            <Text style={styles.registerBtnText}>Registrar Mascota</Text>
-                        </TouchableOpacity>
-                    </View>
-                }
+                isLoading={isLoading}
+                contentStyle={styles.list}
+                header={listHeader}
+                emptyIcon={<Text style={{ fontSize: 80 }}>🩺</Text>}
+                emptyTitle="Sin expedientes"
+                emptySubtitle="Registra a tu mascota para generar su carnet clínico digital."
+                emptyActionLabel="Registrar Mascota"
+                onEmptyAction={() => router.push('/mascotas/nuevo')}
             />
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -192,45 +167,6 @@ function HealthChip({ label, ok, icon, color }: { label: string, ok: boolean, ic
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-    },
-    addBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#6366f1',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    title: {
-        fontSize: 22,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
     list: {
         padding: 24,
         paddingTop: 8,
@@ -405,42 +341,4 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '800',
     },
-    emptyState: {
-        flex: 1,
-        paddingTop: 60,
-        alignItems: 'center',
-    },
-    emptyIcon: {
-        fontSize: 80,
-        marginBottom: 20,
-    },
-    emptyTitle: {
-        fontSize: 20,
-        fontWeight: '900',
-        marginBottom: 8,
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        textAlign: 'center',
-        paddingHorizontal: 40,
-        marginBottom: 32,
-    },
-    registerBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 28,
-        paddingVertical: 16,
-        borderRadius: 20,
-        gap: 12,
-        shadowColor: '#6366f1',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 16,
-        elevation: 6,
-    },
-    registerBtnText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '800',
-    }
 });

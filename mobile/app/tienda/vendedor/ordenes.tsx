@@ -1,46 +1,42 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getSellerOrders, updateOrderStatus, Order } from '@/src/services/ecommerce';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Package, Clock, Truck, CheckCircle, XCircle, MoreHorizontal, User, MapPin, DollarSign } from 'lucide-react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useSellerOrders } from '@/src/hooks/ecommerce';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+import { Package, Clock, Truck, CheckCircle, XCircle, User, MapPin } from 'lucide-react-native';
+import { Order } from '@/src/services/ecommerce';
 
-const STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-    pending: { label: "Pendiente", color: "#f59e0b", bg: "rgba(245,158,11,0.12)", icon: Clock },
-    shipped: { label: "Enviado", color: "#3b82f6", bg: "rgba(59,130,246,0.12)", icon: Truck },
-    delivered: { label: "Entregado", color: "#10b981", bg: "rgba(16,185,129,0.12)", icon: CheckCircle },
-    cancelled: { label: "Cancelado", color: "#ef4444", bg: "rgba(239,68,68,0.12)", icon: XCircle },
+const STATUS_ICONS: Record<string, any> = {
+    pending: Clock,
+    shipped: Truck,
+    delivered: CheckCircle,
+    cancelled: XCircle,
+};
+
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+    pending: { label: "Pendiente", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    shipped: { label: "Enviado", color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+    delivered: { label: "Entregado", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+    cancelled: { label: "Cancelado", color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
 };
 
 export default function VendedorOrdenesScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-    const [filter, setFilter] = useState('all');
-
-    const { data: orders = [], isLoading } = useQuery({
-        queryKey: ['seller-orders'],
-        queryFn: getSellerOrders,
-    });
-
-    const statusMutation = useMutation({
-        mutationFn: ({ id, status }: { id: string; status: string }) => updateOrderStatus(id, status),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Estado del pedido actualizado' });
-        },
-        onError: () => showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estado' }),
-    });
-
-    const filteredOrders = orders.filter(o => filter === 'all' ? true : o.status === filter);
+    const { theme } = useTheme();
+    const {
+        orders,
+        filteredOrders,
+        isLoading,
+        filter,
+        setFilter,
+        updateStatus,
+    } = useSellerOrders();
 
     const renderItem = ({ item }: { item: Order }) => {
         const status = STATUS_MAP[item.status] || STATUS_MAP.pending;
-        const StatusIcon = status.icon;
+        const StatusIcon = STATUS_ICONS[item.status] || Clock;
 
         return (
             <View style={[styles.orderCard, { backgroundColor: theme.surface }]}>
@@ -76,7 +72,7 @@ export default function VendedorOrdenesScreen() {
                     {item.status === 'pending' && (
                         <TouchableOpacity
                             style={[styles.shipBtn, { backgroundColor: theme.primary }]}
-                            onPress={() => statusMutation.mutate({ id: item.id, status: 'shipped' })}
+                            onPress={() => updateStatus(item.id, 'shipped')}
                         >
                             <Truck size={16} color="#fff" />
                             <Text style={styles.shipBtnText}>Marcar Enviado</Text>
@@ -85,7 +81,7 @@ export default function VendedorOrdenesScreen() {
                     {item.status === 'shipped' && (
                         <TouchableOpacity
                             style={[styles.shipBtn, { backgroundColor: '#10b981' }]}
-                            onPress={() => statusMutation.mutate({ id: item.id, status: 'delivered' })}
+                            onPress={() => updateStatus(item.id, 'delivered')}
                         >
                             <CheckCircle size={16} color="#fff" />
                             <Text style={styles.shipBtnText}>Marcar Entregado</Text>
@@ -97,16 +93,11 @@ export default function VendedorOrdenesScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Gestión de Pedidos</Text>
-                    <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>{orders.length} Ventas realizadas</Text>
-                </View>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Gestión de Pedidos"
+                subtitle={`${orders.length} Ventas realizadas`}
+            />
 
             <View style={styles.tabsContainer}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
@@ -137,7 +128,7 @@ export default function VendedorOrdenesScreen() {
 
             {isLoading ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <LoadingOverlay />
                 </View>
             ) : (
                 <FlatList
@@ -146,24 +137,18 @@ export default function VendedorOrdenesScreen() {
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <Package size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay pedidos registrados</Text>
-                        </View>
+                        <EmptyState
+                            icon={<Package size={40} color={theme.textMuted} strokeWidth={1} />}
+                            title="No hay pedidos registrados"
+                        />
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 24, fontWeight: '900' },
-    headerSubtitle: { fontSize: 13, fontWeight: '600' },
     tabsContainer: { marginBottom: 16 },
     tabsScroll: { paddingHorizontal: 24, gap: 10 },
     tab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1 },
@@ -183,6 +168,4 @@ const styles = StyleSheet.create({
     shipBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12 },
     shipBtnText: { color: '#fff', fontSize: 12, fontWeight: '800' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    empty: { paddingTop: 100, alignItems: 'center', gap: 20 },
-    emptyText: { fontSize: 16, fontWeight: '600', textAlign: 'center' }
 });

@@ -1,22 +1,18 @@
+/**
+ * Mascotas service — API calls only
+ * Types are imported from types/mascotas.ts
+ */
 import { apiFetch } from "../lib/api";
+import type {
+    Pet,
+    SymptomCheckRequest,
+    SymptomCheckResponse,
+    DietPlanRequest,
+    DietPlanResponse,
+} from "../types/mascotas";
 
-export interface Pet {
-    id: string;
-    owner_id: string;
-    name: string;
-    species: string;
-    breed: string | null;
-    age_months: number | null;
-    size: string | null;
-    description: string | null;
-    photo_url: string | null;
-    is_active: boolean;
-    gender: string | null;
-    is_vaccinated: boolean;
-    is_sterilized: boolean;
-    is_dewormed: boolean;
-    weight_kg?: number;
-}
+// Re-export types for backward compatibility
+export type { Pet, SymptomCheckRequest, SymptomCheckResponse, DietPlanRequest, DietPlanResponse };
 
 export async function getUserPets(userId: string): Promise<Pet[]> {
     return apiFetch<Pet[]>("mascotas", `/pets/user/${userId}`);
@@ -41,35 +37,6 @@ export async function createPet(petData: Partial<Pet>): Promise<Pet> {
     });
 }
 
-export interface SymptomCheckRequest {
-    symptom_description: string;
-    duration_hours: number;
-}
-
-export interface SymptomCheckResponse {
-    analysis_source: string;
-    triage_level: string;
-    urgency: string;
-    summary: string;
-    action_plan: string;
-    disclaimer: string;
-}
-
-export interface DietPlanRequest {
-    activity_level: string;
-    allergies?: string;
-    target_weight_kg?: number;
-}
-
-export interface DietPlanResponse {
-    analysis_source: string;
-    pet_name: string;
-    resting_energy_requirement_kcal: number;
-    daily_energy_needs_kcal: number;
-    recommended_diet: string;
-    hydration_target_ml: number;
-}
-
 export async function aiSymptomCheck(data: SymptomCheckRequest): Promise<SymptomCheckResponse> {
     return apiFetch<SymptomCheckResponse>("mascotas", "/pets/ai/symptom-check", {
         method: "POST",
@@ -86,5 +53,12 @@ export async function aiDietPlan(petId: string, data: DietPlanRequest): Promise<
 
 export async function sharePetPassport(petId: string): Promise<{ token: string; share_url: string }> {
     return apiFetch<{ token: string; share_url: string }>("mascotas", `/pets/${petId}/passport/share`);
+}
+
+export async function updatePet(petId: string, petData: Partial<Pet>): Promise<Pet> {
+    return apiFetch<Pet>("mascotas", `/pets/${petId}`, {
+        method: "PUT",
+        body: JSON.stringify(petData)
+    });
 }
 

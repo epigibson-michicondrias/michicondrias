@@ -1,53 +1,38 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyProducts, getSellerOrders } from '@/src/services/ecommerce';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Package, ShoppingBag, DollarSign, TrendingUp, Star, Clock } from 'lucide-react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useSellerAnalytics } from '@/src/hooks/ecommerce';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { Package, ShoppingBag, Clock, TrendingUp } from 'lucide-react-native';
 
 export default function VendedorAnalyticsScreen() {
-  const router = useRouter();
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'dark'];
-
-  const { data: products = [], isLoading: loadingProducts } = useQuery({
-    queryKey: ['my-products'],
-    queryFn: getMyProducts,
-  });
-
-  const { data: orders = [], isLoading: loadingOrders } = useQuery({
-    queryKey: ['seller-orders'],
-    queryFn: getSellerOrders,
-  });
-
-  const isLoading = loadingProducts || loadingOrders;
-
-  const totalRevenue = orders.reduce((acc, o) => acc + o.total_amount, 0);
-  const activeProducts = products.filter((p) => p.is_active).length;
-  const pendingOrders = orders.filter((o) => o.status === 'pending').length;
-  const deliveredOrders = orders.filter((o) => o.status === 'delivered').length;
-  const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+  const { theme } = useTheme();
+  const {
+    products,
+    orders,
+    isLoading,
+    totalRevenue,
+    activeProducts,
+    pendingOrders,
+    deliveredOrders,
+    shippedOrders,
+    cancelledOrders,
+    avgOrderValue,
+  } = useSellerAnalytics();
 
   if (isLoading) {
     return (
-      <View style={[styles.center, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-        <Text style={{ color: theme.textMuted, marginTop: 12, fontWeight: '600' }}>Cargando analíticas...</Text>
-      </View>
+      <ScreenContainer>
+        <LoadingOverlay message="Cargando analíticas..." />
+      </ScreenContainer>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.surface }]} onPress={() => router.back()}>
-          <ChevronLeft size={20} color={theme.text} />
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.text }]}>Analíticas</Text>
-        <View style={{ width: 44 }} />
-      </View>
+    <ScreenContainer>
+      <ScreenHeader title="Analíticas" />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Revenue Card */}
@@ -107,9 +92,9 @@ export default function VendedorAnalyticsScreen() {
         <View style={[styles.breakdownCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           {[
             { label: 'Pendientes', count: pendingOrders, color: '#f59e0b' },
-            { label: 'Enviados', count: orders.filter((o) => o.status === 'shipped').length, color: '#3b82f6' },
+            { label: 'Enviados', count: shippedOrders, color: '#3b82f6' },
             { label: 'Entregados', count: deliveredOrders, color: '#10b981' },
-            { label: 'Cancelados', count: orders.filter((o) => o.status === 'cancelled').length, color: '#ef4444' },
+            { label: 'Cancelados', count: cancelledOrders, color: '#ef4444' },
           ].map((item) => {
             const pct = orders.length > 0 ? (item.count / orders.length) * 100 : 0;
             return (
@@ -127,29 +112,11 @@ export default function VendedorAnalyticsScreen() {
           })}
         </View>
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-  backBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: { fontSize: 20, fontWeight: '900' },
   content: {
     paddingHorizontal: 24,
     paddingBottom: 40,

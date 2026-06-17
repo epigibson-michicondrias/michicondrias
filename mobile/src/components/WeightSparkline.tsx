@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface WeightData {
     date: string;
@@ -14,6 +15,8 @@ interface WeightSparklineProps {
 }
 
 export default function WeightSparkline({ data, color, height = 60 }: WeightSparklineProps) {
+    const { theme } = useTheme();
+
     if (data.length < 2) return null;
 
     const screenWidth = Dimensions.get('window').width - 80;
@@ -32,10 +35,10 @@ export default function WeightSparkline({ data, color, height = 60 }: WeightSpar
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
             <View style={styles.header}>
                 <Text style={[styles.label, { color }]}>EVOLUCIÓN DE PESO (kg)</Text>
-                <Text style={styles.currentWeight}>{data[data.length - 1].weight} kg</Text>
+                <Text style={[styles.currentWeight, { color: theme.text }]}>{data[data.length - 1].weight} kg</Text>
             </View>
             <Svg width={screenWidth} height={height} style={styles.svg}>
                 <Path
@@ -51,8 +54,8 @@ export default function WeightSparkline({ data, color, height = 60 }: WeightSpar
                 ))}
             </Svg>
             <View style={styles.footer}>
-                <Text style={styles.dateText}>{new Date(data[0].date).toLocaleDateString()}</Text>
-                <Text style={styles.dateText}>{new Date(data[data.length - 1].date).toLocaleDateString()}</Text>
+                <Text style={[styles.dateText, { color: theme.textMuted }]}>{new Date(data[0].date).toLocaleDateString()}</Text>
+                <Text style={[styles.dateText, { color: theme.textMuted }]}>{new Date(data[data.length - 1].date).toLocaleDateString()}</Text>
             </View>
         </View>
     );
@@ -63,10 +66,8 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
         padding: 20,
-        backgroundColor: 'rgba(255,255,255,0.03)',
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     header: {
         flexDirection: 'row',
@@ -82,7 +83,6 @@ const styles = StyleSheet.create({
     currentWeight: {
         fontSize: 18,
         fontWeight: '900',
-        color: '#fff',
     },
     svg: {
         marginTop: 5,
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: 9,
-        color: 'rgba(255,255,255,0.3)',
         fontWeight: '700',
     }
 });

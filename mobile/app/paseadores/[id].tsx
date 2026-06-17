@@ -1,73 +1,56 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getWalker, Walker } from '../../src/services/paseadores';
-import { useColorScheme } from '@/components/useColorScheme';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useWalkerDetail } from '@/src/hooks/paseadores';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { 
-    MapPin, Star, Clock, Users, Phone, MessageCircle, Calendar, 
-    Shield, ChevronLeft, Heart, Share2, Dog, Cat, CheckCircle 
+    MapPin, Star, Clock, Users, MessageCircle, Calendar, 
+    Shield, Heart, Share2, Dog, Cat, CheckCircle 
 } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
-    const { id } = useLocalSearchParams<{ id: string }>();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
-
-    const [isFavorite, setIsFavorite] = useState(false);
-
-    const { data: walker, isLoading, error } = useQuery<Walker>({
-        queryKey: ['walker', id],
-        queryFn: () => getWalker(id as string),
-        enabled: !!id,
-    });
+    const { theme } = useTheme();
+    const {
+        walker,
+        isLoading,
+        error,
+        isFavorite,
+        toggleFavorite,
+        handleContact,
+        handleBook,
+        // Walk request
+        walkModalVisible,
+        setWalkModalVisible,
+        selectedPetId,
+        setSelectedPetId,
+        walkNotes,
+        setWalkNotes,
+        walkDuration,
+        setWalkDuration,
+        myPets,
+        handleSubmitWalkRequest,
+        isRequestingWalk,
+    } = useWalkerDetail();
 
     if (isLoading) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Paseador</Text>
-                    <View style={styles.placeholder} />
-                </View>
+            <ScreenContainer>
+                <ScreenHeader title="Paseador" />
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando información...</Text>
+                    <LoadingOverlay message="Cargando información..." />
                 </View>
-            </View>
+            </ScreenContainer>
         );
     }
 
     if (error || !walker) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Paseador</Text>
-                    <View style={styles.placeholder} />
-                </View>
+            <ScreenContainer>
+                <ScreenHeader title="Paseador" />
                 <View style={styles.errorContainer}>
                     <Text style={[styles.errorText, { color: theme.textMuted }]}>
                         No pudimos cargar la información del paseador.
@@ -79,47 +62,21 @@ export default function WalkerDetailScreen() {
                         <Text style={styles.retryButtonText}>Volver</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </ScreenContainer>
         );
     }
 
-    const handleContact = () => {
-        showAlert({
-            type: 'info',
-            title: 'Contactar Paseador',
-            message: '¿Cómo deseas contactar a este paseador?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Mensaje',
-            onButtonPress: () => {
-                showAlert({ type: 'info', title: 'Mensaje', message: 'Abriendro chat con el paseador...' });
-            },
-        });
-    };
-
-    const handleBook = () => {
-        showAlert({
-            type: 'info',
-            title: 'Reservar Paseo',
-            message: '¿Para cuándo necesitas el servicio de paseo?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Hoy',
-            onButtonPress: () => showAlert({ type: 'info', title: 'Reserva', message: 'Redirigiendo a agenda...' }),
-        });
-    };
-
     return (
+        <>
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.text }]}>Perfil del Paseador</Text>
-                <TouchableOpacity onPress={() => setIsFavorite(!isFavorite)}>
-                    <Heart size={24} color={isFavorite ? '#ef4444' : theme.textMuted} fill={isFavorite ? '#ef4444' : 'none'} />
-                </TouchableOpacity>
-            </View>
+            <ScreenHeader
+                title="Perfil del Paseador"
+                rightElement={
+                    <TouchableOpacity onPress={toggleFavorite}>
+                        <Heart size={24} color={isFavorite ? '#ef4444' : theme.textMuted} fill={isFavorite ? '#ef4444' : 'none'} />
+                    </TouchableOpacity>
+                }
+            />
 
             {/* Profile Header */}
             <View style={styles.profileHeader}>
@@ -245,11 +202,11 @@ export default function WalkerDetailScreen() {
             {/* Action Buttons */}
             <View style={styles.actionContainer}>
                 <TouchableOpacity
-                    style={[styles.contactButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                    style={[styles.contactBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
                     onPress={handleContact}
                 >
                     <MessageCircle size={20} color={theme.primary} />
-                    <Text style={[styles.contactButtonText, { color: theme.primary }]}>Enviar Mensaje</Text>
+                    <Text style={[styles.contactBtnText, { color: theme.primary }]}>Enviar Mensaje</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity
@@ -263,27 +220,89 @@ export default function WalkerDetailScreen() {
 
             <View style={styles.footer} />
         </ScrollView>
+
+        {/* Walk Request Modal */}
+        <Modal visible={walkModalVisible} transparent animationType="slide">
+            <View style={styles.modalOverlay}>
+                <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+                    <Text style={[styles.modalTitle, { color: theme.text }]}>Solicitar Paseo</Text>
+                    
+                    <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Selecciona tu mascota</Text>
+                    {myPets.length === 0 ? (
+                        <Text style={[styles.noPetsText, { color: theme.textMuted }]}>No tienes mascotas registradas</Text>
+                    ) : (
+                        <FlatList
+                            data={myPets}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            keyExtractor={p => p.id}
+                            renderItem={({ item: pet }) => (
+                                <TouchableOpacity
+                                    style={[
+                                        styles.petChip,
+                                        { backgroundColor: theme.surface, borderColor: selectedPetId === pet.id ? theme.primary : theme.border },
+                                        selectedPetId === pet.id && { borderWidth: 2 }
+                                    ]}
+                                    onPress={() => setSelectedPetId(pet.id)}
+                                >
+                                    <Text style={[styles.petChipText, { color: selectedPetId === pet.id ? theme.primary : theme.text }]}>
+                                        {pet.name}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        />
+                    )}
+
+                    <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Duración (minutos)</Text>
+                    <View style={styles.durationRow}>
+                        {[30, 45, 60, 90].map(d => (
+                            <TouchableOpacity
+                                key={d}
+                                style={[
+                                    styles.durationChip,
+                                    { backgroundColor: walkDuration === d ? theme.primary : theme.surface, borderColor: theme.border }
+                                ]}
+                                onPress={() => setWalkDuration(d)}
+                            >
+                                <Text style={{ color: walkDuration === d ? '#fff' : theme.text, fontWeight: '700', fontSize: 14 }}>{d}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Notas (opcional)</Text>
+                    <TextInput
+                        style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                        value={walkNotes}
+                        onChangeText={setWalkNotes}
+                        placeholder="Instrucciones especiales..."
+                        placeholderTextColor={theme.textMuted}
+                        multiline
+                    />
+
+                    <View style={styles.modalActions}>
+                        <TouchableOpacity style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} onPress={() => setWalkModalVisible(false)}>
+                            <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
+                            onPress={handleSubmitWalkRequest}
+                            disabled={isRequestingWalk}
+                        >
+                            {isRequestingWalk ? <ActivityIndicator color="#fff" size="small" /> : (
+                                <Text style={styles.modalSubmitText}>Enviar Solicitud</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 16,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-    },
-    placeholder: {
-        width: 24,
     },
     loadingContainer: {
         flex: 1,
@@ -462,7 +481,7 @@ const styles = StyleSheet.create({
         gap: 12,
         marginBottom: 24,
     },
-    contactButton: {
+    contactBtn: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
@@ -472,7 +491,7 @@ const styles = StyleSheet.create({
         gap: 8,
         borderWidth: 1,
     },
-    contactButtonText: {
+    contactBtnText: {
         fontSize: 15,
         fontWeight: '600',
     },
@@ -493,4 +512,19 @@ const styles = StyleSheet.create({
     footer: {
         height: 20,
     },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '80%' },
+    modalTitle: { fontSize: 22, fontWeight: '900', marginBottom: 20 },
+    modalLabel: { fontSize: 12, fontWeight: '700', marginTop: 16, marginBottom: 8 },
+    petChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, marginRight: 10, borderWidth: 1 },
+    petChipText: { fontSize: 14, fontWeight: '700' },
+    noPetsText: { fontSize: 14, paddingVertical: 8 },
+    durationRow: { flexDirection: 'row', gap: 12 },
+    durationChip: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1 },
+    modalInput: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, height: 80, textAlignVertical: 'top' },
+    modalActions: { flexDirection: 'row', gap: 12, marginTop: 24 },
+    modalCancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
+    modalCancelText: { fontSize: 15, fontWeight: '700' },
+    modalSubmitBtn: { flex: 2, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
+    modalSubmitText: { color: '#fff', fontSize: 15, fontWeight: '800' },
 });

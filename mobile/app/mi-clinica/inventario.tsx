@@ -1,119 +1,57 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Modal, TextInput } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyClinics } from '../../src/services/directorio';
-import { getClinicInventory, addInventoryItem, InventoryCreatePayload } from '../../src/services/inventory';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, Package, AlertTriangle, PlusCircle, Box, Search, X } from 'lucide-react-native';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import KeyboardScreen from '../../src/components/KeyboardScreen';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useInventory } from '@/src/hooks/clinica/useInventory';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import SearchBar from '@/src/components/SearchBar';
+import EmptyState from '@/src/components/EmptyState';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
+import { Package, AlertTriangle, PlusCircle, Box, Search, X } from 'lucide-react-native';
 
 export default function InventarioScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const { user } = useAuth();
-    const insets = useSafeAreaInsets();
-    
-    const [showSearch, setShowSearch] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [loadingAction, setLoadingAction] = useState(false);
-    
-    const [newItem, setNewItem] = useState<InventoryCreatePayload>({
-        name: '', category: '', unit: 'unidad', currentStock: 0, minStock: 0
-    });
+    const { theme } = useTheme();
+    const {
+        showSearch, searchQuery, setSearchQuery, modalVisible, setModalVisible,
+        loadingAction, newItem, setNewItem, isLoading, criticalItems,
+        filteredInventory, toggleSearch, handleSaveItem,
+    } = useInventory();
 
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-    const clinic = clinics[0];
-
-    const { data: inventory = [], isLoading: loadingInventory } = useQuery({
-        queryKey: ['clinic-inventory', clinic?.id],
-        queryFn: () => getClinicInventory(clinic!.id),
-        enabled: !!clinic?.id,
-        refetchInterval: 30000,
-    });
-
-    if (loadingClinics || (loadingInventory && !inventory.length)) {
+    if (isLoading) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando inventario..." />
+            </ScreenContainer>
         );
     }
 
-    const criticalItems = inventory.filter(item => item.isCritical || item.currentStock <= item.minStock);
-    
-    const filteredInventory = inventory.filter(item => 
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-
-    const handleSaveItem = async () => {
-        if (!newItem.name || !newItem.unit) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre y la unidad son obligatorios' });
-            return;
-        }
-        setLoadingAction(true);
-        try {
-            await addInventoryItem(clinic!.id, newItem);
-            setModalVisible(false);
-            setNewItem({ name: '', category: '', unit: 'unidad', currentStock: 0, minStock: 0 });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Producto agregado al inventario' });
-        } catch (error) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo agregar el producto' });
-        } finally {
-            setLoadingAction(false);
-        }
-    };
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Premium Header */}
-            <LinearGradient
-                colors={['#8b5cf6', '#7c3aed', '#6d28d9']}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Inventario Médico</Text>
-                        <Text style={styles.subtitle}>{clinic?.name}</Text>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Inventario Médico"
+                gradient={['#8b5cf6', '#7c3aed', '#6d28d9']}
+                rightElement={
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
-                        onPress={() => setShowSearch(!showSearch)}
+                        onPress={toggleSearch}
                     >
                         {showSearch ? <X size={20} color="#fff" /> : <Search size={20} color="#fff" />}
                     </TouchableOpacity>
+                }
+            />
+
+            {showSearch && (
+                <View style={styles.searchContainer}>
+                    <SearchBar
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholder="Buscar en el inventario..."
+                    />
                 </View>
-                
-                {showSearch && (
-                    <View style={styles.searchContainer}>
-                        <TextInput
-                            style={[styles.searchInput, { backgroundColor: 'rgba(255,255,255,0.1)' }]}
-                            placeholder="Buscar en el inventario..."
-                            placeholderTextColor="rgba(255,255,255,0.5)"
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            autoFocus
-                        />
-                    </View>
-                )}
-            </LinearGradient>
+            )}
 
             <KeyboardScreen>
                 <View style={styles.content}>
@@ -152,12 +90,10 @@ export default function InventarioScreen() {
 
                     {/* Inventory List */}
                     {filteredInventory.length === 0 ? (
-                        <View style={[styles.emptyRecent, { backgroundColor: theme.surface }]}>
-                            <Box size={40} color={theme.textMuted} />
-                            <Text style={{ color: theme.textMuted, fontWeight: '600', marginTop: 12 }}>
-                                {searchQuery ? "No hay resultados para tu búsqueda" : "No hay productos en inventario"}
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon={<Box size={40} color={theme.textMuted} />}
+                            title={searchQuery ? "No hay resultados para tu búsqueda" : "No hay productos en inventario"}
+                        />
                     ) : (
                         filteredInventory.map(item => (
                             <View key={item.id} style={[styles.itemCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -251,42 +187,11 @@ export default function InventarioScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    premiumHeader: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 24,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.1,
-        shadowRadius: 20,
-        elevation: 5,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, height: 44, borderRadius: 14, 
-        justifyContent: 'center', alignItems: 'center' 
-    },
-    headerAction: { 
-        width: 44, height: 44, borderRadius: 14, 
-        justifyContent: 'center', alignItems: 'center' 
-    },
-    headerInfo: { alignItems: 'center' },
-    title: { fontSize: 18, fontWeight: '900', color: '#fff' },
-    subtitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
-    contentScroll: { flex: 1 },
     content: { padding: 24, paddingBottom: 100 },
     sectionTitle: { fontSize: 15, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 16 },
     alertSection: { marginBottom: 32 },
@@ -312,10 +217,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12
     },
     addBtnText: { fontSize: 12, fontWeight: '800' },
-    emptyRecent: {
-        padding: 40, borderRadius: 24, alignItems: 'center',
-        borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.1)'
-    },
     itemCard: {
         flexDirection: 'row', alignItems: 'center',
         padding: 16, borderRadius: 20, borderWidth: 1,
@@ -331,8 +232,7 @@ const styles = StyleSheet.create({
     stockInfo: { alignItems: 'flex-end' },
     stockValue: { fontSize: 20, fontWeight: '900' },
     stockUnit: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase' },
-    searchContainer: { marginTop: 16 },
-    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: 16, color: '#fff', fontWeight: '600' },
+    searchContainer: { marginTop: 16, paddingHorizontal: 24 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '80%' },
     modalTitle: { fontSize: 20, fontWeight: '900', marginBottom: 20 },
@@ -342,5 +242,6 @@ const styles = StyleSheet.create({
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
     cancelBtnText: { fontSize: 15, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' }
+    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
 });

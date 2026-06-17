@@ -1,171 +1,116 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createVaccine, Vaccine } from '../../src/services/carnet';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Save, Syringe, Calendar, Hash, Info, Clock } from 'lucide-react-native';
+import { useVaccineForm } from '@/src/hooks/carnet/useVaccineForm';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Save, Syringe, Calendar, Hash, Info } from 'lucide-react-native';
+import DatePicker from '@/src/components/DatePicker';
 
 export default function NuevaVacunaScreen() {
-    const { pet_id } = useLocalSearchParams();
-    const router = useRouter();
-    const queryClient = useQueryClient();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [name, setName] = useState('');
-    const [batch, setBatch] = useState('');
-    const [nextDue, setNextDue] = useState('');
-    const [notes, setNotes] = useState('');
-
-    const mutation = useMutation({
-        mutationFn: (data: any) => createVaccine(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['pet-vaccines', pet_id] });
-            router.back();
-        },
-        onError: (error: any) => {
-            showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo registrar la vacuna.' });
-        }
-    });
-
-    const handleSave = () => {
-        if (!name.trim()) {
-            showAlert({ type: 'error', title: 'Campo Requerido', message: 'Por favor ingresa el nombre de la vacuna.' });
-            return;
-        }
-
-        mutation.mutate({
-            pet_id: pet_id as string,
-            name: name,
-            batch_number: batch || undefined,
-            next_due_date: nextDue || undefined,
-            notes: notes || undefined
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        name, setName,
+        batch, setBatch,
+        nextDue, setNextDue,
+        notes, setNotes,
+        handleSave,
+        isSaving,
+    } = useVaccineForm();
 
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={[styles.container, { backgroundColor: theme.background }]}
+            style={{ flex: 1 }}
         >
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>Registrar Vacuna</Text>
-                <TouchableOpacity
-                    style={[styles.saveBtn, { backgroundColor: '#0891b2' }]}
-                    onPress={handleSave}
-                    disabled={mutation.isPending}
-                >
-                    {mutation.isPending ? <ActivityIndicator color="#fff" size="small" /> : <Save size={20} color="#fff" />}
-                </TouchableOpacity>
-            </View>
+            <ScreenContainer>
+                <ScreenHeader
+                    title="Registrar Vacuna"
+                    rightElement={
+                        <TouchableOpacity
+                            style={[styles.saveBtn, { backgroundColor: '#0891b2' }]}
+                            onPress={handleSave}
+                            disabled={isSaving}
+                        >
+                            {isSaving ? <ActivityIndicator color="#fff" size="small" /> : <Save size={20} color="#fff" />}
+                        </TouchableOpacity>
+                    }
+                />
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                <View style={styles.section}>
-                    <View style={styles.sectionHeader}>
-                        <Syringe size={18} color="#0891b2" />
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Información de la Vacuna</Text>
-                    </View>
-
-                    <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.label, { color: theme.textMuted }]}>NOMBRE DE LA VACUNA *</Text>
-                        <TextInput
-                            style={[styles.input, { color: theme.text }]}
-                            placeholder="Ej. Quíntuple Canina, Rabia..."
-                            placeholderTextColor={theme.textMuted}
-                            value={name}
-                            onChangeText={setName}
-                        />
-                    </View>
-
-                    <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
-                        <View style={styles.labelRow}>
-                            <Hash size={14} color={theme.textMuted} />
-                            <Text style={[styles.label, { color: theme.textMuted }]}>NÚMERO DE LOTE</Text>
+                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    <View style={styles.section}>
+                        <View style={styles.sectionHeader}>
+                            <Syringe size={18} color="#0891b2" />
+                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Información de la Vacuna</Text>
                         </View>
-                        <TextInput
-                            style={[styles.input, { color: theme.text }]}
-                            placeholder="Ej. BTX-90210"
-                            placeholderTextColor={theme.textMuted}
-                            value={batch}
-                            onChangeText={setBatch}
-                        />
-                    </View>
 
-                    <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
-                        <View style={styles.labelRow}>
-                            <Clock size={14} color={theme.textMuted} />
-                            <Text style={[styles.label, { color: theme.textMuted }]}>PRÓXIMO REFUERZO (YYYY-MM-DD)</Text>
+                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>NOMBRE DE LA VACUNA *</Text>
+                            <TextInput
+                                style={[styles.input, { color: theme.text }]}
+                                placeholder="Ej. Quíntuple Canina, Rabia..."
+                                placeholderTextColor={theme.textMuted}
+                                value={name}
+                                onChangeText={setName}
+                            />
                         </View>
-                        <TextInput
-                            style={[styles.input, { color: theme.text }]}
-                            placeholder="2025-05-20"
-                            placeholderTextColor={theme.textMuted}
-                            value={nextDue}
-                            onChangeText={setNextDue}
-                        />
+
+                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                            <View style={styles.labelRow}>
+                                <Hash size={14} color={theme.textMuted} />
+                                <Text style={[styles.label, { color: theme.textMuted }]}>NÚMERO DE LOTE</Text>
+                            </View>
+                            <TextInput
+                                style={[styles.input, { color: theme.text }]}
+                                placeholder="Ej. BTX-90210"
+                                placeholderTextColor={theme.textMuted}
+                                value={batch}
+                                onChangeText={setBatch}
+                            />
+                        </View>
+
+                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                            <DatePicker
+                                value={nextDue || new Date()}
+                                onChange={setNextDue}
+                                mode="date"
+                                label="PRÓXIMO REFUERZO"
+                                placeholder="Seleccionar fecha"
+                            />
+                        </View>
+
+                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>NOTAS ADICIONALES</Text>
+                            <TextInput
+                                style={[styles.input, { color: theme.text }]}
+                                placeholder="Observaciones de la aplicación..."
+                                placeholderTextColor={theme.textMuted}
+                                value={notes}
+                                onChangeText={setNotes}
+                                multiline
+                            />
+                        </View>
                     </View>
 
-                    <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.label, { color: theme.textMuted }]}>NOTAS ADICIONALES</Text>
-                        <TextInput
-                            style={[styles.input, { color: theme.text }]}
-                            placeholder="Observaciones de la aplicación..."
-                            placeholderTextColor={theme.textMuted}
-                            value={notes}
-                            onChangeText={setNotes}
-                            multiline
-                        />
+                    <View style={[styles.infoBox, { backgroundColor: '#0891b215' }]}>
+                        <Info size={16} color="#0891b2" />
+                        <Text style={[styles.infoText, { color: theme.text }]}>
+                            Como veterinario, asegúrate de verificar la vigencia de la vacuna antes de registrarla. El sistema notificará al dueño sobre su próximo refuerzo.
+                        </Text>
                     </View>
-                </View>
-
-                <View style={[styles.infoBox, { backgroundColor: '#0891b215' }]}>
-                    <Info size={16} color="#0891b2" />
-                    <Text style={[styles.infoText, { color: theme.text }]}>
-                        Como veterinario, asegúrate de verificar la vigencia de la vacuna antes de registrarla. El sistema notificará al dueño sobre su próximo refuerzo.
-                    </Text>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </ScreenContainer>
         </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     saveBtn: {
         width: 44,
         height: 44,
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: '900',
     },
     scrollContent: {
         padding: 24,

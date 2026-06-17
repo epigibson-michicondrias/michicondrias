@@ -1,5 +1,5 @@
 from pydantic import BaseModel, HttpUrl
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class ClinicBase(BaseModel):
@@ -24,6 +24,9 @@ class ClinicUpdate(ClinicBase):
 
 class ClinicResponse(ClinicBase):
     id: str
+    average_rating: Optional[float] = 0.0
+    total_reviews: Optional[int] = 0
+    services: Optional[List[str]] = []
 
     class Config:
         from_attributes = True
@@ -49,6 +52,8 @@ class VeterinarianUpdate(VeterinarianBase):
 class VeterinarianResponse(VeterinarianBase):
     id: str
     user_id: Optional[str] = None
+    average_rating: Optional[float] = 0.0
+    total_reviews: Optional[int] = 0
 
     class Config:
         from_attributes = True
@@ -61,6 +66,21 @@ class ClinicReviewCreate(BaseModel):
 class ClinicReviewResponse(BaseModel):
     id: str
     clinic_id: str
+    user_id: str
+    rating: int
+    comment: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class VetReviewCreate(BaseModel):
+    rating: int  # 1-5
+    comment: Optional[str] = None
+
+class VetReviewResponse(BaseModel):
+    id: str
+    vet_id: str
     user_id: str
     rating: int
     comment: Optional[str] = None

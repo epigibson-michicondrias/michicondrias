@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { apiFetch } from '../../src/lib/api';
@@ -124,13 +126,12 @@ export default function PartnerOnboardingScreen() {
     );
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🚀 Conviértete en Partner</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Desbloquea herramientas profesionales y genera ingresos con Michicondrias
-                </Text>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="🚀 Conviértete en Partner"
+                subtitle="Desbloquea herramientas profesionales y genera ingresos con Michicondrias"
+            />
+            <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
             <View style={styles.rolesContainer}>
                 {roles.map(renderRoleCard)}
@@ -186,6 +187,7 @@ export default function PartnerOnboardingScreen() {
                 </View>
             </View>
         </ScrollView>
+        </ScreenContainer>
     );
 }
 
@@ -193,22 +195,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        textAlign: 'center',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 16,
-        textAlign: 'center',
-        lineHeight: 24,
-    },
+
     rolesContainer: {
         padding: 24,
         gap: 16,

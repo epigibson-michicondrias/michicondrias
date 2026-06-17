@@ -1,28 +1,22 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { adminUsersService, AdminUser } from '@/src/services/adminUsers';
-import { ROLE_IDS } from '@/src/constants/roles';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Plus, UserCheck, Mail, Briefcase, Star, Search } from 'lucide-react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminVets } from '@/src/hooks/admin/useAdminVets';
+import { AdminUser } from '@/src/services/adminUsers';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { UserCheck, Mail, Briefcase, Star, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminVeterinariosScreen() {
-    const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: users = [], isLoading } = useQuery({
-        queryKey: ['admin-vets-users'],
-        queryFn: () => adminUsersService.getUsers(),
-    });
-
-    const vets = users.filter(u => u.role_id === ROLE_IDS.VETERINARIO);
+    const { theme } = useTheme();
+    const {
+        vets,
+        isLoading,
+        handleViewProfile,
+        handleManage,
+        handleSearch,
+    } = useAdminVets();
 
     const renderItem = ({ item }: { item: AdminUser }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -60,13 +54,13 @@ export default function AdminVeterinariosScreen() {
             <View style={styles.actions}>
                 <TouchableOpacity 
                     style={[styles.btn, { backgroundColor: theme.background }]}
-                    onPress={() => showAlert({ type: 'info', title: 'Perfil', message: 'Ver perfil profesional' })}
+                    onPress={handleViewProfile}
                 >
                     <Text style={[styles.btnText, { color: theme.text }]}>Ver Perfil</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={[styles.btn, { backgroundColor: theme.primary }]}
-                    onPress={() => showAlert({ type: 'info', title: 'Editar', message: 'Editar datos profesionales' })}
+                    onPress={handleManage}
                 >
                     <Text style={[styles.btnText, { color: '#fff' }]}>Gestionar</Text>
                 </TouchableOpacity>
@@ -75,34 +69,13 @@ export default function AdminVeterinariosScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Veterinarios</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Directorio Profesional</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => showAlert({ type: 'info', title: 'Buscar', message: 'Buscar veterinarios' })}
-                    >
-                        <Search size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-            </LinearGradient>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Veterinarios"
+                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
+                actionIcon={Search}
+                onAction={handleSearch}
+            />
 
             {isLoading ? (
                 <View style={styles.center}>
@@ -122,66 +95,11 @@ export default function AdminVeterinariosScreen() {
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     list: { 
         padding: 20, 
         paddingBottom: 100,

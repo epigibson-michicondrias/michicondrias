@@ -177,3 +177,61 @@ export async function deleteCategory(id: string): Promise<void> {
         method: "DELETE",
     });
 }
+
+// --- Subcategories ---
+
+export interface Subcategory {
+    id: string;
+    category_id: string;
+    name: string;
+    description: string | null;
+    image_url: string | null;
+}
+
+export async function getSubcategories(categoryId: string): Promise<Subcategory[]> {
+    return apiFetch<Subcategory[]>("ecommerce", `/categories/${categoryId}/subcategories`);
+}
+
+export async function createSubcategory(data: Partial<Subcategory>): Promise<Subcategory> {
+    return apiFetch<Subcategory>("ecommerce", "/subcategories/", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function updateSubcategory(id: string, data: Partial<Subcategory>): Promise<Subcategory> {
+    return apiFetch<Subcategory>("ecommerce", `/subcategories/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteSubcategory(id: string): Promise<void> {
+    return apiFetch<void>("ecommerce", `/subcategories/${id}`, {
+        method: "DELETE",
+    });
+}
+
+// --- Admin Orders ---
+
+export async function getAdminOrders(): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", "/orders/admin/all");
+}
+
+export async function adminUpdateOrderStatus(orderId: string, status: string): Promise<Order> {
+    return apiFetch<Order>("ecommerce", `/orders/admin/${orderId}/status?status=${status}`, {
+        method: "PATCH",
+    });
+}
+
+// --- Product Reviews (create) ---
+
+export async function createProductReview(
+    productId: string,
+    data: ReviewCreate
+): Promise<Review> {
+    return apiFetch<Review>("ecommerce", `/products/${productId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}

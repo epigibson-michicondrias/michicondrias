@@ -1,174 +1,26 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, Modal, TextInput, Image } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getMyClinics, Clinic, getVets, createVet, updateVet, dissociateVeterinarian } from '../../src/services/directorio';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useVeterinarians } from '@/src/hooks/clinica/useVeterinarians';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { ChevronLeft, Plus, Users, Mail, Phone, Star, Edit, Trash2, X, Stethoscope, ShieldCheck, Calendar } from 'lucide-react-native';
-
-// Mock data - en producción esto vendría de la API
-const mockVets = [
-    {
-        id: '1',
-        name: 'Dr. Carlos Rodríguez',
-        email: 'carlos@clinicavet.com',
-        phone: '+52 55 1234 5678',
-        specialty: 'Medicina General',
-        license_number: 'VET-12345',
-        experience_years: 8,
-        rating: 4.8,
-        is_active: true,
-        photo_url: 'https://images.unsplash.com/photo-1559839731-f7b2eff31c3f?q=80&w=400',
-        bio: 'Médico veterinario con 8 años de experiencia en medicina general de pequeños animales.'
-    },
-    {
-        id: '2',
-        name: 'Dra. María González',
-        email: 'maria@clinicavet.com',
-        phone: '+52 55 8765 4321',
-        specialty: 'Cirugía',
-        license_number: 'VET-67890',
-        experience_years: 12,
-        rating: 4.9,
-        is_active: true,
-        photo_url: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=400',
-        bio: 'Cirujana veterinaria especializada en cirugías ortopédicas y de tejidos blandos.'
-    },
-    {
-        id: '3',
-        name: 'Dr. Juan Martínez',
-        email: 'juan@clinicavet.com',
-        phone: '+52 55 2468 1357',
-        specialty: 'Dermatología',
-        license_number: 'VET-24680',
-        experience_years: 5,
-        rating: 4.7,
-        is_active: false,
-        photo_url: 'https://images.unsplash.com/photo-1612278695744-26a0c10531c3?q=80&w=400',
-        bio: 'Especialista en dermatología veterinaria con enfoque en enfermedades de la piel en perros y gatos.'
-    }
-];
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+import { Plus, Users, Mail, Phone, Star, Edit, Trash2, X, Stethoscope, ShieldCheck } from 'lucide-react-native';
 
 export default function VeterinariosClinicaScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [editingVet, setEditingVet] = useState<any>(null);
-    const [loadingAction, setLoadingAction] = useState(false);
-
-    // Form State
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [specialty, setSpecialty] = useState('');
-    const [licenseNumber, setLicenseNumber] = useState('');
-    const [experience, setExperience] = useState('');
-    const [bio, setBio] = useState('');
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-
-    const clinic = clinics[0];
-
-    // Query real de veterinarios
-    const { data: veterinarians = [], isLoading: loadingVets } = useQuery({
-        queryKey: ['clinic-vets', clinic?.id],
-        queryFn: () => clinic ? getVets(clinic.id) : Promise.resolve([]),
-        enabled: !!clinic?.id,
-    });
-
-    const resetForm = () => {
-        setName('');
-        setEmail('');
-        setPhone('');
-        setSpecialty('');
-        setLicenseNumber('');
-        setExperience('');
-        setBio('');
-        setEditingVet(null);
-    };
-
-    const handleEdit = (vet: any) => {
-        setEditingVet(vet);
-        setName(vet.name || `${vet.first_name || ''} ${vet.last_name || ''}`.trim());
-        setEmail(vet.email || '');
-        setPhone(vet.phone || '');
-        setSpecialty(vet.specialty || '');
-        setLicenseNumber(vet.license_number || '');
-        setExperience(vet.experience_years?.toString() || '0');
-        setBio(vet.bio || '');
-        setModalVisible(true);
-    };
-
-    const handleDelete = (vet: any) => {
-        const vetName = vet.name || `${vet.first_name || ''} ${vet.last_name || ''}`.trim();
-        showAlert({
-            type: 'warning',
-            title: 'Desasociar Veterinario',
-            message: `¿Estás seguro de desasociar a ${vetName} de tu clínica?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Desasociar',
-            onButtonPress: async () => {
-                try {
-                    setLoadingAction(true);
-                    await dissociateVeterinarian(clinic.id, vet.id);
-                    showAlert({ type: 'success', title: 'Éxito', message: 'Veterinario desasociado correctamente' });
-                    queryClient.invalidateQueries({ queryKey: ['clinic-vets', clinic.id] });
-                } catch (err: any) {
-                    showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo desasociar' });
-                } finally {
-                    setLoadingAction(false);
-                }
-            }
-        });
-    };
-
-    const handleSave = async () => {
-        if (!name || !email || !specialty) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
-            return;
-        }
-
-        setLoadingAction(true);
-        try {
-            const [firstName, lastName] = name.split(' ');
-            const vetData = {
-                first_name: firstName || name,
-                last_name: lastName || '',
-                email,
-                phone,
-                specialty,
-                license_number: licenseNumber,
-                bio,
-                photo_url: editingVet?.photo_url || null,
-                clinic_id: clinic.id
-            };
-
-            if (editingVet) {
-                await updateVet(editingVet.id, vetData);
-                showAlert({ type: 'success', title: 'Éxito', message: 'Veterinario actualizado correctamente' });
-            } else {
-                await createVet(vetData);
-                showAlert({ type: 'success', title: 'Éxito', message: 'Veterinario agregado correctamente' });
-            }
-            setModalVisible(false);
-            resetForm();
-            queryClient.invalidateQueries({ queryKey: ['clinic-vets', clinic.id] });
-        } catch (error: any) {
-            showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo guardar el veterinario' });
-        } finally {
-            setLoadingAction(false);
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        modalVisible, setModalVisible, editingVet, loadingAction,
+        name, setName, email, setEmail, phone, setPhone,
+        specialty, setSpecialty, licenseNumber, setLicenseNumber,
+        experience, setExperience, bio, setBio,
+        loadingClinics, loadingVets, clinic, veterinarians, activeVetsCount,
+        handleEdit, handleDelete, handleSave, openCreateModal,
+    } = useVeterinarians();
 
     const renderVeterinarioItem = ({ item }: { item: any }) => {
         const vetName = item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim();
@@ -250,46 +102,33 @@ export default function VeterinariosClinicaScreen() {
 
     if (loadingClinics) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando veterinarios..." />
+            </ScreenContainer>
         );
     }
 
     if (!clinic) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Veterinarios</Text>
-                </View>
+            <ScreenContainer>
+                <ScreenHeader title="Veterinarios" />
                 <View style={styles.emptyContainer}>
-                    <Stethoscope size={80} color={theme.textMuted} />
-                    <Text style={[styles.emptyTitle, { color: theme.text }]}>No tienes clínicas registradas</Text>
+                    <EmptyState
+                        icon={<Stethoscope size={80} color={theme.textMuted} />}
+                        title="No tienes clínicas registradas"
+                    />
                 </View>
-            </View>
+            </ScreenContainer>
         );
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.text }]}>Veterinarios</Text>
-                <TouchableOpacity
-                    style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => {
-                        resetForm();
-                        setModalVisible(true);
-                    }}
-                >
-                    <Plus size={20} color="#fff" />
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Veterinarios"
+                actionIcon={Plus}
+                onAction={openCreateModal}
+            />
 
             <View style={styles.content}>
                 <View style={styles.statsContainer}>
@@ -300,15 +139,13 @@ export default function VeterinariosClinicaScreen() {
                     </View>
                     <View style={[styles.statCard, { backgroundColor: theme.surface }]}>
                         <Stethoscope size={24} color="#10b981" />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>
-                            {veterinarians.filter((v: any) => v.is_active).length}
-                        </Text>
+                        <Text style={[styles.statNumber, { color: theme.text }]}>{activeVetsCount}</Text>
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Activos</Text>
                     </View>
                 </View>
 
                 {loadingVets ? (
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <LoadingOverlay message="Cargando veterinarios..." />
                 ) : (
                     <FlatList
                         data={veterinarians}
@@ -317,12 +154,10 @@ export default function VeterinariosClinicaScreen() {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.list}
                         ListEmptyComponent={
-                            <View style={styles.emptyState}>
-                                <Users size={48} color={theme.textMuted} />
-                                <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                    No tienes veterinarios registrados
-                                </Text>
-                            </View>
+                            <EmptyState
+                                icon={<Users size={48} color={theme.textMuted} />}
+                                title="No tienes veterinarios registrados"
+                            />
                         }
                     />
                 )}
@@ -432,16 +267,11 @@ export default function VeterinariosClinicaScreen() {
                     </KeyboardScreen>
                 </View>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    headerTitle: { fontSize: 20, fontWeight: '900', flex: 1 },
-    addBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     content: { flex: 1, paddingHorizontal: 24 },
     statsContainer: { flexDirection: 'row', gap: 16, marginBottom: 24 },
     statCard: { flex: 1, padding: 20, borderRadius: 16, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
@@ -470,16 +300,11 @@ const styles = StyleSheet.create({
     licenseText: { fontSize: 12 },
     actionButtons: { flexDirection: 'row', gap: 8 },
     actionBtn: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 20 },
-    emptyTitle: { fontSize: 18, fontWeight: '700' },
-    emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60, gap: 16 },
-    emptyText: { fontSize: 16, fontWeight: '600' },
     modalContainer: { flex: 1 },
     modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24 },
     modalTitle: { fontSize: 20, fontWeight: '900' },
     saveBtnText: { fontSize: 16, fontWeight: '700' },
-    modalContent: { flex: 1, paddingHorizontal: 24 },
     formGroup: { marginBottom: 24 },
     label: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
     input: { height: 56, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, fontSize: 16, fontWeight: '600' },

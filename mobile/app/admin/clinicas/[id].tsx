@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, TextInput, Switch, Dimensions } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, TextInput, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getClinic, updateClinic } from '@/src/services/directorio';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminClinicDetail } from '@/src/hooks/admin/useAdminClinicDetail';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { 
-    ChevronLeft, 
     MapPin, 
     Phone, 
     Mail, 
@@ -14,92 +13,28 @@ import {
     Clock, 
     ShieldCheck, 
     Info,
-    Calendar,
     Star,
     Save,
     X
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { showAlert } from '@/src/components/AppAlert';
-
-const { width } = Dimensions.get('window');
 
 export default function ClinicDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-
-    const { data: clinic, isLoading, error } = useQuery({
-        queryKey: ['admin-clinic', id],
-        queryFn: () => getClinic(id),
-    });
-
-    const [isEditing, setIsEditing] = useState(false);
-    const [form, setForm] = useState({
-        name: '',
-        address: '',
-        city: '',
-        state: '',
-        phone: '',
-        email: '',
-        website: '',
-        description: '',
-        is_24_hours: false,
-        has_emergency: false,
-    });
-
-    useEffect(() => {
-        if (clinic) {
-            setForm({
-                name: clinic.name || '',
-                address: clinic.address || '',
-                city: clinic.city || '',
-                state: clinic.state || '',
-                phone: clinic.phone || '',
-                email: clinic.email || '',
-                website: clinic.website || '',
-                description: clinic.description || '',
-                is_24_hours: clinic.is_24_hours,
-                has_emergency: clinic.has_emergency,
-            });
-        }
-    }, [clinic]);
-
-    const mutation = useMutation({
-        mutationFn: () => updateClinic(id, {
-            name: form.name,
-            address: form.address || null,
-            city: form.city || null,
-            state: form.state || null,
-            phone: form.phone || null,
-            email: form.email || null,
-            website: form.website || null,
-            description: form.description || null,
-            is_24_hours: form.is_24_hours,
-            has_emergency: form.has_emergency,
-        }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-clinic', id] });
-            queryClient.invalidateQueries({ queryKey: ['admin-clinics'] });
-            setIsEditing(false);
-            showAlert({ type: 'success', title: 'Guardado', message: 'La clínica se actualizó correctamente.' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la clínica.' });
-        },
-    });
-
-    const handleSave = () => {
-        if (!form.name.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre es obligatorio.' });
-            return;
-        }
-        mutation.mutate();
-    };
+    const { theme } = useTheme();
+    const {
+        clinic,
+        isLoading,
+        error,
+        isEditing,
+        form,
+        setForm,
+        isSaving,
+        handleSave,
+        handleCancelEdit,
+        startEditing,
+        handleSuspend,
+    } = useAdminClinicDetail(id);
 
     if (isLoading) {
         return (
@@ -121,19 +56,11 @@ export default function ClinicDetailScreen() {
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Detalles de Clínica</Text>
-                    <View style={{ width: 44 }} />
-                </View>
-            </LinearGradient>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Detalles de Clínica"
+                gradient={[theme.primary, theme.primary + 'CC']}
+            />
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
                 {isEditing ? (
@@ -199,31 +126,17 @@ export default function ClinicDetailScreen() {
                         <View style={styles.editActions}>
                             <TouchableOpacity
                                 style={[styles.btnAction, { backgroundColor: theme.backgroundSecondary, borderWidth: 1, borderColor: theme.border }]}
-                                onPress={() => {
-                                    setIsEditing(false);
-                                    setForm({
-                                        name: clinic.name || '',
-                                        address: clinic.address || '',
-                                        city: clinic.city || '',
-                                        state: clinic.state || '',
-                                        phone: clinic.phone || '',
-                                        email: clinic.email || '',
-                                        website: clinic.website || '',
-                                        description: clinic.description || '',
-                                        is_24_hours: clinic.is_24_hours,
-                                        has_emergency: clinic.has_emergency,
-                                    });
-                                }}
+                                onPress={handleCancelEdit}
                             >
                                 <X size={18} color={theme.textMuted} />
                                 <Text style={[styles.btnActionText, { color: theme.textMuted }]}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.btnAction, { backgroundColor: theme.primary, opacity: mutation.isPending ? 0.6 : 1 }]}
+                                style={[styles.btnAction, { backgroundColor: theme.primary, opacity: isSaving ? 0.6 : 1 }]}
                                 onPress={handleSave}
-                                disabled={mutation.isPending}
+                                disabled={isSaving}
                             >
-                                {mutation.isPending ? (
+                                {isSaving ? (
                                     <ActivityIndicator size="small" color="#fff" />
                                 ) : (
                                     <Save size={18} color="#fff" />
@@ -302,13 +215,13 @@ export default function ClinicDetailScreen() {
                         <View style={styles.actionRow}>
                             <TouchableOpacity 
                                 style={[styles.btnAction, { backgroundColor: theme.primary }]}
-                                onPress={() => setIsEditing(true)}
+                                onPress={startEditing}
                             >
                                 <Text style={styles.btnActionText}>Editar Información</Text>
                             </TouchableOpacity>
                             <TouchableOpacity 
                                 style={[styles.btnAction, { backgroundColor: '#ef4444' }]}
-                                onPress={() => showAlert({ type: 'warning', title: 'Suspender', message: '¿Estás seguro de suspender esta clínica?', showCancel: true, cancelText: 'Cancelar' })}
+                                onPress={handleSuspend}
                             >
                                 <Text style={styles.btnActionText}>Suspender Clínica</Text>
                             </TouchableOpacity>
@@ -316,7 +229,7 @@ export default function ClinicDetailScreen() {
                     </>
                 )}
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -357,32 +270,7 @@ function FormField({ label, value, onChangeText, theme, keyboardType }: {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    header: {
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-    },
-    headerTop: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#fff',
-    },
     infoCard: {
         margin: 20,
         padding: 24,

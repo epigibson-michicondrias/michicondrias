@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyClinics, getClinicAppointments, confirmAppointment, completeAppointment, cancelAppointment, AppointmentItem } from '../../src/services/directorio';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, Filter, CheckCircle2, MoreHorizontal, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAgenda } from '@/src/hooks/clinica';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { AppointmentItem } from '@/src/services/directorio';
+import { CheckCircle2, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
 
 const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
     pending: { label: "Pendiente", emoji: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
@@ -18,64 +18,27 @@ const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; 
 
 export default function AgendaClinicaScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [filter, setFilter] = useState('all');
-    const [showSearch, setShowSearch] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [actionLoading, setActionLoading] = useState<string | null>(null);
-    const [cancelModal, setCancelModal] = useState<{ visible: boolean; apptId: string | null }>({ visible: false, apptId: null });
-    const [cancelReason, setCancelReason] = useState('');
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-
-    const clinic = clinics[0];
-
-    const { data: appointments = [], isLoading: loadingAppts, refetch } = useQuery({
-        queryKey: ['clinic-appointments-full', clinic?.id],
-        queryFn: () => getClinicAppointments(clinic!.id),
-        enabled: !!clinic?.id,
-    });
-
-    const filtered = (filter === 'all' ? appointments : appointments.filter(a => a.status === filter))
-        .filter(a => a.service_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                     a.notes?.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const handleConfirm = async (id: string) => {
-        setActionLoading(id);
-        try {
-            await confirmAppointment(id);
-            refetch();
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo confirmar la cita' });
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleComplete = async (id: string) => {
-        // En un flujo real, aquí redirigiríamos a la creación de la receta/ficha médica
-        router.push(`/mi-clinica/historial/nuevo?appointment_id=${id}` as any);
-    };
-
-    const handleCancelSubmit = async () => {
-        if (!cancelModal.apptId) return;
-        setActionLoading(cancelModal.apptId);
-        try {
-            await cancelAppointment(cancelModal.apptId, cancelReason);
-            setCancelModal({ visible: false, apptId: null });
-            setCancelReason('');
-            refetch();
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo cancelar la cita' });
-        } finally {
-            setActionLoading(null);
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        filtered,
+        loadingAppts,
+        filter,
+        setFilter,
+        showSearch,
+        toggleSearch,
+        searchQuery,
+        setSearchQuery,
+        actionLoading,
+        handleConfirm,
+        handleComplete,
+        handleCancelSubmit,
+        cancelModal,
+        cancelReason,
+        setCancelReason,
+        openCancelModal,
+        closeCancelModal,
+        goToRecord,
+    } = useAgenda();
 
     const renderItem = ({ item }: { item: AppointmentItem }) => {
         const s = STATUS_MAP[item.status] || STATUS_MAP.pending;
@@ -135,7 +98,7 @@ export default function AgendaClinicaScreen() {
                     {['pending', 'confirmed'].includes(item.status) && (
                         <TouchableOpacity
                             style={[styles.actionBtn, { backgroundColor: '#ef444410' }]}
-                            onPress={() => setCancelModal({ visible: true, apptId: item.id })}
+                            onPress={() => openCancelModal(item.id)}
                         >
                             <X size={16} color="#ef4444" />
                             <Text style={[styles.actionText, { color: '#ef4444' }]}>Cancelar</Text>
@@ -145,7 +108,7 @@ export default function AgendaClinicaScreen() {
                     {item.status === 'completed' && (
                         <TouchableOpacity
                             style={[styles.actionBtn, { backgroundColor: 'rgba(255,255,255,0.05)' }]}
-                            onPress={() => router.push(`/mi-clinica/historial/${item.id}` as any)}
+                            onPress={() => goToRecord(item.id)}
                         >
                             <ClipboardList size={16} color={theme.text} />
                             <Text style={[styles.actionText, { color: theme.text }]}>Ver Ficha</Text>
@@ -157,19 +120,16 @@ export default function AgendaClinicaScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Agenda</Text>
-                    <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Control de citas recibidas</Text>
-                </View>
-                <TouchableOpacity style={styles.filterBtn} onPress={() => setShowSearch(!showSearch)}>
-                    {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Agenda"
+                subtitle="Control de citas recibidas"
+                rightElement={
+                    <TouchableOpacity style={styles.filterBtn} onPress={toggleSearch}>
+                        {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
+                    </TouchableOpacity>
+                }
+            />
 
             {showSearch && (
                 <View style={styles.searchContainer}>
@@ -239,7 +199,7 @@ export default function AgendaClinicaScreen() {
                 visible={cancelModal.visible}
                 transparent={true}
                 animationType="fade"
-                onRequestClose={() => setCancelModal({ visible: false, apptId: null })}
+                onRequestClose={closeCancelModal}
             >
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
@@ -263,7 +223,7 @@ export default function AgendaClinicaScreen() {
                         <View style={styles.modalActions}>
                             <TouchableOpacity
                                 style={[styles.modalBtn, { backgroundColor: theme.background }]}
-                                onPress={() => setCancelModal({ visible: false, apptId: null })}
+                                onPress={closeCancelModal}
                             >
                                 <Text style={[styles.modalBtnText, { color: theme.text }]}>Mantener</Text>
                             </TouchableOpacity>
@@ -277,17 +237,11 @@ export default function AgendaClinicaScreen() {
                     </View>
                 </KeyboardAvoidingView>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 20, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 22, fontWeight: '900' },
-    headerSubtitle: { fontSize: 13, fontWeight: '600', marginTop: 2 },
     filterBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
     tabsRow: { marginBottom: 10 },
     tabsScroll: { paddingHorizontal: 20, gap: 8 },

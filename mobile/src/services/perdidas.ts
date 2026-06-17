@@ -75,3 +75,15 @@ export async function updateReport(reportId: string, reportData: Partial<LostPet
         body: JSON.stringify(reportData)
     });
 }
+
+// --- Report Matching & Broadcasting ---
+
+export async function getReportMatches(reportId: string): Promise<any[]> {
+    return apiFetch<any[]>("perdidas", `/reports/${reportId}/matches`);
+}
+
+export async function broadcastReport(reportId: string): Promise<{ success: boolean }> {
+    return apiFetch<{ success: boolean }>("perdidas", `/reports/${reportId}/broadcast`, {
+        method: "POST",
+    });
+}

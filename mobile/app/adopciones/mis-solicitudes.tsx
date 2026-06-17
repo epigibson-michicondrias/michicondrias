@@ -1,38 +1,35 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator, Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyRequests, AdoptionRequest } from '../../src/services/adopciones';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Info, Clock, CheckCircle2, XCircle, Search, MessageSquare, PartyPopper, ChevronRight, Check } from 'lucide-react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { Info, Clock, CheckCircle2, XCircle, Search, MessageSquare, PartyPopper, ChevronRight, Check } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import { useMyApplications } from '@/src/hooks/adopciones/useMyApplications';
+import type { AdoptionRequest } from '@/src/types/adopciones';
 
 const { width } = Dimensions.get('window');
 
-const STEPS = [
-    { key: "PENDING", label: "Enviada", icon: Clock },
-    { key: "REVIEWING", label: "Revisión", icon: Search },
-    { key: "INTERVIEW_SCHEDULED", label: "Entrevista", icon: MessageSquare },
-    { key: "APPROVED", label: "Aprobada", icon: CheckCircle2 },
-    { key: "ADOPTED", label: "Finalizada", icon: PartyPopper },
-];
+const STEP_ICONS = {
+    PENDING: Clock,
+    REVIEWING: Search,
+    INTERVIEW_SCHEDULED: MessageSquare,
+    APPROVED: CheckCircle2,
+    ADOPTED: PartyPopper,
+} as const;
 
 export default function MisSolicitudesScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: requests = [], isLoading: loading, refetch } = useQuery({
-        queryKey: ["my-requests"],
-        queryFn: getMyRequests,
-        refetchInterval: 30000,
-    });
-
-    const getProgressIndex = (status: string) => {
-        if (status === "REJECTED") return -1;
-        const index = STEPS.findIndex(s => s.key === status);
-        return index !== -1 ? index : 0;
-    };
+    const { theme } = useTheme();
+    const {
+        requests,
+        isLoading,
+        isRefetching,
+        refetch,
+        getProgressIndex,
+        goToExplore,
+        goToMyPets,
+        STEPS,
+    } = useMyApplications();
 
     const renderItem = ({ item }: { item: AdoptionRequest }) => {
         const currentIdx = getProgressIndex(item.status);
@@ -69,7 +66,7 @@ export default function MisSolicitudesScreen() {
                         {item.status === "ADOPTED" && (
                             <TouchableOpacity
                                 style={[styles.adoptedBanner, { backgroundColor: '#10b98115' }]}
-                                onPress={() => router.push('/mascotas')}
+                                onPress={goToMyPets}
                             >
                                 <PartyPopper size={20} color="#10b981" />
                                 <View style={{ flex: 1 }}>
@@ -99,7 +96,7 @@ export default function MisSolicitudesScreen() {
                                 {STEPS.map((step, idx) => {
                                     const isCompleted = idx < currentIdx;
                                     const isActive = idx === currentIdx;
-                                    const Icon = step.icon;
+                                    const Icon = STEP_ICONS[step.key as keyof typeof STEP_ICONS] || Clock;
 
                                     return (
                                         <View key={step.key} style={styles.stepItem}>
@@ -138,68 +135,55 @@ export default function MisSolicitudesScreen() {
         );
     };
 
+    const ListHeader = (
+        <View style={[styles.infoCard, { backgroundColor: theme.primary + '10' }]}>
+            <Info size={20} color={theme.primary} />
+            <Text style={[styles.infoText, { color: theme.text }]}>
+                El equipo de rescate valida periódicamente el estatus de cada trámite. Recibirás una notificación ante cualquier cambio.
+            </Text>
+        </View>
+    );
+
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <View style={styles.titleBox}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Mis Solicitudes</Text>
-                    <View style={styles.liveIndicator}>
-                        <View style={styles.liveDot} />
-                        <Text style={styles.liveText}>En Vivo</Text>
-                    </View>
-                </View>
-                <TouchableOpacity style={styles.refreshBtn} onPress={() => refetch()}>
-                    <Clock size={20} color={theme.textMuted} />
-                </TouchableOpacity>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Mis Solicitudes"
+                rightElement={
+                    <TouchableOpacity style={styles.refreshBtn} onPress={() => refetch()}>
+                        <Clock size={20} color={theme.textMuted} />
+                    </TouchableOpacity>
+                }
+                subtitle=""
+                leftElement={undefined}
+            />
+
+            {/* Live indicator below header */}
+            <View style={styles.liveIndicatorRow}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveText}>En Vivo</Text>
             </View>
 
-            {loading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Consultando estatus en tiempo real...</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={requests}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderItem}
-                    contentContainerStyle={styles.list}
-                    ListHeaderComponent={
-                        <View style={[styles.infoCard, { backgroundColor: theme.primary + '10' }]}>
-                            <Info size={20} color={theme.primary} />
-                            <Text style={[styles.infoText, { color: theme.text }]}>
-                                El equipo de rescate valida periódicamente el estatus de cada trámite. Recibirás una notificación ante cualquier cambio.
-                            </Text>
-                        </View>
-                    }
-                    ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <CheckCircle2 size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>Aún no has solicitado ninguna adopción</Text>
-                            <TouchableOpacity
-                                style={[styles.browseBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => router.push('/adopciones')}
-                            >
-                                <Text style={styles.browseBtnText}>Explorar Mascotas</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
-                />
-            )}
-        </View>
+            <DataList
+                data={requests}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                isLoading={isLoading}
+                loadingMessage="Consultando estatus en tiempo real..."
+                onRefresh={refetch}
+                isRefreshing={isRefetching}
+                contentStyle={styles.list}
+                header={ListHeader}
+                emptyIcon={<CheckCircle2 size={48} color={theme.textMuted} strokeWidth={1} />}
+                emptyTitle="Aún no has solicitado ninguna adopción"
+                emptyActionLabel="Explorar Mascotas"
+                onEmptyAction={goToExplore}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 20, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 20, fontWeight: '900' },
-    liveIndicator: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 },
+    liveIndicatorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 80, marginTop: -10, marginBottom: 10 },
     liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981' },
     liveText: { fontSize: 10, fontWeight: '800', color: '#10b981', textTransform: 'uppercase' },
     refreshBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
@@ -227,10 +211,4 @@ const styles = StyleSheet.create({
     stepItem: { alignItems: 'center', width: (width - 80) / 5 },
     stepIconBox: { width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
     stepLabel: { fontSize: 9, fontWeight: '700', marginTop: 8 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-    loadingText: { marginTop: 16, fontSize: 15, fontWeight: '600' },
-    empty: { paddingTop: 100, alignItems: 'center', gap: 20 },
-    emptyText: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
-    browseBtn: { paddingHorizontal: 24, paddingVertical: 14, borderRadius: 16 },
-    browseBtnText: { color: '#fff', fontWeight: '800' }
 });

@@ -1,43 +1,25 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { searchVenues, Venue } from '../../src/services/venues';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Building2, MapPin, Star, Tag, ChevronRight, Search } from 'lucide-react-native';
+import { Venue } from '../../src/services/venues';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useVenues } from '@/src/hooks/venues';
+import { Building2, MapPin, Tag, ChevronRight } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import SearchBar from '@/src/components/SearchBar';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
 
 export default function EstablecimientosScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
-
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: venues = [], isLoading } = useQuery<Venue[]>({
-        queryKey: ['venues'],
-        queryFn: () => searchVenues(),
-    });
-
-    const filteredVenues = venues.filter(venue =>
-        venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        venue.address.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const { theme } = useTheme();
+    const {
+        venues: filteredVenues,
+        isLoading,
+        searchQuery,
+        setSearchQuery,
+    } = useVenues();
 
     const renderVenueItem = ({ item }: { item: Venue }) => (
         <TouchableOpacity
@@ -91,30 +73,22 @@ export default function EstablecimientosScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🏢 Establecimientos</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Encuentra los mejores lugares para tu mascota
-                </Text>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="🏢 Establecimientos"
+                subtitle="Encuentra los mejores lugares para tu mascota"
+            />
 
-            <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Search size={20} color={theme.textMuted} />
-                <TextInput
-                    placeholder="🔍 Buscar por nombre o dirección..."
-                    placeholderTextColor={theme.textMuted}
-                    style={[styles.searchInput, { color: theme.text }]}
+            <View style={{ marginHorizontal: 24, marginBottom: 20 }}>
+                <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    placeholder="Buscar por nombre o dirección..."
                 />
             </View>
 
             {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando establecimientos...</Text>
-                </View>
+                <LoadingOverlay message="Cargando establecimientos..." />
             ) : (
                 <FlatList
                     data={filteredVenues}
@@ -123,51 +97,18 @@ export default function EstablecimientosScreen() {
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Building2 size={48} color={theme.textMuted} style={{ opacity: 0.5 }} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                {searchQuery ? 'No encontramos establecimientos con esos criterios.' : 'No hay establecimientos disponibles.'}
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon={<Building2 size={32} color={theme.textMuted} />}
+                            title={searchQuery ? 'No encontramos establecimientos con esos criterios.' : 'No hay establecimientos disponibles.'}
+                        />
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 24,
-        marginBottom: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 12,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
-    },
     list: {
         paddingHorizontal: 24,
         paddingBottom: 100,
@@ -247,25 +188,5 @@ const styles = StyleSheet.create({
     discountDesc: {
         fontSize: 12,
         flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-        gap: 16,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

@@ -1,25 +1,18 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, ActivityIndicator, Image, Dimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, Image, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import * as ModeracionService from '@/src/services/moderacion';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminModeration, TabType } from '@/src/hooks/admin/useAdminModeration';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
 import {
     Heart,
-    Bone,
-    Grid,
-    Search as SearchIcon,
-    ChevronLeft,
     CheckCircle2,
-    AlertTriangle,
-    Info,
     MapPin,
     Hospital,
     XCircle,
-    Package,
-    Clock,
     ClipboardList,
     PawPrint,
     AlertCircle,
@@ -27,98 +20,26 @@ import {
     UserCircle,
     FileText
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { showAlert } from '@/src/components/AppAlert';
 
 const { width } = Dimensions.get('window');
 
-type TabType = 'adopciones' | 'solicitudes' | 'perdidas' | 'directorio' | 'ecommerce';
-
 export default function AdminModerationScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    const queryClient = useQueryClient();
-    const [activeTab, setActiveTab] = useState<TabType>('adopciones');
-
-    // Queries
-    const { data: pendingAdoptions = [], isLoading: loadingAdoptions } = useQuery({
-        queryKey: ['pending-adoptions'],
-        queryFn: ModeracionService.getPendingAdoptions,
-    });
-
-    const { data: pendingProducts = [], isLoading: loadingProducts } = useQuery({
-        queryKey: ['pending-products'],
-        queryFn: ModeracionService.getPendingProducts,
-    });
-
-    const { data: pendingLostPets = [], isLoading: loadingLostPets } = useQuery({
-        queryKey: ['pending-lost-pets'],
-        queryFn: ModeracionService.getPendingLostPets,
-    });
-
-    const { data: pendingRequests = [], isLoading: loadingRequests } = useQuery({
-        queryKey: ['pending-requests'],
-        queryFn: ModeracionService.getGlobalPendingRequests,
-    });
-
-    const { data: pendingClinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['pending-clinics'],
-        queryFn: ModeracionService.getPendingClinics,
-    });
-
-    const { data: pendingVets = [], isLoading: loadingVets } = useQuery({
-        queryKey: ['pending-vets'],
-        queryFn: ModeracionService.getPendingVeterinarians,
-    });
-
-    const isLoading = loadingAdoptions || loadingProducts || loadingLostPets || loadingClinics || loadingVets || loadingRequests;
-
-    // Mutations
-    const handleAction = async (action: 'approve' | 'reject', type: TabType | 'solicitudes', id: string, name: string) => {
-        showAlert({
-            type: action === 'approve' ? 'success' : 'error',
-            title: action === 'approve' ? 'Aprobar Contenido' : 'Rechazar Contenido',
-            message: `¿Estás seguro de ${action === 'approve' ? 'APROBAR' : 'RECHAZAR'} a: ${name}?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: action === 'approve' ? 'Aprobar' : 'Rechazar',
-            onButtonPress: async () => {
-                try {
-                    if (type === 'adopciones') {
-                        action === 'approve' ? await ModeracionService.approveAdoption(id) : await ModeracionService.rejectAdoption(id);
-                        queryClient.invalidateQueries({ queryKey: ['pending-adoptions'] });
-                    } else if (type === 'ecommerce') {
-                        action === 'approve' ? await ModeracionService.approveProduct(id) : await ModeracionService.rejectProduct(id);
-                        queryClient.invalidateQueries({ queryKey: ['pending-products'] });
-                    } else if (type === 'perdidas') {
-                        action === 'approve' ? await ModeracionService.approveLostPet(id) : await ModeracionService.rejectLostPet(id);
-                        queryClient.invalidateQueries({ queryKey: ['pending-lost-pets'] });
-                    } else if (type === 'directorio') {
-                        action === 'approve' ? await ModeracionService.approveClinic(id) : await ModeracionService.rejectClinic(id);
-                        queryClient.invalidateQueries({ queryKey: ['pending-clinics'] });
-                        queryClient.invalidateQueries({ queryKey: ['pending-vets'] });
-                    } else if (type === 'solicitudes') {
-                        action === 'approve' ? await ModeracionService.approveAdoptionRequest(id) : await ModeracionService.rejectAdoptionRequest(id);
-                        queryClient.invalidateQueries({ queryKey: ['pending-requests'] });
-                    }
-                    showAlert({ type: 'success', title: 'Éxito', message: 'Contenido procesado correctamente.' });
-                } catch (e) {
-                    showAlert({ type: 'error', title: 'Error', message: 'No se pudo completar la acción.' });
-                }
-            }
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        activeTab,
+        setActiveTab,
+        isLoading,
+        handleAction,
+        getDataForTab,
+    } = useAdminModeration();
 
     const renderEmpty = () => (
-        <View style={styles.emptyContainer}>
-            <View style={[styles.emptyIconBox, { backgroundColor: theme.surface }]}>
-                <CheckCircle2 size={48} color={theme.primary} strokeWidth={1} />
-            </View>
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>¡Todo en orden!</Text>
-            <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>No hay elementos pendientes de moderación en esta categoría.</Text>
-        </View>
+        <EmptyState
+            icon={<CheckCircle2 size={48} color={theme.primary} strokeWidth={1} />}
+            title="¡Todo en orden!"
+            subtitle="No hay elementos pendientes de moderación en esta categoría."
+        />
     );
 
     const renderAdoptionItem = ({ item }: { item: any }) => (
@@ -308,39 +229,29 @@ export default function AdminModerationScreen() {
     const renderContent = () => {
         if (isLoading) {
             return (
-                <View style={styles.loadingBox}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Obteniendo reportes pendientes...</Text>
-                </View>
+                <LoadingOverlay message="Obteniendo reportes pendientes..." />
             );
         }
 
-        let data: any[] = [];
+        const data = getDataForTab();
         let renderFn = (item: any) => <View />;
 
         switch (activeTab) {
             case 'adopciones':
-                data = (pendingAdoptions as any[]) || [];
                 renderFn = (item) => renderAdoptionItem({ item });
                 break;
             case 'solicitudes':
-                data = (pendingRequests as any[]) || [];
                 renderFn = (item) => renderRequestItem({ item });
                 break;
             case 'ecommerce':
-                data = (pendingProducts as any[]) || [];
                 renderFn = (item) => renderProductItem({ item });
                 break;
             case 'directorio':
-                data = [...((pendingClinics as any[]) || []), ...((pendingVets as any[]) || [])];
                 renderFn = (item) => renderClinicItem({ item });
                 break;
             case 'perdidas':
-                data = (pendingLostPets as any[]) || [];
                 renderFn = (item) => renderLostPetItem({ item });
                 break;
-            default:
-                data = [];
         }
 
         return (
@@ -356,31 +267,16 @@ export default function AdminModerationScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Moderación</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Panel de Control</Text>
-                        </View>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Moderación"
+                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
+                rightElement={
                     <View style={styles.headerAction}>
                         <ClipboardList size={22} color="#fff" style={{ opacity: 0.8 }} />
                     </View>
-                </View>
-            </LinearGradient>
+                }
+            />
 
             {/* Tabs */}
             <View style={styles.tabsContainer}>
@@ -422,64 +318,16 @@ export default function AdminModerationScreen() {
             <View style={styles.content}>
                 {renderContent()}
             </View>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
     headerAction: {
         width: 44,
         height: 44,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
     },
     tabsContainer: { 
         marginTop: -12, 
@@ -509,46 +357,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20, 
         paddingBottom: 40, 
         paddingTop: 8 
-    },
-    loadingBox: { 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        marginTop: 100, 
-        gap: 16 
-    },
-    loadingText: { 
-        fontSize: 14, 
-        fontWeight: '700' 
-    },
-    emptyContainer: { 
-        alignItems: 'center', 
-        marginTop: 60, 
-        paddingHorizontal: 40 
-    },
-    emptyIconBox: { 
-        width: 80, 
-        height: 80, 
-        borderRadius: 30, 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        marginBottom: 20,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-    },
-    emptyTitle: { 
-        fontSize: 20, 
-        fontWeight: '900', 
-        marginBottom: 8 
-    },
-    emptySubtitle: { 
-        fontSize: 14, 
-        fontWeight: '600', 
-        textAlign: 'center', 
-        lineHeight: 22 
     },
     card: { 
         borderRadius: 24, 

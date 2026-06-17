@@ -3,16 +3,15 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, Activi
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { createDonation } from '../src/services/ecommerce';
-import Colors from '../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Heart, DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { Heart, DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
+import BackButton from '../src/components/BackButton';
 
 const AMOUNTS = [50, 100, 200, 500];
 
 export default function DonacionesScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme, isDark } = useTheme();
 
     const [amount, setAmount] = useState<string>('100');
     const [message, setMessage] = useState('');
@@ -51,9 +50,9 @@ export default function DonacionesScreen() {
         >
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={[styles.hero, { backgroundColor: theme.primary + '15' }]}>
-                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.borderLight }]} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
+                    <View style={styles.heroHeader}>
+                        <BackButton onPress={() => router.back()} style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }} />
+                    </View>
 
                     <View style={styles.heroContent}>
                         <View style={[styles.heartIcon, { backgroundColor: theme.primary }]}>
@@ -153,14 +152,9 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
     },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 20,
-        marginBottom: 20,
+    heroHeader: {
+        paddingHorizontal: 24,
+        marginBottom: 8,
     },
     heroContent: {
         alignItems: 'center',

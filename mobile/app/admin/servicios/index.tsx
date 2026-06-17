@@ -1,16 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList, Dimensions, TextInput, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, Briefcase, Plus, Search, MoreVertical, Settings2, Activity, ShieldCheck } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminServices } from '@/src/hooks/admin/useAdminServices';
+import { ClinicServiceItem } from '@/src/services/directorio';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import SearchBar from '@/src/components/SearchBar';
+import { Briefcase, Plus, MoreVertical } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { getAllServices, ClinicServiceItem } from '@/src/services/directorio';
-
-const { width } = Dimensions.get('window');
 
 const CATEGORY_COLORS: Record<string, string> = {
     Médico: '#3b82f6',
@@ -22,15 +20,15 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function AdminServiciosScreen() {
-    const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: servicios = [], isLoading } = useQuery({
-        queryKey: ['admin-services'],
-        queryFn: getAllServices,
-    });
+    const { theme } = useTheme();
+    const {
+        servicios,
+        isLoading,
+        searchText,
+        setSearchText,
+        activeCount,
+        categoryCount,
+    } = useAdminServices();
 
     const renderServiceCard = ({ item }: { item: ClinicServiceItem }) => {
         const color = CATEGORY_COLORS[item.category || ''] || '#6b7280';
@@ -55,62 +53,48 @@ export default function AdminServiciosScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color="#14b8a6" />
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando servicios..." />
+            </ScreenContainer>
         );
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={['#14b8a6', '#14b8a6E6', '#14b8a6CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Servicios</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Gestión Operativa</Text>
-                        </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Servicios"
+                gradient={['#14b8a6', '#14b8a6E6', '#14b8a6CC']}
+                actionIcon={Plus}
+                onAction={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
+                rightElement={
+                    <View style={styles.headerRight}>
+                        <TouchableOpacity 
+                            style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+                            onPress={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
+                        >
+                            <Plus size={22} color="#fff" />
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
-                    >
-                        <Plus size={22} color="#fff" />
-                    </TouchableOpacity>
+                }
+            />
+            <View style={styles.headerStats}>
+                <View style={styles.statMini}>
+                    <Text style={styles.statVal}>{activeCount}</Text>
+                    <Text style={styles.statLab}>Activos</Text>
                 </View>
-                <View style={styles.headerStats}>
-                    <View style={styles.statMini}>
-                        <Text style={styles.statVal}>{servicios.filter(s => s.is_active).length}</Text>
-                        <Text style={styles.statLab}>Activos</Text>
-                    </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statMini}>
-                        <Text style={styles.statVal}>{new Set(servicios.map(s => s.category).filter(Boolean)).size}</Text>
-                        <Text style={styles.statLab}>Categorías</Text>
-                    </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statMini}>
+                    <Text style={styles.statVal}>{categoryCount}</Text>
+                    <Text style={styles.statLab}>Categorías</Text>
                 </View>
-            </LinearGradient>
+            </View>
 
             <View style={styles.searchBarContainer}>
-                <View style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <Search size={20} color={theme.textMuted} />
-                    <TextInput 
-                        placeholder="Buscar servicios..." 
-                        placeholderTextColor={theme.textMuted}
-                        style={[styles.searchInput, { color: theme.text }]}
-                    />
-                </View>
+                <SearchBar
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    placeholder="Buscar servicios..."
+                />
             </View>
 
             <FlatList
@@ -120,35 +104,14 @@ export default function AdminServiciosScreen() {
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
             />
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
+    headerRight: {
+        flexDirection: 'row',
         alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
     },
     headerAction: {
         width: 44,
@@ -157,34 +120,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     headerStats: { 
         flexDirection: 'row', 
         alignItems: 'center',
         gap: 20, 
-        marginTop: 28 
+        marginTop: -12,
+        paddingHorizontal: 24,
+        paddingBottom: 12,
     },
     statMini: { alignItems: 'center' },
     statVal: { 
@@ -208,25 +150,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20, 
         marginTop: -16,
         zIndex: 20,
-    },
-    searchBar: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        paddingHorizontal: 16, 
-        height: 54,
-        borderRadius: 18, 
-        borderWidth: 1.5, 
-        gap: 12, 
-        elevation: 4, 
-        shadowColor: '#000', 
-        shadowOffset: { width: 0, height: 4 }, 
-        shadowOpacity: 0.1, 
-        shadowRadius: 10 
-    },
-    searchInput: { 
-        flex: 1, 
-        fontSize: 15, 
-        fontWeight: '700' 
     },
     list: { 
         padding: 20, 

@@ -1,15 +1,17 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Trash2, Plus, Minus, ShoppingBag, ShieldCheck } from 'lucide-react-native';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { Trash2, Plus, Minus, ShoppingBag, ShieldCheck } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '../../src/contexts/CartContext';
+import { formatCurrency } from '@/src/utils/formatters';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
 
 export default function CarritoScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme } = useTheme();
     const { items, cartTotal, removeFromCart, updateQuantity, checkout, isCheckingOut } = useCart();
 
     const renderItem = ({ item }: { item: any }) => (
@@ -23,7 +25,7 @@ export default function CarritoScreen() {
                     {item.product.name}
                 </Text>
                 <Text style={[styles.itemPrice, { color: theme.primary }]}>
-                    ${item.product.price.toFixed(2)}
+                    {formatCurrency(item.product.price)}
                 </Text>
                 
                 <View style={styles.quantityControls}>
@@ -54,43 +56,33 @@ export default function CarritoScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>Mi Bolsa</Text>
-                <View style={{ width: 44 }} />
-            </View>
+        <ScreenContainer>
+            <ScreenHeader title="Mi Bolsa" />
 
             {items.length === 0 ? (
-                <View style={styles.emptyContainer}>
-                    <ShoppingBag size={80} color={theme.textMuted} strokeWidth={1} />
-                    <Text style={[styles.emptyTitle, { color: theme.text }]}>Tu bolsa está vacía</Text>
-                    <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                        Explora el Michi-Shop y agrega productos para tu mejor amigo.
-                    </Text>
-                    <TouchableOpacity 
-                        style={[styles.exploreBtn, { backgroundColor: theme.primary }]}
-                        onPress={() => router.replace('/tienda')}
-                    >
-                        <Text style={styles.exploreBtnText}>Explorar Tienda</Text>
-                    </TouchableOpacity>
-                </View>
+                <DataList
+                    data={[]}
+                    renderItem={() => null}
+                    emptyIcon={<ShoppingBag size={40} color={theme.textMuted} strokeWidth={1} />}
+                    emptyTitle="Tu bolsa está vacía"
+                    emptySubtitle="Explora el Michi-Shop y agrega productos para tu mejor amigo."
+                    emptyActionLabel="Explorar Tienda"
+                    onEmptyAction={() => router.replace('/tienda')}
+                    keyExtractor={() => 'empty'}
+                />
             ) : (
                 <>
-                    <FlatList
+                    <DataList
                         data={items}
                         keyExtractor={(item) => item.product.id}
                         renderItem={renderItem}
-                        contentContainerStyle={styles.list}
-                        showsVerticalScrollIndicator={false}
+                        contentStyle={styles.list}
                     />
 
                     <View style={[styles.footer, { backgroundColor: theme.surface }]}>
                         <View style={styles.summaryRow}>
                             <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Subtotal</Text>
-                            <Text style={[styles.summaryValue, { color: theme.text }]}>${cartTotal.toFixed(2)}</Text>
+                            <Text style={[styles.summaryValue, { color: theme.text }]}>{formatCurrency(cartTotal)}</Text>
                         </View>
                         <View style={styles.summaryRow}>
                             <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Envío</Text>
@@ -99,7 +91,7 @@ export default function CarritoScreen() {
                         <View style={[styles.divider, { backgroundColor: theme.border }]} />
                         <View style={styles.summaryRow}>
                             <Text style={[styles.totalLabel, { color: theme.text }]}>Total</Text>
-                            <Text style={[styles.totalValue, { color: theme.primary }]}>${cartTotal.toFixed(2)}</Text>
+                            <Text style={[styles.totalValue, { color: theme.primary }]}>{formatCurrency(cartTotal)}</Text>
                         </View>
 
                         <View style={styles.secureBadge}>
@@ -125,34 +117,11 @@ export default function CarritoScreen() {
                     </View>
                 </>
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    title: {
-        flex: 1,
-        fontSize: 20,
-        fontWeight: '900',
-        textAlign: 'center',
-    },
     list: {
         paddingHorizontal: 20,
         paddingBottom: 20,
@@ -258,32 +227,4 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '800',
     },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 40,
-        gap: 16,
-    },
-    emptyTitle: {
-        fontSize: 22,
-        fontWeight: '900',
-        marginTop: 16,
-    },
-    emptyText: {
-        fontSize: 15,
-        textAlign: 'center',
-        lineHeight: 22,
-    },
-    exploreBtn: {
-        marginTop: 24,
-        paddingHorizontal: 32,
-        paddingVertical: 16,
-        borderRadius: 16,
-    },
-    exploreBtnText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '800',
-    }
 });

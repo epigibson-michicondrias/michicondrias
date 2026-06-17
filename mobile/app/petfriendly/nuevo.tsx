@@ -5,9 +5,10 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
 import { useRouter } from 'expo-router';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Camera, MapPin, Check, Plus, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed, Info } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { Camera, MapPin, Check, Plus, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed, Info } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
+import { showAlert } from '@/src/components/AppAlert';
 import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petfriendly';
 import { useAuth } from '../../src/contexts/AuthContext';
 
@@ -25,8 +26,7 @@ const SIZES = ['Pequeño', 'Mediano', 'Grande', 'Todos'];
 export default function NuevoLugarScreen() {
     const { user } = useAuth();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme, isDark } = useTheme();
 
     const [loading, setLoading] = useState(false);
     const [image, setImage] = useState<string | null>(null);
@@ -116,9 +116,7 @@ export default function NuevoLugarScreen() {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             <View style={[styles.container, { backgroundColor: theme.background }]}>
                 <View style={styles.header}>
-                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
+                    <BackButton onPress={() => router.back()} />
                     <Text style={[styles.title, { color: theme.text }]}>Registrar Lugar Pet Friendly</Text>
                     <View style={{ width: 44 }} />
                 </View>
@@ -271,13 +269,6 @@ const styles = StyleSheet.create({
         paddingTop: 60,
         paddingHorizontal: 20,
         paddingBottom: 20,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     title: {
         fontSize: 18,

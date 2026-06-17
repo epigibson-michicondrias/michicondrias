@@ -20,6 +20,9 @@ def read_veterinarians(
     Retrieve veterinarians. (Public endpoint)
     """
     vets = crud.crud_clinic.get_veterinarians(db, skip=skip, limit=limit, clinic_id=clinic_id)
+    for vet in vets:
+        vet.average_rating = crud.crud_clinic.get_vet_average_rating(db, vet.id)
+        vet.total_reviews = len(crud.crud_clinic.get_vet_reviews(db, vet.id))
     return vets
 
 @router.post("/", response_model=VeterinarianResponse)

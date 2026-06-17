@@ -44,7 +44,8 @@ def create_appointment(
     # Enrich response
     svc = crud_services.get_service(db, appt.service_id)
     clinic = get_clinic(db, appt.clinic_id)
-    return _serialize_appointment(appt, svc, clinic)
+    pet_name = _get_pet_name(db, appt.pet_id)
+    return _serialize_appointment(appt, svc, clinic, pet_name)
 
 
 from app.models.clinic import Clinic
@@ -61,20 +62,23 @@ def read_my_appointments(
         return []
 
     # Bulk fetch related data to avoid N+1 queries
-    service_ids = list({a.service_id for a in appointments})
-    clinic_ids = list({a.clinic_id for a in appointments})
+    service_ids = list({a.service_id for a in appointments if a.service_id})
+    clinic_ids = list({a.clinic_id for a in appointments if a.clinic_id})
+    pet_ids = list({a.pet_id for a in appointments if a.pet_id})
     
     services = db.query(ClinicService).filter(ClinicService.id.in_(service_ids)).all() if service_ids else []
     clinics = db.query(Clinic).filter(Clinic.id.in_(clinic_ids)).all() if clinic_ids else []
     
     svc_map = {s.id: s for s in services}
     clinic_map = {c.id: c for c in clinics}
+    pet_map = _get_pet_names_map(db, pet_ids)
 
     result = []
     for appt in appointments:
         svc = svc_map.get(appt.service_id)
         clinic = clinic_map.get(appt.clinic_id)
-        result.append(_serialize_appointment(appt, svc, clinic))
+        pet_name = pet_map.get(appt.pet_id)
+        result.append(_serialize_appointment(appt, svc, clinic, pet_name))
     return result
 
 
@@ -95,7 +99,8 @@ def read_appointment(
         raise HTTPException(status_code=403, detail="No tienes permisos para ver esta cita")
     
     svc = crud_services.get_service(db, appt.service_id)
-    return _serialize_appointment(appt, svc, clinic)
+    pet_name = _get_pet_name(db, appt.pet_id)
+    return _serialize_appointment(appt, svc, clinic, pet_name)
 
 
 @router.get("/clinic/{clinic_id}", response_model=List[AppointmentResponse])
@@ -116,15 +121,19 @@ def read_clinic_appointments(
     if not appointments:
         return []
         
-    # Bulk fetch services
-    service_ids = list({a.service_id for a in appointments})
+    # Bulk fetch services and pets
+    service_ids = list({a.service_id for a in appointments if a.service_id})
+    pet_ids = list({a.pet_id for a in appointments if a.pet_id})
+    
     services = db.query(ClinicService).filter(ClinicService.id.in_(service_ids)).all() if service_ids else []
     svc_map = {s.id: s for s in services}
+    pet_map = _get_pet_names_map(db, pet_ids)
 
     result = []
     for appt in appointments:
         svc = svc_map.get(appt.service_id)
-        result.append(_serialize_appointment(appt, svc, clinic))
+        pet_name = pet_map.get(appt.pet_id)
+        result.append(_serialize_appointment(appt, svc, clinic, pet_name))
     return result
 
 
@@ -143,7 +152,8 @@ def confirm_appointment(
         raise HTTPException(status_code=403, detail="Solo el dueño puede confirmar citas")
     appt = crud_services.update_appointment_status(db, appointment_id, "confirmed")
     svc = crud_services.get_service(db, appt.service_id)
-    return _serialize_appointment(appt, svc, clinic)
+    pet_name = _get_pet_name(db, appt.pet_id)
+    return _serialize_appointment(appt, svc, clinic, pet_name)
 
 
 @router.put("/{appointment_id}/complete", response_model=AppointmentResponse)
@@ -161,7 +171,8 @@ def complete_appointment(
         raise HTTPException(status_code=403, detail="Solo el dueño puede completar citas")
     appt = crud_services.update_appointment_status(db, appointment_id, "completed")
     svc = crud_services.get_service(db, appt.service_id)
-    return _serialize_appointment(appt, svc, clinic)
+    pet_name = _get_pet_name(db, appt.pet_id)
+    return _serialize_appointment(appt, svc, clinic, pet_name)
 
 
 @router.put("/{appointment_id}/cancel", response_model=AppointmentResponse)
@@ -182,7 +193,8 @@ def cancel_appointment(
         raise HTTPException(status_code=403, detail="No tienes permisos para cancelar esta cita")
     appt = crud_services.update_appointment_status(db, appointment_id, "cancelled", cancel_in.cancellation_reason)
     svc = crud_services.get_service(db, appt.service_id)
-    return _serialize_appointment(appt, svc, clinic)
+    pet_name = _get_pet_name(db, appt.pet_id)
+    return _serialize_appointment(appt, svc, clinic, pet_name)
 
 
 @router.put("/{appointment_id}/reschedule", response_model=AppointmentResponse)
@@ -205,12 +217,50 @@ def reschedule_appointment(
         raise HTTPException(status_code=409, detail=str(e))
     svc = crud_services.get_service(db, appt.service_id)
     clinic = get_clinic(db, appt.clinic_id)
-    return _serialize_appointment(appt, svc, clinic)
+    pet_name = _get_pet_name(db, appt.pet_id)
+    return _serialize_appointment(appt, svc, clinic, pet_name)
 
 
 # --- Helpers ---
 
-def _serialize_appointment(appt, svc, clinic):
+def _get_pet_name(db: Session, pet_id: str) -> Optional[str]:
+    if not pet_id:
+        return None
+    from sqlalchemy import text
+    try:
+        res = db.execute(text("SELECT name FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).fetchone()
+        return res[0] if res else None
+    except Exception:
+        return None
+
+def _get_pet_names_map(db: Session, pet_ids: List[str]) -> dict:
+    if not pet_ids:
+        return {}
+    from sqlalchemy import text
+    try:
+        res = db.execute(
+            text("SELECT id, name FROM pets WHERE id IN :pet_ids"),
+            {"pet_ids": tuple(pet_ids)}
+        ).fetchall()
+        return {r[0]: r[1] for r in res}
+    except Exception:
+        return {}
+
+def _serialize_appointment(appt, svc, clinic, pet_name=None):
+    appointment_date = None
+    if appt.date and appt.start_time:
+        appointment_date = f"{appt.date.isoformat()}T{appt.start_time.strftime('%H:%M:%S')}"
+        
+    is_emergency = False
+    reason = None
+    if appt.notes:
+        notes_str = appt.notes.strip()
+        if notes_str.startswith("[EMERGENCIA]"):
+            is_emergency = True
+            reason = notes_str.replace("[EMERGENCIA]", "", 1).strip()
+        else:
+            reason = notes_str
+
     return {
         "id": appt.id,
         "clinic_id": appt.clinic_id,
@@ -227,4 +277,8 @@ def _serialize_appointment(appt, svc, clinic):
         "created_at": appt.created_at,
         "service_name": svc.name if svc else None,
         "clinic_name": clinic.name if clinic else None,
+        "appointment_date": appointment_date,
+        "pet_name": pet_name,
+        "reason": reason,
+        "is_emergency": is_emergency,
     }

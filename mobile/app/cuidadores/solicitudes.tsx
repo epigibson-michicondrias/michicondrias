@@ -1,113 +1,33 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { useColorScheme } from '@/components/useColorScheme';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useSitRequests } from '@/src/hooks/cuidadores';
+import { SitRequest } from '@/src/services/cuidadores';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { 
-    Calendar, Clock, MapPin, Home, ChevronRight, Filter, 
-    Search, User, Star, MessageCircle, CheckCircle, XCircle, AlertCircle, Sun, Moon
+    Calendar, Clock, MapPin, Home, ChevronRight, 
+    MessageCircle
 } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
-import { getIncomingSitRequests, SitRequest } from '@/src/services/cuidadores';
+import SearchBar from '@/src/components/SearchBar';
+import FilterChip from '@/src/components/FilterChip';
+import EmptyState from '@/src/components/EmptyState';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
 
 export default function SitterRequestsScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
-
-    const [statusFilter, setStatusFilter] = useState<string>('all');
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: requests = [], isLoading } = useQuery({
-        queryKey: ['sitter-requests'],
-        queryFn: getIncomingSitRequests,
-    });
-
-    const filteredRequests = requests.filter((request: SitRequest) => {
-        const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
-        const matchesSearch = request.pet_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (request.address || '').toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesStatus && matchesSearch;
-    });
-
-    const getStatusConfig = (status: string) => {
-        switch (status) {
-            case 'pending':
-                return {
-                    icon: AlertCircle,
-                    color: '#f59e0b',
-                    bgColor: '#f59e0b20',
-                    label: 'Pendiente'
-                };
-            case 'confirmed':
-                return {
-                    icon: CheckCircle,
-                    color: '#10b981',
-                    bgColor: '#10b98120',
-                    label: 'Confirmado'
-                };
-            case 'completed':
-                return {
-                    icon: CheckCircle,
-                    color: '#6366f1',
-                    bgColor: '#6366f120',
-                    label: 'Completado'
-                };
-            case 'cancelled':
-                return {
-                    icon: XCircle,
-                    color: '#ef4444',
-                    bgColor: '#ef444420',
-                    label: 'Cancelado'
-                };
-            default:
-                return {
-                    icon: AlertCircle,
-                    color: theme.textMuted,
-                    bgColor: theme.surface,
-                    label: status
-                };
-        }
-    };
-
-    const getServiceConfig = (type: string) => {
-        switch (type) {
-            case 'daycare':
-                return {
-                    icon: Sun,
-                    label: 'Guardería',
-                    color: '#f59e0b'
-                };
-            case 'boarding':
-                return {
-                    icon: Moon,
-                    label: 'Hospedaje',
-                    color: '#6366f1'
-                };
-            default:
-                return {
-                    icon: Home,
-                    label: type || 'Cuidado',
-                    color: theme.primary
-                };
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        requests: filteredRequests,
+        isLoading,
+        statusFilter,
+        setStatusFilter,
+        searchQuery,
+        setSearchQuery,
+        getStatusConfig,
+        getServiceConfig,
+        statusFilters,
+    } = useSitRequests();
 
     const renderRequestItem = ({ item }: { item: SitRequest }) => {
         const statusConfig = getStatusConfig(item.status);
@@ -235,61 +155,35 @@ export default function SitterRequestsScreen() {
         );
     };
 
-    const statusFilters = [
-        { id: 'all', label: 'Todas', count: requests.length },
-        { id: 'pending', label: 'Pendientes', count: requests.filter((r: SitRequest) => r.status === 'pending').length },
-        { id: 'confirmed', label: 'Confirmadas', count: requests.filter((r: SitRequest) => r.status === 'confirmed').length },
-        { id: 'completed', label: 'Completadas', count: requests.filter((r: SitRequest) => r.status === 'completed').length },
-        { id: 'cancelled', label: 'Canceladas', count: requests.filter((r: SitRequest) => r.status === 'cancelled').length },
-    ];
-
     if (isLoading) {
-        return (
-            <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
-        );
+        return <LoadingOverlay />;
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>Mis Solicitudes de Cuidado</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Gestiona tus solicitudes de cuidado de mascotas
-                </Text>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Mis Solicitudes de Cuidado"
+                subtitle="Gestiona tus solicitudes de cuidado de mascotas"
+            />
 
             {/* Search */}
-            <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Search size={20} color={theme.textMuted} />
-                <Text style={[styles.searchInput, { color: theme.textMuted }]}>
-                    Buscar por cliente, mascota o ubicación...
-                </Text>
+            <View style={{ marginHorizontal: 24, marginBottom: 16 }}>
+                <SearchBar
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Buscar por cliente, mascota o ubicación..."
+                />
             </View>
 
             {/* Status Filters */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersContainer}>
                 {statusFilters.map((filter) => (
-                    <TouchableOpacity
+                    <FilterChip
                         key={filter.id}
-                        style={[
-                            styles.filterChip,
-                            statusFilter === filter.id && styles.filterChipActive,
-                            { 
-                                backgroundColor: statusFilter === filter.id ? theme.primary : theme.surface,
-                                borderColor: theme.border 
-                            }
-                        ]}
+                        label={`${filter.label} (${filter.count})`}
+                        active={statusFilter === filter.id}
                         onPress={() => setStatusFilter(filter.id)}
-                    >
-                        <Text style={[
-                            styles.filterChipText,
-                            { color: statusFilter === filter.id ? '#fff' : theme.text }
-                        ]}>
-                            {filter.label} ({filter.count})
-                        </Text>
-                    </TouchableOpacity>
+                    />
                 ))}
             </ScrollView>
 
@@ -301,71 +195,25 @@ export default function SitterRequestsScreen() {
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
-                    <View style={styles.emptyState}>
-                        <Home size={48} color={theme.textMuted} />
-                        <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                            {searchQuery || statusFilter !== 'all' ? 
-                                'No encontramos solicitudes con esos filtros.' : 
-                                'No tienes solicitudes de cuidado.'
-                            }
-                        </Text>
-                    </View>
+                    <EmptyState
+                        icon={<Home size={32} color={theme.textMuted} />}
+                        title={searchQuery || statusFilter !== 'all' ? 'Sin resultados' : 'Sin solicitudes'}
+                        subtitle={searchQuery || statusFilter !== 'all' ? 
+                            'No encontramos solicitudes con esos filtros.' : 
+                            'No tienes solicitudes de cuidado.'
+                        }
+                    />
                 }
             />
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 24,
-        marginBottom: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 12,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
-    },
     filtersContainer: {
         paddingHorizontal: 24,
         marginBottom: 16,
         gap: 8,
-    },
-    filterChip: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 20,
-        borderWidth: 1,
-        marginRight: 8,
-    },
-    filterChipActive: {
-        borderColor: 'transparent',
-    },
-    filterChipText: {
-        fontSize: 12,
-        fontWeight: '600',
     },
     list: {
         paddingHorizontal: 24,
@@ -513,15 +361,5 @@ const styles = StyleSheet.create({
         fontSize: 11,
         fontWeight: '600',
     },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-        gap: 16,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
-    },
+    headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
 });

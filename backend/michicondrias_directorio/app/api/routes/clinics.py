@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud
+from app.crud import crud_services
 from app.api import deps
 from app.db.session import get_db
 from app.schemas.clinic import ClinicCreate, ClinicUpdate, ClinicResponse, VeterinarianResponse
@@ -19,6 +20,10 @@ def read_clinics(
     Retrieve approved clinics. (Public endpoint)
     """
     clinics = crud.crud_clinic.get_clinics(db, skip=skip, limit=limit)
+    for clinic in clinics:
+        clinic.average_rating = crud.crud_clinic.get_clinic_average_rating(db, clinic.id)
+        clinic.total_reviews = len(crud.crud_clinic.get_clinic_reviews(db, clinic.id))
+        clinic.services = [s.name for s in crud_services.get_clinic_services(db, clinic.id)[:3]]
     return clinics
 
 @router.get("/me", response_model=List[ClinicResponse])
@@ -27,7 +32,12 @@ def read_my_clinics(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """Retrieve clinics owned by the current user."""
-    return crud.crud_clinic.get_clinics_by_owner(db, owner_user_id=user_id)
+    clinics = crud.crud_clinic.get_clinics_by_owner(db, owner_user_id=user_id)
+    for clinic in clinics:
+        clinic.average_rating = crud.crud_clinic.get_clinic_average_rating(db, clinic.id)
+        clinic.total_reviews = len(crud.crud_clinic.get_clinic_reviews(db, clinic.id))
+        clinic.services = [s.name for s in crud_services.get_clinic_services(db, clinic.id)[:3]]
+    return clinics
 
 @router.get("/{clinic_id}", response_model=ClinicResponse)
 def read_clinic(
@@ -38,6 +48,9 @@ def read_clinic(
     clinic = crud.crud_clinic.get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    clinic.average_rating = crud.crud_clinic.get_clinic_average_rating(db, clinic.id)
+    clinic.total_reviews = len(crud.crud_clinic.get_clinic_reviews(db, clinic.id))
+    clinic.services = [s.name for s in crud_services.get_clinic_services(db, clinic.id)[:3]]
     return clinic
 
 @router.post("/", response_model=ClinicResponse)

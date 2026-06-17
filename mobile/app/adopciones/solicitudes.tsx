@@ -1,91 +1,38 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getListings, getListingRequests, updateRequestStatus, AdoptionRequest, Listing } from '@/src/services/adopciones';
-import { useAuth } from '@/src/contexts/AuthContext';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Users, Clock, CheckCircle, XCircle, AlertCircle, Heart, Home, Filter } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
-
-const STATUS_LABELS: Record<string, { label: string; color: string; icon: string }> = {
-    PENDING: { label: "Pendiente", color: "#f59e0b", icon: "⏳" },
-    REVIEWING: { label: "En Revisión", color: "#3b82f6", icon: "🔍" },
-    INTERVIEW_SCHEDULED: { label: "Entrevista Programada", color: "#8b5cf6", icon: "📅" },
-    APPROVED: { label: "Pre-Aprobada", color: "#22c55e", icon: "✅" },
-    ADOPTED: { label: "¡Adoptado!", color: "#ec4899", icon: "🎉" },
-    REJECTED: { label: "Rechazada", color: "#ef4444", icon: "❌" },
-};
+import { useTheme } from '@/src/hooks/useTheme';
+import { Users, Clock, CheckCircle, XCircle, AlertCircle, Heart, Home, Filter } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import EmptyState from '@/src/components/EmptyState';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { useApplications } from '@/src/hooks/adopciones/useApplications';
+import type { Listing, AdoptionRequest } from '@/src/types/adopciones';
+import type { ListingWithRequests } from '@/src/hooks/adopciones/useApplications';
 
 export default function SolicitudesAdopcionScreen() {
     const router = useRouter();
-    const { user } = useAuth();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-    const [refreshing, setRefreshing] = useState(false);
-    const [filterStatus, setFilterStatus] = useState<string>('all');
-
-    const { data: listings = [], isLoading, refetch } = useQuery({
-        queryKey: ['user-listings-with-requests'],
-        queryFn: async () => {
-            const listings = await getListings();
-            // Solo mostrar publicaciones del usuario actual
-            const userListings = listings.filter(listing => listing.published_by === user?.id);
-            
-            // Para cada listing, obtener sus solicitudes
-            const listingsWithRequests = await Promise.all(
-                userListings.map(async (listing) => {
-                    try {
-                        const requests = await getListingRequests(listing.id);
-                        return { ...listing, requests };
-                    } catch {
-                        return { ...listing, requests: [] };
-                    }
-                })
-            );
-            
-            return listingsWithRequests;
-        },
-        enabled: !!user?.id,
-    });
-
-    const mutation = useMutation({
-        mutationFn: ({ requestId, status }: { requestId: string, status: string }) =>
-            updateRequestStatus(requestId, status),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user-listings-with-requests'] });
-        },
-    });
-
-    const onRefresh = async () => {
-        setRefreshing(true);
-        await refetch();
-        setRefreshing(false);
-    };
-
-    const handleStatusUpdate = (requestId: string, status: string) => {
-        const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.PENDING;
-        showAlert({
-            type: 'warning',
-            title: 'Actualizar Estado',
-            message: `¿Cambiar estado a "${statusInfo.label}"?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Confirmar',
-            onButtonPress: () => mutation.mutate({ requestId, status }),
-        });
-    };
-
-    const filterRequests = (requests: AdoptionRequest[]) => {
-        if (filterStatus === 'all') return requests;
-        return requests.filter(request => request.status === filterStatus);
-    };
+    const { theme } = useTheme();
+    const {
+        listings,
+        isLoading,
+        refreshing,
+        filterStatus,
+        setFilterStatus,
+        onRefresh,
+        handleStatusUpdate,
+        filterRequests,
+        filteredAllRequests,
+        getStatusInfo,
+        goToRequestDetail,
+        goToListingRequests,
+        FILTER_OPTIONS,
+    } = useApplications();
 
     const renderRequestItem = ({ request, listing }: { request: AdoptionRequest, listing: Listing }) => {
-        const statusInfo = STATUS_LABELS[request.status] || STATUS_LABELS.PENDING;
-        
+        const statusInfo = getStatusInfo(request.status);
+
         return (
             <View style={[styles.requestCard, { backgroundColor: theme.surface }]}>
                 <View style={styles.requestHeader}>
@@ -148,7 +95,7 @@ export default function SolicitudesAdopcionScreen() {
                 <View style={styles.actionButtons}>
                     <TouchableOpacity
                         style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                        onPress={() => router.push(`/adopciones/solicitud/${request.id}` as any)}
+                        onPress={() => goToRequestDetail(request.id)}
                     >
                         <Text style={styles.actionButtonText}>Ver Detalles</Text>
                     </TouchableOpacity>
@@ -186,9 +133,9 @@ export default function SolicitudesAdopcionScreen() {
         );
     };
 
-    const renderListingItem = ({ item }: { item: Listing & { requests: AdoptionRequest[] } }) => {
+    const renderListingItem = ({ item }: { item: ListingWithRequests }) => {
         const filteredRequests = filterRequests(item.requests);
-        
+
         if (filteredRequests.length === 0) return null;
 
         return (
@@ -204,7 +151,7 @@ export default function SolicitudesAdopcionScreen() {
                     </View>
                     <TouchableOpacity
                         style={[styles.viewAllButton, { backgroundColor: theme.surface }]}
-                        onPress={() => router.push(`/adopciones/ver-solicitudes/${item.id}` as any)}
+                        onPress={() => goToListingRequests(item.id)}
                     >
                         <Text style={[styles.viewAllText, { color: theme.primary }]}>Ver Todas</Text>
                     </TouchableOpacity>
@@ -222,24 +169,11 @@ export default function SolicitudesAdopcionScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>
-                        Cargando solicitudes...
-                    </Text>
-                </View>
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando solicitudes..." />
+            </ScreenContainer>
         );
     }
-
-    const allRequests = listings.flatMap(listing => 
-        listing.requests.map(request => ({ request, listing }))
-    );
-    const filteredAllRequests = allRequests.filter(({ request }) => {
-        if (filterStatus === 'all') return true;
-        return request.status === filterStatus;
-    });
 
     return (
         <ScrollView
@@ -248,25 +182,12 @@ export default function SolicitudesAdopcionScreen() {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
         >
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>
-                    Solicitudes de Adopción
-                </Text>
-            </View>
+            <ScreenHeader title="Solicitudes de Adopción" />
 
             <View style={[styles.filterContainer, { backgroundColor: theme.surface }]}>
                 <Filter size={20} color={theme.textMuted} />
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    {[
-                        { key: 'all', label: 'Todas' },
-                        { key: 'PENDING', label: 'Pendientes' },
-                        { key: 'REVIEWING', label: 'En Revisión' },
-                        { key: 'INTERVIEW_SCHEDULED', label: 'Entrevista' },
-                        { key: 'APPROVED', label: 'Aprobadas' },
-                    ].map((filter) => (
+                    {FILTER_OPTIONS.map((filter) => (
                         <TouchableOpacity
                             key={filter.key}
                             style={[
@@ -290,18 +211,15 @@ export default function SolicitudesAdopcionScreen() {
             </View>
 
             {filteredAllRequests.length === 0 ? (
-                <View style={styles.emptyState}>
-                    <AlertCircle size={48} color={theme.textMuted} />
-                    <Text style={[styles.emptyTitle, { color: theme.text }]}>
-                        No hay solicitudes
-                    </Text>
-                    <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
-                        {filterStatus === 'all' 
+                <EmptyState
+                    icon={<AlertCircle size={48} color={theme.textMuted} />}
+                    title="No hay solicitudes"
+                    subtitle={
+                        filterStatus === 'all'
                             ? "No tienes solicitudes de adopción pendientes"
                             : `No hay solicitudes con estado "${filterStatus}"`
-                        }
-                    </Text>
-                </View>
+                    }
+                />
             ) : (
                 <FlatList
                     data={listings}
@@ -318,30 +236,6 @@ export default function SolicitudesAdopcionScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    loadingText: {
-        marginTop: 16,
-        fontSize: 16,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 20,
-        gap: 16,
-    },
-    backButton: {
-        padding: 8,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '800',
     },
     filterContainer: {
         flexDirection: 'row',
@@ -363,24 +257,6 @@ const styles = StyleSheet.create({
     filterChipText: {
         fontSize: 14,
         fontWeight: '600',
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingVertical: 80,
-    },
-    emptyTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        marginTop: 16,
-        marginBottom: 8,
-    },
-    emptySubtitle: {
-        fontSize: 16,
-        textAlign: 'center',
-        lineHeight: 24,
     },
     list: {
         paddingHorizontal: 24,

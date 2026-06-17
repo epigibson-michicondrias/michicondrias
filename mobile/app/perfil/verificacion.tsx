@@ -5,15 +5,14 @@ import { showAlert } from '@/src/components/AppAlert';
 import * as ImagePicker from 'expo-image-picker';
 import { getKYCPresignedUrls, finalizeKYC } from '../../src/services/kyc';
 import { useAuth } from '../../src/contexts/AuthContext';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, ShieldCheck, FileText, Upload, CheckCircle2, AlertCircle, Info } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { ShieldCheck, FileText, Upload, CheckCircle2, AlertCircle, Info } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 export default function VerificationScreen() {
     const router = useRouter();
     const { user, reloadUser } = useAuth();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme, isDark } = useTheme();
 
     const [uploading, setUploading] = useState(false);
     const [docs, setDocs] = useState<{
@@ -121,10 +120,10 @@ export default function VerificationScreen() {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.title, { color: theme.text }]}>Seguridad y KYC</Text>
+                    <View style={styles.headerRow}>
+                        <BackButton onPress={() => router.back()} />
+                        <Text style={[styles.title, { color: theme.text }]}>Seguridad y KYC</Text>
+                    </View>
                     <Text style={[styles.subtitle, { color: theme.textMuted }]}>Centro de verificación de identidad</Text>
                 </View>
 
@@ -214,15 +213,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingBottom: 20,
     },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
+    headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
     title: {
         fontSize: 28,
         fontWeight: '900',

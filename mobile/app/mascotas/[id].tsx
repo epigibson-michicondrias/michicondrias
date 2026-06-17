@@ -1,102 +1,140 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { getPetById } from '../../src/services/mascotas';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Settings, Award, ShieldCheck, Activity, Calendar } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { useTheme } from '@/src/hooks/useTheme';
+import { usePetDetail } from '@/src/hooks/mascotas';
+import { formatAge, formatWeight } from '@/src/utils/formatters';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import BackButton from '@/src/components/BackButton';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import { Settings, Award, ShieldCheck, Activity, Calendar, ChevronLeft } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function PetProfileScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: pet, isLoading, error } = useQuery({
-        queryKey: ['pet-profile', id],
-        queryFn: () => getPetById(id as string),
-        enabled: !!id,
-    });
+    const { theme } = useTheme();
+    const { pet, isLoading, error, goBack, goToCarnet, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
 
     if (isLoading) return (
-        <View style={[styles.center, { backgroundColor: theme.background }]}>
-            <Text style={{ color: theme.textMuted }}>Sincronizando con el chip...</Text>
-        </View>
+        <ScreenContainer style={styles.center}>
+            <LoadingOverlay message="Sincronizando con el chip..." />
+        </ScreenContainer>
     );
 
     if (error || !pet) return (
-        <View style={[styles.center, { backgroundColor: theme.background }]}>
+        <ScreenContainer style={styles.center}>
             <Text style={{ color: theme.error }}>Error al cargar la mascota</Text>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                <Text style={{ color: '#fff' }}>Regresar</Text>
+            <TouchableOpacity onPress={goBack} style={[styles.backBtn, { backgroundColor: theme.surface }]}>
+                <Text style={{ color: theme.text }}>Regresar</Text>
             </TouchableOpacity>
-        </View>
+        </ScreenContainer>
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Hero Image */}
                 <View style={styles.imageContainer}>
                     <Image source={{ uri: pet.photo_url || 'https://via.placeholder.com/800' }} style={styles.mainImage} />
                     <View style={styles.headerButtons}>
-                        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-                            <ChevronLeft size={24} color="#fff" />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconBtn}>
+                        <BackButton onPress={goBack} color="#fff" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)' }} />
+                        <TouchableOpacity style={styles.iconBtn} onPress={() => router.push(`/mascotas/editar/${pet.id}`)}>
                             <Settings size={22} color="#fff" />
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                <View style={styles.content}>
+                {/* Content */}
+                <View style={[styles.content, { backgroundColor: theme.background }]}>
                     <View style={styles.titleSection}>
                         <View>
-                            <Text style={styles.name}>{pet.name}</Text>
-                            <Text style={styles.subtitle}>{pet.breed || pet.species} • {pet.gender === 'macho' ? 'Niño ♂️' : 'Niña ♀️'}</Text>
+                            <Text style={[styles.name, { color: theme.text }]}>{pet.name}</Text>
+                            <Text style={[styles.subtitle, { color: theme.textMuted }]}>
+                                {pet.breed || pet.species} • {pet.gender === 'macho' ? 'Niño ♂️' : 'Niña ♀️'}
+                            </Text>
                         </View>
                         <View style={styles.verifiedBadge}>
                             <ShieldCheck size={20} color="#22c55e" />
                         </View>
                     </View>
 
+                    {/* Stats Grid */}
                     <View style={styles.grid}>
-                        <PetStat icon={<Calendar size={20} color="#6366f1" />} label="Edad" value={pet.age_months ? `${pet.age_months}m` : 'Bebé'} theme={theme} />
-                        <PetStat icon={<Activity size={20} color="#ec4899" />} label="Peso" value="4.5 kg" theme={theme} />
+                        <PetStat icon={<Calendar size={20} color="#6366f1" />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
+                        <PetStat icon={<Activity size={20} color="#ec4899" />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} />
                         <PetStat icon={<Award size={20} color="#facc15" />} label="Salud" value="Al Día" theme={theme} />
                     </View>
 
+                    {/* Carnet Digital */}
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Carnet Digital</Text>
-                        <View style={styles.actionCard}>
+                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Carnet Digital</Text>
+                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]} onPress={goToCarnet}>
                             <View style={styles.actionIcon}>
                                 <Text style={{ fontSize: 24 }}>💉</Text>
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.actionTitle}>Vacunas y Desparasitaciones</Text>
-                                <Text style={styles.actionSubtitle}>Próxima: Triple Felina en 15 días</Text>
+                                <Text style={[styles.actionTitle, { color: theme.text }]}>Vacunas y Desparasitaciones</Text>
+                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Consulta el historial y próximas vacunas</Text>
                             </View>
-                            <ChevronLeft size={20} color="#475569" style={{ transform: [{ rotate: '180deg' }] }} />
-                        </View>
+                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                        </TouchableOpacity>
 
-                        <View style={styles.actionCard}>
+                        <TouchableOpacity
+                            style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                            onPress={handleSubscribeMichiTracker}
+                            disabled={isSubscribing}
+                        >
                             <View style={[styles.actionIcon, { backgroundColor: 'rgba(34, 197, 94, 0.1)' }]}>
                                 <Text style={{ fontSize: 24 }}>🛰️</Text>
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={styles.actionTitle}>Michi-Tracker Pro</Text>
-                                <Text style={styles.actionSubtitle}>Suscripción activa hasta Sept 2026</Text>
+                                <Text style={[styles.actionTitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
+                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
+                                    {isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
+                                </Text>
                             </View>
-                            <ChevronLeft size={20} color="#475569" style={{ transform: [{ rotate: '180deg' }] }} />
-                        </View>
+                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                        </TouchableOpacity>
                     </View>
 
+                    {/* Servicios y Recuerdo */}
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Notas Médicas</Text>
-                        <View style={styles.notesBox}>
-                            <Text style={styles.notesText}>
+                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Adicionales</Text>
+                        <TouchableOpacity
+                            style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                            onPress={() => router.push({ pathname: '/funeraria/memorial/[petId]', params: { petId: pet.id } } as any)}
+                        >
+                            <View style={[styles.actionIcon, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+                                <Text style={{ fontSize: 24 }}>🕯️</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.actionTitle, { color: theme.text }]}>Memorial y Recuerdo</Text>
+                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Crear o ver el espacio de homenaje</Text>
+                            </View>
+                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                            onPress={() => router.push({ pathname: '/grooming/historial/[petId]', params: { petId: pet.id } } as any)}
+                        >
+                            <View style={[styles.actionIcon, { backgroundColor: 'rgba(99, 102, 241, 0.1)' }]}>
+                                <Text style={{ fontSize: 24 }}>✂️</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.actionTitle, { color: theme.text }]}>Historial de Estética</Text>
+                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Consultar visitas y fotos de grooming</Text>
+                            </View>
+                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Notas Médicas */}
+                    <View style={styles.section}>
+                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Notas Médicas</Text>
+                        <View style={[styles.notesBox, { borderColor: theme.cardBorder }]}>
+                            <Text style={[styles.notesText, { color: theme.textMuted }]}>
                                 {pet.description || "No hay notas clínicas recientes. Asegúrate de mantener el carnet actualizado para prevenir enfermedades."}
                             </Text>
                         </View>
@@ -104,26 +142,22 @@ export default function PetProfileScreen() {
                 </View>
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
-function PetStat({ icon, label, value, theme }: { icon: any, label: string, value: string, theme: any }) {
+function PetStat({ icon, label, value, theme }: { icon: any; label: string; value: string; theme: any }) {
     return (
-        <View style={[styles.statItem, { backgroundColor: theme.surface }]}>
+        <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
             {icon}
-            <Text style={styles.statLabel}>{label}</Text>
-            <Text style={styles.statValue}>{value}</Text>
+            <Text style={[styles.statLabel, { color: theme.textMuted }]}>{label}</Text>
+            <Text style={[styles.statValue, { color: theme.text }]}>{value}</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     center: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -157,7 +191,6 @@ const styles = StyleSheet.create({
         marginTop: -30,
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
-        backgroundColor: '#0f172a',
     },
     titleSection: {
         flexDirection: 'row',
@@ -168,11 +201,9 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 32,
         fontWeight: '900',
-        color: '#f8fafc',
     },
     subtitle: {
         fontSize: 16,
-        color: '#94a3b8',
         marginTop: 4,
     },
     verifiedBadge: {
@@ -195,17 +226,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     statLabel: {
         fontSize: 10,
-        color: '#475569',
         fontWeight: '700',
         textTransform: 'uppercase',
     },
     statValue: {
         fontSize: 14,
-        color: '#cbd5e1',
         fontWeight: '800',
     },
     section: {
@@ -214,19 +242,16 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: '800',
-        color: '#f8fafc',
         marginBottom: 16,
     },
     actionCard: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
-        backgroundColor: '#1e293b',
         borderRadius: 20,
         marginBottom: 12,
         gap: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     actionIcon: {
         width: 50,
@@ -239,11 +264,9 @@ const styles = StyleSheet.create({
     actionTitle: {
         fontSize: 15,
         fontWeight: '700',
-        color: '#f8fafc',
     },
     actionSubtitle: {
         fontSize: 12,
-        color: '#94a3b8',
         marginTop: 2,
     },
     notesBox: {
@@ -251,18 +274,15 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         backgroundColor: 'rgba(255,255,255,0.03)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     notesText: {
         fontSize: 14,
-        color: '#94a3b8',
         lineHeight: 22,
     },
     backBtn: {
         marginTop: 20,
-        backgroundColor: '#1e293b',
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 10,
-    }
+    },
 });

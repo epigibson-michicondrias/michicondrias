@@ -1,43 +1,25 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { listWalkers, Walker } from '../../src/services/paseadores';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Search, Star, MapPin, Clock, Users, ChevronRight, Plus } from 'lucide-react-native';
+import { Walker } from '../../src/services/paseadores';
+import { Star, MapPin, Clock, Users, ChevronRight } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useWalkers } from '@/src/hooks/paseadores';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import SearchBar from '@/src/components/SearchBar';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
 
 export default function PaseadoresScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
-
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: walkers = [], isLoading } = useQuery<Walker[]>({
-        queryKey: ['walkers'],
-        queryFn: () => listWalkers(),
-    });
-
-    const filteredWalkers = walkers.filter(walker =>
-        walker.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (walker.location || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const { theme } = useTheme();
+    const {
+        walkers: filteredWalkers,
+        isLoading,
+        searchQuery,
+        setSearchQuery,
+    } = useWalkers();
 
     const renderWalkerItem = ({ item }: { item: Walker }) => (
         <TouchableOpacity
@@ -115,13 +97,11 @@ export default function PaseadoresScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🚶 Paseadores</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Encuentra al paseador perfecto para tu mascota
-                </Text>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="🚶 Paseadores"
+                subtitle="Encuentra al paseador perfecto para tu mascota"
+            />
 
             <View style={styles.actionButtons}>
                 <TouchableOpacity
@@ -138,22 +118,16 @@ export default function PaseadoresScreen() {
                 </TouchableOpacity>
             </View>
 
-            <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Search size={20} color={theme.textMuted} />
-                <TextInput
-                    placeholder="🔍 Buscar por nombre o ubicación..."
-                    placeholderTextColor={theme.textMuted}
-                    style={[styles.searchInput, { color: theme.text }]}
+            <View style={styles.searchWrapper}>
+                <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    placeholder="Buscar por nombre o ubicación..."
                 />
             </View>
 
             {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando paseadores...</Text>
-                </View>
+                <LoadingOverlay message="Cargando paseadores..." />
             ) : (
                 <FlatList
                     data={filteredWalkers}
@@ -162,35 +136,19 @@ export default function PaseadoresScreen() {
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                {searchQuery ? 'No encontramos paseadores con esos criterios.' : 'No hay paseadores disponibles.'}
-                            </Text>
-                        </View>
+                        <EmptyState
+                            icon={<Users size={32} color={theme.textMuted} />}
+                            title={searchQuery ? 'Sin resultados' : 'No hay paseadores'}
+                            subtitle={searchQuery ? 'No encontramos paseadores con esos criterios.' : 'No hay paseadores disponibles.'}
+                        />
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
     actionButtons: {
         flexDirection: 'row',
         paddingHorizontal: 24,
@@ -209,20 +167,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    searchWrapper: {
         marginHorizontal: 24,
         marginBottom: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 12,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
     },
     list: {
         paddingHorizontal: 24,
@@ -330,23 +277,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
-    },
+
 });

@@ -1,84 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/src/contexts/AuthContext';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCurrentUser, logout, type User } from '@/src/lib/auth';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useProfile } from '@/src/hooks/perfil';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { ChevronLeft, Mail, Phone, MapPin, Calendar, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, Palette } from 'lucide-react-native';
+import { Mail, Phone, MapPin, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, ChevronLeft, Palette, CreditCard, Lock } from 'lucide-react-native';
 
 export default function PerfilScreen() {
     const router = useRouter();
-    const { user, signOut } = useAuth();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        full_name: '',
-        email: '',
-        phone: '',
-        location: '',
-        bio: ''
-    });
+    const { theme } = useTheme();
+    const {
+        profile,
+        isLoading,
+        formData,
+        isEditing,
+        isSaving,
+        handleSave,
+        handleCancel,
+        handleLogout,
+        toggleEditing,
+        updateField,
+        getRoleLabel,
+        handleOpenBillingPortal,
+        isOpeningBillingPortal,
+    } = useProfile();
 
-    const { data: profile, isLoading } = useQuery({
-        queryKey: ['user-profile'],
-        queryFn: getCurrentUser,
-    });
-
-    React.useEffect(() => {
-        if (profile) {
-            setFormData({
-                full_name: profile.full_name || '',
-                email: profile.email || '',
-                phone: '', // No está en la interfaz User
-                location: '', // No está en la interfaz User
-                bio: '' // No está en la interfaz User
-            });
-        }
-    }, [profile]);
-
-    const updateMutation = useMutation({
-        mutationFn: (data: Partial<User>) => {
-            // Por ahora simulamos la actualización
-            return Promise.resolve(data as User);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user-profile'] });
-            setIsEditing(false);
-            showAlert({ type: 'success', title: 'Éxito', message: 'Tu perfil ha sido actualizado' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el perfil' });
-        }
-    });
-
-    const handleSave = () => {
-        if (!formData.full_name.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre es requerido' });
-            return;
-        }
-
-        updateMutation.mutate(formData);
-    };
-
-    const handleLogout = () => {
-        showAlert({
-            type: 'warning',
-            title: 'Cerrar Sesión',
-            message: '¿Estás seguro de que deseas cerrar sesión?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Cerrar Sesión',
-            onButtonPress: signOut,
-        });
-    };
-
-    const getRoleIcon = (role: string) => {
+    const getRoleIconComponent = (role: string) => {
         switch (role) {
             case 'veterinario':
                 return <Stethoscope size={16} color={theme.primary} />;
@@ -89,45 +38,31 @@ export default function PerfilScreen() {
         }
     };
 
-    const getRoleLabel = (role: string) => {
-        switch (role) {
-            case 'veterinario':
-                return 'Veterinario';
-            case 'admin':
-                return 'Administrador';
-            default:
-                return 'Usuario';
-        }
-    };
-
     if (isLoading) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
+            <ScreenContainer>
                 <View style={styles.loadingContainer}>
                     <Text style={[styles.loadingText, { color: theme.textMuted }]}>
                         Cargando perfil...
                     </Text>
                 </View>
-            </View>
+            </ScreenContainer>
         );
     }
 
     return (
         <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>
-                    Mi Perfil
-                </Text>
-                <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => setIsEditing(!isEditing)}
-                >
-                    <Edit2 size={20} color={theme.primary} />
-                </TouchableOpacity>
-            </View>
+            <ScreenHeader
+                title="Mi Perfil"
+                rightElement={
+                    <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={toggleEditing}
+                    >
+                        <Edit2 size={20} color={theme.primary} />
+                    </TouchableOpacity>
+                }
+            />
 
             {/* Profile Header */}
             <View style={[styles.profileHeader, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
@@ -149,7 +84,7 @@ export default function PerfilScreen() {
                         {profile?.full_name || 'Usuario'}
                     </Text>
                     <View style={styles.roleRow}>
-                        {getRoleIcon(profile?.role_name || 'consumidor')}
+                        {getRoleIconComponent(profile?.role_name || 'consumidor')}
                         <Text style={[styles.role, { color: theme.primary }]}>
                             {getRoleLabel(profile?.role_name || 'consumidor')}
                         </Text>
@@ -178,7 +113,7 @@ export default function PerfilScreen() {
                                 color: theme.text 
                             }]}
                             value={formData.full_name}
-                            onChangeText={(text) => setFormData(prev => ({ ...prev, full_name: text }))}
+                            onChangeText={(text) => updateField('full_name', text)}
                             placeholder="Tu nombre completo"
                             placeholderTextColor={theme.textMuted}
                         />
@@ -195,7 +130,7 @@ export default function PerfilScreen() {
                                 color: theme.text 
                             }]}
                             value={formData.email}
-                            onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
+                            onChangeText={(text) => updateField('email', text)}
                             placeholder="tu@email.com"
                             placeholderTextColor={theme.textMuted}
                             keyboardType="email-address"
@@ -214,7 +149,7 @@ export default function PerfilScreen() {
                                 color: theme.text 
                             }]}
                             value={formData.phone}
-                            onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
+                            onChangeText={(text) => updateField('phone', text)}
                             placeholder="+52 1 000 000 0000"
                             placeholderTextColor={theme.textMuted}
                             keyboardType="phone-pad"
@@ -232,7 +167,7 @@ export default function PerfilScreen() {
                                 color: theme.text 
                             }]}
                             value={formData.location}
-                            onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
+                            onChangeText={(text) => updateField('location', text)}
                             placeholder="Ciudad, País"
                             placeholderTextColor={theme.textMuted}
                         />
@@ -249,7 +184,7 @@ export default function PerfilScreen() {
                                 color: theme.text 
                             }]}
                             value={formData.bio}
-                            onChangeText={(text) => setFormData(prev => ({ ...prev, bio: text }))}
+                            onChangeText={(text) => updateField('bio', text)}
                             placeholder="Cuéntanos sobre ti y tus mascotas..."
                             placeholderTextColor={theme.textMuted}
                             multiline
@@ -261,19 +196,7 @@ export default function PerfilScreen() {
                     <View style={styles.editActions}>
                         <TouchableOpacity
                             style={[styles.cancelButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                            onPress={() => {
-                                setIsEditing(false);
-                                // Reset form data
-                                if (profile) {
-                                    setFormData({
-                                        full_name: profile.full_name || '',
-                                        email: profile.email || '',
-                                        phone: formData.phone || '',
-                                        location: formData.location || '',
-                                        bio: formData.bio || ''
-                                    });
-                                }
-                            }}
+                            onPress={handleCancel}
                         >
                             <Text style={[styles.cancelButtonText, { color: theme.text }]}>
                                 Cancelar
@@ -282,10 +205,10 @@ export default function PerfilScreen() {
                         <TouchableOpacity
                             style={[styles.saveButton, { backgroundColor: theme.primary }]}
                             onPress={handleSave}
-                            disabled={updateMutation.isPending}
+                            disabled={isSaving}
                         >
                             <Text style={styles.saveButtonText}>
-                                {updateMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
+                                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -343,15 +266,15 @@ export default function PerfilScreen() {
                 
                 <TouchableOpacity
                     style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
-                    onPress={() => router.push('/perfil/verificacion' as any)}
+                    onPress={() => router.push('/perfil/kyc' as any)}
                 >
                     <ShieldCheck size={20} color={theme.primary} />
                     <View style={styles.actionContent}>
                         <Text style={[styles.actionTitle, { color: theme.text }]}>
-                            Verificación de Identidad
+                            Verificación de Identidad (KYC)
                         </Text>
                         <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
-                            Verifica tu cuenta para más beneficios
+                            Verifica tu cuenta para más beneficios y seguridad
                         </Text>
                     </View>
                     <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
@@ -429,6 +352,39 @@ export default function PerfilScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
+                    onPress={() => router.push('/perfil/seguridad-2fa' as any)}
+                >
+                    <Lock size={20} color={theme.primary} />
+                    <View style={styles.actionContent}>
+                        <Text style={[styles.actionTitle, { color: theme.text }]}>
+                            Seguridad (2FA)
+                        </Text>
+                        <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
+                            Protege tu cuenta con autenticación de dos factores
+                        </Text>
+                    </View>
+                    <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
+                    onPress={handleOpenBillingPortal}
+                    disabled={isOpeningBillingPortal}
+                >
+                    <CreditCard size={20} color={theme.primary} />
+                    <View style={styles.actionContent}>
+                        <Text style={[styles.actionTitle, { color: theme.text }]}>
+                            {isOpeningBillingPortal ? 'Abriendo...' : 'Facturación y Suscripciones'}
+                        </Text>
+                        <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
+                            Administra tus pagos y suscripciones
+                        </Text>
+                    </View>
+                    <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
                     style={[styles.logoutRow, { backgroundColor: '#ef444410' }]}
                     onPress={handleLogout}
                 >
@@ -455,22 +411,6 @@ const styles = StyleSheet.create({
     },
     loadingText: {
         fontSize: 16,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 20,
-        gap: 16,
-    },
-    backButton: {
-        padding: 8,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '800',
-        flex: 1,
     },
     editButton: {
         padding: 8,

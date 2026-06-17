@@ -1,143 +1,24 @@
 import React from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, View, Text, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
-import { useAuth } from '../../src/contexts/AuthContext';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { isAdmin, isVeterinario, isPaseador } from '../../src/constants/roles';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useMenu } from '@/src/hooks/home';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-    Heart, ShoppingBag,
-    Stethoscope, Activity,
-    HelpCircle, LogOut, ChevronRight,
-    Users, Calendar,
-    UserCheck, Crown,
-    Building, Package, Briefcase,
-    Shield, BarChart3, Settings2,
-    Video, ClipboardList, Eye, Handshake,
-    Dumbbell, Scissors, Car, Award
-} from 'lucide-react-native';
+import { LogOut, ChevronRight, Crown } from 'lucide-react-native';
 
 export default function MenuScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { user, signOut } = useAuth();
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
-    const isUserAdmin = isAdmin(user?.role_id, user?.role_name);
-
-    const handleSignOut = () => {
-        showAlert({
-            type: 'warning',
-            title: 'Cerrar Sesión',
-            message: '¿Estás seguro de que quieres cerrar sesión?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Cerrar Sesión',
-            onButtonPress: () => signOut(),
-        });
-    };
-
-    // ── PRO TOOLS (only for professional roles) ──────────────────────
-    const isProfessional =
-        user?.role_name === 'veterinario' ||
-        user?.role_name === 'hospital' ||
-        user?.role_name === 'refugio' ||
-        user?.role_name === 'vendedor' ||
-        user?.role_name === 'paseador' ||
-        user?.role_name === 'cuidador';
-
-    const PRO_SECTIONS = isProfessional
-        ? [
-              {
-                  title: 'Herramientas Pro',
-                  icon: Briefcase,
-                  data: [
-                      ...(user?.role_name === 'veterinario'
-                          ? [
-                                { id: 'directorio-v', icon: Stethoscope, label: 'Mi Directorio', route: '/directorio/nuevo', color: '#06b6d4', desc: 'Gestionar lugares' },
-                                { id: 'citas-v', icon: Calendar, label: 'Agenda Citas', route: '/directorio/citas', color: '#10b981', desc: 'Pacientes y horarios' },
-                                { id: 'telemedicina-v', icon: Video, label: 'Videoconsultas', route: '/mi-clinica/consultas-video', color: '#6366f1', desc: 'Pacientes virtuales' },
-                            ]
-                          : []),
-                      ...(user?.role_name === 'hospital'
-                          ? [
-                                { id: 'h-clinicas', icon: Building, label: 'Mis Clínicas', route: '/mi-clinica/sucursales', color: '#06b6d4', desc: 'Sucursales y sedes' },
-                                { id: 'h-vets', icon: Users, label: 'Asociar Médicos', route: '/mi-clinica/veterinarios', color: '#10b981', desc: 'Gestionar veterinarios' },
-                            ]
-                          : []),
-                      ...(user?.role_name === 'refugio'
-                          ? [
-                                { id: 'ref-publicaciones', icon: Heart, label: 'Mis Mascotas', route: '/adopciones/mis-publicaciones', color: '#ec4899', desc: 'Gestionar publicaciones' },
-                                { id: 'ref-solicitudes', icon: ClipboardList, label: 'Solicitudes Recibidas', route: '/adopciones/solicitudes', color: '#10b981', desc: 'Ver solicitudes' },
-                            ]
-                          : []),
-                      ...(user?.role_name === 'vendedor'
-                          ? [
-                                { id: 'v-pedidos', icon: Package, label: 'Pedidos Recibidos', route: '/tienda/vendedor/pedidos', color: '#10b981', desc: 'Gestión de ventas' },
-                            ]
-                          : []),
-                      ...(user?.role_name === 'paseador' || user?.role_name === 'cuidador'
-                          ? [
-                                { id: 'p-servicios', icon: Activity, label: 'Mis Servicios', route: '/servicios-pro', color: '#6366f1', desc: 'Perfil profesional' },
-                            ]
-                          : []),
-                  ],
-              },
-          ]
-        : [];
-
-    // ── ADMIN TOOLS (only for admin) ─────────────────────────────────
-    const ADMIN_SECTIONS = isUserAdmin
-        ? [
-              {
-                  title: 'Administración',
-                  icon: Shield,
-                  data: [
-                      { id: 'admin-stats', icon: BarChart3, label: 'Analíticas', route: '/admin/stats', color: '#10b981', desc: 'Rendimiento global' },
-                      { id: 'admin-config', icon: Settings2, label: 'Configuración', route: '/admin/config', color: '#64748b', desc: 'Ajustes del sistema' },
-                      { id: 'admin-users', icon: Users, label: 'Usuarios', route: '/admin/usuarios', color: '#3b82f6', desc: 'Gestión de cuentas' },
-                      { id: 'admin-roles', icon: UserCheck, label: 'Roles', route: '/admin/roles', color: '#8b5cf6', desc: 'Permisos y accesos' },
-                      { id: 'admin-mod', icon: Eye, label: 'Moderación', route: '/admin/moderacion', color: '#ef4444', desc: 'Contenido reportado' },
-                      { id: 'admin-kyc', icon: Shield, label: 'Verificaciones KYC', route: '/admin/verificaciones', color: '#f59e0b', desc: 'Identidad profesional' },
-                  ],
-              },
-          ]
-        : [];
-
-    // ── SOPORTE (visible for all) ────────────────────────────────────
-    const SUPPORT_SECTIONS = [
-        {
-            title: 'Soporte',
-            icon: HelpCircle,
-            data: [
-                { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: '#64748b', desc: 'Soporte y FAQ' },
-                { id: 'partner', icon: Handshake, label: 'Ser Profesional', route: '/perfil/partner', color: '#7c3aed', desc: 'Únete como partner' },
-            ],
-        },
-    ];
-
-    // ── SERVICES (visible for all) ──────────────────────────────────
-    const SERVICES_SECTIONS = [
-        {
-            title: 'Servicios',
-            icon: Briefcase,
-            data: [
-                { id: 'aseguradoras', icon: Shield, label: 'Aseguradoras', route: '/aseguradoras', color: '#0ea5e9', desc: 'Seguros para mascotas' },
-                { id: 'entrenadores', icon: Dumbbell, label: 'Entrenadores', route: '/entrenadores', color: '#8b5cf6', desc: 'Adiestramiento canino' },
-                { id: 'establecimientos', icon: Building, label: 'Establecimientos', route: '/establecimientos', color: '#f59e0b', desc: 'Lugares y comercios' },
-                { id: 'estilistas', icon: Scissors, label: 'Estilistas', route: '/estilistas', color: '#ec4899', desc: 'Peluquería canina' },
-                { id: 'funeraria', icon: Heart, label: 'Funeraria', route: '/funeraria', color: '#64748b', desc: 'Servicios funerarios' },
-                { id: 'patrocinadores', icon: Award, label: 'Patrocinadores', route: '/patrocinadores', color: '#10b981', desc: 'Aliados comerciales' },
-                { id: 'transportistas', icon: Car, label: 'Transportistas', route: '/transportistas', color: '#6366f1', desc: 'Transporte de mascotas' },
-            ],
-        },
-    ];
-
-    // ── All sections combined ────────────────────────────────────────
-    const allSections = [...SERVICES_SECTIONS, ...PRO_SECTIONS, ...ADMIN_SECTIONS, ...SUPPORT_SECTIONS];
+    const { theme } = useTheme();
+    const {
+        user,
+        isUserAdmin,
+        allSections,
+        bannerProps,
+        handleSignOut,
+    } = useMenu();
 
     // ── Header ───────────────────────────────────────────────────────
     const renderHeader = () => (
@@ -173,25 +54,14 @@ export default function MenuScreen() {
 
     // ── Role-based quick-access banner ───────────────────────────────
     const renderBanner = () => {
-        let bannerProps: { title: string; sub: string; route: string; colors: [string, string]; icon: any } | null = null;
-
-        if (isUserAdmin) {
-            bannerProps = { title: 'Panel Admin', sub: 'Administración global', route: '/admin', colors: ['#7c3aed', '#6d28d9'], icon: Shield };
-        } else if (user?.role_name === 'veterinario') {
-            bannerProps = { title: 'Consultorio', sub: 'Operaciones clínicas', route: '/mi-clinica', colors: ['#06b6d4', '#0891b2'], icon: Stethoscope };
-        } else if (user?.role_name === 'paseador' || user?.role_name === 'cuidador') {
-            bannerProps = { title: 'Mis Tareas', sub: 'Solicitudes y servicios', route: '/servicios-pro/gestion', colors: ['#6366f1', '#4338ca'], icon: Activity };
-        } else if (user?.role_name === 'vendedor') {
-            bannerProps = { title: 'Mi Tienda', sub: 'Gestión de catálogo', route: '/tienda/vendedor', colors: ['#10b981', '#059669'], icon: ShoppingBag };
-        }
-
         if (!bannerProps) return null;
+        const BannerIcon = bannerProps.icon;
 
         return (
             <View style={styles.adminQuickAccess}>
                 <TouchableOpacity
                     style={[styles.adminBanner, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                    onPress={() => router.push(bannerProps!.route as any)}
+                    onPress={() => router.push(bannerProps.route as any)}
                 >
                     <LinearGradient
                         colors={bannerProps.colors}
@@ -200,7 +70,7 @@ export default function MenuScreen() {
                         end={{ x: 1, y: 1 }}
                     />
                     <View style={styles.bannerIcon}>
-                        <bannerProps.icon size={24} color="#fff" />
+                        <BannerIcon size={24} color="#fff" />
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={styles.bannerTitle}>{bannerProps.title}</Text>
@@ -213,27 +83,30 @@ export default function MenuScreen() {
     };
 
     // ── Menu item ────────────────────────────────────────────────────
-    const renderMenuItem = (item: any) => (
-        <TouchableOpacity
-            key={item.id}
-            activeOpacity={0.7}
-            style={[styles.menuCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => router.push(item.route as any)}
-        >
-            <View style={[styles.menuIconBox, { backgroundColor: item.color + '15' }]}>
-                <item.icon size={20} color={item.color} />
-            </View>
-            <View style={styles.menuInfo}>
-                <Text style={[styles.menuLabel, { color: theme.text }]}>{item.label}</Text>
-                <Text style={[styles.menuDesc, { color: theme.textMuted }]} numberOfLines={1}>{item.desc}</Text>
-            </View>
-            <ChevronRight size={16} color={theme.textMuted} />
-        </TouchableOpacity>
-    );
+    const renderMenuItem = (item: any) => {
+        const ItemIcon = item.icon;
+        return (
+            <TouchableOpacity
+                key={item.id}
+                activeOpacity={0.7}
+                style={[styles.menuCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                onPress={() => router.push(item.route as any)}
+            >
+                <View style={[styles.menuIconBox, { backgroundColor: item.color + '15' }]}>
+                    <ItemIcon size={20} color={item.color} />
+                </View>
+                <View style={styles.menuInfo}>
+                    <Text style={[styles.menuLabel, { color: theme.text }]}>{item.label}</Text>
+                    <Text style={[styles.menuDesc, { color: theme.textMuted }]} numberOfLines={1}>{item.desc}</Text>
+                </View>
+                <ChevronRight size={16} color={theme.textMuted} />
+            </TouchableOpacity>
+        );
+    };
 
     // ── Render ───────────────────────────────────────────────────────
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             <StatusBar barStyle="light-content" />
 
             <ScrollView
@@ -245,17 +118,20 @@ export default function MenuScreen() {
                 <View style={styles.content}>
                     {renderBanner()}
 
-                    {allSections.map((section, idx) => (
-                        <View key={idx} style={styles.section}>
-                            <View style={styles.sectionHeader}>
-                                {section.icon && <section.icon size={16} color={theme.textMuted} />}
-                                <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>{section.title.toUpperCase()}</Text>
+                    {allSections.map((section, idx) => {
+                        const SectionIcon = section.icon;
+                        return (
+                            <View key={idx} style={styles.section}>
+                                <View style={styles.sectionHeader}>
+                                    {SectionIcon && <SectionIcon size={16} color={theme.textMuted} />}
+                                    <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>{section.title.toUpperCase()}</Text>
+                                </View>
+                                <View style={styles.grid}>
+                                    {section.data.map(renderMenuItem)}
+                                </View>
                             </View>
-                            <View style={styles.grid}>
-                                {section.data.map(renderMenuItem)}
-                            </View>
-                        </View>
-                    ))}
+                        );
+                    })}
 
                     <TouchableOpacity
                         style={[styles.logoutBtn, { borderColor: theme.border }]}
@@ -270,12 +146,11 @@ export default function MenuScreen() {
                     </View>
                 </View>
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
     premiumHeader: {
         paddingHorizontal: 24,
         paddingBottom: 40,

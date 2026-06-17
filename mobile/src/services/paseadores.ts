@@ -83,3 +83,30 @@ export async function updateWalker(id: string, data: Partial<Walker>): Promise<W
 export async function getMyWalkerProfile(): Promise<Walker> {
     return apiFetch<Walker>("paseadores", "/walkers/me/profile");
 }
+
+// --- Walker Reviews ---
+
+export interface WalkerReview {
+    id: string;
+    walker_id: string;
+    request_id: string;
+    user_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string;
+}
+
+export async function createWalkerReview(
+    walkerId: string,
+    requestId: string,
+    data: { rating: number; comment: string }
+): Promise<WalkerReview> {
+    return apiFetch<WalkerReview>("paseadores", `/walkers/${walkerId}/requests/${requestId}/review`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function getWalkerReviews(walkerId: string): Promise<WalkerReview[]> {
+    return apiFetch<WalkerReview[]>("paseadores", `/walkers/${walkerId}/reviews`);
+}

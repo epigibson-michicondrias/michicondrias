@@ -1,127 +1,26 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, Modal, TextInput, Linking } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { getMyConsultations, getVetConsultations, bookConsultation, updateConsultationStatus, ConsultationItem, getClinics, getVets } from '../../src/services/directorio';
-import { getUserPets } from '../../src/services/mascotas';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, Plus, Video, Calendar, Clock, VideoOff, MessageSquare, ExternalLink, X, Heart, Building, User } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Picker } from '@react-native-picker/picker';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useVideoConsultations } from '@/src/hooks/clinica/useVideoConsultations';
+import { ConsultationItem } from '@/src/services/directorio';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+import { Plus, Video, Calendar, Clock, VideoOff, ExternalLink, X } from 'lucide-react-native';
+import { Picker } from '@react-native-picker/picker';
 
 export default function ConsultasVideoScreen() {
-    const router = useRouter();
-    const { user } = useAuth();
-    const insets = useSafeAreaInsets();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-
-    const isVet = user?.role_name === 'veterinario';
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [loadingAction, setLoadingAction] = useState(false);
-
-    // Form State
-    const [selectedPetId, setSelectedPetId] = useState('');
-    const [selectedClinicId, setSelectedClinicId] = useState('');
-    const [selectedVetId, setSelectedVetId] = useState('');
-    const [scheduledAt, setScheduledAt] = useState('');
-    const [notes, setNotes] = useState('');
-
-    // Query Consultations
-    const { data: consultations = [], isLoading } = useQuery({
-        queryKey: ['consultations', isVet],
-        queryFn: () => isVet ? getVetConsultations() : getMyConsultations(),
-        enabled: !!user?.id,
-    });
-
-    // Query helper data for booking
-    const { data: pets = [] } = useQuery({
-        queryKey: ['user-pets', user?.id],
-        queryFn: () => user ? getUserPets(user.id) : Promise.resolve([]),
-        enabled: !isVet && !!user?.id,
-    });
-
-    const { data: clinics = [] } = useQuery({
-        queryKey: ['public-clinics'],
-        queryFn: getClinics,
-        enabled: !isVet,
-    });
-
-    const { data: vets = [] } = useQuery({
-        queryKey: ['public-vets', selectedClinicId],
-        queryFn: () => getVets(selectedClinicId || undefined),
-        enabled: !isVet,
-    });
-
-    const resetForm = () => {
-        setSelectedPetId('');
-        setSelectedClinicId('');
-        setSelectedVetId('');
-        setScheduledAt('');
-        setNotes('');
-    };
-
-    const handleBook = async () => {
-        if (!scheduledAt.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'La fecha y hora de la consulta es obligatoria.' });
-            return;
-        }
-
-        setLoadingAction(true);
-        try {
-            await bookConsultation({
-                clinic_id: selectedClinicId || undefined,
-                vet_id: selectedVetId || undefined,
-                pet_id: selectedPetId || undefined,
-                scheduled_at: scheduledAt.trim(),
-                notes: notes.trim() || undefined,
-            });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Tu videoconsulta ha sido reservada.' });
-            setModalVisible(false);
-            resetForm();
-            queryClient.invalidateQueries({ queryKey: ['consultations'] });
-        } catch (err: any) {
-            showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo reservar la consulta.' });
-        } finally {
-            setLoadingAction(false);
-        }
-    };
-
-    const handleStatusUpdate = async (id: string, newStatus: string) => {
-        try {
-            await updateConsultationStatus(id, newStatus);
-            showAlert({ type: 'success', title: 'Éxito', message: `Videoconsulta marcada como ${newStatus}.` });
-            queryClient.invalidateQueries({ queryKey: ['consultations'] });
-        } catch (err: any) {
-            showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo actualizar el estado.' });
-        }
-    };
-
-    const launchVideoRoom = (url?: string) => {
-        if (!url) {
-            showAlert({ type: 'info', title: 'No disponible', message: 'La sala de video aún no ha sido creada o iniciada.' });
-            return;
-        }
-        Linking.openURL(url).catch(() => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo abrir el enlace de video.' });
-        });
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'scheduled': return '#3b82f6';
-            case 'active': return '#10b981';
-            case 'completed': return '#8b5cf6';
-            case 'cancelled': return '#ef4444';
-            default: return theme.textMuted;
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        modalVisible, setModalVisible, loadingAction,
+        selectedPetId, setSelectedPetId, selectedClinicId, setSelectedClinicId,
+        selectedVetId, setSelectedVetId, scheduledAt, setScheduledAt,
+        notes, setNotes, isVet, isLoading, consultations,
+        pets, clinics, vets, handleBook, handleStatusUpdate,
+        launchVideoRoom, getStatusColor, openBookingModal,
+    } = useVideoConsultations();
 
     const renderConsultationItem = ({ item }: { item: ConsultationItem }) => {
         const statusColor = getStatusColor(item.status);
@@ -199,31 +98,26 @@ export default function ConsultasVideoScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <TouchableOpacity style={[styles.backBtn, { borderColor: theme.border }]} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitleText, { color: theme.text }]}>Videoconsultas</Text>
-                {!isVet ? (
-                    <TouchableOpacity
-                        style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                        onPress={() => {
-                            resetForm();
-                            setModalVisible(true);
-                        }}
-                    >
-                        <Plus size={20} color="#fff" />
-                    </TouchableOpacity>
-                ) : (
-                    <View style={{ width: 44 }} />
-                )}
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Videoconsultas"
+                rightElement={
+                    !isVet ? (
+                        <TouchableOpacity
+                            style={[styles.addBtn, { backgroundColor: theme.primary }]}
+                            onPress={openBookingModal}
+                        >
+                            <Plus size={20} color="#fff" />
+                        </TouchableOpacity>
+                    ) : (
+                        <View style={{ width: 44 }} />
+                    )
+                }
+            />
 
             <View style={styles.content}>
                 {isLoading ? (
-                    <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />
+                    <LoadingOverlay message="Cargando videoconsultas..." />
                 ) : (
                     <FlatList
                         data={consultations}
@@ -232,12 +126,10 @@ export default function ConsultasVideoScreen() {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={styles.listContainer}
                         ListEmptyComponent={
-                            <View style={styles.emptyState}>
-                                <VideoOff size={64} color={theme.textMuted} strokeWidth={1} />
-                                <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                    No tienes videoconsultas programadas
-                                </Text>
-                            </View>
+                            <EmptyState
+                                icon={<VideoOff size={64} color={theme.textMuted} strokeWidth={1} />}
+                                title="No tienes videoconsultas programadas"
+                            />
                         }
                     />
                 )}
@@ -338,211 +230,54 @@ export default function ConsultasVideoScreen() {
                     </KeyboardScreen>
                 </View>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingBottom: 16,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        borderWidth: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitleText: {
-        fontSize: 18,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-    },
-    addBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     content: { flex: 1 },
-    loader: { flex: 1, justifyContent: 'center' },
     listContainer: { padding: 24, gap: 16, paddingBottom: 100 },
     card: {
-        padding: 16,
-        borderRadius: 24,
-        borderWidth: 1,
-        gap: 12,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
+        padding: 16, borderRadius: 24, borderWidth: 1, gap: 12,
+        elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05, shadowRadius: 5,
     },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    roomBadgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    cardTitle: {
-        fontSize: 15,
-        fontWeight: '800',
-    },
-    statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
-    },
-    statusText: {
-        fontSize: 10,
-        fontWeight: '800',
-    },
-    cardBody: {
-        gap: 6,
-    },
-    timeRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    timeText: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    notesBox: {
-        padding: 12,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.02)',
-        marginTop: 6,
-    },
-    notesLabel: {
-        fontSize: 9,
-        fontWeight: '800',
-        letterSpacing: 0.5,
-        marginBottom: 4,
-    },
-    notesText: {
-        fontSize: 12,
-        fontWeight: '500',
-        lineHeight: 16,
-    },
+    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    roomBadgeContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    cardTitle: { fontSize: 15, fontWeight: '800' },
+    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+    statusText: { fontSize: 10, fontWeight: '800' },
+    cardBody: { gap: 6 },
+    timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    timeText: { fontSize: 13, fontWeight: '600' },
+    notesBox: { padding: 12, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.02)', marginTop: 6 },
+    notesLabel: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5, marginBottom: 4 },
+    notesText: { fontSize: 12, fontWeight: '500', lineHeight: 16 },
     cardFooter: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        borderTopWidth: 1,
-        paddingTop: 12,
-        gap: 10,
+        flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center',
+        borderTopWidth: 1, paddingTop: 12, gap: 10,
     },
-    btnPrimary: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 10,
-    },
-    btnSecondary: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    btnText: {
-        color: '#fff',
-        fontWeight: '800',
-        fontSize: 13,
-    },
+    btnPrimary: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
+    btnSecondary: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+    btnText: { color: '#fff', fontWeight: '800', fontSize: 13 },
     disabledRoom: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 10,
+        flexDirection: 'row', alignItems: 'center', gap: 6,
+        paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10,
         backgroundColor: 'rgba(255,255,255,0.05)',
     },
-    disabledRoomText: {
-        fontSize: 12,
-        fontWeight: '700',
-    },
-    emptyState: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-        gap: 16,
-    },
-    emptyText: {
-        fontSize: 14,
-        fontWeight: '700',
-        textAlign: 'center',
-    },
+    disabledRoomText: { fontSize: 12, fontWeight: '700' },
+    addBtn: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     modalContainer: { flex: 1 },
     modalHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingVertical: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
+        flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+        paddingHorizontal: 24, paddingVertical: 20,
+        borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)',
     },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: '800',
-    },
-    saveBtnText: {
-        fontSize: 16,
-        fontWeight: '800',
-    },
-    modalContent: {
-        flex: 1,
-        padding: 24,
-    },
-    formGroup: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 12,
-        fontWeight: '800',
-        marginBottom: 8,
-        textTransform: 'uppercase',
-    },
-    pickerContainer: {
-        height: 54,
-        borderRadius: 16,
-        borderWidth: 1,
-        justifyContent: 'center',
-        overflow: 'hidden',
-    },
-    input: {
-        height: 52,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        borderWidth: 1,
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    textArea: {
-        height: 100,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingTop: 12,
-        borderWidth: 1,
-        fontSize: 14,
-        fontWeight: '600',
-        textAlignVertical: 'top',
-    }
+    modalTitle: { fontSize: 18, fontWeight: '800' },
+    saveBtnText: { fontSize: 16, fontWeight: '800' },
+    formGroup: { marginBottom: 20 },
+    label: { fontSize: 12, fontWeight: '800', marginBottom: 8, textTransform: 'uppercase' },
+    pickerContainer: { height: 54, borderRadius: 16, borderWidth: 1, justifyContent: 'center', overflow: 'hidden' },
+    input: { height: 52, borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, fontSize: 14, fontWeight: '600' },
+    textArea: { height: 100, borderRadius: 16, paddingHorizontal: 16, paddingTop: 12, borderWidth: 1, fontSize: 14, fontWeight: '600', textAlignVertical: 'top' },
 });

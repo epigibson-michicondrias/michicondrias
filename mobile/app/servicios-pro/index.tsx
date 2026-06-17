@@ -1,36 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, TextInput, ActivityIndicator } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
-import { listWalkers, Walker } from '../../src/services/paseadores';
-import { listSitters, Sitter } from '../../src/services/cuidadores';
 import { useRouter } from 'expo-router';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Search, Star, ShieldCheck, MapPin, Dog, Cat, ChevronRight, User } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useServiciosPro } from '@/src/hooks/servicios-pro';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User } from 'lucide-react-native';
 
 export default function ServiciosProScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [activeTab, setActiveTab] = useState<'walkers' | 'sitters'>('walkers');
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: walkers = [], isLoading: loadingWalkers } = useQuery({
-        queryKey: ['walkers'],
-        queryFn: () => listWalkers(),
-        enabled: activeTab === 'walkers',
-    });
-
-    const { data: sitters = [], isLoading: loadingSitters } = useQuery({
-        queryKey: ['sitters'],
-        queryFn: () => listSitters(),
-        enabled: activeTab === 'sitters',
-    });
-
-    const filteredData = (activeTab === 'walkers' ? walkers : sitters).filter((item: any) =>
-        item.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const { theme } = useTheme();
+    const { activeTab, setActiveTab, searchQuery, setSearchQuery, filteredData, isLoading } = useServiciosPro();
 
     const renderItem = ({ item }: { item: any }) => (
         <TouchableOpacity
@@ -78,19 +58,19 @@ export default function ServiciosProScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <View>
-                    <Text style={[styles.title, { color: theme.text }]}>Servicios Pro</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Expertos al cuidado de tu mascota</Text>
-                </View>
-                <TouchableOpacity
-                    style={[styles.profileBtn, { backgroundColor: theme.surface }]}
-                    onPress={() => router.push('/perfil/pro' as any)}
-                >
-                    <User size={24} color={theme.text} />
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Servicios Pro"
+                subtitle="Expertos al cuidado de tu mascota"
+                rightElement={
+                    <TouchableOpacity
+                        style={[styles.profileBtn, { backgroundColor: theme.surface }]}
+                        onPress={() => router.push('/perfil/pro' as any)}
+                    >
+                        <User size={24} color={theme.text} />
+                    </TouchableOpacity>
+                }
+            />
 
             <View style={styles.tabsContainer}>
                 <TouchableOpacity
@@ -120,7 +100,7 @@ export default function ServiciosProScreen() {
                 </View>
             </View>
 
-            {(loadingWalkers || loadingSitters) ? (
+            {isLoading ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.primary} />
                 </View>
@@ -138,30 +118,11 @@ export default function ServiciosProScreen() {
                     }
                 />
             )}
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 24,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 14,
-        marginTop: 4,
-    },
     profileBtn: {
         width: 52,
         height: 52,

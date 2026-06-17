@@ -1,102 +1,47 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyClinics } from '../../src/services/directorio';
-import { getClinicPrescriptions, createPrescription, PrescriptionCreatePayload } from '../../src/services/prescriptions';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, FileText, PlusCircle, AlertCircle } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, FlatList } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { usePrescriptions } from '@/src/hooks/clinica/usePrescriptions';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import SearchBar from '@/src/components/SearchBar';
+import EmptyState from '@/src/components/EmptyState';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
+import { FileText, PlusCircle, AlertCircle, X } from 'lucide-react-native';
 
 export default function RecetasScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    
-    const [modalVisible, setModalVisible] = useState(false);
-    const [loadingAction, setLoadingAction] = useState(false);
-    const [newPresc, setNewPresc] = useState<PrescriptionCreatePayload>({
-        patientId: '',
-        veterinarianId: 'V-1',
-        medications: [{ name: '', dosage: '', frequency: '', duration: '' }],
-        notes: ''
-    });
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-    const clinic = clinics[0];
-
-    const { data: prescriptions = [], isLoading: loadingPrescriptions } = useQuery({
-        queryKey: ['clinic-prescriptions', clinic?.id],
-        queryFn: () => getClinicPrescriptions(clinic!.id),
-        enabled: !!clinic?.id,
-        refetchInterval: 30000,
-    });
+    const { theme } = useTheme();
+    const {
+        modalVisible, setModalVisible, loadingAction, patientPickerVisible,
+        setPatientPickerVisible, patientSearch, setPatientSearch, newPresc,
+        setNewPresc, loadingClinics, loadingPrescriptions, prescriptions,
+        resolvedPets, filteredPets, loadingPets, handleSavePrescription, selectPatient,
+        handleUpdateStatus, isUpdatingStatus,
+    } = usePrescriptions();
 
     if (loadingClinics) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando recetas..." />
+            </ScreenContainer>
         );
     }
 
-    const handleSavePrescription = async () => {
-        if (!newPresc.patientId || !newPresc.medications[0].name) {
-            showAlert({ type: 'error', title: 'Error', message: 'ID de Paciente y al menos un medicamento son obligatorios' });
-            return;
-        }
-        setLoadingAction(true);
-        try {
-            await createPrescription(clinic!.id, newPresc);
-            setModalVisible(false);
-            setNewPresc({
-                patientId: '',
-                veterinarianId: 'V-1',
-                medications: [{ name: '', dosage: '', frequency: '', duration: '' }],
-                notes: ''
-            });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Receta emitida correctamente' });
-        } catch (error) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la receta' });
-        } finally {
-            setLoadingAction(false);
-        }
-    };
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Premium Header */}
-            <LinearGradient
-                colors={['#10b981', '#059669', '#047857']}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Recetas Médicas</Text>
-                        <Text style={styles.subtitle}>{clinic?.name}</Text>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Recetas Médicas"
+                gradient={['#10b981', '#059669', '#047857']}
+                rightElement={
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
                         onPress={() => setModalVisible(true)}
                     >
                         <PlusCircle size={20} color="#fff" />
                     </TouchableOpacity>
-                </View>
-            </LinearGradient>
+                }
+            />
 
             <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
@@ -104,10 +49,10 @@ export default function RecetasScreen() {
                     {loadingPrescriptions ? (
                         <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
                     ) : prescriptions.length === 0 ? (
-                        <View style={[styles.emptyRecent, { backgroundColor: theme.surface }]}>
-                            <FileText size={40} color={theme.textMuted} />
-                            <Text style={{ color: theme.textMuted, fontWeight: '600', marginTop: 12 }}>No hay recetas emitidas</Text>
-                        </View>
+                        <EmptyState
+                            icon={<FileText size={40} color={theme.textMuted} />}
+                            title="No hay recetas emitidas"
+                        />
                     ) : (
                         prescriptions.map(presc => (
                             <View key={presc.id} style={[styles.prescCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -148,6 +93,25 @@ export default function RecetasScreen() {
                                         <Text style={[styles.notesText, { color: theme.textMuted }]}>{presc.notes}</Text>
                                     </View>
                                 )}
+
+                                {presc.status === 'active' && (
+                                    <View style={styles.statusActions}>
+                                        <TouchableOpacity
+                                            style={[styles.statusBtn, { backgroundColor: '#10b98115' }]}
+                                            onPress={() => handleUpdateStatus(presc.id, 'filled')}
+                                            disabled={isUpdatingStatus}
+                                        >
+                                            <Text style={[styles.statusBtnText, { color: '#10b981' }]}>✓ Surtir</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[styles.statusBtn, { backgroundColor: '#ef444415' }]}
+                                            onPress={() => handleUpdateStatus(presc.id, 'cancelled')}
+                                            disabled={isUpdatingStatus}
+                                        >
+                                            <Text style={[styles.statusBtnText, { color: '#ef4444' }]}>✕ Cancelar</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
                             </View>
                         ))
                     )}
@@ -161,14 +125,17 @@ export default function RecetasScreen() {
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Nueva Receta</Text>
                         
                         <KeyboardScreen>
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>ID del Paciente *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newPresc.patientId}
-                                onChangeText={t => setNewPresc({...newPresc, patientId: t})}
-                                placeholder="UUID del paciente"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <Text style={[styles.inputLabel, { color: theme.text }]}>Paciente *</Text>
+                            <TouchableOpacity
+                                style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.border, justifyContent: 'center' }]}
+                                onPress={() => setPatientPickerVisible(true)}
+                            >
+                                <Text style={{ color: newPresc.patientId ? theme.text : theme.textMuted, fontSize: 15, fontWeight: '500' }}>
+                                    {newPresc.patientId
+                                        ? resolvedPets.find(p => p.id === newPresc.patientId)?.name || `Paciente: ${newPresc.patientId.substring(0, 8)}...`
+                                        : 'Seleccionar paciente'}
+                                </Text>
+                            </TouchableOpacity>
 
                             <Text style={[styles.inputLabel, { color: theme.text, marginTop: 24, fontSize: 14 }]}>Medicamento 1</Text>
                             
@@ -252,38 +219,63 @@ export default function RecetasScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+
+            {/* Patient Picker Modal */}
+            <Modal visible={patientPickerVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.background, maxHeight: '70%' }]}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                            <Text style={[styles.modalTitle, { marginBottom: 0 }]}>Seleccionar Paciente</Text>
+                            <TouchableOpacity onPress={() => { setPatientPickerVisible(false); setPatientSearch(''); }}>
+                                <X size={24} color={theme.textMuted} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={{ marginBottom: 16 }}>
+                            <SearchBar
+                                value={patientSearch}
+                                onChangeText={setPatientSearch}
+                                placeholder="Buscar por nombre..."
+                            />
+                        </View>
+
+                        {loadingPets ? (
+                            <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                        ) : (
+                            <FlatList
+                                data={filteredPets}
+                                keyExtractor={(item) => item.id}
+                                style={{ maxHeight: 400 }}
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity
+                                        style={[styles.petPickerItem, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                                        onPress={() => selectPatient(item.id)}
+                                    >
+                                        <View style={styles.petPickerInfo}>
+                                            <Text style={[styles.petPickerName, { color: theme.text }]}>{item.name}</Text>
+                                            <Text style={[styles.petPickerBreed, { color: theme.textMuted }]}>
+                                                {item.breed || item.species} · {item.id.substring(0, 8)}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                )}
+                                ListEmptyComponent={
+                                    <View style={{ padding: 40, alignItems: 'center' }}>
+                                        <Text style={{ color: theme.textMuted }}>No se encontraron pacientes</Text>
+                                    </View>
+                                }
+                            />
+                        )}
+                    </View>
+                </View>
+            </Modal>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    premiumHeader: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 24,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        elevation: 5,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    headerInfo: { alignItems: 'center' },
-    title: { fontSize: 18, fontWeight: '900', color: '#fff' },
-    subtitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
     contentScroll: { flex: 1 },
     content: { padding: 24, paddingBottom: 100 },
-    emptyRecent: {
-        padding: 40, borderRadius: 24, alignItems: 'center',
-        borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.1)',
-        marginTop: 20
-    },
     prescCard: {
         padding: 16, borderRadius: 20, borderWidth: 1,
         marginBottom: 16
@@ -311,5 +303,13 @@ const styles = StyleSheet.create({
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
     cancelBtnText: { fontSize: 15, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' }
+    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    petPickerItem: { padding: 16, borderRadius: 16, borderWidth: 1, marginBottom: 10 },
+    petPickerInfo: { flex: 1 },
+    petPickerName: { fontSize: 16, fontWeight: '800', marginBottom: 2 },
+    petPickerBreed: { fontSize: 13, fontWeight: '500' },
+    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    statusActions: { flexDirection: 'row', gap: 10, marginTop: 12 },
+    statusBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
+    statusBtnText: { fontSize: 13, fontWeight: '800' },
 });

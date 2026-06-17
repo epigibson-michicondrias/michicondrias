@@ -1,122 +1,41 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMySitRequests, SitRequest } from '@/src/services/cuidadores';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useSitterCalendar, MONTHS_ES, DAYS_ES, STATUS_COLORS } from '@/src/hooks/cuidadores/useSitterCalendar';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 
-const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-const DAYS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-
-const STATUS_COLORS: Record<string, { color: string; bg: string; label: string }> = {
-  pending: { color: '#f59e0b', bg: '#f59e0b20', label: 'Pendiente' },
-  confirmed: { color: '#10b981', bg: '#10b98120', label: 'Confirmado' },
-  completed: { color: '#6366f1', bg: '#6366f120', label: 'Completado' },
-  cancelled: { color: '#ef4444', bg: '#ef444420', label: 'Cancelado' },
-};
-
-function getDaysInMonth(year: number, month: number) {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-function getFirstDayOfMonth(year: number, month: number) {
-  return new Date(year, month, 1).getDay();
-}
-
-function datesInRange(startDate: string, endDate: string): string[] {
-  const keys: string[] = [];
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const cur = new Date(start);
-  while (cur <= end) {
-    keys.push(cur.toISOString().substring(0, 10));
-    cur.setDate(cur.getDate() + 1);
-  }
-  return keys;
-}
-
 export default function CuidadoresCalendarioScreen() {
-  const router = useRouter();
-  const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? 'dark'];
-
-  const today = new Date();
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
-
-  const { data: requests = [], isLoading } = useQuery({
-    queryKey: ['my-sit-requests'],
-    queryFn: getMySitRequests,
-  });
-
-  const requestsByDate = useMemo(() => {
-    const map: Record<string, SitRequest[]> = {};
-    requests.forEach((req) => {
-      if (req.start_date && req.end_date) {
-        const keys = datesInRange(req.start_date.substring(0, 10), req.end_date.substring(0, 10));
-        keys.forEach((key) => {
-          if (!map[key]) map[key] = [];
-          map[key].push(req);
-        });
-      }
-    });
-    return map;
-  }, [requests]);
-
-  const daysInMonth = getDaysInMonth(currentYear, currentMonth);
-  const firstDay = getFirstDayOfMonth(currentYear, currentMonth);
-
-  const calendarDays: (number | null)[] = [];
-  for (let i = 0; i < firstDay; i++) calendarDays.push(null);
-  for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
-
-  const selectedDateKey = selectedDay
-    ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`
-    : null;
-
-  const selectedRequests = selectedDateKey ? requestsByDate[selectedDateKey] || [] : [];
-
-  const prevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear((y) => y - 1);
-    } else {
-      setCurrentMonth((m) => m - 1);
-    }
-    setSelectedDay(null);
-  };
-
-  const nextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear((y) => y + 1);
-    } else {
-      setCurrentMonth((m) => m + 1);
-    }
-    setSelectedDay(null);
-  };
+  const { theme } = useTheme();
+  const {
+    today,
+    currentMonth,
+    currentYear,
+    selectedDay,
+    setSelectedDay,
+    calendarDays,
+    requestsByDate,
+    selectedRequests,
+    isLoading,
+    prevMonth,
+    nextMonth,
+  } = useSitterCalendar();
 
   if (isLoading) {
     return (
-      <View style={[styles.center, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
+      <ScreenContainer>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={theme.primary} />
+        </View>
+      </ScreenContainer>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.surface }]} onPress={() => router.back()}>
-          <ChevronLeft size={20} color={theme.text} />
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.text }]}>Calendario</Text>
-        <View style={{ width: 44 }} />
-      </View>
+    <ScreenContainer>
+      <ScreenHeader title="Calendario" />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Month Navigator */}
@@ -239,29 +158,12 @@ export default function CuidadoresCalendarioScreen() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 60,
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-  backBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: { fontSize: 20, fontWeight: '900' },
   monthNav: {
     flexDirection: 'row',
     alignItems: 'center',

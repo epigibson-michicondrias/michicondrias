@@ -1,251 +1,189 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getClinic, updateClinic, ClinicCreate } from '@/src/services/directorio';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, Save, MapPin, Phone, Mail, Globe, Info, Clock, ShieldCheck, Camera } from 'lucide-react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useClinicConfig } from '@/src/hooks/clinica/useClinicConfig';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Save, MapPin, Phone, Mail, Clock, ShieldCheck, Camera } from 'lucide-react-native';
 
 export default function ConfigClinicaScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [loading, setLoading] = useState(false);
-    const [form, setForm] = useState<ClinicCreate>({
-        name: '',
-        address: '',
-        city: '',
-        state: '',
-        phone: '',
-        email: '',
-        website: '',
-        description: '',
-        logo_url: '',
-        is_24_hours: false,
-        has_emergency: false,
-    });
-
-    const { data: clinic, isLoading: loadingClinic } = useQuery({
-        queryKey: ['clinic-detail', id],
-        queryFn: () => getClinic(id as string),
-        enabled: !!id,
-    });
-
-    useEffect(() => {
-        if (clinic) {
-            setForm({
-                name: clinic.name,
-                address: clinic.address,
-                city: clinic.city,
-                state: clinic.state,
-                phone: clinic.phone,
-                email: clinic.email,
-                website: clinic.website,
-                description: clinic.description,
-                logo_url: clinic.logo_url,
-                is_24_hours: clinic.is_24_hours,
-                has_emergency: clinic.has_emergency,
-            });
-        }
-    }, [clinic]);
-
-    const handleSave = async () => {
-        if (!form.name) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre de la clínica es obligatorio' });
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await updateClinic(id as string, form);
-            showAlert({ type: 'success', title: 'Éxito', message: 'Perfil de clínica actualizado correctamente' });
-            router.back();
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el perfil' });
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        loading, form, setForm, loadingClinic, handleSave, updateField,
+    } = useClinicConfig(id as string);
 
     if (loadingClinic) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
+            <ScreenContainer style={styles.center}>
                 <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            </ScreenContainer>
         );
     }
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-            <ScrollView style={[styles.container, { backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <View style={styles.titleBox}>
-                        <Text style={[styles.headerTitle, { color: theme.text }]}>Configuración</Text>
-                        <Text style={[styles.headerSubtitle, { color: theme.textMuted }]}>Perfil de tu clínica</Text>
-                    </View>
-                    <TouchableOpacity
-                        style={[styles.saveTopBtn, { backgroundColor: theme.primary }]}
-                        onPress={handleSave}
-                        disabled={loading}
-                    >
-                        {loading ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.content}>
-                    {/* Logo Section */}
-                    <View style={styles.logoSection}>
-                        <View style={styles.logoContainer}>
-                            <Image
-                                source={{ uri: form.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=400' }}
-                                style={styles.logoImage}
-                            />
-                            <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.primary }]}>
-                                <Camera size={16} color="#fff" />
+            <ScreenContainer>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <ScreenHeader
+                        title="Configuración"
+                        subtitle="Perfil de tu clínica"
+                        rightElement={
+                            <TouchableOpacity
+                                style={[styles.saveTopBtn, { backgroundColor: theme.primary }]}
+                                onPress={handleSave}
+                                disabled={loading}
+                            >
+                                {loading ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
                             </TouchableOpacity>
+                        }
+                    />
+
+                    <View style={styles.content}>
+                        {/* Logo Section */}
+                        <View style={styles.logoSection}>
+                            <View style={styles.logoContainer}>
+                                <Image
+                                    source={{ uri: form.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=400' }}
+                                    style={styles.logoImage}
+                                />
+                                <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.primary }]}>
+                                    <Camera size={16} color="#fff" />
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={[styles.logoHint, { color: theme.textMuted }]}>Toca la cámara para cambiar el logo</Text>
                         </View>
-                        <Text style={[styles.logoHint, { color: theme.textMuted }]}>Toca la cámara para cambiar el logo</Text>
-                    </View>
 
-                    {/* Basic Info */}
-                    <Text style={[styles.sectionLabel, { color: theme.text }]}>Información General</Text>
+                        {/* Basic Info */}
+                        <Text style={[styles.sectionLabel, { color: theme.text }]}>Información General</Text>
 
-                    <View style={styles.formGroup}>
-                        <Text style={[styles.label, { color: theme.textMuted }]}>Nombre de la Clínica *</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            value={form.name}
-                            onChangeText={(v) => setForm({ ...form, name: v })}
-                        />
-                    </View>
-
-                    <View style={styles.formGroup}>
-                        <Text style={[styles.label, { color: theme.textMuted }]}>Descripción</Text>
-                        <TextInput
-                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            value={form.description || ''}
-                            onChangeText={(v) => setForm({ ...form, description: v })}
-                            multiline
-                            numberOfLines={4}
-                        />
-                    </View>
-
-                    {/* Contact Info */}
-                    <Text style={[styles.sectionLabel, { color: theme.text }]}>Contacto y Ubicación</Text>
-
-                    <View style={styles.formGroup}>
-                        <Text style={[styles.label, { color: theme.textMuted }]}>Dirección</Text>
-                        <View style={[styles.inputRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                            <MapPin size={18} color={theme.textMuted} />
-                            <TextInput
-                                style={[styles.rowInput, { color: theme.text }]}
-                                value={form.address || ''}
-                                onChangeText={(v) => setForm({ ...form, address: v })}
-                            />
-                        </View>
-                    </View>
-
-                    <View style={styles.row}>
-                        <View style={[styles.formGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Ciudad</Text>
+                        <View style={styles.formGroup}>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>Nombre de la Clínica *</Text>
                             <TextInput
                                 style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={form.city || ''}
-                                onChangeText={(v) => setForm({ ...form, city: v })}
+                                value={form.name}
+                                onChangeText={(v) => updateField('name', v)}
                             />
                         </View>
-                        <View style={[styles.formGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono</Text>
+
+                        <View style={styles.formGroup}>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>Descripción</Text>
+                            <TextInput
+                                style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                value={form.description || ''}
+                                onChangeText={(v) => updateField('description', v)}
+                                multiline
+                                numberOfLines={4}
+                            />
+                        </View>
+
+                        {/* Contact Info */}
+                        <Text style={[styles.sectionLabel, { color: theme.text }]}>Contacto y Ubicación</Text>
+
+                        <View style={styles.formGroup}>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>Dirección</Text>
                             <View style={[styles.inputRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                <Phone size={18} color={theme.textMuted} />
+                                <MapPin size={18} color={theme.textMuted} />
                                 <TextInput
                                     style={[styles.rowInput, { color: theme.text }]}
-                                    value={form.phone || ''}
-                                    onChangeText={(v) => setForm({ ...form, phone: v })}
-                                    keyboardType="phone-pad"
+                                    value={form.address || ''}
+                                    onChangeText={(v) => updateField('address', v)}
                                 />
                             </View>
                         </View>
-                    </View>
 
-                    <View style={styles.formGroup}>
-                        <Text style={[styles.label, { color: theme.textMuted }]}>Email</Text>
-                        <View style={[styles.inputRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                            <Mail size={18} color={theme.textMuted} />
-                            <TextInput
-                                style={[styles.rowInput, { color: theme.text }]}
-                                value={form.email || ''}
-                                onChangeText={(v) => setForm({ ...form, email: v })}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
+                        <View style={styles.row}>
+                            <View style={[styles.formGroup, { flex: 1 }]}>
+                                <Text style={[styles.label, { color: theme.textMuted }]}>Ciudad</Text>
+                                <TextInput
+                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                    value={form.city || ''}
+                                    onChangeText={(v) => updateField('city', v)}
+                                />
+                            </View>
+                            <View style={[styles.formGroup, { flex: 1 }]}>
+                                <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono</Text>
+                                <View style={[styles.inputRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                                    <Phone size={18} color={theme.textMuted} />
+                                    <TextInput
+                                        style={[styles.rowInput, { color: theme.text }]}
+                                        value={form.phone || ''}
+                                        onChangeText={(v) => updateField('phone', v)}
+                                        keyboardType="phone-pad"
+                                    />
+                                </View>
+                            </View>
+                        </View>
+
+                        <View style={styles.formGroup}>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>Email</Text>
+                            <View style={[styles.inputRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                                <Mail size={18} color={theme.textMuted} />
+                                <TextInput
+                                    style={[styles.rowInput, { color: theme.text }]}
+                                    value={form.email || ''}
+                                    onChangeText={(v) => updateField('email', v)}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                />
+                            </View>
+                        </View>
+
+                        {/* Services Status */}
+                        <Text style={[styles.sectionLabel, { color: theme.text }]}>Servicios y Disponibilidad</Text>
+
+                        <View style={[styles.switchCard, { backgroundColor: theme.surface }]}>
+                            <View style={styles.switchInfo}>
+                                <Clock size={20} color={theme.primary} />
+                                <View>
+                                    <Text style={[styles.switchLabel, { color: theme.text }]}>Servicio 24 Horas</Text>
+                                    <Text style={[styles.switchSub, { color: theme.textMuted }]}>Indica si tu clínica nunca cierra</Text>
+                                </View>
+                            </View>
+                            <Switch
+                                value={form.is_24_hours}
+                                onValueChange={(v) => updateField('is_24_hours', v)}
+                                trackColor={{ false: '#767577', true: theme.primary + '80' }}
+                                thumbColor={form.is_24_hours ? theme.primary : '#f4f3f4'}
                             />
                         </View>
-                    </View>
 
-                    {/* Services Status */}
-                    <Text style={[styles.sectionLabel, { color: theme.text }]}>Servicios y Disponibilidad</Text>
-
-                    <View style={[styles.switchCard, { backgroundColor: theme.surface }]}>
-                        <View style={styles.switchInfo}>
-                            <Clock size={20} color={theme.primary} />
-                            <View>
-                                <Text style={[styles.switchLabel, { color: theme.text }]}>Servicio 24 Horas</Text>
-                                <Text style={[styles.switchSub, { color: theme.textMuted }]}>Indica si tu clínica nunca cierra</Text>
+                        <View style={[styles.switchCard, { backgroundColor: theme.surface }]}>
+                            <View style={styles.switchInfo}>
+                                <ShieldCheck size={20} color="#10b981" />
+                                <View>
+                                    <Text style={[styles.switchLabel, { color: theme.text }]}>Urgencias Médicas</Text>
+                                    <Text style={[styles.switchSub, { color: theme.textMuted }]}>Ofreces atención inmediata de emergencia</Text>
+                                </View>
                             </View>
+                            <Switch
+                                value={form.has_emergency}
+                                onValueChange={(v) => updateField('has_emergency', v)}
+                                trackColor={{ false: '#767577', true: '#10b98180' }}
+                                thumbColor={form.has_emergency ? '#10b981' : '#f4f3f4'}
+                            />
                         </View>
-                        <Switch
-                            value={form.is_24_hours}
-                            onValueChange={(v) => setForm({ ...form, is_24_hours: v })}
-                            trackColor={{ false: '#767577', true: theme.primary + '80' }}
-                            thumbColor={form.is_24_hours ? theme.primary : '#f4f3f4'}
-                        />
+
+                        <TouchableOpacity
+                            style={[styles.saveBtn, { backgroundColor: theme.primary }]}
+                            onPress={handleSave}
+                            disabled={loading}
+                        >
+                            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Guardar Cambios</Text>}
+                        </TouchableOpacity>
+
+                        <View style={{ height: 40 }} />
                     </View>
-
-                    <View style={[styles.switchCard, { backgroundColor: theme.surface }]}>
-                        <View style={styles.switchInfo}>
-                            <ShieldCheck size={20} color="#10b981" />
-                            <View>
-                                <Text style={[styles.switchLabel, { color: theme.text }]}>Urgencias Médicas</Text>
-                                <Text style={[styles.switchSub, { color: theme.textMuted }]}>Ofreces atención inmediata de emergencia</Text>
-                            </View>
-                        </View>
-                        <Switch
-                            value={form.has_emergency}
-                            onValueChange={(v) => setForm({ ...form, has_emergency: v })}
-                            trackColor={{ false: '#767577', true: '#10b98180' }}
-                            thumbColor={form.has_emergency ? '#10b981' : '#f4f3f4'}
-                        />
-                    </View>
-
-                    <TouchableOpacity
-                        style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                        onPress={handleSave}
-                        disabled={loading}
-                    >
-                        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Guardar Cambios</Text>}
-                    </TouchableOpacity>
-
-                    <View style={{ height: 40 }} />
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </ScreenContainer>
         </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    titleBox: { flex: 1 },
-    headerTitle: { fontSize: 22, fontWeight: '900' },
-    headerSubtitle: { fontSize: 13, fontWeight: '600', marginTop: 2 },
+    center: { justifyContent: 'center', alignItems: 'center' },
     saveTopBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     content: { paddingHorizontal: 24 },
     logoSection: { alignItems: 'center', marginVertical: 32, gap: 12 },
@@ -267,5 +205,4 @@ const styles = StyleSheet.create({
     switchSub: { fontSize: 12, fontWeight: '600', marginTop: 2 },
     saveBtn: { height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: 20 },
     saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' }
 });

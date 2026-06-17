@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Search, HelpCircle, MessageCircle, Mail, Phone, ExternalLink, ChevronRight } from 'lucide-react-native';
-import Colors from '../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { Search, HelpCircle, MessageCircle, Mail, Phone, ExternalLink, ChevronRight } from 'lucide-react-native';
+import BackButton from '../src/components/BackButton';
+import { useTheme } from '@/src/hooks/useTheme';
 
 const FAQS = [
     { question: '¿Cómo reportar una mascota perdida?', answer: 'Ve a la sección "Mascotas Perdidas", presiona el botón "+" y completa el formulario con fotos y ubicación.' },
@@ -14,15 +14,12 @@ const FAQS = [
 
 export default function HelpScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme } = useTheme();
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
+                <BackButton onPress={() => router.back()} />
                 <Text style={[styles.title, { color: theme.text }]}>Centro de Ayuda</Text>
                 <View style={{ width: 44 }} />
             </View>
@@ -92,13 +89,6 @@ const styles = StyleSheet.create({
         paddingTop: 60,
         paddingHorizontal: 24,
         paddingBottom: 20,
-    },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     title: {
         flex: 1,

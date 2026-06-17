@@ -1,48 +1,39 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getActiveServices, GroomingService } from '../../src/services/grooming';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Search, Scissors, Clock, DollarSign, ChevronRight, Plus } from 'lucide-react-native';
+import { GroomingService } from '../../src/services/grooming';
+import { useGroomingServices } from '@/src/hooks/grooming';
+import { useTheme } from '@/src/hooks/useTheme';
+import { Scissors, Clock, DollarSign, Plus } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import SearchBar from '@/src/components/SearchBar';
+
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function EstilistasScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
+    const { theme } = useTheme();
+    const { user } = useAuth();
 
-    const [searchQuery, setSearchQuery] = useState('');
+    const roleName = user?.role_name || '';
+    const isStyler = roleName === 'estilista' || roleName === 'groomer' || roleName === 'admin';
 
-    const { data: services = [], isLoading } = useQuery<GroomingService[]>({
-        queryKey: ['grooming-services'],
-        queryFn: () => getActiveServices(),
-    });
-
-    const filteredServices = services.filter(service =>
-        service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (service.description || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const {
+        services,
+        isLoading,
+        refetch,
+        isRefetching,
+        searchQuery,
+        setSearchQuery,
+        hasActiveFilters,
+    } = useGroomingServices();
 
     const renderServiceItem = ({ item }: { item: GroomingService }) => (
         <TouchableOpacity
             style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => {}}
+            onPress={() => router.push({ pathname: '/grooming/agendar', params: { service_id: item.id } } as any)}
         >
             <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, { backgroundColor: theme.primary + '20' }]}>
@@ -71,81 +62,65 @@ export default function EstilistasScreen() {
         </TouchableOpacity>
     );
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>✂️ Estilistas</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Servicios de grooming y estética para tu mascota
-                </Text>
-            </View>
-
+    const listHeader = (
+        <>
             <View style={styles.actionButtons}>
-                <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/estilistas/nuevo')}
-                >
-                    <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Ofrecer Servicios</Text>
-                </TouchableOpacity>
+                {isStyler ? (
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                        onPress={() => router.push('/estilistas/nuevo')}
+                    >
+                        <Plus size={18} color="#fff" />
+                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Ofrecer Servicios</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.actionButton, { backgroundColor: theme.secondary }]}
+                        onPress={() => router.push('/grooming/mis-citas')}
+                    >
+                        <Scissors size={18} color="#fff" />
+                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Citas</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
-            <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Search size={20} color={theme.textMuted} />
-                <TextInput
-                    placeholder="Buscar servicios de grooming..."
-                    placeholderTextColor={theme.textMuted}
-                    style={[styles.searchInput, { color: theme.text }]}
+            <View style={styles.searchContainer}>
+                <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    placeholder="Buscar servicios de grooming..."
                 />
             </View>
+        </>
+    );
 
-            {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando servicios...</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={filteredServices}
-                    renderItem={renderServiceItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                {searchQuery ? 'No se encontraron servicios.' : 'No hay servicios disponibles.'}
-                            </Text>
-                        </View>
-                    }
-                />
-            )}
-        </View>
+    return (
+        <ScreenContainer>
+            <ScreenHeader
+                title="✂️ Estilistas"
+                subtitle="Servicios de grooming y estética para tu mascota"
+            />
+
+            <DataList
+                data={services}
+                renderItem={renderServiceItem}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando servicios..."
+                onRefresh={refetch}
+                isRefreshing={isRefetching}
+                header={listHeader}
+                emptyIcon={<Scissors size={32} color={theme.textMuted} />}
+                emptyTitle={hasActiveFilters ? 'No se encontraron servicios.' : 'No hay servicios disponibles.'}
+                contentStyle={styles.list}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
         gap: 12,
         marginBottom: 16,
     },
@@ -164,19 +139,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 24,
         marginBottom: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        gap: 12,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 16,
     },
     list: {
         paddingHorizontal: 24,
@@ -225,24 +188,5 @@ const styles = StyleSheet.create({
     metaText: {
         fontSize: 14,
         fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

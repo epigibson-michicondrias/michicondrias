@@ -63,7 +63,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tienda-tab"
         options={{
-          title: 'Tienda',
+          title: 'Michi-Shop',
           tabBarIcon: ({ color, focused }) => (
             <ShoppingBag size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
           ),

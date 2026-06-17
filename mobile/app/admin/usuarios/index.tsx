@@ -1,172 +1,60 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, FlatList, TextInput, StatusBar, SafeAreaView, Platform, RefreshControl, Modal, KeyboardAvoidingView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Modal, KeyboardAvoidingView, TextInput, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { adminUsersService, AdminUser, UserStats } from '../../../src/services/adminUsers';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminUsers } from '@/src/hooks/admin';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import SearchBar from '@/src/components/SearchBar';
+import { AdminUser } from '@/src/services/adminUsers';
 import {
     Users,
-    ChevronLeft,
-    Search,
-    Filter,
-    Shield,
     ShieldCheck,
     XCircle,
-    CheckCircle2,
     Mail,
-    MapPin,
-    Calendar,
     Edit,
     Trash2,
-    Plus,
-    MoreVertical,
     UserPlus,
-    UserMinus,
-    Key,
     Eye,
     EyeOff,
-    Heart,
-    Lock,
-    Settings,
-    ChevronRight,
-    LogOut,
     Check
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ROLE_IDS, ROLE_NAMES, ROLE_COLORS, getRoleName } from '@/src/constants/roles';
+import { ROLE_IDS, ROLE_COLORS, getRoleName } from '@/src/constants/roles';
 import { showAlert } from '@/src/components/AppAlert';
-
-const { width } = Dimensions.get('window');
-
-interface User extends AdminUser {
-    // La interfaz AdminUser ya contiene todos los campos necesarios
-}
 
 export default function AdminUsersScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    const queryClient = useQueryClient();
-    const [searchText, setSearchText] = useState('');
-    const [filterRole, setFilterRole] = useState('all');
-    
-    // Modal State
-    const [modalVisible, setModalVisible] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
-    const [formData, setFormData] = useState({
-        full_name: '',
-        email: '',
-        password: '',
-        role_id: ROLE_IDS.CONSUMIDOR as string,
-    });
+    const { theme, isDark } = useTheme();
+    const {
+        users,
+        filteredUsers,
+        activeCount,
+        isLoading,
+        isFetching,
+        refetch,
+        searchText,
+        setSearchText,
+        filterRole,
+        setFilterRole,
+        modalVisible,
+        editingUser,
+        formData,
+        setFormData,
+        openCreateModal,
+        openEditModal,
+        closeModal,
+        handleSubmit,
+        toggleUserStatus,
+        createUserMutation,
+        updateUserMutation,
+        handleDeletePress,
+        getRoleColorLocal,
+        getRoleLabelLocal,
+    } = useAdminUsers();
 
-    // API real de usuarios
-    const { data: users = [], isLoading, isFetching, refetch } = useQuery({
-        queryKey: ['admin-users'],
-        queryFn: () => adminUsersService.getUsers(),
-    });
-
-    const toggleUserStatus = useMutation({
-        mutationFn: async (userId: string) => {
-            return adminUsersService.toggleUserStatus(userId);
-        },
-        onSuccess: (data) => {
-            showAlert({ type: 'success', title: 'Éxito', message: `Usuario ${data.is_active ? 'activado' : 'desactivado'} correctamente.` });
-            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-        },
-        onError: (error: any) => {
-            showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo cambiar el estado del usuario" });
-        }
-    });
-
-    const createUserMutation = useMutation({
-        mutationFn: (data: any) => adminUsersService.createUser(data),
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Usuario creado correctamente.' });
-            setModalVisible(false);
-            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo crear el usuario" })
-    });
-
-    const updateUserMutation = useMutation({
-        mutationFn: ({ id, data }: { id: string, data: any }) => adminUsersService.updateUser(id, data),
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Usuario actualizado correctamente.' });
-            setModalVisible(false);
-            setEditingUser(null);
-            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-        },
-        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo actualizar el usuario" })
-    });
-
-    const deleteUserMutation = useMutation({
-        mutationFn: async (userId: string) => {
-            return adminUsersService.deleteUser(userId);
-        },
-        onSuccess: () => {
-            showAlert({ type: 'success', title: 'Éxito', message: 'Usuario eliminado correctamente.' });
-            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-        },
-        onError: (error: any) => {
-            showAlert({ type: 'error', title: 'Error', message: error.message || "No se pudo eliminar el usuario" });
-        }
-    });
-
-    const handleDeletePress = (userId: string, name: string) => {
-        showAlert({
-            type: 'error',
-            title: 'Eliminar Usuario',
-            message: `¿Estás seguro de eliminar a ${name}? Esta acción no se puede deshacer.`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Eliminar',
-            onButtonPress: () => deleteUserMutation.mutate(userId),
-        });
-    };
-
-    const filteredUsers = users.filter(user => {
-        const matchesSearch = user.full_name.toLowerCase().includes(searchText.toLowerCase()) ||
-                           user.email.toLowerCase().includes(searchText.toLowerCase());
-        
-        const userRoleName = getRoleName(user.role_id, user.role_name).toLowerCase();
-        
-        // Normalización para que coincida con las llaves del filtro
-        let normalizedUserRole = userRoleName;
-        if (userRoleName === 'veterinarian') normalizedUserRole = 'veterinario';
-        if (userRoleName === 'user' || userRoleName === 'usuario') normalizedUserRole = 'consumidor';
-        if (userRoleName === 'desconocido') normalizedUserRole = 'unassigned';
-
-        const matchesRole = filterRole === 'all' || normalizedUserRole === filterRole;
-        return matchesSearch && matchesRole;
-    });
-
-    const getRoleColorLocal = (role: string) => {
-        if (!role || role === 'unassigned' || role === 'desconocido') return '#6b7280';
-        const normalizedRole = role.toLowerCase();
-        if (normalizedRole === 'veterinarian') return ROLE_COLORS.veterinario;
-        if (normalizedRole === 'user') return ROLE_COLORS.consumidor;
-        return ROLE_COLORS[normalizedRole as keyof typeof ROLE_COLORS] || "#6b7280";
-    };
-
-    const getRoleLabelLocal = (role: string) => {
-        if (!role || role === 'unassigned' || role === 'desconocido') return 'Sin Rol';
-        const normalizedRole = role.toLowerCase();
-        switch (normalizedRole) {
-            case 'admin': return 'Administrador';
-            case 'veterinario':
-            case 'veterinarian': return 'Veterinario';
-            case 'paseador': return 'Paseador';
-            case 'consumidor':
-            case 'user': return 'Usuario';
-            default: return role;
-        }
-    };
-
-    const renderUser = ({ item }: { item: User }) => (
+    const renderUser = ({ item }: { item: AdminUser }) => (
         <TouchableOpacity 
             activeOpacity={0.7}
             style={[styles.userCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
@@ -209,16 +97,7 @@ export default function AdminUsersScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
-                        onPress={() => {
-                            setEditingUser(item);
-                            setFormData({
-                                full_name: item.full_name,
-                                email: item.email,
-                                password: '',
-                                role_id: item.role_id || ROLE_IDS.CONSUMIDOR,
-                            });
-                            setModalVisible(true);
-                        }}
+                        onPress={() => openEditModal(item)}
                     >
                         <Edit size={14} color={theme.primary} />
                     </TouchableOpacity>
@@ -234,44 +113,16 @@ export default function AdminUsersScreen() {
     );
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
-            
-            {/* Header Premium */}
-            <LinearGradient
-                colors={[theme.primary, theme.primary + 'DD', theme.primary + 'AA']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerContent}>
-                    <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} onPress={() => router.back()}>
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Usuarios</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveBadge} />
-                            <Text style={styles.subtitle}>{users.length} Registrados</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerIcon, { backgroundColor: theme.overlayHover }]}
-                        onPress={() => {
-                            setEditingUser(null);
-                            setFormData({
-                                full_name: '',
-                                email: '',
-                                password: '',
-                                role_id: ROLE_IDS.CONSUMIDOR,
-                            });
-                            setModalVisible(true);
-                        }}
-                    >
-                        <UserPlus size={22} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-            </LinearGradient>
+        <ScreenContainer>
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+
+            <ScreenHeader
+                title="Usuarios"
+                subtitle={`${users.length} Registrados`}
+                gradient={[theme.primary, theme.primary + 'DD', theme.primary + 'AA']}
+                actionIcon={UserPlus}
+                onAction={openCreateModal}
+            />
 
             {/* Stats Cards Section */}
             <View style={styles.statsContainer}>
@@ -290,29 +141,19 @@ export default function AdminUsersScreen() {
                         <ShieldCheck size={16} color="#10b981" />
                     </View>
                     <View>
-                        <Text style={[styles.statVal, { color: theme.text }]}>{users.filter(u => u.is_active).length}</Text>
+                        <Text style={[styles.statVal, { color: theme.text }]}>{activeCount}</Text>
                         <Text style={[styles.statLab, { color: theme.textMuted }]}>Activos</Text>
                     </View>
                 </View>
             </View>
 
-            {/* Search and Filters Premium */}
+            {/* Search and Filters */}
             <View style={styles.searchSection}>
-                <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <Search size={18} color={theme.textMuted} style={styles.searchIcon} />
-                    <TextInput
-                        style={[styles.searchInput, { color: theme.text }]}
-                        placeholder="Buscar nombre o email..."
-                        placeholderTextColor={theme.textMuted}
-                        value={searchText}
-                        onChangeText={setSearchText}
-                    />
-                    {searchText.length > 0 && (
-                        <TouchableOpacity onPress={() => setSearchText('')}>
-                            <XCircle size={16} color={theme.textMuted} />
-                        </TouchableOpacity>
-                    )}
-                </View>
+                <SearchBar
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    placeholder="Buscar nombre o email..."
+                />
             </View>
 
             <View style={styles.filterSection}>
@@ -340,41 +181,26 @@ export default function AdminUsersScreen() {
             </View>
 
             {/* Users List */}
-            {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando usuarios...</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={filteredUsers}
-                    renderItem={renderUser}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.usersList}
-                    showsVerticalScrollIndicator={false}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={isFetching}
-                            onRefresh={() => refetch()}
-                            tintColor={theme.primary}
-                        />
-                    }
-                    ListEmptyComponent={
-                        <View style={styles.emptyContainer}>
-                            <Users size={64} color={theme.textMuted} />
-                            <Text style={[styles.emptyTitle, { color: theme.text }]}>No hay usuarios</Text>
-                            <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>No se encontraron usuarios con los filtros actuales</Text>
-                        </View>
-                    }
-                />
-            )}
+            <DataList
+                data={filteredUsers}
+                renderItem={renderUser}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando usuarios..."
+                onRefresh={() => refetch()}
+                isRefreshing={isFetching}
+                emptyIcon={<Users size={48} color={theme.textMuted} strokeWidth={1} />}
+                emptyTitle="No hay usuarios"
+                emptySubtitle="No se encontraron usuarios con los filtros actuales"
+                contentStyle={styles.usersList}
+            />
 
             {/* Modal de Formulario */}
             <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
+                onRequestClose={closeModal}
             >
                 <View style={styles.modalOverlay}>
                     <KeyboardAvoidingView 
@@ -386,7 +212,7 @@ export default function AdminUsersScreen() {
                                 <Text style={[styles.modalTitle, { color: theme.text }]}>
                                     {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
                                 </Text>
-                                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                <TouchableOpacity onPress={closeModal}>
                                     <XCircle size={24} color={theme.textMuted} />
                                 </TouchableOpacity>
                             </View>
@@ -460,27 +286,14 @@ export default function AdminUsersScreen() {
                             <View style={styles.modalFooter}>
                                 <TouchableOpacity 
                                     style={[styles.modalBtn, styles.cancelBtn, { borderColor: theme.border }]}
-                                    onPress={() => setModalVisible(false)}
+                                    onPress={closeModal}
                                 >
                                     <Text style={[styles.btnText, { color: theme.textMuted }]}>Cancelar</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity 
                                     style={[styles.modalBtn, styles.submitBtn, { backgroundColor: theme.primary }]}
                                     disabled={createUserMutation.isPending || updateUserMutation.isPending}
-                                    onPress={() => {
-                                        if (editingUser) {
-                                            updateUserMutation.mutate({ 
-                                                id: editingUser.id, 
-                                                data: {
-                                                    full_name: formData.full_name,
-                                                    email: formData.email,
-                                                    role_id: formData.role_id
-                                                }
-                                            });
-                                        } else {
-                                            createUserMutation.mutate(formData);
-                                        }
-                                    }}
+                                    onPress={handleSubmit}
                                 >
                                     {(createUserMutation.isPending || updateUserMutation.isPending) ? (
                                         <ActivityIndicator color="#fff" size="small" />
@@ -495,60 +308,11 @@ export default function AdminUsersScreen() {
                     </KeyboardAvoidingView>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    premiumHeader: {
-        paddingHorizontal: 20,
-        paddingBottom: 16,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-    },
-    headerContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    backBtn: {
-        padding: 8,
-        borderRadius: 12,
-    },
-    headerInfo: {
-        flex: 1,
-        marginLeft: 16,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#fff',
-        letterSpacing: -0.5,
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 4,
-    },
-    liveBadge: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: '#10b981',
-        marginRight: 6,
-    },
-    subtitle: {
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.85)',
-        fontWeight: '600',
-    },
-    headerIcon: {
-        padding: 10,
-        borderRadius: 14,
-    },
     statsContainer: {
         flexDirection: 'row',
         paddingHorizontal: 20,
@@ -589,27 +353,6 @@ const styles = StyleSheet.create({
     searchSection: {
         paddingHorizontal: 20,
         marginBottom: 12,
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        height: 50,
-        borderRadius: 16,
-        borderWidth: 1,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-    },
-    searchIcon: {
-        marginRight: 12,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: 14,
-        fontWeight: '600',
     },
     filterSection: {
         marginBottom: 20,
@@ -720,35 +463,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 100,
-    },
-    loadingText: {
-        fontSize: 15,
-        fontWeight: '700',
-        marginTop: 16,
-    },
-    emptyContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: 80,
-        paddingHorizontal: 40,
-    },
-    emptyTitle: {
-        fontSize: 20,
-        fontWeight: '800',
-        marginTop: 20,
-        marginBottom: 8,
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        textAlign: 'center',
-        lineHeight: 20,
     },
     // Modal Styles
     modalOverlay: {

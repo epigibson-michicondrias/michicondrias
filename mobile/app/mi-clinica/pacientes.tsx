@@ -1,119 +1,81 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyClinics } from '../../src/services/directorio';
-import { getCriticalPatients } from '../../src/services/patients';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Users, AlertTriangle, Activity, Search, X } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import KeyboardScreen from '@/src/components/KeyboardScreen';
+import { useTheme } from '@/src/hooks/useTheme';
+import { usePatients } from '@/src/hooks/clinica/usePatients';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Users, AlertTriangle, Activity, Search, X } from 'lucide-react-native';
 
 export default function PacientesScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    const [filter, setFilter] = useState<'all' | 'critical'>('critical');
-    const [showSearch, setShowSearch] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-    const clinic = clinics[0];
-
-    const { data: criticalPatients = [], isLoading: loadingPatients } = useQuery({
-        queryKey: ['critical-patients', clinic?.id],
-        queryFn: () => getCriticalPatients(clinic!.id),
-        enabled: !!clinic?.id,
-        refetchInterval: 30000,
-    });
+    const { theme } = useTheme();
+    const {
+        filter, setFilter, showSearch, searchQuery, setSearchQuery,
+        loadingClinics, loadingPatients, filteredPatients, filterTabs, toggleSearch,
+    } = usePatients();
 
     if (loadingClinics) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
+            <ScreenContainer style={styles.center}>
                 <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            </ScreenContainer>
         );
     }
 
-    const filteredPatients = criticalPatients.filter(patient => 
-        patient.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        patient.owner.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Premium Header */}
-            <LinearGradient
-                colors={['#f43f5e', '#e11d48', '#be123c']}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Pacientes</Text>
-                        <Text style={styles.subtitle}>{clinic?.name}</Text>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Pacientes"
+                gradient={['#f43f5e', '#e11d48', '#be123c']}
+                rightElement={
                     <TouchableOpacity 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
-                        onPress={() => setShowSearch(!showSearch)}
+                        onPress={toggleSearch}
                     >
                         {showSearch ? <X size={20} color="#fff" /> : <Search size={20} color="#fff" />}
                     </TouchableOpacity>
-                </View>
+                }
+            />
                 
-                {showSearch && (
-                    <View style={styles.searchContainer}>
-                        <TextInput
-                            style={[styles.searchInput, { backgroundColor: 'rgba(255,255,255,0.1)' }]}
-                            placeholder="Buscar por mascota o dueño..."
-                            placeholderTextColor="rgba(255,255,255,0.5)"
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            autoFocus
-                        />
-                    </View>
-                )}
-
-                {/* Glassmorphic Tabs */}
-                <View style={styles.tabsContainer}>
-                    <TouchableOpacity 
-                        style={[styles.tab, filter === 'critical' && styles.activeTab]}
-                        onPress={() => setFilter('critical')}
-                    >
-                        <AlertTriangle size={16} color={filter === 'critical' ? '#e11d48' : '#fff'} />
-                        <Text style={[styles.tabText, { color: filter === 'critical' ? '#e11d48' : '#fff' }]}>Críticos</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                        style={[styles.tab, filter === 'all' && styles.activeTab]}
-                        onPress={() => setFilter('all')}
-                    >
-                        <Users size={16} color={filter === 'all' ? '#e11d48' : '#fff'} />
-                        <Text style={[styles.tabText, { color: filter === 'all' ? '#e11d48' : '#fff' }]}>Todos</Text>
-                    </TouchableOpacity>
+            {showSearch && (
+                <View style={styles.searchContainer}>
+                    <TextInput
+                        style={[styles.searchInput, { backgroundColor: 'rgba(0,0,0,0.05)' }]}
+                        placeholder="Buscar por mascota o dueño..."
+                        placeholderTextColor={theme.textMuted}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        autoFocus
+                    />
                 </View>
-            </LinearGradient>
+            )}
+
+            {/* Severity Filter Tabs */}
+            <View style={styles.tabsWrapper}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContainer}>
+                    {filterTabs.map(tab => (
+                        <TouchableOpacity 
+                            key={tab.id}
+                            style={[styles.tab, filter === tab.id && styles.activeTab]}
+                            onPress={() => setFilter(tab.id)}
+                        >
+                            <Text style={[styles.tabText, { color: filter === tab.id ? '#e11d48' : '#666' }]}>
+                                {tab.label} ({tab.count})
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
 
             <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
                     
                     {loadingPatients ? (
                         <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
-                    ) : filter === 'critical' && filteredPatients.length === 0 ? (
+                    ) : filteredPatients.length === 0 ? (
                         <View style={[styles.emptyRecent, { backgroundColor: theme.surface }]}>
                             <Activity size={40} color={theme.textMuted} />
                             <Text style={{ color: theme.textMuted, fontWeight: '600', marginTop: 12 }}>
-                                {searchQuery ? "No hay pacientes que coincidan con la búsqueda" : "No hay pacientes críticos"}
+                                {searchQuery ? "No hay pacientes que coincidan con la búsqueda" : `No hay pacientes en categoría "${filterTabs.find(t => t.id === filter)?.label}"`}
                             </Text>
                         </View>
                     ) : (
@@ -156,35 +118,16 @@ export default function PacientesScreen() {
                     )}
                 </View>
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    premiumHeader: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 24,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        elevation: 5,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: 20
-    },
-    backBtn: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    headerInfo: { alignItems: 'center' },
-    title: { fontSize: 18, fontWeight: '900', color: '#fff' },
-    subtitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
+    center: { justifyContent: 'center', alignItems: 'center' },
+    tabsWrapper: { paddingHorizontal: 24, paddingVertical: 16 },
     tabsContainer: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 16,
         padding: 4,
     },
@@ -224,6 +167,7 @@ const styles = StyleSheet.create({
     treatmentBox: { padding: 12, borderRadius: 12 },
     treatmentLabel: { fontSize: 11, fontWeight: '700', marginBottom: 4 },
     treatmentText: { fontSize: 13, fontWeight: '600', lineHeight: 18 },
-    searchContainer: { paddingHorizontal: 24, paddingBottom: 16, marginTop: -4 },
-    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: 16, color: '#fff', fontWeight: '600' }
+    searchContainer: { paddingHorizontal: 24, paddingBottom: 8 },
+    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: 16, fontWeight: '600' },
+    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
 });

@@ -1,70 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
-import { useQuery } from '@tanstack/react-query';
-import { getIncomingWalkRequests, updateWalkRequestStatus, WalkRequest } from '../../src/services/paseadores';
-import { getIncomingSitRequests, updateSitRequestStatus, SitRequest } from '../../src/services/cuidadores';
-import { useAuth } from '../../src/contexts/AuthContext';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Calendar, Clock, MapPin, Bone, User, CheckCircle2, XCircle, MoreHorizontal, Settings, Activity, Heart, Star, ChevronRight } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useServiceManagement, AnyRequest } from '@/src/hooks/servicios-pro';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Clock, MapPin, Bone, User, CheckCircle2, XCircle, Activity } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
-type AnyRequest = (WalkRequest | SitRequest) & { type: 'walk' | 'sit' };
-
 export default function ProfessionalGestionScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const { user } = useAuth();
-    const insets = useSafeAreaInsets();
-
-    const [filter, setFilter] = useState('pending');
-    const [actionLoading, setActionLoading] = useState<string | null>(null);
-
-    const isWalker = user?.role_name === 'walker';
-    const isSitter = user?.role_name === 'sitter';
-
-    const { data: walkRequests = [], isLoading: loadingWalks, refetch: refetchWalks } = useQuery({
-        queryKey: ['incoming-walks'],
-        queryFn: getIncomingWalkRequests,
-        enabled: isWalker,
-    });
-
-    const { data: sitRequests = [], isLoading: loadingSits, refetch: refetchSits } = useQuery({
-        queryKey: ['incoming-sits'],
-        queryFn: getIncomingSitRequests,
-        enabled: isSitter,
-    });
-
-    const allRequests: AnyRequest[] = [
-        ...walkRequests.map(r => ({ ...r, type: 'walk' as const })),
-        ...sitRequests.map(r => ({ ...r, type: 'sit' as const })),
-    ];
-
-    const filtered = allRequests.filter(r => filter === 'all' ? true : r.status === filter);
-
-    const handleStatusUpdate = async (id: string, type: 'walk' | 'sit', newStatus: string) => {
-        setActionLoading(id);
-        try {
-            if (type === 'walk') {
-                await updateWalkRequestStatus(id, newStatus);
-                refetchWalks();
-            } else {
-                await updateSitRequestStatus(id, newStatus);
-                refetchSits();
-            }
-            showAlert({ type: 'success', title: 'Éxito', message: `Solicitud ${newStatus === 'accepted' ? 'aceptada' : 'rechazada'} correctamente` });
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estatus' });
-        } finally {
-            setActionLoading(null);
-        }
-    };
+    const { theme } = useTheme();
+    const {
+        filter,
+        setFilter,
+        actionLoading,
+        allRequests,
+        filtered,
+        isLoading,
+        handleStatusUpdate,
+    } = useServiceManagement();
 
     const renderItem = ({ item }: { item: AnyRequest }) => (
         <View style={[styles.card, { backgroundColor: theme.surface }]}>
@@ -135,34 +91,21 @@ export default function ProfessionalGestionScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             {/* Header Premium */}
-            <LinearGradient
-                colors={['#6366f1', '#4338ca', '#3730a3']}
-                style={[styles.premiumHeader, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Servicios Pro</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={[styles.liveDot, { backgroundColor: '#10b981' }]} />
-                            <Text style={styles.subtitle}>Gestión de Solicitudes</Text>
-                        </View>
-                    </View>
-                    <TouchableOpacity 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
+            <ScreenHeader
+                title="Servicios Pro"
+                subtitle="Gestión de Solicitudes"
+                gradient={['#6366f1', '#4338ca', '#3730a3']}
+                rightElement={
+                    <TouchableOpacity
+                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
                         onPress={() => router.push('/servicios-pro/perfil' as any)}
                     >
                         <User size={22} color="#fff" />
                     </TouchableOpacity>
-                </View>
-            </LinearGradient>
+                }
+            />
 
             <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
 
@@ -213,7 +156,7 @@ export default function ProfessionalGestionScreen() {
                 </ScrollView>
             </View>
 
-                {(loadingWalks || loadingSits) ? (
+                {isLoading ? (
                     <View style={styles.centerLoading}>
                         <ActivityIndicator size="large" color="#6366f1" />
                     </View>
@@ -228,35 +171,11 @@ export default function ProfessionalGestionScreen() {
                     </View>
                 )}
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    premiumHeader: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 18,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-    },
     headerAction: {
         width: 44,
         height: 44,
@@ -264,65 +183,43 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-    },
-    subtitle: { 
-        fontSize: 11, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
-    },
     contentScroll: {
         flex: 1,
     },
-    statsRow: { 
-        flexDirection: 'row', 
-        paddingHorizontal: 24, 
-        gap: 12, 
-        marginTop: 24,
-        marginBottom: 16 
-    },
-    statBox: { 
-        flex: 1, 
+    statsRow: {
         flexDirection: 'row',
-        padding: 16, 
-        borderRadius: 20, 
-        alignItems: 'center', 
-        gap: 12, 
-        borderWidth: 1, 
+        paddingHorizontal: 24,
+        gap: 12,
+        marginTop: 24,
+        marginBottom: 16
+    },
+    statBox: {
+        flex: 1,
+        flexDirection: 'row',
+        padding: 16,
+        borderRadius: 20,
+        alignItems: 'center',
+        gap: 12,
+        borderWidth: 1,
     },
     statValue: { fontSize: 18, fontWeight: '900' },
     statLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
     tabsRow: { marginBottom: 16 },
     tabsScroll: { paddingHorizontal: 24, gap: 8 },
-    tab: { 
-        paddingHorizontal: 16, 
-        paddingVertical: 10, 
-        borderRadius: 14, 
+    tab: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 14,
         borderWidth: 1,
         backgroundColor: 'rgba(255,255,255,0.03)'
     },
     tabText: { fontSize: 13, fontWeight: '700' },
     list: { padding: 24, paddingBottom: 100 },
-    card: { 
-        borderRadius: 24, 
-        padding: 18, 
-        marginBottom: 16, 
-        borderWidth: 1, 
+    card: {
+        borderRadius: 24,
+        padding: 18,
+        marginBottom: 16,
+        borderWidth: 1,
     },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
     typeBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },

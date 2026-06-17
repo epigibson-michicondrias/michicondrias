@@ -1,32 +1,16 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlan } from '../../src/services/insurance';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { ChevronLeft, Shield, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
+import { Shield, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 export default function NuevoPlanScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
+    const { theme } = useTheme();
 
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
@@ -78,9 +62,7 @@ export default function NuevoPlanScreen() {
     return (
         <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={styles.header}>
-                <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.surface }]} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
+                <BackButton onPress={() => router.back()} />
                 <View style={styles.headerInfo}>
                     <View style={[styles.iconContainer, { backgroundColor: theme.primary + '20' }]}>
                         <Shield size={28} color={theme.primary} />
@@ -222,14 +204,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingBottom: 20,
     },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
+
     headerInfo: {
         gap: 8,
     },

@@ -1,25 +1,17 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { getAdminAnalytics } from '@/src/services/analytics';
-import { ChevronLeft, Users, ShieldCheck, Activity, BarChart2, TrendingUp, Calendar } from 'lucide-react-native';
+import { StyleSheet, View, Text, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAdminStats } from '@/src/hooks/admin/useAdminStats';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { Users, ShieldCheck, Activity, BarChart2, TrendingUp } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 export default function AdminStatsScreen() {
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const insets = useSafeAreaInsets();
-    const { data: metrics, isLoading } = useQuery({
-        queryKey: ['admin-analytics'],
-        queryFn: getAdminAnalytics,
-    });
+    const { theme } = useTheme();
+    const { metrics, isLoading, kpis, roleDistribution } = useAdminStats();
 
     if (isLoading || !metrics) {
         return (
@@ -30,41 +22,25 @@ export default function AdminStatsScreen() {
         );
     }
 
-    const { kpis, role_distribution } = metrics;
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Header Premium */}
-            <LinearGradient
-                colors={['#3b82f6', '#3b82f6E6', '#3b82f6CC']}
-                style={[styles.header, { paddingTop: insets.top + 12 }]}
-            >
-                <View style={styles.headerTop}>
-                    <TouchableOpacity 
-                        style={[styles.backBtn, { backgroundColor: theme.overlayHover }]} 
-                        onPress={() => router.back()}
-                    >
-                        <ChevronLeft size={22} color="#fff" />
-                    </TouchableOpacity>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.title}>Estadísticas</Text>
-                        <View style={styles.badgeContainer}>
-                            <View style={styles.liveDot} />
-                            <Text style={styles.subtitle}>Métricas en Tiempo Real</Text>
-                        </View>
-                    </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Estadísticas"
+                subtitle="Métricas en Tiempo Real"
+                gradient={['#3b82f6', '#3b82f6E6', '#3b82f6CC']}
+                rightElement={
                     <View style={styles.headerAction}>
                         <TrendingUp size={22} color="#fff" style={{ opacity: 0.8 }} />
                     </View>
-                </View>
-            </LinearGradient>
+                }
+            />
 
             <ScrollView contentContainerStyle={styles.scroll}>
                 <View style={styles.grid}>
-                    <StatCard label="Usuarios" value={kpis.total_users} icon={<Users size={20} color="#7c3aed" />} color="#7c3aed" theme={theme} />
-                    <StatCard label="Aprobados" value={kpis.approved_verifications} icon={<ShieldCheck size={20} color="#10b981" />} color="#10b981" theme={theme} />
-                    <StatCard label="Pendientes" value={kpis.pending_verifications} icon={<Activity size={20} color="#f59e0b" />} color="#f59e0b" theme={theme} />
-                    <StatCard label="Admins" value={kpis.system_admins} icon={<BarChart2 size={20} color="#3b82f6" />} color="#3b82f6" theme={theme} />
+                    <StatCard label="Usuarios" value={kpis!.total_users} icon={<Users size={20} color="#7c3aed" />} color="#7c3aed" theme={theme} />
+                    <StatCard label="Aprobados" value={kpis!.approved_verifications} icon={<ShieldCheck size={20} color="#10b981" />} color="#10b981" theme={theme} />
+                    <StatCard label="Pendientes" value={kpis!.pending_verifications} icon={<Activity size={20} color="#f59e0b" />} color="#f59e0b" theme={theme} />
+                    <StatCard label="Admins" value={kpis!.system_admins} icon={<BarChart2 size={20} color="#3b82f6" />} color="#3b82f6" theme={theme} />
                 </View>
 
                 <View style={[styles.chartBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -72,12 +48,12 @@ export default function AdminStatsScreen() {
                         <BarChart2 size={20} color={theme.primary} />
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Distribución de Roles</Text>
                     </View>
-                    {Object.entries(role_distribution).map(([role, count]) => (
+                    {Object.entries(roleDistribution!).map(([role, count]) => (
                         <View key={role} style={styles.roleItem}>
                             <View style={styles.roleInfo}>
                                 <Text style={[styles.roleName, { color: theme.text }]}>{role.toUpperCase()}</Text>
                                 <Text style={[styles.rolePercentage, { color: theme.primary }]}>
-                                    {((count / kpis.total_users) * 100).toFixed(1)}%
+                                    {((count / kpis!.total_users) * 100).toFixed(1)}%
                                 </Text>
                             </View>
                             <View style={[styles.progressBar, { backgroundColor: theme.background }]}>
@@ -85,7 +61,7 @@ export default function AdminStatsScreen() {
                                     colors={[theme.primary, theme.primary + '88']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
-                                    style={[styles.progressFill, { width: `${Math.max((count / kpis.total_users) * 100, 5)}%` }]}
+                                    style={[styles.progressFill, { width: `${Math.max((count / kpis!.total_users) * 100, 5)}%` }]}
                                 />
                             </View>
                             <Text style={[styles.roleCount, { color: theme.textMuted }]}>{count} usuarios registrados</Text>
@@ -93,7 +69,7 @@ export default function AdminStatsScreen() {
                     ))}
                 </View>
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -110,7 +86,6 @@ function StatCard({ label, value, icon, color, theme }: any) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
     center: { 
         flex: 1, 
         justifyContent: 'center', 
@@ -122,58 +97,11 @@ const styles = StyleSheet.create({
         fontWeight: '700', 
         letterSpacing: 0.5 
     },
-    header: { 
-        paddingHorizontal: 24, 
-        paddingBottom: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-    },
-    headerTop: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-    },
-    backBtn: { 
-        width: 44, 
-        height: 44, 
-        borderRadius: 14, 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    },
-    headerInfo: {
-        flex: 1,
-        alignItems: 'center',
-        marginRight: 8,
-    },
     headerAction: {
         width: 44,
         height: 44,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    title: { 
-        fontSize: 18, 
-        fontWeight: '900', 
-        color: '#fff', 
-        letterSpacing: -0.5 
-    },
-    badgeContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
-    },
-    liveDot: { 
-        width: 6, 
-        height: 6, 
-        borderRadius: 3, 
-        backgroundColor: '#10b981' 
-    },
-    subtitle: { 
-        fontSize: 12, 
-        fontWeight: '700', 
-        color: 'rgba(255,255,255,0.8)',
     },
     scroll: { 
         padding: 20, 

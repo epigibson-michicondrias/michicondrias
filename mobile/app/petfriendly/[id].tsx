@@ -1,40 +1,29 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Dimensions, Linking } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getPlaceById, PetfriendlyPlace } from '../../src/services/petfriendly';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, MapPin, Phone, Globe, Star, Check, Bone, Info, Share2, Clock } from 'lucide-react-native';
+import { usePlaceDetail } from '@/src/hooks/petfriendly/usePlaceDetail';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import BackButton from '@/src/components/BackButton';
+import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2, Clock } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function PetfriendlyDetalleScreen() {
-    const { id } = useLocalSearchParams();
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: place, isLoading } = useQuery({
-        queryKey: ['petfriendly-place', id],
-        queryFn: () => getPlaceById(id as string),
-    });
+    const { theme, isDark } = useTheme();
+    const { place, isLoading, openMap, callPlace, openWebsite, goBack } = usePlaceDetail();
 
     if (isLoading || !place) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <ScreenContainer>
+                <View style={styles.center}>
+                    <ActivityIndicator size="large" color={theme.primary} />
+                </View>
+            </ScreenContainer>
         );
     }
 
-    const openMap = () => {
-        const url = `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`;
-        Linking.openURL(url);
-    };
-
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer noPadding>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
                 <View style={styles.imageContainer}>
                     <Image
@@ -42,9 +31,7 @@ export default function PetfriendlyDetalleScreen() {
                         style={styles.image}
                     />
                     <View style={styles.topOverlay}>
-                        <TouchableOpacity style={styles.circleBtn} onPress={() => router.back()}>
-                            <ChevronLeft size={24} color="#fff" />
-                        </TouchableOpacity>
+                        <BackButton onPress={goBack} color="#fff" style={styles.circleBtn} />
                         <Text style={styles.headerTitle}>Detalles del Lugar</Text>
                         <TouchableOpacity style={styles.circleBtn}>
                             <Share2 size={20} color="#fff" />
@@ -52,7 +39,7 @@ export default function PetfriendlyDetalleScreen() {
                     </View>
                 </View>
 
-                <View style={styles.content}>
+                <View style={[styles.content, { backgroundColor: theme.background }]}>
                     <View style={styles.placeHeader}>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.placeName, { color: theme.text }]}>{place.name}</Text>
@@ -65,9 +52,9 @@ export default function PetfriendlyDetalleScreen() {
                     </View>
 
                     <View style={styles.actionGrid}>
-                        <ActionBtn icon={<Phone size={20} color={theme.primary} />} label="Llamar" onPress={() => place.phone && Linking.openURL(`tel:${place.phone}`)} theme={theme} disabled={!place.phone} />
+                        <ActionBtn icon={<Phone size={20} color={theme.primary} />} label="Llamar" onPress={callPlace} theme={theme} disabled={!place.phone} />
                         <ActionBtn icon={<MapPin size={20} color={theme.primary} />} label="Mapa" onPress={openMap} theme={theme} />
-                        <ActionBtn icon={<Globe size={20} color={theme.primary} />} label="Web" onPress={() => place.website && Linking.openURL(place.website)} theme={theme} disabled={!place.website} />
+                        <ActionBtn icon={<Globe size={20} color={theme.primary} />} label="Web" onPress={openWebsite} theme={theme} disabled={!place.website} />
                     </View>
 
                     <View style={styles.section}>
@@ -125,7 +112,7 @@ export default function PetfriendlyDetalleScreen() {
                     </View>
                 </View>
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -161,9 +148,6 @@ function ServiceItem({ label, active, theme }: { label: string, active: boolean,
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     center: {
         flex: 1,
         justifyContent: 'center',

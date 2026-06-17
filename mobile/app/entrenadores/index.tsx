@@ -1,36 +1,24 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getAllPrograms, TrainingProgram } from '../../src/services/training';
-import { useColorScheme } from '@/components/useColorScheme';
+import { TrainingProgram } from '../../src/services/training';
+import { usePrograms } from '@/src/hooks/training';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { Dumbbell, Clock, DollarSign, ChevronRight, Plus } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
 
 export default function EntrenadoresScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = colorScheme === 'dark' ? {
-        background: '#000',
-        text: '#fff',
-        textMuted: '#999',
-        surface: '#111',
-        border: '#333',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    } : {
-        background: '#fff',
-        text: '#000',
-        textMuted: '#666',
-        surface: '#f9f9f9',
-        border: '#e5e5e5',
-        primary: '#7c3aed',
-        secondary: '#10b981',
-    };
+    const { theme } = useTheme();
+    const { user } = useAuth();
 
-    const { data: programs = [], isLoading } = useQuery<TrainingProgram[]>({
-        queryKey: ['trainingPrograms'],
-        queryFn: () => getAllPrograms(),
-    });
+    const roleName = user?.role_name || '';
+    const isTrainer = roleName === 'entrenador' || roleName === 'admin';
+
+    const { programs, isLoading, refetch, isRefetching } = usePrograms();
 
     const renderProgramItem = ({ item }: { item: TrainingProgram }) => (
         <TouchableOpacity
@@ -82,71 +70,56 @@ export default function EntrenadoresScreen() {
         </TouchableOpacity>
     );
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>🏋️ Entrenadores</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Programas de entrenamiento para tu mascota
-                </Text>
-            </View>
-
-            <View style={styles.actionButtons}>
+    const listHeader = (
+        <View style={styles.actionButtons}>
+            {isTrainer ? (
                 <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.secondary }]}
-                    onPress={() => router.push('/entrenadores/nuevo' as any)}
+                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                    onPress={() => router.push('/entrenadores/nuevo-programa' as any)}
                 >
                     <Plus size={18} color="#fff" />
                     <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nuevo Programa</Text>
                 </TouchableOpacity>
-            </View>
-
-            {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando programas...</Text>
-                </View>
             ) : (
-                <FlatList
-                    data={programs}
-                    renderItem={renderProgramItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Dumbbell size={48} color={theme.textMuted} style={{ opacity: 0.5 }} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                                No hay programas de entrenamiento disponibles
-                            </Text>
-                        </View>
-                    }
-                />
+                <TouchableOpacity
+                    style={[styles.actionButton, { backgroundColor: theme.secondary }]}
+                    onPress={() => router.push('/entrenadores/mis-inscripciones' as any)}
+                >
+                    <Dumbbell size={18} color="#fff" />
+                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Inscripciones</Text>
+                </TouchableOpacity>
             )}
         </View>
+    );
+
+    return (
+        <ScreenContainer>
+            <ScreenHeader
+                title="🏋️ Entrenadores"
+                subtitle="Programas de entrenamiento para tu mascota"
+            />
+
+            <DataList
+                data={programs}
+                renderItem={renderProgramItem}
+                keyExtractor={(item) => item.id}
+                isLoading={isLoading}
+                loadingMessage="Cargando programas..."
+                onRefresh={refetch}
+                isRefreshing={isRefetching}
+                header={listHeader}
+                emptyIcon={<Dumbbell size={32} color={theme.textMuted} />}
+                emptyTitle="Sin programas"
+                emptySubtitle="No hay programas de entrenamiento disponibles"
+                contentStyle={styles.list}
+            />
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        padding: 24,
-        paddingTop: 60,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        opacity: 0.8,
-    },
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
         gap: 12,
         marginBottom: 20,
     },
@@ -244,25 +217,5 @@ const styles = StyleSheet.create({
     trainerText: {
         fontSize: 11,
         fontWeight: '600',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    emptyState: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 60,
-        gap: 16,
-    },
-    emptyText: {
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

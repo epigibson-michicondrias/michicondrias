@@ -1,181 +1,131 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Dimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getListing, requestAdoption, AdoptionRequestCreate } from '@/src/services/adopciones';
-import { useAuth } from '@/src/contexts/AuthContext';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Home, Users, Heart, Check, Info, ShieldAlert, Lock, Sparkles, PartyPopper } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
+import { useApplyForm } from '@/src/hooks/adopciones/useApplyForm';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { Home, Users, Heart, Check, ShieldAlert, Lock, PartyPopper } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function SolicitarAdopcionScreen() {
-    const { id } = useLocalSearchParams();
-    const router = useRouter();
-    const { user } = useAuth();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [step, setStep] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const [form, setForm] = useState<AdoptionRequestCreate>({
-        applicant_name: user?.full_name || '',
-        house_type: 'Casa',
-        has_yard: true,
-        own_or_rent: 'Propia',
-        landlord_permission: true,
-        other_pets: '',
-        has_children: false,
-        children_ages: '',
-        hours_alone: 4,
-        financial_commitment: true,
-        reason: '',
-        previous_experience: '',
-    });
-
-    const { data: listing, isLoading: loadingListing } = useQuery({
-        queryKey: ['adopcion', id],
-        queryFn: () => getListing(id as string),
-    });
+    const { theme } = useTheme();
+    const {
+        listing, loadingListing, form, step, loading, success, user,
+        isAdminOrVet, isVerified, isPending,
+        updateField, setForm, handleNext, handleBack, handleSubmit,
+        goToMyApplications, goToVerification, goBack,
+    } = useApplyForm();
 
     if (loadingListing) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-                <Text style={{ color: theme.textMuted, marginTop: 12, fontWeight: '600' }}>Validando perfil de seguridad...</Text>
-            </View>
+            <ScreenContainer>
+                <View style={styles.center}>
+                    <LoadingOverlay message="Validando perfil de seguridad..." />
+                </View>
+            </ScreenContainer>
         );
     }
 
     // Security Gate 1: Role check (Admins/Vets cannot adopt via public portal)
-    const isAdminOrVet = user?.role_name === 'admin' || user?.role_name === 'veterinario';
     if (isAdminOrVet) {
         return (
-            <View style={[styles.gateContainer, { backgroundColor: theme.background }]}>
-                <View style={[styles.lockIconBox, { backgroundColor: '#ef444415' }]}>
-                    <ShieldAlert size={48} color="#ef4444" />
+            <ScreenContainer>
+                <View style={styles.gateContainer}>
+                    <View style={[styles.lockIconBox, { backgroundColor: '#ef444415' }]}>
+                        <ShieldAlert size={48} color="#ef4444" />
+                    </View>
+                    <Text style={[styles.gateTitle, { color: theme.text }]}>Acción Reservada</Text>
+                    <Text style={[styles.gateDesc, { color: theme.textMuted }]}>
+                        Como miembro del equipo (Admin/Vet), no puedes enviar solicitudes públicas. Usa el panel de gestión interna.
+                    </Text>
+                    <TouchableOpacity style={[styles.gateBtn, { backgroundColor: theme.surface }]} onPress={goBack}>
+                        <Text style={[styles.gateBtnText, { color: theme.text }]}>Entendido</Text>
+                    </TouchableOpacity>
                 </View>
-                <Text style={[styles.gateTitle, { color: theme.text }]}>Acción Reservada</Text>
-                <Text style={[styles.gateDesc, { color: theme.textMuted }]}>
-                    Como miembro del equipo (Admin/Vet), no puedes enviar solicitudes públicas. Usa el panel de gestión interna.
-                </Text>
-                <TouchableOpacity style={[styles.gateBtn, { backgroundColor: theme.surface }]} onPress={() => router.back()}>
-                    <Text style={[styles.gateBtnText, { color: theme.text }]}>Entendido</Text>
-                </TouchableOpacity>
-            </View>
+            </ScreenContainer>
         );
     }
 
     // Security Gate 2: KYC check (Only verified users)
-    if (user?.verification_status !== 'VERIFIED') {
+    if (!isVerified) {
         return (
-            <View style={[styles.gateContainer, { backgroundColor: theme.background }]}>
-                <View style={[styles.lockIconBox, { backgroundColor: theme.primary + '15' }]}>
-                    <Lock size={48} color={theme.primary} />
-                </View>
-                <Text style={[styles.gateTitle, { color: theme.text }]}>
-                    {user?.verification_status === 'PENDING' ? 'Verificación en Trámite' : 'Seguridad Requerida'}
-                </Text>
-                <Text style={[styles.gateDesc, { color: theme.textMuted }]}>
-                    {user?.verification_status === 'PENDING'
-                        ? 'Estamos revisando tus documentos. Podrás adoptar en cuanto el equipo valide tu identidad.'
-                        : 'Para el bienestar de los michis, es obligatorio verificar tu identidad oficial antes de postularte.'
-                    }
-                </Text>
-                <TouchableOpacity
-                    style={[styles.gateBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/perfil/verificacion')}
-                >
-                    <Text style={[styles.gateBtnText, { color: '#fff' }]}>
-                        {user?.verification_status === 'PENDING' ? 'Ver Estatus de Seguridad' : '🛡️ Ir a Centro de Seguridad'}
+            <ScreenContainer>
+                <View style={styles.gateContainer}>
+                    <View style={[styles.lockIconBox, { backgroundColor: theme.primary + '15' }]}>
+                        <Lock size={48} color={theme.primary} />
+                    </View>
+                    <Text style={[styles.gateTitle, { color: theme.text }]}>
+                        {isPending ? 'Verificación en Trámite' : 'Seguridad Requerida'}
                     </Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{ marginTop: 20 }} onPress={() => router.back()}>
-                    <Text style={{ color: theme.textMuted, fontWeight: '700' }}>Volver</Text>
-                </TouchableOpacity>
-            </View>
+                    <Text style={[styles.gateDesc, { color: theme.textMuted }]}>
+                        {isPending
+                            ? 'Estamos revisando tus documentos. Podrás adoptar en cuanto el equipo valide tu identidad.'
+                            : 'Para el bienestar de los michis, es obligatorio verificar tu identidad oficial antes de postularte.'
+                        }
+                    </Text>
+                    <TouchableOpacity
+                        style={[styles.gateBtn, { backgroundColor: theme.primary }]}
+                        onPress={goToVerification}
+                    >
+                        <Text style={[styles.gateBtnText, { color: '#fff' }]}>
+                            {isPending ? 'Ver Estatus de Seguridad' : '🛡️ Ir a Centro de Seguridad'}
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginTop: 20 }} onPress={goBack}>
+                        <Text style={{ color: theme.textMuted, fontWeight: '700' }}>Volver</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScreenContainer>
         );
     }
 
     if (success) {
         return (
-            <View style={[styles.successContainer, { backgroundColor: theme.background }]}>
-                <View style={styles.confettiContainer}>
-                    {Array.from({ length: 15 }).map((_, i) => (
-                        <View key={i} style={[styles.confetti, {
-                            backgroundColor: ['#7c3aed', '#ec4899', '#3b82f6', '#10b981'][i % 4],
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 60}%`,
-                            transform: [{ rotate: `${Math.random() * 360}deg` }]
-                        }]} />
-                    ))}
+            <ScreenContainer>
+                <View style={styles.successContainer}>
+                    <View style={styles.confettiContainer}>
+                        {Array.from({ length: 15 }).map((_, i) => (
+                            <View key={i} style={[styles.confetti, {
+                                backgroundColor: ['#7c3aed', '#ec4899', '#3b82f6', '#10b981'][i % 4],
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 60}%`,
+                                transform: [{ rotate: `${Math.random() * 360}deg` }]
+                            }]} />
+                        ))}
+                    </View>
+                    <View style={[styles.successIconBox, { backgroundColor: '#10b98115' }]}>
+                        <PartyPopper size={64} color="#10b981" />
+                    </View>
+                    <Text style={[styles.successTitle, { color: theme.text }]}>¡Solicitud Enviada!</Text>
+                    <Text style={[styles.successDesc, { color: theme.textMuted }]}>
+                        Tu postulación para {listing?.name} ha sido recibida con éxito. El equipo la revisará con prioridad.
+                    </Text>
+                    <TouchableOpacity
+                        style={[styles.successBtn, { backgroundColor: theme.primary }]}
+                        onPress={goToMyApplications}
+                    >
+                        <Text style={styles.successBtnText}>📄 Ver Mis Solicitudes</Text>
+                    </TouchableOpacity>
                 </View>
-                <View style={[styles.successIconBox, { backgroundColor: '#10b98115' }]}>
-                    <PartyPopper size={64} color="#10b981" />
-                </View>
-                <Text style={[styles.successTitle, { color: theme.text }]}>¡Solicitud Enviada!</Text>
-                <Text style={[styles.successDesc, { color: theme.textMuted }]}>
-                    Tu postulación para {listing?.name} ha sido recibida con éxito. El equipo la revisará con prioridad.
-                </Text>
-                <TouchableOpacity
-                    style={[styles.successBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/adopciones/mis-solicitudes')}
-                >
-                    <Text style={styles.successBtnText}>📄 Ver Mis Solicitudes</Text>
-                </TouchableOpacity>
-            </View>
+            </ScreenContainer>
         );
     }
 
-    const handleNext = () => {
-        if (step === 1) {
-            if (!form.applicant_name) return showAlert({ type: 'error', title: 'Error', message: 'Tu nombre es obligatorio' });
-            setStep(2);
-        } else if (step === 2) {
-            if (!form.hours_alone && form.hours_alone !== 0) return showAlert({ type: 'error', title: 'Error', message: 'Indica las horas que pasará solo' });
-            setStep(3);
-        }
-    };
-
-    const handleBack = () => {
-        if (step > 1) setStep(step - 1);
-        else router.back();
-    };
-
-    const handleSubmit = async () => {
-        if (!form.reason) return showAlert({ type: 'error', title: 'Error', message: 'Cuéntanos por qué deseas adoptar' });
-        if (!form.financial_commitment) return showAlert({ type: 'error', title: 'Error', message: 'Debes aceptar el compromiso financiero' });
-
-        setLoading(true);
-        try {
-            await requestAdoption(id as string, form);
-            setSuccess(true);
-        } catch (error) {
-            console.error(error);
-            showAlert({ type: 'error', title: 'Error', message: (error as Error).message || 'No se pudo enviar la solicitud.' });
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <View style={styles.headerTitleContainer}>
-                        <Text style={[styles.title, { color: theme.text }]}>Solicitud Adopción</Text>
-                        <Text style={[styles.subtitle, { color: theme.textMuted }]}>{listing?.name}</Text>
-                    </View>
-                    <View style={[styles.stepBadge, { backgroundColor: theme.primary + '15' }]}>
-                        <Text style={[styles.stepBadgeText, { color: theme.primary }]}>{step}/3</Text>
-                    </View>
-                </View>
+            <ScreenContainer>
+                <ScreenHeader
+                    title="Solicitud Adopción"
+                    subtitle={listing?.name}
+                    onBack={handleBack}
+                    rightElement={
+                        <View style={[styles.stepBadge, { backgroundColor: theme.primary + '15' }]}>
+                            <Text style={[styles.stepBadgeText, { color: theme.primary }]}>{step}/3</Text>
+                        </View>
+                    }
+                />
 
                 <View style={styles.progressBar}>
                     <View style={[styles.progressFill, { backgroundColor: theme.primary, width: `${(step / 3) * 100}%` }]} />
@@ -197,7 +147,7 @@ export default function SolicitarAdopcionScreen() {
                                 placeholder="Nombre completo"
                                 placeholderTextColor={theme.textMuted}
                                 value={form.applicant_name || ''}
-                                onChangeText={(t) => setForm({ ...form, applicant_name: t })}
+                                onChangeText={(t) => updateField('applicant_name', t)}
                             />
 
                             <Text style={[styles.label, { color: theme.text }]}>Tipo de Vivienda</Text>
@@ -206,7 +156,7 @@ export default function SolicitarAdopcionScreen() {
                                     <TouchableOpacity
                                         key={type}
                                         style={[styles.optionBtn, { backgroundColor: theme.surface }, form.house_type === type && styles.selectedOption]}
-                                        onPress={() => setForm({ ...form, house_type: type })}
+                                        onPress={() => updateField('house_type', type)}
                                     >
                                         <Text style={[styles.optionText, { color: theme.text }, form.house_type === type && { color: '#fff' }]}>{type}</Text>
                                     </TouchableOpacity>
@@ -215,7 +165,7 @@ export default function SolicitarAdopcionScreen() {
 
                             <View style={styles.switchRow}>
                                 <Text style={[styles.label, { color: theme.text, marginBottom: 0 }]}>¿Tiene patio o jardín?</Text>
-                                <Switch value={form.has_yard} onToggle={() => setForm({ ...form, has_yard: !form.has_yard })} theme={theme} />
+                                <Switch value={form.has_yard} onToggle={() => updateField('has_yard', !form.has_yard)} theme={theme} />
                             </View>
 
                             <Text style={[styles.label, { color: theme.text }]}>Estatus de Vivienda</Text>
@@ -224,7 +174,7 @@ export default function SolicitarAdopcionScreen() {
                                     <TouchableOpacity
                                         key={type}
                                         style={[styles.toggleBtn, { backgroundColor: theme.surface }, form.own_or_rent === type && styles.selectedOption]}
-                                        onPress={() => setForm({ ...form, own_or_rent: type })}
+                                        onPress={() => updateField('own_or_rent', type)}
                                     >
                                         <Text style={[styles.optionText, { color: theme.text }, form.own_or_rent === type && { color: '#fff' }]}>{type}</Text>
                                     </TouchableOpacity>
@@ -234,7 +184,7 @@ export default function SolicitarAdopcionScreen() {
                             {form.own_or_rent === 'Renta' && (
                                 <View style={styles.switchRow}>
                                     <Text style={[styles.label, { color: theme.text, marginBottom: 0 }]}>¿Permiten mascotas?</Text>
-                                    <Switch value={form.landlord_permission} onToggle={() => setForm({ ...form, landlord_permission: !form.landlord_permission })} theme={theme} />
+                                    <Switch value={form.landlord_permission} onToggle={() => updateField('landlord_permission', !form.landlord_permission)} theme={theme} />
                                 </View>
                             )}
                         </View>
@@ -251,7 +201,7 @@ export default function SolicitarAdopcionScreen() {
 
                             <View style={styles.switchRow}>
                                 <Text style={[styles.label, { color: theme.text, marginBottom: 0 }]}>¿Hay niños en casa?</Text>
-                                <Switch value={form.has_children} onToggle={() => setForm({ ...form, has_children: !form.has_children })} theme={theme} />
+                                <Switch value={form.has_children} onToggle={() => updateField('has_children', !form.has_children)} theme={theme} />
                             </View>
 
                             {form.has_children && (
@@ -260,7 +210,7 @@ export default function SolicitarAdopcionScreen() {
                                     placeholder="Edades (Ej: 3 y 7 años)"
                                     placeholderTextColor={theme.textMuted}
                                     value={form.children_ages || ''}
-                                    onChangeText={(t) => setForm({ ...form, children_ages: t })}
+                                    onChangeText={(t) => updateField('children_ages', t)}
                                 />
                             )}
 
@@ -270,7 +220,7 @@ export default function SolicitarAdopcionScreen() {
                                     style={[styles.input, { backgroundColor: theme.surface, color: theme.text, width: 80, textAlign: 'center' }]}
                                     keyboardType="numeric"
                                     value={String(form.hours_alone)}
-                                    onChangeText={(t) => setForm({ ...form, hours_alone: parseInt(t) || 0 })}
+                                    onChangeText={(t) => updateField('hours_alone', parseInt(t) || 0)}
                                 />
                                 <Text style={{ color: theme.textMuted, fontWeight: '700' }}>Horas al día</Text>
                             </View>
@@ -282,7 +232,7 @@ export default function SolicitarAdopcionScreen() {
                                 multiline
                                 numberOfLines={3}
                                 value={form.other_pets || ''}
-                                onChangeText={(t) => setForm({ ...form, other_pets: t })}
+                                onChangeText={(t) => updateField('other_pets', t)}
                             />
                         </View>
                     )}
@@ -303,7 +253,7 @@ export default function SolicitarAdopcionScreen() {
                                 multiline
                                 numberOfLines={3}
                                 value={form.previous_experience || ''}
-                                onChangeText={(t) => setForm({ ...form, previous_experience: t })}
+                                onChangeText={(t) => updateField('previous_experience', t)}
                             />
 
                             <Text style={[styles.label, { color: theme.text }]}>¿Por qué quieres adoptar?</Text>
@@ -313,12 +263,12 @@ export default function SolicitarAdopcionScreen() {
                                 multiline
                                 numberOfLines={4}
                                 value={form.reason}
-                                onChangeText={(t) => setForm({ ...form, reason: t })}
+                                onChangeText={(t) => updateField('reason', t)}
                             />
 
                             <TouchableOpacity
                                 style={[styles.checkRow, { borderLeftColor: form.financial_commitment ? '#10b981' : theme.textMuted }]}
-                                onPress={() => setForm({ ...form, financial_commitment: !form.financial_commitment })}
+                                onPress={() => updateField('financial_commitment', !form.financial_commitment)}
                             >
                                 <View style={[styles.checkbox, { borderColor: theme.textMuted }, form.financial_commitment && { backgroundColor: '#10b981', borderColor: '#10b981' }]}>
                                     {form.financial_commitment && <Check size={14} color="#fff" />}
@@ -350,7 +300,7 @@ export default function SolicitarAdopcionScreen() {
                         </TouchableOpacity>
                     )}
                 </View>
-            </View>
+            </ScreenContainer>
         </KeyboardAvoidingView>
     );
 }
@@ -368,13 +318,7 @@ function Switch({ value, onToggle, theme }: any) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 20, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    headerTitleContainer: { flex: 1 },
-    title: { fontSize: 20, fontWeight: '900' },
-    subtitle: { fontSize: 13 },
     stepBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
     stepBadgeText: { fontWeight: '900', fontSize: 12 },
     progressBar: { height: 4, backgroundColor: 'rgba(255,255,255,0.05)', width: '100%' },

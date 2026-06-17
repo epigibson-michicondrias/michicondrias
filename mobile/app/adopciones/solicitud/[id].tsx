@@ -1,141 +1,45 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getListing, getListingRequests, updateRequestStatus, approveAdoption, AdoptionRequest, Listing } from '@/src/services/adopciones';
-import { useAuth } from '@/src/contexts/AuthContext';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, User, Home, Calendar, Clock, CheckCircle, XCircle, Heart, Mail, Phone, FileText, Send } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
-import KeyboardScreen from '../../../src/components/KeyboardScreen';
-
-const STATUS_LABELS: Record<string, { label: string; color: string; icon: string }> = {
-    PENDING: { label: "Pendiente", color: "#f59e0b", icon: "⏳" },
-    REVIEWING: { label: "En Revisión", color: "#3b82f6", icon: "🔍" },
-    INTERVIEW_SCHEDULED: { label: "Entrevista Programada", color: "#8b5cf6", icon: "📅" },
-    APPROVED: { label: "Pre-Aprobada", color: "#22c55e", icon: "✅" },
-    ADOPTED: { label: "¡Adoptado!", color: "#ec4899", icon: "🎉" },
-    REJECTED: { label: "Rechazada", color: "#ef4444", icon: "❌" },
-};
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { useApplicationDetail, STATUS_LABELS } from '@/src/hooks/adopciones/useApplicationDetail';
+import { useTheme } from '@/src/hooks/useTheme';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
+import { User, Home, Calendar, Clock, CheckCircle, XCircle, Heart, Mail, Phone, FileText, Send, AlertCircle } from 'lucide-react-native';
 
 export default function ProcesarSolicitudScreen() {
-    const { id } = useLocalSearchParams();
-    const router = useRouter();
-    const { user } = useAuth();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-    const queryClient = useQueryClient();
-    const [notes, setNotes] = useState('');
-    const [interviewDate, setInterviewDate] = useState('');
-
-    const { data: request, isLoading } = useQuery({
-        queryKey: ['adoption-request', id],
-        queryFn: async () => {
-            // Necesitamos obtener todas las solicitudes de la publicación y filtrar por ID
-            // Por ahora, vamos a simular esto - en producción necesitaríamos un endpoint específico
-            const requests = await getListingRequests('all'); // Esto necesitaría ajustarse
-            return requests.find(r => r.id === id) || null;
-        },
-        enabled: !!id,
-    });
-
-    const { data: listing } = useQuery({
-        queryKey: ['adopcion', request?.listing_id],
-        queryFn: () => getListing(request!.listing_id),
-        enabled: !!request?.listing_id,
-    });
-
-    const statusMutation = useMutation({
-        mutationFn: (status: string) => updateRequestStatus(id as string, status),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['adoption-request', id] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Estado actualizado correctamente' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estado' });
-        }
-    });
-
-    const approveMutation = useMutation({
-        mutationFn: () => approveAdoption(id as string),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['adoption-request', id] });
-            showAlert({ type: 'success', title: '¡Éxito!', message: 'Adopción aprobada exitosamente' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo aprobar la adopción' });
-        }
-    });
-
-    const handleStatusUpdate = (status: string) => {
-        const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.PENDING;
-        
-        if (status === 'INTERVIEW_SCHEDULED' && !interviewDate) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una fecha para la entrevista' });
-            return;
-        }
-
-        showAlert({
-            type: 'warning',
-            title: 'Confirmar Acción',
-            message: `¿Cambiar estado a "${statusInfo.label}"?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Confirmar',
-            onButtonPress: () => statusMutation.mutate(status),
-        });
-    };
-
-    const handleApprove = () => {
-        showAlert({
-            type: 'warning',
-            title: 'Aprobar Adopción',
-            message: '¿Estás seguro de que deseas aprobar esta adopción? Esta acción es irreversible.',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Aprobar',
-            onButtonPress: () => approveMutation.mutate(),
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        request, listing, isLoading, statusInfo,
+        notes, interviewDate,
+        setNotes, setInterviewDate,
+        handleStatusUpdate, handleApprove, goBack,
+    } = useApplicationDetail();
 
     if (isLoading) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>
-                        Cargando solicitud...
-                    </Text>
-                </View>
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando solicitud..." />
+            </ScreenContainer>
         );
     }
 
     if (!request) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, { color: theme.text }]}>
-                        No se encontró la solicitud
-                    </Text>
-                </View>
-            </View>
+            <ScreenContainer>
+                <EmptyState
+                    icon={<AlertCircle size={48} color={theme.textMuted} />}
+                    title="No se encontró la solicitud"
+                />
+            </ScreenContainer>
         );
     }
 
-    const statusInfo = STATUS_LABELS[request.status] || STATUS_LABELS.PENDING;
-
     return (
         <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                    <ChevronLeft size={24} color={theme.text} />
-                </TouchableOpacity>
-                <Text style={[styles.title, { color: theme.text }]}>
-                    Procesar Solicitud
-                </Text>
-            </View>
+            <ScreenHeader title="Procesar Solicitud" onBack={goBack} />
 
             {/* Status Badge */}
             <View style={[styles.statusCard, { backgroundColor: statusInfo.color + '15', borderColor: statusInfo.color + '30' }]}>
@@ -365,40 +269,6 @@ export default function ProcesarSolicitudScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    loadingText: {
-        marginTop: 16,
-        fontSize: 16,
-    },
-    errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-    },
-    errorText: {
-        fontSize: 18,
-        textAlign: 'center',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 20,
-        gap: 16,
-    },
-    backButton: {
-        padding: 8,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: '800',
     },
     statusCard: {
         marginHorizontal: 24,

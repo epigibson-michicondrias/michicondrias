@@ -1,132 +1,45 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getMyClinics, Clinic } from '../../src/services/directorio';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useSchedule, ScheduleDay, Holiday } from '@/src/hooks/clinica';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
-import { ChevronLeft, Clock, Calendar, Plus, X, Save, Info, Globe } from 'lucide-react-native';
+import { Clock, Calendar, Plus, X, Save, Info, Globe } from 'lucide-react-native';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-
-interface ScheduleDay {
-    day: string;
-    isOpen: boolean;
-    openTime: string;
-    closeTime: string;
-    breaks: Array<{
-        start: string;
-        end: string;
-    }>;
-}
-
-interface Holiday {
-    id: string;
-    name: string;
-    date: string;
-    isClosed: boolean;
-    reason?: string;
-}
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import EmptyState from '@/src/components/EmptyState';
 
 export default function HorariosClinicaScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [holidayModalVisible, setHolidayModalVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
-    
-    // Time Picker State
-    const [timePickerVisible, setTimePickerVisible] = useState(false);
-    const [timePickerTarget, setTimePickerTarget] = useState<{index: number, field: keyof ScheduleDay, title: string} | null>(null);
-    const [tempTime, setTempTime] = useState('09:00');
-
-    // Schedule State
-    const [schedule, setSchedule] = useState<ScheduleDay[]>([
-        { day: 'Lunes', isOpen: true, openTime: '09:00', closeTime: '18:00', breaks: [] },
-        { day: 'Martes', isOpen: true, openTime: '09:00', closeTime: '18:00', breaks: [] },
-        { day: 'Miércoles', isOpen: true, openTime: '09:00', closeTime: '18:00', breaks: [] },
-        { day: 'Jueves', isOpen: true, openTime: '09:00', closeTime: '18:00', breaks: [] },
-        { day: 'Viernes', isOpen: true, openTime: '09:00', closeTime: '18:00', breaks: [] },
-        { day: 'Sábado', isOpen: true, openTime: '09:00', closeTime: '14:00', breaks: [] },
-        { day: 'Domingo', isOpen: false, openTime: '09:00', closeTime: '14:00', breaks: [] },
-    ]);
-
-    // Holidays State
-    const [holidays, setHolidays] = useState<Holiday[]>([
-        { id: '1', name: 'Año Nuevo', date: '2024-01-01', isClosed: true, reason: 'Festivo nacional' },
-        { id: '2', name: 'Día de la Independencia', date: '2024-09-16', isClosed: true, reason: 'Festivo nacional' },
-        { id: '3', name: 'Navidad', date: '2024-12-25', isClosed: true, reason: 'Festivo nacional' },
-    ]);
-
-    // Holiday Form State
-    const [holidayName, setHolidayName] = useState('');
-    const [holidayDate, setHolidayDate] = useState('');
-    const [holidayReason, setHolidayReason] = useState('');
-
-    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
-        queryKey: ['my-clinics'],
-        queryFn: getMyClinics,
-    });
-
-    const clinic = clinics[0];
-
-    const updateDaySchedule = (index: number, field: keyof ScheduleDay, value: any) => {
-        const newSchedule = [...schedule];
-        newSchedule[index] = { ...newSchedule[index], [field]: value };
-        setSchedule(newSchedule);
-    };
-
-    const handleSaveSchedule = async () => {
-        setLoading(true);
-        try {
-            // En producción: llamar a la API para guardar horarios
-            showAlert({ type: 'success', title: 'Éxito', message: 'Horarios actualizados correctamente' });
-            router.back();
-        } catch (error) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar los horarios' });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleAddHoliday = () => {
-        if (!holidayName || !holidayDate) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa el nombre y la fecha' });
-            return;
-        }
-
-        const newHoliday: Holiday = {
-            id: Date.now().toString(),
-            name: holidayName,
-            date: holidayDate,
-            isClosed: true,
-            reason: holidayReason || 'Día festivo'
-        };
-
-        setHolidays([...holidays, newHoliday]);
-        setHolidayName('');
-        setHolidayDate('');
-        setHolidayReason('');
-        setHolidayModalVisible(false);
-        showAlert({ type: 'success', title: 'Éxito', message: 'Día festivo agregado correctamente' });
-    };
-
-    const handleDeleteHoliday = (id: string) => {
-        showAlert({
-            type: 'warning',
-            title: 'Eliminar Día Festivo',
-            message: '¿Estás seguro de eliminar este día festivo?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Eliminar',
-            onButtonPress: () => {
-                setHolidays(holidays.filter(h => h.id !== id));
-                showAlert({ type: 'success', title: 'Eliminado', message: 'Día festivo eliminado correctamente' });
-            }
-        });
-    };
+    const { theme } = useTheme();
+    const {
+        clinic,
+        loadingClinics,
+        schedule,
+        updateDaySchedule,
+        handleSaveSchedule,
+        loading,
+        holidays,
+        handleAddHoliday,
+        handleDeleteHoliday,
+        holidayModalVisible,
+        setHolidayModalVisible,
+        holidayName,
+        setHolidayName,
+        holidayDate,
+        setHolidayDate,
+        holidayReason,
+        setHolidayReason,
+        timePickerVisible,
+        timePickerTarget,
+        tempTime,
+        setTempTime,
+        openTimePicker,
+        confirmTimePicker,
+        cancelTimePicker,
+    } = useSchedule();
 
     const renderDaySchedule = (day: ScheduleDay, index: number) => (
         <View key={day.day} style={[styles.dayCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -158,11 +71,7 @@ export default function HorariosClinicaScreen() {
                             <Text style={[styles.timeLabel, { color: theme.textMuted }]}>Apertura</Text>
                             <TouchableOpacity
                                 style={[styles.timeButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                                onPress={() => {
-                                    setTempTime(day.openTime);
-                                    setTimePickerTarget({ index, field: 'openTime', title: 'Hora de Apertura' });
-                                    setTimePickerVisible(true);
-                                }}
+                                onPress={() => openTimePicker(index, 'openTime', 'Hora de Apertura', day.openTime)}
                             >
                                 <Clock size={16} color={theme.primary} />
                                 <Text style={[styles.timeText, { color: theme.text }]}>{day.openTime}</Text>
@@ -172,11 +81,7 @@ export default function HorariosClinicaScreen() {
                             <Text style={[styles.timeLabel, { color: theme.textMuted }]}>Cierre</Text>
                             <TouchableOpacity
                                 style={[styles.timeButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                                onPress={() => {
-                                    setTempTime(day.closeTime);
-                                    setTimePickerTarget({ index, field: 'closeTime', title: 'Hora de Cierre' });
-                                    setTimePickerVisible(true);
-                                }}
+                                onPress={() => openTimePicker(index, 'closeTime', 'Hora de Cierre', day.closeTime)}
                             >
                                 <Clock size={16} color={theme.primary} />
                                 <Text style={[styles.timeText, { color: theme.text }]}>{day.closeTime}</Text>
@@ -224,48 +129,42 @@ export default function HorariosClinicaScreen() {
 
     if (loadingClinics) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <Text style={[styles.loadingText, { color: theme.text }]}>Cargando...</Text>
-            </View>
+            <ScreenContainer>
+                <LoadingOverlay message="Cargando horarios..." />
+            </ScreenContainer>
         );
     }
 
     if (!clinic) {
         return (
-            <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                        <ChevronLeft size={24} color={theme.text} />
-                    </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Horarios</Text>
-                </View>
-                <View style={styles.emptyContainer}>
-                    <Clock size={80} color={theme.textMuted} />
-                    <Text style={[styles.emptyTitle, { color: theme.text }]}>No tienes clínicas registradas</Text>
-                </View>
-            </View>
+            <ScreenContainer>
+                <ScreenHeader title="Horarios" />
+                <EmptyState
+                    icon={<Clock size={80} color={theme.textMuted} />}
+                    title="No tienes clínicas registradas"
+                />
+            </ScreenContainer>
         );
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-                    <ChevronLeft size={24} color={ theme.text } />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitle, { color: theme.text }]}>Horarios</Text>
-                <TouchableOpacity
-                    style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                    onPress={handleSaveSchedule}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <Text style={styles.saveBtnText}>...</Text>
-                    ) : (
-                        <Save size={20} color="#fff" />
-                    )}
-                </TouchableOpacity>
-            </View>
+        <ScreenContainer>
+            <ScreenHeader
+                title="Horarios"
+                rightElement={
+                    <TouchableOpacity
+                        style={[styles.saveBtn, { backgroundColor: theme.primary }]}
+                        onPress={handleSaveSchedule}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <Text style={styles.saveBtnText}>...</Text>
+                        ) : (
+                            <Save size={20} color="#fff" />
+                        )}
+                    </TouchableOpacity>
+                }
+            />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Info Card */}
@@ -415,20 +314,13 @@ export default function HorariosClinicaScreen() {
                         <View style={styles.timePickerActions}>
                             <TouchableOpacity 
                                 style={[styles.timePickerBtn, { backgroundColor: 'rgba(255,255,255,0.1)' }]} 
-                                onPress={() => setTimePickerVisible(false)}
+                                onPress={cancelTimePicker}
                             >
                                 <Text style={[styles.timePickerBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity 
                                 style={[styles.timePickerBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => {
-                                    if (timePickerTarget && tempTime.length === 5 && tempTime.includes(':')) {
-                                        updateDaySchedule(timePickerTarget.index, timePickerTarget.field, tempTime);
-                                        setTimePickerVisible(false);
-                                    } else {
-                                        showAlert({ type: 'error', title: 'Formato Inválido', message: 'Usa el formato HH:MM' });
-                                    }
-                                }}
+                                onPress={confirmTimePicker}
                             >
                                 <Text style={[styles.timePickerBtnText, { color: '#fff' }]}>Guardar</Text>
                             </TouchableOpacity>
@@ -436,15 +328,11 @@ export default function HorariosClinicaScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    header: { flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24, gap: 16 },
-    backBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.03)', justifyContent: 'center', alignItems: 'center' },
-    headerTitle: { fontSize: 20, fontWeight: '900', flex: 1 },
     saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
     content: { flex: 1, paddingHorizontal: 24 },
@@ -487,15 +375,10 @@ const styles = StyleSheet.create({
     emergencyContact: { gap: 4 },
     emergencyContactLabel: { fontSize: 13 },
     emergencyPhone: { fontSize: 16, fontWeight: '700' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    loadingText: { fontSize: 16, fontWeight: '600' },
-    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 20 },
-    emptyTitle: { fontSize: 18, fontWeight: '700' },
     footer: { height: 40 },
     modalContainer: { flex: 1 },
     modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24 },
     modalTitle: { fontSize: 20, fontWeight: '900' },
-    modalContent: { flex: 1, paddingHorizontal: 24 },
     formGroup: { marginBottom: 24 },
     label: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
     input: { height: 56, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, fontSize: 16, fontWeight: '600' },

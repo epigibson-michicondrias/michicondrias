@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   StyleSheet, ScrollView, TouchableOpacity, View, Text,
-  StatusBar, Image, TextInput, FlatList, Dimensions
+  StatusBar, Image, TextInput, Dimensions
 } from 'react-native';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { useQuery } from '@tanstack/react-query';
-import Colors from '../../constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useShopTab } from '@/src/hooks/ecommerce/useShopTab';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -16,37 +14,28 @@ import {
   ChevronRight, Star, Heart, Tag, Sparkles, TrendingUp,
   Filter, ArrowRight
 } from 'lucide-react-native';
-import { getProducts } from '../../src/services/ecommerce';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 60) / 2;
 
-const CATEGORIES = [
-  { id: 'all', label: 'Todo', icon: Sparkles, color: '#7c3aed' },
-  { id: 'alimentos', label: 'Alimentos', icon: Package, color: '#10b981' },
-  { id: 'juguetes', label: 'Juguetes', icon: Star, color: '#f59e0b' },
-  { id: 'salud', label: 'Salud', icon: Heart, color: '#ec4899' },
-  { id: 'accesorios', label: 'Accesorios', icon: Tag, color: '#3b82f6' },
-];
-
 export default function TiendaTabScreen() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const { colorScheme } = useTheme();
-  const theme = Colors[colorScheme];
+  const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ['store-products', selectedCategory],
-    queryFn: () => getProducts(selectedCategory === 'all' ? undefined : selectedCategory),
-  });
-
-  const isVendedor = user?.role_name === 'vendedor';
+  const {
+    selectedCategory,
+    setSelectedCategory,
+    searchQuery,
+    setSearchQuery,
+    products,
+    isLoading,
+    isVendedor,
+    categories,
+    handleSearch,
+    router,
+  } = useShopTab();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <ScreenContainer>
       <StatusBar barStyle="light-content" />
 
       <KeyboardScreen contentContainerStyle={{ paddingBottom: 100 }}>
@@ -58,7 +47,7 @@ export default function TiendaTabScreen() {
           <View style={styles.headerTop}>
             <View>
               <Text style={styles.headerLabel}>MICHICONDRIAS</Text>
-              <Text style={styles.headerTitle}>Tienda Online</Text>
+              <Text style={styles.headerTitle}>Michi-Shop</Text>
             </View>
             <View style={styles.headerActions}>
               <TouchableOpacity
@@ -79,7 +68,7 @@ export default function TiendaTabScreen() {
               placeholderTextColor="rgba(255,255,255,0.5)"
               value={searchQuery}
               onChangeText={setSearchQuery}
-              onSubmitEditing={() => router.push(`/tienda?q=${searchQuery}` as any)}
+              onSubmitEditing={handleSearch}
             />
             <TouchableOpacity style={styles.filterBtn}>
               <Filter size={16} color="#fff" />
@@ -129,7 +118,7 @@ export default function TiendaTabScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>Categor{'\u00ed'}as</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesList}>
-            {CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const isActive = selectedCategory === cat.id;
               const Icon = cat.icon;
               return (
@@ -239,12 +228,11 @@ export default function TiendaTabScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardScreen>
-    </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   header: {
     paddingHorizontal: 24,
     paddingBottom: 32,

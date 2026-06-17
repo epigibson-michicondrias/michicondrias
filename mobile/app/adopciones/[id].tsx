@@ -1,36 +1,27 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { getListing, Listing } from '../../src/services/adopciones';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { ChevronLeft, Share2, Heart, MapPin, Bone, User, Info, MessageCircle } from 'lucide-react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useListingDetail } from '@/src/hooks/adopciones';
+import { formatAge, formatWeight } from '@/src/utils/formatters';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { Share2, Heart, Bone, User, Info, MessageCircle } from 'lucide-react-native';
+import BackButton from '@/src/components/BackButton';
 
 const { width, height } = Dimensions.get('window');
 
 export default function AdopcionDetalleScreen() {
-    const { id } = useLocalSearchParams();
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
-
-    const { data: listing, isLoading } = useQuery({
-        queryKey: ['adopcion', id],
-        queryFn: () => getListing(id as string),
-    });
+    const { theme } = useTheme();
+    const { listing, isLoading, goBack, goToSolicitar } = useListingDetail();
 
     if (isLoading || !listing) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <ScreenContainer style={styles.center}>
+                <LoadingOverlay message="Cargando..." />
+            </ScreenContainer>
         );
     }
-
-    const handleApply = () => {
-        router.push(`/adopciones/solicitar/${id}` as any);
-    };
 
     const getSpeciesColor = (species: string) => {
         switch (species.toLowerCase()) {
@@ -44,13 +35,16 @@ export default function AdopcionDetalleScreen() {
     const speciesColor = getSpeciesColor(listing.species);
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[0]}>
+                {/* Hero Section */}
                 <View style={[styles.visualHeader, { backgroundColor: speciesColor + '15' }]}>
                     <View style={styles.headerNav}>
-                        <TouchableOpacity style={styles.glassBtn} onPress={() => router.back()}>
-                            <ChevronLeft size={24} color="#fff" />
-                        </TouchableOpacity>
+                        <BackButton
+                            onPress={goBack}
+                            color="#fff"
+                            style={styles.glassBtn}
+                        />
                         <View style={{ flexDirection: 'row', gap: 12 }}>
                             <TouchableOpacity style={styles.glassBtn}>
                                 <Share2 size={20} color="#fff" />
@@ -81,6 +75,7 @@ export default function AdopcionDetalleScreen() {
                     </View>
                 </View>
 
+                {/* Body Content */}
                 <View style={styles.body}>
                     <View style={styles.titleSection}>
                         <View style={{ flex: 1 }}>
@@ -94,26 +89,29 @@ export default function AdopcionDetalleScreen() {
                         </View>
                     </View>
 
+                    {/* Quick Stats */}
                     <View style={styles.quickStats}>
-                        <StatCard label="Edad" value={listing.age_months ? `${listing.age_months} meses` : 'N/A'} icon="📅" theme={theme} />
+                        <StatCard label="Edad" value={formatAge(listing.age_months)} icon="📅" theme={theme} />
                         <StatCard label="Tamaño" value={listing.size || 'Mediano'} icon="📏" theme={theme} />
-                        <StatCard label="Peso" value={listing.weight_kg ? `${listing.weight_kg} kg` : 'N/A'} icon="⚖️" theme={theme} />
+                        <StatCard label="Peso" value={formatWeight(listing.weight_kg)} icon="⚖️" theme={theme} />
                         <StatCard label="Ubicación" value={listing.location || 'CDMX'} icon="📍" theme={theme} />
                     </View>
 
+                    {/* Description */}
                     <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 32 }]}>Su Historia</Text>
-                    <View style={[styles.descriptionContainer, { backgroundColor: theme.surface }]}>
+                    <View style={[styles.descriptionContainer, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                         <Text style={[styles.description, { color: theme.text }]}>
                             {listing.description || "Este pequeño busca una familia que le dé mucho amor. Es muy juguetón, sociable con otros animales y está esperando por ti."}
                         </Text>
                     </View>
 
+                    {/* Rescuer */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <User size={20} color={theme.primary} />
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Rescatista</Text>
                         </View>
-                        <View style={[styles.rescatistaCard, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.rescatistaCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                             <View style={styles.rescatistaIcon}>
                                 <Text style={{ fontSize: 24 }}>🏠</Text>
                             </View>
@@ -127,6 +125,7 @@ export default function AdopcionDetalleScreen() {
                         </View>
                     </View>
 
+                    {/* Health & Socialization */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <Bone size={20} color={theme.primary} />
@@ -142,6 +141,7 @@ export default function AdopcionDetalleScreen() {
                         </View>
                     </View>
 
+                    {/* Temperament Traits */}
                     {listing.temperament && (
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
@@ -160,19 +160,20 @@ export default function AdopcionDetalleScreen() {
                 </View>
             </ScrollView>
 
+            {/* Fixed Footer CTA */}
             <View style={[styles.footer, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
-                <TouchableOpacity style={[styles.applyBtn, { backgroundColor: theme.primary }]} onPress={handleApply}>
+                <TouchableOpacity style={[styles.applyBtn, { backgroundColor: theme.primary }]} onPress={goToSolicitar}>
                     <Heart size={20} color="#fff" />
-                    <Text style={[styles.applyBtnText]}>¡Quiero Adoptar!</Text>
+                    <Text style={styles.applyBtnText}>¡Quiero Adoptar!</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </ScreenContainer>
     );
 }
 
-function StatCard({ label, value, icon, theme }: { label: string, value: string, icon: string, theme: any }) {
+function StatCard({ label, value, icon, theme }: { label: string; value: string; icon: string; theme: any }) {
     return (
-        <View style={[styles.statCard, { backgroundColor: theme.surface }]}>
+        <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
             <Text style={styles.statIcon}>{icon}</Text>
             <View>
                 <Text style={[styles.statLabel, { color: theme.textMuted }]}>{label.toUpperCase()}</Text>
@@ -182,9 +183,9 @@ function StatCard({ label, value, icon, theme }: { label: string, value: string,
     );
 }
 
-function FeatureItem({ label, ok, theme }: { label: string, ok?: boolean, theme: any }) {
+function FeatureItem({ label, ok, theme }: { label: string; ok?: boolean; theme: any }) {
     return (
-        <View style={styles.featureItem}>
+        <View style={[styles.featureItem, { borderColor: theme.cardBorder }]}>
             <View style={[styles.dot, { backgroundColor: ok ? '#10b981' : theme.textMuted }]} />
             <Text style={[styles.featureText, { color: theme.text }]}>{label}</Text>
         </View>
@@ -192,11 +193,7 @@ function FeatureItem({ label, ok, theme }: { label: string, ok?: boolean, theme:
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
     center: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -238,8 +235,6 @@ const styles = StyleSheet.create({
     heroOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'transparent',
-        // In React Native we use linear gradient usually, but for a simple fade we can use absolute positioning with shadow or just rely on the design.
-        // We'll simulate the "inset box-shadow" with a darker bottom overlay.
     },
     heroTags: {
         position: 'absolute',
@@ -311,7 +306,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     statIcon: {
         fontSize: 20,
@@ -343,7 +337,6 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     description: {
         fontSize: 15,
@@ -356,7 +349,6 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         gap: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     rescatistaIcon: {
         width: 50,
@@ -394,7 +386,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         gap: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     dot: {
         width: 6,
