@@ -38,10 +38,18 @@ export default function SitterDetailScreen() {
         myPets,
         handleSubmitSitRequest,
         isRequestingSit,
+        // Reviews
+        reviews,
+        reviewsLoading,
+        handleCreateReview,
+        isCreatingReview,
+        unreviewedCompletedRequests,
     } = useSitterDetail();
 
     const [contactModalVisible, setContactModalVisible] = React.useState(false);
     const [contactMessage, setContactMessage] = React.useState('');
+    const [formRating, setFormRating] = React.useState(5);
+    const [formComment, setFormComment] = React.useState('');
 
     const getServiceIcon = (type: string) => {
         switch (type) {
@@ -252,27 +260,178 @@ export default function SitterDetailScreen() {
                     )}
                 </View>
 
-                {/* Action Buttons */}
-                <View style={styles.actionContainer}>
-                    <TouchableOpacity
-                        style={[styles.contactButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                        onPress={() => setContactModalVisible(true)}
-                    >
-                        <MessageCircle size={20} color={theme.primary} />
-                        <Text style={[styles.contactButtonText, { color: theme.primary }]}>Enviar Mensaje</Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity
-                        style={[styles.bookButton, { backgroundColor: theme.primary }]}
-                        onPress={() => handleBook(getServiceName(sitter.service_type))}
-                    >
-                        <Calendar size={20} color="#fff" />
-                        <Text style={styles.bookButtonText}>Reservar</Text>
-                    </TouchableOpacity>
-                </View>
+                {/* Reseñas y Opiniones */}
+                <View style={[styles.section, { backgroundColor: theme.surface }]}>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Reseñas y Opiniones</Text>
 
-                <View style={styles.footer} />
+                    {/* Resumen de Calificación */}
+                    <View style={[styles.ratingSummaryCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
+                        <View style={styles.summaryLeft}>
+                            <Text style={[styles.bigRating, { color: theme.text }]}>
+                                {sitter.rating ? sitter.rating.toFixed(1) : '5.0'}
+                            </Text>
+                            <View style={styles.starsRow}>
+                                {[1, 2, 3, 4, 5].map((s) => {
+                                    const isFilled = s <= Math.round(sitter.rating || 5);
+                                    return <Star key={s} size={16} color="#fbbf24" fill={isFilled ? "#fbbf24" : "transparent"} />;
+                                })}
+                            </View>
+                            <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
+                                {reviews.length} {reviews.length === 1 ? 'opinión' : 'opiniones'}
+                            </Text>
+                        </View>
+                        <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
+                        <View style={styles.summaryRight}>
+                            <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
+                                Calificación de la comunidad sobre la calidad del servicio, amabilidad y trato de este cuidador.
+                            </Text>
+                        </View>
+                    </View>
+
+                    {/* Formulario para Calificar */}
+                    {unreviewedCompletedRequests.length > 0 && (
+                        <View style={[styles.writeReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
+                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar tu servicio reciente</Text>
+                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>
+                                Selecciona estrellas y escribe tu reseña para tu cuidado con {sitter.display_name}.
+                            </Text>
+
+                            <View style={styles.interactiveStars}>
+                                {[1, 2, 3, 4, 5].map((starVal) => (
+                                    <TouchableOpacity
+                                        key={starVal}
+                                        onPress={() => setFormRating(starVal)}
+                                        style={styles.starTouch}
+                                    >
+                                        <Star
+                                            size={32}
+                                            color="#fbbf24"
+                                            fill={starVal <= formRating ? "#fbbf24" : "transparent"}
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+
+                            <TextInput
+                                style={[
+                                    styles.commentInput,
+                                    {
+                                        backgroundColor: theme.surface,
+                                        borderColor: theme.border,
+                                        color: theme.text,
+                                    },
+                                ]}
+                                placeholder="Escribe tu opinión aquí (opcional)..."
+                                placeholderTextColor={theme.textMuted}
+                                value={formComment}
+                                onChangeText={setFormComment}
+                                multiline
+                                numberOfLines={3}
+                            />
+
+                            <TouchableOpacity
+                                style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
+                                onPress={() => {
+                                    const latestRequest = unreviewedCompletedRequests[0];
+                                    handleCreateReview(latestRequest.id, {
+                                        rating: formRating,
+                                        comment: formComment.trim() || '',
+                                    });
+                                    setFormComment('');
+                                    setFormRating(5);
+                                }}
+                                disabled={isCreatingReview}
+                            >
+                                {isCreatingReview ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {/* Nota cuando no se puede calificar */}
+                    {unreviewedCompletedRequests.length === 0 && (
+                        <View style={[styles.infoReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
+                            <Text style={[styles.infoReviewText, { color: theme.textMuted }]}>
+                                Solo puedes dejar una reseña si has completado un cuidado con este cuidador.
+                            </Text>
+                        </View>
+                    )}
+
+                    {/* Listado de Opiniones */}
+                    <View style={styles.reviewsList}>
+                        {reviewsLoading ? (
+                            <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 20 }} />
+                        ) : reviews.length === 0 ? (
+                            <Text style={[styles.emptyReviewsText, { color: theme.textMuted }]}>
+                                Este cuidador aún no tiene opiniones de otros clientes.
+                            </Text>
+                        ) : (
+                            reviews.map((review) => (
+                                <View
+                                    key={review.id}
+                                    style={[styles.reviewItemCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}
+                                >
+                                    <View style={styles.reviewItemHeader}>
+                                        <View style={[styles.reviewAvatar, { backgroundColor: theme.primary + '15' }]}>
+                                            <Text style={[styles.reviewAvatarText, { color: theme.primary }]}>
+                                                C
+                                            </Text>
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.reviewUserName, { color: theme.text }]}>Cliente</Text>
+                                            <View style={styles.reviewStarsRow}>
+                                                {[1, 2, 3, 4, 5].map((s) => (
+                                                    <Star
+                                                        key={s}
+                                                        size={12}
+                                                        color="#fbbf24"
+                                                        fill={s <= review.rating ? "#fbbf24" : "transparent"}
+                                                    />
+                                                ))}
+                                            </View>
+                                        </View>
+                                        <Text style={[styles.reviewDate, { color: theme.textMuted }]}>
+                                            {review.created_at
+                                                ? new Date(review.created_at).toLocaleDateString('es-MX', {
+                                                      day: 'numeric',
+                                                      month: 'short',
+                                                  })
+                                                : ''}
+                                        </Text>
+                                    </View>
+                                    {review.comment && (
+                                        <Text style={[styles.reviewCommentText, { color: theme.textMuted }]}>
+                                            {review.comment}
+                                        </Text>
+                                    )}
+                                </View>
+                            ))
+                        )}
+                    </View>
+                </View>
             </ScrollView>
+
+            {/* Action Buttons (Sticky Footer) */}
+            <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
+                <TouchableOpacity
+                    style={[styles.contactBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                    onPress={() => setContactModalVisible(true)}
+                >
+                    <MessageCircle size={20} color={theme.primary} />
+                    <Text style={[styles.contactBtnText, { color: theme.primary }]}>Enviar Mensaje</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                    style={[styles.bookButton, { backgroundColor: theme.primary }]}
+                    onPress={() => handleBook(getServiceName(sitter.service_type))}
+                >
+                    <Calendar size={20} color="#fff" />
+                    <Text style={styles.bookButtonText}>Reservar Cuidado</Text>
+                </TouchableOpacity>
+            </View>
 
             {/* Sit Request Modal */}
             <Modal visible={sitModalVisible} transparent animationType="slide">
@@ -628,21 +787,44 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     bookButton: {
-        flex: 2,
+        flex: 1.5,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        borderRadius: 12,
+        height: 56,
+        borderRadius: 18,
         gap: 8,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
     },
     bookButtonText: {
         color: '#fff',
         fontSize: 15,
-        fontWeight: '700',
+        fontWeight: '800',
     },
     footer: {
-        height: 20,
+        flexDirection: 'row',
+        padding: 20,
+        paddingBottom: 40,
+        borderTopWidth: 1,
+        gap: 12,
+    },
+    contactBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 56,
+        borderRadius: 18,
+        gap: 8,
+        borderWidth: 1.5,
+    },
+    contactBtnText: {
+        fontSize: 15,
+        fontWeight: '700',
     },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '85%' },
@@ -657,4 +839,150 @@ const styles = StyleSheet.create({
     modalCancelText: { fontSize: 15, fontWeight: '700' },
     modalSubmitBtn: { flex: 2, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     modalSubmitText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    ratingSummaryCard: {
+        flexDirection: 'row',
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        marginBottom: 20,
+        alignItems: 'center',
+    },
+    summaryLeft: {
+        alignItems: 'center',
+        paddingRight: 20,
+    },
+    bigRating: {
+        fontSize: 32,
+        fontWeight: '900',
+    },
+    starsRow: {
+        flexDirection: 'row',
+        gap: 2,
+        marginVertical: 6,
+    },
+    totalReviewsText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    summarySeparator: {
+        width: 1,
+        height: '80%',
+    },
+    summaryRight: {
+        flex: 1,
+        paddingLeft: 20,
+    },
+    summaryDescription: {
+        fontSize: 12,
+        lineHeight: 18,
+        fontWeight: '600',
+    },
+    writeReviewCard: {
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        marginBottom: 24,
+    },
+    writeReviewTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        marginBottom: 4,
+    },
+    writeReviewSubtitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginBottom: 16,
+    },
+    interactiveStars: {
+        flexDirection: 'row',
+        gap: 12,
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    starTouch: {
+        padding: 4,
+    },
+    commentInput: {
+        borderRadius: 16,
+        borderWidth: 1,
+        padding: 12,
+        fontSize: 14,
+        height: 80,
+        textAlignVertical: 'top',
+        marginBottom: 16,
+        fontWeight: '600',
+    },
+    submitReviewBtn: {
+        height: 48,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    submitReviewBtnText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    infoReviewCard: {
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginBottom: 20,
+    },
+    infoReviewText: {
+        fontSize: 13,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    reviewsList: {
+        gap: 12,
+        marginBottom: 12,
+    },
+    emptyReviewsText: {
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+        paddingVertical: 20,
+        fontStyle: 'italic',
+    },
+    reviewItemCard: {
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    reviewItemHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 10,
+    },
+    reviewAvatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    reviewAvatarText: {
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    reviewUserName: {
+        fontSize: 14,
+        fontWeight: '800',
+    },
+    reviewStarsRow: {
+        flexDirection: 'row',
+        gap: 2,
+        marginTop: 2,
+    },
+    reviewDate: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    reviewCommentText: {
+        fontSize: 13,
+        lineHeight: 19,
+        fontWeight: '600',
+    },
 });

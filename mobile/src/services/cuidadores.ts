@@ -100,7 +100,7 @@ export async function createSitterReview(
     requestId: string,
     data: { rating: number; comment: string }
 ): Promise<SitterReview> {
-    return apiFetch<SitterReview>("cuidadores", `/sitters/${sitterId}/requests/${requestId}/review`, {
+    return apiFetch<SitterReview>("cuidadores", `/sitters/requests/${requestId}/review`, {
         method: "POST",
         body: JSON.stringify(data),
     });

@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { getSitter, requestSit, registerAsSitter, getSitterReviews, createSitterReview, Sitter, SitRequest, SitterReview } from '@/src/services/cuidadores';
+import { getSitter, requestSit, registerAsSitter, getSitterReviews, createSitterReview, getMySitRequests, Sitter, SitRequest, SitterReview } from '@/src/services/cuidadores';
 import { getUserPets } from '@/src/services/mascotas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
@@ -41,6 +41,19 @@ export function useSitterDetail() {
         enabled: !!user?.id,
     });
 
+    const { data: mySitRequests = [] } = useQuery<SitRequest[]>({
+        queryKey: ['my-sit-requests'],
+        queryFn: getMySitRequests,
+        enabled: !!user?.id,
+    });
+
+    const unreviewedCompletedRequests = mySitRequests.filter(
+        (req) =>
+            req.sitter_id === id &&
+            req.status === 'completed' &&
+            !reviews.some((rev) => rev.request_id === req.id)
+    );
+
     const requestSitMutation = useMutation({
         mutationFn: (data: Partial<SitRequest>) => requestSit(id as string, data),
         onSuccess: () => {
@@ -70,6 +83,7 @@ export function useSitterDetail() {
             createSitterReview(id as string, requestId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['sitter-reviews', id] });
+            queryClient.invalidateQueries({ queryKey: ['my-sit-requests'] });
             showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada.' });
         },
         onError: () => {
@@ -173,5 +187,6 @@ export function useSitterDetail() {
         reviewsLoading,
         handleCreateReview,
         isCreatingReview: createReviewMutation.isPending,
+        unreviewedCompletedRequests,
     };
 }
