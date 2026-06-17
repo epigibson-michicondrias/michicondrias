@@ -115,7 +115,7 @@ export default function PaseadoresScreen() {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.primary, borderColor: theme.primary }]}
-                    onPress={() => router.push('/directorio/nuevo' as any)}
+                    onPress={() => router.push('/perfil/partner' as any)}
                 >
                     <Text style={[styles.actionButtonText, { color: '#fff' }]}>🐾 Quiero ser Paseador</Text>
                 </TouchableOpacity>
