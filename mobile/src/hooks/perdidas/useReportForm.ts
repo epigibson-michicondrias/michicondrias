@@ -48,16 +48,20 @@ export function useReportForm() {
 
     useEffect(() => {
         (async () => {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Necesitamos tu ubicación para marcar el reporte.' });
-                return;
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Necesitamos tu ubicación para marcar el reporte.' });
+                    return;
+                }
+                const loc = await Location.getCurrentPositionAsync({});
+                setLocation({
+                    latitude: loc.coords.latitude,
+                    longitude: loc.coords.longitude,
+                });
+            } catch (error) {
+                console.warn('Location services unavailable:', error);
             }
-            const loc = await Location.getCurrentPositionAsync({});
-            setLocation({
-                latitude: loc.coords.latitude,
-                longitude: loc.coords.longitude,
-            });
         })();
     }, []);
 

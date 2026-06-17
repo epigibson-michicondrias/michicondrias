@@ -38,17 +38,21 @@ export default function NuevoReporteScreen() {
 
     useEffect(() => {
         (async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Necesitamos tu ubicación para marcar el reporte.' });
-                return;
-            }
+            try {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Necesitamos tu ubicación para marcar el reporte.' });
+                    return;
+                }
 
-            let loc = await Location.getCurrentPositionAsync({});
-            setLocation({
-                latitude: loc.coords.latitude,
-                longitude: loc.coords.longitude,
-            });
+                let loc = await Location.getCurrentPositionAsync({});
+                setLocation({
+                    latitude: loc.coords.latitude,
+                    longitude: loc.coords.longitude,
+                });
+            } catch (error) {
+                console.warn('Location services unavailable:', error);
+            }
         })();
     }, []);
 
