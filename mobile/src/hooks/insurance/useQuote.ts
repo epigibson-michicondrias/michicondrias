@@ -2,8 +2,8 @@
  * useQuote -- Hook for insurance quote & subscription flow
  * Fetches active plans, user pets, calculates quotes, and subscribes
  */
-import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useState, useEffect } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import {
@@ -24,12 +24,20 @@ import { showAlert } from '@/src/components/AppAlert';
 export function useQuote() {
     const { user } = useAuth();
     const router = useRouter();
+    const { plan_id } = useLocalSearchParams<{ plan_id?: string }>();
     const queryClient = useQueryClient();
 
     const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
-    const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+    const [selectedPlanId, setSelectedPlanId] = useState<string | null>(plan_id || null);
     const [hasPreexisting, setHasPreexisting] = useState(false);
     const [quote, setQuote] = useState<InsuranceQuoteOut | null>(null);
+
+    // Sync selectedPlanId with route param when it changes
+    useEffect(() => {
+        if (plan_id) {
+            setSelectedPlanId(plan_id);
+        }
+    }, [plan_id]);
 
     // Fetch active plans
     const {
