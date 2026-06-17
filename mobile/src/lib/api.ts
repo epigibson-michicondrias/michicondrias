@@ -19,7 +19,7 @@ const API_URLS = {
     funeraria: `${BASE_URL}/funeraria/api/v1/funerary`,
     patrocinadores: `${BASE_URL}/patrocinadores/api/v1/sponsors`,
     transportistas: `${BASE_URL}/transportistas/api/v1/rides`,
-    laboratorio: `${BASE_URL}/laboratorio/api/v1/labs`,
+    laboratorio: `${BASE_URL}/laboratorio/api/v1`,
 };
 
 export type ServiceName = keyof typeof API_URLS;
