@@ -420,36 +420,40 @@ export default function PetCarnetDetailScreen() {
                 </View>
 
                     <View style={[styles.tabsWrapper, { backgroundColor: theme.background, borderTopColor: theme.borderLight }]}>
-                    <View style={styles.tabsContainer}>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.tabsContainer}
+                    >
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'records' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('records')}
                         >
-                            <ClipboardList size={16} color={activeTab === 'records' ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.tabText, { color: activeTab === 'records' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Historial</Text>
+                            <ClipboardList size={18} color={activeTab === 'records' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'records' ? theme.primary : theme.textMuted }]}>Historial</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'vaccines' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('vaccines')}
                         >
-                            <Syringe size={16} color={activeTab === 'vaccines' ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.tabText, { color: activeTab === 'vaccines' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Vacunas</Text>
+                            <Syringe size={18} color={activeTab === 'vaccines' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'vaccines' ? theme.primary : theme.textMuted }]}>Vacunas</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'reminders' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('reminders')}
                         >
-                            <Bell size={16} color={activeTab === 'reminders' ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.tabText, { color: activeTab === 'reminders' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Recordatorios</Text>
+                            <Bell size={18} color={activeTab === 'reminders' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'reminders' ? theme.primary : theme.textMuted }]}>Recordatorios</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'laboratorio' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('laboratorio')}
                         >
-                            <FlaskConical size={16} color={activeTab === 'laboratorio' ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.tabText, { color: activeTab === 'laboratorio' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Laboratorios</Text>
+                            <FlaskConical size={18} color={activeTab === 'laboratorio' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'laboratorio' ? theme.primary : theme.textMuted }]}>Laboratorios</Text>
                         </TouchableOpacity>
-                    </View>
+                    </ScrollView>
                 </View>
 
                 <FlatList
@@ -613,16 +617,16 @@ const styles = StyleSheet.create({
     },
     tabsContainer: {
         flexDirection: 'row',
-        marginHorizontal: 24,
-        gap: 20,
+        paddingHorizontal: 24,
+        gap: 16,
     },
     tab: {
-        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
-        paddingVertical: 16,
+        gap: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 12,
         borderBottomWidth: 3,
         borderBottomColor: 'transparent',
     },
