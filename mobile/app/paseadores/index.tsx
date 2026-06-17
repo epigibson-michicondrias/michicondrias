@@ -114,7 +114,7 @@ export default function PaseadoresScreen() {
                     <Text style={[styles.actionButtonText, { color: theme.text }]}>📋 Mis Solicitudes</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                    style={[styles.actionButton, { backgroundColor: theme.primary, borderColor: theme.primary }]}
                     onPress={() => router.push('/directorio/nuevo' as any)}
                 >
                     <Text style={[styles.actionButtonText, { color: '#fff' }]}>🐾 Quiero ser Paseador</Text>
@@ -160,15 +160,18 @@ const styles = StyleSheet.create({
     },
     actionButton: {
         flex: 1,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        borderRadius: 12,
+        height: 56,
+        borderRadius: 16,
         alignItems: 'center',
-        borderWidth: 1,
+        justifyContent: 'center',
+        borderWidth: 1.5,
+        paddingHorizontal: 12,
     },
     actionButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 13,
+        fontWeight: '700',
+        textAlign: 'center',
+        lineHeight: 18,
     },
     searchWrapper: {
         marginHorizontal: 24,
