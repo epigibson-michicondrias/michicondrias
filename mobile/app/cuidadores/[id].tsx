@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useSitterDetail } from '@/src/hooks/cuidadores';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -46,7 +46,8 @@ export default function SitterDetailScreen() {
         unreviewedCompletedRequests,
     } = useSitterDetail();
 
-    const [contactModalVisible, setContactModalVisible] = React.useState(false);
+    const { contact } = useLocalSearchParams<{ contact?: string }>();
+    const [contactModalVisible, setContactModalVisible] = React.useState(contact === 'true');
     const [contactMessage, setContactMessage] = React.useState('');
     const [formRating, setFormRating] = React.useState(5);
     const [formComment, setFormComment] = React.useState('');

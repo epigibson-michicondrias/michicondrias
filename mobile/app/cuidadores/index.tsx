@@ -110,7 +110,10 @@ export default function CuidadoresScreen() {
                     </Text>
                     <Text style={[styles.priceUnit, { color: theme.textMuted }]}>/día</Text>
                 </View>
-                <TouchableOpacity style={[styles.contactButton, { backgroundColor: theme.primary }]}>
+                <TouchableOpacity 
+                    style={[styles.contactButton, { backgroundColor: theme.primary }]}
+                    onPress={() => router.push({ pathname: '/cuidadores/[id]', params: { id: item.id, contact: 'true' } } as any)}
+                >
                     <Text style={styles.contactButtonText}>Contactar</Text>
                     <ChevronRight size={16} color="#fff" />
                 </TouchableOpacity>

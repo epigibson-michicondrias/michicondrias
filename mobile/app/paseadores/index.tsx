@@ -88,7 +88,10 @@ export default function PaseadoresScreen() {
                 <Text style={[styles.priceText, { color: theme.primary }]}>
                     ${item.price_per_hour || 20}/hora
                 </Text>
-                <TouchableOpacity style={[styles.contactButton, { backgroundColor: theme.primary }]}>
+                <TouchableOpacity 
+                    style={[styles.contactButton, { backgroundColor: theme.primary }]}
+                    onPress={() => router.push({ pathname: '/paseadores/[id]', params: { id: item.id, contact: 'true' } } as any)}
+                >
                     <Text style={styles.contactButtonText}>Contactar</Text>
                     <ChevronRight size={16} color="#fff" />
                 </TouchableOpacity>
