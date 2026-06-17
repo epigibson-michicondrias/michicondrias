@@ -375,6 +375,13 @@
             "response": "Missing parameter mapping for: ['place_id']"
         },
         {
+            "path": "/api/v1/places/{place_id}/reviews",
+            "method": "GET",
+            "url": "/api/v1/places/{place_id}/reviews",
+            "status": "SKIPPED_UNRESOLVED_PARAMS",
+            "response": "Missing parameter mapping for: ['place_id']"
+        },
+        {
             "path": "/",
             "method": "GET",
             "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/perdidas/api/v1/",
@@ -514,6 +521,22 @@
             "path": "/api/v1/reviews/clinics/{clinic_id}/rating",
             "method": "GET",
             "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/reviews/clinics/c001/rating",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reviews/vets/{vet_id}/reviews",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/reviews/vets/v001/reviews",
+            "status_code": 200,
+            "ok": true,
+            "error_detail": null
+        },
+        {
+            "path": "/api/v1/reviews/vets/{vet_id}/rating",
+            "method": "GET",
+            "url": "https://kowly51wia.execute-api.us-east-1.amazonaws.com/directorio/api/v1/reviews/vets/v001/rating",
             "status_code": 200,
             "ok": true,
             "error_detail": null

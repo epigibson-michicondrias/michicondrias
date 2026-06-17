@@ -12,14 +12,14 @@ const API_URLS = {
     perdidas: `${BASE_URL}/perdidas/api/v1`,
     paseadores: `${BASE_URL}/paseadores/api/v1`,
     cuidadores: `${BASE_URL}/cuidadores/api/v1`,
-    aseguradoras: `${BASE_URL}/aseguradoras/api/v1`,
-    entrenadores: `${BASE_URL}/entrenadores/api/v1`,
-    establecimientos: `${BASE_URL}/establecimientos/api/v1`,
-    estilistas: `${BASE_URL}/estilistas/api/v1`,
-    funeraria: `${BASE_URL}/funeraria/api/v1`,
-    patrocinadores: `${BASE_URL}/patrocinadores/api/v1`,
-    transportistas: `${BASE_URL}/transportistas/api/v1`,
-    laboratorio: `${BASE_URL}/laboratorio/api/v1`,
+    aseguradoras: `${BASE_URL}/aseguradoras/api/v1/insurance`,
+    entrenadores: `${BASE_URL}/entrenadores/api/v1/training`,
+    establecimientos: `${BASE_URL}/establecimientos/api/v1/venues`,
+    estilistas: `${BASE_URL}/estilistas/api/v1/grooming`,
+    funeraria: `${BASE_URL}/funeraria/api/v1/funerary`,
+    patrocinadores: `${BASE_URL}/patrocinadores/api/v1/sponsors`,
+    transportistas: `${BASE_URL}/transportistas/api/v1/rides`,
+    laboratorio: `${BASE_URL}/laboratorio/api/v1/labs`,
 };
 
 export type ServiceName = keyof typeof API_URLS;
