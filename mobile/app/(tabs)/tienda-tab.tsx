@@ -80,12 +80,12 @@ export default function TiendaTabScreen() {
         <View style={styles.quickActions}>
           <TouchableOpacity
             style={[styles.quickAction, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => router.push('/tienda' as any)}
+            onPress={() => router.push('/tienda/categorias' as any)}
           >
             <View style={[styles.quickIconBox, { backgroundColor: '#ec489915' }]}>
               <ShoppingBag size={20} color="#ec4899" />
             </View>
-            <Text style={[styles.quickLabel, { color: theme.text }]}>Cat{'\u00e1'}logo</Text>
+            <Text style={[styles.quickLabel, { color: theme.text }]}>Categor{'\u00ed'}as</Text>
             <ChevronRight size={14} color={theme.textMuted} />
           </TouchableOpacity>
 
