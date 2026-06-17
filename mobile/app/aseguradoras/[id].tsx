@@ -62,7 +62,7 @@ export default function PlanDetailScreen() {
     return (
         <ScreenContainer>
             <View style={[styles.customHeader, { borderBottomColor: theme.border + '30' }]}>
-                <BackButton />
+                <BackButton onPress={() => router.back()} />
                 <Text style={[styles.headerTitle, { color: theme.text }]}>Detalle del Seguro</Text>
                 <View style={styles.placeholder} />
             </View>
