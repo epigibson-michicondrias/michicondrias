@@ -124,6 +124,7 @@ class OrderItemCreate(OrderItemBase):
 class OrderItemResponse(OrderItemBase):
     id: str
     price_at_purchase: float
+    product: Optional[ProductResponse] = None
     
     class Config:
         from_attributes = True

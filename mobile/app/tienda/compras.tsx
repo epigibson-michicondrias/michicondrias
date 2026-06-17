@@ -19,7 +19,10 @@ export default function ComprasScreen() {
         const statusInfo = STATUS_MAP[item.status] || { label: item.status, color: '#666' };
         const date = new Date(item.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
         return (
-            <TouchableOpacity style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+            <TouchableOpacity
+                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
+                onPress={() => router.push(`/tienda/pedido/${item.id}` as any)}
+            >
                 <View style={[styles.itemImagePlaceholder, { backgroundColor: theme.borderLight }]}>
                     <Package size={32} color={theme.textMuted} />
                 </View>

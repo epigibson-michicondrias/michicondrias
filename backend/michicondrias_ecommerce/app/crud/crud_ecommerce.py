@@ -181,7 +181,9 @@ def create_order(db: Session, order_in: OrderCreate, user_id: str):
         raise e
 
 def get_user_orders(db: Session, user_id: str, skip: int = 0, limit: int = 20):
-    return db.query(Order).options(joinedload(Order.items)).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    return db.query(Order).options(
+        joinedload(Order.items).joinedload(OrderItem.product)
+    ).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
 def get_seller_orders(db: Session, seller_id: str, skip: int = 0, limit: int = 50):
     """Get orders containing products from a specific seller."""
@@ -192,13 +194,19 @@ def get_seller_orders(db: Session, seller_id: str, skip: int = 0, limit: int = 5
     if not order_ids:
         return []
     
-    return db.query(Order).options(joinedload(Order.items)).filter(Order.id.in_(order_ids)).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    return db.query(Order).options(
+        joinedload(Order.items).joinedload(OrderItem.product)
+    ).filter(Order.id.in_(order_ids)).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
 def get_order(db: Session, order_id: str):
-    return db.query(Order).options(joinedload(Order.items)).filter(Order.id == order_id).first()
+    return db.query(Order).options(
+        joinedload(Order.items).joinedload(OrderItem.product)
+    ).filter(Order.id == order_id).first()
 
 def get_all_orders(db: Session, skip: int = 0, limit: int = 50):
-    return db.query(Order).options(joinedload(Order.items)).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    return db.query(Order).options(
+        joinedload(Order.items).joinedload(OrderItem.product)
+    ).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
 def update_order_status(db: Session, order_id: str, status: str):
     db_order = get_order(db, order_id)

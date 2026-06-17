@@ -37,6 +37,14 @@ export interface ReviewCreate {
     comment?: string;
 }
 
+export interface OrderItem {
+    id: string;
+    product_id: string;
+    quantity: number;
+    price_at_purchase: number;
+    product?: Product;
+}
+
 export interface Order {
     id: string;
     user_id: string;
@@ -44,6 +52,7 @@ export interface Order {
     status: string;
     shipping_address?: string;
     created_at: string;
+    items?: OrderItem[];
 }
 
 export interface OrderCreate {
@@ -124,6 +133,10 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
     return apiFetch<Order>("ecommerce", `/orders/${orderId}/status?status=${status}`, {
         method: "PATCH",
     });
+}
+
+export async function getOrder(orderId: string): Promise<Order> {
+    return apiFetch<Order>("ecommerce", `/orders/${orderId}`);
 }
 
 // PAYMENTS & SUBSCRIPTIONS
