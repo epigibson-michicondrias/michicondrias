@@ -1,137 +1,47 @@
 import React from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar, View, Text } from 'react-native';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { showAlert } from '@/src/components/AppAlert';
-import { useQuery } from '@tanstack/react-query';
-import { getUserPets } from '../../src/services/mascotas';
-import { getUserAppointments } from '../../src/services/citas';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
+import { useHome, STATUS_COLORS, STATUS_LABELS, formatDate } from '@/src/hooks/home/useHome';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import {
   Plus, Bell, Bone, Stethoscope, ShoppingBag, AlertTriangle, Activity,
   Settings, Home, Sparkles, ChevronRight, Calendar, UserCheck, ShieldCheck,
   MapPin, Heart, CreditCard, ClipboardList, Building, Package, BarChart3,
   Menu as MenuIcon, Zap,
 } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// ── Quick Actions by role ─────────────────────────────────────────
-interface QuickAction {
-  title: string;
-  icon: any;
-  color: string;
-  route?: string;
-  alert?: string;
-}
-
-const QUICK_ACTIONS: Record<string, QuickAction[]> = {
-  consumidor: [
-    { title: 'Buscar Vet', icon: Stethoscope, color: '#0ea5e9', route: '/directorio' },
-    { title: 'Mis Citas', icon: Calendar, color: '#8b5cf6', route: '/directorio/citas' },
-    { title: 'Tienda', icon: ShoppingBag, color: '#ec4899', route: '/tienda' },
-    { title: 'Perdidos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas' },
-  ],
-  veterinario: [
-    { title: 'Mi Clínica', icon: Building, color: '#06b6d4', route: '/mi-clinica' },
-    { title: 'Agenda', icon: Calendar, color: '#8b5cf6', route: '/mi-clinica/agenda' },
-    { title: 'Laboratorio', icon: Activity, color: '#10b981', route: '/mi-clinica/laboratorio' },
-    { title: 'Pacientes', icon: ClipboardList, color: '#f59e0b', route: '/mi-clinica/pacientes' },
-  ],
-  paseador: [
-    { title: 'Mis Tareas', icon: Activity, color: '#6366f1', route: '/servicios-pro/gestion' },
-    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/paseadores/solicitudes' },
-    { title: 'Calendario', icon: Calendar, color: '#f59e0b', route: '/paseadores/calendario' },
-    { title: 'Perfil Pro', icon: UserCheck, color: '#ec4899', route: '/servicios-pro/perfil' },
-  ],
-  cuidador: [
-    { title: 'Mis Tareas', icon: Activity, color: '#6366f1', route: '/servicios-pro/gestion' },
-    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/cuidadores/solicitudes' },
-    { title: 'Calendario', icon: Calendar, color: '#f59e0b', route: '/cuidadores/calendario' },
-    { title: 'Perfil Pro', icon: UserCheck, color: '#ec4899', route: '/servicios-pro/perfil' },
-  ],
-  admin: [
-    { title: 'Panel', icon: ShieldCheck, color: '#7c3aed', route: '/admin' },
-    { title: 'Verificaciones', icon: UserCheck, color: '#8b5cf6', route: '/admin/verificaciones' },
-    { title: 'Analíticas', icon: BarChart3, color: '#0ea5e9', route: '/admin/stats' },
-    { title: 'Config', icon: Settings, color: '#64748b', route: '/admin/config' },
-  ],
-  vendedor: [
-    { title: 'Mi Tienda', icon: ShoppingBag, color: '#10b981', route: '/tienda/vendedor' },
-    { title: 'Pedidos', icon: Package, color: '#f59e0b', route: '/tienda/vendedor/ordenes' },
-    { title: 'Productos', icon: CreditCard, color: '#8b5cf6', route: '/tienda/vendedor/productos' },
-    { title: 'Analíticas', icon: BarChart3, color: '#0ea5e9', route: '/tienda/vendedor/analytics' },
-  ],
+// Helper to get beautiful, high-quality placeholders by species
+const getPetPlaceholder = (species: string) => {
+  const s = (species || '').toLowerCase();
+  if (s.includes('gat') || s.includes('cat')) {
+    return 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=300';
+  }
+  if (s.includes('perr') || s.includes('dog')) {
+    return 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=300';
+  }
+  return 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=300';
 };
-
-// ── Helpers ────────────────────────────────────────────────────────
-const STATUS_COLORS: Record<string, string> = {
-  scheduled: '#f59e0b',
-  confirmed: '#10b981',
-  completed: '#3b82f6',
-  cancelled: '#ef4444',
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  scheduled: 'Programada',
-  confirmed: 'Confirmada',
-  completed: 'Completada',
-  cancelled: 'Cancelada',
-};
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const day = d.getDate();
-  const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-  const month = months[d.getMonth()];
-  const hours = d.getHours().toString().padStart(2, '0');
-  const mins = d.getMinutes().toString().padStart(2, '0');
-  return `${day} ${month} · ${hours}:${mins}`;
-}
 
 // ── Component ─────────────────────────────────────────────────────
 export default function DashboardScreen() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const { colorScheme } = useTheme();
-  const theme = Colors[colorScheme];
+  const { theme } = useTheme();
   const insets = useSafeAreaInsets();
-
-  // ── Data queries ──
-  const { data: pets = [], isLoading: petsLoading } = useQuery({
-    queryKey: ['user-pets', user?.id],
-    queryFn: () => getUserPets(user!.id),
-    enabled: !!user?.id,
-  });
-
-  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
-    queryKey: ['user-appointments'],
-    queryFn: getUserAppointments,
-    enabled: !!user?.id,
-  });
-
-  // Only upcoming (scheduled / confirmed), sorted soonest first, max 3
-  const upcomingAppointments = appointments
-    .filter((a) => a.status === 'scheduled' || a.status === 'confirmed')
-    .sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())
-    .slice(0, 3);
-
-  const roleName = user?.role_name || 'consumidor';
-  const actions = QUICK_ACTIONS[roleName] || QUICK_ACTIONS.consumidor;
-
-  // ── Handlers ──
-  const handleAction = (action: QuickAction) => {
-    if (action.alert) {
-      showAlert({ type: 'info', title: 'Michicondrias', message: action.alert });
-    } else if (action.route) {
-      router.push(action.route as any);
-    }
-  };
+  const {
+    user,
+    pets,
+    petsLoading,
+    upcomingAppointments,
+    appointmentsLoading,
+    actions,
+    handleAction,
+    router,
+  } = useHome();
 
   // ── Render ──
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       <StatusBar barStyle="light-content" />
 
       <ScrollView
@@ -239,7 +149,7 @@ export default function DashboardScreen() {
                 style={[styles.addPetBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
                 onPress={() => router.push('/mascotas/nuevo')}
               >
-                <Plus size={24} color={theme.primary} />
+                <Plus size={32} color={theme.primary} />
               </TouchableOpacity>
 
               {pets.map((item) => (
@@ -249,8 +159,9 @@ export default function DashboardScreen() {
                   onPress={() => router.push(`/mascotas/${item.id}` as any)}
                 >
                   <Image
-                    source={{ uri: item.photo_url || 'https://via.placeholder.com/150' }}
+                    source={{ uri: item.photo_url || getPetPlaceholder(item.species) }}
                     style={styles.petImage}
+                    resizeMode="cover"
                   />
                   <LinearGradient
                     colors={['transparent', 'rgba(0,0,0,0.8)']}
@@ -393,14 +304,13 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 }
 
 // ── Styles ────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   /* layout */
-  container: { flex: 1 },
   scrollContent: { flexGrow: 1 },
   headerGradient: {
     position: 'absolute',
@@ -509,10 +419,10 @@ const styles = StyleSheet.create({
   /* pets carousel */
   petsList: { paddingLeft: 24, paddingRight: 24, gap: 16 },
   addPetBtn: {
-    width: 60,
+    width: 110,
     height: 180,
-    borderRadius: 30,
-    borderWidth: 1.5,
+    borderRadius: 32,
+    borderWidth: 2,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
