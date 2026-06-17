@@ -9,10 +9,11 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { getPetById } from '@/src/services/mascotas';
 import { getRecordsByPet, getVaccinesByPet } from '@/src/services/carnet';
 import { getRemindersWithDetails, checkReminder } from '@/src/services/reminders';
+import { getPetLabHistory } from '@/src/services/laboratorio';
 import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
 import type { ReminderWithDetails } from '@/src/services/reminders';
 
-export type CarnetTab = 'records' | 'vaccines' | 'reminders';
+export type CarnetTab = 'records' | 'vaccines' | 'reminders' | 'laboratorio';
 
 export function usePetCarnet() {
     const { id } = useLocalSearchParams();
@@ -45,6 +46,11 @@ export function usePetCarnet() {
         queryFn: () => getRemindersWithDetails(petId),
     });
 
+    const { data: labHistory = [], isLoading: loadingLabHistory } = useQuery({
+        queryKey: ['pet-lab-history', petId],
+        queryFn: () => getPetLabHistory(petId),
+    });
+
     const checkMutation = useMutation({
         mutationFn: checkReminder,
         onSuccess: () => {
@@ -74,6 +80,8 @@ export function usePetCarnet() {
         loadingVaccines,
         reminders,
         loadingReminders,
+        labHistory,
+        loadingLabHistory,
         activeTab,
         setActiveTab,
         isVet,

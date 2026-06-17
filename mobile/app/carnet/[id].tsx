@@ -6,7 +6,7 @@ import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
 import type { ReminderWithDetails } from '@/src/services/reminders';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Syringe, ClipboardList, Weight, Thermometer, Calendar, User, ShoppingBag, Plus, Activity, Clock, ShieldCheck, AlertCircle, Bell, Pill, Check, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Syringe, ClipboardList, Weight, Thermometer, Calendar, User, ShoppingBag, Plus, Activity, Clock, ShieldCheck, AlertCircle, Bell, Pill, Check, ChevronDown, ChevronUp, FlaskConical, Info } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import WeightSparkline from '../../src/components/WeightSparkline';
 
@@ -26,6 +26,8 @@ export default function PetCarnetDetailScreen() {
         loadingVaccines,
         reminders,
         loadingReminders,
+        labHistory,
+        loadingLabHistory,
         activeTab,
         setActiveTab,
         isVet,
@@ -38,8 +40,9 @@ export default function PetCarnetDetailScreen() {
         if (activeTab === 'records') return loadingRecords;
         if (activeTab === 'vaccines') return loadingVaccines;
         if (activeTab === 'reminders') return loadingReminders;
+        if (activeTab === 'laboratorio') return loadingLabHistory;
         return false;
-    }, [activeTab, loadingRecords, loadingVaccines, loadingReminders]);
+    }, [activeTab, loadingRecords, loadingVaccines, loadingReminders, loadingLabHistory]);
 
     const [expandedRecords, setExpandedRecords] = useState<Record<string, boolean>>({});
 
@@ -288,6 +291,56 @@ export default function PetCarnetDetailScreen() {
         );
     };
 
+    const renderLabItem = ({ item }: { item: any }) => {
+        const isAnomaly = item.is_anomaly;
+        const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        }) : 'Sin fecha';
+
+        return (
+            <View style={[styles.labResultCard, { backgroundColor: theme.surface, borderColor: isAnomaly ? '#ef444430' : theme.borderLight }]}>
+                <View style={[styles.labResultIconBox, { backgroundColor: isAnomaly ? '#ef444415' : theme.primary + '15' }]}>
+                    <FlaskConical size={22} color={isAnomaly ? '#ef4444' : theme.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <View style={styles.labResultHeader}>
+                        <Text style={[styles.labResultName, { color: theme.text }]}>{item.parameter_name}</Text>
+                        {isAnomaly && (
+                            <View style={[styles.anomalyBadge, { backgroundColor: '#ef444420' }]}>
+                                <AlertCircle size={10} color="#ef4444" />
+                                <Text style={styles.anomalyBadgeText}>FUERA DE RANGO</Text>
+                            </View>
+                        )}
+                    </View>
+                    <View style={styles.labResultMeta}>
+                        <View style={styles.metaItem}>
+                            <Activity size={12} color={theme.textMuted} />
+                            <Text style={[styles.metaText, { color: theme.text, fontWeight: '700' }]}>
+                                Valor: {item.measured_value} {item.unit || ''}
+                            </Text>
+                        </View>
+                        {item.reference_range && (
+                            <View style={styles.metaItem}>
+                                <Info size={12} color={theme.textMuted} />
+                                <Text style={[styles.metaText, { color: theme.textMuted }]}>
+                                    Rango ref: {item.reference_range} {item.unit || ''}
+                                </Text>
+                            </View>
+                        )}
+                        <View style={styles.metaItem}>
+                            <Calendar size={12} color={theme.textMuted} />
+                            <Text style={[styles.metaText, { color: theme.textMuted }]}>
+                                Fecha: {dateStr}
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        );
+    };
+
     return (
         <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[1]}>
@@ -372,31 +425,38 @@ export default function PetCarnetDetailScreen() {
                             style={[styles.tab, activeTab === 'records' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('records')}
                         >
-                            <ClipboardList size={18} color={activeTab === 'records' ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.tabText, { color: activeTab === 'records' ? theme.primary : theme.textMuted }]}>Historial</Text>
+                            <ClipboardList size={16} color={activeTab === 'records' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'records' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Historial</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'vaccines' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('vaccines')}
                         >
-                            <Syringe size={18} color={activeTab === 'vaccines' ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.tabText, { color: activeTab === 'vaccines' ? theme.primary : theme.textMuted }]}>Vacunas</Text>
+                            <Syringe size={16} color={activeTab === 'vaccines' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'vaccines' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Vacunas</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.tab, activeTab === 'reminders' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('reminders')}
                         >
-                            <Bell size={18} color={activeTab === 'reminders' ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.tabText, { color: activeTab === 'reminders' ? theme.primary : theme.textMuted }]}>Recordatorios</Text>
+                            <Bell size={16} color={activeTab === 'reminders' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'reminders' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Recordatorios</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.tab, activeTab === 'laboratorio' && { borderBottomColor: theme.primary }]}
+                            onPress={() => setActiveTab('laboratorio')}
+                        >
+                            <FlaskConical size={16} color={activeTab === 'laboratorio' ? theme.primary : theme.textMuted} />
+                            <Text style={[styles.tabText, { color: activeTab === 'laboratorio' ? theme.primary : theme.textMuted, fontSize: 11 }]}>Laboratorios</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
                 <FlatList
                     scrollEnabled={false}
-                    data={activeTab === 'records' ? sortedRecords : activeTab === 'vaccines' ? vaccines : reminders}
+                    data={activeTab === 'records' ? sortedRecords : activeTab === 'vaccines' ? vaccines : activeTab === 'reminders' ? reminders : labHistory}
                     keyExtractor={(item: any) => item.id}
-                    renderItem={activeTab === 'records' ? (renderRecordItem as any) : activeTab === 'vaccines' ? (renderVaccineItem as any) : (renderReminderItem as any)}
+                    renderItem={activeTab === 'records' ? (renderRecordItem as any) : activeTab === 'vaccines' ? (renderVaccineItem as any) : activeTab === 'reminders' ? (renderReminderItem as any) : (renderLabItem as any)}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
                         isLoadingTab ? (
@@ -409,12 +469,14 @@ export default function PetCarnetDetailScreen() {
                         ) : (
                             <View style={styles.emptyState}>
                                 <Text style={{ fontSize: 50, marginBottom: 20 }}>
-                                    {activeTab === 'records' ? '📝' : activeTab === 'vaccines' ? '💉' : '🔔'}
+                                    {activeTab === 'records' ? '📝' : activeTab === 'vaccines' ? '💉' : activeTab === 'reminders' ? '🔔' : '🔬'}
                                 </Text>
                                 <Text style={[styles.emptyTitle, { color: theme.text }]}>Sin registros aún</Text>
                                 <Text style={{ color: theme.textMuted, textAlign: 'center', paddingHorizontal: 40 }}>
                                     {activeTab === 'reminders'
                                         ? 'Los recordatorios de medicamentos se generan automáticamente cuando se crea una consulta con receta.'
+                                        : activeTab === 'laboratorio'
+                                        ? 'No hay resultados de laboratorio registrados para esta mascota.'
                                         : 'No hay información médica registrada para esta mascota en esta sección.'}
                                 </Text>
                             </View>
@@ -423,7 +485,7 @@ export default function PetCarnetDetailScreen() {
                 />
             </ScrollView>
 
-            {isVet && activeTab !== 'reminders' && (
+            {isVet && activeTab !== 'reminders' && activeTab !== 'laboratorio' && (
                 <TouchableOpacity
                     style={[styles.fab, { backgroundColor: activeTab === 'records' ? theme.primary : '#0891b2' }]}
                     onPress={activeTab === 'records' ? handleAddRecord : handleAddVaccine}
@@ -849,5 +911,48 @@ const styles = StyleSheet.create({
     },
     expandedDetails: {
         marginTop: 4,
+    },
+    labResultCard: {
+        flexDirection: 'row',
+        padding: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginBottom: 12,
+        gap: 14,
+    },
+    labResultIconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    labResultHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    labResultName: {
+        fontSize: 15,
+        fontWeight: '800',
+        flex: 1,
+        marginRight: 8,
+    },
+    anomalyBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+    },
+    anomalyBadgeText: {
+        color: '#ef4444',
+        fontSize: 9,
+        fontWeight: '900',
+    },
+    labResultMeta: {
+        gap: 4,
     },
 });
