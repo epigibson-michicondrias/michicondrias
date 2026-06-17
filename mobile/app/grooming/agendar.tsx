@@ -12,7 +12,7 @@ import {
     ActivityIndicator,
     Platform,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from '@/src/components/DatePicker';
 import { Scissors, Calendar, Clock, PawPrint, Sparkles, Check } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useGroomingBooking } from '@/src/hooks/grooming/useGroomingBooking';
@@ -166,22 +166,14 @@ export default function AgendarGroomingScreen() {
 
                 {/* ── Date picker ────────────────────────────── */}
                 <FormSection title="📅 Fecha">
-                    <View style={[styles.dateContainer, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                        <Calendar size={20} color={theme.primary} />
-                        <DateTimePicker
-                            value={selectedDate}
-                            mode="date"
-                            display={Platform.OS === 'ios' ? 'compact' : 'default'}
-                            minimumDate={new Date()}
-                            onChange={(_: any, date?: Date) => {
-                                if (date) {
-                                    setSelectedDate(date);
-                                    setSelectedSlot('');
-                                }
-                            }}
-                            style={styles.datePicker}
-                        />
-                    </View>
+                    <DatePicker
+                        value={selectedDate}
+                        onChange={(date) => {
+                            setSelectedDate(date);
+                            setSelectedSlot('');
+                        }}
+                        minimumDate={new Date()}
+                    />
                 </FormSection>
 
                 {/* ── Available slots ────────────────────────── */}
