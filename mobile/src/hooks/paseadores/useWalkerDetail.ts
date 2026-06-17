@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { getWalker, requestWalk, registerAsWalker, getWalkerReviews, createWalkerReview, Walker, WalkRequest, WalkerReview } from '@/src/services/paseadores';
+import { getWalker, requestWalk, registerAsWalker, getWalkerReviews, createWalkerReview, getMyWalkRequests, Walker, WalkRequest, WalkerReview } from '@/src/services/paseadores';
 import { getUserPets } from '@/src/services/mascotas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
@@ -41,6 +41,19 @@ export function useWalkerDetail() {
         enabled: !!user?.id,
     });
 
+    const { data: myWalkRequests = [] } = useQuery<WalkRequest[]>({
+        queryKey: ['my-walk-requests'],
+        queryFn: getMyWalkRequests,
+        enabled: !!user?.id,
+    });
+
+    const unreviewedCompletedRequests = myWalkRequests.filter(
+        (req) =>
+            req.walker_id === id &&
+            req.status === 'completed' &&
+            !reviews.some((rev) => rev.request_id === req.id)
+    );
+
     const requestWalkMutation = useMutation({
         mutationFn: (data: Partial<WalkRequest>) => requestWalk(id as string, data),
         onSuccess: () => {
@@ -70,6 +83,7 @@ export function useWalkerDetail() {
             createWalkerReview(id as string, requestId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['walker-reviews', id] });
+            queryClient.invalidateQueries({ queryKey: ['my-walk-requests'] });
             showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada.' });
         },
         onError: () => {
@@ -159,5 +173,6 @@ export function useWalkerDetail() {
         reviewsLoading,
         handleCreateReview,
         isCreatingReview: createReviewMutation.isPending,
+        unreviewedCompletedRequests,
     };
 }

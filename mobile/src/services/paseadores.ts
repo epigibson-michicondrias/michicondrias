@@ -101,7 +101,7 @@ export async function createWalkerReview(
     requestId: string,
     data: { rating: number; comment: string }
 ): Promise<WalkerReview> {
-    return apiFetch<WalkerReview>("paseadores", `/walkers/${walkerId}/requests/${requestId}/review`, {
+    return apiFetch<WalkerReview>("paseadores", `/walkers/requests/${requestId}/review`, {
         method: "POST",
         body: JSON.stringify(data),
     });
