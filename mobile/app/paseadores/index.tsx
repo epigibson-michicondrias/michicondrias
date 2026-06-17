@@ -106,7 +106,7 @@ export default function PaseadoresScreen() {
             <View style={styles.actionButtons}>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                    onPress={() => router.push('/adopciones/solicitudes' as any)}
+                    onPress={() => router.push('/paseadores/solicitudes' as any)}
                 >
                     <Text style={[styles.actionButtonText, { color: theme.text }]}>📋 Mis Solicitudes</Text>
                 </TouchableOpacity>
