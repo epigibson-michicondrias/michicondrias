@@ -43,7 +43,7 @@ function RootLayoutNav() {
   useEffect(() => {
     if (isLoading) return;
 
-    const inAuthGroup = segments[0] === 'login' || (segments[0] as any) === 'register';
+    const inAuthGroup = segments[0] === 'login' || segments[0] === 'register' || segments[0] === 'forgot-password';
     const inTabsGroup = segments[0] === '(tabs)';
 
     if (!user && !inAuthGroup) {
@@ -61,6 +61,7 @@ function RootLayoutNav() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="login" />
           <Stack.Screen name="register" />
+          <Stack.Screen name="forgot-password" />
           <Stack.Screen name="(tabs)" />
         </Stack>
       </ThemeProvider>

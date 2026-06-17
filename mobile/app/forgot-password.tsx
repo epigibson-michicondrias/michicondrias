@@ -27,13 +27,17 @@ export default function ForgotPasswordScreen() {
         }
         setLoading(true);
         try {
-            await apiFetch('core', '/users/forgot-password', {
+            await apiFetch('core', '/forgot-password', {
                 method: 'POST',
                 body: JSON.stringify({ email }),
-            }).catch(() => {});
+            });
             setSent(true);
         } catch (error: any) {
-            setSent(true);
+            showAlert({
+                type: 'error',
+                title: 'Error de envío',
+                message: error.message || 'No se pudo enviar el correo de recuperación. Inténtalo de nuevo.'
+            });
         } finally {
             setLoading(false);
         }
