@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { getReportById, updateReport, getPerdidasPresignedUrl } from '@/src/services/perdidas';
 import { showAlert } from '@/src/components/AppAlert';
 import type { LostPetReport } from '@/src/types/perdidas';
+import { S3_BUCKET_URL } from '@/src/utils/helpers';
 
 export interface EditReportFormState {
     pet_name: string;
@@ -106,7 +107,7 @@ export function useEditReport() {
                     headers: { 'Content-Type': `image/${ext}` },
                 });
 
-                image_url = `https://michicondrias-storage-1.s3.us-east-1.amazonaws.com/${object_key}`;
+                image_url = `${S3_BUCKET_URL}/${object_key}`;
             }
 
             return updateReport(id, {

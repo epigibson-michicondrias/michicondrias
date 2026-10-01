@@ -11,6 +11,7 @@ import BackButton from '@/src/components/BackButton';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petfriendly';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { S3_BUCKET_URL } from '@/src/utils/helpers';
 
 const { width } = Dimensions.get('window');
 
@@ -94,7 +95,7 @@ export default function NuevoLugarScreen() {
                     headers: { 'Content-Type': `image/${ext}` }
                 });
 
-                image_url = `https://michicondrias-storage-1.s3.us-east-1.amazonaws.com/${object_key}`;
+                image_url = `${S3_BUCKET_URL}/${object_key}`;
             }
 
             await createPlace({

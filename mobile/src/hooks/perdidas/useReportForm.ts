@@ -11,6 +11,7 @@ import * as Location from 'expo-location';
 import { createReport, getPerdidasPresignedUrl } from '@/src/services/perdidas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
+import { S3_BUCKET_URL } from '@/src/utils/helpers';
 
 export interface ReportFormState {
     pet_name: string;
@@ -103,7 +104,7 @@ export function useReportForm() {
                     headers: { 'Content-Type': `image/${ext}` },
                 });
 
-                image_url = `https://michicondrias-storage-1.s3.us-east-1.amazonaws.com/${object_key}`;
+                image_url = `${S3_BUCKET_URL}/${object_key}`;
             }
 
             return createReport({

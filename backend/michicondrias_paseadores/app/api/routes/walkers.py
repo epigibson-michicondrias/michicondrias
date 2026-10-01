@@ -138,7 +138,7 @@ def get_photo_presigned_url(ext: str = "jpg") -> Any:
     if not url:
         raise HTTPException(status_code=500, detail="No se pudo contactar a AWS S3")
 
-    public_url = f"https://{settings.S3_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{object_name}"
+    public_url = f"{settings.STORAGE_BASE_URL}/{object_name}"
     return PresignedUrlResponse(url=url, object_key=public_url)
 
 

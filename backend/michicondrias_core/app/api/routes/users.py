@@ -133,7 +133,7 @@ async def get_kyc_presigned_urls(
         url = generate_presigned_url(object_name, content_type=content_type)
         if url:
             from app.core.config import settings
-            public_url = f"https://{settings.S3_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{object_name}"
+            public_url = f"{settings.STORAGE_BASE_URL}/{object_name}"
             urls.append(KYCPresignedUrl(key=key, url=url, object_key=public_url))
             
     return KYCPresignedUrlsResponse(urls=urls)
@@ -236,7 +236,7 @@ def upgrade_user_role(
 
 def _add_kyc_presigned_urls(user_data: Any) -> dict:
     """Helper to transform static S3 URLs into temporary presigned GET URLs without modifying DB state."""
-    from app.core.s3 import get_presigned_url
+    from app.core.s3 import get_presigned_url, key_from_url
     
     # Handle both SQLAlchemy objects and dictionaries
     if hasattr(user_data, "__dict__"):
@@ -258,9 +258,8 @@ def _add_kyc_presigned_urls(user_data: Any) -> dict:
         
     for attr in ["id_front_url", "id_back_url", "proof_of_address_url"]:
         static_url = res.get(attr)
-        if static_url and ".amazonaws.com/" in static_url:
-            # Extract key: everything after the bucket domain
-            key = static_url.split(".amazonaws.com/")[-1]
+        key = key_from_url(static_url)
+        if key:
             presigned = get_presigned_url(key)
             if presigned:
                 res[attr] = presigned

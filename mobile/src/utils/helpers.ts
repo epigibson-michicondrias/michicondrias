@@ -3,9 +3,12 @@
  */
 
 /**
- * S3 bucket base URL for uploaded assets
+ * Base URL pública del storage de archivos (AWS S3, Oracle Object Storage, etc.).
+ * Configurable con EXPO_PUBLIC_STORAGE_URL; debe coincidir con STORAGE_PUBLIC_BASE_URL del backend.
  */
-export const S3_BUCKET_URL = 'https://michicondrias-storage-1.s3.us-east-1.amazonaws.com';
+export const S3_BUCKET_URL = (
+    process.env.EXPO_PUBLIC_STORAGE_URL || 'https://michicondrias-storage-1.s3.us-east-1.amazonaws.com'
+).replace(/\/+$/, '');
 
 /**
  * Build full S3 URL from object key

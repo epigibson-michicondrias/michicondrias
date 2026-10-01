@@ -1,8 +1,10 @@
 name: Deploy Backend to AWS Lambda
 
+# Destino alterno (manual). El deploy principal es Oracle (deploy-oracle.yml).
+# Para volver a AWS: ver deploy/aws/README.md. Si quieres deploy automático, cambia a:
+#   on: { push: { branches: [ main ] } }
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,6 +13,8 @@ jobs:
       matrix:
         service: [core, adopciones, mascotas, perdidas, carnet, directorio, ecommerce, paseadores, cuidadores, funeraria, laboratorio, aseguradoras, estilistas, entrenadores, transportistas, patrocinadores, establecimientos]
         
+    env:
+      DB_URL: ${{ secrets.DATABASE_URL }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -80,7 +84,7 @@ jobs:
         # 1.5 Copiar variables de entorno desde core y configurar PROXY_PREFIX para el servicio actual
         echo "Copiando variables de entorno desde core para ${{ matrix.service }}..."
         ENV_VARS=$(aws lambda get-function-configuration --function-name michicondrias-core --region us-east-1 --query "Environment.Variables" --output json)
-        UPDATED_ENV=$(echo $ENV_VARS | jq -c '. + {"PROXY_PREFIX": "/${{ matrix.service }}", "DATABASE_URL": "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require"}')
+        UPDATED_ENV=$(echo $ENV_VARS | jq -c --arg db "$DB_URL" '. + {"PROXY_PREFIX": "/${{ matrix.service }}", "DATABASE_URL": $db}')
         FINAL_ENV_JSON=$(jq -c -n --argjson vars "$UPDATED_ENV" '{"Variables": $vars}')
         aws lambda update-function-configuration \
           --function-name michicondrias-${{ matrix.service }} \

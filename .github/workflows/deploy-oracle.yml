@@ -1,0 +1,46 @@
+name: Deploy Backend to Oracle VM
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'backend/**', 'deploy/**' ]
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Servicios a desplegar (separados por espacio). Vacío = todos'
+        required: false
+        default: ''
+
+concurrency:
+  group: deploy-oracle
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    # Secrets requeridos: ORACLE_HOST, ORACLE_SSH_KEY (llave privada), opcional ORACLE_USER (default: michicondrias)
+    - name: Configure SSH
+      run: |
+        install -m 700 -d ~/.ssh
+        echo "${{ secrets.ORACLE_SSH_KEY }}" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+        ssh-keyscan -H "${{ secrets.ORACLE_HOST }}" >> ~/.ssh/known_hosts
+
+    - name: Sync code
+      env:
+        TARGET: ${{ secrets.ORACLE_USER || 'michicondrias' }}@${{ secrets.ORACLE_HOST }}
+      run: |
+        SSH="ssh -i ~/.ssh/id_deploy"
+        rsync -az --delete -e "$SSH" \
+          --exclude '__pycache__' --exclude '*.pyc' --exclude '.env' --exclude 'venv' --exclude '.venv' \
+          backend/ "$TARGET:/opt/michicondrias/services/"
+        rsync -az -e "$SSH" deploy/services.conf "$TARGET:/opt/michicondrias/services.conf"
+        rsync -az -e "$SSH" deploy/oracle/run-service.sh deploy/oracle/deploy-remote.sh deploy/oracle/gen-caddyfile.sh "$TARGET:/opt/michicondrias/"
+
+    - name: Install deps, restart and health-check
+      env:
+        TARGET: ${{ secrets.ORACLE_USER || 'michicondrias' }}@${{ secrets.ORACLE_HOST }}
+      run: |
+        ssh -i ~/.ssh/id_deploy "$TARGET" "/opt/michicondrias/deploy-remote.sh ${{ github.event.inputs.services }}"

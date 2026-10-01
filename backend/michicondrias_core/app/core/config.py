@@ -33,6 +33,20 @@ class Settings(BaseSettings):
     AWS_REGION: str = "us-east-1"
     S3_BUCKET_NAME: str = "michicondrias-storage-1"
 
+    # Storage (S3 o compatible). Vacío = AWS S3. En Oracle Object Storage:
+    #   S3_ENDPOINT_URL=https://<namespace>.compat.objectstorage.<region>.oraclecloud.com
+    #   S3_ADDRESSING_STYLE=path
+    #   STORAGE_PUBLIC_BASE_URL=https://objectstorage.<region>.oraclecloud.com/n/<namespace>/b/<bucket>/o
+    S3_ENDPOINT_URL: str | None = None
+    S3_ADDRESSING_STYLE: str = "virtual"
+    STORAGE_PUBLIC_BASE_URL: str | None = None
+
+    @property
+    def STORAGE_BASE_URL(self) -> str:
+        if self.STORAGE_PUBLIC_BASE_URL:
+            return self.STORAGE_PUBLIC_BASE_URL.rstrip("/")
+        return f"https://{self.S3_BUCKET_NAME}.s3.{self.AWS_REGION}.amazonaws.com"
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if self.DATABASE_URL:

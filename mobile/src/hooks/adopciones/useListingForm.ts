@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { createListing, getAdopcionesPresignedUrl } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
+import { S3_BUCKET_URL } from '@/src/utils/helpers';
 
 export interface ListingFormState {
     name: string;
@@ -93,7 +94,7 @@ export function useListingForm() {
                     headers: { 'Content-Type': `image/${ext}` }
                 });
 
-                photo_url = `https://michicondrias-storage-1.s3.us-east-1.amazonaws.com/${object_key}`;
+                photo_url = `${S3_BUCKET_URL}/${object_key}`;
             }
 
             await createListing({

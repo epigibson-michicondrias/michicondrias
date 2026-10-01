@@ -4,6 +4,7 @@ from typing import Any, List
 from datetime import datetime
 
 from app.api import deps
+from app.core.config import settings
 from app.models.dashboard import Prescriptions
 from app.models.clinic import Clinic
 
@@ -73,7 +74,7 @@ def create_prescription(
     
     if generate_link:
         # Generate the unified checkout/purchase link targeting the ecommerce platform
-        purchase_url = f"https://kowly51wia.execute-api.us-east-1.amazonaws.com/ecommerce/checkout?prescription_id={new_prescription.id}"
+        purchase_url = f"{settings.API_GATEWAY_URL}/ecommerce/checkout?prescription_id={new_prescription.id}"
         response_data["purchase_link"] = purchase_url
         response_data["message"] += " and purchase link generated"
         
