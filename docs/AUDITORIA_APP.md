@@ -8,7 +8,8 @@ desplegados en `https://michicondrias.duckdns.org`. **No** se ejecutó la app en
 - **P0: corregido** (commits `76b1565` backend y `fbb8786` app). Verificado: 287/288 llamadas con endpoint válido, 0 enlaces rotos, `tsc` sin errores.
   Pendiente de desplegar el backend (`git push`) para que las respuestas incluyan `created_at`, `updated_at` e `is_approved`.
 - **P1: corregido** (ver «P1» abajo). Verificado con `tsc` sin errores; pendiente de probar en dispositivo.
-- **P2, P3: pendientes.**
+- **P2: corregido lo que se podía sin decisiones externas** (ver «P2» abajo; quedan pendientes marcados).
+- **P3: pendiente.**
 
 Hallazgos extra al corregir el P0: la duración de las cirugías no se guardaba ni se mostraba (`estimated_duration_minutes`
 vs. `estimated_duration`), y se podía reseñar varias veces el mismo paseo/cuidado (`request_id` vs. `walk_request_id`).
@@ -101,17 +102,33 @@ dejaron de ser botones (se comían el toque).
 - `usePatientHistory` depende de una caché que otra pantalla debería haber llenado (no tiene `queryFn`).
 - La tarjeta de paciente crítico no tiene pantalla de detalle (su `id` es el del registro extendido, no el de la mascota).
 
-## P2 — Mocks en el backend (decisión de producto)
+## P2 — Mocks en el backend (corregido, con pendientes)
 
-| Servicio | Qué es falso | Riesgo |
-|---|---|---|
-| `mascotas` `/ai/symptom-check`, `/ai/diet-plan` | «Simulated Gemini»: triage por palabras clave | **Alto**: puede tranquilizar a un dueño con una mascota grave. Conectar a un modelo real o avisar claramente |
-| `ecommerce` pagos | URL `billing-mock` cuando Stripe falla | Medio: el flujo de cobro puede «parecer» funcionar |
-| `aseguradoras` | Validación de reclamos simulada; número de póliza con `random` | Medio (póliza duplicable) |
-| `funeraria` | Certificado devuelve una URL inventada | Bajo |
-| `patrocinadores` | Campañas «por geolocalización» devuelven todas | Bajo |
-| `estilistas` | Filtro de citas «mock» | Bajo |
-| `directorio` | «Citas de hoy» del dashboard simuladas | Medio |
+| Servicio | Qué era falso | Qué se hizo | Pendiente |
+|---|---|---|---|
+| `mascotas` triage | Palabras clave **sin acentos** presentadas como «Gemini»: «convulsión» o «vómito constante» daban VERDE | Reglas de alarma que ignoran acentos (piso de urgencia) + modelo de Claude si hay `ANTHROPIC_API_KEY`; **nunca baja la urgencia**; límite de consultas por usuario/hora; sin clave, error o rechazo responde con reglas y lo indica | Configurar `ANTHROPIC_API_KEY` (sin ella el triage es solo reglas). La llamada real al API no se probó (sin clave) |
+| `mascotas` nutrición | Etiquetada IA; recomendaba «pollo o salmón» aunque hubiera alergias; asumía 10 kg sin peso | Es un cálculo RER/MER y se dice así; usa peso objetivo, no nombra proteínas, exige peso registrado | — |
+| `ecommerce` pagos | URL `billing-mock` si fallaba Stripe; el portal abría **el primer cliente de la cuenta de Stripe**; centavos con `int()` | Sin URLs falsas (503/502), el portal busca por `metadata.user_id`, `round()`, pedido vacío -> 400 | Configurar Stripe; las URLs de éxito/cancelación apuntan al sitio web, no a la app |
+| `aseguradoras` | Número de póliza al azar (podía chocar); cualquiera aseguraba cualquier mascota; «verificado con IA» era solo «hay URL» | Número único, solo el dueño contrata, mensaje honesto | La validación contra registros de la clínica no existe |
+| `funeraria` | Certificado apuntaba a un PDF inexistente en el bucket viejo | PDF real generado al momento | El endpoint sigue sin autenticación (se accede por el folio) |
+| `directorio` dashboard | Devolvía ceros (importaba modelos inexistentes; el primer pedido del día probablemente daba 500; después se congelaba); «hoy» en UTC | Todas las métricas se calculan de datos reales y se recalculan; «hoy» en hora de México | — |
+| `estilistas` | `GET /appointments/client` devolvía las citas de **todos** los usuarios | Solo las de las mascotas del cliente | Crear cita no verifica que la mascota sea del usuario |
+| `patrocinadores` | «Geo-target» devuelve todas las campañas | Documentado | Las campañas no guardan ubicación: requiere migración de BD |
+
+### Seguridad: accesos sin autorización cerrados
+- `mascotas`: el PATCH de suscripción Pro era **público** (cualquiera se daba Pro gratis); `PUT /pets/{id}` lo podía hacer cualquiera sobre cualquier mascota; `GET /pets/admin/all` listaba todas las mascotas sin ser admin. Ahora: token interno, dueño y rol admin.
+- `core`: `POST /notifications/broadcast` permitía enviar notificaciones a cualquier usuario. Ahora exige token interno.
+- `ecommerce`: crear, editar y borrar categorías y subcategorías era público. Ahora exige admin.
+
+**Requiere configuración:** `INTERNAL_SERVICE_TOKEN` (el mismo valor en `common.env`; sin él, esas llamadas entre servicios se rechazan).
+
+### Sigue abierto (decisión o trabajo aparte)
+- `POST /pets/` (lo usa adopciones sin token), `GET /pets/{id}` y `GET /pets/user/{id}` son públicos.
+- WebSocket `/notifications/ws/{user_id}` sin autenticación: cualquiera puede escuchar las notificaciones de un usuario.
+- `PATCH /reports/{id}/location` (perdidas) y `POST /sponsors/campaigns/{id}/click` sin autenticación.
+- `GET /categories/init-db/seed` modifica la BD sin autenticación.
+- «Difundir alerta» de mascota perdida **solo notifica a quien reporta**: la difusión a usuarios cercanos está simulada.
+- Hay credenciales de Supabase escritas en `directorio/app/core/config.py` y en el historial de git: rotarlas.
 
 ## P3 — Limpieza
 - Eliminar `MOCK_SERVICES` (código muerto).

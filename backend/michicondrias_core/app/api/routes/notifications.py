@@ -6,6 +6,7 @@ from app.crud import crud_notification
 from app.api import deps
 from app.db.session import get_db
 from app.schemas.notification import NotificationCreate, NotificationResponse
+from app.api.internal import require_internal_token
 
 router = APIRouter()
 
@@ -66,6 +67,7 @@ def mark_as_read(
 async def broadcast_notification(
     notification_in: NotificationCreate,
     db: Session = Depends(get_db),
+    _internal: None = Depends(require_internal_token),
 ) -> Any:
     """Internal/Service-to-service: Broadcast a notification and push via WS if active."""
     notif = crud_notification.create_notification(db, notification_in)

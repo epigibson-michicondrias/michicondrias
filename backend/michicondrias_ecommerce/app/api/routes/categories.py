@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import crud
 from app.db.session import get_db
+from app.api.admin_guard import require_admin
 from app.schemas.ecommerce import (
     CategoryCreate, CategoryUpdate, CategoryResponse,
     SubcategoryCreate, SubcategoryUpdate, SubcategoryResponse
@@ -28,6 +29,7 @@ def create_category(
     *,
     db: Session = Depends(get_db),
     category_in: CategoryCreate,
+    _admin_id: str = Depends(require_admin),
 ) -> Any:
     """Create a new category."""
     return crud.crud_category.create_category(db=db, category=category_in)
@@ -38,6 +40,7 @@ def update_category(
     db: Session = Depends(get_db),
     category_id: str,
     category_in: CategoryUpdate,
+    _admin_id: str = Depends(require_admin),
 ) -> Any:
     """Update a category."""
     category = crud.crud_category.get_category(db, category_id=category_id)
@@ -50,6 +53,7 @@ def delete_category(
     *,
     db: Session = Depends(get_db),
     category_id: str,
+    _admin_id: str = Depends(require_admin),
 ) -> Any:
     """Delete a category."""
     category = crud.crud_category.get_category(db, category_id=category_id)
@@ -74,6 +78,7 @@ def create_subcategory(
     *,
     db: Session = Depends(get_db),
     subcategory_in: SubcategoryCreate,
+    _admin_id: str = Depends(require_admin),
 ) -> Any:
     """Create a new subcategory."""
     return crud.crud_category.create_subcategory(db=db, subcategory=subcategory_in)
@@ -84,6 +89,7 @@ def update_subcategory(
     db: Session = Depends(get_db),
     subcategory_id: str,
     subcategory_in: SubcategoryUpdate,
+    _admin_id: str = Depends(require_admin),
 ) -> Any:
     """Update a subcategory."""
     subcategory = crud.crud_category.get_subcategory(db, subcategory_id=subcategory_id)
@@ -96,6 +102,7 @@ def delete_subcategory(
     *,
     db: Session = Depends(get_db),
     subcategory_id: str,
+    _admin_id: str = Depends(require_admin),
 ) -> Any:
     """Delete a subcategory."""
     subcategory = crud.crud_category.get_subcategory(db, subcategory_id=subcategory_id)

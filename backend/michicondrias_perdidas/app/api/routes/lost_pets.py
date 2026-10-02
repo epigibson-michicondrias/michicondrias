@@ -1,3 +1,4 @@
+import os
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -261,7 +262,10 @@ async def broadcast_lost_pet_alert(
             "type": "alert"
         }
         async with httpx.AsyncClient() as client:
-            resp = await client.post(f"{settings.CORE_SERVICE_URL}/api/v1/notifications/broadcast", json=payload, timeout=5.0)
+            resp = await client.post(
+                f"{settings.CORE_SERVICE_URL}/api/v1/notifications/broadcast", json=payload,
+                headers={"X-Internal-Token": os.getenv("INTERNAL_SERVICE_TOKEN", "")}, timeout=5.0,
+            )
             if resp.status_code == 200:
                 broadcast_count += 12
     except Exception as e:
