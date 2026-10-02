@@ -1,6 +1,6 @@
 import { apiFetch, setToken, removeToken, getToken } from "./api";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://kowly51wia.execute-api.us-east-1.amazonaws.com";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://michicondrias.duckdns.org";
 interface LoginResponse {
     access_token: string;
     token_type: string;
