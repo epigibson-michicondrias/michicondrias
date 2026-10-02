@@ -19,7 +19,7 @@ export default function ProfileScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <LinearGradient
-        colors={[theme.primary, theme.background]}
+        colors={['#1c2f6b', theme.background]}
         style={styles.headerGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}

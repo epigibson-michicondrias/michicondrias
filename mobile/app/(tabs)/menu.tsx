@@ -25,7 +25,7 @@ export default function MenuScreen() {
     // ── Header ───────────────────────────────────────────────────────
     const renderHeader = () => (
         <LinearGradient
-            colors={[theme.primary, theme.primary + 'EE', theme.primary + 'CC']}
+            colors={['#1c2f6b', '#101c3d']}
             style={[styles.premiumHeader, { paddingTop: insets.top + 20 }]}
         >
             <View style={styles.profileRow}>

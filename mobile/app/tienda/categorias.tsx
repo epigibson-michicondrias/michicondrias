@@ -42,7 +42,7 @@ export default function CategoriasScreen() {
   };
 
   return (
-    <ScreenContainer style={{ backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }}>
+    <ScreenContainer style={{ backgroundColor: theme.background }}>
       <ScreenHeader title="Categorías" subtitle="Explora productos por departamento" />
 
       {isLoading ? (

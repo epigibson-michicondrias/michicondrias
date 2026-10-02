@@ -62,7 +62,7 @@ export default function AdminUsersScreen() {
         > 
             <View style={styles.userHeader}>
                 <LinearGradient
-                    colors={[theme.primary, theme.primary + 'CC']}
+                    colors={['#1c2f6b', '#101c3d']}
                     style={styles.avatar}
                 >
                     <Text style={styles.avatarText}>{item.full_name.charAt(0).toUpperCase()}</Text>

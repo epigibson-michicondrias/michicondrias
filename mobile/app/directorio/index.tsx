@@ -321,10 +321,10 @@ export default function DirectorioIndexScreen() {
     ) : null;
 
     return (
-        <View style={[styles.container, { backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar style={isDark ? 'light' : 'dark'} />
             <LinearGradient
-                colors={isDark ? ['#0ea5e9', '#081a2e'] : ['#bae6fd', '#f0f9ff']}
+                colors={isDark ? ['#1c2f6b', theme.background] : ['#dfe7fb', theme.background]}
                 style={StyleSheet.absoluteFillObject}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 0.4 }}

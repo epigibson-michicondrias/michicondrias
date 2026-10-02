@@ -53,7 +53,8 @@ export default function DashboardScreen() {
       >
         {/* Background Gradient */}
         <LinearGradient
-          colors={[theme.primary, theme.primary + 'AA', theme.background]}
+          colors={['#1c2f6b', '#101c3d', theme.background]}
+          locations={[0, 0.55, 1]}
           style={styles.headerGradient}
         />
 
@@ -63,7 +64,7 @@ export default function DashboardScreen() {
             <MenuIcon size={24} color="#fff" />
           </TouchableOpacity>
           <View style={styles.topLogo}>
-            <Sparkles size={16} color="#fcd34d" />
+            <Sparkles size={16} color="#e9c883" />
             <Text style={styles.logoText}>MICHICONDRIAS</Text>
           </View>
           <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/notificaciones' as any)}>
@@ -88,7 +89,7 @@ export default function DashboardScreen() {
                 </Text>
               </View>
               <View style={styles.avatarBox}>
-                <LinearGradient colors={['#fcd34d', '#f59e0b']} style={styles.avatarBorder}>
+                <LinearGradient colors={['#f3dca0', '#c9a257']} style={styles.avatarBorder}>
                   <View style={[styles.avatarInner, { overflow: 'hidden' }]}>
                     {avatarUrl ? (
                       <Image source={{ uri: avatarUrl }} style={{ width: '100%', height: '100%' }} accessibilityLabel="Tu foto de perfil" />
@@ -193,7 +194,7 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View style={styles.titleRow}>
-              <Zap size={20} color="#f59e0b" />
+              <Zap size={20} color={theme.accent} />
               <Text style={[styles.sectionTitle, { color: theme.text }]}>Acciones Rápidas</Text>
             </View>
           </View>
@@ -298,7 +299,7 @@ export default function DashboardScreen() {
         <View style={styles.bannerSection}>
           <TouchableOpacity style={styles.banner} activeOpacity={0.9} onPress={() => router.push('/(tabs)/tienda-tab' as any)}>
             <LinearGradient
-              colors={['#ec4899', '#f43f5e']}
+              colors={['#243b85', '#101c3d']}
               style={styles.bannerGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -346,11 +347,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(233,200,131,0.28)',
     position: 'relative',
   },
   topLogo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  logoText: { fontSize: 13, fontWeight: '900', color: '#fff', letterSpacing: 2 },
+  logoText: { fontSize: 13, fontWeight: '800', color: '#f5f1e8', letterSpacing: 3 },
   notifDot: {
     position: 'absolute',
     top: 10,
@@ -358,7 +359,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderWidth: 1.5,
-    borderColor: '#7c3aed',
+    borderColor: '#101c3d',
     borderRadius: 4,
     backgroundColor: '#fb7185',
   },
@@ -367,9 +368,10 @@ const styles = StyleSheet.create({
   heroContainer: { paddingHorizontal: 24, marginTop: 30 },
   glassCard: {
     padding: 24,
-    borderRadius: 32,
+    borderRadius: 28,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderColor: 'rgba(233,200,131,0.3)',
+    backgroundColor: 'rgba(8,12,24,0.55)',
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },

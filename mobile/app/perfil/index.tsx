@@ -465,6 +465,7 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 24,
         fontWeight: '800',
+        textAlign: 'center',
         marginBottom: 8,
     },
     roleRow: {

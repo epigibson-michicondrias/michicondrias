@@ -49,6 +49,8 @@ const ACTION_ICON_LABELS: Record<string, string> = {
     ShoppingCart: 'Carrito',
 };
 
+const PREMIUM_HEADER = ['#1c2f6b', '#101c3d'];
+
 export default function ScreenHeader({
     title,
     subtitle,
@@ -76,10 +78,10 @@ export default function ScreenHeader({
     const textColor = gradient ? '#fff' : theme.text;
     const subtitleColor = gradient ? 'rgba(255,255,255,0.8)' : theme.textMuted;
     const backBtnStyle = gradient
-        ? { backgroundColor: 'rgba(255,255,255,0.15)' }
+        ? { backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(233,200,131,0.3)' }
         : { backgroundColor: theme.surface, borderColor: theme.cardBorder, borderWidth: 1 };
     const actionBtnStyle = gradient
-        ? { backgroundColor: 'rgba(255,255,255,0.15)' }
+        ? { backgroundColor: 'rgba(233,200,131,0.18)', borderWidth: 1, borderColor: 'rgba(233,200,131,0.3)' }
         : { backgroundColor: theme.primary };
 
     const headerContent = (
@@ -132,8 +134,10 @@ export default function ScreenHeader({
 
     if (gradient) {
         return (
+            // Todas las cabeceras con degradado comparten el mismo azul medianoche con filo dorado,
+            // sin importar el color que pida cada pantalla (identidad homogénea).
             <LinearGradient
-                colors={gradient as any}
+                colors={PREMIUM_HEADER as any}
                 style={styles.gradientWrapper}
             >
                 {headerContent}
@@ -176,8 +180,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     title: {
-        fontSize: 24,
-        fontWeight: '900',
+        fontSize: 26,
+        fontWeight: '800',
+        letterSpacing: -0.4,
     },
     subtitle: {
         fontSize: 13,
@@ -192,7 +197,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     gradientWrapper: {
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
+        borderBottomWidth: 1,
+        borderColor: 'rgba(233,200,131,0.25)',
     },
 });

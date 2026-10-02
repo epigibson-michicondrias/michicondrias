@@ -3,11 +3,11 @@
  * Uso: <FlatList refreshControl={<AppRefreshControl />} ... />
  */
 import React, { useCallback, useState } from 'react';
-import { RefreshControl } from 'react-native';
+import { Platform, RefreshControl, View } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
 
-export default function AppRefreshControl() {
+export default function AppRefreshControl({ children, style }: { children?: React.ReactNode; style?: any }) {
     const queryClient = useQueryClient();
     const { theme } = useTheme();
     const [refreshing, setRefreshing] = useState(false);
@@ -20,6 +20,9 @@ export default function AppRefreshControl() {
             setRefreshing(false);
         }
     }, [queryClient]);
+
+    // react-native-web envuelve el contenido de la lista dentro del refreshControl; sin hijos la lista se ve vacía.
+    if (Platform.OS === 'web') return <View style={style}>{children}</View>;
 
     return <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} colors={[theme.primary]} />;
 }

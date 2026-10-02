@@ -48,7 +48,7 @@ export default function ExplorarScreen() {
       >
         {/* Header Gradient */}
         <LinearGradient
-          colors={[theme.primary, theme.primary + 'AA', theme.background]}
+          colors={['#1c2f6b', '#101c3d', theme.background]}
           style={styles.headerGradient}
         />
 
@@ -173,7 +173,7 @@ export default function ExplorarScreen() {
             onPress={() => router.push('/mascotas/diagnostico-ia' as any)}
           >
             <LinearGradient
-              colors={['#7c3aed', '#8b5cf6', '#a78bfa']}
+              colors={['#243b85', '#1c2f6b', '#101c3d']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={StyleSheet.absoluteFillObject}

@@ -58,7 +58,7 @@ export default function AdminStatsScreen() {
                             </View>
                             <View style={[styles.progressBar, { backgroundColor: theme.background }]}>
                                 <LinearGradient
-                                    colors={[theme.primary, theme.primary + '88']}
+                                    colors={['#1c2f6b', '#101c3d']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     style={[styles.progressFill, { width: `${Math.max((count / kpis!.total_users) * 100, 5)}%` }]}

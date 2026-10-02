@@ -17,7 +17,7 @@ export default function PedidoDetailScreen() {
 
     if (isLoading) {
         return (
-            <ScreenContainer style={{ backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }}>
+            <ScreenContainer style={{ backgroundColor: theme.background }}>
                 <ScreenHeader title="Detalle de Pedido" />
                 <View style={styles.center}>
                     <ActivityIndicator size="large" color={theme.primary} />
@@ -29,7 +29,7 @@ export default function PedidoDetailScreen() {
 
     if (error || !order) {
         return (
-            <ScreenContainer style={{ backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }}>
+            <ScreenContainer style={{ backgroundColor: theme.background }}>
                 <ScreenHeader title="Detalle de Pedido" />
                 <View style={styles.center}>
                     <Package size={48} color={theme.textMuted} />
@@ -55,7 +55,7 @@ export default function PedidoDetailScreen() {
     });
 
     return (
-        <ScreenContainer style={{ backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }}>
+        <ScreenContainer style={{ backgroundColor: theme.background }}>
             <ScreenHeader title="Resumen de Compra" subtitle={`Pedido #${order.id.slice(0, 8).toUpperCase()}`} />
 
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>

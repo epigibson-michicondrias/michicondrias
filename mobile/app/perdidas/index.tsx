@@ -97,10 +97,10 @@ export default function PerdidasScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar style={isDark ? 'light' : 'dark'} />
             <LinearGradient
-                colors={isDark ? ['#ef4444', '#081a2e'] : ['#fecaca', '#f0f9ff']}
+                colors={isDark ? ['#1c2f6b', theme.background] : ['#dfe7fb', theme.background]}
                 style={StyleSheet.absoluteFillObject}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 0.25 }}

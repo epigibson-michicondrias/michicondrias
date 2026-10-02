@@ -44,8 +44,8 @@ export default function FilterChip({ label, active, onPress, color }: FilterChip
 const styles = StyleSheet.create({
     chip: {
         paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 10,
+        paddingHorizontal: 18,
+        borderRadius: 999,
         alignSelf: 'flex-start',
     },
     label: {

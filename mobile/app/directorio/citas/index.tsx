@@ -104,7 +104,7 @@ export default function CitasScreen() {
     };
 
     return (
-        <ScreenContainer style={{ backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }}>
+        <ScreenContainer style={{ backgroundColor: theme.background }}>
             <ScreenHeader title="Mis Citas" />
 
             <View style={styles.tabsContainer}>

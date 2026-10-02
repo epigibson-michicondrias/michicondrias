@@ -41,7 +41,7 @@ export default function TiendaTabScreen() {
       <KeyboardScreen contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <LinearGradient
-          colors={['#ec4899', '#f43f5e', theme.background]}
+          colors={['#1c2f6b', '#101c3d', theme.background]}
           style={[styles.header, { paddingTop: insets.top + 16 }]}
         >
           <View style={styles.headerTop}>
@@ -127,7 +127,7 @@ export default function TiendaTabScreen() {
                   style={[
                     styles.categoryChip,
                     isActive
-                      ? { backgroundColor: cat.color }
+                      ? { backgroundColor: theme.primary }
                       : { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1 }
                   ]}
                   onPress={() => setSelectedCategory(cat.id)}
@@ -212,7 +212,7 @@ export default function TiendaTabScreen() {
         <View style={styles.promoSection}>
           <TouchableOpacity style={styles.promoBanner} activeOpacity={0.9} onPress={() => router.push('/tienda' as any)}>
             <LinearGradient
-              colors={['#7c3aed', '#6d28d9']}
+              colors={['#243b85', '#101c3d']}
               style={styles.promoGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     elevation: 8,
-    shadowColor: '#7c3aed',
+    shadowColor: '#101c3d',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 15,

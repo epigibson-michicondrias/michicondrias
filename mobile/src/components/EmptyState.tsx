@@ -17,7 +17,7 @@ export default function EmptyState({ icon, title, subtitle, actionLabel, onActio
 
     return (
         <View style={styles.container}>
-            <View style={[styles.iconContainer, { backgroundColor: theme.overlay }]}>
+            <View style={[styles.iconContainer, { backgroundColor: theme.overlay, borderWidth: 1, borderColor: theme.border }]}>
                 {icon}
             </View>
             <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
