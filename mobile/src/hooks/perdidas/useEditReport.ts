@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { getReportById, updateReport, getPerdidasPresignedUrl } from '@/src/services/perdidas';
 import { showAlert } from '@/src/components/AppAlert';
 import type { LostPetReport } from '@/src/types/perdidas';
-import { S3_BUCKET_URL } from '@/src/utils/helpers';
+import { S3_BUCKET_URL, getImageMimeType } from '@/src/utils/helpers';
 
 export interface EditReportFormState {
     pet_name: string;
@@ -104,7 +104,7 @@ export function useEditReport() {
                 await fetch(url, {
                     method: 'PUT',
                     body: blob,
-                    headers: { 'Content-Type': `image/${ext}` },
+                    headers: { 'Content-Type': getImageMimeType(ext) },
                 });
 
                 image_url = `${S3_BUCKET_URL}/${object_key}`;

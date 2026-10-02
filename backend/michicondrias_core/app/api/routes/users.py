@@ -110,32 +110,29 @@ async def get_kyc_presigned_urls(
     """
     Generate presigned URLs for KYC document uploads with specific extensions.
     """
-    from app.core.s3 import generate_presigned_url
-    import mimetypes
-    
+    from app.core.s3 import generate_presigned_url, image_content_type, private_bucket_name, PRIVATE_SCHEME
+
+    bucket = private_bucket_name()
+    if not bucket:
+        raise HTTPException(status_code=503, detail="El almacenamiento seguro de documentos no está configurado.")
+
     mapping = {
         "id_front": id_front_ext,
         "id_back": id_back_ext,
         "proof_of_address": proof_ext
     }
-    
+
     urls = []
     for key, ext in mapping.items():
-        # Clean extension (remove leading dot if present)
-        clean_ext = ext.replace(".", "")
+        try:
+            clean_ext, content_type = image_content_type(ext)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de imagen no permitido. Usa jpg, png, webp, gif o heic.")
         object_name = f"kyc/{current_user.id}/{key}.{clean_ext}"
-        
-        # Guess mimetype based on extension
-        content_type, _ = mimetypes.guess_type(f"file.{clean_ext}")
-        if not content_type:
-            content_type = "image/jpeg" if clean_ext in ["jpg", "jpeg"] else "application/octet-stream"
-            
-        url = generate_presigned_url(object_name, content_type=content_type)
+        url = generate_presigned_url(object_name, content_type=content_type, bucket=bucket)
         if url:
-            from app.core.config import settings
-            public_url = f"{settings.STORAGE_BASE_URL}/{object_name}"
-            urls.append(KYCPresignedUrl(key=key, url=url, object_key=public_url))
-            
+            urls.append(KYCPresignedUrl(key=key, url=url, object_key=f"{PRIVATE_SCHEME}{object_name}"))
+
     return KYCPresignedUrlsResponse(urls=urls)
 
 @router.post("/me/kyc/finalize", response_model=UserResponse)
@@ -148,6 +145,11 @@ async def finalize_kyc(
     """
     Finalize KYC process after frontend has uploaded files to S3.
     """
+    from app.core.s3 import PRIVATE_SCHEME
+    own_prefix = f"{PRIVATE_SCHEME}kyc/{current_user.id}/"
+    for doc_url in (req.id_front_url, req.id_back_url, req.proof_of_address_url):
+        if not doc_url.startswith(own_prefix) or ".." in doc_url:
+            raise HTTPException(status_code=400, detail="Documento inválido: debe ser uno que subiste con tu cuenta.")
     updated_user = crud.crud_user.update_user_kyc(
         db, 
         db_user=current_user,
@@ -169,25 +171,33 @@ async def upload_kyc_docs(
     """
     Upload KYC documents (ID front, ID back, proof of address) to S3.
     """
-    from app.core.s3 import upload_file_to_s3
-    
-    # Map files for S3 upload
+    from app.core.s3 import upload_file_to_s3, private_bucket_name
+
+    bucket = private_bucket_name()
+    if not bucket:
+        raise HTTPException(status_code=503, detail="El almacenamiento seguro de documentos no está configurado.")
+
+    allowed = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/heic": "heic", "application/pdf": "pdf"}
+    max_bytes = 10 * 1024 * 1024
     files = [
         (id_front, "id_front"),
         (id_back, "id_back"),
         (proof_of_address, "proof_of_address")
     ]
-    
+
     saved_urls = {}
     for file, key in files:
-        ext = os.path.splitext(file.filename)[1]
-        object_name = f"kyc/{current_user.id}/{key}{ext}"
-        
-        # Upload to S3
-        url = upload_file_to_s3(file.file, object_name, content_type=file.content_type)
+        ext = allowed.get(file.content_type or "")
+        if not ext:
+            raise HTTPException(status_code=400, detail=f"Formato no permitido en {key}. Usa jpg, png, webp, heic o pdf.")
+        if file.size is not None and file.size > max_bytes:
+            raise HTTPException(status_code=413, detail=f"{key} supera el máximo de 10 MB.")
+        object_name = f"kyc/{current_user.id}/{key}.{ext}"
+
+        url = upload_file_to_s3(file.file, object_name, content_type=file.content_type, bucket=bucket)
         if not url:
-            raise HTTPException(status_code=500, detail=f"Error al subir {key} a S3")
-            
+            raise HTTPException(status_code=500, detail=f"Error al subir {key}")
+
         saved_urls[key] = url
 
     # Update user in DB
@@ -236,7 +246,7 @@ def upgrade_user_role(
 
 def _add_kyc_presigned_urls(user_data: Any) -> dict:
     """Helper to transform static S3 URLs into temporary presigned GET URLs without modifying DB state."""
-    from app.core.s3 import get_presigned_url, key_from_url
+    from app.core.s3 import get_presigned_url, key_from_url, private_bucket_name, PRIVATE_SCHEME
     
     # Handle both SQLAlchemy objects and dictionaries
     if hasattr(user_data, "__dict__"):
@@ -258,7 +268,12 @@ def _add_kyc_presigned_urls(user_data: Any) -> dict:
         
     for attr in ["id_front_url", "id_back_url", "proof_of_address_url"]:
         static_url = res.get(attr)
-        key = key_from_url(static_url)
+        if static_url and static_url.startswith(PRIVATE_SCHEME):
+            presigned = get_presigned_url(static_url[len(PRIVATE_SCHEME):], bucket=private_bucket_name())
+            if presigned:
+                res[attr] = presigned
+            continue
+        key = key_from_url(static_url)  # documentos antiguos guardados en el bucket público
         if key:
             presigned = get_presigned_url(key)
             if presigned:

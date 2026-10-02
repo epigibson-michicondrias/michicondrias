@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { createPet, getMascotasPresignedUrl } from '@/src/services/mascotas';
 import { showAlert } from '@/src/components/AppAlert';
-import { getFileExtension, getS3Url } from '@/src/utils/helpers';
+import { getFileExtension, getS3Url, getImageMimeType } from '@/src/utils/helpers';
 import type { PetFormData } from '@/src/types/mascotas';
 import { PET_FORM_DEFAULTS } from '@/src/types/mascotas';
 
@@ -37,7 +37,7 @@ export function usePetForm() {
         await fetch(url, {
             method: 'PUT',
             body: blob,
-            headers: { 'Content-Type': `image/${ext}` },
+            headers: { 'Content-Type': getImageMimeType(ext) },
         });
 
         return getS3Url(object_key);

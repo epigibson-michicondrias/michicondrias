@@ -22,7 +22,13 @@ ROLES = [
     {"name": "clinica", "description": "Clínica, Hospital o Centro Veterinario"},
     {"name": "refugio", "description": "Refugio de animales / Asociación protectora sin fines de lucro"},
     {"name": "hogar_temporal", "description": "Hogar temporal / Casa hogar para cuidado de mascotas rescatadas"},
-    {"name": "funeraria", "description": "Servicios funerarios y cremación para mascotas."}
+    {"name": "funeraria", "description": "Servicios funerarios y cremación para mascotas."},
+    {"name": "laboratorio", "description": "Laboratorio de análisis clínicos veterinarios."},
+    {"name": "aseguradora", "description": "Aseguradora de mascotas: planes, pólizas y reclamos."},
+    {"name": "entrenador", "description": "Entrenador canino: programas, inscripciones y metas."},
+    {"name": "estilista", "description": "Estilista / peluquería canina y felina."},
+    {"name": "transportista", "description": "Transporte de mascotas: viajes y tracking."},
+    {"name": "hospital", "description": "Hospital veterinario."}
 ]
 
 def seed_roles():

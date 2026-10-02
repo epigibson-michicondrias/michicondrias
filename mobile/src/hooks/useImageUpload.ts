@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { showAlert } from '@/src/components/AppAlert';
+import { getImageMimeType } from '@/src/utils/helpers';
 
 interface UseImageUploadOptions {
     presignedUrlFn: (ext: string) => Promise<{ url: string; object_key: string }>;
@@ -19,7 +20,7 @@ export function useImageUpload({ presignedUrlFn, bucketBase }: UseImageUploadOpt
             await fetch(url, {
                 method: 'PUT',
                 body: blob,
-                headers: { 'Content-Type': `image/${ext}` },
+                headers: { 'Content-Type': getImageMimeType(ext) },
             });
             return `${bucketBase}/${object_key}`;
         } catch (error) {

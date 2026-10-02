@@ -14,6 +14,9 @@ def get_s3_client():
         "config": Config(
             signature_version="s3v4",
             s3={"addressing_style": settings.S3_ADDRESSING_STYLE},
+            # Oracle Object Storage no acepta los checksums "aws-chunked" que boto3 envía por defecto
+            request_checksum_calculation="when_required",
+            response_checksum_validation="when_required",
         ),
     }
     if settings.S3_ENDPOINT_URL:

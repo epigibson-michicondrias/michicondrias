@@ -1,3 +1,4 @@
+import os
 import boto3
 from botocore.config import Config
 from botocore.exceptions import NoCredentialsError, ClientError
@@ -14,6 +15,9 @@ def get_s3_client():
         "config": Config(
             signature_version="s3v4",
             s3={"addressing_style": settings.S3_ADDRESSING_STYLE},
+            # Oracle Object Storage no acepta los checksums "aws-chunked" que boto3 envía por defecto
+            request_checksum_calculation="when_required",
+            response_checksum_validation="when_required",
         ),
     }
     if settings.S3_ENDPOINT_URL:
@@ -43,7 +47,7 @@ def key_from_url(url: str | None) -> str | None:
     return None
 
 
-def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpeg") -> str | None:
+def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpeg", bucket: str | None = None) -> str | None:
     """
     Uploads a file to an S3 bucket and returns the public URL.
     """
@@ -51,13 +55,14 @@ def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpe
     try:
         s3_client.upload_fileobj(
             file_obj,
-            settings.S3_BUCKET_NAME,
+            bucket or settings.S3_BUCKET_NAME,
             object_name,
             ExtraArgs={'ContentType': content_type}
         )
-        # Construct the URL
-        url = f"{settings.STORAGE_BASE_URL}/{object_name}"
-        return url
+        # En un bucket privado no existe URL pública: se guarda private://<key> y se firma al leer
+        if bucket:
+            return f"{PRIVATE_SCHEME}{object_name}"
+        return f"{settings.STORAGE_BASE_URL}/{object_name}"
     except ClientError as e:
         logger.error(f"Error uploading to S3: {e}")
         return None
@@ -65,14 +70,14 @@ def upload_file_to_s3(file_obj, object_name: str, content_type: str = "image/jpe
         logger.error("AWS Credentials not available")
         return None
 
-def generate_presigned_url(object_name: str, expiration: int = 3600, content_type: str = "image/jpeg", method: str = 'put_object') -> str | None:
+def generate_presigned_url(object_name: str, expiration: int = 3600, content_type: str = "image/jpeg", method: str = 'put_object', bucket: str | None = None) -> str | None:
     """
     Generate a presigned URL to upload or download an object.
     """
     s3_client = get_s3_client()
     try:
         params = {
-            'Bucket': settings.S3_BUCKET_NAME,
+            'Bucket': bucket or settings.S3_BUCKET_NAME,
             'Key': object_name,
         }
         if method == 'put_object':
@@ -88,11 +93,19 @@ def generate_presigned_url(object_name: str, expiration: int = 3600, content_typ
         logger.error(f"Error generating presigned URL ({method}): {e}")
         return None
 
-def get_presigned_url(object_name: str, expiration: int = 3600) -> str | None:
+def get_presigned_url(object_name: str, expiration: int = 3600, bucket: str | None = None) -> str | None:
     """
     Generate a presigned GET URL for viewing private files.
     """
-    return generate_presigned_url(object_name, expiration=expiration, method='get_object')
+    return generate_presigned_url(object_name, expiration=expiration, method='get_object', bucket=bucket)
+
+
+PRIVATE_SCHEME = "private://"
+
+
+def private_bucket_name() -> str | None:
+    """Bucket privado (documentos de identidad). Se configura con S3_PRIVATE_BUCKET_NAME."""
+    return os.getenv("S3_PRIVATE_BUCKET_NAME") or None
 
 
 # Formatos de imagen permitidos para subir con URL firmada. Fijar el tipo MIME evita que alguien aloje HTML/SVG/ejecutables en el bucket público.

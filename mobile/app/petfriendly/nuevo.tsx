@@ -11,7 +11,7 @@ import BackButton from '@/src/components/BackButton';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petfriendly';
 import { useAuth } from '../../src/contexts/AuthContext';
-import { S3_BUCKET_URL } from '@/src/utils/helpers';
+import { S3_BUCKET_URL, getImageMimeType } from '@/src/utils/helpers';
 
 const { width } = Dimensions.get('window');
 
@@ -92,7 +92,7 @@ export default function NuevoLugarScreen() {
                 await fetch(url, {
                     method: 'PUT',
                     body: blob,
-                    headers: { 'Content-Type': `image/${ext}` }
+                    headers: { 'Content-Type': getImageMimeType(ext) }
                 });
 
                 image_url = `${S3_BUCKET_URL}/${object_key}`;

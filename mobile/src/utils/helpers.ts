@@ -116,3 +116,21 @@ export function getInitials(name: string | undefined | null): string {
         .slice(0, 2)
         .join('');
 }
+
+const IMAGE_MIME_TYPES: Record<string, string> = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    webp: 'image/webp',
+    gif: 'image/gif',
+    heic: 'image/heic',
+    heif: 'image/heif',
+};
+
+/**
+ * Tipo MIME de una imagen según su extensión. El backend firma la URL de subida con este mismo tipo
+ * y el almacenamiento rechaza (403) la subida si el Content-Type enviado no coincide: 'jpg' debe ser 'image/jpeg', no 'image/jpg'.
+ */
+export function getImageMimeType(ext: string): string {
+    return IMAGE_MIME_TYPES[ext.replace('.', '').toLowerCase()] || 'image/jpeg';
+}

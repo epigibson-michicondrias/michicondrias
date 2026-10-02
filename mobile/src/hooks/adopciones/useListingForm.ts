@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { createListing, getAdopcionesPresignedUrl } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
-import { S3_BUCKET_URL } from '@/src/utils/helpers';
+import { S3_BUCKET_URL, getImageMimeType } from '@/src/utils/helpers';
 
 export interface ListingFormState {
     name: string;
@@ -91,7 +91,7 @@ export function useListingForm() {
                 await fetch(url, {
                     method: 'PUT',
                     body: blob,
-                    headers: { 'Content-Type': `image/${ext}` }
+                    headers: { 'Content-Type': getImageMimeType(ext) }
                 });
 
                 photo_url = `${S3_BUCKET_URL}/${object_key}`;
