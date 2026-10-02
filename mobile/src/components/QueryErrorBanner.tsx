@@ -51,8 +51,16 @@ export default function QueryErrorBanner() {
                 offline: errors.some((q) => NETWORK_ERROR.test(String((q.state.error as Error | null)?.message ?? ''))),
             });
         };
+        let alive = true;
+        // El cache avisa mientras otra pantalla se está dibujando: actualizar el estado ahí es ilegal en React
+        // ("Cannot update a component while rendering a different component"), así que se difiere un tick.
+        const deferredUpdate = () => queueMicrotask(() => { if (alive) update(); });
         update();
-        return cache.subscribe(update);
+        const unsubscribe = cache.subscribe(deferredUpdate);
+        return () => {
+            alive = false;
+            unsubscribe();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queryClient]);
 

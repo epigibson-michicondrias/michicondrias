@@ -44,10 +44,14 @@ export default function MascotasListScreen() {
                 </View>
             </View>
             <View style={[styles.cardFooter, { borderTopColor: theme.cardBorder }]}>
-                <View style={styles.trackerBadge}>
-                    <View style={styles.trackerDot} />
-                    <Text style={styles.trackerText}>Michi-Tracker Activo</Text>
-                </View>
+                {item.has_active_subscription ? (
+                    <View style={styles.trackerBadge}>
+                        <View style={styles.trackerDot} />
+                        <Text style={styles.trackerText}>Michi-Tracker Activo</Text>
+                    </View>
+                ) : (
+                    <Text style={[styles.statLabel, { color: theme.textMuted }]}>Ver carnet y detalles</Text>
+                )}
                 <ChevronRight size={20} color={theme.textMuted} />
             </View>
         </TouchableOpacity>

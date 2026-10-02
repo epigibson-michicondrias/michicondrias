@@ -306,6 +306,10 @@ export default function DirectorioIndexScreen() {
         </>
     );
 
+    const hasActiveFilters = searchQuery.trim() !== '' || filterService !== 'all';
+    const emptyTitle = hasActiveFilters ? 'Sin resultados' : (activeTab === 'clinics' ? 'Aún no hay clínicas registradas' : 'Aún no hay especialistas registrados');
+    const emptySubtitle = hasActiveFilters ? 'No encontramos lo que buscas. Intenta con otros términos.' : 'Cuando se registren aparecerán aquí.';
+
     const listEmptyComponent = !loadingClinics && !loadingVets ? (
         <View style={styles.emptyState}>
             <Search size={48} color={theme.textMuted} />
@@ -334,8 +338,8 @@ export default function DirectorioIndexScreen() {
                     contentStyle={styles.list}
                     header={listHeaderComponent}
                     isLoading={isLoading}
-                    emptyTitle="Sin resultados"
-                    emptySubtitle="No encontramos lo que buscas. Intenta con otros términos."
+                    emptyTitle={emptyTitle}
+                    emptySubtitle={emptySubtitle}
                 />
             ) : (
                 <DataList<Vet>
@@ -345,8 +349,8 @@ export default function DirectorioIndexScreen() {
                     contentStyle={styles.list}
                     header={listHeaderComponent}
                     isLoading={isLoading}
-                    emptyTitle="Sin resultados"
-                    emptySubtitle="No encontramos lo que buscas. Intenta con otros términos."
+                    emptyTitle={emptyTitle}
+                    emptySubtitle={emptySubtitle}
                 />
             )}
         </View>

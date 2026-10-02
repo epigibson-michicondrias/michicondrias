@@ -4,6 +4,7 @@
  */
 
 export interface Pet {
+    has_active_subscription?: boolean;
     id: string;
     owner_id: string;
     name: string;

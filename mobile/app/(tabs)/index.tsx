@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GettingStartedCard from '@/src/components/GettingStartedCard';
+import { useAvatar } from '@/src/hooks/perfil/useAvatar';
 
 // Helper to get beautiful, high-quality placeholders by species
 const getPetPlaceholder = (species: string) => {
@@ -39,6 +40,7 @@ export default function DashboardScreen() {
     handleAction,
     router,
   } = useHome();
+  const { avatarUrl } = useAvatar();
 
   // ── Render ──
   return (
@@ -87,10 +89,14 @@ export default function DashboardScreen() {
               </View>
               <View style={styles.avatarBox}>
                 <LinearGradient colors={['#fcd34d', '#f59e0b']} style={styles.avatarBorder}>
-                  <View style={styles.avatarInner}>
-                    <Text style={styles.avatarText}>
-                      {user?.full_name?.charAt(0)?.toUpperCase() || 'M'}
-                    </Text>
+                  <View style={[styles.avatarInner, { overflow: 'hidden' }]}>
+                    {avatarUrl ? (
+                      <Image source={{ uri: avatarUrl }} style={{ width: '100%', height: '100%' }} accessibilityLabel="Tu foto de perfil" />
+                    ) : (
+                      <Text style={styles.avatarText}>
+                        {user?.full_name?.charAt(0)?.toUpperCase() || 'M'}
+                      </Text>
+                    )}
                   </View>
                 </LinearGradient>
               </View>

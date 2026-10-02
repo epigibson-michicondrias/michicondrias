@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, View, Text, StatusBar } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, View, Text, StatusBar, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useMenu } from '@/src/hooks/home';
@@ -7,6 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LogOut, ChevronRight, Crown } from 'lucide-react-native';
+import { useAvatar } from '@/src/hooks/perfil/useAvatar';
 
 export default function MenuScreen() {
     const router = useRouter();
@@ -19,6 +20,7 @@ export default function MenuScreen() {
         bannerProps,
         handleSignOut,
     } = useMenu();
+    const { avatarUrl } = useAvatar();
 
     // ── Header ───────────────────────────────────────────────────────
     const renderHeader = () => (
@@ -28,10 +30,14 @@ export default function MenuScreen() {
         >
             <View style={styles.profileRow}>
                 <View style={styles.avatarContainer}>
-                    <View style={styles.avatarGlass}>
-                        <Text style={styles.avatarText}>
-                            {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-                        </Text>
+                    <View style={[styles.avatarGlass, { overflow: 'hidden' }]}>
+                        {avatarUrl ? (
+                            <Image source={{ uri: avatarUrl }} style={{ width: '100%', height: '100%' }} accessibilityLabel="Tu foto de perfil" />
+                        ) : (
+                            <Text style={styles.avatarText}>
+                                {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                            </Text>
+                        )}
                     </View>
                     {isUserAdmin && (
                         <View style={styles.adminBadge}>
