@@ -122,13 +122,28 @@ dejaron de ser botones (se comían el toque).
 
 **Requiere configuración:** `INTERNAL_SERVICE_TOKEN` (el mismo valor en `common.env`; sin él, esas llamadas entre servicios se rechazan).
 
-### Sigue abierto (decisión o trabajo aparte)
-- `POST /pets/` (lo usa adopciones sin token), `GET /pets/{id}` y `GET /pets/user/{id}` son públicos.
-- WebSocket `/notifications/ws/{user_id}` sin autenticación: cualquiera puede escuchar las notificaciones de un usuario.
-- `PATCH /reports/{id}/location` (perdidas) y `POST /sponsors/campaigns/{id}/click` sin autenticación.
-- `GET /categories/init-db/seed` modifica la BD sin autenticación.
-- «Difundir alerta» de mascota perdida **solo notifica a quien reporta**: la difusión a usuarios cercanos está simulada.
-- Hay credenciales de Supabase escritas en `directorio/app/core/config.py` y en el historial de git: rotarlas.
+### Revisión de autorización del backend (completa, con pendientes)
+Se revisaron los 17 servicios (315 endpoints). Corregido, además de lo anterior:
+- `core`: roles y ajustes globales solo admin (antes cualquiera podía renombrar «consumidor» a «admin»); el registro ignora el `role_id` del cliente; búsqueda y WebSocket de notificaciones exigen sesión; `upgrade-role` exige identidad verificada (KYC) y la pantalla Partner lo explica.
+- `carnet`: solo el dueño o un veterinario escriben registros y vacunas. `laboratorio`: historial solo dueño o involucrados.
+- `directorio`: cirugías solo del dueño de la clínica. `estilistas`: agendar solo dueño, fotos solo el estilista de la cita.
+- `funeraria`: dar de baja y reservar exigen relación real con la mascota. `aseguradoras`: pólizas y reclamos solo del dueño o de la aseguradora.
+- `ecommerce`: estados de pedido con lista blanca (ya no se puede poner «paid»), cantidad >= 1, categorías solo admin.
+- `transportistas`: ubicación solo del conductor del viaje, tracking solo conductor/dueño/admin, pedir viaje solo con tu mascota.
+- `paseadores`/`cuidadores`: transiciones de estado válidas (el cliente solo cancela) y solicitar solo con tu mascota. `entrenadores`: metas solo en programas propios; inscribir solo tu mascota.
+- `perdidas`: ubicación del tracker solo dueño o hardware (token interno). `mascotas`: crear, listar y leer mascotas exigen sesión; suscripción solo interna.
+- URLs firmadas de subida: sesión obligatoria y solo imágenes con MIME fijo. KYC en bucket **privado** (`michicondrias-private`) con URL temporal de lectura.
+- Almacenamiento: boto3 con checksums `when_required` (Oracle rechazaba las subidas desde el servidor) y la app envía el MIME correcto (`jpg` -> `image/jpeg`; antes daba 403).
+
+**Requiere configuración** (en `common.env`): `INTERNAL_SERVICE_TOKEN` y `S3_PRIVATE_BUCKET_NAME=michicondrias-private`.
+
+### Sigue abierto
+- Los roles se leen del JWT: un cambio de rol (o una baja) no se refleja hasta que vence el token (7 días).
+- Sin límite de intentos en login y recuperación de contraseña (archivo con cambios sin commitear del trabajo de 2FA).
+- `POST /sponsors/campaigns/{id}/click` es público (se pueden inflar clics y gasto de una campaña).
+- Certificados de funeraria se descargan con el folio (sin sesión).
+- «Difundir alerta» de mascota perdida solo notifica a quien reporta: la difusión a usuarios cercanos está simulada.
+- Hay credenciales de Supabase en `directorio/app/core/config.py` y en el historial de git: rotarlas.
 
 ## P3 — Limpieza
 - Eliminar `MOCK_SERVICES` (código muerto).

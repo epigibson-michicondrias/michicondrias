@@ -11,7 +11,7 @@ from app.models.mascotas import Pet
 from app.api import deps
 from app.core.config import settings
 from app.core.ai_triage import assess_symptoms, _norm
-from app.api.internal import require_internal_token, require_admin
+from app.api.internal import require_internal_token, require_admin, identity_or_internal
 
 router = APIRouter()
 
@@ -111,12 +111,15 @@ def create_pet(
     *,
     db: Session = Depends(get_db),
     pet_in: PetCreate,
+    identity: dict = Depends(identity_or_internal),
 ) -> Any:
     """
     Create a new permanent pet record.
-    Called by the adoption service when an adoption is finalized,
-    or by the user registering their own pet.
+    Called by the adoption service when an adoption is finalized (token interno),
+    or by the user registering their own pet (solo con owner_id propio).
     """
+    if not identity["internal"] and pet_in.owner_id != identity["user_id"]:
+        raise HTTPException(status_code=403, detail="Solo puedes registrar mascotas a tu nombre")
     print(f"[MASCOTAS] Creating pet for owner {pet_in.owner_id}: {pet_in.name}")
     try:
         pet_data = pet_in.model_dump()
@@ -135,8 +138,10 @@ def create_pet(
         raise HTTPException(status_code=500, detail=f"Error en base de datos: {str(e)}")
 
 @router.get("/user/{user_id}", response_model=List[PetResponse])
-def get_user_pets(user_id: str, db: Session = Depends(get_db)) -> Any:
-    """Get all permanent pets owned by a specific user."""
+def get_user_pets(user_id: str, db: Session = Depends(get_db), identity: dict = Depends(identity_or_internal)) -> Any:
+    """Mascotas de un usuario. Solo ese usuario, un admin o un servicio interno."""
+    if not identity["internal"] and identity["user_id"] != user_id and identity["role"] != "admin":
+        raise HTTPException(status_code=403, detail="No puedes ver las mascotas de otro usuario")
     print(f"[MASCOTAS] Fetching pets for user_id: {user_id}")
     pets = db.query(Pet).filter(Pet.owner_id == user_id, Pet.is_active == True).all()
     print(f"[MASCOTAS] Found {len(pets)} pets for user {user_id}")
@@ -156,8 +161,8 @@ def get_all_pets_admin(
 
 
 @router.get("/{pet_id}", response_model=PetResponse)
-def get_pet_by_id(pet_id: str, db: Session = Depends(get_db)) -> Any:
-    """Get a specific permanent pet by its ID."""
+def get_pet_by_id(pet_id: str, db: Session = Depends(get_db), identity: dict = Depends(identity_or_internal)) -> Any:
+    """Get a specific permanent pet by its ID. Requiere sesión."""
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
@@ -184,7 +189,7 @@ def update_pet(
     return pet
 
 @router.get("/adopted-from/{listing_id}", response_model=PetResponse)
-def get_pet_by_listing(listing_id: str, db: Session = Depends(get_db)) -> Any:
+def get_pet_by_listing(listing_id: str, db: Session = Depends(get_db), identity: dict = Depends(identity_or_internal)) -> Any:
     """Get the pet created from a specific adoption listing. Useful for verification."""
     pet = db.query(Pet).filter(Pet.adopted_from_listing_id == listing_id).first()
     if not pet:

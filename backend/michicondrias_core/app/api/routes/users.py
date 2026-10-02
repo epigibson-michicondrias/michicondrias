@@ -219,8 +219,7 @@ def upgrade_user_role(
 ) -> Any:
     """
     User self-upgrades to a Partner role (e.g., 'veterinario').
-    In a real system, this might require manual admin approval or Stripe subscription.
-    For this MVP, we grant the requested role directly if valid.
+    Requiere que un admin ya haya aprobado la verificación de identidad (KYC).
     """
     valid_roles = [
         "veterinario", "paseador", "vendedor", "refugio", 
@@ -229,6 +228,13 @@ def upgrade_user_role(
     ]
     if role_name not in valid_roles:
         raise HTTPException(status_code=400, detail="Rol de asociado inválido")
+
+    # Los roles profesionales dan acceso a datos y funciones sensibles: antes cualquiera podía elegirlos sin verificación.
+    if current_user.verification_status != "VERIFIED":
+        raise HTTPException(
+            status_code=403,
+            detail="Primero verifica tu identidad y espera la aprobación de un administrador para tener una cuenta profesional.",
+        )
 
     
     role = db.query(Role).filter(Role.name == role_name).first()

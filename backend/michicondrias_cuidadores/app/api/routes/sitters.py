@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -11,6 +11,21 @@ from app.api import deps
 from app.core.config import settings
 
 router = APIRouter()
+
+def _pet_owner_id(db: Session, pet_id: str):
+    row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
+    return row[0] if row else None
+
+
+# Quien puede mover una solicitud de un estado a otro. El cliente solo puede cancelar;
+# antes cualquiera de los dos podía poner cualquier estado (incluido "completed") y inflar los contadores.
+PROVIDER_TRANSITIONS = {
+    "pending": {"accepted", "cancelled"},
+    "accepted": {"in_progress", "completed", "cancelled"},
+    "in_progress": {"completed", "cancelled"},
+}
+CLIENT_TRANSITIONS = {"pending": {"cancelled"}, "accepted": {"cancelled"}}
+
 
 
 # ===================== SCHEMAS =====================
@@ -246,6 +261,8 @@ def request_sit(
     sitter = db.query(Sitter).filter(Sitter.id == sitter_id, Sitter.is_active == True).first()
     if not sitter:
         raise HTTPException(status_code=404, detail="Cuidador no encontrado o inactivo")
+    if _pet_owner_id(db, req_in.pet_id) != user_id:
+        raise HTTPException(status_code=403, detail="Solo puedes solicitar el servicio para tu propia mascota")
     if sitter.user_id == user_id:
         raise HTTPException(status_code=400, detail="No puedes solicitar cuidado a ti mismo")
 
@@ -314,6 +331,11 @@ def update_sit_request_status(
     valid_statuses = ["pending", "accepted", "in_progress", "completed", "cancelled"]
     if status not in valid_statuses:
         raise HTTPException(status_code=400, detail=f"Status inválido. Opciones: {valid_statuses}")
+
+    is_provider = bool(sitter) and sitter.user_id == user_id
+    transitions = PROVIDER_TRANSITIONS if is_provider else CLIENT_TRANSITIONS
+    if status not in transitions.get(sit_req.status, set()):
+        raise HTTPException(status_code=400, detail="Ese cambio de estado no está permitido")
 
     sit_req.status = status
 

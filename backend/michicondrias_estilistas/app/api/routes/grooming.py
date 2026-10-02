@@ -132,13 +132,7 @@ def read_client_appointments(
     """
     Get the grooming appointments of the pets owned by the logged-in client.
     """
-    try:
-        resp = httpx.get(f"{settings.API_GATEWAY_URL}/mascotas/api/v1/pets/user/{current_user_id}", timeout=8.0)
-        resp.raise_for_status()
-        pet_ids = [pet["id"] for pet in resp.json()]
-    except (httpx.HTTPError, ValueError, KeyError) as e:
-        logger.warning("No se pudieron obtener las mascotas de %s: %s", current_user_id, e)
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No se pudieron cargar tus citas en este momento. Intenta de nuevo.")
+    pet_ids = [r[0] for r in db.execute(text("SELECT id FROM pets WHERE owner_id = :uid"), {"uid": current_user_id}).fetchall()]
     return crud_grooming.get_appointments_by_pet_ids(db=db, pet_ids=pet_ids)
 
 

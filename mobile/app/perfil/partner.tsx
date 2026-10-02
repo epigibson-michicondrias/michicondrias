@@ -56,6 +56,23 @@ export default function PartnerOnboardingScreen() {
 
         setLoading(true);
         try {
+            // Un rol profesional requiere identidad aprobada por un administrador
+            const me: any = await getCurrentUser();
+            if (me?.verification_status !== 'VERIFIED') {
+                showAlert({
+                    type: 'info',
+                    title: 'Verifica tu identidad',
+                    message: me?.verification_status === 'PENDING'
+                        ? 'Tus documentos están en revisión. Cuando un administrador los apruebe podrás elegir tu cuenta profesional.'
+                        : 'Para tener una cuenta profesional primero debes verificar tu identidad. Un administrador revisará tus documentos.',
+                    showCancel: true,
+                    cancelText: 'Después',
+                    buttonText: 'Ir a verificación',
+                    onButtonPress: () => router.push('/perfil/verificacion' as any),
+                });
+                return;
+            }
+
             await apiFetch("core", `/users/me/upgrade-role?role_name=${selectedRole}`, {
                 method: "POST"
             });

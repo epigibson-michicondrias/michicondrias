@@ -215,15 +215,11 @@ def certificate_file(death_id: str, db: Session = Depends(get_db)):
     if not death_report:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reporte de defunción no encontrado.")
 
-    # El nombre y la especie viven en el servicio de mascotas; si no responde, el certificado sale con un nombre genérico
+    # El nombre y la especie están en la tabla de mascotas; si no hay dato, el certificado sale con un nombre genérico
     pet_name, species = "Un michi querido", None
-    try:
-        resp = httpx.get(f"{settings.API_GATEWAY_URL}/mascotas/api/v1/pets/{death_report.pet_id}", timeout=5.0)
-        if resp.status_code == 200:
-            data = resp.json()
-            pet_name, species = data.get("name") or pet_name, data.get("species")
-    except httpx.HTTPError:
-        pass
+    row = db.execute(text("SELECT name, species FROM pets WHERE id = :pet_id"), {"pet_id": death_report.pet_id}).first()
+    if row:
+        pet_name, species = row[0] or pet_name, row[1]
 
     pdf = build_certificate_pdf(
         death_id=death_id, pet_name=pet_name, species=species, date_of_death=death_report.date_of_death,

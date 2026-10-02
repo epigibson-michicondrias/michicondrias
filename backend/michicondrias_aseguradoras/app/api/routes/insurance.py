@@ -23,19 +23,12 @@ def _pet_owner_id(db: Session, pet_id: str):
     return row[0] if row else None
 
 
-def _assert_pet_belongs_to_user(pet_id: str, user_id: str) -> None:
-    """Solo el dueño puede contratar el seguro de una mascota (se consulta al servicio de mascotas)."""
-    url = f"{settings.API_GATEWAY_URL}/mascotas/api/v1/pets/{pet_id}"
-    try:
-        resp = httpx.get(url, timeout=8.0)
-    except httpx.HTTPError as e:
-        logger.warning("No se pudo consultar la mascota %s: %s", pet_id, e)
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No se pudo verificar la mascota en este momento. Intenta de nuevo.")
-    if resp.status_code == 404:
+def _assert_pet_belongs_to_user(db: Session, pet_id: str, user_id: str) -> None:
+    """Solo el dueño puede contratar el seguro de una mascota."""
+    owner = _pet_owner_id(db, pet_id)
+    if owner is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La mascota no existe")
-    if resp.status_code >= 400:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No se pudo verificar la mascota en este momento. Intenta de nuevo.")
-    if resp.json().get("owner_id") != user_id:
+    if owner != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede contratar su seguro")
 
 @router.post("/policies", response_model=schemas.PetInsurancePolicy)
@@ -238,7 +231,7 @@ def subscribe_to_plan(
     """
     Subscribe a pet to an insurance plan. Creates a PetInsurancePolicy.
     """
-    _assert_pet_belongs_to_user(sub_req.pet_id, current_user_id)
+    _assert_pet_belongs_to_user(db, sub_req.pet_id, current_user_id)
     plan = crud.get_plan_by_id(db, plan_id=sub_req.plan_id)
     if not plan:
         raise HTTPException(

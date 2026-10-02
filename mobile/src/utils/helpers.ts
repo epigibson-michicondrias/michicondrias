@@ -131,6 +131,6 @@ const IMAGE_MIME_TYPES: Record<string, string> = {
  * Tipo MIME de una imagen según su extensión. El backend firma la URL de subida con este mismo tipo
  * y el almacenamiento rechaza (403) la subida si el Content-Type enviado no coincide: 'jpg' debe ser 'image/jpeg', no 'image/jpg'.
  */
-export function getImageMimeType(ext: string): string {
-    return IMAGE_MIME_TYPES[ext.replace('.', '').toLowerCase()] || 'image/jpeg';
+export function getImageMimeType(ext?: string): string {
+    return IMAGE_MIME_TYPES[(ext || 'jpg').replace('.', '').toLowerCase()] || 'image/jpeg';
 }

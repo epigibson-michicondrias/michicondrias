@@ -1,3 +1,4 @@
+import os
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
@@ -318,7 +319,7 @@ async def approve_adoption(
                 "gallery": listing.gallery
             }
             
-            headers = {"X-Correlation-ID": correlation_id}
+            headers = {"X-Correlation-ID": correlation_id, "X-Internal-Token": os.getenv("INTERNAL_SERVICE_TOKEN", "")}
             
             import json
             print(f"[ADOPTION] Sending pet creation to mascotas service at {mascotas_url}")

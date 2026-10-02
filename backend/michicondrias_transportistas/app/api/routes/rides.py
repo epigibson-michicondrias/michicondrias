@@ -1,6 +1,7 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 import math
 
@@ -21,6 +22,11 @@ from app.schemas.ride import (
 
 router = APIRouter()
 
+
+def _pet_owner_id(db: Session, pet_id: str):
+    row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
+    return row[0] if row else None
+
 @router.post("/request", response_model=PetRideOut, status_code=status.HTTP_201_CREATED)
 def request_ride(
     *,
@@ -31,6 +37,8 @@ def request_ride(
     """
     Request a new ride for a pet. Requires 'consumidor' role.
     """
+    if _pet_owner_id(db, ride_in.pet_id) != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo puedes pedir un viaje para tu propia mascota")
     try:
         db_ride = crud_ride.create_ride(db, ride_in=ride_in)
         return db_ride
@@ -58,6 +66,8 @@ def update_location(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Viaje no encontrado"
         )
+    if db_ride.driver_id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No eres el conductor de este viaje")
     updated_ride = crud_ride.update_ride_location(
         db,
         ride_id=id,
@@ -70,17 +80,22 @@ def update_location(
 def track_ride(
     *,
     db: Session = Depends(get_db),
-    id: str
+    id: str,
+    token: str = Depends(deps.oauth2_scheme)
 ) -> Any:
     """
-    Retrieve real-time coordinates of the ride.
+    Retrieve real-time coordinates of the ride. Solo el conductor, el dueño de la mascota o un admin.
     """
+    payload = deps._decode_token(token)
+    user_id, role = payload["sub"], payload.get("role", "consumidor")
     db_ride = crud_ride.get_ride_by_id(db, ride_id=id)
     if not db_ride:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Viaje no encontrado"
         )
+    if role != "admin" and db_ride.driver_id != user_id and _pet_owner_id(db, db_ride.pet_id) != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes acceso a este viaje")
     return db_ride
 
 
@@ -118,10 +133,11 @@ def get_my_driver_profile(
 
 @router.get("/drivers/available", response_model=List[DriverProfileOut])
 def read_available_drivers(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """
-    Get all transportistas who are currently active and available. Public endpoint.
+    Get all transportistas who are currently active and available. Requiere sesión (expone vehículo y placa).
     """
     return crud_ride.get_available_drivers(db=db)
 

@@ -1,6 +1,6 @@
 import os
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime
 import httpx
@@ -14,6 +14,7 @@ from app.crud.crud_lost_pets import (
     get_reports_by_user, update_report, delete_report, update_tracker_location
 )
 from app.schemas.lost_pet import LostPetReportCreate, LostPetReportUpdate, LostPetReportOut, TrackerLocationUpdate
+from app.api.tracker_auth import authorize_tracker_update
 
 router = APIRouter()
 
@@ -139,16 +140,17 @@ def patch_report_location(
     *,
     db: Session = Depends(get_db),
     location_in: TrackerLocationUpdate,
-    # Depending on hardware, this could use a machine-to-machine API key or user auth
-    # For now we'll allow the owner or a simulated hardware webhook
-    # user_id: str = Depends(deps.get_current_user_id), 
+    authorization: str | None = Header(default=None),
+    x_internal_token: str | None = Header(default=None),
 ) -> Any:
     """
     Update the real-time geolocation of a pet's Michi-Tracker collar.
+    Solo el dueño del reporte (JWT) o la pasarela del hardware (X-Internal-Token).
     """
     existing = get_report_by_id(db, report_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    authorize_tracker_update(existing.user_id, authorization, x_internal_token)
     if not existing.has_tracker:
         raise HTTPException(status_code=400, detail="Este reporte no tiene un Michi-Tracker asociado")
         

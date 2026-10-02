@@ -1,5 +1,6 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -51,13 +52,16 @@ def create_pet_training_goal(
     """
     Create a specific training goal for a pet. Requires 'entrenador' role.
     """
-    if goal_in.program_id:
-        program = crud_training.get_program_by_id(db=db, program_id=goal_in.program_id)
-        if not program:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="El programa de entrenamiento especificado no existe"
-            )
+    if not goal_in.program_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La meta debe pertenecer a un programa")
+    program = crud_training.get_program_by_id(db=db, program_id=goal_in.program_id)
+    if not program:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El programa de entrenamiento especificado no existe"
+        )
+    if program.trainer_id != trainer_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo puedes crear metas en tus propios programas")
     return crud_training.create_goal(db=db, goal_in=goal_in)
 
 
@@ -78,6 +82,9 @@ def update_pet_training_goal(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="La meta de entrenamiento no existe"
         )
+    goal_program = crud_training.get_program_by_id(db=db, program_id=db_goal.program_id) if db_goal.program_id else None
+    if not goal_program or goal_program.trainer_id != trainer_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo puedes editar metas de tus propios programas")
     return crud_training.update_goal(db=db, db_goal=db_goal, goal_in=goal_in)
 
 
@@ -98,6 +105,9 @@ def enroll_pet(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="El programa de entrenamiento especificado no existe."
         )
+    owner = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": enroll_in.pet_id}).first()
+    if not owner or owner[0] != current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo puedes inscribir a tu propia mascota")
     return crud_training.create_enrollment(db=db, enroll_in=enroll_in, client_id=current_user_id, price=program.price)
 
 
