@@ -16,7 +16,7 @@ import {
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 60) / 2;
+const CARD_WIDTH = Math.floor((width - 61) / 2);
 
 export default function TiendaTabScreen() {
   const { theme } = useTheme();

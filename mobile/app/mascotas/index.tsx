@@ -15,9 +15,10 @@ export default function MascotasListScreen() {
     const { theme } = useTheme();
     const { pets, isLoading, isRefetching, refetch } = usePets();
 
+    // Contenedor View + botón principal + botón de editar como hermanos: en web un <button> no puede anidar otro.
     const renderPetCard = ({ item }: { item: Pet }) => (
+        <View style={[styles.petCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
         <TouchableOpacity
-            style={[styles.petCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={() => router.push(`/mascotas/${item.id}`)}
             accessibilityRole="button"
             accessibilityLabel={`Ver a ${item.name}`}
@@ -35,15 +36,6 @@ export default function MascotasListScreen() {
                         <Text style={[styles.petName, { color: theme.text }]}>{item.name}</Text>
                         <Text style={[styles.petBreed, { color: theme.textMuted }]}>{item.breed || getSpeciesLabel(item.species)}</Text>
                     </View>
-                    <TouchableOpacity
-                        style={styles.settingsBtn}
-                        onPress={() => router.push(`/mascotas/editar/${item.id}`)}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Editar a ${item.name}`}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                        <Settings size={20} color={theme.textMuted} />
-                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.petStats}>
@@ -69,6 +61,16 @@ export default function MascotasListScreen() {
                 <ChevronRight size={20} color={theme.textMuted} />
             </View>
         </TouchableOpacity>
+        <TouchableOpacity
+            style={[styles.editBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
+            onPress={() => router.push(`/mascotas/editar/${item.id}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`Editar a ${item.name}`}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        >
+            <Settings size={18} color={theme.text} />
+        </TouchableOpacity>
+        </View>
     );
 
     return (
@@ -98,6 +100,10 @@ export default function MascotasListScreen() {
 }
 
 const styles = StyleSheet.create({
+    editBtn: {
+        position: 'absolute', top: 12, right: 12, width: 40, height: 40, borderRadius: 20,
+        borderWidth: 1, alignItems: 'center', justifyContent: 'center',
+    },
     petCard: {
         borderRadius: 24,
         marginBottom: 20,

@@ -56,11 +56,7 @@ export default function AdminUsersScreen() {
     } = useAdminUsers();
 
     const renderUser = ({ item }: { item: AdminUser }) => (
-        <TouchableOpacity accessibilityRole="button" 
-            activeOpacity={0.7}
-            style={[styles.userCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => showAlert({ type: 'info', title: 'Detalles', message: `Viendo detalles de ${item.full_name}` })}
-        > 
+        <View style={[styles.userCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.userHeader}>
                 <LinearGradient
                     colors={['#1c2f6b', '#101c3d']}
@@ -110,7 +106,7 @@ export default function AdminUsersScreen() {
                     </TouchableOpacity>
                 </View>
             </View>
-        </TouchableOpacity>
+        </View>
     );
 
     return (

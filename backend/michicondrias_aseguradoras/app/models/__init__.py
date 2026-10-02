@@ -1,2 +1,2 @@
 from app.db.session import Base
-from app.models.insurance import PetInsurancePolicy, InsuranceClaim
+from app.models.insurance import PetInsurancePolicy, InsuranceClaim, InsurancePlan

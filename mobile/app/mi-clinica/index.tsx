@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     sectionTitle: { fontSize: 14, fontWeight: '900', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 },
     menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 32 },
     menuItem: {
-        width: (width - 60) / 2,
+        width: Math.floor((width - 61) / 2),
         padding: 16,
         borderRadius: 24,
         gap: 12,

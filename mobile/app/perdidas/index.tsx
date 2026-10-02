@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     feed: { paddingHorizontal: 20 },
     reportsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
     reportCard: {
-        width: (width - 52) / 2,
+        width: Math.floor((width - 53) / 2),
         borderRadius: 18,
         overflow: 'hidden',
         borderWidth: 1,

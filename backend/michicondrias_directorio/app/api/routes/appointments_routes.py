@@ -38,6 +38,8 @@ def create_appointment(
     """Book a new appointment (Consumer)."""
     try:
         appt = crud_services.create_appointment(db, user_id, appt_in)
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
 

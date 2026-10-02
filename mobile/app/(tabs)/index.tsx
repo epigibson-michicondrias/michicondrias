@@ -127,7 +127,7 @@ export default function DashboardScreen() {
         </View>
 
         {/* ─── Primeros pasos (cuenta nueva sin mascotas) ─── */}
-        {!petsLoading && pets.length === 0 && <GettingStartedCard />}
+        {!petsLoading && pets.length === 0 && roleTools.length === 0 && <GettingStartedCard />}
 
         {/* ─── Alta profesional: estado de la verificación ─── */}
         {proOnboarding !== 'none' && (

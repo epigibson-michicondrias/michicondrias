@@ -304,7 +304,11 @@ export default function PerfilScreen() {
                             Verificación de Identidad (KYC)
                         </Text>
                         <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
-                            Verifica tu cuenta para más beneficios y seguridad
+                            {({
+                                VERIFIED: 'Identidad verificada ✓',
+                                PENDING: 'En revisión por nuestro equipo',
+                                REJECTED: 'Rechazada: vuelve a enviar tus documentos',
+                            } as Record<string, string>)[profile?.verification_status ?? ''] || 'Verifica tu cuenta para más beneficios y seguridad'}
                         </Text>
                     </View>
                     <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />

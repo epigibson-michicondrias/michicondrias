@@ -277,7 +277,7 @@ class Prescriptions(Base):
     Prescriptions model for dashboard functionality.
     This matches the Supabase table structure.
     """
-    __tablename__ = "prescriptions"
+    __tablename__ = "clinic_prescriptions"  # no puede llamarse "prescriptions": esa tabla es del carnet (recetas por registro médico)
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     clinic_id = Column(String, nullable=False)  # TEXT en Supabase

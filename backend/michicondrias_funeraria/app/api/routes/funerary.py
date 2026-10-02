@@ -101,7 +101,7 @@ def record_death_report(
 ):
     """
     Records a pet's death. Solo su dueño, la funeraria con una reserva, el veterinario que la atendió o un admin.
-    Updates the pet's status to 'in_memoriam' in the database.
+    Registra el fallecimiento en pet_deaths (el estado en memoria se deriva de ese reporte).
     """
     pet = crud_funerary.get_pet(db, death_in.pet_id)
     if not pet:

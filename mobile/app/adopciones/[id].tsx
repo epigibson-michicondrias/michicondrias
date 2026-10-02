@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     statCard: {
-        width: (width - 60) / 2,
+        width: Math.floor((width - 61) / 2),
         padding: 16,
         borderRadius: 20,
         flexDirection: 'row',

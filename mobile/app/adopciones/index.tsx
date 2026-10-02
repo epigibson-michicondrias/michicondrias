@@ -12,7 +12,7 @@ import FilterChip from '@/src/components/FilterChip';
 import type { Listing } from '@/src/types/adopciones';
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width - 60) / 2;
+const cardWidth = Math.floor((width - 61) / 2);
 
 export default function AdopcionesScreen() {
     const router = useRouter();
@@ -29,6 +29,8 @@ export default function AdopcionesScreen() {
         sizeFilter,
         setSizeFilter,
     } = useListings();
+
+    const hasActiveFilters = search.trim() !== '' || (!!speciesFilter && speciesFilter !== 'all') || (!!sizeFilter && sizeFilter !== 'all');
 
     const getSpeciesColor = (species: string) => {
         switch (species.toLowerCase()) {
@@ -121,8 +123,8 @@ export default function AdopcionesScreen() {
                 isRefreshing={isRefetching}
                 header={header}
                 emptyIcon={<Heart size={48} color={theme.textMuted} strokeWidth={1.5} />}
-                emptyTitle="No hay michis ni lomitos"
-                emptySubtitle="Intenta con otra búsqueda o vuelve más tarde."
+                emptyTitle={hasActiveFilters ? 'Sin resultados' : 'Aún no hay mascotas en adopción'}
+                emptySubtitle={hasActiveFilters ? 'Prueba con otra búsqueda o quita los filtros.' : 'Cuando un refugio publique una mascota aparecerá aquí.'}
                 contentStyle={styles.list}
             />
         </ScreenContainer>

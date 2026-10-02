@@ -7,7 +7,8 @@ class Pet(Base):
     __tablename__ = "pets"
 
     id = Column(String(36), primary_key=True)
-    status = Column(String(50))
+    # pets.status ya no existe en la BD (la migración 9a3ee10027cb de mascotas la eliminó): no mapearla,
+    # o cada consulta de Pet falla con UndefinedColumn. El fallecimiento se registra en pet_deaths.
 
 class PetDeath(Base):
     __tablename__ = "pet_deaths"

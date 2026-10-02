@@ -12,10 +12,7 @@ def create_death_report(db: Session, *, death_in: PetDeathCreate, funerary_id: s
     if not pet:
         return None
     
-    # Update pet status to in_memoriam
-    pet.status = "in_memoriam"
-    db.add(pet)
-    
+    # El estado "in memoriam" se deriva de la existencia del reporte en pet_deaths (pets.status ya no existe).
     db_death = PetDeath(
         funerary_id=funerary_id,
         **death_in.model_dump()

@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
         gap: 16 
     },
     card: { 
-        width: (width - 56) / 2, 
+        width: '47.5%', 
         padding: 20, 
         borderRadius: 28, 
         borderWidth: 1,

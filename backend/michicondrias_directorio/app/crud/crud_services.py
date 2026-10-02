@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, text
 import uuid
 from app.models.services import ClinicService, ClinicSchedule, ScheduleException, Appointment, AppointmentReminder
+from app.models.clinic import Clinic
 from app.schemas.services import (
     ClinicServiceCreate, ClinicServiceUpdate,
     ClinicScheduleCreate,
@@ -244,7 +245,18 @@ def create_appointment(db: Session, user_id: str, appt: AppointmentCreate):
 
     # Calculate end_time from service duration
     service = db.query(ClinicService).filter(ClinicService.id == appt.service_id).first()
-    duration = service.duration_minutes if service else 30
+    if not service or service.clinic_id != appt.clinic_id or not service.is_active:
+        raise ValueError("El servicio no existe en esta clínica.")
+    clinic_row = db.query(Clinic).filter(Clinic.id == appt.clinic_id).first()
+    if not clinic_row or not clinic_row.is_approved:
+        raise ValueError("La clínica no está disponible.")
+    pet_row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pid"), {"pid": appt.pet_id}).first()
+    if not pet_row or pet_row[0] != user_id:
+        raise PermissionError("La mascota no te pertenece.")
+    # La hora debe ser un slot real (respeta horario semanal y excepciones)
+    if not any(sl["start_time"] == start.strftime("%H:%M") for sl in get_available_slots(db, appt.clinic_id, appt.date, appt.service_id)):
+        raise ValueError("El horario seleccionado no está disponible o la clínica está cerrada.")
+    duration = service.duration_minutes
     end_dt = datetime.combine(d, start) + timedelta(minutes=duration)
 
     # Check for double-booking
@@ -364,40 +376,26 @@ def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_
     if existing:
         raise ValueError("El nuevo horario ya está reservado.")
 
-    # Mark original as rescheduled and store the reason here
-    appt.status = "rescheduled"
-    appt.cancellation_reason = "Reagendada a una nueva fecha/hora"
-    db.commit()
-
-    # Create new appointment with the updated time
-    new_appt = Appointment(
-        clinic_id=appt.clinic_id,
-        service_id=appt.service_id,
-        pet_id=appt.pet_id,
-        user_id=appt.user_id,
-        vet_id=appt.vet_id,
-        date=d,
-        start_time=start,
-        end_time=end_dt.time(),
-        status="pending",
-        notes=appt.notes,
-        cancellation_reason=None  # The new appointment shouldn't have a cancellation reason
-    )
-    db.add(new_appt)
+    # Se reagenda la MISMA cita (mismo id) y vuelve a pendiente para que la clínica la reconfirme
+    appt.date = d
+    appt.start_time = start
+    appt.end_time = end_dt.time()
+    appt.status = "pending"
+    appt.cancellation_reason = None
+    new_appt = appt
+    db.query(AppointmentReminder).filter(AppointmentReminder.appointment_id == appt.id).delete()
     db.commit()
     db.refresh(new_appt)
-    
-    # Create reminders for the new appointment
+
     appt_datetime = datetime.combine(d, start)
     for hours_before in [24, 2]:
         remind_at = appt_datetime - timedelta(hours=hours_before)
         if remind_at > datetime.now():
-            reminder = AppointmentReminder(
+            db.add(AppointmentReminder(
                 appointment_id=new_appt.id,
                 remind_at=remind_at.isoformat(),
                 reminder_type="in_app",
-            )
-            db.add(reminder)
+            ))
     db.commit()
 
     owner_id, _ = _clinic_owner(db, new_appt.clinic_id)

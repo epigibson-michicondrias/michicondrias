@@ -363,24 +363,9 @@ async def approve_adoption(
     if req.status == "REJECTED":
         raise HTTPException(status_code=400, detail="Esta solicitud fue rechazada")
 
-    # 2. Determine the service URL dynamically based on the current request Host
-    # This allows it to work in local (localhost:8000), staging or production seamlessly
-    host = request.headers.get("host", "localhost:8000")
-    # If the request arrived at localhost:8001 (direct to microservice), we still want to target the gateway (8000)
-    # but usually internal calls go through the gateway or direct. 
-    # Let's be smart: if they use the gateway prefix, follow it.
-    
-    # Check if we are in local development vs production (simple check)
-    is_local = "localhost" in host or "127.0.0.1" in host
-    
-    # Build internal URL. We assume /mascotas/api/v1 is the path in the gateway.
-    # If is_local and port is 8001, the gateway is likely at 8000.
-    target_host = host
-    if is_local and ":8001" in host:
-        target_host = host.replace(":8001", ":8000")
-    
-    protocol = "https" if request.url.scheme == "https" else "http"
-    mascotas_url = f"{protocol}://{target_host}/mascotas/api/v1/pets/"
+    # 2. URL del servicio de mascotas: se toma de la configuración (API_GATEWAY_URL), igual que las notificaciones.
+    #    Antes se derivaba del header Host y fallaba detrás de un proxy (apuntaba al puerto equivocado).
+    mascotas_url = f"{settings.MASCOTAS_SERVICE_URL}/api/v1/pets/"
 
     print(f"[ADOPTION] Targeting mascotas service at: {mascotas_url}")
 

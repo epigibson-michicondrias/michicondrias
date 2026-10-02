@@ -13,6 +13,14 @@ from app.core.config import settings
 
 router = APIRouter()
 
+
+def require_seller(token: str = Depends(deps.oauth2_scheme)) -> str:
+    """Solo vendedores (o admin) publican productos; un consumidor no puede crear su propio catálogo."""
+    payload = deps._decode_token(token)
+    if payload.get("role", "consumidor") not in ("vendedor", "admin"):
+        raise HTTPException(status_code=403, detail="Solo los vendedores pueden publicar productos")
+    return payload["sub"]
+
 @router.get("/", response_model=List[ProductResponse])
 def read_products(
     db: Session = Depends(get_db),
@@ -108,7 +116,7 @@ async def create_product(
     *,
     db: Session = Depends(get_db),
     product_in: ProductCreate,
-    user_id: str = Depends(deps.get_current_user_id),
+    user_id: str = Depends(require_seller),
 ) -> Any:
     """
     Create new product with pre-uploaded S3 URL.

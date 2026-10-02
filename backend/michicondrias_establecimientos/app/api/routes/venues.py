@@ -145,10 +145,19 @@ def claim_venue_coupon(
     existing = db.query(ClaimedCoupon).filter(
         ClaimedCoupon.venue_id == venue_id,
         ClaimedCoupon.client_id == current_user_id,
+        ClaimedCoupon.coupon_code == venue.discount_coupon,
         ClaimedCoupon.status == "active",
     ).first()
     if existing:
         return existing
+    # Un cupón se canjea una sola vez por cliente: si ya usó este mismo código, no puede reclamarlo de nuevo
+    if db.query(ClaimedCoupon).filter(
+        ClaimedCoupon.venue_id == venue_id,
+        ClaimedCoupon.client_id == current_user_id,
+        ClaimedCoupon.coupon_code == venue.discount_coupon,
+        ClaimedCoupon.status == "redeemed",
+    ).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya usaste este cupón.")
     return crud_venue.claim_coupon(db=db, venue_id=venue_id, client_id=current_user_id, coupon_code=venue.discount_coupon)
 
 
