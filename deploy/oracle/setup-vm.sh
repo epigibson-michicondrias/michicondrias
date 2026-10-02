@@ -57,6 +57,7 @@ else
 fi
 
 id michicondrias >/dev/null 2>&1 || useradd --system --create-home --shell /bin/bash michicondrias
+usermod -aG systemd-journal michicondrias   # para leer logs en deploy-remote.sh sin sudo
 install -d -o michicondrias -g michicondrias "$BASE" "$BASE/services" "$BASE/venvs"
 install -d -m 750 -o root -g michicondrias /etc/michicondrias
 [ -f /etc/michicondrias/common.env ] || install -m 640 -o root -g michicondrias "$REPO/deploy/oracle/common.env.example" /etc/michicondrias/common.env

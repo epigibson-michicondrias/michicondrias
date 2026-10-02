@@ -22,9 +22,16 @@ for svc in "${SERVICES[@]}"; do
   sudo systemctl enable "michicondrias@$svc" >/dev/null 2>&1
   sudo systemctl restart "michicondrias@$svc"
 done
-sleep 4
 for svc in "${SERVICES[@]}"; do
   port="$(awk -v s="$svc" '$1==s {print $2}' "$BASE/services.conf")"
-  if curl -fsS -o /dev/null "http://127.0.0.1:$port/"; then echo "OK   $svc"; else echo "FAIL $svc"; FAILED+=("$svc"); fi
+  ok=0
+  for _ in $(seq 1 20); do   # hasta ~40 s por servicio (arranque de 17 servicios a la vez)
+    if curl -fsS -o /dev/null "http://127.0.0.1:$port/" 2>/dev/null; then ok=1; break; fi
+    sleep 2
+  done
+  if [ "$ok" -eq 1 ]; then echo "OK   $svc"; else
+    echo "FAIL $svc -- últimas líneas del log:"; journalctl -u "michicondrias@$svc" --no-pager -n 8 2>/dev/null || true
+    FAILED+=("$svc")
+  fi
 done
 [ "${#FAILED[@]}" -eq 0 ] || { echo "Servicios con error: ${FAILED[*]}" >&2; exit 1; }
