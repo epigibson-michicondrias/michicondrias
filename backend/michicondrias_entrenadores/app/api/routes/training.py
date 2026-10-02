@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.api import deps
 from app.crud import crud_training
-from app.models.training import PetTrainingGoal
+from app.models.training import PetTrainingGoal, TrainingEnrollment
 from app.schemas.training import (
     TrainingProgramCreate,
     TrainingProgramResponse,
@@ -123,6 +123,29 @@ def read_provider_enrollments(
     Get all training enrollments requested from the logged-in trainer. Requires 'entrenador' role.
     """
     return crud_training.get_enrollments_for_trainer(db=db, trainer_id=current_user_id)
+
+
+@router.get("/enrollments/{enrollment_id}/goals", response_model=List[PetTrainingGoalResponse])
+def read_enrollment_goals(
+    enrollment_id: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.get_current_user_id)
+) -> Any:
+    """
+    Goals of an enrollment (same pet and program). Only the client who enrolled or the program's trainer can see them.
+    """
+    enrollment = db.query(TrainingEnrollment).filter(TrainingEnrollment.id == enrollment_id).first()
+    if not enrollment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La inscripción no existe")
+    program = crud_training.get_program_by_id(db=db, program_id=enrollment.program_id)
+    if current_user_id not in (enrollment.client_id, program.trainer_id if program else None):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes acceso a las metas de esta inscripción")
+    return (
+        db.query(PetTrainingGoal)
+        .filter(PetTrainingGoal.pet_id == enrollment.pet_id, PetTrainingGoal.program_id == enrollment.program_id)
+        .all()
+    )
 
 
 @router.post("/goals/{goal_id}/review-video", response_model=PetTrainingGoalResponse)

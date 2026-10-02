@@ -108,6 +108,18 @@ def create_schedule_exception(db: Session, clinic_id: str, exc: ScheduleExceptio
     return db_exc
 
 
+def delete_schedule_exception(db: Session, clinic_id: str, exception_id: str) -> bool:
+    db_exc = db.query(ScheduleException).filter(
+        ScheduleException.id == exception_id,
+        ScheduleException.clinic_id == clinic_id,
+    ).first()
+    if not db_exc:
+        return False
+    db.delete(db_exc)
+    db.commit()
+    return True
+
+
 # ============================================================
 # AVAILABILITY ENGINE
 # ============================================================

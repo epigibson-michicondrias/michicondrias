@@ -111,3 +111,21 @@ def create_exception(
         "custom_end": exc.custom_end.strftime("%H:%M") if exc.custom_end else None,
         "reason": exc.reason,
     }
+
+
+@router.delete("/clinics/{clinic_id}/schedule/exceptions/{exception_id}")
+def delete_exception(
+    clinic_id: str,
+    exception_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Delete a schedule exception/holiday (Owner only)."""
+    clinic = get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    if clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="Solo el dueño puede eliminar excepciones")
+    if not crud_services.delete_schedule_exception(db, clinic_id, exception_id):
+        raise HTTPException(status_code=404, detail="Excepción no encontrada")
+    return {"ok": True}
