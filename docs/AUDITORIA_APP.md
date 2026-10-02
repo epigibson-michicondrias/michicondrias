@@ -3,6 +3,17 @@
 Fecha: 2026-10-01. Método: análisis estático de `mobile/` cruzado contra los OpenAPI reales de los 17 servicios
 desplegados en `https://michicondrias.duckdns.org`. **No** se ejecutó la app en un dispositivo ni se probaron roles.
 
+## Estado
+
+- **P0: corregido** (commits `76b1565` backend y `fbb8786` app). Verificado: 287/288 llamadas con endpoint válido, 0 enlaces rotos, `tsc` sin errores.
+  Pendiente de desplegar el backend (`git push`) para que las respuestas incluyan `created_at`, `updated_at` e `is_approved`.
+- **P1, P2, P3: pendientes.**
+
+Hallazgos extra al corregir el P0: la duración de las cirugías no se guardaba ni se mostraba (`estimated_duration_minutes`
+vs. `estimated_duration`), y se podía reseñar varias veces el mismo paseo/cuidado (`request_id` vs. `walk_request_id`).
+El 403 de credenciales vencidas sigue cerrando sesión (el backend lo usa para tokens inválidos); solo los 403 de permisos
+dejaron de hacerlo.
+
 ## Resumen
 
 | Revisión | Resultado |
