@@ -150,6 +150,7 @@ class AppointmentResponse(BaseModel):
     notes: Optional[str] = None
     cancellation_reason: Optional[str] = None
     created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     # Joined fields (populated at route level)
     service_name: Optional[str] = None

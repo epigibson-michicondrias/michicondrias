@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -108,6 +109,7 @@ class WalkReviewResponse(BaseModel):
     walker_id: str
     rating: int
     comment: Optional[str] = None
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

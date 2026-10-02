@@ -112,6 +112,7 @@ class SitReviewResponse(BaseModel):
     sitter_id: str
     rating: int
     comment: Optional[str] = None
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

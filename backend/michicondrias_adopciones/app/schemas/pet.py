@@ -88,6 +88,8 @@ class AdoptionRequestResponse(AdoptionRequestCreate):
     pet_photo_url: Optional[str] = None
     compatibility_score: Optional[int] = None
     vetting_notes: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
