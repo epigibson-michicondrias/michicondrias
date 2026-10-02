@@ -291,10 +291,10 @@ export interface SurgeryItem {
     surgery_name: string;
     surgery_type: string;
     scheduled_date: string; // ISO DateTime
-    estimated_duration_minutes?: number;
+    estimated_duration?: number;
     status: string; // "scheduled", "in-progress", "completed", "cancelled"
     operating_room?: string;
-    notes?: string;
+    pre_op_notes?: string;
     created_at?: string;
 }
 
@@ -305,9 +305,9 @@ export interface SurgeryCreate {
     surgery_name: string;
     surgery_type: string;
     scheduled_date: string;
-    estimated_duration_minutes?: number;
+    estimated_duration?: number;
     operating_room?: string;
-    notes?: string;
+    pre_op_notes?: string;
 }
 
 export async function getClinicSurgeries(clinicId: string): Promise<SurgeryItem[]> {
@@ -397,8 +397,8 @@ export interface ScheduleException {
     date: string;
     reason?: string | null;
     is_closed: boolean;
-    custom_start_time?: string | null;
-    custom_end_time?: string | null;
+    custom_start?: string | null;
+    custom_end?: string | null;
 }
 
 export async function getScheduleExceptions(clinicId: string): Promise<ScheduleException[]> {
@@ -415,11 +415,11 @@ export async function addScheduleException(clinicId: string, data: Partial<Sched
 // --- Clinic Metrics & Alerts ---
 
 export async function getWeeklyMetrics(clinicId: string): Promise<any> {
-    return apiFetch<any>("directorio", `/clinics/${clinicId}/metrics/weekly`);
+    return apiFetch<any>("directorio", `/clinics/clinics/${clinicId}/metrics/weekly`);
 }
 
 export async function getUnreadAlertCount(clinicId: string): Promise<{ count: number }> {
-    return apiFetch<{ count: number }>("directorio", `/clinics/${clinicId}/alerts/unread`);
+    return apiFetch<{ count: number }>("directorio", `/clinics/clinics/${clinicId}/alerts/unread`);
 }
 
 export async function deleteAlert(alertId: string): Promise<void> {

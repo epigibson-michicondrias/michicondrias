@@ -51,7 +51,7 @@ export function useWalkerDetail() {
         (req) =>
             req.walker_id === id &&
             req.status === 'completed' &&
-            !reviews.some((rev) => rev.request_id === req.id)
+            !reviews.some((rev) => rev.walk_request_id === req.id)
     );
 
     const requestWalkMutation = useMutation({

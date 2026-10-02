@@ -15,7 +15,7 @@ export default function ServiciosProScreen() {
     const renderItem = ({ item }: { item: any }) => (
         <TouchableOpacity
             style={[styles.card, { backgroundColor: theme.surface }]}
-            onPress={() => router.push(`/servicios-pro/${activeTab}/${item.id}` as any)}
+            onPress={() => router.push((activeTab === 'walkers' ? `/paseadores/${item.id}` : `/cuidadores/${item.id}`) as any)}
         >
             <View style={styles.cardHeader}>
                 <View style={styles.imageContainer}>
@@ -65,7 +65,7 @@ export default function ServiciosProScreen() {
                 rightElement={
                     <TouchableOpacity
                         style={[styles.profileBtn, { backgroundColor: theme.surface }]}
-                        onPress={() => router.push('/perfil/pro' as any)}
+                        onPress={() => router.push('/servicios-pro/perfil' as any)}
                     >
                         <User size={24} color={theme.text} />
                     </TouchableOpacity>

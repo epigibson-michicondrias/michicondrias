@@ -9,7 +9,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
-import { Package, ShoppingBag, TrendingUp, List, ChevronRight, Settings, Activity, Star } from 'lucide-react-native';
+import { Package, ShoppingBag, TrendingUp, List, ChevronRight, Activity, Star } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -36,8 +36,6 @@ export default function VendedorDashboardScreen() {
             <ScreenHeader
                 title="Mi Tienda"
                 subtitle="Panel de Vendedor"
-                actionIcon={Settings}
-                onAction={() => router.push('/tienda/vendedor/config' as any)}
                 gradient={['#10b981', '#059669', '#047857']}
             />
 

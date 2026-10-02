@@ -88,11 +88,11 @@ export async function getMySitterProfile(): Promise<Sitter> {
 export interface SitterReview {
     id: string;
     sitter_id: string;
-    request_id: string;
-    user_id: string;
+    sit_request_id: string;
+    reviewer_user_id: string;
     rating: number;
     comment: string | null;
-    created_at: string;
+    created_at?: string | null;
 }
 
 export async function createSitterReview(

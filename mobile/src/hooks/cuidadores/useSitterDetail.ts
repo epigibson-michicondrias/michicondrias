@@ -51,7 +51,7 @@ export function useSitterDetail() {
         (req) =>
             req.sitter_id === id &&
             req.status === 'completed' &&
-            !reviews.some((rev) => rev.request_id === req.id)
+            !reviews.some((rev) => rev.sit_request_id === req.id)
     );
 
     const requestSitMutation = useMutation({

@@ -198,7 +198,7 @@ export interface Subcategory {
     category_id: string;
     name: string;
     description: string | null;
-    image_url: string | null;
+    image_url?: string | null;
 }
 
 export async function getSubcategories(categoryId: string): Promise<Subcategory[]> {
@@ -206,21 +206,21 @@ export async function getSubcategories(categoryId: string): Promise<Subcategory[
 }
 
 export async function createSubcategory(data: Partial<Subcategory>): Promise<Subcategory> {
-    return apiFetch<Subcategory>("ecommerce", "/subcategories/", {
+    return apiFetch<Subcategory>("ecommerce", "/categories/subcategories", {
         method: "POST",
         body: JSON.stringify(data),
     });
 }
 
 export async function updateSubcategory(id: string, data: Partial<Subcategory>): Promise<Subcategory> {
-    return apiFetch<Subcategory>("ecommerce", `/subcategories/${id}`, {
+    return apiFetch<Subcategory>("ecommerce", `/categories/subcategories/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
     });
 }
 
 export async function deleteSubcategory(id: string): Promise<void> {
-    return apiFetch<void>("ecommerce", `/subcategories/${id}`, {
+    return apiFetch<void>("ecommerce", `/categories/subcategories/${id}`, {
         method: "DELETE",
     });
 }

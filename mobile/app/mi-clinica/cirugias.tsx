@@ -85,7 +85,7 @@ export default function CirugiasScreen() {
                     </View>
                     <View style={styles.timeBox}>
                         <Clock size={14} color={theme.textMuted} />
-                        <Text style={[styles.timeDetail, { color: theme.text }]}>~{item.estimated_duration_minutes} min</Text>
+                        <Text style={[styles.timeDetail, { color: theme.text }]}>~{item.estimated_duration ?? '—'} min</Text>
                     </View>
                 </View>
             </View>

@@ -54,7 +54,7 @@ export function useSurgeries() {
             surgery_name: surgName,
             surgery_type: surgType,
             scheduled_date: surgDate || new Date().toISOString().slice(0, 16),
-            estimated_duration_minutes: parseInt(surgDuration) || 60,
+            estimated_duration: parseInt(surgDuration) || 60,
             operating_room: surgRoom,
         }),
         onSuccess: () => {

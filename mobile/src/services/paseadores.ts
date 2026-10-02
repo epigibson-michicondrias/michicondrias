@@ -89,11 +89,11 @@ export async function getMyWalkerProfile(): Promise<Walker> {
 export interface WalkerReview {
     id: string;
     walker_id: string;
-    request_id: string;
-    user_id: string;
+    walk_request_id: string;
+    reviewer_user_id: string;
     rating: number;
     comment: string | null;
-    created_at: string;
+    created_at?: string | null;
 }
 
 export async function createWalkerReview(

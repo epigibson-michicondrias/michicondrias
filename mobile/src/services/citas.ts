@@ -41,16 +41,10 @@ export async function getUserAppointments(): Promise<Appointment[]> {
     return apiFetch<Appointment[]>("directorio", "/appointments/me");
 }
 
-export async function updateAppointment(id: string, data: Partial<Appointment>): Promise<Appointment> {
-    return apiFetch<Appointment>("directorio", `/appointments/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-    });
-}
-
-export async function cancelAppointment(id: string): Promise<Appointment> {
+export async function cancelAppointment(id: string, cancellationReason?: string): Promise<Appointment> {
     return apiFetch<Appointment>("directorio", `/appointments/${id}/cancel`, {
-        method: "POST",
+        method: "PUT",
+        body: JSON.stringify({ cancellation_reason: cancellationReason ?? null }),
     });
 }
 

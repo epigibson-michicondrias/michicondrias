@@ -108,15 +108,26 @@ export async function apiFetch<T>(
 
         clearTimeout(timeout);
 
-        if (res.status === 401 || res.status === 403) {
-            await removeToken();
-            throw new Error("No autorizado");
-        }
-
         if (!res.ok) {
             const errorData = await res.json().catch(() => ({}));
-            const errorMessage = errorData.detail || `Error ${res.status}`;
-            throw new Error(errorMessage);
+            const detail = typeof errorData.detail === 'string' ? errorData.detail : '';
+
+            // El backend responde 403 "Could not validate credentials" cuando el token venció o es inválido,
+            // y 403 con otros mensajes cuando el usuario no tiene permiso para esa acción.
+            const sessionExpired =
+                res.status === 401 ||
+                (res.status === 403 && /could not validate credentials|not authenticated|2fa|dos factores/i.test(detail));
+            if (sessionExpired) {
+                await removeToken();
+                throw new Error("No autorizado");
+            }
+            if (res.status === 403) {
+                throw new Error(detail || "No tienes permiso para realizar esta acción");
+            }
+            const message = Array.isArray(errorData.detail)
+                ? errorData.detail.map((d: any) => d?.msg).filter(Boolean).join('. ')
+                : detail;
+            throw new Error(message || `Error ${res.status}`);
         }
 
         const data = await res.json();

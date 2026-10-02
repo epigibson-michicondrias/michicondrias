@@ -95,8 +95,8 @@ export function useMyClinic() {
     const patients = criticalPatientsData || [];
 
     const goBack = () => router.back();
-    const goToSettings = () => router.push(`/mi-clinica/configuracion` as any);
-    const goToRegister = () => router.push('/directorio/nuevo-lugar' as any);
+    const goToSettings = () => { if (clinic?.id) router.push(`/mi-clinica/config/${clinic.id}` as any); };
+    const goToRegister = () => router.push('/directorio/nuevo' as any);
 
     return {
         clinic,
