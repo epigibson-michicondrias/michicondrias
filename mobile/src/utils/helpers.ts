@@ -14,7 +14,9 @@ export const S3_BUCKET_URL = (
  * Build full S3 URL from object key
  */
 export function getS3Url(objectKey: string): string {
-    return `${S3_BUCKET_URL}/${objectKey}`;
+    // Tolera que el backend devuelva la URL completa: antes se concatenaba y quedaba https://…/https://… (foto rota)
+    if (/^https?:\/\//i.test(objectKey)) return objectKey;
+    return `${S3_BUCKET_URL}/${objectKey.replace(/^\/+/, '')}`;
 }
 
 /**

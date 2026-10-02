@@ -13,6 +13,9 @@ class User(BaseModel):
     role_id = Column(String(36), ForeignKey("roles.id"))
     role = relationship("Role")
 
+    # Foto de perfil (URL pública en el bucket de fotos)
+    avatar_url = Column(String(512), nullable=True)
+
     # KYC Verification
     verification_status = Column(String(50), default="UNVERIFIED")  # UNVERIFIED, PENDING, VERIFIED, REJECTED
     id_front_url = Column(String(512), nullable=True)

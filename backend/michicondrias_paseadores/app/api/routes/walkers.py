@@ -133,6 +133,7 @@ class WalkReviewResponse(BaseModel):
 class PresignedUrlResponse(BaseModel):
     url: str
     object_key: str
+    public_url: str | None = None
 
 
 # ===================== PRESIGNED URL =====================
@@ -155,7 +156,7 @@ def get_photo_presigned_url(ext: str = "jpg", user_id: str = Depends(deps.get_cu
         raise HTTPException(status_code=500, detail="No se pudo contactar a AWS S3")
 
     public_url = f"{settings.STORAGE_BASE_URL}/{object_name}"
-    return PresignedUrlResponse(url=url, object_key=public_url)
+    return PresignedUrlResponse(url=url, object_key=object_name, public_url=public_url)
 
 
 # ===================== WALKERS CRUD =====================

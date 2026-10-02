@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProfile } from '@/src/hooks/perfil';
+import { useAvatar } from '@/src/hooks/perfil/useAvatar';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
@@ -26,6 +27,7 @@ export default function PerfilScreen() {
         handleOpenBillingPortal,
         isOpeningBillingPortal,
     } = useProfile();
+    const { avatarUrl, uploading: avatarUploading, pickAndUpload: changeAvatar } = useAvatar();
 
     const getRoleIconComponent = (role: string) => {
         switch (role) {
@@ -68,12 +70,21 @@ export default function PerfilScreen() {
             <View style={[styles.profileHeader, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                 <View style={styles.avatarContainer}>
                     <View style={[styles.avatar, { backgroundColor: theme.primary + '20', borderColor: theme.border }]}>
-                        {profile?.id_front_url ? (
-                            <Image source={{ uri: profile.id_front_url }} style={styles.avatarImage} />
+                        {avatarUrl ? (
+                            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} accessibilityLabel="Tu foto de perfil" />
                         ) : (
                             <UserIcon size={40} color={theme.primary} />
                         )}
                     </View>
+                    <TouchableOpacity
+                        style={[styles.cameraButton, { backgroundColor: theme.primary }]}
+                        onPress={changeAvatar}
+                        disabled={avatarUploading}
+                        accessibilityRole="button"
+                        accessibilityLabel="Cambiar foto de perfil"
+                    >
+                        {avatarUploading ? <ActivityIndicator size="small" color="#fff" /> : <Camera size={16} color="#fff" />}
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.profileInfo}>

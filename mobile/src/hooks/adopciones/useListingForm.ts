@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { createListing, getAdopcionesPresignedUrl } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
-import { S3_BUCKET_URL, getFileExtension } from '@/src/utils/helpers';
+import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 
 export interface ListingFormState {
@@ -87,7 +87,7 @@ export function useListingForm() {
                 const { url, object_key } = await getAdopcionesPresignedUrl(ext);
                 await uploadImageToPresignedUrl(image, url, ext);
 
-                photo_url = `${S3_BUCKET_URL}/${object_key}`;
+                photo_url = getS3Url(object_key);
             }
 
             await createListing({

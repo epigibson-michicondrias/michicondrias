@@ -17,7 +17,7 @@ export function useImageUpload({ presignedUrlFn, bucketBase }: UseImageUploadOpt
             const ext = getFileExtension(imageUri);
             const { url, object_key } = await presignedUrlFn(ext);
             await uploadImageToPresignedUrl(imageUri, url, ext);
-            return `${bucketBase}/${object_key}`;
+            return /^https?:\/\//i.test(object_key) ? object_key : `${bucketBase}/${object_key}`;
         } catch (error) {
             showAlert({ type: 'error', title: 'Error', message: 'No se pudo subir la imagen' });
             return null;

@@ -18,6 +18,7 @@ from app.schemas.user import (
     TwoFactorVerifyRequest
 )
 import pyotp
+from pydantic import BaseModel as PydanticBaseModel
 
 from app.models.user import User
 from app.models.role import Role
@@ -210,6 +211,55 @@ async def upload_kyc_docs(
     )
     
     return _add_kyc_presigned_urls(updated_user)
+
+# --- Foto de perfil ---
+
+class AvatarUpdate(PydanticBaseModel):
+    object_key: str
+
+
+@router.get("/me/avatar/presigned-url")
+def get_avatar_presigned_url(
+    ext: str = "jpg",
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """URL firmada para subir la foto de perfil (solo imágenes)."""
+    import uuid
+    from app.core.config import settings
+    from app.core.s3 import generate_presigned_url, image_content_type
+
+    try:
+        clean_ext, content_type = image_content_type(ext)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato de imagen no permitido. Usa jpg, png, webp, gif o heic.")
+    object_name = f"avatars/{current_user.id}/{uuid.uuid4().hex}.{clean_ext}"
+    url = generate_presigned_url(object_name, content_type=content_type)
+    if not url:
+        raise HTTPException(status_code=500, detail="No se pudo preparar la subida de la foto")
+    return {"url": url, "object_key": object_name, "public_url": f"{settings.STORAGE_BASE_URL}/{object_name}"}
+
+
+@router.put("/me/avatar")
+def set_my_avatar(
+    body: AvatarUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """Guarda la foto de perfil. Solo acepta archivos subidos bajo la carpeta del propio usuario."""
+    from app.core.config import settings
+
+    key = body.object_key.strip()
+    if not key.startswith(f"avatars/{current_user.id}/") or ".." in key:
+        raise HTTPException(status_code=400, detail="La foto debe ser una que subiste con tu cuenta.")
+    current_user.avatar_url = f"{settings.STORAGE_BASE_URL}/{key}"
+    db.commit()
+    return {"avatar_url": current_user.avatar_url}
+
+
+@router.get("/me/avatar")
+def get_my_avatar(current_user: User = Depends(deps.get_current_active_user)) -> Any:
+    return {"avatar_url": current_user.avatar_url}
+
 
 @router.post("/me/upgrade-role", response_model=UserResponse)
 def upgrade_user_role(

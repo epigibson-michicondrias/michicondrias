@@ -59,6 +59,7 @@ class ListingResponse(ListingBase):
 class PresignedUrlResponse(BaseModel):
     url: str
     object_key: str
+    public_url: str | None = None
 
 # ============================
 # ADOPTION REQUEST

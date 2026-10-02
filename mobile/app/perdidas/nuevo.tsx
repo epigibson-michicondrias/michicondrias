@@ -11,7 +11,7 @@ import BackButton from '@/src/components/BackButton';
 import { showAlert } from '@/src/components/AppAlert';
 import { createReport, getPerdidasPresignedUrl } from '../../src/services/perdidas';
 import { useAuth } from '../../src/contexts/AuthContext';
-import { S3_BUCKET_URL, getFileExtension } from '@/src/utils/helpers';
+import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 
 const { width } = Dimensions.get('window');
@@ -85,7 +85,7 @@ export default function NuevoReporteScreen() {
                 const { url, object_key } = await getPerdidasPresignedUrl(ext);
                 await uploadImageToPresignedUrl(image, url, ext);
 
-                image_url = `${S3_BUCKET_URL}/${object_key}`;
+                image_url = getS3Url(object_key);
             }
 
             await createReport({
