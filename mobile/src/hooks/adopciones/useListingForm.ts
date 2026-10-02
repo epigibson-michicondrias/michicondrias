@@ -7,7 +7,8 @@ import { useRouter } from 'expo-router';
 import { createListing, getAdopcionesPresignedUrl } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
-import { S3_BUCKET_URL, getImageMimeType } from '@/src/utils/helpers';
+import { S3_BUCKET_URL, getFileExtension } from '@/src/utils/helpers';
+import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 
 export interface ListingFormState {
     name: string;
@@ -82,17 +83,9 @@ export function useListingForm() {
             let photo_url = null;
 
             if (image) {
-                const ext = image.split('.').pop();
-                const { url, object_key } = await getAdopcionesPresignedUrl(ext || 'jpg');
-
-                const response = await fetch(image);
-                const blob = await response.blob();
-
-                await fetch(url, {
-                    method: 'PUT',
-                    body: blob,
-                    headers: { 'Content-Type': getImageMimeType(ext) }
-                });
+                const ext = getFileExtension(image);
+                const { url, object_key } = await getAdopcionesPresignedUrl(ext);
+                await uploadImageToPresignedUrl(image, url, ext);
 
                 photo_url = `${S3_BUCKET_URL}/${object_key}`;
             }

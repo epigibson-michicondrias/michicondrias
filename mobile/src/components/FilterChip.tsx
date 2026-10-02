@@ -25,6 +25,9 @@ export default function FilterChip({ label, active, onPress, color }: FilterChip
             ]}
             onPress={onPress}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityState={{ selected: active }}
         >
             <Text
                 style={[

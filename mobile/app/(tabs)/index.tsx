@@ -11,6 +11,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import GettingStartedCard from '@/src/components/GettingStartedCard';
 
 // Helper to get beautiful, high-quality placeholders by species
 const getPetPlaceholder = (species: string) => {
@@ -103,17 +104,20 @@ export default function DashboardScreen() {
               </View>
               <View style={styles.statDivider} />
               <TouchableOpacity style={styles.statItem} onPress={() => router.push('/directorio/citas' as any)}>
-                <Text style={styles.statVal}>Ver</Text>
+                <Text style={styles.statVal}>{appointmentsLoading ? '–' : upcomingAppointments.length}</Text>
                 <Text style={styles.statLab}>Citas</Text>
               </TouchableOpacity>
               <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statVal}>PRO</Text>
-                <Text style={styles.statLab}>Nivel</Text>
-              </View>
+              <TouchableOpacity style={styles.statItem} onPress={() => router.push('/(tabs)/tienda-tab' as any)}>
+                <Text style={styles.statVal}>Ver</Text>
+                <Text style={styles.statLab}>Tienda</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
+
+        {/* ─── Primeros pasos (cuenta nueva sin mascotas) ─── */}
+        {!petsLoading && pets.length === 0 && <GettingStartedCard />}
 
         {/* ─── Mis Mascotas (Horizontal Carousel) ─── */}
         <View style={styles.section}>
@@ -295,9 +299,9 @@ export default function DashboardScreen() {
             />
             <View style={styles.bannerContent}>
               <View style={styles.bannerTextCol}>
-                <Text style={styles.bannerTag}>NUEVO EN TIENDA</Text>
-                <Text style={styles.bannerTitle}>Michi Box Premium</Text>
-                <Text style={styles.bannerDesc}>Suscripción mensual de juguetes y snacks</Text>
+                <Text style={styles.bannerTag}>TIENDA</Text>
+                <Text style={styles.bannerTitle}>Todo para tu michi</Text>
+                <Text style={styles.bannerDesc}>Alimento, accesorios y cuidado para tu mascota</Text>
               </View>
               <ShoppingBag size={48} color="rgba(255,255,255,0.3)" />
             </View>

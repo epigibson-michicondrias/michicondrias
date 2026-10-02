@@ -154,3 +154,18 @@ Se revisaron los 17 servicios (315 endpoints). Corregido, además de lo anterior
 - Respuestas por rol (admin, veterinario, dueño…): un endpoint puede existir y devolver 403 para ese usuario.
 - Pantallas sin llamadas a la API pero legítimas: `ayuda`, `perfil/paleta`, `tienda/carrito` (estado local),
   `tienda/pago-exitoso` y `pago-cancelado` (estáticas: conviene confirmar el estado real del pedido).
+
+## UX y flujos (en curso)
+
+Hecho:
+- **Errores y carga:** `QueryErrorBanner` dentro de `ScreenContainer` muestra «Sin conexión» o «No pudimos cargar» con **Reintentar** en cualquier pantalla cuyo dato falle (antes quedaban en blanco). `AppRefreshControl` agrega jalar-para-refrescar a 29 listas.
+- **Subida de fotos:** helper único `uploadImageToPresignedUrl` que **falla de forma visible** (antes no se comprobaba la respuesta y se guardaban mascotas y reportes con una foto inexistente); extensión correcta de la URI.
+- **Pago en la tienda:** si no se puede iniciar el pago se cancela el pedido (devuelve el stock apartado), se conserva el carrito y se explica el motivo.
+- **Registro:** valida nombre, formato de correo y contraseña de al menos 8 caracteres.
+- **Primer uso:** tarjeta «Primeros pasos» en el inicio para cuentas sin mascotas; el inicio dejó de mostrar un «PRO · Nivel» fijo y un banner de una «Michi Box» inexistente.
+- **Accesibilidad:** etiquetas y roles en los componentes compartidos (volver, encabezados, chips de filtro, buscador, estados vacíos, alertas) y etiqueta automática de los botones de acción por ícono.
+
+Pendiente:
+- Reemplazar ~970 colores escritos a mano por tokens del tema (rompen el modo oscuro): requiere revisarlo con la app corriendo.
+- Etiquetas de accesibilidad en los botones propios de cada pantalla (~140).
+- Registro con inicio de sesión automático y recordar el correo; hoy tras registrarse hay que volver a escribir los datos.

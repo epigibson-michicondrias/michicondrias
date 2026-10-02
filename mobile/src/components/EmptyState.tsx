@@ -29,6 +29,8 @@ export default function EmptyState({ icon, title, subtitle, actionLabel, onActio
                     style={[styles.action, { backgroundColor: theme.primary }]}
                     onPress={onAction}
                     activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={actionLabel}
                 >
                     <Text style={styles.actionText}>{actionLabel}</Text>
                 </TouchableOpacity>

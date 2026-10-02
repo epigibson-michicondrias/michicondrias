@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { showAlert } from '@/src/components/AppAlert';
-import { getImageMimeType } from '@/src/utils/helpers';
+import { getFileExtension } from '@/src/utils/helpers';
+import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 
 interface UseImageUploadOptions {
     presignedUrlFn: (ext: string) => Promise<{ url: string; object_key: string }>;
@@ -13,15 +14,9 @@ export function useImageUpload({ presignedUrlFn, bucketBase }: UseImageUploadOpt
     const upload = async (imageUri: string): Promise<string | null> => {
         setUploading(true);
         try {
-            const ext = imageUri.split('.').pop() || 'jpg';
+            const ext = getFileExtension(imageUri);
             const { url, object_key } = await presignedUrlFn(ext);
-            const response = await fetch(imageUri);
-            const blob = await response.blob();
-            await fetch(url, {
-                method: 'PUT',
-                body: blob,
-                headers: { 'Content-Type': getImageMimeType(ext) },
-            });
+            await uploadImageToPresignedUrl(imageUri, url, ext);
             return `${bucketBase}/${object_key}`;
         } catch (error) {
             showAlert({ type: 'error', title: 'Error', message: 'No se pudo subir la imagen' });

@@ -3,9 +3,10 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getPetById, updatePet, getMascotasPresignedUrl } from '@/src/services/mascotas';
 import { showAlert } from '@/src/components/AppAlert';
-import { getFileExtension, getS3Url, getImageMimeType } from '@/src/utils/helpers';
+import { getFileExtension, getS3Url } from '@/src/utils/helpers';
 import type { PetFormData } from '@/src/types/mascotas';
 import { PET_FORM_DEFAULTS } from '@/src/types/mascotas';
+import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 
 export function useEditPet() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,14 +57,7 @@ export function useEditPet() {
             const ext = getFileExtension(imageUri);
             const { url, object_key } = await getMascotasPresignedUrl(ext);
 
-            const response = await fetch(imageUri);
-            const blob = await response.blob();
-
-            await fetch(url, {
-                method: 'PUT',
-                body: blob,
-                headers: { 'Content-Type': getImageMimeType(ext) },
-            });
+            await uploadImageToPresignedUrl(imageUri, url, ext);
 
             return getS3Url(object_key);
         } catch (err) {

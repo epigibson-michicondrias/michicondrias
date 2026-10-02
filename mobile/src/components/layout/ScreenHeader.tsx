@@ -29,7 +29,25 @@ interface ScreenHeaderProps {
     leftElement?: React.ReactNode;
     /** Optional gradient colors for premium headers */
     gradient?: string[];
+    /** Etiqueta para lectores de pantalla del botón de acción (por defecto "Acción principal") */
+    actionLabel?: string;
 }
+
+/** Etiqueta por defecto del botón de acción según su ícono, para lectores de pantalla. */
+const ACTION_ICON_LABELS: Record<string, string> = {
+    Plus: 'Agregar',
+    UserPlus: 'Agregar persona',
+    Settings: 'Ajustes',
+    Search: 'Buscar',
+    Sparkles: 'Novedades',
+    Filter: 'Filtrar',
+    Share2: 'Compartir',
+    Edit: 'Editar',
+    Edit3: 'Editar',
+    Trash2: 'Eliminar',
+    Bell: 'Notificaciones',
+    ShoppingCart: 'Carrito',
+};
 
 export default function ScreenHeader({
     title,
@@ -41,6 +59,7 @@ export default function ScreenHeader({
     rightElement,
     leftElement,
     gradient,
+    actionLabel,
 }: ScreenHeaderProps) {
     const router = useRouter();
     const { theme } = useTheme();
@@ -74,6 +93,8 @@ export default function ScreenHeader({
                 ) : showBack ? (
                     <TouchableOpacity
                         onPress={handleBack}
+                        accessibilityRole="button"
+                        accessibilityLabel="Volver"
                         style={[styles.backBtn, backBtnStyle]}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
@@ -81,7 +102,7 @@ export default function ScreenHeader({
                     </TouchableOpacity>
                 ) : null}
                 <View style={styles.titleContainer}>
-                    <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+                    <Text accessibilityRole="header" style={[styles.title, { color: textColor }]} numberOfLines={1}>
                         {title}
                     </Text>
                     {subtitle ? (
@@ -98,6 +119,8 @@ export default function ScreenHeader({
                 ) : ActionIcon && onAction ? (
                     <TouchableOpacity
                         onPress={onAction}
+                        accessibilityRole="button"
+                        accessibilityLabel={actionLabel || ACTION_ICON_LABELS[(ActionIcon as any).displayName] || 'Acción principal'}
                         style={[styles.actionBtn, actionBtnStyle]}
                     >
                         <ActionIcon size={24} color="#fff" />

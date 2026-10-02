@@ -24,6 +24,9 @@ export default function SearchBar({ value, onChangeText, placeholder }: SearchBa
                 placeholder={placeholder || 'Buscar...'}
                 placeholderTextColor={theme.textMuted}
                 returnKeyType="search"
+                accessibilityLabel={placeholder || 'Buscar'}
+                autoCorrect={false}
+                clearButtonMode="while-editing"
             />
         </View>
     );

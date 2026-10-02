@@ -19,6 +19,9 @@ export default function BackButton({ onPress, color, style }: BackButtonProps) {
             style={[styles.btn, { backgroundColor: theme.overlayHover }, style]}
             onPress={onPress}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Volver"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
             <ChevronLeft size={22} color={color || theme.text} strokeWidth={2.5} />
         </TouchableOpacity>

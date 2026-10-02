@@ -11,7 +11,8 @@ import * as Location from 'expo-location';
 import { createReport, getPerdidasPresignedUrl } from '@/src/services/perdidas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
-import { S3_BUCKET_URL, getImageMimeType } from '@/src/utils/helpers';
+import { S3_BUCKET_URL, getFileExtension } from '@/src/utils/helpers';
+import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 
 export interface ReportFormState {
     pet_name: string;
@@ -92,17 +93,9 @@ export function useReportForm() {
             let image_url = null;
 
             if (image) {
-                const ext = image.split('.').pop();
-                const { url, object_key } = await getPerdidasPresignedUrl(ext || 'jpg');
-
-                const response = await fetch(image);
-                const blob = await response.blob();
-
-                await fetch(url, {
-                    method: 'PUT',
-                    body: blob,
-                    headers: { 'Content-Type': getImageMimeType(ext) },
-                });
+                const ext = getFileExtension(image);
+                const { url, object_key } = await getPerdidasPresignedUrl(ext);
+                await uploadImageToPresignedUrl(image, url, ext);
 
                 image_url = `${S3_BUCKET_URL}/${object_key}`;
             }

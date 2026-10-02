@@ -11,6 +11,7 @@ import {
     KYCPresignedUrlsResponse,
 } from '@/src/services/kyc';
 import { showAlert } from '@/src/components/AppAlert';
+import { getFileExtension, getImageMimeType } from '@/src/utils/helpers';
 
 export interface KYCDocument {
     key: 'id_front' | 'id_back' | 'proof_of_address';
@@ -88,11 +89,12 @@ export function useKYC() {
                     const response = await fetch(doc.uri);
                     const blob = await response.blob();
 
-                    await fetch(presigned.url, {
+                    const putRes = await fetch(presigned.url, {
                         method: 'PUT',
                         body: blob,
-                        headers: { 'Content-Type': blob.type || 'image/jpeg' },
+                        headers: { 'Content-Type': getImageMimeType(getFileExtension(doc.uri)) },
                     });
+                    if (!putRes.ok) throw new Error('No se pudo subir el documento. Inténtalo de nuevo.');
 
                     uploadedUrls[`${presigned.key}_url`] = presigned.object_key;
                     setDocumentUploaded(presigned.key, true);

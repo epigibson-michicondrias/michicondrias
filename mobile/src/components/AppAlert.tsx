@@ -100,7 +100,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                         borderColor: colors.primary + '30',
                         shadowColor: colors.primary,
                     }]}>
-                        <TouchableOpacity style={[styles.closeBtn, { backgroundColor: theme.overlay }]} onPress={dismiss}>
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" style={[styles.closeBtn, { backgroundColor: theme.overlay }]} onPress={dismiss}>
                             <X size={18} color={theme.textMuted} />
                         </TouchableOpacity>
 
@@ -108,7 +108,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                             <Icon size={32} color={colors.primary} />
                         </View>
 
-                        <Text style={[styles.title, { color: theme.text }]}>{alert.title}</Text>
+                        <Text accessibilityRole="header" style={[styles.title, { color: theme.text }]}>{alert.title}</Text>
 
                         {alert.message && (
                             <Text style={[styles.message, { color: theme.textMuted }]}>{alert.message}</Text>
@@ -119,6 +119,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                                 style={[styles.cancelButton, { borderColor: theme.border }]}
                                 onPress={() => { dismiss(); alert.onCancel?.(); }}
                                 activeOpacity={0.85}
+                                accessibilityRole="button"
                             >
                                 <Text style={[styles.cancelButtonText, { color: theme.textMuted }]}>
                                     {alert.cancelText || 'Cancelar'}
@@ -129,6 +130,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                             style={[styles.button, { backgroundColor: colors.primary }]}
                             onPress={() => { dismiss(); alert.onButtonPress?.(); }}
                             activeOpacity={0.85}
+                            accessibilityRole="button"
                         >
                             <Text style={styles.buttonText}>{alert.buttonText || 'Entendido'}</Text>
                         </TouchableOpacity>

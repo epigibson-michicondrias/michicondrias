@@ -23,13 +23,27 @@ export default function RegisterScreen() {
     const isDark = colorScheme === 'dark';
 
     const handleRegister = async () => {
-        if (!email || !password || !fullName) {
+        const cleanName = fullName.trim();
+        const cleanEmail = email.trim().toLowerCase();
+        if (!cleanEmail || !password || !cleanName) {
             showAlert({ type: 'warning', title: 'Campos incompletos', message: 'Por favor llena todos los campos' });
+            return;
+        }
+        if (cleanName.length < 2) {
+            showAlert({ type: 'warning', title: 'Nombre muy corto', message: 'Escribe tu nombre completo.' });
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
+            showAlert({ type: 'warning', title: 'Correo inválido', message: 'Revisa que tu correo esté bien escrito, por ejemplo nombre@correo.com.' });
+            return;
+        }
+        if (password.length < 8) {
+            showAlert({ type: 'warning', title: 'Contraseña muy corta', message: 'Tu contraseña debe tener al menos 8 caracteres.' });
             return;
         }
         setLoading(true);
         try {
-            await register(email, password, fullName);
+            await register(cleanEmail, password, cleanName);
             showAlert({
                 type: 'success',
                 title: '¡Cuenta creada!',
@@ -142,7 +156,7 @@ export default function RegisterScreen() {
                                 <Lock size={18} color={theme.primary} />
                                 <TextInput
                                     style={[styles.input, { color: isDark ? '#fff' : '#0f172a', flex: 1 }]}
-                                    placeholder="Mínimo 6 caracteres"
+                                    placeholder="Mínimo 8 caracteres"
                                     placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
                                     value={password}
                                     onChangeText={setPassword}
