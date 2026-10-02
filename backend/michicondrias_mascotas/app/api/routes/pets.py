@@ -11,6 +11,7 @@ from app.models.mascotas import Pet
 from app.api import deps
 from app.core.config import settings
 from app.core.ai_triage import assess_symptoms, _norm
+from app.api.internal import require_internal_token, require_admin
 
 router = APIRouter()
 
@@ -99,9 +100,6 @@ class PetUpdate(BaseModel):
     microchip_number: Optional[str] = None
     gender: Optional[str] = None
     gallery: Optional[List[str]] = None
-    
-    has_active_subscription: Optional[bool] = None
-    stripe_subscription_id: Optional[str] = None
 
 class PetSubscriptionUpdate(BaseModel):
     has_active_subscription: bool
@@ -121,7 +119,11 @@ def create_pet(
     """
     print(f"[MASCOTAS] Creating pet for owner {pet_in.owner_id}: {pet_in.name}")
     try:
-        db_obj = Pet(**pet_in.model_dump())
+        pet_data = pet_in.model_dump()
+        # La suscripcion Pro solo la activa ecommerce (PATCH interno), nunca el cliente
+        pet_data["has_active_subscription"] = False
+        pet_data["stripe_subscription_id"] = None
+        db_obj = Pet(**pet_data)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
@@ -146,6 +148,7 @@ def get_all_pets_admin(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
+    _admin_id: str = Depends(require_admin),
 ) -> Any:
     """Admin endpoint: Get all pets across all users."""
     pets = db.query(Pet).filter(Pet.is_active == True).offset(skip).limit(limit).all()
@@ -165,11 +168,14 @@ def update_pet(
     pet_id: str,
     pet_in: PetUpdate,
     db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
-    """Update a pet's information."""
+    """Update a pet's information. Only its owner can."""
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    if pet.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Solo el dueño puede editar esta mascota")
     update_data = pet_in.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(pet, key, value)
@@ -190,6 +196,7 @@ def update_pet_subscription(
     pet_id: str,
     sub_in: PetSubscriptionUpdate,
     db: Session = Depends(get_db),
+    _internal: None = Depends(require_internal_token),
 ) -> Any:
     """Internal use: Toggles Michi-Tracker Pro subscription status from the Ecommerce webhook."""
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
@@ -206,6 +213,7 @@ def revoke_pet_subscription(
     sub_id: str,
     sub_in: PetSubscriptionUpdate,
     db: Session = Depends(get_db),
+    _internal: None = Depends(require_internal_token),
 ) -> Any:
     """Internal use: Revokes Michi-Tracker Pro tracking using only the stripe_subscription_id."""
     pet = db.query(Pet).filter(Pet.stripe_subscription_id == sub_id).first()

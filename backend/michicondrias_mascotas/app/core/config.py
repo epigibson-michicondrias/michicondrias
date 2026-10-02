@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     S3_ADDRESSING_STYLE: str = "virtual"
     STORAGE_PUBLIC_BASE_URL: str | None = None
 
+    # Token compartido entre servicios (ecommerce -> mascotas) para activar/revocar suscripciones.
+    INTERNAL_SERVICE_TOKEN: str | None = None
+
     # Triage con IA (Anthropic). Sin ANTHROPIC_API_KEY el triage usa solo reglas de urgencia.
     ANTHROPIC_API_KEY: str | None = None
     AI_MODEL: str = "claude-opus-5-5"

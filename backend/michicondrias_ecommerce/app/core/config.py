@@ -49,6 +49,9 @@ class Settings(BaseSettings):
             return self.STORAGE_PUBLIC_BASE_URL.rstrip("/")
         return f"https://{self.S3_BUCKET_NAME}.s3.{self.AWS_REGION}.amazonaws.com"
 
+    # Token compartido con el servicio mascotas para activar/revocar suscripciones
+    INTERNAL_SERVICE_TOKEN: str | None = None
+
     # Stripe Settings
     STRIPE_SECRET_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None

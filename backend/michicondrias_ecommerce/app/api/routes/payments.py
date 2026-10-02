@@ -28,7 +28,7 @@ async def create_checkout_session(
     Create a Stripe Checkout Session for a given order.
     """
     if not settings.STRIPE_SECRET_KEY:
-        raise HTTPException(status_code=500, detail="Stripe no está configurado.")
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
 
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
@@ -52,10 +52,13 @@ async def create_checkout_session(
                             "description": product.description or "Producto de Michicondrias Tienda",
                             "images": [product.image_url] if product.image_url else [],
                         },
-                        "unit_amount": int(item.price_at_purchase * 100), # Stripe uses cents
+                        "unit_amount": round(item.price_at_purchase * 100),  # Stripe usa centavos (round evita 19.99*100=1998.99)
                     },
                     "quantity": item.quantity,
                 })
+
+        if not line_items:
+            raise HTTPException(status_code=400, detail="El pedido no tiene productos disponibles para cobrar")
 
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -68,9 +71,11 @@ async def create_checkout_session(
         )
         return {"sessionId": checkout_session.id, "url": checkout_session.url}
     
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         logger.exception("Stripe session creation failed")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=502, detail="No se pudo iniciar el pago. Intenta de nuevo en unos minutos.")
 
 @router.post("/create-subscription-session/{pet_id}")
 async def create_subscription_session(
@@ -81,7 +86,7 @@ async def create_subscription_session(
     Create a Stripe Checkout Session for Michi-Tracker Pro subscription.
     """
     if not settings.STRIPE_SECRET_KEY:
-        raise HTTPException(status_code=500, detail="Stripe no está configurado.")
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
 
     try:
         # Create a checkout session for a recurring payment
@@ -115,9 +120,9 @@ async def create_subscription_session(
         )
         return {"sessionId": checkout_session.id, "url": checkout_session.url}
     
-    except Exception as e:
+    except Exception:
         logger.exception("Stripe subscription session creation failed")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=502, detail="No se pudo iniciar la suscripción. Intenta de nuevo en unos minutos.")
 
 @router.post("/webhook")
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
@@ -125,7 +130,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     Listen for Stripe events (e.g. payment success) to securely update DB records.
     """
     if not settings.STRIPE_WEBHOOK_SECRET:
-        raise HTTPException(status_code=500, detail="Stripe Webhook Secret not configured")
+        raise HTTPException(status_code=503, detail="Webhook de Stripe no configurado")
 
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
@@ -136,7 +141,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail="Invalid payload")
-    except stripe.error.SignatureVerificationError as e:
+    except stripe.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature")
 
     # Handle the event
@@ -176,13 +181,17 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
     return {"status": "success"}
 
+def _internal_headers() -> dict:
+    return {"X-Internal-Token": settings.INTERNAL_SERVICE_TOKEN or ""}
+
+
 def _notify_mascotas_service(pet_id: str, active: bool, sub_id: str):
     """Internal HTTP call to the Mascotas microservice to toggle the Tracker flag."""
     try:
         url = f"{settings.MASCOTAS_SERVICE_URL}/api/v1/pets/{pet_id}/subscription"
         payload = {"has_active_subscription": active, "stripe_subscription_id": sub_id}
         with httpx.Client() as client:
-            resp = client.patch(url, json=payload, timeout=10.0)
+            resp = client.patch(url, json=payload, headers=_internal_headers(), timeout=10.0)
             resp.raise_for_status()
             logger.info("Mascotas service updated successfully.")
     except Exception as e:
@@ -196,7 +205,7 @@ def _notify_mascotas_service_by_sub(sub_id: str, active: bool):
         url = f"{settings.MASCOTAS_SERVICE_URL}/api/v1/pets/by-subscription/{sub_id}"
         payload = {"has_active_subscription": active, "stripe_subscription_id": None}
         with httpx.Client() as client:
-            resp = client.patch(url, json=payload, timeout=10.0)
+            resp = client.patch(url, json=payload, headers=_internal_headers(), timeout=10.0)
             logger.info(f"Mascotas service revocation by sub {sub_id} status: {resp.status_code}")
     except Exception as e:
         logger.error(f"Failed to revoke sub {sub_id}: {e}")
@@ -208,26 +217,22 @@ async def create_billing_portal_session(
 ) -> Any:
     """Create a Stripe Billing Portal session for unified subscription/billing management."""
     if not settings.STRIPE_SECRET_KEY:
-        mock_url = f"{settings.FRONTEND_URL}/dashboard/billing-mock?user_id={user_id}"
-        return {"url": mock_url}
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
 
+    safe_user_id = "".join(c for c in user_id if c.isalnum() or c == "-")
     try:
-        customers = stripe.Customer.list(limit=1)
-        if customers and len(customers.data) > 0:
-            customer_id = customers.data[0].id
+        # El cliente de Stripe se busca por el user_id guardado en su metadata; nunca se toma uno ajeno
+        found = stripe.Customer.search(query=f"metadata['user_id']:'{safe_user_id}'", limit=1)
+        if found and len(found.data) > 0:
+            customer_id = found.data[0].id
         else:
-            customer = stripe.Customer.create(
-                email=f"user-{user_id}@example.com",
-                metadata={"user_id": user_id}
-            )
-            customer_id = customer.id
+            customer_id = stripe.Customer.create(metadata={"user_id": safe_user_id}).id
 
         session = stripe.billing_portal.Session.create(
             customer=customer_id,
             return_url=f"{settings.FRONTEND_URL}/dashboard/billing",
         )
         return {"url": session.url}
-    except Exception as e:
+    except Exception:
         logger.exception("Billing portal session creation failed")
-        fallback_url = f"{settings.FRONTEND_URL}/dashboard/billing-mock?user_id={user_id}&error={str(e)}"
-        return {"url": fallback_url}
+        raise HTTPException(status_code=502, detail="No se pudo abrir el portal de facturación. Intenta de nuevo en unos minutos.")
