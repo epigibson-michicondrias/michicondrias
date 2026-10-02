@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -75,11 +76,22 @@ def get_pet_lab_history(
     *,
     db: Session = Depends(deps.get_db),
     pet_id: str,
-    current_user_id: str = Depends(deps.get_current_user_id)
+    token: str = Depends(deps.oauth2_scheme)
 ):
     """
-    Retrieve all completed lab results for a specific pet. Requires a logged-in user.
+    Resultados de laboratorio de una mascota. Solo su dueño, el veterinario o laboratorio con una orden de esa mascota, o un admin.
     """
+    payload = deps._decode_token(token)
+    user_id, role = payload["sub"], payload.get("role", "consumidor")
+    if role != "admin":
+        owner = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
+        is_owner = bool(owner) and owner[0] == user_id
+        involved = db.query(LabOrder).filter(
+            LabOrder.pet_id == pet_id,
+            or_(LabOrder.lab_id == user_id, LabOrder.requesting_vet_id == user_id),
+        ).first() is not None
+        if not (is_owner or involved):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes acceso a los resultados de esta mascota")
     return crud_laboratory.get_completed_results_by_pet(db=db, pet_id=pet_id)
 
 

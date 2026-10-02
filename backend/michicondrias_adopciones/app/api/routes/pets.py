@@ -33,17 +33,15 @@ def get_photo_presigned_url(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """Generate a presigned URL to upload a pet photo."""
-    from app.core.s3 import generate_presigned_url
-    import mimetypes
+    from app.core.s3 import generate_presigned_url, image_content_type
     import uuid
-    
-    clean_ext = ext.replace(".", "")
+
+    try:
+        clean_ext, content_type = image_content_type(ext)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato de imagen no permitido. Usa jpg, png, webp, gif o heic.")
     object_name = f"adopciones/{user_id}/{uuid.uuid4()}.{clean_ext}"
-    
-    content_type, _ = mimetypes.guess_type(f"file.{clean_ext}")
-    if not content_type:
-        content_type = "image/jpeg" if clean_ext in ["jpg", "jpeg"] else "application/octet-stream"
-        
+
     url = generate_presigned_url(object_name, content_type=content_type)
     if not url:
         raise HTTPException(status_code=500, detail="No se pudo contactar a AWS S3")

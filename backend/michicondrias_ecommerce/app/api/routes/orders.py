@@ -85,8 +85,25 @@ def update_order_status_seller(
         Product.seller_id == user_id
     ).first()
     
-    if not has_seller_product and order.user_id != user_id:
+    is_seller = has_seller_product is not None
+    is_buyer = order.user_id == user_id
+    if not is_seller and not is_buyer:
         raise HTTPException(status_code=403, detail="Not authorized to update this order")
+
+    # El estado "paid" solo lo pone el webhook de Stripe (o un admin). Antes cualquiera podía enviar status=paid.
+    if is_seller:
+        if status not in ("confirmed", "shipped", "delivered", "cancelled"):
+            raise HTTPException(status_code=400, detail="Estado no permitido")
+        if order.status == "pending":
+            raise HTTPException(status_code=400, detail="El pedido aún no está pagado")
+    else:
+        # El comprador solo puede cancelar un pedido que todavía no pagó
+        if status != "cancelled" or order.status != "pending":
+            raise HTTPException(status_code=403, detail="Solo puedes cancelar un pedido pendiente de pago")
+        for item in order.items:  # devolver el stock apartado al crear el pedido
+            product = db.query(Product).filter(Product.id == item.product_id).first()
+            if product:
+                product.stock += item.quantity
     
     updated_order = crud.crud_ecommerce.update_order_status(db, order_id=order_id, status=status)
     return updated_order

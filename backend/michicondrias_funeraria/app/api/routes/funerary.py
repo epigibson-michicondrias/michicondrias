@@ -4,7 +4,8 @@ from typing import List, Optional
 
 from app.api.deps import RoleChecker, get_current_user_id
 from app.db.session import get_db
-from app.models.funerary import PetDeath, PetMemorialPost
+from app.models.funerary import PetDeath, PetMemorialPost, FuneraryBooking, FuneraryService
+from sqlalchemy import text
 from app.schemas.funerary import (
     PetDeathCreate,
     PetDeathResponse,
@@ -22,15 +23,38 @@ import httpx
 
 router = APIRouter()
 
+
+def _pet_owner_id(db: Session, pet_id: str):
+    row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
+    return row[0] if row else None
+
+
+def _can_report_death(db: Session, pet_id: str, user_id: str, role: str) -> bool:
+    """Quién puede dar de baja a una mascota: su dueño, un admin, la funeraria con una reserva para ella,
+    o el veterinario cuya clínica la atendió. Antes cualquiera con rol funeraria/veterinario podía hacerlo con cualquier mascota."""
+    if role == "admin" or _pet_owner_id(db, pet_id) == user_id:
+        return True
+    if role == "funeraria":
+        return db.query(FuneraryBooking).join(FuneraryService, FuneraryService.id == FuneraryBooking.service_id).filter(
+            FuneraryBooking.pet_id == pet_id, FuneraryService.funerary_id == user_id, FuneraryBooking.status != "cancelled"
+        ).first() is not None
+    if role in ("veterinario", "clinica", "hospital"):
+        row = db.execute(text(
+            "SELECT 1 FROM appointments a JOIN clinics c ON c.id = a.clinic_id "
+            "WHERE a.pet_id = :pet_id AND c.owner_user_id = :user_id LIMIT 1"
+        ), {"pet_id": pet_id, "user_id": user_id}).first()
+        return row is not None
+    return False
+
 @router.post("/death-report", response_model=PetDeathResponse, status_code=status.HTTP_201_CREATED)
 def record_death_report(
     *,
     db: Session = Depends(get_db),
     death_in: PetDeathCreate,
-    current_user: dict = Depends(RoleChecker(["funeraria", "veterinario"]))
+    current_user: dict = Depends(RoleChecker(["funeraria", "veterinario", "consumidor", "clinica", "hospital", "admin"]))
 ):
     """
-    Records a pet's death. Requires 'funeraria' or 'veterinario' role.
+    Records a pet's death. Solo su dueño, la funeraria con una reserva, el veterinario que la atendió o un admin.
     Updates the pet's status to 'in_memoriam' in the database.
     """
     pet = crud_funerary.get_pet(db, death_in.pet_id)
@@ -40,6 +64,12 @@ def record_death_report(
             detail="La mascota especificada no existe."
         )
     
+    if not _can_report_death(db, death_in.pet_id, current_user.get("sub"), current_user.get("role", "consumidor")):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes relación con esta mascota para registrar su fallecimiento."
+        )
+
     funerary_id = current_user.get("sub")
     death_report = crud_funerary.create_death_report(db, death_in=death_in, funerary_id=funerary_id)
     if not death_report:
@@ -121,6 +151,12 @@ def add_booking(
             detail="La mascota especificada no existe."
         )
     
+    if _pet_owner_id(db, booking_in.pet_id) != current_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo el dueño de la mascota puede reservar este servicio."
+        )
+
     booking = crud_funerary.create_funerary_booking(db, booking_in=booking_in, client_id=current_user_id)
     return booking
 

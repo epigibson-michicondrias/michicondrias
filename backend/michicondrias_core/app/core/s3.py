@@ -93,3 +93,18 @@ def get_presigned_url(object_name: str, expiration: int = 3600) -> str | None:
     Generate a presigned GET URL for viewing private files.
     """
     return generate_presigned_url(object_name, expiration=expiration, method='get_object')
+
+
+# Formatos de imagen permitidos para subir con URL firmada. Fijar el tipo MIME evita que alguien aloje HTML/SVG/ejecutables en el bucket público.
+IMAGE_CONTENT_TYPES = {
+    "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp",
+    "gif": "image/gif", "heic": "image/heic", "heif": "image/heif",
+}
+
+
+def image_content_type(ext: str) -> tuple[str, str]:
+    """Devuelve (extensión limpia, tipo MIME) o lanza ValueError si el formato no está permitido."""
+    clean = (ext or "").replace(".", "").lower()
+    if clean not in IMAGE_CONTENT_TYPES:
+        raise ValueError(f"Formato no permitido: {clean!r}")
+    return clean, IMAGE_CONTENT_TYPES[clean]

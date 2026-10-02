@@ -10,6 +10,7 @@ from app.schemas.carnet import VaccineCreate, VaccineUpdate, VaccineResponse
 router = APIRouter()
 
 from sqlalchemy import text
+from app.api.pet_access import get_identity, assert_can_write_pet_record
 
 @router.get("/pet/{pet_id}", response_model=List[VaccineResponse])
 def read_vaccines_by_pet(
@@ -47,10 +48,11 @@ def create_vaccine(
     *,
     db: Session = Depends(get_db),
     vaccine_in: VaccineCreate,
-    user_id: str = Depends(deps.get_current_user_id),
+    identity: dict = Depends(get_identity),
 ) -> Any:
     """
     Create a new vaccine record.
     """
-    vaccine = crud.crud_carnet.create_vaccine(db=db, vaccine=vaccine_in, vet_id=user_id)
+    assert_can_write_pet_record(db, vaccine_in.pet_id, identity)
+    vaccine = crud.crud_carnet.create_vaccine(db=db, vaccine=vaccine_in, vet_id=identity["user_id"])
     return vaccine

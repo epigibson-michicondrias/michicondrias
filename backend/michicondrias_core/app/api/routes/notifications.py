@@ -7,6 +7,8 @@ from app.api import deps
 from app.db.session import get_db
 from app.schemas.notification import NotificationCreate, NotificationResponse
 from app.api.internal import require_internal_token
+from jose import jwt, JWTError
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -86,8 +88,16 @@ async def broadcast_notification(
 
 
 @router.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: str):
-    """WebSocket endpoint for receiving real-time notifications."""
+async def websocket_endpoint(websocket: WebSocket, user_id: str, token: str | None = None):
+    """WebSocket para notificaciones en tiempo real. Exige ?token=<JWT> del mismo usuario del que se escucha."""
+    try:
+        payload = jwt.decode(token or "", settings.SECRET_KEY, algorithms=["HS256"])
+        authorized = payload.get("sub") == user_id and not payload.get("is_temp", False)
+    except JWTError:
+        authorized = False
+    if not authorized:
+        await websocket.close(code=1008)  # policy violation
+        return
     await manager.connect(user_id, websocket)
     try:
         while True:

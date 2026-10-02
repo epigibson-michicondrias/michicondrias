@@ -13,6 +13,16 @@ from uuid import UUID
 
 router = APIRouter()
 
+
+def _assert_clinic_owner(db: Session, clinic_id: str, user_id: str) -> None:
+    """Las cirugías son datos clínicos: solo el dueño de la clínica puede verlas o programarlas."""
+    from app.crud.crud_clinic import get_clinic
+    clinic = get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    if clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos sobre esta clínica")
+
 # Schema for Surgeries
 class SurgeryBase(BaseModel):
     surgery_type: str
@@ -52,6 +62,7 @@ def read_surgeries(
     """
     Retrieve all surgeries for a clinic.
     """
+    _assert_clinic_owner(db, clinic_id, current_user_id)
     surgeries = dashboard_crud.get_surgeries(db=db, clinic_id=clinic_id, status_filter=status)
     return surgeries
 
@@ -64,6 +75,7 @@ def read_today_surgeries(
     """
     Retrieve today's surgeries for a clinic.
     """
+    _assert_clinic_owner(db, clinic_id, current_user_id)
     surgeries = dashboard_crud.get_today_surgeries(db=db, clinic_id=clinic_id)
     return surgeries
 
@@ -78,6 +90,7 @@ def create_surgery(
     Create a new scheduled surgery.
     """
     # This relies on the model taking dict unpacking
+    _assert_clinic_owner(db, clinic_id, current_user_id)
     from app.models.dashboard import Surgeries
     data = surgery_in.model_dump()
     data["clinic_id"] = clinic_id

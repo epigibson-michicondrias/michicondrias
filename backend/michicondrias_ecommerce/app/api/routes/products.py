@@ -58,13 +58,16 @@ def get_presigned_url(
     """
     Get a presigned URL for S3 upload.
     """
-    if not file_extension.startswith("."):
-        file_extension = f".{file_extension}"
-        
+    from app.core.s3 import image_content_type
+    try:
+        clean_ext, content_type = image_content_type(file_extension)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato de imagen no permitido. Usa jpg, png, webp, gif o heic.")
+
     unique_id = uuid.uuid4().hex
-    object_name = f"products/{user_id}/{unique_id}{file_extension}"
-    
-    url = generate_presigned_url(object_name)
+    object_name = f"products/{user_id}/{unique_id}.{clean_ext}"
+
+    url = generate_presigned_url(object_name, content_type=content_type)
     if not url:
         raise HTTPException(status_code=500, detail="Could not generate presigned URL")
         

@@ -16,7 +16,7 @@ def read_settings(
     skip: int = 0,
     limit: int = 100,
     public_only: bool = False,
-    current_user: User = Depends(deps.get_current_active_user),
+    current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
     Retrieve settings.
@@ -41,7 +41,7 @@ def create_setting(
     *,
     db: Session = Depends(get_db),
     setting_in: GlobalSettingCreate,
-    current_user: User = Depends(deps.get_current_active_user),
+    current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
     Create new setting.
@@ -61,7 +61,7 @@ def update_setting(
     db: Session = Depends(get_db),
     setting_id: str,
     setting_in: GlobalSettingUpdate,
-    current_user: User = Depends(deps.get_current_active_user),
+    current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
     Update a setting.
@@ -77,7 +77,7 @@ def delete_setting(
     *,
     db: Session = Depends(get_db),
     setting_id: str,
-    current_user: User = Depends(deps.get_current_active_user),
+    current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
     Delete a setting.

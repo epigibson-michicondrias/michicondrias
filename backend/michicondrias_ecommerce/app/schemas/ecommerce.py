@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 
@@ -116,7 +116,7 @@ class DonationResponse(DonationBase):
 # ORDER SCHEMAS
 class OrderItemBase(BaseModel):
     product_id: str
-    quantity: int
+    quantity: int = Field(..., ge=1, le=100)  # sin esto, cantidades negativas subían el stock y bajaban el total
 
 class OrderItemCreate(OrderItemBase):
     pass

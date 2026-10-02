@@ -1,5 +1,6 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
 import logging
@@ -15,6 +16,11 @@ from app import crud, models, schemas
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _pet_owner_id(db: Session, pet_id: str):
+    row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
+    return row[0] if row else None
 
 
 def _assert_pet_belongs_to_user(pet_id: str, user_id: str) -> None:
@@ -59,17 +65,22 @@ def create_new_policy(
 @router.get("/policies/pet/{pet_id}", response_model=schemas.PetInsurancePolicy)
 def read_active_policy_by_pet(
     pet_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    token: str = Depends(deps.oauth2_scheme),
 ) -> Any:
     """
-    Get active policy of a pet.
+    Póliza activa de una mascota. Solo su dueño, la aseguradora de la póliza o un admin.
     """
+    payload = deps._decode_token(token)
+    user_id, role = payload["sub"], payload.get("role", "consumidor")
     policy = crud.get_active_policy_by_pet_id(db, pet_id=pet_id)
     if not policy:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No se encontró una póliza activa para esta mascota"
         )
+    if role != "admin" and policy.insurer_id != user_id and _pet_owner_id(db, pet_id) != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes acceso a la póliza de esta mascota")
     return policy
 
 
@@ -97,6 +108,13 @@ def create_new_claim(
             detail="La póliza asociada no está activa o ya expiró"
         )
     
+    user_id, role = current_user["sub"], current_user.get("role", "consumidor")
+    if role == "aseguradora":
+        if policy.insurer_id != user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="La póliza no pertenece a esta aseguradora")
+    elif _pet_owner_id(db, policy.pet_id) != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede reclamar sobre esta póliza")
+
     claim_in.status = "pending"
     return crud.create_claim(db, claim_in=claim_in)
 

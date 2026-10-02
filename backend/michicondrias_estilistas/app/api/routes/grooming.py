@@ -1,5 +1,6 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import date
 import logging
@@ -22,6 +23,11 @@ from app.schemas.grooming import (
 
 logger = logging.getLogger(__name__)
 
+
+def _pet_owner_id(db: Session, pet_id: str):
+    row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
+    return row[0] if row else None
+
 router = APIRouter()
 
 
@@ -30,11 +36,14 @@ def create_grooming_appointment(
     *,
     db: Session = Depends(get_db),
     appointment_in: GroomingAppointmentCreate,
-    current_user_id: str = Depends(deps.get_current_user_id)
+    current_user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
-    Create a new grooming appointment.
+    Create a new grooming appointment. Solo el dueño de la mascota puede agendar.
     """
+    if role != "admin" and _pet_owner_id(db, appointment_in.pet_id) != current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede agendar su cita")
     appointment = crud_grooming.create_appointment(db, appointment_in=appointment_in)
     return appointment
 
@@ -57,7 +66,9 @@ def upload_appointment_photos(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Cita de estilismo no encontrada"
         )
-    
+    if appointment.groomer_id != current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el estilista de esta cita puede actualizarla")
+
     updated_appointment = crud_grooming.update_appointment_photos(db, db_appt=appointment, update_in=update_in)
     return updated_appointment
 
@@ -67,11 +78,18 @@ def read_grooming_history(
     *,
     db: Session = Depends(get_db),
     pet_id: str,
-    current_user_id: str = Depends(deps.get_current_user_id)
+    current_user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
-    Retrieve grooming history and notes for a specific pet.
+    Historial de estilismo de una mascota. Solo su dueño, un estilista con una cita de esa mascota, o un admin.
     """
+    if role != "admin" and _pet_owner_id(db, pet_id) != current_user_id:
+        attended = db.query(GroomingAppointment).filter(
+            GroomingAppointment.pet_id == pet_id, GroomingAppointment.groomer_id == current_user_id
+        ).first()
+        if not attended:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes acceso al historial de esta mascota")
     file = crud_grooming.get_or_create_grooming_file(db, pet_id=pet_id)
     appointments = crud_grooming.get_appointments_by_pet(db, pet_id=pet_id)
     return {

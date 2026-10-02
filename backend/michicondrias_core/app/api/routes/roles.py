@@ -28,7 +28,7 @@ def create_role(
     *,
     db: Session = Depends(get_db),
     role_in: RoleCreate,
-    current_user: User = Depends(deps.get_current_active_user),
+    current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
     Create new role.
@@ -48,7 +48,7 @@ def update_role(
     db: Session = Depends(get_db),
     role_id: str,
     role_in: RoleUpdate,
-    current_user: User = Depends(deps.get_current_active_user),
+    current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
     Update a role.
@@ -56,7 +56,6 @@ def update_role(
     role = crud.crud_role.get_role(db, role_id=role_id)
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
-    # Only superadmin should be able to do this ideally, but for now we rely on active user
     role = crud.crud_role.update_role(db=db, db_role=role, role_update=role_in)
     return role
 
@@ -65,7 +64,7 @@ def delete_role(
     *,
     db: Session = Depends(get_db),
     role_id: str,
-    current_user: User = Depends(deps.get_current_active_user),
+    current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
     Delete a role.

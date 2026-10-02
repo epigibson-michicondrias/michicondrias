@@ -10,6 +10,7 @@ from app.schemas.carnet import MedicalRecordCreate, MedicalRecordUpdate, Medical
 router = APIRouter()
 
 from sqlalchemy import text
+from app.api.pet_access import get_identity, assert_can_write_pet_record
 
 @router.get("/pet/{pet_id}", response_model=List[MedicalRecordResponse])
 def read_medical_records_by_pet(
@@ -47,10 +48,11 @@ def create_medical_record(
     *,
     db: Session = Depends(get_db),
     record_in: MedicalRecordCreate,
-    user_id: str = Depends(deps.get_current_user_id),
+    identity: dict = Depends(get_identity),
 ) -> Any:
     """
     Create new medical record.
     """
-    record = crud.crud_carnet.create_medical_record(db=db, record=record_in, vet_id=user_id)
+    assert_can_write_pet_record(db, record_in.pet_id, identity)
+    record = crud.crud_carnet.create_medical_record(db=db, record=record_in, vet_id=identity["user_id"])
     return record

@@ -63,8 +63,8 @@ def register_user(
         )
     # Assign consumidor role by default
     consumidor_role = db.query(Role).filter(Role.name == "consumidor").first()
-    if consumidor_role:
-        user_in.role_id = consumidor_role.id
+    # Nunca se acepta el role_id que mande el cliente: el registro público siempre es "consumidor"
+    user_in.role_id = consumidor_role.id if consumidor_role else None
     user = crud.crud_user.create_user(db=db, user=user_in)
     return user
 

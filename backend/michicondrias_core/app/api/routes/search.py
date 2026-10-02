@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from app.api import deps
 from app.db.session import get_db
 from app.schemas.search import GlobalSearchResponse
 
@@ -9,7 +10,8 @@ router = APIRouter()
 @router.get("/", response_model=GlobalSearchResponse)
 def global_search(
     q: str = Query(..., min_length=2, description="Search query"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _user_id: str = Depends(deps.get_current_user_id),
 ):
     search_term = f"%{q.lower()}%"
     
