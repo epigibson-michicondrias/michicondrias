@@ -10,6 +10,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { useApplications } from '@/src/hooks/adopciones/useApplications';
 import type { Listing, AdoptionRequest } from '@/src/types/adopciones';
 import type { ListingWithRequests } from '@/src/hooks/adopciones/useApplications';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function SolicitudesAdopcionScreen() {
     const router = useRouter();
@@ -158,6 +159,7 @@ export default function SolicitudesAdopcionScreen() {
                 </View>
 
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filteredRequests}
                     keyExtractor={(request) => request.id}
                     renderItem={({ item: request }) => renderRequestItem({ request, listing: item })}
@@ -222,6 +224,7 @@ export default function SolicitudesAdopcionScreen() {
                 />
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={listings}
                     keyExtractor={(item) => item.id}
                     renderItem={renderListingItem}

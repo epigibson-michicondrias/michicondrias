@@ -9,6 +9,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Building, MapPin, Phone, Mail, Globe, Clock, ShieldAlert, Edit, Trash2, X } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function SucursalesScreen() {
     const { theme } = useTheme();
@@ -110,6 +111,7 @@ export default function SucursalesScreen() {
                     <LoadingOverlay message="Cargando clínicas..." />
                 ) : (
                     <FlatList
+            refreshControl={<AppRefreshControl />}
                         data={clinics}
                         renderItem={renderClinicItem}
                         keyExtractor={(item) => item.id}

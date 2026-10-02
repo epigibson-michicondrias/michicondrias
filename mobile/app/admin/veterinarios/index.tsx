@@ -7,6 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { UserCheck, Mail, Briefcase, Star, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function AdminVeterinariosScreen() {
     const { theme } = useTheme();
@@ -83,6 +84,7 @@ export default function AdminVeterinariosScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={vets}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}

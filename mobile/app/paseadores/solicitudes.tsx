@@ -14,6 +14,7 @@ import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function WalkerRequestsScreen() {
     const { theme } = useTheme();
@@ -170,6 +171,7 @@ export default function WalkerRequestsScreen() {
 
             {/* Requests List */}
             <FlatList
+            refreshControl={<AppRefreshControl />}
                 data={filteredRequests}
                 renderItem={renderRequestItem}
                 keyExtractor={(item) => item.id}

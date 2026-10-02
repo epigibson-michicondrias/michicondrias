@@ -10,6 +10,7 @@ import FormSection from '@/src/components/forms/FormSection';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Zap, DollarSign, MapPin, PawPrint, Check } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function BoostAlertaScreen() {
     const { theme } = useTheme();
@@ -82,6 +83,7 @@ export default function BoostAlertaScreen() {
                             />
                         ) : (
                             <FlatList
+            refreshControl={<AppRefreshControl />}
                                 data={lostPetReports}
                                 renderItem={renderReportItem}
                                 keyExtractor={(item) => item.id}

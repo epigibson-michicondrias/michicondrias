@@ -6,6 +6,7 @@ import { useGlobalSearch, type SearchTab } from '@/src/hooks/search/useGlobalSea
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Search, X, PawPrint, Building2, ShoppingBag } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const TABS: { key: SearchTab; label: string; icon: typeof PawPrint }[] = [
     { key: 'mascotas', label: 'Mascotas', icon: PawPrint },
@@ -136,6 +137,7 @@ export default function BusquedaScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={activeResults}
                     renderItem={renderResultItem}
                     keyExtractor={(item, index) => item.id || String(index)}

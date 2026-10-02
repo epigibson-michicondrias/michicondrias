@@ -7,6 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Shield, Plus, Edit3, Trash2, X } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function AdminRolesScreen() {
     const { theme } = useTheme();
@@ -69,6 +70,7 @@ export default function AdminRolesScreen() {
                 <LoadingOverlay message="Cargando roles..." />
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={roles}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}

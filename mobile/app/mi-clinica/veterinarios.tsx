@@ -9,6 +9,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Users, Mail, Phone, Star, Edit, Trash2, X, Stethoscope, ShieldCheck } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function VeterinariosClinicaScreen() {
     const router = useRouter();
@@ -148,6 +149,7 @@ export default function VeterinariosClinicaScreen() {
                     <LoadingOverlay message="Cargando veterinarios..." />
                 ) : (
                     <FlatList
+            refreshControl={<AppRefreshControl />}
                         data={veterinarians}
                         renderItem={renderVeterinarioItem}
                         keyExtractor={(item) => item.id}

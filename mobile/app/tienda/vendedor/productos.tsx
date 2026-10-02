@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Edit3, Trash2, Eye, EyeOff, Package } from 'lucide-react-native';
 import { Product } from '@/src/services/ecommerce';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function VendedorProductosScreen() {
     const router = useRouter();
@@ -71,6 +72,7 @@ export default function VendedorProductosScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filteredProducts}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}

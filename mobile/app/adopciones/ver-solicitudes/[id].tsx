@@ -8,6 +8,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { AdoptionRequest } from '@/src/services/adopciones';
 import { User, Home, Heart, Check, X, ChevronLeft } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function VerSolicitudesScreen() {
     const { theme } = useTheme();
@@ -57,6 +58,7 @@ export default function VerSolicitudesScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={requests}
                     keyExtractor={(item) => item.id}
                     renderItem={renderRequestItem}

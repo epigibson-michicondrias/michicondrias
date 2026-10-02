@@ -20,6 +20,7 @@ import {
     UserCircle,
     FileText
 } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const { width } = Dimensions.get('window');
 
@@ -256,6 +257,7 @@ export default function AdminModerationScreen() {
 
         return (
             <FlatList
+            refreshControl={<AppRefreshControl />}
                 data={data}
                 renderItem={renderFn}
                 keyExtractor={(item) => item.id}

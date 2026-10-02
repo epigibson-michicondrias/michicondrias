@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import SearchBar from '@/src/components/SearchBar';
 import { Briefcase, Plus, MoreVertical } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const CATEGORY_COLORS: Record<string, string> = {
     Médico: '#3b82f6',
@@ -95,6 +96,7 @@ export default function AdminServiciosScreen() {
             </View>
 
             <FlatList
+            refreshControl={<AppRefreshControl />}
                 data={servicios}
                 renderItem={renderServiceCard}
                 keyExtractor={item => item.id}

@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Package, ShoppingBag } from 'lucide-react-native';
 import { Order } from '@/src/services/ecommerce';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function ComprasScreen() {
     const router = useRouter();
@@ -57,6 +58,7 @@ export default function ComprasScreen() {
             <ScreenHeader title="Mis Compras" />
 
             <FlatList
+            refreshControl={<AppRefreshControl />}
                 data={orders}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}

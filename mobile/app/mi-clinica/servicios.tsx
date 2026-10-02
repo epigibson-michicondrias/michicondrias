@@ -6,6 +6,7 @@ import { ClinicServiceItem } from '@/src/services/directorio';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Plus, Pencil, Trash2, Clock, Tag, Briefcase, X, AlertTriangle } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function ServiciosClinicaScreen() {
     const { theme } = useTheme();
@@ -72,6 +73,7 @@ export default function ServiciosClinicaScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={services}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}

@@ -6,6 +6,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Bell, CheckCheck, Heart, Package, ShieldCheck, MapPin, Bone } from 'lucide-react-native';
 import { Notification } from '@/src/services/notifications';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const { width } = Dimensions.get('window');
 
@@ -77,6 +78,7 @@ export default function NotificationsScreen() {
             />
 
             <FlatList
+            refreshControl={<AppRefreshControl />}
                 data={notifications}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}

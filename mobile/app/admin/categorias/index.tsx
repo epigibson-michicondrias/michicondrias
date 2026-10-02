@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Plus, Package, Edit2, Trash2, X } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function AdminCategoriasScreen() {
     const { theme } = useTheme();
@@ -61,6 +62,7 @@ export default function AdminCategoriasScreen() {
                 <LoadingOverlay message="Cargando categorías..." />
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={categories}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}

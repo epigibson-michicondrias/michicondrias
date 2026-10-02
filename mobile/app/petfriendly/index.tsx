@@ -10,6 +10,7 @@ import { Map as MapIcon, List, Star, MapPin, Plus } from 'lucide-react-native';
 import SearchBar from '@/src/components/SearchBar';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const { width } = Dimensions.get('window');
 
@@ -83,6 +84,7 @@ export default function PetfriendlyScreen() {
                     </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={places}
                     keyExtractor={(item) => item.id}
                     renderItem={renderPlaceItem}

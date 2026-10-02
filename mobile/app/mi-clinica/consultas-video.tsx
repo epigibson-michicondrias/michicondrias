@@ -10,6 +10,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Video, Calendar, Clock, VideoOff, ExternalLink, X } from 'lucide-react-native';
 import { Picker } from '@react-native-picker/picker';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function ConsultasVideoScreen() {
     const { theme } = useTheme();
@@ -120,6 +121,7 @@ export default function ConsultasVideoScreen() {
                     <LoadingOverlay message="Cargando videoconsultas..." />
                 ) : (
                     <FlatList
+            refreshControl={<AppRefreshControl />}
                         data={consultations}
                         renderItem={renderConsultationItem}
                         keyExtractor={(item) => item.id}

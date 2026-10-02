@@ -9,6 +9,7 @@ import { Megaphone, DollarSign, TrendingUp, Plus } from 'lucide-react-native';
 import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function PatrocinadoresScreen() {
     const { theme } = useTheme();
@@ -78,6 +79,7 @@ export default function PatrocinadoresScreen() {
                 <LoadingOverlay message="Cargando campañas..." />
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={campaigns}
                     renderItem={renderCampaignItem}
                     keyExtractor={(item) => item.id}

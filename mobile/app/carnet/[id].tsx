@@ -9,6 +9,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { Syringe, ClipboardList, Weight, Thermometer, Calendar, User, ShoppingBag, Plus, Activity, Clock, ShieldCheck, AlertCircle, Bell, Pill, Check, ChevronDown, ChevronUp, FlaskConical, Info } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import WeightSparkline from '../../src/components/WeightSparkline';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const { width, height } = Dimensions.get('window');
 
@@ -457,6 +458,7 @@ export default function PetCarnetDetailScreen() {
                 </View>
 
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     scrollEnabled={false}
                     data={activeTab === 'records' ? sortedRecords : activeTab === 'vaccines' ? vaccines : activeTab === 'reminders' ? reminders : labHistory}
                     keyExtractor={(item: any) => item.id}

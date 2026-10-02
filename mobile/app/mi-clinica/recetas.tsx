@@ -9,6 +9,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { FileText, PlusCircle, AlertCircle, X } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function RecetasScreen() {
     const { theme } = useTheme();
@@ -243,6 +244,7 @@ export default function RecetasScreen() {
                             <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
                         ) : (
                             <FlatList
+            refreshControl={<AppRefreshControl />}
                                 data={filteredPets}
                                 keyExtractor={(item) => item.id}
                                 style={{ maxHeight: 400 }}

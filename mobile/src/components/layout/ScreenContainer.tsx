@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import QueryErrorBanner from '@/src/components/QueryErrorBanner';
 
 interface ScreenContainerProps {
     children: React.ReactNode;
@@ -19,6 +20,7 @@ export default function ScreenContainer({ children, style, noPadding }: ScreenCo
     return (
         <View style={[styles.container, { backgroundColor: theme.background }, noPadding && styles.noPadding, style]}>
             {children}
+            <QueryErrorBanner />
         </View>
     );
 }

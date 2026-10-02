@@ -7,6 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { AppointmentItem } from '@/src/services/directorio';
 import { CheckCircle2, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
     pending: { label: "Pendiente", emoji: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
@@ -181,6 +182,7 @@ export default function AgendaClinicaScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filtered}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}

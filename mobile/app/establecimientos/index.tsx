@@ -10,6 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function EstablecimientosScreen() {
     const router = useRouter();
@@ -91,6 +92,7 @@ export default function EstablecimientosScreen() {
                 <LoadingOverlay message="Cargando establecimientos..." />
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filteredVenues}
                     renderItem={renderVenueItem}
                     keyExtractor={(item) => item.id}

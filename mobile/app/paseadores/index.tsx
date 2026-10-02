@@ -10,6 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function PaseadoresScreen() {
     const router = useRouter();
@@ -133,6 +134,7 @@ export default function PaseadoresScreen() {
                 <LoadingOverlay message="Cargando paseadores..." />
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filteredWalkers}
                     renderItem={renderWalkerItem}
                     keyExtractor={(item) => item.id}

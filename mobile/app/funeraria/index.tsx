@@ -11,6 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 
 import { useAuth } from '@/src/contexts/AuthContext';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function FunerariaScreen() {
     const { theme } = useTheme();
@@ -97,6 +98,7 @@ export default function FunerariaScreen() {
                 <LoadingOverlay message="Cargando servicios..." />
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={services}
                     renderItem={renderServiceItem}
                     keyExtractor={(item) => item.id}

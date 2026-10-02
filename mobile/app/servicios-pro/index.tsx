@@ -6,6 +6,7 @@ import { useServiciosPro } from '@/src/hooks/servicios-pro';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function ServiciosProScreen() {
     const router = useRouter();
@@ -106,6 +107,7 @@ export default function ServiciosProScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filteredData as any}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}

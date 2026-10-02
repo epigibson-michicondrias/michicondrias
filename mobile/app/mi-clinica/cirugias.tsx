@@ -7,6 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { SurgeryItem } from '@/src/services/directorio';
 import { Plus, MapPin, Clock, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
     "scheduled": { label: "Programada", color: "#f59e0b", bg: "rgba(245,158,11,0.15)" },
@@ -153,6 +154,7 @@ export default function CirugiasScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filtered}
                     keyExtractor={(item) => item.id || Math.random().toString()}
                     renderItem={renderItem}

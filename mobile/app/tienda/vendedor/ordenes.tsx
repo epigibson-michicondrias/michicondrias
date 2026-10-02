@@ -8,6 +8,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Package, Clock, Truck, CheckCircle, XCircle, User, MapPin } from 'lucide-react-native';
 import { Order } from '@/src/services/ecommerce';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const STATUS_ICONS: Record<string, any> = {
     pending: Clock,
@@ -132,6 +133,7 @@ export default function VendedorOrdenesScreen() {
                 </View>
             ) : (
                 <FlatList
+            refreshControl={<AppRefreshControl />}
                     data={filteredOrders}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
