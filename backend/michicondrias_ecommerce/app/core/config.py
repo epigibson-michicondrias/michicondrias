@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
     FRONTEND_URL: str = "http://localhost:3000"
+    # Retorno de Stripe hacia la app móvil. Stripe solo redirige a http(s), así que success/cancel apuntan a
+    # {PUBLIC_API_URL}/api/v1/payments/return (p. ej. https://michicondrias.duckdns.org/ecommerce) y ese endpoint
+    # abre el deep link {APP_DEEP_LINK_SCHEME}://... Si PUBLIC_API_URL está vacío se usa la URL web de siempre.
+    PUBLIC_API_URL: str | None = None
+    APP_DEEP_LINK_SCHEME: str = "michicondrias"
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:

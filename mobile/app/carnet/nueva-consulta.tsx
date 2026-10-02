@@ -50,7 +50,7 @@ export default function NuevaConsultaScreen() {
                             <ClipboardList size={18} color={theme.primary} />
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Motivo & Diagnóstico</Text>
                         </View>
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>MOTIVO DE LA VISITA *</Text>
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
@@ -61,7 +61,7 @@ export default function NuevaConsultaScreen() {
                                 multiline
                             />
                         </View>
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>DIAGNÓSTICO</Text>
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
@@ -72,7 +72,7 @@ export default function NuevaConsultaScreen() {
                                 multiline
                             />
                         </View>
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>TRATAMIENTO INDICADO</Text>
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
@@ -83,7 +83,7 @@ export default function NuevaConsultaScreen() {
                                 multiline
                             />
                         </View>
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>NOTAS ADICIONALES</Text>
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
@@ -98,11 +98,11 @@ export default function NuevaConsultaScreen() {
 
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <Activity size={18} color="#0891b2" />
+                            <Activity size={18} color={theme.info} />
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Constantes Vitales</Text>
                         </View>
                         <View style={styles.row}>
-                            <View style={[styles.inputGroup, { flex: 1, backgroundColor: theme.surface }]}>
+                            <View style={[styles.inputGroup, { borderColor: theme.border }, { flex: 1, backgroundColor: theme.surface }]}>
                                 <View style={styles.labelRow}>
                                     <Weight size={14} color={theme.textMuted} />
                                     <Text style={[styles.label, { color: theme.textMuted }]}>PESO (KG)</Text>
@@ -116,7 +116,7 @@ export default function NuevaConsultaScreen() {
                                     onChangeText={setWeight}
                                 />
                             </View>
-                            <View style={[styles.inputGroup, { flex: 1, backgroundColor: theme.surface }]}>
+                            <View style={[styles.inputGroup, { borderColor: theme.border }, { flex: 1, backgroundColor: theme.surface }]}>
                                 <View style={styles.labelRow}>
                                     <Thermometer size={14} color={theme.textMuted} />
                                     <Text style={[styles.label, { color: theme.textMuted }]}>TEMP (°C)</Text>
@@ -135,12 +135,12 @@ export default function NuevaConsultaScreen() {
 
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <ShoppingBag size={18} color="#10b981" />
+                            <ShoppingBag size={18} color={theme.success} />
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Receta Digital</Text>
                         </View>
 
                         {prescriptions.map((p, index) => (
-                            <View key={index} style={[styles.prescriptionCard, { backgroundColor: theme.surface }]}>
+                            <View key={index} style={[styles.prescriptionCard, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                                 <View style={styles.pCardHeader}>
                                     <Text style={[styles.pNumber, { color: theme.primary }]}>Medicamento #{index + 1}</Text>
                                     <TouchableOpacity
@@ -149,12 +149,12 @@ export default function NuevaConsultaScreen() {
                                         accessibilityLabel={`Quitar medicamento ${index + 1}`}
                                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                     >
-                                        <Trash2 size={16} color="#ef4444" />
+                                        <Trash2 size={16} color={theme.error} />
                                     </TouchableOpacity>
                                 </View>
 
                                 <TextInput
-                                    style={[styles.pInput, { color: theme.text, borderBottomColor: theme.background }]}
+                                    style={[styles.pInput, { borderBottomColor: theme.border }, { color: theme.text, borderBottomColor: theme.background }]}
                                     placeholder="Nombre del medicamento"
                                     placeholderTextColor={theme.textMuted}
                                     value={p.medication_name}
@@ -163,9 +163,9 @@ export default function NuevaConsultaScreen() {
 
                                 <View style={styles.row}>
                                     <View style={styles.pSubGroup}>
-                                        <Text style={styles.pLabel}>DOSIS</Text>
+                                        <Text style={[styles.pLabel, { color: theme.textMuted }]}>DOSIS</Text>
                                         <TextInput
-                                            style={[styles.pInput, { color: theme.text }]}
+                                            style={[styles.pInput, { borderBottomColor: theme.border }, { color: theme.text }]}
                                             placeholder="1/2 tableta"
                                             placeholderTextColor={theme.textMuted}
                                             value={p.dosage}
@@ -173,9 +173,9 @@ export default function NuevaConsultaScreen() {
                                         />
                                     </View>
                                     <View style={styles.pSubGroup}>
-                                        <Text style={styles.pLabel}>CADA (HRS)</Text>
+                                        <Text style={[styles.pLabel, { color: theme.textMuted }]}>CADA (HRS)</Text>
                                         <TextInput
-                                            style={[styles.pInput, { color: theme.text }]}
+                                            style={[styles.pInput, { borderBottomColor: theme.border }, { color: theme.text }]}
                                             placeholder="8"
                                             keyboardType="numeric"
                                             placeholderTextColor={theme.textMuted}
@@ -184,9 +184,9 @@ export default function NuevaConsultaScreen() {
                                         />
                                     </View>
                                     <View style={styles.pSubGroup}>
-                                        <Text style={styles.pLabel}>DÍAS</Text>
+                                        <Text style={[styles.pLabel, { color: theme.textMuted }]}>DÍAS</Text>
                                         <TextInput
-                                            style={[styles.pInput, { color: theme.text }]}
+                                            style={[styles.pInput, { borderBottomColor: theme.border }, { color: theme.text }]}
                                             placeholder="7"
                                             keyboardType="numeric"
                                             placeholderTextColor={theme.textMuted}
@@ -198,7 +198,7 @@ export default function NuevaConsultaScreen() {
                             </View>
                         ))}
 
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.addPresBtn, { borderColor: theme.primary }]}
                             onPress={addPrescription}
                         >
@@ -249,7 +249,6 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     label: {
         fontSize: 10,
@@ -277,7 +276,6 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     pCardHeader: {
         flexDirection: 'row',
@@ -287,14 +285,13 @@ const styles = StyleSheet.create({
     },
     pNumber: {
         fontSize: 12,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     pInput: {
         fontSize: 15,
         fontWeight: '700',
         paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.03)',
         marginBottom: 12,
     },
     pSubGroup: {
@@ -303,7 +300,6 @@ const styles = StyleSheet.create({
     pLabel: {
         fontSize: 9,
         fontWeight: '800',
-        color: 'rgba(255,255,255,0.3)',
         marginBottom: 4,
     },
     addPresBtn: {

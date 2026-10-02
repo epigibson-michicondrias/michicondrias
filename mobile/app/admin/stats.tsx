@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminStats } from '@/src/hooks/admin/useAdminStats';
@@ -15,10 +16,7 @@ export default function AdminStatsScreen() {
 
     if (isLoading || !metrics) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-                <Text style={[styles.loadingText, { color: theme.textMuted, marginTop: 16 }]}>Compilando datos...</Text>
-            </View>
+            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
         );
     }
 
@@ -37,14 +35,14 @@ export default function AdminStatsScreen() {
 
             <ScrollView contentContainerStyle={styles.scroll}>
                 <View style={styles.grid}>
-                    <StatCard label="Usuarios" value={kpis!.total_users} icon={<Users size={20} color="#7c3aed" />} color="#7c3aed" theme={theme} />
-                    <StatCard label="Aprobados" value={kpis!.approved_verifications} icon={<ShieldCheck size={20} color="#10b981" />} color="#10b981" theme={theme} />
-                    <StatCard label="Pendientes" value={kpis!.pending_verifications} icon={<Activity size={20} color="#f59e0b" />} color="#f59e0b" theme={theme} />
-                    <StatCard label="Admins" value={kpis!.system_admins} icon={<BarChart2 size={20} color="#3b82f6" />} color="#3b82f6" theme={theme} />
-                    {kpis!.professionals !== undefined && <StatCard label="Profesionales" value={kpis!.professionals} icon={<ShieldCheck size={20} color="#06b6d4" />} color="#06b6d4" theme={theme} />}
+                    <StatCard label="Usuarios" value={kpis!.total_users} icon={<Users size={20} color={theme.secondary} />} color={theme.secondary} theme={theme} />
+                    <StatCard label="Aprobados" value={kpis!.approved_verifications} icon={<ShieldCheck size={20} color={theme.success} />} color={theme.success} theme={theme} />
+                    <StatCard label="Pendientes" value={kpis!.pending_verifications} icon={<Activity size={20} color={theme.warning} />} color={theme.warning} theme={theme} />
+                    <StatCard label="Admins" value={kpis!.system_admins} icon={<BarChart2 size={20} color={theme.info} />} color={theme.info} theme={theme} />
+                    {kpis!.professionals !== undefined && <StatCard label="Profesionales" value={kpis!.professionals} icon={<ShieldCheck size={20} color={theme.info} />} color={theme.info} theme={theme} />}
                     {kpis!.new_users_7d !== undefined && <StatCard label="Nuevos 7 días" value={kpis!.new_users_7d} icon={<TrendingUp size={20} color="#ec4899" />} color="#ec4899" theme={theme} />}
-                    {kpis!.new_users_30d !== undefined && <StatCard label="Nuevos 30 días" value={kpis!.new_users_30d} icon={<TrendingUp size={20} color="#8b5cf6" />} color="#8b5cf6" theme={theme} />}
-                    {kpis!.active_users !== undefined && <StatCard label="Activos" value={kpis!.active_users} icon={<Activity size={20} color="#10b981" />} color="#10b981" theme={theme} />}
+                    {kpis!.new_users_30d !== undefined && <StatCard label="Nuevos 30 días" value={kpis!.new_users_30d} icon={<TrendingUp size={20} color={theme.secondary} />} color={theme.secondary} theme={theme} />}
+                    {kpis!.active_users !== undefined && <StatCard label="Activos" value={kpis!.active_users} icon={<Activity size={20} color={theme.success} />} color={theme.success} theme={theme} />}
                 </View>
 
                 {!!metrics.registrations_14d?.length && (
@@ -159,7 +157,7 @@ const styles = StyleSheet.create({
     },
     cardValue: { 
         fontSize: 26, 
-        fontWeight: '900', 
+        fontWeight: '800', 
         letterSpacing: -0.5 
     },
     cardLabel: { 
@@ -186,7 +184,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: { 
         fontSize: 18, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     roleItem: { 
         marginBottom: 24 
@@ -204,7 +202,7 @@ const styles = StyleSheet.create({
     },
     rolePercentage: { 
         fontSize: 13, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     roleCount: { 
         fontSize: 11, 

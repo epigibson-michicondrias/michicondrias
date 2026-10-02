@@ -112,6 +112,22 @@ def read_clinic_veterinarians(
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     return crud.crud_clinic.get_veterinarians(db, skip=skip, limit=limit, clinic_id=clinic_id)
 
+@router.get("/{clinic_id}/veterinarians/manage", response_model=List[VeterinarianResponse])
+def manage_clinic_veterinarians(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Todos los veterinarios de la clínica (incluye los pendientes de aprobación). Solo el dueño."""
+    clinic = crud.crud_clinic.get_clinic(db, clinic_id)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    if clinic.owner_user_id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para gestionar esta clínica")
+    from app.models.clinic import Veterinarian
+    return db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic_id).all()
+
+
 @router.post("/{clinic_id}/veterinarians/{vet_id}", response_model=VeterinarianResponse)
 def associate_veterinarian(
     clinic_id: str,

@@ -24,7 +24,7 @@ export default function NuevoEstilistaScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Nombre del Servicio *</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
                             placeholder="Ej. Baño y corte básico"
                             placeholderTextColor={theme.textMuted}
                             value={form.name}
@@ -35,7 +35,7 @@ export default function NuevoEstilistaScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Descripción</Text>
                         <TextInput
-                            style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.textArea, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
                             placeholder="Describe tu servicio..."
                             placeholderTextColor={theme.textMuted}
                             multiline
@@ -49,7 +49,7 @@ export default function NuevoEstilistaScreen() {
                         <View style={[styles.inputGroup, { flex: 1 }]}>
                             <Text style={[styles.label, { color: theme.text }]}>Precio ($) *</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
                                 placeholder="Ej. 250"
                                 placeholderTextColor={theme.textMuted}
                                 keyboardType="numeric"
@@ -60,7 +60,7 @@ export default function NuevoEstilistaScreen() {
                         <View style={[styles.inputGroup, { flex: 1 }]}>
                             <Text style={[styles.label, { color: theme.text }]}>Duración (min)</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
                                 placeholder="Ej. 30"
                                 placeholderTextColor={theme.textMuted}
                                 keyboardType="numeric"
@@ -78,7 +78,7 @@ export default function NuevoEstilistaScreen() {
                     </Text>
                 </View>
 
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.submitBtn, { backgroundColor: theme.primary }, loading && { opacity: 0.7 }]}
                     disabled={loading}
                     onPress={handleSubmit}
@@ -115,7 +115,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         fontSize: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     textArea: {
         height: 120,
@@ -125,7 +124,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlignVertical: 'top',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     infoBox: {
         flexDirection: 'row',

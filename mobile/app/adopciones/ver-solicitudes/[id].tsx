@@ -7,7 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { AdoptionRequest } from '@/src/services/adopciones';
-import { User, Home, Heart, Check, X, ChevronLeft } from 'lucide-react-native';
+import { User, Home, Heart, Check, X, ChevronLeft, Trees, Key, Baby, Clock, PawPrint } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function VerSolicitudesScreen() {
@@ -30,7 +30,7 @@ export default function VerSolicitudesScreen() {
                         Enviada el: {new Date(item.created_at).toLocaleDateString()}
                     </Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status, theme) }]}>
                     <Text style={styles.statusText}>{item.status.toUpperCase()}</Text>
                 </View>
             </View>
@@ -83,7 +83,7 @@ export default function VerSolicitudesScreen() {
                     <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                         <View style={styles.modalHeader}>
                             <Text style={[styles.modalTitle, { color: theme.text }]}>Detalle de la Solicitud</Text>
-                            <TouchableOpacity onPress={closeModal} style={styles.closeBtn}>
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={closeModal} style={styles.closeBtn}>
                                 <X size={24} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -107,12 +107,12 @@ export default function VerSolicitudesScreen() {
                                         <Text style={[styles.detailTitle, { color: theme.text }]}>Hogar y Estilo de Vida</Text>
                                     </View>
                                     <View style={styles.grid}>
-                                        <GridItem label="VIVIENDA" value={selectedRequest.house_type} theme={theme} icon="🏠" />
-                                        <GridItem label="PATIO" value={selectedRequest.has_yard ? 'Sí' : 'No'} theme={theme} icon="🌿" />
-                                        <GridItem label="SITUACIÓN" value={selectedRequest.own_or_rent} theme={theme} icon="🔑" />
-                                        <GridItem label="NIÑOS" value={selectedRequest.has_children ? 'Sí' : 'No'} theme={theme} icon="👶" />
-                                        <GridItem label="SOLO" value={`${selectedRequest.hours_alone}h`} theme={theme} icon="⏰" />
-                                        <GridItem label="PETS" value={selectedRequest.other_pets ? 'Sí' : 'No'} theme={theme} icon="🐕" />
+                                        <GridItem label="VIVIENDA" value={selectedRequest.house_type} theme={theme} icon={<Home size={16} color={theme.primary} />} />
+                                        <GridItem label="PATIO" value={selectedRequest.has_yard ? 'Sí' : 'No'} theme={theme} icon={<Trees size={16} color={theme.primary} />} />
+                                        <GridItem label="SITUACIÓN" value={selectedRequest.own_or_rent} theme={theme} icon={<Key size={16} color={theme.primary} />} />
+                                        <GridItem label="NIÑOS" value={selectedRequest.has_children ? 'Sí' : 'No'} theme={theme} icon={<Baby size={16} color={theme.primary} />} />
+                                        <GridItem label="SOLO" value={`${selectedRequest.hours_alone}h`} theme={theme} icon={<Clock size={16} color={theme.primary} />} />
+                                        <GridItem label="OTRAS MASCOTAS" value={selectedRequest.other_pets ? 'Sí' : 'No'} theme={theme} icon={<PawPrint size={16} color={theme.primary} />} />
                                     </View>
                                 </View>
 
@@ -122,12 +122,12 @@ export default function VerSolicitudesScreen() {
                                         <Text style={[styles.detailTitle, { color: theme.text }]}>Compromisos</Text>
                                     </View>
                                     <View style={styles.commitmentRow}>
-                                        <Check size={16} color="#10b981" />
+                                        <Check size={16} color={theme.success} />
                                         <Text style={[styles.commitmentText, { color: theme.text }]}>Acepta compromiso financiero</Text>
                                     </View>
                                     {selectedRequest.own_or_rent === 'Renta' && (
                                         <View style={styles.commitmentRow}>
-                                            <Check size={16} color={selectedRequest.landlord_permission ? "#10b981" : "#ef4444"} />
+                                            <Check size={16} color={selectedRequest.landlord_permission ? theme.success : theme.error} />
                                             <Text style={[styles.commitmentText, { color: theme.text }]}>
                                                 {selectedRequest.landlord_permission ? 'Tiene permiso del casero' : 'No tiene permiso del casero'}
                                             </Text>
@@ -141,23 +141,23 @@ export default function VerSolicitudesScreen() {
                             {selectedRequest?.status === 'PENDING' ? (
                                 <>
                                     <TouchableOpacity
-                                        style={[styles.statusBtn, { backgroundColor: '#ef444420', borderColor: '#ef4444' }]}
+                                        style={[styles.statusBtn, { backgroundColor: theme.error + '20', borderColor: theme.error }]}
                                         onPress={() => handleStatusUpdate(selectedRequest.id, 'REJECTED')}
                                     >
-                                        <X size={20} color="#ef4444" />
-                                        <Text style={[styles.statusBtnText, { color: '#ef4444' }]}>Rechazar</Text>
+                                        <X size={20} color={theme.error} />
+                                        <Text style={[styles.statusBtnText, { color: theme.error }]}>Rechazar</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        style={[styles.statusBtn, { backgroundColor: '#10b98120', borderColor: '#10b981' }]}
+                                        style={[styles.statusBtn, { backgroundColor: theme.success + '20', borderColor: theme.success }]}
                                         onPress={() => handleStatusUpdate(selectedRequest.id, 'APPROVED')}
                                     >
-                                        <Check size={20} color="#10b981" />
-                                        <Text style={[styles.statusBtnText, { color: '#10b981' }]}>Aprobar</Text>
+                                        <Check size={20} color={theme.success} />
+                                        <Text style={[styles.statusBtnText, { color: theme.success }]}>Aprobar</Text>
                                     </TouchableOpacity>
                                 </>
                             ) : (
-                                <View style={[styles.finalStatus, { backgroundColor: getStatusColor(selectedRequest?.status || '') + '20' }]}>
-                                    <Text style={[styles.finalStatusText, { color: getStatusColor(selectedRequest?.status || '') }]}>
+                                <View style={[styles.finalStatus, { backgroundColor: getStatusColor(selectedRequest?.status || '', theme) + '20' }]}>
+                                    <Text style={[styles.finalStatusText, { color: getStatusColor(selectedRequest?.status || '', theme) }]}>
                                         Solicitud {selectedRequest?.status}
                                     </Text>
                                 </View>
@@ -170,10 +170,10 @@ export default function VerSolicitudesScreen() {
     );
 }
 
-function GridItem({ label, value, theme, icon }: { label: string, value: string, theme: any, icon: string }) {
+function GridItem({ label, value, theme, icon }: { label: string, value: string, theme: any, icon: React.ReactNode }) {
     return (
         <View style={styles.gridItem}>
-            <Text style={styles.statIconSmall}>{icon}</Text>
+            <View>{icon}</View>
             <View>
                 <Text style={[styles.gridLabel, { color: theme.textMuted }]}>{label}</Text>
                 <Text style={[styles.gridValue, { color: theme.text }]}>{value}</Text>
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     requestHeader: {
         flexDirection: 'row',
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 10,
         marginBottom: 12,
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         padding: 10,
         borderRadius: 12,
     },

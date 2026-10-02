@@ -41,7 +41,7 @@ export default function AseguradorasScreen() {
                 </View>
             </View>
 
-            <View style={styles.planStats}>
+            <View style={[styles.planStats, { borderTopColor: theme.border, borderBottomColor: theme.border }]}>
                 <View style={styles.statItem}>
                     <DollarSign size={14} color={theme.primary} />
                     <Text style={[styles.statText, { color: theme.text }]}>
@@ -49,7 +49,7 @@ export default function AseguradorasScreen() {
                     </Text>
                     <Text style={[styles.statLabel, { color: theme.textMuted }]}>Cobertura</Text>
                 </View>
-                <View style={styles.statDivider} />
+                <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
                 <View style={styles.statItem}>
                     <DollarSign size={14} color={theme.secondary} />
                     <Text style={[styles.statText, { color: theme.text }]}>
@@ -57,7 +57,7 @@ export default function AseguradorasScreen() {
                     </Text>
                     <Text style={[styles.statLabel, { color: theme.textMuted }]}>Prima</Text>
                 </View>
-                <View style={styles.statDivider} />
+                <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
                 <View style={styles.statItem}>
                     <Clock size={14} color={theme.textMuted} />
                     <Text style={[styles.statText, { color: theme.text }]}>
@@ -71,7 +71,7 @@ export default function AseguradorasScreen() {
                 {item.allowed_species.map((species, index) => (
                     <View key={index} style={[styles.speciesTag, { backgroundColor: theme.secondary + '15' }]}>
                         <Text style={[styles.speciesText, { color: theme.secondary }]}>
-                            {species === 'dog' ? '🐕 Perro' : species === 'cat' ? '🐈 Gato' : species}
+                            {species === 'dog' ? 'Perro' : species === 'cat' ? 'Gato' : species}
                         </Text>
                     </View>
                 ))}
@@ -88,7 +88,7 @@ export default function AseguradorasScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🛡️ Aseguradoras"
+                title="Aseguradoras"
                 subtitle="Protege a tu mascota con el mejor seguro"
             />
 

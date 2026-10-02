@@ -131,12 +131,32 @@ def delete_product(db: Session, product_id: str):
 def get_donation(db: Session, donation_id: str):
     return db.query(Donation).filter(Donation.id == donation_id).first()
 
-def get_donations(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Donation).order_by(Donation.date.desc()).offset(skip).limit(limit).all()
+# "completed" son donaciones registradas antes de existir el cobro con Stripe
+PAID_DONATION_STATUSES = ("paid", "completed")
 
-def create_donation(db: Session, donation: DonationCreate, user_id: str = None):
+def get_donations(db: Session, skip: int = 0, limit: int = 100):
+    """Listado público: solo donaciones realmente cobradas."""
+    return db.query(Donation).filter(Donation.status.in_(PAID_DONATION_STATUSES)).order_by(Donation.date.desc()).offset(skip).limit(limit).all()
+
+def get_user_donations(db: Session, user_id: str, skip: int = 0, limit: int = 50):
+    return db.query(Donation).filter(Donation.user_id == user_id).order_by(Donation.date.desc()).offset(skip).limit(limit).all()
+
+def mark_donation_paid(db: Session, db_donation: Donation):
+    """Idempotente: un evento repetido de Stripe no vuelve a modificar una donación ya pagada."""
+    if db_donation.status in PAID_DONATION_STATUSES:
+        return db_donation
+    db_donation.status = "paid"
+    db_donation.paid_at = datetime.now(timezone.utc)
+    db.add(db_donation)
+    db.commit()
+    db.refresh(db_donation)
+    return db_donation
+
+def create_donation(db: Session, donation: DonationCreate, user_id: str = None, status: str = "pending", stripe_session_id: str = None):
     db_donation = Donation(**donation.model_dump())
     db_donation.user_id = user_id
+    db_donation.status = status
+    db_donation.stripe_session_id = stripe_session_id
     db.add(db_donation)
     db.commit()
     db.refresh(db_donation)

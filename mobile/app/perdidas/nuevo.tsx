@@ -124,7 +124,7 @@ export default function NuevoReporteScreen() {
                         key={opt}
                         style={[
                             styles.optionBtn,
-                            { backgroundColor: theme.surface },
+                            { backgroundColor: theme.surface, borderColor: theme.border },
                             form[field as keyof typeof form] === opt && { backgroundColor: theme.primary, borderColor: theme.primary }
                         ]}
                         onPress={() => setForm({ ...form, [field]: opt })}
@@ -148,6 +148,7 @@ export default function NuevoReporteScreen() {
                         <TouchableOpacity
                             style={[
                                 styles.typeBtn,
+                                { backgroundColor: theme.surface, borderColor: theme.border },
                                 form.report_type === 'lost' && { backgroundColor: theme.error, borderColor: theme.error }
                             ]}
                             onPress={() => setForm({ ...form, report_type: 'lost' })}
@@ -158,6 +159,7 @@ export default function NuevoReporteScreen() {
                         <TouchableOpacity
                             style={[
                                 styles.typeBtn,
+                                { backgroundColor: theme.surface, borderColor: theme.border },
                                 form.report_type === 'found' && { backgroundColor: theme.info, borderColor: theme.info }
                             ]}
                             onPress={() => setForm({ ...form, report_type: 'found' })}
@@ -167,7 +169,7 @@ export default function NuevoReporteScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.imageSelector} onPress={pickImage}>
+                    <TouchableOpacity style={[styles.imageSelector, { borderColor: theme.border }]} onPress={pickImage}>
                         {image ? (
                             <Image source={{ uri: image }} style={styles.selectedImage} />
                         ) : (
@@ -185,7 +187,7 @@ export default function NuevoReporteScreen() {
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: theme.text }]}>Nombre o Identificador</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Ej. Firulais / Perro salchicha café"
                                 placeholderTextColor={theme.textMuted}
                                 value={form.pet_name}
@@ -199,7 +201,7 @@ export default function NuevoReporteScreen() {
                             <View style={[styles.inputGroup, { flex: 1 }]}>
                                 <Text style={[styles.label, { color: theme.text }]}>Raza</Text>
                                 <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                     placeholder="Ej. Husky"
                                     placeholderTextColor={theme.textMuted}
                                     value={form.breed}
@@ -209,7 +211,7 @@ export default function NuevoReporteScreen() {
                             <View style={[styles.inputGroup, { flex: 1 }]}>
                                 <Text style={[styles.label, { color: theme.text }]}>Color</Text>
                                 <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                     placeholder="Ej. Blanco / Negro"
                                     placeholderTextColor={theme.textMuted}
                                     value={form.color}
@@ -226,7 +228,7 @@ export default function NuevoReporteScreen() {
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: theme.text }]}>¿Dónde se vió por última vez?</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Ej. Parque México"
                                 placeholderTextColor={theme.textMuted}
                                 value={form.last_seen_location}
@@ -238,7 +240,7 @@ export default function NuevoReporteScreen() {
                         <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 8 }}>
                             El reporte se ubica en tu posición actual. Si no estás en el lugar, escribe la zona exacta arriba.
                         </Text>
-                        <View style={styles.mapWrapper}>
+                        <View style={[styles.mapWrapper, { borderColor: theme.border }]}>
                             <WebMapView
                                 style={styles.map}
                                 initialLatitude={location?.latitude || 19.4326}
@@ -269,7 +271,7 @@ export default function NuevoReporteScreen() {
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: theme.text }]}>Teléfono de Contacto</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Tus 10 dígitos"
                                 keyboardType="phone-pad"
                                 placeholderTextColor={theme.textMuted}
@@ -281,7 +283,7 @@ export default function NuevoReporteScreen() {
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: theme.text }]}>Detalles Extra</Text>
                             <TextInput
-                                style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Comportamiento, señas particulares, si responde a su nombre..."
                                 placeholderTextColor={theme.textMuted}
                                 multiline
@@ -355,7 +357,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     scroll: {
         padding: 24,
@@ -374,27 +376,27 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 10,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'transparent',
     },
     typeText: {
         fontSize: 13,
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: 0.5,
     },
     imageSelector: {
         width: '100%',
         height: 250,
-        borderRadius: 32,
+        borderRadius: 24,
         overflow: 'hidden',
         marginBottom: 32,
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'transparent',
     },
     imagePlaceholder: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        backgroundColor: 'transparent',
     },
     imagePlaceholderText: {
         fontSize: 12,
@@ -430,8 +432,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 14,
-        fontWeight: '900',
-        color: '#64748b',
+        fontWeight: '800',
         marginLeft: 4,
     },
     input: {
@@ -441,7 +442,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'transparent',
     },
     textArea: {
         height: 120,
@@ -461,7 +462,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'transparent',
     },
     optionText: {
         fontSize: 13,
@@ -469,10 +470,10 @@ const styles = StyleSheet.create({
     },
     mapWrapper: {
         height: 280,
-        borderRadius: 32,
+        borderRadius: 24,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: 'transparent',
         marginTop: 8,
     },
     map: {

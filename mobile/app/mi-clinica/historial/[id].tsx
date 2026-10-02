@@ -34,7 +34,7 @@ export default function GenerarFichaMedicaScreen() {
                             <View style={{ flex: 1 }}>
                                 <Text style={[styles.bannerTitle, { color: theme.text }]}>Consulta Médica</Text>
                                 <Text style={[styles.bannerSub, { color: theme.textMuted }]}>
-                                    {appointment ? `Cita de: ${appointment.clinic_name}` : 'Documentación Directa'}
+                                    {appointment ? `Paciente: ${appointment.pet_name || 'sin nombre'}` : 'Cargando cita...'}
                                 </Text>
                             </View>
                         </View>
@@ -108,7 +108,7 @@ export default function GenerarFichaMedicaScreen() {
                         {/* Section 3: Prescriptions */}
                         <View style={styles.sectionHeaderRow}>
                             <Text style={[styles.sectionLabel, { color: theme.text }]}>Receta Médica</Text>
-                            <TouchableOpacity style={[styles.addPrescBtn, { backgroundColor: theme.primary + '15' }]} onPress={addPrescriptionRow}>
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Añadir medicamento" style={[styles.addPrescBtn, { backgroundColor: theme.primary + '15' }]} onPress={addPrescriptionRow}>
                                 <Plus size={16} color={theme.primary} />
                                 <Text style={{ color: theme.primary, fontWeight: '700' }}>Añadir Medicamento</Text>
                             </TouchableOpacity>
@@ -119,8 +119,8 @@ export default function GenerarFichaMedicaScreen() {
                                 <View style={styles.prescHeader}>
                                     <Pill size={18} color={theme.primary} />
                                     <Text style={[styles.prescTitle, { color: theme.text }]}>Medicamento #{idx + 1}</Text>
-                                    <TouchableOpacity onPress={() => removePrescription(idx)}>
-                                        <Trash2 size={18} color="#ef4444" />
+                                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Quitar medicamento ${idx + 1}`} onPress={() => removePrescription(idx)}>
+                                        <Trash2 size={18} color={theme.error} />
                                     </TouchableOpacity>
                                 </View>
 
@@ -207,11 +207,11 @@ const styles = StyleSheet.create({
     row: { flexDirection: 'row', gap: 16 },
     sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, marginTop: 12 },
     addPrescBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
-    prescCard: { padding: 20, borderRadius: 24, marginBottom: 16, gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    prescCard: { padding: 20, borderRadius: 24, marginBottom: 16, gap: 12, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     prescHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
     prescTitle: { fontSize: 14, fontWeight: '800', flex: 1 },
     pInput: { height: 44, borderBottomWidth: 1, fontSize: 14, fontWeight: '600' },
     emptyPresc: { padding: 30, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, alignItems: 'center', marginBottom: 24 },
-    saveBtn: { height: 64, borderRadius: 24, flexDirection: 'row', gap: 12, justifyContent: 'center', alignItems: 'center', marginTop: 20, shadowColor: '#7c3aed', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 12 },
+    saveBtn: { height: 64, borderRadius: 24, flexDirection: 'row', gap: 12, justifyContent: 'center', alignItems: 'center', marginTop: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 12 },
     saveBtnText: { color: '#fff', fontSize: 17, fontWeight: '900' },
 });

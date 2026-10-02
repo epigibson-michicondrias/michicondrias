@@ -5,6 +5,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicConfig } from '@/src/hooks/clinica/useClinicConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import { Save, MapPin, Phone, Mail, Clock, ShieldCheck, Camera } from 'lucide-react-native';
 
 export default function ConfigClinicaScreen() {
@@ -12,7 +13,7 @@ export default function ConfigClinicaScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const {
-        loading, form, setForm, loadingClinic, handleSave, updateField,
+        loading, form, setForm, loadingClinic, handleSave, updateField, logoUri, setLogoUri,
     } = useClinicConfig(id as string);
 
     if (loadingClinic) {
@@ -32,6 +33,8 @@ export default function ConfigClinicaScreen() {
                         subtitle="Perfil de tu clínica"
                         rightElement={
                             <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityLabel="Guardar cambios"
                                 style={[styles.saveTopBtn, { backgroundColor: theme.primary }]}
                                 onPress={handleSave}
                                 disabled={loading}
@@ -44,12 +47,14 @@ export default function ConfigClinicaScreen() {
                     <View style={styles.content}>
                         {/* Logo Section */}
                         <View style={styles.logoSection}>
-                            <View style={styles.logoContainer}>
-                                <Image
-                                    source={{ uri: form.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=400' }}
-                                    style={styles.logoImage}
-                                />
-                            </View>
+                            <FormImagePicker
+                                circular
+                                imageUri={logoUri || form.logo_url || null}
+                                onImageSelected={setLogoUri}
+                                aspect={[1, 1]}
+                                previewHeight={110}
+                                placeholder="Logo de la clínica"
+                            />
                         </View>
 
                         {/* Basic Info */}
@@ -141,14 +146,14 @@ export default function ConfigClinicaScreen() {
                             <Switch
                                 value={form.is_24_hours}
                                 onValueChange={(v) => updateField('is_24_hours', v)}
-                                trackColor={{ false: '#767577', true: theme.primary + '80' }}
-                                thumbColor={form.is_24_hours ? theme.primary : '#f4f3f4'}
+                                trackColor={{ false: theme.border, true: theme.primary + '80' }}
+                                thumbColor={form.is_24_hours ? theme.primary : theme.surface}
                             />
                         </View>
 
                         <View style={[styles.switchCard, { backgroundColor: theme.surface }]}>
                             <View style={styles.switchInfo}>
-                                <ShieldCheck size={20} color="#10b981" />
+                                <ShieldCheck size={20} color={theme.success} />
                                 <View>
                                     <Text style={[styles.switchLabel, { color: theme.text }]}>Urgencias Médicas</Text>
                                     <Text style={[styles.switchSub, { color: theme.textMuted }]}>Ofreces atención inmediata de emergencia</Text>
@@ -157,8 +162,8 @@ export default function ConfigClinicaScreen() {
                             <Switch
                                 value={form.has_emergency}
                                 onValueChange={(v) => updateField('has_emergency', v)}
-                                trackColor={{ false: '#767577', true: '#10b98180' }}
-                                thumbColor={form.has_emergency ? '#10b981' : '#f4f3f4'}
+                                trackColor={{ false: theme.border, true: theme.success + '80' }}
+                                thumbColor={form.has_emergency ? theme.success : theme.surface}
                             />
                         </View>
 
@@ -195,7 +200,7 @@ const styles = StyleSheet.create({
     inputRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 56, borderRadius: 16, paddingHorizontal: 16, borderWidth: 1 },
     rowInput: { flex: 1, fontSize: 15, fontWeight: '600' },
     row: { flexDirection: 'row', gap: 16 },
-    switchCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderRadius: 24, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    switchCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderRadius: 24, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     switchInfo: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
     switchLabel: { fontSize: 15, fontWeight: '800' },
     switchSub: { fontSize: 12, fontWeight: '600', marginTop: 2 },

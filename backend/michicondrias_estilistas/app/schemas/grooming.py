@@ -55,6 +55,7 @@ class GroomingAppointmentOut(GroomingAppointmentBase):
     pet_name: Optional[str] = None
     client_name: Optional[str] = None
     groomer_name: Optional[str] = None
+    reviewed: bool = False  # el usuario ya reseñó esta cita
 
     class Config:
         from_attributes = True
@@ -91,6 +92,28 @@ class GroomingServiceOut(BaseModel):
     is_active: bool
     created_at: datetime
     groomer_name: Optional[str] = None
+    groomer_rating_avg: float = 0.0
+    groomer_rating_count: int = 0
 
     class Config:
         from_attributes = True
+
+
+# Reviews
+class GroomingReviewCreate(BaseModel):
+    rating: int = Field(..., ge=1, le=5)
+    comment: Optional[str] = Field(None, max_length=1000)
+
+class GroomingReviewOut(BaseModel):
+    id: str
+    appointment_id: str
+    rating: int
+    comment: Optional[str] = None
+    created_at: Optional[datetime] = None
+    author_name: Optional[str] = None
+    is_mine: bool = False
+
+class GroomingReviewsSummary(BaseModel):
+    average: float = 0.0
+    count: int = 0
+    reviews: List[GroomingReviewOut] = []

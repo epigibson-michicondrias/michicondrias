@@ -3,11 +3,12 @@ import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ActivityInd
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProfile } from '@/src/hooks/perfil';
+import { BIO_MAX } from '@/src/hooks/perfil/useProfile';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { Mail, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, ChevronLeft, Palette, CreditCard, Lock } from 'lucide-react-native';
+import { Mail, Phone, MapPin, FileText, Trash2, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, ChevronLeft, Palette, CreditCard, Lock } from 'lucide-react-native';
 
 export default function PerfilScreen() {
     const router = useRouter();
@@ -175,6 +176,47 @@ export default function PerfilScreen() {
                         </Text>
                     </View>
 
+                    <View style={styles.inputGroup}>
+                        <Text style={[styles.inputLabel, { color: theme.textMuted }]}>Teléfono (opcional)</Text>
+                        <TextInput
+                            style={[styles.textInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+                            value={formData.phone}
+                            onChangeText={(text) => updateField('phone', text)}
+                            placeholder="Ej. +52 55 1234 5678"
+                            placeholderTextColor={theme.textMuted}
+                            keyboardType="phone-pad"
+                            maxLength={30}
+                        />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={[styles.inputLabel, { color: theme.textMuted }]}>Ubicación (opcional)</Text>
+                        <TextInput
+                            style={[styles.textInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+                            value={formData.location}
+                            onChangeText={(text) => updateField('location', text)}
+                            placeholder="Ciudad, estado"
+                            placeholderTextColor={theme.textMuted}
+                            maxLength={120}
+                        />
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                        <Text style={[styles.inputLabel, { color: theme.textMuted }]}>Sobre mí (opcional)</Text>
+                        <TextInput
+                            style={[styles.textInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text, minHeight: 90, textAlignVertical: 'top' }]}
+                            value={formData.bio}
+                            onChangeText={(text) => updateField('bio', text)}
+                            placeholder="Cuéntanos un poco sobre ti y tus mascotas"
+                            placeholderTextColor={theme.textMuted}
+                            multiline
+                            maxLength={BIO_MAX}
+                        />
+                        <Text style={[styles.inputLabel, { color: theme.textMuted, marginTop: 6, marginBottom: 0 }]}>
+                            {formData.bio.length}/{BIO_MAX}
+                        </Text>
+                    </View>
+
                     <View style={styles.editActions}>
                         <TouchableOpacity
                             style={[styles.cancelButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
@@ -214,6 +256,36 @@ export default function PerfilScreen() {
                         </Text>
                     </View>
                 </View>
+
+                {profile?.phone ? (
+                    <View style={styles.infoRow}>
+                        <Phone size={20} color={theme.primary} />
+                        <View style={styles.infoContent}>
+                            <Text style={[styles.infoLabel, { color: theme.textMuted }]}>Teléfono</Text>
+                            <Text style={[styles.infoValue, { color: theme.text }]}>{profile.phone}</Text>
+                        </View>
+                    </View>
+                ) : null}
+
+                {profile?.location ? (
+                    <View style={styles.infoRow}>
+                        <MapPin size={20} color={theme.primary} />
+                        <View style={styles.infoContent}>
+                            <Text style={[styles.infoLabel, { color: theme.textMuted }]}>Ubicación</Text>
+                            <Text style={[styles.infoValue, { color: theme.text }]}>{profile.location}</Text>
+                        </View>
+                    </View>
+                ) : null}
+
+                {profile?.bio ? (
+                    <View style={styles.infoRow}>
+                        <FileText size={20} color={theme.primary} />
+                        <View style={styles.infoContent}>
+                            <Text style={[styles.infoLabel, { color: theme.textMuted }]}>Sobre mí</Text>
+                            <Text style={[styles.infoValue, { color: theme.text }]}>{profile.bio}</Text>
+                        </View>
+                    </View>
+                ) : null}
             </View>
 
             {/* Quick Actions */}
@@ -355,12 +427,35 @@ export default function PerfilScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Bio Section - Temporarily hidden */}
+            {/* Eliminar cuenta (requisito de las tiendas de apps) */}
+            <TouchableOpacity
+                style={styles.deleteAccountRow}
+                onPress={() => router.push('/perfil/eliminar-cuenta' as any)}
+                accessibilityRole="button"
+                accessibilityLabel="Eliminar mi cuenta"
+            >
+                <Trash2 size={18} color={theme.error} />
+                <Text style={[styles.deleteAccountText, { color: theme.error }]}>Eliminar mi cuenta</Text>
+            </TouchableOpacity>
         </KeyboardScreen>
     );
 }
 
 const styles = StyleSheet.create({
+    deleteAccountRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        marginHorizontal: 24,
+        marginTop: 4,
+        marginBottom: 40,
+        paddingVertical: 14,
+    },
+    deleteAccountText: {
+        fontSize: 14,
+        fontWeight: '700',
+    },
     container: {
         flex: 1,
     },

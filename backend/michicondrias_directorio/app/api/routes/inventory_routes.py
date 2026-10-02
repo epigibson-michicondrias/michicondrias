@@ -76,9 +76,17 @@ def add_inventory_item(
     if not clinic or clinic.owner_user_id != user_id:
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
+    name = (item_data.get("name") or "").strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="El nombre del producto es obligatorio")
+    for key in ("currentStock", "minStock", "maxStock", "costPerUnit"):
+        val = item_data.get(key, 0) or 0
+        if not isinstance(val, (int, float)) or val < 0:
+            raise HTTPException(status_code=400, detail="Las cantidades no pueden ser negativas")
+
     new_item = InventoryItems(
         clinic_id=clinic_id,
-        name=item_data.get("name"),
+        name=name,
         description=item_data.get("description", ""),
         category=item_data.get("category", ""),
         unit=item_data.get("unit", "unit"),
@@ -116,10 +124,24 @@ def update_inventory_item(
         raise HTTPException(status_code=404, detail="Item not found")
         
     # Update fields
+    for key in ("currentStock", "minStock"):
+        if key in item_data:
+            val = item_data[key]
+            if not isinstance(val, (int, float)) or val < 0:
+                raise HTTPException(status_code=400, detail="Las cantidades no pueden ser negativas")
     if "currentStock" in item_data:
+        # Si sube el stock, se registra el reabastecimiento
+        if item_data["currentStock"] > (item.current_stock or 0):
+            item.last_restocked_at = datetime.utcnow()
         item.current_stock = item_data["currentStock"]
     if "minStock" in item_data:
         item.min_stock = item_data["minStock"]
+    if "name" in item_data and (item_data["name"] or "").strip():
+        item.name = item_data["name"].strip()
+    if "category" in item_data:
+        item.category = item_data["category"] or ""
+    if "unit" in item_data and (item_data["unit"] or "").strip():
+        item.unit = item_data["unit"].strip()
     if "lastRestockedAt" in item_data:
         item.last_restocked_at = datetime.utcnow()
         

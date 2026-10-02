@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Camera, MapPin, Check, Plus, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed, Info } from 'lucide-react-native';
-import BackButton from '@/src/components/BackButton';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petfriendly';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -18,10 +18,10 @@ import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 const { width } = Dimensions.get('window');
 
 const CATEGORIES = [
-    { id: 'Restaurante', icon: Utensils, color: '#f87171' },
-    { id: 'Cafetería', icon: Coffee, color: '#fbbf24' },
-    { id: 'Parque', icon: TreePine, color: '#4ade80' },
-    { id: 'Tienda', icon: ShoppingBag, color: '#60a5fa' },
+    { id: 'Restaurante', icon: Utensils },
+    { id: 'Cafetería', icon: Coffee },
+    { id: 'Parque', icon: TreePine },
+    { id: 'Tienda', icon: ShoppingBag },
 ];
 
 const SIZES = ['Pequeño', 'Mediano', 'Grande', 'Todos'];
@@ -39,6 +39,7 @@ export default function NuevoLugarScreen() {
         name: '',
         category: 'Restaurante',
         address: '',
+        city: '',
         phone: '',
         website: '',
         description: '',
@@ -47,8 +48,8 @@ export default function NuevoLugarScreen() {
         has_pet_menu: 'No',
     });
 
-    useEffect(() => {
-        (async () => {
+    const locate = async () => {
+        {
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
@@ -61,10 +62,12 @@ export default function NuevoLugarScreen() {
                     longitude: loc.coords.longitude,
                 });
             } catch (error) {
-                console.warn('Location services unavailable:', error);
+                showAlert({ type: 'warning', title: 'Ubicación no disponible', message: 'No pudimos obtener tu ubicación. Revisa que el GPS esté activo e inténtalo de nuevo.' });
             }
-        })();
-    }, []);
+        }
+    };
+
+    useEffect(() => { locate(); }, []);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -80,8 +83,10 @@ export default function NuevoLugarScreen() {
     };
 
     const handleSave = async () => {
-        if (!form.name) return showAlert({ type: 'error', title: 'Error', message: 'El nombre del lugar es obligatorio' });
-        if (!location) return showAlert({ type: 'error', title: 'Error', message: 'Debes marcar la ubicación en el mapa' });
+        if (!form.name.trim()) return showAlert({ type: 'error', title: 'Falta el nombre', message: 'El nombre del lugar es obligatorio.' });
+        if (!location) return showAlert({ type: 'error', title: 'Falta la ubicación', message: 'Necesitamos tu ubicación para ubicar el lugar en el mapa. Toca "Usar mi ubicación actual".' });
+        if (form.website.trim() && !/^https?:\/\//i.test(form.website.trim())) return showAlert({ type: 'error', title: 'Sitio web inválido', message: 'El enlace debe empezar con http:// o https://' });
+        if (form.phone.trim() && form.phone.replace(/\D/g, '').length < 10) return showAlert({ type: 'error', title: 'Teléfono inválido', message: 'Escribe un teléfono de 10 dígitos.' });
         if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
 
         setLoading(true);
@@ -98,7 +103,15 @@ export default function NuevoLugarScreen() {
 
             await createPlace({
                 ...form,
-                added_by: user.id,
+                name: form.name.trim(),
+                address: form.address.trim() || null,
+                city: form.city.trim() || null,
+                phone: form.phone.trim() || null,
+                website: form.website.trim() || null,
+                description: form.description.trim() || null,
+                pet_sizes_allowed: form.pet_sizes_allowed.toLowerCase(),
+                has_water_bowls: form.has_water_bowls === 'Sí' ? 'si' : 'no',
+                has_pet_menu: form.has_pet_menu === 'Sí' ? 'si' : 'no',
                 latitude: location.latitude,
                 longitude: location.longitude,
                 image_url,
@@ -108,7 +121,6 @@ export default function NuevoLugarScreen() {
             showAlert({ type: 'success', title: '¡Gracias!', message: 'Has contribuido a que más michis y lomitos encuentren lugares geniales.' });
             router.back();
         } catch (error) {
-            console.error(error);
             showAlert({ type: 'error', title: 'No se pudo registrar el lugar', message: error instanceof Error ? error.message : 'Inténtalo de nuevo.' });
         } finally {
             setLoading(false);
@@ -118,14 +130,10 @@ export default function NuevoLugarScreen() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <BackButton onPress={() => router.back()} />
-                    <Text style={[styles.title, { color: theme.text }]}>Registrar Lugar Pet Friendly</Text>
-                    <View style={{ width: 44 }} />
-                </View>
+                <ScreenHeader title="Registrar lugar" subtitle="Pet friendly" />
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                    <TouchableOpacity style={styles.imageSelector} onPress={pickImage}>
+                    <TouchableOpacity style={styles.imageSelector} onPress={pickImage} accessibilityRole="button" accessibilityLabel="Elegir foto de portada">
                         {image ? (
                             <Image source={{ uri: image }} style={styles.selectedImage} />
                         ) : (
@@ -139,7 +147,7 @@ export default function NuevoLugarScreen() {
                     <View style={styles.form}>
                         <Text style={[styles.label, { color: theme.text }]}>Nombre del Establecimiento</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Ej. El Michi Café"
                             placeholderTextColor={theme.textMuted}
                             value={form.name}
@@ -158,13 +166,16 @@ export default function NuevoLugarScreen() {
                                     ]}
                                     onPress={() => setForm({ ...form, category: cat.id })}
                                 >
-                                    <cat.icon size={18} color={form.category === cat.id ? '#fff' : cat.color} />
+                                    <cat.icon size={18} color={form.category === cat.id ? '#fff' : theme.primary} />
                                     <Text style={[styles.catText, { color: form.category === cat.id ? '#fff' : theme.text }]}>{cat.id}</Text>
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
 
-                        <Text style={[styles.label, { color: theme.text }]}>Ubicación en el Mapa</Text>
+                        <Text style={[styles.label, { color: theme.text }]}>Ubicación</Text>
+                        <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 8 }}>
+                            Se usa tu posición actual: regístralo estando en el lugar.
+                        </Text>
                         <View style={styles.mapWrapper}>
                             <WebMapView
                                 style={styles.map}
@@ -181,9 +192,48 @@ export default function NuevoLugarScreen() {
                             />
                         </View>
 
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Usar mi ubicación actual"
+                            onPress={locate}
+                            style={{ alignSelf: 'flex-start', marginBottom: 16 }}
+                        >
+                            <Text style={{ color: theme.primary, fontWeight: '800' }}>{location ? 'Actualizar mi ubicación' : 'Usar mi ubicación actual'}</Text>
+                        </TouchableOpacity>
+
+                        <Text style={[styles.label, { color: theme.text }]}>Ciudad</Text>
+                        <TextInput
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                            placeholder="Ej. Ciudad de México"
+                            placeholderTextColor={theme.textMuted}
+                            value={form.city}
+                            onChangeText={(t) => setForm({ ...form, city: t })}
+                        />
+
+                        <Text style={[styles.label, { color: theme.text }]}>Teléfono (Opcional)</Text>
+                        <TextInput
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                            placeholder="10 dígitos"
+                            placeholderTextColor={theme.textMuted}
+                            keyboardType="phone-pad"
+                            value={form.phone}
+                            onChangeText={(t) => setForm({ ...form, phone: t })}
+                        />
+
+                        <Text style={[styles.label, { color: theme.text }]}>Sitio web (Opcional)</Text>
+                        <TextInput
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                            placeholder="https://..."
+                            placeholderTextColor={theme.textMuted}
+                            autoCapitalize="none"
+                            keyboardType="url"
+                            value={form.website}
+                            onChangeText={(t) => setForm({ ...form, website: t })}
+                        />
+
                         <Text style={[styles.label, { color: theme.text }]}>Dirección (Opcional)</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Ej. Calle 123, Col. Centro"
                             placeholderTextColor={theme.textMuted}
                             value={form.address}
@@ -198,7 +248,7 @@ export default function NuevoLugarScreen() {
                             >
                                 <Droplets size={20} color={form.has_water_bowls === 'Sí' ? theme.primary : theme.textMuted} />
                                 <Text style={[styles.amenityText, { color: theme.text }]}>Platos con agua</Text>
-                                {form.has_water_bowls === 'Sí' && <View style={styles.checkBadge}><Check size={10} color="#fff" /></View>}
+                                {form.has_water_bowls === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color="#fff" /></View>}
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.amenityBtn, { backgroundColor: theme.surface }, form.has_pet_menu === 'Sí' && { borderColor: theme.primary }]}
@@ -206,7 +256,7 @@ export default function NuevoLugarScreen() {
                             >
                                 <UtensilsCrossed size={20} color={form.has_pet_menu === 'Sí' ? theme.primary : theme.textMuted} />
                                 <Text style={[styles.amenityText, { color: theme.text }]}>Menú para mascotas</Text>
-                                {form.has_pet_menu === 'Sí' && <View style={styles.checkBadge}><Check size={10} color="#fff" /></View>}
+                                {form.has_pet_menu === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color="#fff" /></View>}
                             </TouchableOpacity>
                         </View>
 
@@ -229,7 +279,7 @@ export default function NuevoLugarScreen() {
 
                         <Text style={[styles.label, { color: theme.text }]}>Descripción y Tips</Text>
                         <TextInput
-                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Cosas que otros dueños deberían saber..."
                             placeholderTextColor={theme.textMuted}
                             multiline
@@ -292,7 +342,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
         borderStyle: 'dashed',
     },
     imagePlaceholderText: {
@@ -319,7 +369,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         fontSize: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     categoryRow: {
         gap: 10,
@@ -333,7 +383,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         gap: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     catText: {
         fontSize: 14,
@@ -365,7 +415,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
         alignItems: 'center',
         gap: 8,
     },
@@ -381,7 +431,7 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
         borderRadius: 8,
-        backgroundColor: '#6366f1',
+        backgroundColor: 'transparent',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -396,7 +446,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     sizeText: {
         fontSize: 12,
@@ -417,7 +467,7 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#6366f1',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 20,

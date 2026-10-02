@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMyClinics, getClinicAppointments } from '@/src/services/directorio';
+import { getMyClinics } from '@/src/services/directorio';
+import { getClinicPatients } from '@/src/services/patients';
 import { getClinicPrescriptions, createPrescription, updatePrescriptionStatus, PrescriptionCreatePayload } from '@/src/services/prescriptions';
-import { getPetById, Pet } from '@/src/services/mascotas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 
@@ -27,39 +27,18 @@ export function usePrescriptions() {
     });
     const clinic = clinics[0];
 
-    const { data: appointments = [] } = useQuery({
-        queryKey: ['clinic-appointments', clinic?.id],
-        queryFn: () => getClinicAppointments(clinic!.id),
+    // Pacientes reales de la clínica (una sola consulta; antes se pedía cada mascota por separado)
+    const { data: patients = [], isLoading: loadingPets } = useQuery({
+        queryKey: ['clinic-patients', clinic?.id],
+        queryFn: () => getClinicPatients(clinic!.id),
         enabled: !!clinic?.id,
     });
-
-    const uniquePetIds = useMemo(() => {
-        const ids = new Set<string>();
-        appointments.forEach(a => { if (a.pet_id) ids.add(a.pet_id); });
-        return Array.from(ids);
-    }, [appointments]);
-
-    const [resolvedPets, setResolvedPets] = useState<Pet[]>([]);
-    const [loadingPets, setLoadingPets] = useState(false);
-
-    useEffect(() => {
-        if (uniquePetIds.length === 0) return;
-        let cancelled = false;
-        setLoadingPets(true);
-        Promise.all(uniquePetIds.map(id => getPetById(id).catch(() => null)))
-            .then(results => {
-                if (!cancelled) {
-                    setResolvedPets(results.filter((p): p is Pet => p !== null));
-                    setLoadingPets(false);
-                }
-            });
-        return () => { cancelled = true; };
-    }, [uniquePetIds.join(',')]);
+    const resolvedPets = useMemo(() => patients.map((p) => ({ id: p.id, name: p.name, species: p.species || 'Mascota', breed: p.breed || undefined, owner: p.owner })), [patients]);
 
     const filteredPets = useMemo(() => {
         if (!patientSearch.trim()) return resolvedPets;
         const q = patientSearch.toLowerCase();
-        return resolvedPets.filter(p => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+        return resolvedPets.filter(p => p.name.toLowerCase().includes(q) || (p.owner || '').toLowerCase().includes(q));
     }, [resolvedPets, patientSearch]);
 
     const { data: prescriptions = [], isLoading: loadingPrescriptions } = useQuery({
@@ -70,8 +49,8 @@ export function usePrescriptions() {
     });
 
     const handleSavePrescription = async () => {
-        if (!newPresc.patientId || !newPresc.medications[0].name) {
-            showAlert({ type: 'error', title: 'Error', message: 'Paciente y al menos un medicamento son obligatorios' });
+        if (!newPresc.patientId || !newPresc.medications[0].name.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'Elige un paciente y escribe al menos un medicamento.' });
             return;
         }
         setLoadingAction(true);
@@ -89,8 +68,8 @@ export function usePrescriptions() {
             });
             showAlert({ type: 'success', title: 'Éxito', message: 'Receta emitida correctamente' });
             queryClient.invalidateQueries({ queryKey: ['clinic-prescriptions', clinic?.id] });
-        } catch (error) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la receta' });
+        } catch (error: any) {
+            showAlert({ type: 'error', title: 'Error', message: error?.message || 'No se pudo crear la receta' });
         } finally {
             setLoadingAction(false);
         }

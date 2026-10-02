@@ -68,7 +68,7 @@ export default function WalkerDetailScreen() {
                     <Text style={[styles.errorText, { color: theme.textMuted }]}>
                         No pudimos cargar la información del paseador.
                     </Text>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.retryButton, { backgroundColor: theme.primary }]}
                         onPress={() => router.back()}
                     >
@@ -101,7 +101,7 @@ export default function WalkerDetailScreen() {
                     <View style={styles.profileInfo}>
                         <Text style={[styles.profileName, { color: theme.text }]}>{walker.display_name}</Text>
                         <View style={styles.ratingRow}>
-                            <Star size={16} color="#fbbf24" fill="#fbbf24" />
+                            <Star size={16} color={theme.warning} fill={theme.warning} />
                             <Text style={[styles.ratingText, { color: theme.text }]}>
                                 {walker.rating ? walker.rating.toFixed(1) : 'Nuevo'} ({walker.total_walks} paseos)
                             </Text>
@@ -109,13 +109,13 @@ export default function WalkerDetailScreen() {
                         
                         {walker.is_verified && (
                             <View style={styles.verifiedBadge}>
-                                <Shield size={14} color="#10b981" />
+                                <Shield size={14} color={theme.success} />
                                 <Text style={styles.verifiedText}>Verificado</Text>
                             </View>
                         )}
                     </View>
 
-                    <TouchableOpacity style={styles.shareButton} onPress={() => shareContent('Paseador', `${walker.display_name} es paseador en Michicondrias 🐾`)}>
+                    <TouchableOpacity accessibilityRole="button" style={styles.shareButton} onPress={() => shareContent('Paseador', `${walker.display_name} es paseador en Michicondrias 🐾`)}>
                         <Share2 size={20} color={theme.textMuted} />
                     </TouchableOpacity>
                 </View>
@@ -127,13 +127,13 @@ export default function WalkerDetailScreen() {
                         <Text style={[styles.statNumber, { color: theme.text }]}>{walker.total_walks}</Text>
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Paseos</Text>
                     </View>
-                    <View style={styles.statDivider} />
+                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
                     <View style={styles.statItem}>
                         <Clock size={20} color={theme.primary} />
                         <Text style={[styles.statNumber, { color: theme.text }]}>{walker.experience_years ?? 0}</Text>
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Años</Text>
                     </View>
-                    <View style={styles.statDivider} />
+                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
                     <View style={styles.statItem}>
                         <Dog size={20} color={theme.primary} />
                         <Text style={[styles.statNumber, { color: theme.text }]}>{walker.max_pets_per_walk}</Text>
@@ -153,19 +153,19 @@ export default function WalkerDetailScreen() {
                 <View style={[styles.section, { backgroundColor: theme.surface }]}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios</Text>
                     <View style={styles.servicesGrid}>
-                        <View style={[styles.serviceCard, { backgroundColor: walker.accepts_dogs ? theme.primary + '10' : theme.surface }]}>
+                        <View style={[styles.serviceCard, { borderColor: theme.border }, { backgroundColor: walker.accepts_dogs ? theme.primary + '10' : theme.surface }]}>
                             <Dog size={24} color={walker.accepts_dogs ? theme.primary : theme.textMuted} />
                             <Text style={[styles.serviceName, { color: walker.accepts_dogs ? theme.primary : theme.textMuted }]}>
                                 Paseo de Perros
                             </Text>
-                            <CheckCircle size={16} color={walker.accepts_dogs ? '#10b981' : theme.textMuted} />
+                            <CheckCircle size={16} color={walker.accepts_dogs ? theme.success : theme.textMuted} />
                         </View>
-                        <View style={[styles.serviceCard, { backgroundColor: walker.accepts_cats ? theme.primary + '10' : theme.surface }]}>
+                        <View style={[styles.serviceCard, { borderColor: theme.border }, { backgroundColor: walker.accepts_cats ? theme.primary + '10' : theme.surface }]}>
                             <Cat size={24} color={walker.accepts_cats ? theme.primary : theme.textMuted} />
                             <Text style={[styles.serviceName, { color: walker.accepts_cats ? theme.primary : theme.textMuted }]}>
                                 Paseo de Gatos
                             </Text>
-                            <CheckCircle size={16} color={walker.accepts_cats ? '#10b981' : theme.textMuted} />
+                            <CheckCircle size={16} color={walker.accepts_cats ? theme.success : theme.textMuted} />
                         </View>
                     </View>
                 </View>
@@ -191,14 +191,14 @@ export default function WalkerDetailScreen() {
                 {/* Pricing */}
                 <View style={[styles.section, { backgroundColor: theme.surface }]}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Tarifas</Text>
-                    <View style={styles.pricingCard}>
+                    <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
                         <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Por hora</Text>
                         <Text style={[styles.priceAmount, { color: theme.primary }]}>
                             {walker.price_per_hour ? `$${walker.price_per_hour}` : 'Por acordar'}
                         </Text>
                     </View>
                     {walker.price_per_walk && (
-                        <View style={styles.pricingCard}>
+                        <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
                             <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Paseo individual</Text>
                             <Text style={[styles.priceAmount, { color: theme.primary }]}>
                                 ${walker.price_per_walk}
@@ -220,7 +220,7 @@ export default function WalkerDetailScreen() {
                             <View style={styles.starsRow}>
                                 {[1, 2, 3, 4, 5].map((s) => {
                                     const isFilled = s <= Math.round(walker.rating || 0);
-                                    return <Star key={s} size={16} color="#fbbf24" fill={isFilled ? "#fbbf24" : "transparent"} />;
+                                    return <Star key={s} size={16} color={theme.warning} fill={isFilled ? theme.warning : "transparent"} />;
                                 })}
                             </View>
                             <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
@@ -245,15 +245,15 @@ export default function WalkerDetailScreen() {
 
                             <View style={styles.interactiveStars}>
                                 {[1, 2, 3, 4, 5].map((starVal) => (
-                                    <TouchableOpacity
+                                    <TouchableOpacity accessibilityRole="button"
                                         key={starVal}
                                         onPress={() => setFormRating(starVal)}
                                         style={styles.starTouch}
                                     >
                                         <Star
                                             size={32}
-                                            color="#fbbf24"
-                                            fill={starVal <= formRating ? "#fbbf24" : "transparent"}
+                                            color={theme.warning}
+                                            fill={starVal <= formRating ? theme.warning : "transparent"}
                                         />
                                     </TouchableOpacity>
                                 ))}
@@ -276,7 +276,7 @@ export default function WalkerDetailScreen() {
                                 numberOfLines={3}
                             />
 
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
                                 onPress={() => {
                                     const latestRequest = unreviewedCompletedRequests[0];
@@ -332,8 +332,8 @@ export default function WalkerDetailScreen() {
                                                     <Star
                                                         key={s}
                                                         size={12}
-                                                        color="#fbbf24"
-                                                        fill={s <= review.rating ? "#fbbf24" : "transparent"}
+                                                        color={theme.warning}
+                                                        fill={s <= review.rating ? theme.warning : "transparent"}
                                                     />
                                                 ))}
                                             </View>
@@ -362,7 +362,7 @@ export default function WalkerDetailScreen() {
             {/* Action Buttons (Sticky Footer) */}
             {!isOwnProfile && (
             <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
-<TouchableOpacity
+<TouchableOpacity accessibilityRole="button"
                     style={[styles.bookButton, { backgroundColor: theme.primary }]}
                     onPress={handleBook}
                 >
@@ -388,7 +388,7 @@ export default function WalkerDetailScreen() {
                                 showsHorizontalScrollIndicator={false}
                                 keyExtractor={p => p.id}
                                 renderItem={({ item: pet }) => (
-                                    <TouchableOpacity
+                                    <TouchableOpacity accessibilityRole="button"
                                         style={[
                                             styles.petChip,
                                             { backgroundColor: theme.surface, borderColor: selectedPetId === pet.id ? theme.primary : theme.border },
@@ -414,7 +414,7 @@ export default function WalkerDetailScreen() {
                         <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Duración (minutos)</Text>
                         <View style={styles.durationRow}>
                             {[30, 45, 60, 90].map(d => (
-                                <TouchableOpacity
+                                <TouchableOpacity accessibilityRole="button"
                                     key={d}
                                     style={[
                                         styles.durationChip,
@@ -438,10 +438,10 @@ export default function WalkerDetailScreen() {
                         />
 
                         <View style={styles.modalActions}>
-                            <TouchableOpacity style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} onPress={() => setWalkModalVisible(false)}>
+                            <TouchableOpacity accessibilityRole="button" style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} onPress={() => setWalkModalVisible(false)}>
                                 <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
                                 onPress={handleSubmitWalkRequest}
                                 disabled={isRequestingWalk}
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     },
     profileName: {
         fontSize: 24,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 4,
     },
     ratingRow: {
@@ -561,7 +561,6 @@ const styles = StyleSheet.create({
     },
     statDivider: {
         width: 1,
-        backgroundColor: 'rgba(255,255,255,0.1)',
         marginHorizontal: 16,
     },
     statNumber: {
@@ -597,7 +596,6 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
         gap: 12,
     },
     serviceName: {
@@ -625,7 +623,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
     },
     priceLabel: {
         fontSize: 15,
@@ -685,7 +682,7 @@ const styles = StyleSheet.create({
     },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '80%' },
-    modalTitle: { fontSize: 22, fontWeight: '900', marginBottom: 20 },
+    modalTitle: { fontSize: 22, fontWeight: '800', marginBottom: 20 },
     modalLabel: { fontSize: 12, fontWeight: '700', marginTop: 16, marginBottom: 8 },
     petChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, marginRight: 10, borderWidth: 1 },
     petChipText: { fontSize: 14, fontWeight: '700' },
@@ -712,7 +709,7 @@ const styles = StyleSheet.create({
     },
     bigRating: {
         fontSize: 32,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     starsRow: {
         flexDirection: 'row',

@@ -56,7 +56,7 @@ export default function AdminUsersScreen() {
     } = useAdminUsers();
 
     const renderUser = ({ item }: { item: AdminUser }) => (
-        <TouchableOpacity 
+        <TouchableOpacity accessibilityRole="button" 
             activeOpacity={0.7}
             style={[styles.userCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => showAlert({ type: 'info', title: 'Detalles', message: `Viendo detalles de ${item.full_name}` })}
@@ -80,33 +80,33 @@ export default function AdminUsersScreen() {
                                 {getRoleLabelLocal(getRoleName(item.role_id, item.role_name))}
                             </Text>
                         </View>
-                        <View style={[styles.statusBadge, { backgroundColor: item.is_active ? '#10b98115' : '#ef444415' }]}>
-                            <View style={[styles.statusDot, { backgroundColor: item.is_active ? '#10b981' : '#ef4444' }]} />
-                            <Text style={[styles.statusText, { color: item.is_active ? '#10b981' : '#ef4444' }]}>
+                        <View style={[styles.statusBadge, { backgroundColor: item.is_active ? theme.success + '15' : theme.error + '15' }]}>
+                            <View style={[styles.statusDot, { backgroundColor: item.is_active ? theme.success : theme.error }]} />
+                            <Text style={[styles.statusText, { color: item.is_active ? theme.success : theme.error }]}>
                                 {item.is_active ? 'Activo' : 'Inactivo'}
                             </Text>
                         </View>
                     </View>
                 </View>
                 <View style={styles.cardActions}>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
                         onPress={() => toggleUserStatus.mutate(item.id)}
                         disabled={toggleUserStatus.isPending}
                     >
                         {item.is_active ? <EyeOff size={14} color={theme.textMuted} /> : <Eye size={14} color={theme.primary} />}
                     </TouchableOpacity>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
                         onPress={() => openEditModal(item)}
                     >
                         <Edit size={14} color={theme.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
                         onPress={() => handleDeletePress(item.id, item.full_name)}
                     >
-                        <Trash2 size={14} color="#ef4444" />
+                        <Trash2 size={14} color={theme.error} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -139,7 +139,7 @@ export default function AdminUsersScreen() {
                 
                 <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <View style={[styles.iconCircle, { backgroundColor: '#10b98115' }]}>
-                        <ShieldCheck size={16} color="#10b981" />
+                        <ShieldCheck size={16} color={theme.success} />
                     </View>
                     <View>
                         <Text style={[styles.statVal, { color: theme.text }]}>{activeCount}</Text>
@@ -160,7 +160,7 @@ export default function AdminUsersScreen() {
             <View style={styles.filterSection}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollContent}>
                     {['all', ...ALL_ROLES, 'unassigned'].map(role => (
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             key={role}
                             style={[
                                 styles.filterChip,
@@ -213,7 +213,7 @@ export default function AdminUsersScreen() {
                                 <Text style={[styles.modalTitle, { color: theme.text }]}>
                                     {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
                                 </Text>
-                                <TouchableOpacity onPress={closeModal}>
+                                <TouchableOpacity accessibilityRole="button" onPress={closeModal}>
                                     <XCircle size={24} color={theme.textMuted} />
                                 </TouchableOpacity>
                             </View>
@@ -256,7 +256,7 @@ export default function AdminUsersScreen() {
                                 <Text style={[styles.inputLabel, { color: theme.textMuted }]}>ROL DE USUARIO</Text>
                                 <View style={styles.rolePickerGrid}>
                                     {roleOptions.map((role) => (
-                                        <TouchableOpacity
+                                        <TouchableOpacity accessibilityRole="button"
                                             key={role.id}
                                             style={[
                                                 styles.roleOption,
@@ -280,13 +280,13 @@ export default function AdminUsersScreen() {
                             </ScrollView>
 
                             <View style={styles.modalFooter}>
-                                <TouchableOpacity 
+                                <TouchableOpacity accessibilityRole="button" 
                                     style={[styles.modalBtn, styles.cancelBtn, { borderColor: theme.border }]}
                                     onPress={closeModal}
                                 >
                                     <Text style={[styles.btnText, { color: theme.textMuted }]}>Cancelar</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity 
+                                <TouchableOpacity accessibilityRole="button" 
                                     style={[styles.modalBtn, styles.submitBtn, { backgroundColor: theme.primary }]}
                                     disabled={createUserMutation.isPending || updateUserMutation.isPending}
                                     onPress={handleSubmit}
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     modalForm: {
         marginBottom: 24,

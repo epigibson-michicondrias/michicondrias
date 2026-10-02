@@ -79,7 +79,7 @@ export default function MisReservasScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📋 Mis Reservas"
+                title="Mis Reservas"
                 subtitle="Historial de reservas funerarias"
                 actionIcon={Plus}
                 onAction={() => router.push('/funeraria/reservar')}

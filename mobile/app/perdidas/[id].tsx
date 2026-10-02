@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image, ScrollView, Dimensions, ActivityIndicator, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -32,10 +33,7 @@ export default function PerdidasDetailScreen() {
 
     if (isLoading) return (
         <ScreenContainer>
-            <View style={styles.center}>
-                <ActivityIndicator size="large" color={theme.primary} />
-                <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando reporte...</Text>
-            </View>
+            <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
         </ScreenContainer>
     );
 
@@ -437,12 +435,12 @@ const styles = StyleSheet.create({
     statusText: {
         color: '#fff',
         fontSize: 11,
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: 1,
     },
     petName: {
         fontSize: 42,
-        fontWeight: '900',
+        fontWeight: '800',
         color: '#fff',
         letterSpacing: -1,
         marginBottom: 4,
@@ -516,7 +514,7 @@ const styles = StyleSheet.create({
     },
     trackerTitle: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     liveBadge: {
         flexDirection: 'row',
@@ -534,7 +532,7 @@ const styles = StyleSheet.create({
     },
     liveText: {
         fontSize: 9,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     trackerMetrics: {
         flexDirection: 'row',
@@ -551,11 +549,11 @@ const styles = StyleSheet.create({
     },
     metricValue: {
         fontSize: 14,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 12,
     },
     descriptionText: {

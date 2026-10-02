@@ -107,7 +107,7 @@ export default function CreateProgramScreen() {
 
                 {/* Submit Button */}
                 <View style={styles.actionContainer}>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.submitButton, { backgroundColor: theme.primary }]}
                         onPress={handleCreateProgram}
                         disabled={isCreatingProgram}
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     },
     illustrationTitle: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     illustrationSubtitle: {
         fontSize: 14,

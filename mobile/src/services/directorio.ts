@@ -43,6 +43,9 @@ export interface Vet {
     photo_url: string | null;
     clinic_id: string | null;
     user_id: string | null;
+    is_approved?: boolean;
+    average_rating?: number;
+    total_reviews?: number;
 }
 
 export interface ClinicReview {
@@ -112,6 +115,15 @@ export async function deleteClinic(id: string): Promise<void> {
 export async function getVets(clinicId?: string): Promise<Vet[]> {
     const qs = clinicId ? `?clinic_id=${clinicId}` : "";
     return apiFetch<Vet[]>("directorio", `/veterinarians/${qs}`);
+}
+
+/** Todos los veterinarios de mi clínica, incluidos los pendientes de aprobación (solo dueño). */
+export async function getManagedClinicVets(clinicId: string): Promise<Vet[]> {
+    return apiFetch<Vet[]>("directorio", `/clinics/${clinicId}/veterinarians/manage`);
+}
+
+export async function getVet(id: string): Promise<Vet> {
+    return apiFetch<Vet>("directorio", `/veterinarians/${id}`);
 }
 
 export async function createVet(vet: Omit<Vet, "id" | "user_id">): Promise<Vet> {
@@ -267,6 +279,10 @@ export async function getClinicAppointments(clinicId: string, status?: string): 
     return apiFetch<AppointmentItem[]>("directorio", `/appointments/clinic/${clinicId}${query}`);
 }
 
+export async function getAppointmentById(id: string): Promise<AppointmentItem> {
+    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}`);
+}
+
 export async function confirmAppointment(id: string): Promise<AppointmentItem> {
     return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/confirm`, { method: "PUT" });
 }
@@ -315,6 +331,13 @@ export interface SurgeryCreate {
 
 export async function getClinicSurgeries(clinicId: string): Promise<SurgeryItem[]> {
     return apiFetch<SurgeryItem[]>("directorio", `/clinics/${clinicId}/surgeries`);
+}
+
+export async function updateSurgeryStatus(clinicId: string, surgeryId: string, status: string): Promise<SurgeryItem> {
+    return apiFetch<SurgeryItem>("directorio", `/clinics/${clinicId}/surgeries/${surgeryId}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ status }),
+    });
 }
 
 export async function createSurgery(data: SurgeryCreate): Promise<SurgeryItem> {

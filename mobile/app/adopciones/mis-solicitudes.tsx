@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Info, Clock, CheckCircle2, XCircle, Search, MessageSquare, PartyPopper, ChevronRight, Check } from 'lucide-react-native';
+import { PawPrint, Info, Clock, CheckCircle2, XCircle, Search, MessageSquare, PartyPopper, ChevronRight, Check } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
@@ -43,7 +43,7 @@ export default function MisSolicitudesScreen() {
                         <Image source={{ uri: item.pet_photo_url }} style={styles.petImage} />
                     ) : (
                         <View style={[styles.petImage, { backgroundColor: theme.overlay, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Text style={{ fontSize: 28 }}>🐾</Text>
+                            <PawPrint size={28} color={theme.textMuted} />
                         </View>
                     )}
                     <View style={styles.headerText}>
@@ -58,9 +58,9 @@ export default function MisSolicitudesScreen() {
                 </View>
 
                 {isRejected ? (
-                    <View style={[styles.rejectedBanner, { backgroundColor: '#ef444415' }]}>
-                        <XCircle size={18} color="#ef4444" />
-                        <Text style={[styles.bannerText, { color: '#ef4444' }]}>
+                    <View style={[styles.rejectedBanner, { backgroundColor: theme.error + '15' }]}>
+                        <XCircle size={18} color={theme.error} />
+                        <Text style={[styles.bannerText, { color: theme.error }]}>
                             El refugio no continuó con esta solicitud. Puedes explorar otras mascotas en adopción.
                         </Text>
                     </View>
@@ -68,17 +68,17 @@ export default function MisSolicitudesScreen() {
                     <>
                         {item.status === "ADOPTED" && (
                             <TouchableOpacity
-                                style={[styles.adoptedBanner, { backgroundColor: '#10b98115' }]}
+                                style={[styles.adoptedBanner, { backgroundColor: theme.success + '15' }]}
                                 onPress={goToMyPets}
                             >
-                                <PartyPopper size={20} color="#10b981" />
+                                <PartyPopper size={20} color={theme.success} />
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.bannerTitle, { color: '#10b981' }]}>¡Felicidades! Adopción Finalizada</Text>
-                                    <Text style={[styles.bannerSub, { color: '#10b981', opacity: 0.8 }]}>
+                                    <Text style={[styles.bannerTitle, { color: theme.success }]}>¡Felicidades! Adopción Finalizada</Text>
+                                    <Text style={[styles.bannerSub, { color: theme.success, opacity: 0.8 }]}>
                                         Tu nuevo mejor amigo ya está registrado. Toca para ver tus mascotas.
                                     </Text>
                                 </View>
-                                <ChevronRight size={18} color="#10b981" />
+                                <ChevronRight size={18} color={theme.success} />
                             </TouchableOpacity>
                         )}
 
@@ -152,12 +152,10 @@ export default function MisSolicitudesScreen() {
             <ScreenHeader
                 title="Mis Solicitudes"
                 rightElement={
-                    <TouchableOpacity style={styles.refreshBtn} onPress={() => refetch()}>
+                    <TouchableOpacity style={styles.refreshBtn} onPress={() => refetch()} accessibilityRole="button" accessibilityLabel="Actualizar solicitudes">
                         <Clock size={20} color={theme.textMuted} />
                     </TouchableOpacity>
                 }
-                subtitle=""
-                leftElement={undefined}
             />
 
             {/* Live indicator below header */}
@@ -191,9 +189,9 @@ const styles = StyleSheet.create({
     liveText: { fontSize: 10, fontWeight: '800', color: '#10b981', textTransform: 'uppercase' },
     refreshBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
     list: { padding: 20, paddingBottom: 40 },
-    infoCard: { flexDirection: 'row', padding: 16, borderRadius: 20, gap: 12, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    infoCard: { flexDirection: 'row', padding: 16, borderRadius: 20, gap: 12, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     infoText: { flex: 1, fontSize: 12, fontWeight: '600', lineHeight: 18 },
-    card: { borderRadius: 28, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 5 },
+    card: { borderRadius: 28, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 5 },
     cardHeader: { flexDirection: 'row', gap: 16, alignItems: 'center', marginBottom: 20 },
     petImage: { width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: '#7c3aed' },
     headerText: { flex: 1, gap: 4 },

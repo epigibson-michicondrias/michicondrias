@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useNotifications, formatTimeAgo, NOTIFICATION_ROUTES } from '@/src/hooks/notifications/useNotifications';
@@ -60,9 +61,7 @@ export default function NotificationsScreen() {
 
     if (isLoading) {
         return (
-            <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </ScreenContainer>
+            <ScreenContainer><SkeletonList count={4} /></ScreenContainer>
         );
     }
 

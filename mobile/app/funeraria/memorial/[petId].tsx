@@ -72,7 +72,7 @@ export default function MemorialScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🕊️ Memorial"
+                title="Memorial"
                 subtitle="Recuerdos y mensajes de amor"
                 gradient={['#4a1a6b', '#7c3aed', '#a855f7']}
                 actionIcon={Plus}

@@ -1,9 +1,14 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProgramDetail } from '@/src/hooks/training';
+import { getProgramReviews, createProgramReview } from '@/src/services/training';
+import { showAlert } from '@/src/components/AppAlert';
+import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, Clock, DollarSign, Info, Calendar } from 'lucide-react-native';
@@ -13,15 +18,28 @@ export default function ProgramDetailScreen() {
     const { theme } = useTheme();
     const { user } = useAuth();
     const { program, isLoading, error, handleEnroll } = useProgramDetail();
+    const queryClient = useQueryClient();
+    const programId = program?.id;
+    const { data: reviews } = useQuery({
+        queryKey: ['program-reviews', programId],
+        queryFn: () => getProgramReviews(programId!),
+        enabled: !!programId,
+    });
+    const reviewMutation = useMutation({
+        mutationFn: ({ rating, comment }: { rating: number; comment: string }) => createProgramReview(programId!, rating, comment),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['program-reviews', programId] });
+            queryClient.invalidateQueries({ queryKey: ['trainingPrograms'] });
+            showAlert({ type: 'success', title: '¡Gracias por tu reseña!', message: 'Tu opinión ayuda a otros dueños a elegir.' });
+        },
+        onError: (e: any) => showAlert({ type: 'error', title: 'No se pudo enviar', message: e?.message || 'Inténtalo de nuevo.' }),
+    });
 
     if (isLoading) {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Programa" rightElement={<View style={styles.placeholder} />} />
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando información...</Text>
-                </View>
+                <SkeletonList count={4} />
             </ScreenContainer>
         );
     }
@@ -34,7 +52,7 @@ export default function ProgramDetailScreen() {
                     <Text style={[styles.errorText, { color: theme.textMuted }]}>
                         No pudimos cargar la información del programa.
                     </Text>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.retryButton, { backgroundColor: theme.primary }]}
                         onPress={() => router.back()}
                     >
@@ -110,6 +128,17 @@ export default function ProgramDetailScreen() {
                     )}
                 </View>
 
+                <ReviewsSection
+                    title="Reseñas del programa"
+                    average={reviews?.average ?? 0}
+                    count={reviews?.count ?? 0}
+                    reviews={reviews?.reviews ?? []}
+                    canReview={!!reviews?.can_review}
+                    submitting={reviewMutation.isPending}
+                    onSubmit={(rating, comment) => reviewMutation.mutate({ rating, comment })}
+                    formPrompt="Completaste este programa. ¿Cómo te fue?"
+                />
+
                 <View style={styles.footer} />
             </ScrollView>
         </ScreenContainer>
@@ -166,7 +195,7 @@ const styles = StyleSheet.create({
     },
     programName: {
         fontSize: 24,
-        fontWeight: '900',
+        fontWeight: '800',
         textAlign: 'center',
     },
     programDesc: {

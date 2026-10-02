@@ -7,25 +7,72 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import DatePicker from '@/src/components/DatePicker';
 import PetPicker from '@/src/features/salud/PetPicker';
+import PatientPicker from '@/src/features/salud/PatientPicker';
 import { toISODate } from '@/src/features/salud/format';
 import { CREMATION_OPTIONS } from '@/src/services/funerary';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
 import { FileText, Info, AlertTriangle, PawPrint } from 'lucide-react-native';
+import { ActivityIndicator } from 'react-native';
+
+
+/** La funeraria solo puede reportar mascotas con una reserva suya vigente (lo exige el backend). */
+function FuneralHomePetSelect({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+    const { theme } = useTheme();
+    const { providerBookings, isLoadingBookings } = useFuneraryProvider() as any;
+    const reportable = (providerBookings || []).filter((b: any, i: number, arr: any[]) => b.status !== 'cancelled' && arr.findIndex((x) => x.pet_id === b.pet_id) === i);
+    return (
+        <View>
+            <Text style={[styles.label, { color: theme.text }]}>Mascota con reserva *</Text>
+            {isLoadingBookings ? (
+                <ActivityIndicator color={theme.primary} style={{ alignSelf: 'flex-start' }} />
+            ) : reportable.length === 0 ? (
+                <Text style={{ color: theme.textMuted, fontSize: 14 }}>
+                    No tienes reservas vigentes. Solo puedes reportar mascotas con una reserva de tu funeraria.
+                </Text>
+            ) : (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {reportable.map((b: any) => (
+                        <PetChip key={b.pet_id} label={b.pet_name || `Mascota ${b.pet_id.slice(0, 6)}`} selected={value === b.pet_id} onPress={() => onChange(b.pet_id)} />
+                    ))}
+                </View>
+            )}
+        </View>
+    );
+}
+
+function PetChip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+    const { theme } = useTheme();
+    return (
+        <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            accessibilityState={{ selected }}
+            onPress={onPress}
+            style={{
+                flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14,
+                borderRadius: 999, borderWidth: 1, maxWidth: '100%',
+                backgroundColor: selected ? theme.primary : theme.surface,
+                borderColor: selected ? theme.primary : theme.border,
+            }}
+        >
+            <PawPrint size={14} color={selected ? '#fff' : theme.textMuted} />
+            <Text style={{ color: selected ? '#fff' : theme.text, fontWeight: '700', fontSize: 14, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+        </TouchableOpacity>
+    );
+}
 
 export default function ReporteDefuncionScreen() {
     const { theme } = useTheme();
     const { form, updateForm, handleSubmitReport, isSubmitting } = useDeathReport();
     const { user } = useAuth();
     const isFuneralHome = user?.role_name === 'funeraria';
-    // La funeraria solo puede reportar mascotas con una reserva suya vigente (lo exige el backend)
-    const { providerBookings } = useFuneraryProvider();
-    const reportable = providerBookings.filter((b, i, arr) => b.status !== 'cancelled' && arr.findIndex((x) => x.pet_id === b.pet_id) === i);
+    const isVet = ['veterinario', 'clinica', 'hospital'].includes(user?.role_name || '');
 
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📋 Reporte de Defunción"
+                title="Reporte de Defunción"
                 subtitle="Registra el fallecimiento de una mascota"
             />
 
@@ -42,39 +89,9 @@ export default function ReporteDefuncionScreen() {
                     {/* Mascota */}
                     <View style={styles.inputGroup}>
                         {isFuneralHome ? (
-                            <View>
-                                <Text style={[styles.label, { color: theme.text }]}>Mascota con reserva *</Text>
-                                {reportable.length === 0 ? (
-                                    <Text style={{ color: theme.textMuted, fontSize: 14 }}>
-                                        No tienes reservas vigentes. Solo puedes reportar mascotas con una reserva de tu funeraria.
-                                    </Text>
-                                ) : (
-                                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                                        {reportable.map((b) => {
-                                            const selected = form.pet_id === b.pet_id;
-                                            return (
-                                                <TouchableOpacity
-                                                    key={b.pet_id}
-                                                    accessibilityRole="button"
-                                                    accessibilityState={{ selected }}
-                                                    onPress={() => updateForm('pet_id', b.pet_id)}
-                                                    style={{
-                                                        flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14,
-                                                        borderRadius: 999, borderWidth: 1,
-                                                        backgroundColor: selected ? theme.primary : theme.surface,
-                                                        borderColor: selected ? theme.primary : theme.border,
-                                                    }}
-                                                >
-                                                    <PawPrint size={14} color={selected ? '#fff' : theme.textMuted} />
-                                                    <Text style={{ color: selected ? '#fff' : theme.text, fontWeight: '700', fontSize: 14 }}>
-                                                        {b.pet_name || `Mascota ${b.pet_id.slice(0, 6)}`}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            );
-                                        })}
-                                    </View>
-                                )}
-                            </View>
+                            <FuneralHomePetSelect value={form.pet_id} onChange={(id) => updateForm('pet_id', id)} />
+                        ) : isVet ? (
+                            <PatientPicker label="Paciente atendido en tu clínica *" value={form.pet_id} onChange={(id) => updateForm('pet_id', id)} />
                         ) : (
                             <PetPicker value={form.pet_id} onChange={(id) => updateForm('pet_id', id)} />
                         )}

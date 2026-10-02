@@ -25,7 +25,15 @@ from app.models.role import Role
 
 router = APIRouter()
 
-@router.get("/me", response_model=UserMeResponse)
+class MeProfileResponse(UserMeResponse):
+    """UserMeResponse + campos de perfil (schema propio del route: no se toca schemas/user.py)."""
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    bio: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+
+@router.get("/me", response_model=MeProfileResponse)
 def read_user_me(
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -43,28 +51,153 @@ def read_user_me(
         "id_front_url": current_user.id_front_url,
         "id_back_url": current_user.id_back_url,
         "proof_of_address_url": current_user.proof_of_address_url,
+        "is_two_factor_enabled": bool(current_user.is_two_factor_enabled),
+        "phone": current_user.phone,
+        "location": current_user.location,
+        "bio": current_user.bio,
+        "avatar_url": current_user.avatar_url,
     }
     # Transform URLs for viewing
     return _add_kyc_presigned_urls(user_data)
 
 class ProfileUpdate(PydanticBaseModel):
-    full_name: str
+    # Todos opcionales: solo se actualizan los campos enviados. Cadena vacía en phone/location/bio los borra.
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    bio: Optional[str] = None
 
 
-@router.patch("/me", response_model=UserMeResponse)
+_PHONE_ALLOWED = set("0123456789 +-().")
+
+
+@router.patch("/me", response_model=MeProfileResponse)
 def update_user_me(
     body: ProfileUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
-    """El propio usuario edita su nombre. (Correo, rol y verificación no se pueden cambiar desde aquí.)"""
-    name = " ".join(body.full_name.split())
-    if len(name) < 2 or len(name) > 120:
-        raise HTTPException(status_code=422, detail="El nombre debe tener entre 2 y 120 caracteres")
-    current_user.full_name = name
+    """El propio usuario edita nombre, teléfono, ubicación y bio. (Correo, rol y verificación no se pueden cambiar desde aquí.)"""
+    data = body.model_dump(exclude_unset=True)
+    if "full_name" in data:
+        name = " ".join((data["full_name"] or "").split())
+        if len(name) < 2 or len(name) > 120:
+            raise HTTPException(status_code=422, detail="El nombre debe tener entre 2 y 120 caracteres")
+        current_user.full_name = name
+    if "phone" in data:
+        phone = " ".join((data["phone"] or "").split())
+        if phone:
+            digits = sum(ch.isdigit() for ch in phone)
+            if any(ch not in _PHONE_ALLOWED for ch in phone) or digits < 7 or digits > 15:
+                raise HTTPException(status_code=422, detail="Ingresa un teléfono válido (7 a 15 dígitos)")
+        current_user.phone = phone or None
+    if "location" in data:
+        location = " ".join((data["location"] or "").split())
+        if len(location) > 120:
+            raise HTTPException(status_code=422, detail="La ubicación no puede superar 120 caracteres")
+        current_user.location = location or None
+    if "bio" in data:
+        bio = (data["bio"] or "").strip()
+        if len(bio) > 500:
+            raise HTTPException(status_code=422, detail="La bio no puede superar 500 caracteres")
+        current_user.bio = bio or None
     db.commit()
     db.refresh(current_user)
     return read_user_me(current_user=current_user)
+
+
+class DeleteAccountRequest(PydanticBaseModel):
+    password: str
+    totp_code: Optional[str] = None  # requerido solo si la cuenta tiene 2FA activo
+
+
+# Estados que significan "todavía hay algo en curso" (los que no están aquí se consideran cerrados)
+_ACTIVE_ORDER_STATUSES = ("paid", "confirmed", "shipped")
+_CLOSED_RIDE_STATUSES = ("completed", "cancelled", "rejected")
+
+
+def _scalar_or_none(db: Session, sql: str, params: dict):
+    """Consulta a tablas de otros servicios (misma BD). Si la tabla aún no existe se ignora esa comprobación."""
+    from sqlalchemy import text
+    try:
+        with db.begin_nested():
+            return db.execute(text(sql), params).scalar()
+    except Exception:
+        return None
+
+
+def _exec_optional(db: Session, sql: str, params: dict) -> None:
+    from sqlalchemy import text
+    try:
+        with db.begin_nested():
+            db.execute(text(sql), params)
+    except Exception:
+        pass
+
+
+@router.delete("/me")
+def delete_my_account(
+    body: DeleteAccountRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """Elimina la cuenta del propio usuario (requisito de Apple/Google).
+    Exige la contraseña actual (y el código 2FA si lo tiene), rechaza si hay pedidos o viajes en curso,
+    desactiva y anonimiza la cuenta y limpia datos personales en los servicios que comparten la BD.
+    Los pedidos y donaciones se conservan sin datos personales por obligaciones contables."""
+    from app.core import security
+    import secrets
+
+    if not security.verify_password(body.password, current_user.hashed_password):
+        raise HTTPException(status_code=403, detail="La contraseña es incorrecta")
+    if current_user.is_two_factor_enabled:
+        code = (body.totp_code or "").strip()
+        if not code or not pyotp.TOTP(current_user.two_factor_secret).verify(code, valid_window=1):
+            raise HTTPException(status_code=403, detail="Código de verificación en dos pasos inválido o ausente")
+    if current_user.role and current_user.role.name == "admin":
+        raise HTTPException(status_code=400, detail="Una cuenta de administrador no se puede eliminar desde la app. Contacta a soporte.")
+
+    uid = current_user.id
+    blockers = []
+    if _scalar_or_none(db, "SELECT COUNT(*) FROM orders WHERE user_id = :u AND status IN ('paid','confirmed','shipped')", {"u": uid}):
+        blockers.append("tienes pedidos en curso (pagados o en camino). Espera a que se entreguen")
+    if _scalar_or_none(db, """SELECT COUNT(*) FROM order_items oi JOIN products p ON p.id = oi.product_id
+                               JOIN orders o ON o.id = oi.order_id
+                               WHERE p.seller_id = :u AND o.status IN ('paid','confirmed','shipped')""", {"u": uid}):
+        blockers.append("tienes pedidos de clientes por surtir o entregar como vendedor")
+    if _scalar_or_none(db, """SELECT COUNT(*) FROM pet_rides r LEFT JOIN pets p ON p.id = r.pet_id
+                               WHERE (r.driver_id = :u OR p.owner_id = :u)
+                               AND r.status NOT IN ('completed','cancelled','rejected')""", {"u": uid}):
+        blockers.append("tienes un viaje de transporte en curso")
+    if _scalar_or_none(db, "SELECT COUNT(*) FROM pets WHERE owner_id = :u AND has_active_subscription = TRUE AND is_active IS NOT FALSE", {"u": uid}):
+        blockers.append("tienes una suscripción Michi-Tracker Pro activa. Cancélala desde Facturación")
+    if blockers:
+        raise HTTPException(status_code=409, detail="No se puede eliminar la cuenta todavía: " + "; ".join(blockers) + ".")
+
+    # --- Limpieza en otros servicios (misma BD; cada paso es opcional si la tabla no existe) ---
+    _exec_optional(db, "UPDATE pets SET is_active = FALSE, photo_url = NULL, gallery = NULL, microchip_number = NULL WHERE owner_id = :u", {"u": uid})
+    _exec_optional(db, "UPDATE lost_pets SET is_found = TRUE, contact_phone = '', image_url = NULL WHERE user_id = :u", {"u": uid})
+    _exec_optional(db, "UPDATE donations SET user_id = NULL WHERE user_id = :u", {"u": uid})
+    _exec_optional(db, "UPDATE products SET is_active = FALSE WHERE seller_id = :u", {"u": uid})
+    _exec_optional(db, "DELETE FROM notifications WHERE user_id = :u", {"u": uid})
+
+    # --- Anonimización de la cuenta (la fila se conserva para no romper referencias; el correo queda liberado) ---
+    current_user.email = f"deleted-{uid}@deleted.michicondrias.com"
+    current_user.full_name = "Usuario eliminado"
+    current_user.hashed_password = security.get_password_hash(secrets.token_urlsafe(32))
+    current_user.is_active = False
+    current_user.avatar_url = None
+    current_user.phone = None
+    current_user.location = None
+    current_user.bio = None
+    current_user.id_front_url = None
+    current_user.id_back_url = None
+    current_user.proof_of_address_url = None
+    current_user.verification_status = "UNVERIFIED"
+    current_user.is_two_factor_enabled = False
+    current_user.two_factor_secret = None
+    db.commit()
+    return {"deleted": True}  # JSON (no 204): el cliente móvil siempre parsea el cuerpo
 
 
 @router.post("/register", response_model=UserResponse)

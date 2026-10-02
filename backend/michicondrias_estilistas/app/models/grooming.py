@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Text, Date, Time, Boolean, Float, DateTime
+from sqlalchemy import Column, String, Text, Date, Time, Boolean, Float, DateTime, Integer, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.sql import func
 from app.db.session import Base
 
@@ -40,4 +40,21 @@ class GroomingService(Base):
     price = Column(Float, nullable=False)
     duration_minutes = Column(Float, default=60.0)
     is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class GroomingReview(Base):
+    """Reseña de una cita completada. Una por usuario y cita; solo el dueño de la mascota."""
+    __tablename__ = "grooming_reviews"
+    __table_args__ = (
+        UniqueConstraint("appointment_id", "user_id", name="uq_grooming_reviews_appointment_user"),
+        CheckConstraint("rating >= 1 AND rating <= 5", name="ck_grooming_reviews_rating"),
+    )
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    appointment_id = Column(String(36), ForeignKey("grooming_appointments.id", ondelete="CASCADE"), nullable=False, index=True)
+    groomer_id = Column(String(36), nullable=False, index=True)
+    user_id = Column(String(36), nullable=False, index=True)
+    rating = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

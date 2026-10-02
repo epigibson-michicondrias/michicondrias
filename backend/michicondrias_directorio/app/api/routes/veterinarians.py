@@ -31,10 +31,20 @@ def create_veterinarian(
     db: Session = Depends(get_db),
     vet_in: VeterinarianCreate,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
-    Create new veterinarian. (Requires auth)
+    Create new veterinarian profile. Solo veterinarios, clínicas/hospitales o admin;
+    si se indica una clínica, debe ser del usuario (nadie puede colgarse de una clínica ajena).
     """
+    if role not in ["veterinario", "clinica", "hospital", "admin"]:
+        raise HTTPException(status_code=403, detail="Tu rol no puede registrar veterinarios")
+    if vet_in.clinic_id:
+        clinic = crud.crud_clinic.get_clinic(db, vet_in.clinic_id)
+        if not clinic:
+            raise HTTPException(status_code=404, detail="Clínica no encontrada")
+        if clinic.owner_user_id != user_id and role != "admin":
+            raise HTTPException(status_code=403, detail="Solo el dueño de la clínica puede agregar veterinarios a ella")
     vet = crud.crud_clinic.create_veterinarian(db=db, vet=vet_in, user_id=user_id)
     return vet
 
@@ -52,6 +62,11 @@ def update_my_vet_profile(
         raise HTTPException(status_code=404, detail="Veterinario no encontrado")
     if vet.user_id != user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos para editar este perfil")
+    # Cambiar de clínica solo hacia una clínica propia (el vínculo con clínicas ajenas lo gestiona su dueño)
+    if vet_in.clinic_id and vet_in.clinic_id != vet.clinic_id:
+        target = crud.crud_clinic.get_clinic(db, vet_in.clinic_id)
+        if not target or target.owner_user_id != user_id:
+            raise HTTPException(status_code=403, detail="No puedes asignar el perfil a esa clínica")
     return crud.crud_clinic.update_veterinarian(db, vet, vet_in)
 
 # --- ADMIN ENDPOINTS FOR MODERATION ---
@@ -88,3 +103,17 @@ def reject_veterinarian(
         raise HTTPException(status_code=404, detail="Veterinario no encontrado")
     return {"message": "Veterinario eliminado exitosamente"}
 
+
+
+@router.get("/{vet_id}", response_model=VeterinarianResponse)
+def read_veterinarian(
+    vet_id: str,
+    db: Session = Depends(get_db),
+) -> Any:
+    """Detalle público de un veterinario aprobado (se declara al final para no tapar /admin/pending)."""
+    vet = crud.crud_clinic.get_veterinarian(db, vet_id)
+    if not vet or not vet.is_approved:
+        raise HTTPException(status_code=404, detail="Veterinario no encontrado")
+    vet.average_rating = crud.crud_clinic.get_vet_average_rating(db, vet.id)
+    vet.total_reviews = len(crud.crud_clinic.get_vet_reviews(db, vet.id))
+    return vet

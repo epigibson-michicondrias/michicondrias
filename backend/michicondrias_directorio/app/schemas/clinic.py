@@ -53,6 +53,7 @@ class VeterinarianUpdate(VeterinarianBase):
 class VeterinarianResponse(VeterinarianBase):
     id: str
     user_id: Optional[str] = None
+    is_approved: Optional[bool] = None
     average_rating: Optional[float] = 0.0
     total_reviews: Optional[int] = 0
 

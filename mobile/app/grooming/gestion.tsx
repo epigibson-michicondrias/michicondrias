@@ -29,6 +29,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useGroomingProvider } from '@/src/hooks/grooming/useGroomingProvider';
 import type { ProviderFilter } from '@/src/hooks/grooming/useGroomingProvider';
+import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
@@ -111,7 +112,7 @@ export default function GestionGroomingScreen() {
     const renderFilterChip = (f: typeof FILTERS[number]) => {
         const isActive = filter === f.key;
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 key={f.key}
                 style={[
                     styles.filterChip,
@@ -155,11 +156,7 @@ export default function GestionGroomingScreen() {
                             <Text style={[styles.cardMeta, { color: theme.textMuted }]}>{item.time}</Text>
                         </View>
                     </View>
-                    <View style={[styles.statusPill, { backgroundColor: getStatusColor(item.status, theme).bg }]}>
-                        <Text style={[styles.statusText, { color: getStatusColor(item.status, theme).color }]}>
-                            {getStatusLabel(item.status)}
-                        </Text>
-                    </View>
+                    <StatusBadge label={getStatusLabel(item.status)} color={getStatusColor(item.status, theme).color} />
                 </View>
 
                 {/* Photos preview */}
@@ -182,7 +179,7 @@ export default function GestionGroomingScreen() {
 
                 {/* Actions */}
                 <View style={styles.cardActions}>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.actionBtn, { backgroundColor: theme.primaryLight }]}
                         onPress={() => openPhotoModal(item)}
                     >
@@ -191,7 +188,7 @@ export default function GestionGroomingScreen() {
                     </TouchableOpacity>
 
                     {statusAction && (
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.actionBtn, { backgroundColor: theme.successLight }]}
                             onPress={() => updateStatus(item.id, statusAction.next)}
                             disabled={isUpdating}
@@ -272,7 +269,7 @@ export default function GestionGroomingScreen() {
                     <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                         <View style={styles.modalHeader}>
                             <Text style={[styles.modalTitle, { color: theme.text }]}>Fotos y reporte</Text>
-                            <TouchableOpacity onPress={closePhotoModal}>
+                            <TouchableOpacity accessibilityRole="button" onPress={closePhotoModal}>
                                 <X size={24} color={theme.textMuted} />
                             </TouchableOpacity>
                         </View>
@@ -280,7 +277,7 @@ export default function GestionGroomingScreen() {
                         <ScrollView showsVerticalScrollIndicator={false}>
                             {/* Before photo */}
                             <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Foto Antes</Text>
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.photoPicker, { borderColor: theme.cardBorder, backgroundColor: theme.surface }]}
                                 onPress={() => pickPhoto('before')}
                             >
@@ -298,7 +295,7 @@ export default function GestionGroomingScreen() {
 
                             {/* After photo */}
                             <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Foto Después</Text>
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.photoPicker, { borderColor: theme.cardBorder, backgroundColor: theme.surface }]}
                                 onPress={() => pickPhoto('after')}
                             >
@@ -336,7 +333,7 @@ export default function GestionGroomingScreen() {
                                 textAlignVertical="top"
                             />
 
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.saveBtn, { backgroundColor: theme.primary }]}
                                 onPress={handleSavePhotos}
                                 disabled={isUpdating}
@@ -371,10 +368,10 @@ function getStatusLabel(status?: string): string {
 
 function getStatusColor(status: string | undefined, theme: any): { color: string; bg: string } {
     switch (status) {
-        case 'scheduled':   return { color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' };
+        case 'scheduled':   return { color: theme.info, bg: theme.infoLight };
         case 'confirmed':   return { color: theme.success, bg: theme.successLight };
-        case 'in_progress': return { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' };
-        case 'completed':   return { color: '#6366f1', bg: 'rgba(99,102,241,0.12)' };
+        case 'in_progress': return { color: theme.warning, bg: theme.warningLight };
+        case 'completed':   return { color: theme.primary, bg: theme.primaryLight };
         case 'cancelled':   return { color: theme.error, bg: theme.errorLight };
         default:            return { color: theme.textMuted, bg: theme.backgroundSecondary };
     }
@@ -519,7 +516,7 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     modalLabel: {
         fontSize: 14,

@@ -28,7 +28,7 @@ export default function CuidadoresScreen() {
     } = useSitters();
 
     const renderSitterItem = ({ item }: { item: Sitter }) => (
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
             style={[styles.sitterCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => router.push({ pathname: '/cuidadores/[id]', params: { id: item.id } } as any)}
         >
@@ -48,7 +48,7 @@ export default function CuidadoresScreen() {
                     </View>
                 </View>
                 <View style={styles.ratingContainer}>
-                    <Star size={16} color="#fbbf24" fill="#fbbf24" />
+                    <Star size={16} color={theme.warning} fill={theme.warning} />
                     <Text style={[styles.ratingText, { color: theme.text }]}>
                         {item.rating ? item.rating.toFixed(1) : 'Nuevo'}
                     </Text>
@@ -73,8 +73,8 @@ export default function CuidadoresScreen() {
             <View style={styles.servicesContainer}>
                 <View style={[styles.serviceTag, { backgroundColor: theme.secondary + '10' }]}>
                     <Text style={[styles.serviceText, { color: theme.secondary }]}>
-                        {item.service_type === 'daycare' ? '🏠 Guardería' : 
-                         item.service_type === 'boarding' ? '🌙 Hospedaje' : '🏠+🌙 Ambos'}
+                        {item.service_type === 'daycare' ? 'Guardería' : 
+                         item.service_type === 'boarding' ? 'Hospedaje' : 'Guardería y hospedaje'}
                     </Text>
                 </View>
                 <View style={[styles.serviceTag, { backgroundColor: theme.primary + '10' }]}>
@@ -84,16 +84,16 @@ export default function CuidadoresScreen() {
                 </View>
                 {item.is_verified && (
                     <View style={[styles.serviceTag, { backgroundColor: '#10b98120' }]}>
-                        <Shield size={12} color="#10b981" />
-                        <Text style={[styles.serviceText, { color: '#10b981' }]}>
+                        <Shield size={12} color={theme.success} />
+                        <Text style={[styles.serviceText, { color: theme.success }]}>
                             Verificado
                         </Text>
                     </View>
                 )}
                 {item.has_yard && (
                     <View style={[styles.serviceTag, { backgroundColor: '#f59e0b20' }]}>
-                        <Text style={[styles.serviceText, { color: '#f59e0b' }]}>
-                            🏡 Patio propio
+                        <Text style={[styles.serviceText, { color: theme.warning }]}>
+                            Patio propio
                         </Text>
                     </View>
                 )}
@@ -110,7 +110,7 @@ export default function CuidadoresScreen() {
                     </Text>
                     <Text style={[styles.priceUnit, { color: theme.textMuted }]}>/día</Text>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity accessibilityRole="button" 
                     style={[styles.contactButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push({ pathname: '/cuidadores/[id]', params: { id: item.id } } as any)}
                 >
@@ -124,17 +124,17 @@ export default function CuidadoresScreen() {
     const listHeader = (
         <>
             <View style={styles.actionButtons}>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
                     onPress={() => router.push('/cuidadores/solicitudes' as any)}
                 >
-                    <Text style={[styles.actionButtonText, { color: theme.text }]}>📋 Mis Solicitudes</Text>
+                    <Text style={[styles.actionButtonText, { color: theme.text }]}>Mis solicitudes</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.primary, borderColor: theme.primary }]}
                     onPress={() => router.push('/perfil/partner' as any)}
                 >
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>🐾 Quiero ser Cuidador</Text>
+                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Quiero ser cuidador</Text>
                 </TouchableOpacity>
             </View>
 
@@ -147,8 +147,8 @@ export default function CuidadoresScreen() {
 
                 <View style={styles.serviceFilterContainer}>
                     <FilterChip label="Todos" active={serviceFilter === ''} onPress={() => setServiceFilter('')} />
-                    <FilterChip label="🏠 Guardería" active={serviceFilter === 'daycare'} onPress={() => setServiceFilter('daycare')} />
-                    <FilterChip label="🌙 Hospedaje" active={serviceFilter === 'boarding'} onPress={() => setServiceFilter('boarding')} />
+                    <FilterChip label="Guardería" active={serviceFilter === 'daycare'} onPress={() => setServiceFilter('daycare')} />
+                    <FilterChip label="Hospedaje" active={serviceFilter === 'boarding'} onPress={() => setServiceFilter('boarding')} />
                 </View>
             </View>
         </>
@@ -157,7 +157,7 @@ export default function CuidadoresScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🏠 Cuidadores"
+                title="Cuidadores"
                 subtitle="Deja a tu mascota en las mejores manos mientras no estás"
             />
 

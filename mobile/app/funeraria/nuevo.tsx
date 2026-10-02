@@ -63,7 +63,7 @@ export default function NuevaFunerariaScreen() {
                 <View style={styles.inputGroup}>
                     <Text style={[styles.label, { color: theme.text }]}>Nombre del Servicio *</Text>
                     <TextInput
-                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                         placeholder="Ej. Cremación individual"
                         placeholderTextColor={theme.textMuted}
                         value={form.name}
@@ -74,7 +74,7 @@ export default function NuevaFunerariaScreen() {
                 <View style={styles.inputGroup}>
                     <Text style={[styles.label, { color: theme.text }]}>Descripción</Text>
                     <TextInput
-                        style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
+                        style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                         placeholder="Describe el servicio..."
                         placeholderTextColor={theme.textMuted}
                         multiline
@@ -87,7 +87,7 @@ export default function NuevaFunerariaScreen() {
                 <View style={styles.inputGroup}>
                     <Text style={[styles.label, { color: theme.text }]}>Precio ($) *</Text>
                     <TextInput
-                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                         placeholder="Ej. 1500"
                         placeholderTextColor={theme.textMuted}
                         keyboardType="numeric"
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
 
     title: {
         fontSize: 28,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     subtitle: {
         fontSize: 14,

@@ -147,7 +147,7 @@ export default function MisPolizasScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🛡️ Mis Pólizas"
+                title="Mis Pólizas"
                 subtitle="Seguros activos de tus mascotas"
             />
 
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     },
     statValue: {
         fontSize: 28,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     statLabel: {
         fontSize: 12,

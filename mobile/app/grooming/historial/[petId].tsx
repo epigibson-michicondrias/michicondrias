@@ -139,7 +139,7 @@ export default function HistorialGroomingScreen() {
             {renderFileCard()}
             {appointments.length > 0 && (
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                    📅 Sesiones ({appointments.length})
+                    Sesiones ({appointments.length})
                 </Text>
             )}
         </>
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     },
     fileTitle: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     fileRow: {
         flexDirection: 'row',
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     // Section title
     sectionTitle: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 16,
     },
 

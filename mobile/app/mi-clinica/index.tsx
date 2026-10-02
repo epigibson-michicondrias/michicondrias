@@ -3,17 +3,21 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useMyClinic } from '@/src/hooks/directorio';
+import { useAuth } from '@/src/contexts/AuthContext';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
-import { Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, ChevronRight, Clock, Package, FlaskConical, FileText, AlertTriangle, DollarSign, BarChart3 } from 'lucide-react-native';
+import { Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, ChevronRight, Clock, Package, FlaskConical, FileText, AlertTriangle, DollarSign, BarChart3, Video, MapPin } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function MiClinicaScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const { user } = useAuth();
+    const isHospital = user?.role_name === 'hospital';
+    const isVet = user?.role_name === 'veterinario';
     const {
         clinic,
         loadingClinics,
@@ -55,20 +59,22 @@ export default function MiClinicaScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title={clinic.name}
-                subtitle={clinic.city || 'Sede Central'}
+                subtitle={clinic.city || undefined}
                 actionIcon={Settings}
                 onAction={() => router.push(`/mi-clinica/config/${clinic.id}` as any)}
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
             />
 
             <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
                     {/* Clinic Profile Quick View */}
                     <View style={[styles.profileCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <Image
-                            source={{ uri: clinic.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=400' }}
-                            style={styles.clinicLogo}
-                        />
+                        {clinic.logo_url ? (
+                            <Image source={{ uri: clinic.logo_url }} style={styles.clinicLogo} />
+                        ) : (
+                            <View style={[styles.clinicLogo, { backgroundColor: theme.primary + '15', alignItems: 'center', justifyContent: 'center' }]}>
+                                <Stethoscope size={32} color={theme.primary} />
+                            </View>
+                        )}
                         <View style={styles.profileInfo}>
                             <View style={styles.statusBox}>
                                 <View style={[styles.statusBadge, { backgroundColor: clinic.is_approved ? theme.successLight : theme.warningLight }]}>
@@ -77,7 +83,7 @@ export default function MiClinicaScreen() {
                                     </Text>
                                 </View>
                             </View>
-                            <Text style={[styles.ratingText, { color: theme.text, fontSize: 14, fontWeight: '800' }]}>Clínica Asociada</Text>
+                            <Text style={[styles.ratingText, { color: theme.textMuted, fontSize: 13, fontWeight: '600' }]} numberOfLines={2}>{clinic.address || 'Sin dirección registrada'}</Text>
                         </View>
                     </View>
 
@@ -99,8 +105,8 @@ export default function MiClinicaScreen() {
                             style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}
                             onPress={() => router.push('/mi-clinica/agenda' as any)}
                         >
-                            <View style={[styles.statIconBox, { backgroundColor: '#f59e0b15' }]}>
-                                <Activity size={20} color="#f59e0b" />
+                            <View style={[styles.statIconBox, { backgroundColor: theme.warning + '15' }]}>
+                                <Activity size={20} color={theme.warning} />
                             </View>
                             <View>
                                 <Text style={[styles.statValue, { color: theme.text }]}>{pendingAppointments.length}</Text>
@@ -115,13 +121,15 @@ export default function MiClinicaScreen() {
                     <View style={styles.menuGrid}>
                         <MenuItem icon={ClipboardList} color={theme.primary} label="Agenda" sub="Gestionar citas" onPress={() => router.push('/mi-clinica/agenda' as any)} theme={theme} />
                         <MenuItem icon={Briefcase} color={theme.secondary} label="Servicios" sub="Catálogo pro" onPress={() => router.push('/mi-clinica/servicios' as any)} theme={theme} />
-                        <MenuItem icon={Users} color="#10b981" label="Vets" sub="Tu Equipo" onPress={() => router.push('/mi-clinica/veterinarios' as any)} theme={theme} />
-                        <MenuItem icon={Clock} color="#f59e0b" label="Horarios" sub="Disponibilidad" onPress={() => router.push('/mi-clinica/horarios' as any)} theme={theme} />
-                        <MenuItem icon={Stethoscope} color="#ef4444" label="Cirugías" sub="Quirófano" onPress={() => router.push('/mi-clinica/cirugias' as any)} theme={theme} />
-                        <MenuItem icon={Package} color="#8b5cf6" label="Inventario" sub="Insumos médicos" onPress={() => router.push('/mi-clinica/inventario' as any)} theme={theme} />
-                        <MenuItem icon={FlaskConical} color="#0ea5e9" label="Laboratorio" sub="Pruebas y resultados" onPress={() => router.push('/mi-clinica/laboratorio' as any)} theme={theme} />
-                        <MenuItem icon={FileText} color="#10b981" label="Recetas" sub="Prescripciones" onPress={() => router.push('/mi-clinica/recetas' as any)} theme={theme} />
-                        <MenuItem icon={AlertTriangle} color="#f43f5e" label="Pacientes" sub="General y Críticos" onPress={() => router.push('/mi-clinica/pacientes' as any)} theme={theme} />
+                        <MenuItem icon={Users} color={theme.success} label="Vets" sub="Tu Equipo" onPress={() => router.push('/mi-clinica/veterinarios' as any)} theme={theme} />
+                        <MenuItem icon={Clock} color={theme.warning} label="Horarios" sub="Disponibilidad" onPress={() => router.push('/mi-clinica/horarios' as any)} theme={theme} />
+                        <MenuItem icon={Stethoscope} color={theme.error} label="Cirugías" sub="Quirófano" onPress={() => router.push('/mi-clinica/cirugias' as any)} theme={theme} />
+                        <MenuItem icon={Package} color={theme.primary} label="Inventario" sub="Insumos médicos" onPress={() => router.push('/mi-clinica/inventario' as any)} theme={theme} />
+                        <MenuItem icon={FlaskConical} color={theme.info} label="Laboratorio" sub="Pruebas y resultados" onPress={() => router.push('/mi-clinica/laboratorio' as any)} theme={theme} />
+                        <MenuItem icon={FileText} color={theme.success} label="Recetas" sub="Prescripciones" onPress={() => router.push('/mi-clinica/recetas' as any)} theme={theme} />
+                        {isVet && <MenuItem icon={Video} color={theme.info} label="Videoconsultas" sub="Pacientes virtuales" onPress={() => router.push('/mi-clinica/consultas-video' as any)} theme={theme} />}
+                        {isHospital && <MenuItem icon={MapPin} color={theme.info} label="Sucursales" sub="Sedes y datos" onPress={() => router.push('/mi-clinica/sucursales' as any)} theme={theme} />}
+                        <MenuItem icon={AlertTriangle} color={theme.error} label="Pacientes" sub="General y Críticos" onPress={() => router.push('/mi-clinica/pacientes' as any)} theme={theme} />
                     </View>
 
                     {/* Revenue & Occupancy Section */}
@@ -129,8 +137,8 @@ export default function MiClinicaScreen() {
 
                     <View style={styles.metricsRow}>
                         <View style={[styles.metricCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                            <View style={[styles.metricIconBox, { backgroundColor: '#10b98115' }]}>
-                                <DollarSign size={20} color="#10b981" />
+                            <View style={[styles.metricIconBox, { backgroundColor: theme.success + '15' }]}>
+                                <DollarSign size={20} color={theme.success} />
                             </View>
                             <Text style={[styles.metricValue, { color: theme.text }]}>
                                 ${metrics.dailyRevenue?.toLocaleString() || '0'}
@@ -138,8 +146,8 @@ export default function MiClinicaScreen() {
                             <Text style={[styles.metricLabel, { color: theme.textMuted }]}>Ingresos Hoy</Text>
                         </View>
                         <View style={[styles.metricCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                            <View style={[styles.metricIconBox, { backgroundColor: '#8b5cf615' }]}>
-                                <BarChart3 size={20} color="#8b5cf6" />
+                            <View style={[styles.metricIconBox, { backgroundColor: theme.primary + '15' }]}>
+                                <BarChart3 size={20} color={theme.primary} />
                             </View>
                             <Text style={[styles.metricValue, { color: theme.text }]}>
                                 {metrics.occupancyRate || 0}%
@@ -151,7 +159,7 @@ export default function MiClinicaScreen() {
                     {/* Pending Appointments */}
                     <View style={styles.activityHeader}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Citas Pendientes</Text>
-                        <TouchableOpacity onPress={() => router.push('/mi-clinica/agenda' as any)}>
+                        <TouchableOpacity onPress={() => router.push('/mi-clinica/agenda' as any)} accessibilityRole="button" accessibilityLabel="Ver toda la agenda">
                             <Text style={{ color: theme.primary, fontWeight: '700' }}>Ver todo</Text>
                         </TouchableOpacity>
                     </View>
@@ -169,7 +177,7 @@ export default function MiClinicaScreen() {
                                 onPress={() => router.push('/mi-clinica/agenda' as any)}
                             >
                                 <View style={[styles.apptIcon, { backgroundColor: theme.primary + '15' }]}>
-                                    <Text style={{ fontSize: 18 }}>📅</Text>
+                                    <Calendar size={18} color={theme.primary} />
                                 </View>
                                 <View style={styles.apptInfo}>
                                     <Text style={[styles.apptTitle, { color: theme.text }]}>{appt.service_name}</Text>

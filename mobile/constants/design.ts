@@ -56,8 +56,8 @@ export const shadow = {
 
 /** Tipografía. Usa `type.title`, `type.body`, etc. y añade `color` desde el tema. */
 export const type = {
-    display: { fontSize: 30, fontWeight: '900', letterSpacing: -0.5 } as TextStyle,
-    h1: { fontSize: 24, fontWeight: '900', letterSpacing: -0.3 } as TextStyle,
+    display: { fontSize: 30, fontWeight: '800', letterSpacing: -0.5 } as TextStyle,
+    h1: { fontSize: 24, fontWeight: '800', letterSpacing: -0.3 } as TextStyle,
     h2: { fontSize: 20, fontWeight: '800' } as TextStyle,
     title: { fontSize: 17, fontWeight: '800' } as TextStyle,
     subtitle: { fontSize: 15, fontWeight: '700' } as TextStyle,

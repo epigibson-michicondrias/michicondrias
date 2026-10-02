@@ -70,7 +70,9 @@ export interface Donation {
     currency: string;
     message: string | null;
     date: string;
+    /** pending (esperando pago) | paid | expired | failed ("completed" = registros anteriores al cobro real) */
     status: string;
+    paid_at?: string | null;
 }
 
 // PRODUCTS
@@ -148,13 +150,13 @@ export async function getOrder(orderId: string): Promise<Order> {
 
 // PAYMENTS & SUBSCRIPTIONS
 export async function createCheckoutSession(orderId: string): Promise<{ sessionId: string, url: string }> {
-    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-checkout-session/${orderId}`, {
+    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-checkout-session/${orderId}?source=app`, {
         method: "POST"
     });
 }
 
 export async function createSubscriptionSession(petId: string): Promise<{ sessionId: string, url: string }> {
-    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-subscription-session/${petId}`, {
+    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-subscription-session/${petId}?source=app`, {
         method: "POST"
     });
 }
@@ -167,11 +169,17 @@ export async function createBillingPortalSession(): Promise<{ url: string }> {
 
 
 // DONATIONS
-export async function createDonation(amount: number, message?: string): Promise<Donation> {
-    return apiFetch<Donation>("ecommerce", "/donations/", {
+/** Crea la donación (pendiente) y la sesión de Stripe Checkout; se marca "paid" por webhook. */
+export async function createDonationCheckout(amount: number, message?: string): Promise<{ donation_id: string; sessionId: string; url: string }> {
+    return apiFetch<{ donation_id: string; sessionId: string; url: string }>("ecommerce", "/donations/checkout", {
         method: "POST",
-        body: JSON.stringify({ amount, currency: "MXN", message }),
+        body: JSON.stringify({ amount, message: message?.trim() || undefined, source: "app" }),
     });
+}
+
+/** Estado de una donación (el backend verifica con Stripe si sigue pendiente). */
+export async function getDonation(donationId: string): Promise<Donation> {
+    return apiFetch<Donation>("ecommerce", `/donations/${donationId}`);
 }
 
 export async function getCategories(): Promise<Category[]> {

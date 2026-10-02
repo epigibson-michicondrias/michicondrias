@@ -62,3 +62,8 @@ export async function updatePet(petId: string, petData: Partial<Pet>): Promise<P
     });
 }
 
+
+/** Elimina la mascota (solo su dueño; borrado lógico). 409 si tiene Michi-Tracker Pro activo. */
+export async function deletePet(petId: string): Promise<{ deleted: boolean }> {
+    return apiFetch<{ deleted: boolean }>("mascotas", `/pets/${petId}`, { method: "DELETE" });
+}

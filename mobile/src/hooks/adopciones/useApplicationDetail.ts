@@ -16,13 +16,13 @@ import {
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 
-export const STATUS_LABELS: Record<string, { label: string; color: string; icon: string }> = {
-    PENDING: { label: "Pendiente", color: "#f59e0b", icon: "⏳" },
-    REVIEWING: { label: "En Revisión", color: "#3b82f6", icon: "🔍" },
-    INTERVIEW_SCHEDULED: { label: "Entrevista Programada", color: "#8b5cf6", icon: "📅" },
-    APPROVED: { label: "Pre-Aprobada", color: "#22c55e", icon: "✅" },
-    ADOPTED: { label: "¡Adoptado!", color: "#ec4899", icon: "🎉" },
-    REJECTED: { label: "Rechazada", color: "#ef4444", icon: "❌" },
+export const STATUS_LABELS: Record<string, { label: string; tone: 'warning' | 'info' | 'primary' | 'success' | 'accent' | 'error' }> = {
+    PENDING: { label: "Pendiente", tone: 'warning' },
+    REVIEWING: { label: "En revisión", tone: 'info' },
+    INTERVIEW_SCHEDULED: { label: "Entrevista programada", tone: 'primary' },
+    APPROVED: { label: "Pre-aprobada", tone: 'success' },
+    ADOPTED: { label: "Adoptado", tone: 'accent' },
+    REJECTED: { label: "Rechazada", tone: 'error' },
 };
 
 export function useApplicationDetail() {
@@ -74,7 +74,9 @@ export function useApplicationDetail() {
             queryClient.invalidateQueries({ queryKey: ['listing-requests'] });
             queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
-            showAlert({ type: 'success', title: '¡Éxito!', message: 'Adopción aprobada exitosamente' });
+            queryClient.invalidateQueries({ queryKey: ['my-adoption-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+            showAlert({ type: 'success', title: 'Adopción aprobada', message: 'La mascota ya aparece en la cuenta del adoptante.' });
         },
         onError: (e: Error) => {
             showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo aprobar la adopción' });

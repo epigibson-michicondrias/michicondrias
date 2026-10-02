@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { signAdoptionContract } from '@/src/services/adopciones';
+import { signAdoptionContract, updateAdoptionFormStatus } from '@/src/services/adopciones';
 import { showAlert } from '@/src/components/AppAlert';
 import type { AdoptionContractCreate } from '@/src/types/adopciones';
 
@@ -44,9 +44,10 @@ export function useAdoptionContract() {
         mutationFn: (data: AdoptionContractCreate) => signAdoptionContract(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['refuge-applications'] });
+            queryClient.invalidateQueries({ queryKey: ['my-adoption-requests'] });
             showAlert({
                 type: 'success',
-                title: '¡Contrato Firmado!',
+                title: 'Contrato firmado',
                 message: 'El contrato quedó registrado y la postulación pasó a aprobada.',
             });
             router.back();
@@ -59,6 +60,30 @@ export function useAdoptionContract() {
             });
         },
     });
+
+    const rejectMutation = useMutation({
+        mutationFn: () => updateAdoptionFormStatus(formId, 'rejected'),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['refuge-applications'] });
+            showAlert({ type: 'success', title: 'Postulación rechazada', message: 'Avisamos a la persona que envió el formulario.' });
+            router.back();
+        },
+        onError: (e: Error) => {
+            showAlert({ type: 'error', title: 'No se pudo rechazar', message: e.message || 'Intenta de nuevo.' });
+        },
+    });
+
+    const handleReject = () => {
+        showAlert({
+            type: 'warning',
+            title: 'Rechazar postulación',
+            message: 'La persona recibirá un aviso de que su formulario no fue aceptado.',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Rechazar',
+            onButtonPress: () => rejectMutation.mutate(),
+        });
+    };
 
     const handleSign = () => {
         if (!agreed) {
@@ -96,6 +121,8 @@ export function useAdoptionContract() {
         // Actions
         setAgreed,
         handleSign,
+        handleReject,
+        isRejecting: rejectMutation.isPending,
         isSigning: signMutation.isPending,
     };
 }

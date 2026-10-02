@@ -33,9 +33,8 @@ export default function RecetasScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Recetas Médicas"
-                gradient={['#10b981', '#059669', '#047857']}
                 rightElement={
-                    <TouchableOpacity 
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Emitir receta"
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
                         onPress={() => setModalVisible(true)}
                     >
@@ -58,18 +57,18 @@ export default function RecetasScreen() {
                         prescriptions.map(presc => (
                             <View key={presc.id} style={[styles.prescCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                                 <View style={styles.prescHeader}>
-                                    <View style={[styles.prescIcon, { backgroundColor: '#10b98115' }]}>
-                                        <FileText size={20} color="#10b981" />
+                                    <View style={[styles.prescIcon, { backgroundColor: theme.success + '15' }]}>
+                                        <FileText size={20} color={theme.success} />
                                     </View>
                                     <View style={styles.prescInfo}>
-                                        <Text style={[styles.patientLabel, { color: theme.textMuted }]}>Paciente ID: {presc.patientId.substring(0,8)}</Text>
+                                        <Text style={[styles.patientLabel, { color: theme.textMuted }]}>{presc.patientName || 'Paciente'}</Text>
                                         <Text style={[styles.dateLabel, { color: theme.text }]}>
-                                            Emitida: {presc.issuedDate ? new Date(presc.issuedDate).toLocaleDateString() : 'N/A'}
+                                            Emitida: {presc.issuedDate ? new Date(presc.issuedDate).toLocaleDateString('es-MX') : 'N/A'}
                                         </Text>
                                     </View>
-                                    <View style={[styles.statusBadge, { backgroundColor: presc.status === 'active' ? '#10b98120' : '#f59e0b20' }]}>
-                                        <Text style={[styles.statusText, { color: presc.status === 'active' ? '#10b981' : '#f59e0b' }]}>
-                                            {presc.status.toUpperCase()}
+                                    <View style={[styles.statusBadge, { backgroundColor: presc.status === 'active' ? theme.success + '20' : theme.warning + '20' }]}>
+                                        <Text style={[styles.statusText, { color: presc.status === 'active' ? theme.success : theme.warning }]}>
+                                            {({ active: 'ACTIVA', filled: 'SURTIDA', cancelled: 'CANCELADA', expired: 'VENCIDA' } as Record<string, string>)[presc.status] || presc.status.toUpperCase()}
                                         </Text>
                                     </View>
                                 </View>
@@ -89,7 +88,7 @@ export default function RecetasScreen() {
                                 </View>
                                 
                                 {presc.notes && (
-                                    <View style={[styles.notesBox, { backgroundColor: 'rgba(255,255,255,0.02)' }]}>
+                                    <View style={[styles.notesBox, { backgroundColor: theme.background }]}>
                                         <AlertCircle size={14} color={theme.textMuted} />
                                         <Text style={[styles.notesText, { color: theme.textMuted }]}>{presc.notes}</Text>
                                     </View>
@@ -98,18 +97,22 @@ export default function RecetasScreen() {
                                 {presc.status === 'active' && (
                                     <View style={styles.statusActions}>
                                         <TouchableOpacity
-                                            style={[styles.statusBtn, { backgroundColor: '#10b98115' }]}
+                                            style={[styles.statusBtn, { backgroundColor: theme.success + '15' }]}
+                                            accessibilityRole="button"
+                                            accessibilityLabel="Marcar receta como surtida"
                                             onPress={() => handleUpdateStatus(presc.id, 'filled')}
                                             disabled={isUpdatingStatus}
                                         >
-                                            <Text style={[styles.statusBtnText, { color: '#10b981' }]}>✓ Surtir</Text>
+                                            <Text style={[styles.statusBtnText, { color: theme.success }]}>Surtir</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
-                                            style={[styles.statusBtn, { backgroundColor: '#ef444415' }]}
+                                            style={[styles.statusBtn, { backgroundColor: theme.error + '15' }]}
+                                            accessibilityRole="button"
+                                            accessibilityLabel="Cancelar receta"
                                             onPress={() => handleUpdateStatus(presc.id, 'cancelled')}
                                             disabled={isUpdatingStatus}
                                         >
-                                            <Text style={[styles.statusBtnText, { color: '#ef4444' }]}>✕ Cancelar</Text>
+                                            <Text style={[styles.statusBtnText, { color: theme.error }]}>Cancelar</Text>
                                         </TouchableOpacity>
                                     </View>
                                 )}
@@ -226,8 +229,8 @@ export default function RecetasScreen() {
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: theme.background, maxHeight: '70%' }]}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                            <Text style={[styles.modalTitle, { marginBottom: 0 }]}>Seleccionar Paciente</Text>
-                            <TouchableOpacity onPress={() => { setPatientPickerVisible(false); setPatientSearch(''); }}>
+                            <Text style={[styles.modalTitle, { marginBottom: 0, color: theme.text }]}>Seleccionar Paciente</Text>
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => { setPatientPickerVisible(false); setPatientSearch(''); }}>
                                 <X size={24} color={theme.textMuted} />
                             </TouchableOpacity>
                         </View>
@@ -256,7 +259,7 @@ export default function RecetasScreen() {
                                         <View style={styles.petPickerInfo}>
                                             <Text style={[styles.petPickerName, { color: theme.text }]}>{item.name}</Text>
                                             <Text style={[styles.petPickerBreed, { color: theme.textMuted }]}>
-                                                {item.breed || item.species} · {item.id.substring(0, 8)}
+                                                {[item.breed || item.species, item.owner && `Dueño: ${item.owner}`].filter(Boolean).join(' · ')}
                                             </Text>
                                         </View>
                                     </TouchableOpacity>
@@ -289,7 +292,7 @@ const styles = StyleSheet.create({
     dateLabel: { fontSize: 14, fontWeight: '800' },
     statusBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
     statusText: { fontSize: 10, fontWeight: '900' },
-    medsContainer: { borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingTop: 16 },
+    medsContainer: { borderTopWidth: 1, borderTopColor: 'rgba(128,128,128,0.2)', paddingTop: 16 },
     medRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
     medDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981', marginTop: 6 },
     medName: { fontSize: 15, fontWeight: '800' },

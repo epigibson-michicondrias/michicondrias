@@ -27,6 +27,8 @@ class TrainingProgramResponse(TrainingProgramBase):
     # Datos de apoyo (opcionales: no rompen clientes anteriores)
     trainer_name: Optional[str] = None
     enrollments_count: int = 0
+    rating_avg: float = 0.0
+    rating_count: int = 0
 
     class Config:
         from_attributes = True
@@ -87,3 +89,28 @@ class TrainingEnrollmentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ==========================================
+# REVIEW SCHEMAS
+# ==========================================
+
+class TrainingReviewCreate(BaseModel):
+    rating: int = Field(..., ge=1, le=5)
+    comment: Optional[str] = Field(None, max_length=1000)
+
+class TrainingReviewResponse(BaseModel):
+    id: str
+    program_id: str
+    rating: int
+    comment: Optional[str] = None
+    created_at: Optional[datetime] = None
+    author_name: Optional[str] = None
+    is_mine: bool = False
+
+class TrainingReviewsSummary(BaseModel):
+    average: float = 0.0
+    count: int = 0
+    reviews: list[TrainingReviewResponse] = []
+    can_review: bool = False      # completó el programa, no es suyo y aún no lo reseñó
+    my_review_id: Optional[str] = None

@@ -49,19 +49,29 @@ export function useClinicServices() {
     };
 
     const handleSave = async () => {
-        if (!name || !price || !duration) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
+        if (!name.trim() || !price || !duration) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'Nombre, precio y duración son obligatorios.' });
+            return;
+        }
+        const priceNum = parseFloat(price.replace(',', '.'));
+        const durationNum = parseInt(duration, 10);
+        if (!Number.isFinite(priceNum) || priceNum < 0) {
+            showAlert({ type: 'error', title: 'Precio inválido', message: 'Escribe un precio válido (0 o mayor).' });
+            return;
+        }
+        if (!Number.isFinite(durationNum) || durationNum < 5 || durationNum > 480) {
+            showAlert({ type: 'error', title: 'Duración inválida', message: 'La duración debe estar entre 5 y 480 minutos.' });
             return;
         }
 
         setLoadingAction(true);
         try {
             const payload = {
-                name,
-                description,
-                price: parseFloat(price),
-                duration_minutes: parseInt(duration),
-                category,
+                name: name.trim(),
+                description: description.trim(),
+                price: priceNum,
+                duration_minutes: durationNum,
+                category: category.trim() || 'General',
             };
 
             if (editingService) {
@@ -71,10 +81,12 @@ export function useClinicServices() {
             }
 
             refetch();
+            queryClient.invalidateQueries({ queryKey: ['clinic-services', clinic!.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-slots'] });
             setModalVisible(false);
             resetForm();
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar el servicio' });
+        } catch (e: any) {
+            showAlert({ type: 'error', title: 'Error', message: e?.message || 'No se pudo guardar el servicio' });
         } finally {
             setLoadingAction(false);
         }
@@ -92,6 +104,7 @@ export function useClinicServices() {
                 try {
                     await deleteClinicService(id);
                     refetch();
+                    queryClient.invalidateQueries({ queryKey: ['clinic-services', clinic?.id] });
                 } catch (e) {
                     showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el servicio' });
                 }

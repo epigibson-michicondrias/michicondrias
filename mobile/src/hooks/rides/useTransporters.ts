@@ -11,7 +11,7 @@ export function useTransporters() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: drivers = [], isLoading } = useQuery<DriverProfile[]>({
+  const { data: drivers = [], isLoading, isError, isRefetching, refetch } = useQuery<DriverProfile[]>({
     queryKey: ['available-drivers'],
     queryFn: () => getAvailableDrivers(),
   });
@@ -34,6 +34,9 @@ export function useTransporters() {
     // Data
     drivers: filteredDrivers,
     isLoading,
+    isError,
+    isRefetching,
+    refetch,
 
     // Navigation
     router,

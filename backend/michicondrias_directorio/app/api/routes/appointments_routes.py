@@ -152,7 +152,7 @@ def confirm_appointment(
         raise HTTPException(status_code=403, detail="Solo el dueño puede confirmar citas")
     if appt.status != "pending":
         raise HTTPException(status_code=409, detail="Solo se pueden confirmar citas pendientes")
-    appt = crud_services.update_appointment_status(db, appointment_id, "confirmed")
+    appt = crud_services.update_appointment_status(db, appointment_id, "confirmed", actor_id=user_id)
     svc = crud_services.get_service(db, appt.service_id)
     pet_name = _get_pet_name(db, appt.pet_id)
     return _serialize_appointment(appt, svc, clinic, pet_name)
@@ -173,7 +173,7 @@ def complete_appointment(
         raise HTTPException(status_code=403, detail="Solo el dueño puede completar citas")
     if appt.status not in ("pending", "confirmed"):
         raise HTTPException(status_code=409, detail="Esta cita ya no se puede completar")
-    appt = crud_services.update_appointment_status(db, appointment_id, "completed")
+    appt = crud_services.update_appointment_status(db, appointment_id, "completed", actor_id=user_id)
     svc = crud_services.get_service(db, appt.service_id)
     pet_name = _get_pet_name(db, appt.pet_id)
     return _serialize_appointment(appt, svc, clinic, pet_name)
@@ -197,7 +197,7 @@ def cancel_appointment(
         raise HTTPException(status_code=403, detail="No tienes permisos para cancelar esta cita")
     if appt.status not in ("pending", "confirmed"):
         raise HTTPException(status_code=409, detail="Esta cita ya no se puede cancelar")
-    appt = crud_services.update_appointment_status(db, appointment_id, "cancelled", cancel_in.cancellation_reason)
+    appt = crud_services.update_appointment_status(db, appointment_id, "cancelled", cancel_in.cancellation_reason, actor_id=user_id)
     svc = crud_services.get_service(db, appt.service_id)
     pet_name = _get_pet_name(db, appt.pet_id)
     return _serialize_appointment(appt, svc, clinic, pet_name)

@@ -61,7 +61,7 @@ export default function NuevoPatrocinadorScreen() {
                 <View style={styles.inputGroup}>
                     <Text style={[styles.label, { color: theme.text }]}>Título de la Campaña *</Text>
                     <TextInput
-                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                         placeholder="Ej. Promo Navideña 2024"
                         placeholderTextColor={theme.textMuted}
                         value={form.title}
@@ -74,7 +74,7 @@ export default function NuevoPatrocinadorScreen() {
                     <View style={styles.inputWrapper}>
                         <Megaphone size={18} color={theme.textMuted} style={styles.inputIcon} />
                         <TextInput
-                            style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="https://..."
                             placeholderTextColor={theme.textMuted}
                             autoCapitalize="none"
@@ -89,7 +89,7 @@ export default function NuevoPatrocinadorScreen() {
                     <View style={styles.inputWrapper}>
                         <Link size={18} color={theme.textMuted} style={styles.inputIcon} />
                         <TextInput
-                            style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="https://..."
                             placeholderTextColor={theme.textMuted}
                             autoCapitalize="none"
@@ -102,7 +102,7 @@ export default function NuevoPatrocinadorScreen() {
                 <View style={styles.inputGroup}>
                     <Text style={[styles.label, { color: theme.text }]}>Presupuesto ($) *</Text>
                     <TextInput
-                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                         placeholder="Ej. 5000"
                         placeholderTextColor={theme.textMuted}
                         keyboardType="numeric"
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
 
     title: {
         fontSize: 28,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     subtitle: {
         fontSize: 14,

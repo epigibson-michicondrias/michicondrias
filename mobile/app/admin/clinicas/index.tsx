@@ -34,15 +34,15 @@ export default function AdminClinicasScreen() {
                     <Phone size={14} color={theme.textMuted} />
                     <Text style={[styles.statText, { color: theme.text }]}>{item.phone || 'N/A'}</Text>
                 </View>
-                <View style={[styles.badge, { backgroundColor: item.is_24_hours ? '#10b98120' : '#f59e0b20' }]}>
-                    <Text style={[styles.badgeText, { color: item.is_24_hours ? '#10b981' : '#f59e0b' }]}>
+                <View style={[styles.badge, { backgroundColor: item.is_24_hours ? theme.success + '20' : theme.warning + '20' }]}>
+                    <Text style={[styles.badgeText, { color: item.is_24_hours ? theme.success : theme.warning }]}>
                         {item.is_24_hours ? '24 HORAS' : 'HORARIO REGULAR'}
                     </Text>
                 </View>
             </View>
             
             <View style={styles.cardActions}>
-                <TouchableOpacity 
+                <TouchableOpacity accessibilityRole="button" 
                     style={[styles.actionBtn, { backgroundColor: theme.background }]}
                     onPress={() => router.push(`/admin/clinicas/${item.id}` as any)}
                 >
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     cardInfo: { flex: 1 },
     clinicName: { 
         fontSize: 17, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     locationRow: { 
         flexDirection: 'row', 
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     },
     badgeText: { 
         fontSize: 9, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     cardActions: { 
         flexDirection: 'row', 
@@ -168,6 +168,6 @@ const styles = StyleSheet.create({
     },
     actionBtnText: { 
         fontSize: 14, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     }
 });

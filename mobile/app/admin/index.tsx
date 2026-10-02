@@ -35,7 +35,7 @@ export default function AdminScreen() {
                     title: 'Usuarios',
                     description: 'Roles y permisos',
                     icon: Users,
-                    color: '#3b82f6',
+                    color: theme.info,
                     route: '/admin/usuarios'
                 },
                 {
@@ -43,7 +43,7 @@ export default function AdminScreen() {
                     title: 'Veterinarios',
                     description: 'Registro profesional',
                     icon: UserCheck,
-                    color: '#f59e0b',
+                    color: theme.warning,
                     route: '/admin/veterinarios'
                 },
                 {
@@ -51,7 +51,7 @@ export default function AdminScreen() {
                     title: 'Roles',
                     description: 'Permisos del sistema',
                     icon: Shield,
-                    color: '#ef4444',
+                    color: theme.error,
                     route: '/admin/roles'
                 }
             ]
@@ -65,7 +65,7 @@ export default function AdminScreen() {
                     title: 'Categorías',
                     description: 'Ecommerce y serv.',
                     icon: Package,
-                    color: '#8b5cf6',
+                    color: theme.secondary,
                     route: '/admin/categorias'
                 },
                 {
@@ -73,7 +73,7 @@ export default function AdminScreen() {
                     title: 'Clínicas',
                     description: 'Gestión de centros',
                     icon: MapPin,
-                    color: '#10b981',
+                    color: theme.success,
                     route: '/admin/clinicas'
                 },
                 {
@@ -81,7 +81,7 @@ export default function AdminScreen() {
                     title: 'Productos',
                     description: 'Control de inventario',
                     icon: ShoppingCart,
-                    color: '#06b6d4',
+                    color: theme.info,
                     route: '/admin/productos'
                 }
             ]
@@ -114,7 +114,7 @@ export default function AdminScreen() {
         const Icon = module.icon;
         
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 key={module.key}
                 activeOpacity={0.7}
                 style={[styles.moduleCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
@@ -158,7 +158,7 @@ export default function AdminScreen() {
                         </View>
                     </View>
                     <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <MapPin size={18} color="#10b981" />
+                        <MapPin size={18} color={theme.success} />
                         <View>
                             <Text style={[styles.statNumber, { color: theme.text }]}>{clinicCount}</Text>
                             <Text style={[styles.statLabel, { color: theme.textMuted }]}>Clínicas</Text>
@@ -169,14 +169,14 @@ export default function AdminScreen() {
                 {/* Extended Stats Strip */}
                 <View style={[styles.statsStrip, { marginTop: 12 }]}>
                     <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <UserCheck size={18} color="#3b82f6" />
+                        <UserCheck size={18} color={theme.info} />
                         <View>
                             <Text style={[styles.statNumber, { color: theme.text }]}>{vetCount}</Text>
                             <Text style={[styles.statLabel, { color: theme.textMuted }]}>Vets</Text>
                         </View>
                     </View>
                     <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <Heart size={18} color="#f59e0b" />
+                        <Heart size={18} color={theme.warning} />
                         <View>
                             <Text style={[styles.statNumber, { color: theme.text }]}>{sitterCount}</Text>
                             <Text style={[styles.statLabel, { color: theme.textMuted }]}>Servicios</Text>
@@ -201,7 +201,7 @@ export default function AdminScreen() {
                 <View style={styles.quickSection}>
                     <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 12 }]}>Acciones Urgentes</Text>
                     <View style={styles.quickGrid}>
-                        <TouchableOpacity 
+                        <TouchableOpacity accessibilityRole="button" 
                             style={[styles.quickCard, { backgroundColor: '#ef4444' }]}
                             onPress={() => router.push('/admin/moderacion')}
                         >
@@ -210,7 +210,7 @@ export default function AdminScreen() {
                             <Text style={styles.quickCardDesc}>Pendientes</Text>
                         </TouchableOpacity>
                         
-                        <TouchableOpacity 
+                        <TouchableOpacity accessibilityRole="button" 
                             style={[styles.quickCard, { backgroundColor: '#3b82f6' }]}
                             onPress={() => router.push('/admin/verificaciones')}
                         >
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     },
     statNumber: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     statLabel: {
         fontSize: 10,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     },
     quickCardTitle: {
         fontSize: 16,
-        fontWeight: '900',
+        fontWeight: '800',
         color: '#fff',
     },
     quickCardDesc: {

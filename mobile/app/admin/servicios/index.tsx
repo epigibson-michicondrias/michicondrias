@@ -42,8 +42,8 @@ export default function AdminServiciosScreen() {
                     <Text style={[styles.serviceName, { color: theme.text }]}>{item.name}</Text>
                     <Text style={[styles.serviceCat, { color: theme.textMuted }]}>{item.category || 'Sin categoría'}{item.price != null ? ` • $${item.price}` : ''}</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: item.is_active ? '#10b98120' : '#f43f5e20' }]}>
-                    <Text style={[styles.statusText, { color: item.is_active ? '#10b981' : '#f43f5e' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
+                <View style={[styles.statusBadge, { backgroundColor: item.is_active ? theme.success + '20' : '#f43f5e20' }]}>
+                    <Text style={[styles.statusText, { color: item.is_active ? theme.success : '#f43f5e' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
                 </View>
             </View>
         );
@@ -66,7 +66,7 @@ export default function AdminServiciosScreen() {
                 onAction={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
                 rightElement={
                     <View style={styles.headerRight}>
-                        <TouchableOpacity 
+                        <TouchableOpacity accessibilityRole="button" 
                             style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
                             onPress={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
                         >
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     statMini: { alignItems: 'center' },
     statVal: { 
         fontSize: 22, 
-        fontWeight: '900', 
+        fontWeight: '800', 
         color: '#fff' 
     },
     statLab: { 
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     cardInfo: { flex: 1, marginLeft: 16 },
     serviceName: { 
         fontSize: 16, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     serviceCat: { 
         fontSize: 12, 
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     },
     statusText: { 
         fontSize: 9, 
-        fontWeight: '900', 
+        fontWeight: '800', 
         textTransform: 'uppercase' 
     },
     moreBtn: { 

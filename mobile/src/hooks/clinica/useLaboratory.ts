@@ -77,7 +77,7 @@ export function useLaboratory() {
         }
         updateResultsMutation.mutate({
             testId: selectedTestId,
-            data: { results: resultData.results, notes: resultData.notes, status: 'completed' },
+            data: { results: resultData.results.trim(), interpretation: resultData.notes.trim() || undefined, status: 'completed' },
         });
     };
 

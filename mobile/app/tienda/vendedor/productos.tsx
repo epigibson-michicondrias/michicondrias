@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     productDetails: { flex: 1, justifyContent: 'space-between', paddingVertical: 4 },
     productHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
     productName: { fontSize: 16, fontWeight: '800', flex: 1, marginRight: 8 },
-    productPrice: { fontSize: 18, fontWeight: '900' },
+    productPrice: { fontSize: 18, fontWeight: '800' },
     stockRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     stockBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
     stockLabel: { fontSize: 11, fontWeight: '800' },

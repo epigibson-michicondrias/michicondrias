@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -46,10 +47,7 @@ export default function CategoriasScreen() {
       <ScreenHeader title="Categorías" subtitle="Explora productos por departamento" />
 
       {isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={theme.primary} />
-          <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando categorías...</Text>
-        </View>
+        <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
       ) : (
         <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
           {/* Opción Todo */}

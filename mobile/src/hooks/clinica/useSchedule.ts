@@ -61,7 +61,7 @@ export function useSchedule() {
 
     // Holiday Form State
     const [holidayName, setHolidayName] = useState('');
-    const [holidayDate, setHolidayDate] = useState('');
+    const [holidayDate, setHolidayDate] = useState(() => new Date().toISOString().slice(0, 10));
     const [holidayReason, setHolidayReason] = useState('');
 
     const { data: clinics = [], isLoading: loadingClinics } = useQuery({
@@ -111,6 +111,7 @@ export function useSchedule() {
             setClinicSchedule(clinic!.id, schedules),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clinic-schedule', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-slots'] });
             showAlert({ type: 'success', title: 'Éxito', message: 'Horarios actualizados correctamente' });
             router.back();
         },
@@ -125,6 +126,7 @@ export function useSchedule() {
             addScheduleException(clinic!.id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['schedule-exceptions', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-slots'] });
             showAlert({ type: 'success', title: 'Éxito', message: 'Excepción de horario agregada correctamente' });
         },
         onError: () => {
@@ -151,14 +153,25 @@ export function useSchedule() {
 
     const handleSaveSchedule = async () => {
         if (!clinic?.id) return;
+        // day_of_week es la posición real en la semana (0 = Lunes); se calcula ANTES de filtrar los días cerrados
         const schedules = schedule
-            .filter(s => s.isOpen)
-            .map((s, index) => ({
+            .map((s, index) => ({ s, index }))
+            .filter(({ s }) => s.isOpen)
+            .map(({ s, index }) => ({
                 day_of_week: index,
                 start_time: s.openTime,
                 end_time: s.closeTime,
                 slot_duration_minutes: 30,
             }));
+        const invalid = schedule.find(s => s.isOpen && s.closeTime <= s.openTime);
+        if (invalid) {
+            showAlert({ type: 'error', title: 'Horario inválido', message: `En ${invalid.day} la hora de cierre debe ser posterior a la de apertura.` });
+            return;
+        }
+        if (schedules.length === 0) {
+            showAlert({ type: 'error', title: 'Sin días de atención', message: 'Activa al menos un día de la semana.' });
+            return;
+        }
         saveScheduleMutation.mutate(schedules);
     };
 
@@ -182,7 +195,7 @@ export function useSchedule() {
             {
                 onSuccess: () => {
                     setHolidayName('');
-                    setHolidayDate('');
+                    setHolidayDate(new Date().toISOString().slice(0, 10));
                     setHolidayReason('');
                     setHolidayModalVisible(false);
                 },
@@ -209,11 +222,11 @@ export function useSchedule() {
     };
 
     const confirmTimePicker = () => {
-        if (timePickerTarget && tempTime.length === 5 && tempTime.includes(':')) {
+        if (timePickerTarget && /^([01]\d|2[0-3]):[0-5]\d$/.test(tempTime)) {
             updateDaySchedule(timePickerTarget.index, timePickerTarget.field, tempTime);
             setTimePickerVisible(false);
         } else {
-            showAlert({ type: 'error', title: 'Formato Inválido', message: 'Usa el formato HH:MM' });
+            showAlert({ type: 'error', title: 'Formato inválido', message: 'Usa el formato de 24 horas HH:MM, por ejemplo 09:30.' });
         }
     };
 

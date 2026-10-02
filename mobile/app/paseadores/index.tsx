@@ -23,7 +23,7 @@ export default function PaseadoresScreen() {
     } = useWalkers();
 
     const renderWalkerItem = ({ item }: { item: Walker }) => (
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
             style={[styles.walkerCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => router.push({ pathname: '/paseadores/[id]', params: { id: item.id } } as any)}
         >
@@ -43,7 +43,7 @@ export default function PaseadoresScreen() {
                     </View>
                 </View>
                 <View style={styles.ratingContainer}>
-                    <Star size={16} color="#fbbf24" fill="#fbbf24" />
+                    <Star size={16} color={theme.warning} fill={theme.warning} />
                     <Text style={[styles.ratingText, { color: theme.text }]}>
                         {item.rating ? item.rating.toFixed(1) : 'Nuevo'}
                     </Text>
@@ -78,7 +78,7 @@ export default function PaseadoresScreen() {
                 </View>
                 {item.is_verified && (
                     <View style={[styles.serviceTag, { backgroundColor: '#10b98120' }]}>
-                        <Text style={[styles.serviceText, { color: '#10b981' }]}>
+                        <Text style={[styles.serviceText, { color: theme.success }]}>
                             Verificado
                         </Text>
                     </View>
@@ -89,7 +89,7 @@ export default function PaseadoresScreen() {
                 <Text style={[styles.priceText, { color: theme.primary }]}>
                     {item.price_per_hour ? `$${item.price_per_hour}/hora` : item.price_per_walk ? `$${item.price_per_walk}/paseo` : 'Tarifa por acordar'}
                 </Text>
-                <TouchableOpacity 
+                <TouchableOpacity accessibilityRole="button" 
                     style={[styles.contactButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push({ pathname: '/paseadores/[id]', params: { id: item.id } } as any)}
                 >
@@ -108,13 +108,13 @@ export default function PaseadoresScreen() {
             />
 
             <View style={styles.actionButtons}>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
                     onPress={() => router.push('/paseadores/solicitudes' as any)}
                 >
                     <Text style={[styles.actionButtonText, { color: theme.text }]}>Mis solicitudes</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.primary, borderColor: theme.primary }]}
                     onPress={() => router.push('/perfil/partner' as any)}
                 >

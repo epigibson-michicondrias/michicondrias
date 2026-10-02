@@ -8,19 +8,21 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { SurgeryItem } from '@/src/services/directorio';
 import { Plus, MapPin, Clock, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
+import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 
-const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-    "scheduled": { label: "Programada", color: "#f59e0b", bg: "rgba(245,158,11,0.15)" },
-    "in-progress": { label: "En Quirófano", color: "#ef4444", bg: "rgba(239,68,68,0.15)" },
-    "completed": { label: "Completada", color: "#10b981", bg: "rgba(16,185,129,0.15)" },
-    "cancelled": { label: "Cancelada", color: "#6b7280", bg: "rgba(107,114,128,0.15)" },
+type Tone = 'warning' | 'error' | 'success' | 'textMuted' | 'info';
+const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
+    "scheduled": { label: "Programada", tone: 'warning' },
+    "in-progress": { label: "En quirófano", tone: 'error' },
+    "completed": { label: "Completada", tone: 'success' },
+    "cancelled": { label: "Cancelada", tone: 'textMuted' },
 };
 
-const TYPE_MAP: Record<string, { label: string; icon: string; color: string }> = {
-    "elective": { label: "Electiva", icon: "🗓️", color: "#3b82f6" },
-    "preventive": { label: "Preventiva", icon: "🛡️", color: "#10b981" },
-    "emergency": { label: "Emergencia", icon: "🚨", color: "#ef4444" },
+const TYPE_MAP: Record<string, { label: string; tone: Tone }> = {
+    "elective": { label: "Electiva", tone: 'info' },
+    "preventive": { label: "Preventiva", tone: 'success' },
+    "emergency": { label: "Emergencia", tone: 'error' },
 };
 
 export default function CirugiasScreen() {
@@ -51,22 +53,25 @@ export default function CirugiasScreen() {
         setSurgRoom,
         handleCreate,
         isCreating,
+        changeStatus,
+        isChangingStatus,
     } = useSurgeries();
 
     const renderItem = ({ item }: { item: SurgeryItem }) => {
-        const status = STATUS_MAP[item.status] || STATUS_MAP["scheduled"];
-        const typeInfo = TYPE_MAP[item.surgery_type] || TYPE_MAP["elective"];
+        const statusBase = STATUS_MAP[item.status] || STATUS_MAP["scheduled"];
+        const status = { label: statusBase.label, color: theme[statusBase.tone], bg: theme[statusBase.tone] + '20' };
+        const typeBase = TYPE_MAP[item.surgery_type] || TYPE_MAP["elective"];
+        const typeInfo = { label: typeBase.label, color: theme[typeBase.tone] };
         
         const dateObj = new Date(item.scheduled_date);
         const dateStr = dateObj.toLocaleDateString("es-MX", { month: "short", day: "numeric" }).toUpperCase();
         const timeStr = dateObj.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
 
         return (
-            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: item.status === 'in-progress' ? '#ef444450' : 'rgba(255,255,255,0.05)' }]}>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: item.status === 'in-progress' ? theme.error + '50' : theme.border }]}>
                 <View style={styles.cardHeader}>
                     <View style={styles.headerInfo}>
                         <View style={styles.typeRow}>
-                            <Text style={{ fontSize: 16 }}>{typeInfo.icon}</Text>
                             <Text style={[styles.typeText, { color: typeInfo.color }]}>{typeInfo.label}</Text>
                         </View>
                         <Text style={[styles.serviceName, { color: theme.text }]}>{item.surgery_name}</Text>
@@ -80,7 +85,7 @@ export default function CirugiasScreen() {
                     </View>
                 </View>
 
-                <View style={[styles.actions, { borderTopColor: 'rgba(255,255,255,0.05)' }]}>
+                <View style={[styles.actions, { borderTopColor: 'rgba(128,128,128,0.2)' }]}>
                     <View style={styles.timeBox}>
                         <CalendarIcon size={14} color={theme.textMuted} />
                         <Text style={[styles.timeDetail, { color: theme.text }]}>{dateStr} • {timeStr}</Text>
@@ -90,6 +95,42 @@ export default function CirugiasScreen() {
                         <Text style={[styles.timeDetail, { color: theme.text }]}>~{item.estimated_duration ?? '—'} min</Text>
                     </View>
                 </View>
+
+                {(item.status === 'scheduled' || item.status === 'in-progress') && !!item.id && (
+                    <View style={styles.statusActions}>
+                        {item.status === 'scheduled' && (
+                            <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityLabel={`Iniciar cirugía ${item.surgery_name}`}
+                                disabled={isChangingStatus}
+                                onPress={() => changeStatus(item.id!, 'in-progress')}
+                                style={[styles.statusBtn, { borderColor: theme.success }]}
+                            >
+                                <Text style={{ color: theme.success, fontWeight: '800', fontSize: 13 }}>Iniciar</Text>
+                            </TouchableOpacity>
+                        )}
+                        {item.status === 'in-progress' && (
+                            <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityLabel={`Finalizar cirugía ${item.surgery_name}`}
+                                disabled={isChangingStatus}
+                                onPress={() => changeStatus(item.id!, 'completed')}
+                                style={[styles.statusBtn, { borderColor: theme.primary }]}
+                            >
+                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Finalizar</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel={`Cancelar cirugía ${item.surgery_name}`}
+                            disabled={isChangingStatus}
+                            onPress={() => changeStatus(item.id!, 'cancelled')}
+                            style={[styles.statusBtn, { borderColor: theme.error }]}
+                        >
+                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: 13 }}>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
         );
     };
@@ -100,7 +141,7 @@ export default function CirugiasScreen() {
                 title="Quirófano"
                 subtitle="Gestión de Cirugías"
                 rightElement={
-                    <TouchableOpacity style={styles.filterBtn} onPress={toggleSearch}>
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Buscar cirugía" style={styles.filterBtn} onPress={toggleSearch}>
                         {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
                     </TouchableOpacity>
                 }
@@ -124,9 +165,9 @@ export default function CirugiasScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
                     {[
                         { key: "all", label: "Todas" },
-                        { key: "scheduled", label: "⏳ Programadas" },
-                        { key: "in-progress", label: "🚨 En Curso" },
-                        { key: "completed", label: "✅ Completadas" },
+                        { key: "scheduled", label: "Programadas" },
+                        { key: "in-progress", label: "En curso" },
+                        { key: "completed", label: "Completadas" },
                     ].map(tab => (
                         <TouchableOpacity
                             key={tab.key}
@@ -157,7 +198,7 @@ export default function CirugiasScreen() {
                 <FlatList
             refreshControl={<AppRefreshControl />}
                     data={filtered}
-                    keyExtractor={(item) => item.id || Math.random().toString()}
+                    keyExtractor={(item, i) => item.id || `surgery-${i}`}
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
@@ -170,7 +211,7 @@ export default function CirugiasScreen() {
             )}
 
             {/* Floating Action Button */}
-            <TouchableOpacity 
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Agendar cirugía"
                 style={[styles.fab, { backgroundColor: theme.primary }]}
                 onPress={() => setModalVisible(true)}
             >
@@ -191,14 +232,14 @@ export default function CirugiasScreen() {
                                 <Text style={[styles.modalTitle, { color: theme.text }]}>Agendar Cirugía</Text>
                                 <Text style={[styles.modalSub, { color: theme.textMuted }]}>Programa una nueva intervención</Text>
                             </View>
-                            <TouchableOpacity onPress={() => setModalVisible(false)} style={[styles.closeBtn, { backgroundColor: theme.surface }]}>
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setModalVisible(false)} style={[styles.closeBtn, { backgroundColor: theme.surface }]}>
                                 <X size={20} color={theme.text} />
                             </TouchableOpacity>
                         </View>
 
                         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.text }]}>Nombre del Procedimiento</Text>
+                                <Text style={[styles.label, { color: theme.text }]}>Nombre del Procedimiento *</Text>
                                 <TextInput
                                     style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                     placeholder="Ej: Ovariohisterectomía, Profilaxis..."
@@ -216,9 +257,9 @@ export default function CirugiasScreen() {
                                 <Text style={[styles.label, { color: theme.text }]}>Tipo de Cirugía</Text>
                                 <View style={styles.typeGrid}>
                                     {[
-                                        { id: 'elective', label: 'Electiva', color: '#3b82f6' },
-                                        { id: 'preventive', label: 'Preventiva', color: '#10b981' },
-                                        { id: 'emergency', label: 'Emergencia', color: '#ef4444' }
+                                        { id: 'elective', label: 'Electiva', color: theme.info },
+                                        { id: 'preventive', label: 'Preventiva', color: theme.success },
+                                        { id: 'emergency', label: 'Emergencia', color: theme.error }
                                     ].map(t => (
                                         <TouchableOpacity 
                                             key={t.id}
@@ -237,13 +278,19 @@ export default function CirugiasScreen() {
 
                             <View style={styles.formRow}>
                                 <View style={[styles.formGroup, { flex: 1 }]}>
-                                    <Text style={[styles.label, { color: theme.text }]}>Fecha y Hora</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        placeholder="YYYY-MM-DDTHH:MM"
-                                        placeholderTextColor={theme.textMuted}
+                                    <DatePicker
+                                        label="Fecha *"
                                         value={surgDate}
-                                        onChangeText={setSurgDate}
+                                        minimumDate={new Date()}
+                                        onChange={(d) => { const n = new Date(surgDate); n.setFullYear(d.getFullYear(), d.getMonth(), d.getDate()); setSurgDate(n); }}
+                                    />
+                                </View>
+                                <View style={[styles.formGroup, { flex: 1 }]}>
+                                    <DatePicker
+                                        label="Hora *"
+                                        mode="time"
+                                        value={surgDate}
+                                        onChange={(d) => { const n = new Date(surgDate); n.setHours(d.getHours(), d.getMinutes(), 0, 0); setSurgDate(n); }}
                                     />
                                 </View>
                                 <View style={[styles.formGroup, { flex: 1 }]}>
@@ -261,23 +308,15 @@ export default function CirugiasScreen() {
 
                             <View style={styles.formGroup}>
                                 <Text style={[styles.label, { color: theme.text }]}>Quirófano</Text>
-                                <View style={styles.typeGrid}>
-                                    {['OR-1', 'OR-2', 'Dentista'].map(room => (
-                                        <TouchableOpacity 
-                                            key={room}
-                                            style={[
-                                                styles.typeBtn, 
-                                                { borderColor: theme.border },
-                                                surgRoom === room && { backgroundColor: theme.primary + '15', borderColor: theme.primary }
-                                            ]}
-                                            onPress={() => setSurgRoom(room)}
-                                        >
-                                            <Text style={{ color: surgRoom === room ? theme.primary : theme.textMuted, fontWeight: '700', fontSize: 12 }}>{room}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
+                                <TextInput
+                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                    placeholder="Ej: Quirófano 1 (opcional)"
+                                    placeholderTextColor={theme.textMuted}
+                                    value={surgRoom}
+                                    onChangeText={setSurgRoom}
+                                />
                             </View>
-                            
+
                             <View style={{ height: 40 }} />
                         </ScrollView>
 
@@ -324,6 +363,8 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     empty: { paddingTop: 100, alignItems: 'center', gap: 20 },
     emptyText: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
+    statusActions: { flexDirection: 'row', gap: 10, justifyContent: 'flex-end', marginTop: 12 },
+    statusBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1 },
     fab: { position: 'absolute', bottom: 30, right: 24, width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 10 },
     modalOverlay: { flex: 1, justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, height: '85%', padding: 24, paddingBottom: 0 },

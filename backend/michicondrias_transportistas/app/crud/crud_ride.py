@@ -1,20 +1,11 @@
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from app.models.ride import PetRide, DriverProfile
-from app.schemas.ride import PetRideCreate, PetRideUpdate, DriverProfileCreate
+from app.schemas.ride import PetRideUpdate, DriverProfileCreate
 
-def create_ride(db: Session, ride_in: PetRideCreate) -> PetRide:
-    db_ride = PetRide(
-        driver_id=ride_in.driver_id,
-        pet_id=ride_in.pet_id,
-        origin_address=ride_in.origin_address,
-        destination_address=ride_in.destination_address,
-        price=ride_in.price,
-        requires_carrier=ride_in.requires_carrier,
-        current_lat=ride_in.current_lat,
-        current_lng=ride_in.current_lng,
-        status="pending"
-    )
+def create_ride(db: Session, **fields) -> PetRide:
+    """Crea un viaje 'pending'. Los campos (precio, distancia, cliente...) los decide el servidor."""
+    db_ride = PetRide(status="pending", **fields)
     db.add(db_ride)
     db.commit()
     db.refresh(db_ride)

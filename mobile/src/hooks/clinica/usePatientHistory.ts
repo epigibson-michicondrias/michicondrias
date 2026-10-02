@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { AppointmentItem } from '@/src/services/directorio';
+import { AppointmentItem, getAppointmentById } from '@/src/services/directorio';
 import { createRecord, MedicalRecordCreate } from '@/src/services/carnet';
 import { showAlert } from '@/src/components/AppAlert';
 
 export function usePatientHistory(id: string, appointmentId?: string) {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const [loading, setLoading] = useState(false);
     const [reason, setReason] = useState('');
@@ -17,12 +18,13 @@ export function usePatientHistory(id: string, appointmentId?: string) {
     const [notes, setNotes] = useState('');
     const [prescriptions, setPrescriptions] = useState<any[]>([]);
 
-    const { data: appointments = [] } = useQuery<AppointmentItem[]>({
-        queryKey: ['clinic-appointments'],
-        enabled: !!appointmentId,
+    // La ruta es /historial/nuevo?appointment_id=... (o /historial/<id de cita>)
+    const effectiveAppointmentId = appointmentId || (id && id !== 'nuevo' ? id : undefined);
+    const { data: appointment } = useQuery<AppointmentItem>({
+        queryKey: ['appointment', effectiveAppointmentId],
+        queryFn: () => getAppointmentById(effectiveAppointmentId!),
+        enabled: !!effectiveAppointmentId,
     });
-
-    const appointment = (appointments as AppointmentItem[]).find((a: AppointmentItem) => a.id === appointmentId);
 
     useEffect(() => {
         if (appointment) {
@@ -51,22 +53,36 @@ export function usePatientHistory(id: string, appointmentId?: string) {
     };
 
     const handleSave = async () => {
-        if (!reason || !diagnosis) {
-            showAlert({ type: 'error', title: 'Error', message: 'El motivo y el diagnóstico son obligatorios' });
+        if (!reason.trim() || !diagnosis.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'El motivo y el diagnóstico son obligatorios.' });
+            return;
+        }
+        if (!appointment?.pet_id) {
+            showAlert({ type: 'error', title: 'Paciente no identificado', message: 'No se pudo identificar la mascota de esta cita. Vuelve a la agenda e inténtalo de nuevo.' });
+            return;
+        }
+        const w = weight ? parseFloat(weight.replace(',', '.')) : undefined;
+        const t = temp ? parseFloat(temp.replace(',', '.')) : undefined;
+        if ((w !== undefined && (!Number.isFinite(w) || w <= 0 || w > 200)) || (t !== undefined && (!Number.isFinite(t) || t < 30 || t > 45))) {
+            showAlert({ type: 'error', title: 'Valores inválidos', message: 'Revisa el peso (kg) y la temperatura (°C).' });
+            return;
+        }
+        if (prescriptions.some(p => !String(p.medication_name || '').trim())) {
+            showAlert({ type: 'error', title: 'Receta incompleta', message: 'Cada medicamento necesita un nombre; elimina las filas vacías.' });
             return;
         }
 
         setLoading(true);
         try {
             const payload: MedicalRecordCreate = {
-                pet_id: appointment?.pet_id || id,
-                reason_for_visit: reason,
-                diagnosis,
-                treatment,
-                weight_kg: weight ? parseFloat(weight) : undefined,
-                temperature_c: temp ? parseFloat(temp) : undefined,
+                pet_id: appointment.pet_id,
+                reason_for_visit: reason.trim(),
+                diagnosis: diagnosis.trim(),
+                treatment: treatment.trim(),
+                weight_kg: w,
+                temperature_c: t,
                 notes,
-                appointment_id: appointmentId || undefined,
+                appointment_id: effectiveAppointmentId,
                 prescriptions: prescriptions.map(p => ({
                     ...p,
                     frequency_hours: parseInt(p.frequency_hours),
@@ -75,10 +91,13 @@ export function usePatientHistory(id: string, appointmentId?: string) {
             };
 
             await createRecord(payload);
+            queryClient.invalidateQueries({ queryKey: ['clinic-patients'] });
+            queryClient.invalidateQueries({ queryKey: ['pet-records'] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-prescriptions'] });
 
             showAlert({ type: 'success', title: 'Éxito', message: 'Ficha médica generada correctamente', onButtonPress: () => router.push('/mi-clinica/agenda' as any) });
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar la ficha médica' });
+        } catch (e: any) {
+            showAlert({ type: 'error', title: 'No se pudo guardar', message: e?.message || 'No se pudo guardar la ficha médica.' });
         } finally {
             setLoading(false);
         }

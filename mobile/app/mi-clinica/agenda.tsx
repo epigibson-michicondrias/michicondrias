@@ -48,14 +48,14 @@ export default function AgendaClinicaScreen() {
                     <View style={styles.headerInfo}>
                         <Text style={[styles.serviceName, { color: theme.text }]}>{item.service_name}{item.is_emergency ? '  ·  Urgencia' : ''}</Text>
                         {!!item.pet_name && <Text style={[styles.timeText, { color: theme.text }]}>Paciente: {item.pet_name}</Text>}
-                        <Text style={[styles.timeText, { color: theme.textMuted }]}>🕒 {item.start_time} - {item.end_time}</Text>
+                        <Text style={[styles.timeText, { color: theme.textMuted }]}>{item.start_time} - {item.end_time}</Text>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: s.bg }]}>
                         <Text style={[styles.statusLabel, { color: s.color }]}>{s.label}</Text>
                     </View>
                 </View>
 
-                {item.notes && (
+                {!!item.notes && (
                     <View style={[styles.notesBox, { backgroundColor: theme.background }]}>
                         <MessageSquare size={14} color={theme.textMuted} />
                         <Text style={[styles.notesText, { color: theme.textMuted }]}>{item.notes}</Text>
@@ -120,7 +120,7 @@ export default function AgendaClinicaScreen() {
                 title="Agenda"
                 subtitle="Control de citas recibidas"
                 rightElement={
-                    <TouchableOpacity style={styles.filterBtn} onPress={toggleSearch}>
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={showSearch ? 'Cerrar búsqueda' : 'Buscar cita'} style={styles.filterBtn} onPress={toggleSearch}>
                         {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
                     </TouchableOpacity>
                 }
@@ -144,13 +144,15 @@ export default function AgendaClinicaScreen() {
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
                     {[
                         { key: "all", label: "Todas" },
-                        { key: "pending", label: "⏳ Pendientes" },
-                        { key: "confirmed", label: "✅ Confirmadas" },
-                        { key: "completed", label: "🎉 Finalizadas" },
-                        { key: "cancelled", label: "❌ Cerradas" },
+                        { key: "pending", label: "Pendientes" },
+                        { key: "confirmed", label: "Confirmadas" },
+                        { key: "completed", label: "Finalizadas" },
+                        { key: "cancelled", label: "Canceladas" },
                     ].map(tab => (
                         <TouchableOpacity
                             key={tab.key}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: filter === tab.key }}
                             onPress={() => setFilter(tab.key)}
                             style={[
                                 styles.tab,
@@ -244,7 +246,7 @@ const styles = StyleSheet.create({
     tab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1 },
     tabText: { fontSize: 13, fontWeight: '600' },
     list: { padding: 20, paddingBottom: 40 },
-    card: { borderRadius: 28, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    card: { borderRadius: 28, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 16 },
     dateBox: { width: 48, paddingVertical: 10, borderRadius: 14, alignItems: 'center' },
     dateDay: { fontSize: 18, fontWeight: '900' },

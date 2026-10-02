@@ -30,13 +30,15 @@ export default function Button({
     label, onPress, variant = 'primary', size = 'md', loading, disabled, icon, iconRight,
     fullWidth = true, style, accessibilityLabel,
 }: ButtonProps) {
-    const { theme } = useTheme();
+    const { theme, isDark } = useTheme();
     const inactive = disabled || loading;
 
+    // En oscuro los rellenos son claros (primary/error): texto casi negro para cumplir contraste AA (≥4.5:1).
+    const onFill = isDark ? '#08101f' : '#fff';
     const palette = {
-        primary: { bg: theme.primary, fg: '#fff', border: 'transparent' },
+        primary: { bg: theme.primary, fg: onFill, border: 'transparent' },
         gold: { bg: theme.accent, fg: '#101c3d', border: 'transparent' },
-        danger: { bg: theme.error, fg: '#fff', border: 'transparent' },
+        danger: { bg: theme.error, fg: onFill, border: 'transparent' },
         secondary: { bg: 'transparent', fg: theme.text, border: theme.border },
         ghost: { bg: 'transparent', fg: theme.primary, border: 'transparent' },
     }[variant];

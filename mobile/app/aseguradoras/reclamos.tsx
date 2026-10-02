@@ -139,7 +139,7 @@ export default function ReclamosScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📋 Reclamos"
+                title="Reclamos"
                 subtitle="Gestión de reclamos de seguros"
             />
 

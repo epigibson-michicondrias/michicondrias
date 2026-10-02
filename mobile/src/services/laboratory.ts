@@ -3,6 +3,9 @@ import { apiFetch } from "../lib/api";
 export interface LabTest {
     id: string;
     patientId: string;
+    patientName?: string | null;
+    results?: any;
+    interpretation?: string | null;
     testType: string;
     testName: string;
     status: 'pending' | 'processing' | 'completed' | 'cancelled';

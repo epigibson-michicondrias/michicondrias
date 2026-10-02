@@ -5,8 +5,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { getCurrentUser } from '@/src/lib/auth';
-import { updateMyProfile } from '@/src/services/profile';
+import { getMyProfile, updateMyProfile } from '@/src/services/profile';
 import { createBillingPortalSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 import { Linking } from 'react-native';
@@ -14,7 +13,12 @@ import { Linking } from 'react-native';
 export interface ProfileFormData {
     full_name: string;
     email: string;
+    phone: string;
+    location: string;
+    bio: string;
 }
+
+export const BIO_MAX = 500;
 
 export function useProfile() {
     const { user, signOut, reloadUser } = useAuth();
@@ -23,11 +27,14 @@ export function useProfile() {
     const [formData, setFormData] = useState<ProfileFormData>({
         full_name: '',
         email: '',
+        phone: '',
+        location: '',
+        bio: '',
     });
 
     const { data: profile, isLoading, isError, refetch } = useQuery({
         queryKey: ['user-profile'],
-        queryFn: getCurrentUser,
+        queryFn: getMyProfile,
     });
 
     useEffect(() => {
@@ -35,18 +42,26 @@ export function useProfile() {
             setFormData({
                 full_name: profile.full_name || '',
                 email: profile.email || '',
+                phone: profile.phone || '',
+                location: profile.location || '',
+                bio: profile.bio || '',
             });
         }
     }, [profile]);
 
     const updateMutation = useMutation({
-        mutationFn: (data: ProfileFormData) => updateMyProfile({ full_name: data.full_name.trim() }),
+        mutationFn: (data: ProfileFormData) => updateMyProfile({
+            full_name: data.full_name.trim(),
+            phone: data.phone.trim(),
+            location: data.location.trim(),
+            bio: data.bio.trim(),
+        }),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['user-profile'] });
             // El nombre también se muestra en inicio y menú (contexto de sesión)
             await reloadUser();
             setIsEditing(false);
-            showAlert({ type: 'success', title: 'Perfil actualizado', message: 'Tu nombre se guardó correctamente.' });
+            showAlert({ type: 'success', title: 'Perfil actualizado', message: 'Tus datos se guardaron correctamente.' });
         },
         onError: (error: any) => {
             showAlert({ type: 'error', title: 'No se pudo guardar', message: error?.message || 'No se pudo actualizar el perfil' });
@@ -59,6 +74,15 @@ export function useProfile() {
             showAlert({ type: 'error', title: 'Nombre requerido', message: 'Escribe tu nombre completo (mínimo 2 caracteres).' });
             return;
         }
+        const digits = formData.phone.replace(/\D/g, '');
+        if (formData.phone.trim() && (digits.length < 7 || digits.length > 15)) {
+            showAlert({ type: 'error', title: 'Teléfono inválido', message: 'Ingresa un teléfono de 7 a 15 dígitos o déjalo vacío.' });
+            return;
+        }
+        if (formData.bio.trim().length > BIO_MAX) {
+            showAlert({ type: 'error', title: 'Bio demasiado larga', message: `La bio puede tener hasta ${BIO_MAX} caracteres.` });
+            return;
+        }
         updateMutation.mutate(formData);
     };
 
@@ -68,6 +92,9 @@ export function useProfile() {
             setFormData({
                 full_name: profile.full_name || '',
                 email: profile.email || '',
+                phone: profile.phone || '',
+                location: profile.location || '',
+                bio: profile.bio || '',
             });
         }
     };

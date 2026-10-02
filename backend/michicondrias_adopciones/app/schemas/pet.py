@@ -116,6 +116,7 @@ class AdoptionFormResponse(AdoptionFormBase):
     compatibility_score: int
     status: str
     created_at: datetime
+    pet_name: Optional[str] = None
 
     class Config:
         from_attributes = True

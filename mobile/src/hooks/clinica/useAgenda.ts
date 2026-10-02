@@ -53,6 +53,9 @@ export function useAgenda() {
         queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
         queryClient.invalidateQueries({ queryKey: ['my-directorio-appointments'] });
         queryClient.invalidateQueries({ queryKey: ['clinic-slots'] });
+        queryClient.invalidateQueries({ queryKey: ['clinic-appointments'] });
+        queryClient.invalidateQueries({ queryKey: ['clinic-patients'] });
+        queryClient.invalidateQueries({ queryKey: ['clinic-metrics'] });
     };
 
     const handleConfirm = async (id: string) => {
@@ -111,8 +114,10 @@ export function useAgenda() {
         setShowSearch(!showSearch);
     };
 
+    // La ficha de una cita completada vive en el carnet de la mascota
     const goToRecord = (id: string) => {
-        router.push(`/mi-clinica/historial/${id}` as any);
+        const appt = appointments.find(a => a.id === id);
+        if (appt?.pet_id) router.push(`/carnet/${appt.pet_id}` as any);
     };
 
     return {

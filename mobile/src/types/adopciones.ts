@@ -90,6 +90,7 @@ export interface AdoptionForm {
     compatibility_score: number;
     status: string;
     created_at: string;
+    pet_name?: string | null;
 }
 
 export interface AdoptionFormCreate {

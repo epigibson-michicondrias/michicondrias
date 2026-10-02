@@ -47,7 +47,7 @@ export default function FormularioCompatibilidadScreen() {
         switch (step) {
             case 0:
                 return (
-                    <FormSection title="🏠 Vivienda">
+                    <FormSection title="Vivienda">
                         <FormSwitch
                             label="¿Tienes patio o jardín?"
                             description="Espacio exterior para que la mascota pueda ejercitarse"
@@ -64,7 +64,7 @@ export default function FormularioCompatibilidadScreen() {
                 );
             case 1:
                 return (
-                    <FormSection title="🐾 Experiencia">
+                    <FormSection title="Experiencia">
                         <FormSelect
                             label="Nivel de experiencia con mascotas"
                             options={EXPERIENCE_OPTIONS}
@@ -98,7 +98,7 @@ export default function FormularioCompatibilidadScreen() {
                 );
             case 3:
                 return (
-                    <FormSection title="🐶 Otras Mascotas">
+                    <FormSection title="Otras mascotas">
                         <FormSwitch
                             label="¿Tienes otras mascotas en casa?"
                             description="Perros, gatos u otros animales"

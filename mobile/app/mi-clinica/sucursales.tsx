@@ -31,13 +31,13 @@ export default function SucursalesScreen() {
                 </View>
                 <View style={styles.badgeContainer}>
                     {item.is_24_hours && (
-                        <View style={[styles.badge, { backgroundColor: '#10b98120' }]}>
-                            <Text style={[styles.badgeText, { color: '#10b981' }]}>24 Horas</Text>
+                        <View style={[styles.badge, { backgroundColor: theme.success + '20' }]}>
+                            <Text style={[styles.badgeText, { color: theme.success }]}>24 Horas</Text>
                         </View>
                     )}
                     {item.has_emergency && (
-                        <View style={[styles.badge, { backgroundColor: '#ef444420' }]}>
-                            <Text style={[styles.badgeText, { color: '#ef4444' }]}>Urgencias</Text>
+                        <View style={[styles.badge, { backgroundColor: theme.error + '20' }]}>
+                            <Text style={[styles.badgeText, { color: theme.error }]}>Urgencias</Text>
                         </View>
                     )}
                 </View>
@@ -74,24 +74,24 @@ export default function SucursalesScreen() {
 
             <View style={[styles.cardFooter, { borderTopColor: theme.border }]}>
                 <View style={styles.statusBox}>
-                    <View style={[styles.approvalBadge, { backgroundColor: item.is_approved ? '#10b98115' : '#f59e0b15' }]}>
-                        <Text style={[styles.approvalText, { color: item.is_approved ? '#10b981' : '#f59e0b' }]}>
+                    <View style={[styles.approvalBadge, { backgroundColor: item.is_approved ? theme.success + '15' : theme.warning + '15' }]}>
+                        <Text style={[styles.approvalText, { color: item.is_approved ? theme.success : theme.warning }]}>
                             {item.is_approved ? 'Verificada' : 'Pendiente'}
                         </Text>
                     </View>
                 </View>
                 <View style={styles.actionRow}>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Editar"
                         style={[styles.actionBtn, { backgroundColor: theme.primary + '15' }]}
                         onPress={() => handleEdit(item)}
                     >
                         <Edit size={16} color={theme.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: '#ef444420' }]}
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Eliminar"
+                        style={[styles.actionBtn, { backgroundColor: theme.error + '20' }]}
                         onPress={() => handleDelete(item)}
                     >
-                        <Trash2 size={16} color="#ef4444" />
+                        <Trash2 size={16} color={theme.error} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -131,7 +131,7 @@ export default function SucursalesScreen() {
             <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
                 <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
                     <View style={styles.modalHeader}>
-                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setModalVisible(false)}>
                             <X size={24} color={theme.text} />
                         </TouchableOpacity>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>
@@ -154,6 +154,7 @@ export default function SucursalesScreen() {
                                 value={name}
                                 onChangeText={setName}
                                 placeholder="Hospital Veterinario Central"
+                                placeholderTextColor={theme.textMuted}
                             />
                         </View>
 
@@ -164,6 +165,7 @@ export default function SucursalesScreen() {
                                 value={address}
                                 onChangeText={setAddress}
                                 placeholder="Calle Falsa 123"
+                                placeholderTextColor={theme.textMuted}
                             />
                         </View>
 
@@ -175,6 +177,7 @@ export default function SucursalesScreen() {
                                     value={city}
                                     onChangeText={setCity}
                                     placeholder="CDMX"
+                                    placeholderTextColor={theme.textMuted}
                                 />
                             </View>
                             <View style={[styles.formGroup, { flex: 1 }]}>
@@ -184,6 +187,7 @@ export default function SucursalesScreen() {
                                     value={state}
                                     onChangeText={setState}
                                     placeholder="CDMX"
+                                    placeholderTextColor={theme.textMuted}
                                 />
                             </View>
                         </View>
@@ -195,6 +199,7 @@ export default function SucursalesScreen() {
                                 value={phone}
                                 onChangeText={setPhone}
                                 placeholder="+52 55 1234 5678"
+                                placeholderTextColor={theme.textMuted}
                                 keyboardType="phone-pad"
                             />
                         </View>
@@ -206,6 +211,7 @@ export default function SucursalesScreen() {
                                 value={email}
                                 onChangeText={setEmail}
                                 placeholder="contacto@clinica.com"
+                                placeholderTextColor={theme.textMuted}
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                             />
@@ -218,6 +224,7 @@ export default function SucursalesScreen() {
                                 value={website}
                                 onChangeText={setWebsite}
                                 placeholder="https://clinica.com"
+                                placeholderTextColor={theme.textMuted}
                                 keyboardType="url"
                                 autoCapitalize="none"
                             />
@@ -230,6 +237,7 @@ export default function SucursalesScreen() {
                                 value={description}
                                 onChangeText={setDescription}
                                 placeholder="Describe el equipamiento, especialidades..."
+                                placeholderTextColor={theme.textMuted}
                                 multiline
                                 numberOfLines={3}
                             />
@@ -292,7 +300,7 @@ const styles = StyleSheet.create({
     modalHeader: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
         paddingHorizontal: 24, paddingVertical: 20,
-        borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)',
+        borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.2)',
     },
     modalTitle: { fontSize: 18, fontWeight: '800' },
     saveBtnText: { fontSize: 16, fontWeight: '800' },

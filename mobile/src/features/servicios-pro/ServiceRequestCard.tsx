@@ -11,10 +11,10 @@ import { showAlert } from '@/src/components/AppAlert';
 import type { Perspective, ProRequest, RequestKind } from '@/src/hooks/servicios-pro/useProRequests';
 import {
     formatIsoDate,
-    getStatusColors,
     normalizeStatus,
-    STATUS_LABELS,
 } from '@/src/hooks/servicios-pro/requestStatus';
+import StatusBadge from './StatusBadge';
+import { radius } from '@/constants/design';
 
 interface Props {
     kind: RequestKind;
@@ -36,7 +36,6 @@ const SIT_TYPE_LABELS: Record<string, string> = {
 export default function ServiceRequestCard({ kind, request, perspective, busy, onStatus, onReview, onOpenProfile }: Props) {
     const { theme } = useTheme();
     const status = normalizeStatus(request.status);
-    const colors = getStatusColors(status, theme);
     const isWalk = kind === 'walk';
     const walk = request as any;
     const providerName: string | null | undefined = isWalk ? walk.walker_name : walk.sitter_name;
@@ -133,9 +132,7 @@ export default function ServiceRequestCard({ kind, request, perspective, busy, o
                     <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>{petName}</Text>
                     <Text style={[styles.subtitle, { color: theme.textMuted }]} numberOfLines={1}>{subtitle}</Text>
                 </View>
-                <View style={[styles.badge, { backgroundColor: colors.bg }]}>
-                    <Text style={[styles.badgeText, { color: colors.color }]}>{STATUS_LABELS[status]}</Text>
-                </View>
+                <StatusBadge status={status} />
             </TouchableOpacity>
 
             <View style={styles.details}>
@@ -208,22 +205,20 @@ function ActionButton({
 }
 
 const styles = StyleSheet.create({
-    card: { borderRadius: 20, borderWidth: 1, padding: 16, marginBottom: 14 },
+    card: { borderRadius: radius.lg, borderWidth: 1, padding: 16, marginBottom: 12 },
     header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     avatar: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
     avatarText: { fontSize: 18, fontWeight: '800' },
     headerInfo: { flex: 1 },
     title: { fontSize: 16, fontWeight: '800' },
     subtitle: { fontSize: 13, marginTop: 2 },
-    badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
-    badgeText: { fontSize: 11, fontWeight: '800' },
     details: { gap: 8, marginTop: 14 },
     row: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
     rowText: { flex: 1, fontSize: 13, lineHeight: 18 },
     footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 14, paddingTop: 14, borderTopWidth: 1 },
-    price: { fontSize: 18, fontWeight: '900' },
+    price: { fontSize: 18, fontWeight: '800' },
     priceLabel: { fontSize: 11 },
     actions: { flexDirection: 'row', gap: 8, flexShrink: 1, flexWrap: 'wrap', justifyContent: 'flex-end' },
-    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12, borderWidth: 1 },
+    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, minHeight: 44, borderRadius: radius.md, borderWidth: 1 },
     actionText: { fontSize: 13, fontWeight: '800' },
 });

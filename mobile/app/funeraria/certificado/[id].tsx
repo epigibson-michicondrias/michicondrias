@@ -28,7 +28,7 @@ export default function CertificadoScreen() {
     if (isLoadingCertificate) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="📜 Certificado" />
+                <ScreenHeader title="Certificado" />
                 <LoadingOverlay message="Cargando certificado..." />
             </ScreenContainer>
         );
@@ -37,7 +37,7 @@ export default function CertificadoScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📜 Certificado"
+                title="Certificado"
                 subtitle="Certificado de defunción"
                 gradient={['#1e1b4b', '#312e81', '#4338ca']}
             />
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     },
     certificateTitle: {
         fontSize: 22,
-        fontWeight: '900',
+        fontWeight: '800',
         textAlign: 'center',
     },
     certificateSubtitle: {

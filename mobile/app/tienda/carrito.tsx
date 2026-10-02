@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     },
     itemPrice: {
         fontSize: 16,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     quantityControls: {
         flexDirection: 'row',
@@ -319,11 +319,11 @@ const styles = StyleSheet.create({
     },
     totalLabel: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     totalValue: {
         fontSize: 24,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     secureBadge: {
         flexDirection: 'row',

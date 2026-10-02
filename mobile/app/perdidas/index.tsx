@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    screenTitle: { fontSize: 26, fontWeight: '900', letterSpacing: -0.5 },
+    screenTitle: { fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
     screenSubtitle: { fontSize: 14, fontWeight: '500' },
     statsStrip: {
         flexDirection: 'row',
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
         gap: 10,
         borderWidth: 1,
     },
-    statVal: { fontSize: 20, fontWeight: '900' },
+    statVal: { fontSize: 20, fontWeight: '800' },
     statLabel: { fontSize: 11, fontWeight: '700', marginTop: 2 },
     trackerBanner: {
         marginHorizontal: 24,
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
         paddingVertical: 3,
         borderRadius: 6,
     },
-    badgeText: { fontSize: 9, fontWeight: '900', color: '#fff' },
+    badgeText: { fontSize: 9, fontWeight: '800', color: '#fff' },
     trackerBadge: {
         position: 'absolute',
         top: 8,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 3,
     },
-    trackerBadgeText: { fontSize: 9, fontWeight: '900', color: '#fff' },
+    trackerBadgeText: { fontSize: 9, fontWeight: '800', color: '#fff' },
     cardContent: { padding: 12 },
     cardName: { fontSize: 15, fontWeight: '800', marginBottom: 4 },
     cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 },

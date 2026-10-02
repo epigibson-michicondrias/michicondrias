@@ -10,6 +10,7 @@ export interface Medication {
 export interface Prescription {
     id: string;
     patientId: string;
+    patientName?: string | null;
     veterinarianId: string;
     medications: Medication[];
     status: 'active' | 'filled' | 'expired' | 'cancelled';

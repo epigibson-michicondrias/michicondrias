@@ -33,8 +33,8 @@ export default function SolicitarAdopcionScreen() {
         return (
             <ScreenContainer>
                 <View style={styles.gateContainer}>
-                    <View style={[styles.lockIconBox, { backgroundColor: '#ef444415' }]}>
-                        <ShieldAlert size={48} color="#ef4444" />
+                    <View style={[styles.lockIconBox, { backgroundColor: theme.error + '15' }]}>
+                        <ShieldAlert size={48} color={theme.error} />
                     </View>
                     <Text style={[styles.gateTitle, { color: theme.text }]}>Acción Reservada</Text>
                     <Text style={[styles.gateDesc, { color: theme.textMuted }]}>
@@ -70,7 +70,7 @@ export default function SolicitarAdopcionScreen() {
                         onPress={goToVerification}
                     >
                         <Text style={[styles.gateBtnText, { color: '#fff' }]}>
-                            {isPending ? 'Ver Estatus de Seguridad' : '🛡️ Ir a Centro de Seguridad'}
+                            {isPending ? 'Ver Estatus de Seguridad' : 'Ir a Centro de Seguridad'}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={{ marginTop: 20 }} onPress={goBack}>
@@ -88,15 +88,15 @@ export default function SolicitarAdopcionScreen() {
                     <View style={styles.confettiContainer}>
                         {Array.from({ length: 15 }).map((_, i) => (
                             <View key={i} style={[styles.confetti, {
-                                backgroundColor: ['#7c3aed', '#ec4899', '#3b82f6', '#10b981'][i % 4],
+                                backgroundColor: [theme.primary, theme.accent, theme.info, theme.success][i % 4],
                                 left: `${Math.random() * 100}%`,
                                 top: `${Math.random() * 60}%`,
                                 transform: [{ rotate: `${Math.random() * 360}deg` }]
                             }]} />
                         ))}
                     </View>
-                    <View style={[styles.successIconBox, { backgroundColor: '#10b98115' }]}>
-                        <PartyPopper size={64} color="#10b981" />
+                    <View style={[styles.successIconBox, { backgroundColor: theme.success + '15' }]}>
+                        <PartyPopper size={64} color={theme.success} />
                     </View>
                     <Text style={[styles.successTitle, { color: theme.text }]}>¡Solicitud Enviada!</Text>
                     <Text style={[styles.successDesc, { color: theme.textMuted }]}>
@@ -106,7 +106,7 @@ export default function SolicitarAdopcionScreen() {
                         style={[styles.successBtn, { backgroundColor: theme.primary }]}
                         onPress={goToMyApplications}
                     >
-                        <Text style={styles.successBtnText}>📄 Ver Mis Solicitudes</Text>
+                        <Text style={styles.successBtnText}>Ver Mis Solicitudes</Text>
                     </TouchableOpacity>
                 </View>
             </ScreenContainer>
@@ -155,7 +155,7 @@ export default function SolicitarAdopcionScreen() {
                                 {['Casa', 'Departamento', 'Rancho', 'Otro'].map((type) => (
                                     <TouchableOpacity
                                         key={type}
-                                        style={[styles.optionBtn, { backgroundColor: theme.surface }, form.house_type === type && styles.selectedOption]}
+                                        style={[styles.optionBtn, { backgroundColor: theme.surface }, form.house_type === type && { backgroundColor: theme.primary, borderColor: theme.primary }]}
                                         onPress={() => updateField('house_type', type)}
                                     >
                                         <Text style={[styles.optionText, { color: theme.text }, form.house_type === type && { color: '#fff' }]}>{type}</Text>
@@ -165,7 +165,7 @@ export default function SolicitarAdopcionScreen() {
 
                             <View style={styles.switchRow}>
                                 <Text style={[styles.label, { color: theme.text, marginBottom: 0 }]}>¿Tiene patio o jardín?</Text>
-                                <Switch value={form.has_yard} onToggle={() => updateField('has_yard', !form.has_yard)} theme={theme} />
+                                <Switch label="Tiene patio o jardín" value={form.has_yard} onToggle={() => updateField('has_yard', !form.has_yard)} theme={theme} />
                             </View>
 
                             <Text style={[styles.label, { color: theme.text }]}>Estatus de Vivienda</Text>
@@ -173,7 +173,7 @@ export default function SolicitarAdopcionScreen() {
                                 {['Propia', 'Renta'].map((type) => (
                                     <TouchableOpacity
                                         key={type}
-                                        style={[styles.toggleBtn, { backgroundColor: theme.surface }, form.own_or_rent === type && styles.selectedOption]}
+                                        style={[styles.toggleBtn, { backgroundColor: theme.surface }, form.own_or_rent === type && { backgroundColor: theme.primary, borderColor: theme.primary }]}
                                         onPress={() => updateField('own_or_rent', type)}
                                     >
                                         <Text style={[styles.optionText, { color: theme.text }, form.own_or_rent === type && { color: '#fff' }]}>{type}</Text>
@@ -184,7 +184,7 @@ export default function SolicitarAdopcionScreen() {
                             {form.own_or_rent === 'Renta' && (
                                 <View style={styles.switchRow}>
                                     <Text style={[styles.label, { color: theme.text, marginBottom: 0 }]}>¿Permiten mascotas?</Text>
-                                    <Switch value={form.landlord_permission} onToggle={() => updateField('landlord_permission', !form.landlord_permission)} theme={theme} />
+                                    <Switch label="El arrendador permite mascotas" value={form.landlord_permission} onToggle={() => updateField('landlord_permission', !form.landlord_permission)} theme={theme} />
                                 </View>
                             )}
                         </View>
@@ -193,15 +193,15 @@ export default function SolicitarAdopcionScreen() {
                     {step === 2 && (
                         <View style={styles.formSection}>
                             <View style={styles.stepHeader}>
-                                <View style={[styles.stepIcon, { backgroundColor: '#ec489915' }]}>
-                                    <Users size={20} color="#ec4899" />
+                                <View style={[styles.stepIcon, { backgroundColor: theme.accent + '15' }]}>
+                                    <Users size={20} color={theme.accent} />
                                 </View>
                                 <Text style={[styles.stepTitle, { color: theme.text }]}>Familia y Rutina</Text>
                             </View>
 
                             <View style={styles.switchRow}>
                                 <Text style={[styles.label, { color: theme.text, marginBottom: 0 }]}>¿Hay niños en casa?</Text>
-                                <Switch value={form.has_children} onToggle={() => updateField('has_children', !form.has_children)} theme={theme} />
+                                <Switch label="Hay niños en casa" value={form.has_children} onToggle={() => updateField('has_children', !form.has_children)} theme={theme} />
                             </View>
 
                             {form.has_children && (
@@ -229,6 +229,7 @@ export default function SolicitarAdopcionScreen() {
                             <TextInput
                                 style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
                                 placeholder="Especie, raza, edad..."
+                                placeholderTextColor={theme.textMuted}
                                 multiline
                                 numberOfLines={3}
                                 value={form.other_pets || ''}
@@ -240,8 +241,8 @@ export default function SolicitarAdopcionScreen() {
                     {step === 3 && (
                         <View style={styles.formSection}>
                             <View style={styles.stepHeader}>
-                                <View style={[styles.stepIcon, { backgroundColor: '#10b98115' }]}>
-                                    <Heart size={20} color="#10b981" />
+                                <View style={[styles.stepIcon, { backgroundColor: theme.success + '15' }]}>
+                                    <Heart size={20} color={theme.success} />
                                 </View>
                                 <Text style={[styles.stepTitle, { color: theme.text }]}>Compromiso</Text>
                             </View>
@@ -250,6 +251,7 @@ export default function SolicitarAdopcionScreen() {
                             <TextInput
                                 style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
                                 placeholder="He tenido perros toda mi vida..."
+                                placeholderTextColor={theme.textMuted}
                                 multiline
                                 numberOfLines={3}
                                 value={form.previous_experience || ''}
@@ -260,6 +262,7 @@ export default function SolicitarAdopcionScreen() {
                             <TextInput
                                 style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
                                 placeholder="Danos tus motivos..."
+                                placeholderTextColor={theme.textMuted}
                                 multiline
                                 numberOfLines={4}
                                 value={form.reason}
@@ -267,10 +270,10 @@ export default function SolicitarAdopcionScreen() {
                             />
 
                             <TouchableOpacity
-                                style={[styles.checkRow, { borderLeftColor: form.financial_commitment ? '#10b981' : theme.textMuted }]}
+                                style={[styles.checkRow, { borderLeftColor: form.financial_commitment ? theme.success : theme.textMuted }]}
                                 onPress={() => updateField('financial_commitment', !form.financial_commitment)}
                             >
-                                <View style={[styles.checkbox, { borderColor: theme.textMuted }, form.financial_commitment && { backgroundColor: '#10b981', borderColor: '#10b981' }]}>
+                                <View style={[styles.checkbox, { borderColor: theme.textMuted }, form.financial_commitment && { backgroundColor: theme.success, borderColor: theme.success }]}>
                                     {form.financial_commitment && <Check size={14} color="#fff" />}
                                 </View>
                                 <Text style={[styles.checkText, { color: theme.text }]}>
@@ -288,14 +291,14 @@ export default function SolicitarAdopcionScreen() {
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity
-                            style={[styles.submitBtn, { backgroundColor: '#10b981' }, loading && { opacity: 0.7 }]}
+                            style={[styles.submitBtn, { backgroundColor: theme.success }, loading && { opacity: 0.7 }]}
                             onPress={handleSubmit}
                             disabled={loading}
                         >
                             {loading ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.submitBtnText}>🤝 Enviar Solicitud Formal</Text>
+                                <Text style={styles.submitBtnText}>Enviar Solicitud Formal</Text>
                             )}
                         </TouchableOpacity>
                     )}
@@ -305,11 +308,14 @@ export default function SolicitarAdopcionScreen() {
     );
 }
 
-function Switch({ value, onToggle, theme }: any) {
+function Switch({ value, onToggle, theme, label }: any) {
     return (
         <TouchableOpacity
-            style={[styles.switch, { backgroundColor: value ? '#10b981' : theme.surface }]}
+            style={[styles.switch, { backgroundColor: value ? theme.success : theme.surface }]}
             onPress={onToggle}
+            accessibilityRole="switch"
+            accessibilityLabel={label}
+            accessibilityState={{ checked: !!value }}
             activeOpacity={0.8}
         >
             <View style={[styles.switchThumb, value && styles.switchThumbActive]} />
@@ -321,7 +327,7 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     stepBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
     stepBadgeText: { fontWeight: '900', fontSize: 12 },
-    progressBar: { height: 4, backgroundColor: 'rgba(255,255,255,0.05)', width: '100%' },
+    progressBar: { height: 4, backgroundColor: 'rgba(128,128,128,0.08)', width: '100%' },
     progressFill: { height: '100%' },
     scroll: { padding: 24 },
     formSection: { gap: 20 },
@@ -329,20 +335,19 @@ const styles = StyleSheet.create({
     stepIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     stepTitle: { fontSize: 22, fontWeight: '900' },
     label: { fontSize: 15, fontWeight: '800', marginBottom: 8 },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: 16, fontSize: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: 16, fontSize: 16, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     textArea: { height: 100, paddingTop: 16, textAlignVertical: 'top' },
     optionsScroll: { flexDirection: 'row', marginBottom: 5 },
-    optionBtn: { paddingHorizontal: 20, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
-    selectedOption: { backgroundColor: '#7c3aed', borderColor: '#7c3aed' },
+    optionBtn: { paddingHorizontal: 20, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 10, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     optionText: { fontSize: 14, fontWeight: '700' },
     switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 4 },
     switch: { width: 52, height: 30, borderRadius: 15, padding: 4 },
     switchThumb: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' },
     switchThumbActive: { alignSelf: 'flex-end' },
     toggleGroup: { flexDirection: 'row', gap: 10 },
-    toggleBtn: { flex: 1, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    toggleBtn: { flex: 1, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     inputRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-    checkRow: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 16, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.02)', borderLeftWidth: 4 },
+    checkRow: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 16, borderRadius: 18, backgroundColor: 'rgba(128,128,128,0.08)', borderLeftWidth: 4 },
     checkbox: { width: 24, height: 24, borderRadius: 8, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
     checkText: { flex: 1, fontSize: 13, fontWeight: '600', lineHeight: 20 },
     footer: { padding: 24, paddingBottom: 40, borderTopWidth: 1 },

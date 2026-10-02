@@ -48,7 +48,7 @@ export default function AgendarGroomingScreen() {
     const renderServiceCard = (service: GroomingService) => {
         const isActive = selectedServiceId === service.id;
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 key={service.id}
                 style={[
                     styles.serviceCard,
@@ -82,6 +82,11 @@ export default function AgendarGroomingScreen() {
                         <Text style={[styles.serviceDuration, { color: theme.textMuted }]}>
                             · {service.duration_minutes} min
                         </Text>
+                        {service.groomer_rating_count ? (
+                            <Text style={[styles.serviceDuration, { color: theme.textMuted }]}>
+                                · ★ {(service.groomer_rating_avg ?? 0).toFixed(1)} ({service.groomer_rating_count})
+                            </Text>
+                        ) : null}
                     </View>
                 </View>
                 {isActive && (
@@ -96,7 +101,7 @@ export default function AgendarGroomingScreen() {
     const renderPetCard = (pet: Pet) => {
         const isActive = selectedPetId === pet.id;
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 key={pet.id}
                 style={[
                     styles.petCard,
@@ -137,7 +142,7 @@ export default function AgendarGroomingScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* ── Service selector ───────────────────────── */}
-                <FormSection title="✨ Elige un Servicio">
+                <FormSection title="Elige un Servicio">
                     {servicesLoading ? (
                         <ActivityIndicator color={theme.primary} style={styles.loader} />
                     ) : services.length === 0 ? (
@@ -150,7 +155,7 @@ export default function AgendarGroomingScreen() {
                 </FormSection>
 
                 {/* ── Pet selector ───────────────────────────── */}
-                <FormSection title="🐾 ¿Para quién es la cita?">
+                <FormSection title="¿Para quién es la cita?">
                     {petsLoading ? (
                         <ActivityIndicator color={theme.primary} style={styles.loader} />
                     ) : pets.length === 0 ? (
@@ -165,7 +170,7 @@ export default function AgendarGroomingScreen() {
                 </FormSection>
 
                 {/* ── Date picker ────────────────────────────── */}
-                <FormSection title="📅 Fecha">
+                <FormSection title="Fecha">
                     <DatePicker
                         value={selectedDate}
                         onChange={(date) => {
@@ -178,7 +183,7 @@ export default function AgendarGroomingScreen() {
 
                 {/* ── Available slots ────────────────────────── */}
                 {selectedServiceId ? (
-                    <FormSection title="🕐 Horarios Disponibles">
+                    <FormSection title="Horarios Disponibles">
                         {slotsLoading ? (
                             <ActivityIndicator color={theme.primary} style={styles.loader} />
                         ) : availableSlots.length === 0 ? (
@@ -193,7 +198,7 @@ export default function AgendarGroomingScreen() {
                                 {availableSlots.map(slot => {
                                     const isActive = selectedSlot === slot;
                                     return (
-                                        <TouchableOpacity
+                                        <TouchableOpacity accessibilityRole="button"
                                             key={slot}
                                             style={[
                                                 styles.slotChip,
@@ -230,7 +235,7 @@ export default function AgendarGroomingScreen() {
                     </View>
                 ) : null}
 
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[
                         styles.bookBtn,
                         {

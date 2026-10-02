@@ -65,7 +65,68 @@ def add_place(
     place_in: PlaceCreate,
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
+    if not place_in.name.strip() or not place_in.category.strip():
+        raise HTTPException(status_code=400, detail="El nombre y la categoría son obligatorios")
+    if place_in.latitude is not None and not (-90 <= place_in.latitude <= 90):
+        raise HTTPException(status_code=400, detail="Latitud fuera de rango")
+    if place_in.longitude is not None and not (-180 <= place_in.longitude <= 180):
+        raise HTTPException(status_code=400, detail="Longitud fuera de rango")
     return create_place(db, place_in=place_in, user_id=user_id)
+
+
+class PlaceUpdate(BaseModel):
+    name: Optional[str] = None
+    category: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    pet_sizes_allowed: Optional[str] = None
+    has_water_bowls: Optional[str] = None
+    has_pet_menu: Optional[str] = None
+
+
+@router.put("/{place_id}", response_model=PlaceOut)
+def update_place(
+    place_id: str,
+    place_in: PlaceUpdate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Solo quien registró el lugar puede editarlo (la calificación se calcula con las reseñas, no se edita)."""
+    place = get_place_by_id(db, place_id)
+    if not place:
+        raise HTTPException(status_code=404, detail="Lugar no encontrado")
+    if place.added_by != user_id:
+        raise HTTPException(status_code=403, detail="Solo quien registró el lugar puede editarlo")
+    data = place_in.model_dump(exclude_unset=True)
+    if "name" in data and not (data["name"] or "").strip():
+        raise HTTPException(status_code=400, detail="El nombre no puede quedar vacío")
+    for key, value in data.items():
+        setattr(place, key, value)
+    db.commit()
+    db.refresh(place)
+    return place
+
+
+@router.delete("/{place_id}")
+def delete_place(
+    place_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """Elimina un lugar (quien lo registró o un admin)."""
+    place = get_place_by_id(db, place_id)
+    if not place:
+        raise HTTPException(status_code=404, detail="Lugar no encontrado")
+    if place.added_by != user_id and role != "admin":
+        raise HTTPException(status_code=403, detail="Solo quien registró el lugar puede eliminarlo")
+    db.delete(place)
+    db.commit()
+    return {"message": "Lugar eliminado"}
 
 
 @router.post("/{place_id}/reviews", response_model=PetfriendlyReviewOut)
@@ -83,6 +144,9 @@ def create_place_review(
     place = db.query(PetfriendlyPlace).filter(PetfriendlyPlace.id == place_id).first()
     if not place:
         raise HTTPException(status_code=404, detail="Lugar no encontrado")
+
+    if place.added_by == user_id:
+        raise HTTPException(status_code=403, detail="No puedes calificar un lugar que registraste tú")
 
     if not (1 <= review_in.rating <= 5):
         raise HTTPException(status_code=400, detail="La calificación debe estar entre 1 y 5 estrellas")

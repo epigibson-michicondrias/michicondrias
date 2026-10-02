@@ -56,7 +56,7 @@ export default function PagoCanceladoScreen() {
 const styles = StyleSheet.create({
     content: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32, paddingBottom: 60, gap: 14 },
     iconBox: { width: 140, height: 140, borderRadius: 70, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-    title: { fontSize: 24, fontWeight: '900', textAlign: 'center' },
+    title: { fontSize: 24, fontWeight: '800', textAlign: 'center' },
     subtitle: { fontSize: 15, lineHeight: 22, textAlign: 'center', fontWeight: '500' },
     buttons: { width: '100%', gap: 12, marginTop: 16 },
     primary: { height: 56, borderRadius: 18, flexDirection: 'row', gap: 10, justifyContent: 'center', alignItems: 'center' },

@@ -6,11 +6,13 @@ import { getMyConsultations, getVetConsultations, bookConsultation, updateConsul
 import { getUserPets } from '@/src/services/mascotas';
 import { showAlert } from '@/src/components/AppAlert';
 
+const STATUS_ACTION_LABEL: Record<string, string> = { active: 'iniciada', completed: 'finalizada', cancelled: 'cancelada' };
+
 export function useVideoConsultations() {
     const queryClient = useQueryClient();
     const { user } = useAuth();
 
-    const isVet = user?.role_name === 'veterinario';
+    const isVet = ['veterinario', 'clinica', 'hospital'].includes(user?.role_name || '');
 
     const [modalVisible, setModalVisible] = useState(false);
     const [loadingAction, setLoadingAction] = useState(false);
@@ -19,7 +21,8 @@ export function useVideoConsultations() {
     const [selectedPetId, setSelectedPetId] = useState('');
     const [selectedClinicId, setSelectedClinicId] = useState('');
     const [selectedVetId, setSelectedVetId] = useState('');
-    const [scheduledAt, setScheduledAt] = useState('');
+    const defaultDate = () => { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0); return d; };
+    const [scheduledAt, setScheduledAt] = useState<Date>(defaultDate);
     const [notes, setNotes] = useState('');
 
     // Query Consultations
@@ -52,13 +55,17 @@ export function useVideoConsultations() {
         setSelectedPetId('');
         setSelectedClinicId('');
         setSelectedVetId('');
-        setScheduledAt('');
+        setScheduledAt(defaultDate());
         setNotes('');
     };
 
     const handleBook = async () => {
-        if (!scheduledAt.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'La fecha y hora de la consulta es obligatoria.' });
+        if (!selectedPetId) {
+            showAlert({ type: 'error', title: 'Falta la mascota', message: 'Elige la mascota que será atendida.' });
+            return;
+        }
+        if (scheduledAt.getTime() <= Date.now()) {
+            showAlert({ type: 'error', title: 'Fecha inválida', message: 'La videoconsulta debe programarse en una fecha y hora futuras.' });
             return;
         }
 
@@ -68,7 +75,7 @@ export function useVideoConsultations() {
                 clinic_id: selectedClinicId || undefined,
                 vet_id: selectedVetId || undefined,
                 pet_id: selectedPetId || undefined,
-                scheduled_at: scheduledAt.trim(),
+                scheduled_at: scheduledAt.toISOString(),
                 notes: notes.trim() || undefined,
             });
             showAlert({ type: 'success', title: 'Éxito', message: 'Tu videoconsulta ha sido reservada.' });
@@ -85,7 +92,7 @@ export function useVideoConsultations() {
     const handleStatusUpdate = async (id: string, newStatus: string) => {
         try {
             await updateConsultationStatus(id, newStatus);
-            showAlert({ type: 'success', title: 'Éxito', message: `Videoconsulta marcada como ${newStatus}.` });
+            showAlert({ type: 'success', title: 'Éxito', message: `Videoconsulta ${STATUS_ACTION_LABEL[newStatus] || 'actualizada'}.` });
             queryClient.invalidateQueries({ queryKey: ['consultations'] });
         } catch (err: any) {
             showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo actualizar el estado.' });
@@ -100,16 +107,6 @@ export function useVideoConsultations() {
         Linking.openURL(url).catch(() => {
             showAlert({ type: 'error', title: 'Error', message: 'No se pudo abrir el enlace de video.' });
         });
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status.toLowerCase()) {
-            case 'scheduled': return '#3b82f6';
-            case 'active': return '#10b981';
-            case 'completed': return '#8b5cf6';
-            case 'cancelled': return '#ef4444';
-            default: return '#888';
-        }
     };
 
     const openBookingModal = () => {
@@ -138,7 +135,6 @@ export function useVideoConsultations() {
         handleBook,
         handleStatusUpdate,
         launchVideoRoom,
-        getStatusColor,
         openBookingModal,
     };
 }

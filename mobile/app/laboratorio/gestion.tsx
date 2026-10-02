@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, ScrollView, Switch } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useLabProvider } from '@/src/hooks/laboratorio';
@@ -212,7 +213,7 @@ export default function LaboratorioGestionScreen() {
             </ScrollView>
 
             {loading ? (
-                <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
             ) : (
                 <FlatList
                     data={data}

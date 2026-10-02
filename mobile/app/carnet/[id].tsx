@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, FlatList, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePetCarnet } from '@/src/hooks/carnet/usePetCarnet';
@@ -59,9 +60,7 @@ export default function PetCarnetDetailScreen() {
 
     if (loadingPet) {
         return (
-            <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </ScreenContainer>
+            <ScreenContainer><SkeletonList count={4} /></ScreenContainer>
         );
     }
 
@@ -95,7 +94,7 @@ export default function PetCarnetDetailScreen() {
                 <View style={[styles.timelineDot, { backgroundColor: theme.primary, borderColor: theme.background }]} />
 
                 <View style={[styles.recordContent, { backgroundColor: theme.overlay, borderColor: theme.borderLight }]}>
-                    <TouchableOpacity 
+                    <TouchableOpacity accessibilityRole="button" 
                         activeOpacity={0.7}
                         onPress={() => toggleExpandRecord(item.id)}
                         style={styles.recordHeaderTrigger}
@@ -127,22 +126,22 @@ export default function PetCarnetDetailScreen() {
                             <View style={styles.summaryPillsRow}>
                                 {item.weight_kg && (
                                     <View style={[styles.summaryPill, { backgroundColor: '#0891b210' }]}>
-                                        <Text style={[styles.summaryPillText, { color: '#0891b2' }]}>⚖️ {item.weight_kg} kg</Text>
+                                        <Text style={[styles.summaryPillText, { color: theme.info }]}>{item.weight_kg} kg</Text>
                                     </View>
                                 )}
                                 {item.temperature_c && (
                                     <View style={[styles.summaryPill, { backgroundColor: '#ef444410' }]}>
-                                        <Text style={[styles.summaryPillText, { color: '#ef4444' }]}>🌡️ {item.temperature_c}°C</Text>
+                                        <Text style={[styles.summaryPillText, { color: theme.error }]}>{item.temperature_c}°C</Text>
                                     </View>
                                 )}
                                 {item.prescriptions && item.prescriptions.length > 0 && (
                                     <View style={[styles.summaryPill, { backgroundColor: '#10b98110' }]}>
-                                        <Text style={[styles.summaryPillText, { color: '#10b981' }]}>💊 Receta</Text>
+                                        <Text style={[styles.summaryPillText, { color: theme.success }]}>Receta</Text>
                                     </View>
                                 )}
                                 {!item.weight_kg && !item.temperature_c && (!item.prescriptions || item.prescriptions.length === 0) && (
                                     <View style={[styles.summaryPill, { backgroundColor: theme.borderLight + '40' }]}>
-                                        <Text style={[styles.summaryPillText, { color: theme.textMuted }]}>📄 Visita</Text>
+                                        <Text style={[styles.summaryPillText, { color: theme.textMuted }]}>Visita</Text>
                                     </View>
                                 )}
                             </View>
@@ -154,14 +153,14 @@ export default function PetCarnetDetailScreen() {
                             <View style={[styles.metricsRow, { borderTopColor: theme.borderLight, borderTopWidth: 1, paddingTop: 12, marginTop: 8 }]}>
                                 {item.weight_kg && (
                                     <View style={[styles.metricItem, { backgroundColor: '#0891b215' }]}>
-                                        <Weight size={12} color="#0891b2" />
-                                        <Text style={[styles.metricValue, { color: '#0891b2' }]}>{item.weight_kg} kg</Text>
+                                        <Weight size={12} color={theme.info} />
+                                        <Text style={[styles.metricValue, { color: theme.info }]}>{item.weight_kg} kg</Text>
                                     </View>
                                 )}
                                 {item.temperature_c && (
                                     <View style={[styles.metricItem, { backgroundColor: '#ef444415' }]}>
-                                        <Thermometer size={12} color="#ef4444" />
-                                        <Text style={[styles.metricValue, { color: '#ef4444' }]}>{item.temperature_c}°C</Text>
+                                        <Thermometer size={12} color={theme.error} />
+                                        <Text style={[styles.metricValue, { color: theme.error }]}>{item.temperature_c}°C</Text>
                                     </View>
                                 )}
                             </View>
@@ -175,7 +174,7 @@ export default function PetCarnetDetailScreen() {
 
                             {item.treatment && (
                                 <View style={[styles.treatmentBox, { backgroundColor: theme.background + '80' }]}>
-                                    <Text style={[styles.detailLabel, { color: '#0891b2' }]}>TRATAMIENTO</Text>
+                                    <Text style={[styles.detailLabel, { color: theme.info }]}>TRATAMIENTO</Text>
                                     <Text style={[styles.detailText, { color: theme.text }]}>{item.treatment}</Text>
                                 </View>
                             )}
@@ -188,13 +187,13 @@ export default function PetCarnetDetailScreen() {
                             )}
 
                             {item.prescriptions && item.prescriptions.length > 0 && (
-                                <TouchableOpacity
+                                <TouchableOpacity accessibilityRole="button"
                                     activeOpacity={0.7}
                                     onPress={() => router.push({ pathname: `/carnet/receta/${item.id}`, params: { petId: pet?.id } } as any)}
-                                    style={[styles.prescriptionBox, { borderColor: '#10b98140' }]}
+                                    style={[styles.prescriptionBox, { borderColor: theme.success + '40' }]}
                                 >
                                     <View style={styles.prescriptionHeader}>
-                                        <ShoppingBag size={14} color="#10b981" />
+                                        <ShoppingBag size={14} color={theme.success} />
                                         <Text style={styles.prescriptionTitle}>RECETA DIGITAL (Tocar para ver)</Text>
                                     </View>
                                     <View style={styles.prescriptionsList}>
@@ -205,7 +204,7 @@ export default function PetCarnetDetailScreen() {
                                                 {p.instructions && (
                                                     <View style={[styles.instructionsContainer, { borderTopColor: theme.borderLight }]}>
                                                         <Text style={[styles.medInstructions, { color: theme.textMuted }]}>
-                                                            📋 Instrucciones: {p.instructions}
+                                                            Instrucciones: {p.instructions}
                                                         </Text>
                                                     </View>
                                                 )}
@@ -225,14 +224,14 @@ export default function PetCarnetDetailScreen() {
         const isNextDue = item.next_due_date && new Date(item.next_due_date) < new Date();
         return (
             <View style={[styles.vaccineCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-                <View style={[styles.vaccineIconBox, { backgroundColor: isNextDue ? '#ef4444' : theme.primary }]}>
+                <View style={[styles.vaccineIconBox, { backgroundColor: isNextDue ? theme.error : theme.primary }]}>
                     <Syringe size={22} color="#fff" />
                 </View>
                 <View style={{ flex: 1 }}>
                     <View style={styles.vaccineHeader}>
                         <Text style={[styles.vaccineName, { color: theme.text }]}>{item.name}</Text>
-                        <View style={[styles.statusBadge, { backgroundColor: isNextDue ? '#ef444420' : '#10b98120' }]}>
-                            <Text style={{ color: isNextDue ? '#ef4444' : '#10b981', fontSize: 9, fontWeight: '900' }}>
+                        <View style={[styles.statusBadge, { backgroundColor: isNextDue ? theme.error + '20' : theme.success + '20' }]}>
+                            <Text style={{ color: isNextDue ? theme.error : theme.success, fontSize: 9, fontWeight: '800' }}>
                                 {isNextDue ? 'EXPIRADA' : 'ACTIVA'}
                             </Text>
                         </View>
@@ -244,8 +243,8 @@ export default function PetCarnetDetailScreen() {
                         </View>
                         {item.next_due_date && (
                             <View style={styles.metaItem}>
-                                <Clock size={12} color={isNextDue ? '#ef4444' : theme.primary} />
-                                <Text style={[styles.metaText, { color: isNextDue ? '#ef4444' : theme.primary, fontWeight: '700' }]}>
+                                <Clock size={12} color={isNextDue ? theme.error : theme.primary} />
+                                <Text style={[styles.metaText, { color: isNextDue ? theme.error : theme.primary, fontWeight: '700' }]}>
                                     Refuerzo: {new Date(item.next_due_date).toLocaleDateString()}
                                 </Text>
                             </View>
@@ -258,7 +257,7 @@ export default function PetCarnetDetailScreen() {
 
     const renderReminderItem = ({ item }: { item: ReminderWithDetails }) => {
         const overdue = !item.sent && new Date(item.remind_at).getTime() < Date.now();
-        const statusColor = item.sent ? '#10b981' : overdue ? '#ef4444' : theme.primary;
+        const statusColor = item.sent ? theme.success : overdue ? theme.error : theme.primary;
         const date = new Date(item.remind_at);
         const diffMs = date.getTime() - Date.now();
         const diffHours = Math.round(diffMs / (1000 * 60 * 60));
@@ -272,15 +271,15 @@ export default function PetCarnetDetailScreen() {
         else timeLabel = `En ${diffDays}d`;
 
         return (
-            <View style={[styles.reminderCard, { backgroundColor: theme.surface, borderColor: overdue ? '#ef444430' : theme.borderLight }]}>
+            <View style={[styles.reminderCard, { backgroundColor: theme.surface, borderColor: overdue ? theme.error + '30' : theme.borderLight }]}>
                 <View style={[styles.reminderIcon, { backgroundColor: statusColor + '15' }]}>
                     <Pill size={22} color={statusColor} />
                 </View>
                 <View style={{ flex: 1 }}>
                     <View style={styles.vaccineHeader}>
                         <Text style={[styles.vaccineName, { color: theme.text }]}>{item.medication_name}</Text>
-                        <View style={[styles.statusBadge, { backgroundColor: item.sent ? '#10b98120' : overdue ? '#ef444420' : '#f59e0b20' }]}>
-                            <Text style={{ color: item.sent ? '#10b981' : overdue ? '#ef4444' : '#f59e0b', fontSize: 9, fontWeight: '900' }}>
+                        <View style={[styles.statusBadge, { backgroundColor: item.sent ? theme.success + '20' : overdue ? theme.error + '20' : theme.warning + '20' }]}>
+                            <Text style={{ color: item.sent ? theme.success : overdue ? theme.error : theme.warning, fontSize: 9, fontWeight: '800' }}>
                                 {item.sent ? 'COMPLETADO' : overdue ? 'ATRASADO' : 'PENDIENTE'}
                             </Text>
                         </View>
@@ -303,7 +302,7 @@ export default function PetCarnetDetailScreen() {
                         </View>
                     </View>
                     {!item.sent && (
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.checkBtn, { backgroundColor: theme.primary + '15' }]}
                             onPress={() => handleCheck(item.id)}
                         >
@@ -325,16 +324,16 @@ export default function PetCarnetDetailScreen() {
         }) : 'Sin fecha';
 
         return (
-            <View style={[styles.labResultCard, { backgroundColor: theme.surface, borderColor: isAnomaly ? '#ef444430' : theme.borderLight }]}>
-                <View style={[styles.labResultIconBox, { backgroundColor: isAnomaly ? '#ef444415' : theme.primary + '15' }]}>
-                    <FlaskConical size={22} color={isAnomaly ? '#ef4444' : theme.primary} />
+            <View style={[styles.labResultCard, { backgroundColor: theme.surface, borderColor: isAnomaly ? theme.error + '30' : theme.borderLight }]}>
+                <View style={[styles.labResultIconBox, { backgroundColor: isAnomaly ? theme.error + '15' : theme.primary + '15' }]}>
+                    <FlaskConical size={22} color={isAnomaly ? theme.error : theme.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                     <View style={styles.labResultHeader}>
                         <Text style={[styles.labResultName, { color: theme.text }]}>{item.parameter_name}</Text>
                         {isAnomaly && (
                             <View style={[styles.anomalyBadge, { backgroundColor: '#ef444420' }]}>
-                                <AlertCircle size={10} color="#ef4444" />
+                                <AlertCircle size={10} color={theme.error} />
                                 <Text style={styles.anomalyBadgeText}>FUERA DE RANGO</Text>
                             </View>
                         )}
@@ -412,20 +411,20 @@ export default function PetCarnetDetailScreen() {
                             contentContainerStyle={styles.quickClinicalSummary}
                             style={styles.summaryScroll}
                         >
-                            <View style={[styles.clinicalBadge, { backgroundColor: pet?.is_vaccinated ? '#10b98115' : '#ef444415' }]}>
-                                <ShieldCheck size={14} color={pet?.is_vaccinated ? '#10b981' : '#ef4444'} />
-                                <Text style={{ color: pet?.is_vaccinated ? '#10b981' : '#ef4444', fontSize: 11, fontWeight: '800' }}>
+                            <View style={[styles.clinicalBadge, { backgroundColor: pet?.is_vaccinated ? theme.success + '15' : theme.error + '15' }]}>
+                                <ShieldCheck size={14} color={pet?.is_vaccinated ? theme.success : theme.error} />
+                                <Text style={{ color: pet?.is_vaccinated ? theme.success : theme.error, fontSize: 11, fontWeight: '800' }}>
                                     {pet?.is_vaccinated ? 'VACUNAS AL DÍA' : 'VACUNAS PENDIENTES'}
                                 </Text>
                             </View>
                             {pet?.is_sterilized && (
                                 <View style={[styles.clinicalBadge, { backgroundColor: '#8b5cf615' }]}>
-                                    <Text style={{ color: '#8b5cf6', fontSize: 11, fontWeight: '800' }}>✨ ESTERILIZADO</Text>
+                                    <Text style={{ color: theme.secondary, fontSize: 11, fontWeight: '800' }}>ESTERILIZADO</Text>
                                 </View>
                             )}
                             {pet?.is_dewormed && (
                                 <View style={[styles.clinicalBadge, { backgroundColor: '#0ea5e915' }]}>
-                                    <Text style={{ color: '#0ea5e9', fontSize: 11, fontWeight: '800' }}>🐛 DESPARASITADO</Text>
+                                    <Text style={{ color: theme.info, fontSize: 11, fontWeight: '800' }}>DESPARASITADO</Text>
                                 </View>
                             )}
                             <View style={[styles.clinicalBadge, { backgroundColor: theme.primary + '15' }]}>
@@ -454,28 +453,28 @@ export default function PetCarnetDetailScreen() {
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.tabsContainer}
                     >
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.tab, activeTab === 'records' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('records')}
                         >
                             <ClipboardList size={18} color={activeTab === 'records' ? theme.primary : theme.textMuted} />
                             <Text style={[styles.tabText, { color: activeTab === 'records' ? theme.primary : theme.textMuted }]}>Historial</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.tab, activeTab === 'vaccines' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('vaccines')}
                         >
                             <Syringe size={18} color={activeTab === 'vaccines' ? theme.primary : theme.textMuted} />
                             <Text style={[styles.tabText, { color: activeTab === 'vaccines' ? theme.primary : theme.textMuted }]}>Vacunas</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.tab, activeTab === 'reminders' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('reminders')}
                         >
                             <Bell size={18} color={activeTab === 'reminders' ? theme.primary : theme.textMuted} />
                             <Text style={[styles.tabText, { color: activeTab === 'reminders' ? theme.primary : theme.textMuted }]}>Recordatorios</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.tab, activeTab === 'laboratorio' && { borderBottomColor: theme.primary }]}
                             onPress={() => setActiveTab('laboratorio')}
                         >
@@ -493,12 +492,7 @@ export default function PetCarnetDetailScreen() {
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
                         isLoadingTab ? (
-                            <View style={[styles.emptyState, { minHeight: 200, justifyContent: 'center' }]}>
-                                <ActivityIndicator size="large" color={theme.primary} />
-                                <Text style={[styles.emptyTitle, { color: theme.textMuted, marginTop: 16 }]}>
-                                    Cargando información...
-                                </Text>
-                            </View>
+                            <SkeletonList count={4} />
                         ) : (
                             <View style={styles.emptyState}>
                                 <Text style={{ fontSize: 50, marginBottom: 20 }}>
@@ -520,7 +514,7 @@ export default function PetCarnetDetailScreen() {
 
             {canEdit && activeTab !== 'reminders' && activeTab !== 'laboratorio' && (
                 <TouchableOpacity
-                    style={[styles.fab, { backgroundColor: activeTab === 'records' ? theme.primary : '#0891b2' }]}
+                    style={[styles.fab, { backgroundColor: activeTab === 'records' ? theme.primary : theme.info }]}
                     onPress={activeTab === 'records' ? handleAddRecord : handleAddVaccine}
                     accessibilityRole="button"
                     accessibilityLabel={activeTab === 'records' ? 'Agregar consulta' : 'Agregar vacuna'}
@@ -602,7 +596,7 @@ const styles = StyleSheet.create({
     initialsText: {
         color: '#fff',
         fontSize: 40,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     speciesBadge: {
         position: 'absolute',
@@ -617,7 +611,7 @@ const styles = StyleSheet.create({
     },
     heroPetName: {
         fontSize: 28,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 4,
     },
     heroPetBreed: {
@@ -663,7 +657,7 @@ const styles = StyleSheet.create({
     },
     tabText: {
         fontSize: 14,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     list: {
         padding: 24,
@@ -711,7 +705,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: 11,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     consultTypeTag: {
         paddingHorizontal: 10,
@@ -725,7 +719,7 @@ const styles = StyleSheet.create({
     },
     reason: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 16,
     },
     metricsRow: {
@@ -768,7 +762,7 @@ const styles = StyleSheet.create({
     },
     detailLabel: {
         fontSize: 10,
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: 0.5,
         marginBottom: 6,
     },
@@ -794,7 +788,7 @@ const styles = StyleSheet.create({
     prescriptionTitle: {
         color: '#10b981',
         fontSize: 11,
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: 1,
     },
     prescriptionsList: {
@@ -853,7 +847,7 @@ const styles = StyleSheet.create({
     },
     vaccineName: {
         fontSize: 16,
-        fontWeight: '900',
+        fontWeight: '800',
         flex: 1,
         marginRight: 8,
     },
@@ -880,7 +874,7 @@ const styles = StyleSheet.create({
     },
     emptyTitle: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 8,
     },
     fab: {
@@ -985,7 +979,7 @@ const styles = StyleSheet.create({
     anomalyBadgeText: {
         color: '#ef4444',
         fontSize: 9,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     labResultMeta: {
         gap: 4,

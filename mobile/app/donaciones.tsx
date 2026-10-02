@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Linking, AppState } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
-import { createDonation } from '../src/services/ecommerce';
+import { createDonationCheckout, getDonation } from '../src/services/ecommerce';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Heart, DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
 import BackButton from '../src/components/BackButton';
@@ -16,6 +16,44 @@ export default function DonacionesScreen() {
     const [amount, setAmount] = useState<string>('100');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    // Estado del cobro: pending = esperando confirmación de Stripe, paid, cancelled (el usuario no pagó) o expired/failed
+    const [donationId, setDonationId] = useState<string | null>(null);
+    const [payState, setPayState] = useState<'idle' | 'checking' | 'pending' | 'paid' | 'cancelled' | 'expired'>('idle');
+    const params = useLocalSearchParams<{ result?: string; donationId?: string }>();
+    const pollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    /** Consulta el estado real (el backend verifica con Stripe) y reintenta unos segundos mientras siga pendiente. */
+    const verifyDonation = useCallback(async (id: string, attempt = 0) => {
+        try {
+            const d = await getDonation(`${id}?t=${Date.now()}`);
+            if (d.status === 'paid' || d.status === 'completed') { setPayState('paid'); return; }
+            if (d.status === 'expired' || d.status === 'failed') { setPayState('expired'); return; }
+            setPayState('pending');
+            if (attempt < 6) pollTimer.current = setTimeout(() => verifyDonation(id, attempt + 1), 2500);
+        } catch {
+            setPayState('pending');
+        }
+    }, []);
+
+    useEffect(() => () => { if (pollTimer.current) clearTimeout(pollTimer.current); }, []);
+
+    // Retorno desde Stripe por deep link: michicondrias://donaciones?result=success|cancel&donationId=...
+    useEffect(() => {
+        const id = typeof params.donationId === 'string' ? params.donationId : null;
+        if (!id) return;
+        setDonationId(id);
+        if (params.result === 'cancel') { setPayState('cancelled'); return; }
+        setPayState('checking');
+        verifyDonation(id);
+    }, [params.donationId, params.result, verifyDonation]);
+
+    // Si el usuario vuelve manualmente desde el navegador, se reconsulta el estado
+    useEffect(() => {
+        const sub = AppState.addEventListener('change', (state) => {
+            if (state === 'active' && donationId && (payState === 'pending' || payState === 'checking')) verifyDonation(donationId);
+        });
+        return () => sub.remove();
+    }, [donationId, payState, verifyDonation]);
 
     const handleDonation = async () => {
         const numAmount = parseFloat(amount.replace(',', '.'));
@@ -26,18 +64,21 @@ export default function DonacionesScreen() {
 
         setLoading(true);
         try {
-            await createDonation(numAmount, message);
+            const session = await createDonationCheckout(numAmount, message);
+            setDonationId(session.donation_id);
+            setPayState('pending');
+            await Linking.openURL(session.url);
+        } catch (error: any) {
+            const detail = String(error?.message || '');
+            const unavailable = /no est[aá]n disponibles/i.test(detail);
             showAlert({
-                type: 'success',
-                title: '¡Gracias!',
-                message: 'Registramos tu donación. Cada peso cuenta para ayudar a un michi.',
-                showCancel: false,
-                buttonText: 'OK',
-                onButtonPress: () => router.back(),
+                type: 'error',
+                title: unavailable ? 'Donaciones no disponibles' : 'No se pudo iniciar el pago',
+                message: unavailable
+                    ? 'Las donaciones con tarjeta no están disponibles por el momento. Inténtalo más tarde.'
+                    : (detail || 'No pudimos iniciar tu donación. Inténtalo de nuevo.'),
             });
-        } catch (error) {
-            console.error("Donation Error:", error);
-            showAlert({ type: 'error', title: 'Error', message: 'No pudimos procesar tu donación. Inténtalo de nuevo.' });
+            setPayState('idle');
         } finally {
             setLoading(false);
         }
@@ -66,6 +107,39 @@ export default function DonacionesScreen() {
                 </View>
 
                 <View style={styles.content}>
+                    {payState !== 'idle' && (
+                        <View
+                            style={[styles.statusBox, {
+                                backgroundColor: payState === 'paid' ? theme.successLight : payState === 'cancelled' || payState === 'expired' ? theme.errorLight : theme.surface,
+                                borderColor: theme.borderLight,
+                            }]}
+                            accessibilityLiveRegion="polite"
+                        >
+                            {payState === 'checking' || payState === 'pending' ? <ActivityIndicator color={theme.primary} /> : null}
+                            <Text style={[styles.statusTitle, { color: theme.text }]}>
+                                {payState === 'paid' ? '¡Gracias por tu donación!'
+                                    : payState === 'cancelled' ? 'Pago no completado'
+                                    : payState === 'expired' ? 'El pago expiró'
+                                    : 'Confirmando tu pago…'}
+                            </Text>
+                            <Text style={[styles.statusText, { color: theme.textMuted }]}>
+                                {payState === 'paid' ? 'Recibimos tu pago. Cada peso ayuda a un michi.'
+                                    : payState === 'cancelled' ? 'No se hizo ningún cargo. Puedes intentarlo de nuevo cuando quieras.'
+                                    : payState === 'expired' ? 'No se hizo ningún cargo. Inicia una nueva donación si deseas continuar.'
+                                    : 'Completa el pago en Stripe. Cuando regreses a la app verificaremos tu donación.'}
+                            </Text>
+                            {payState === 'paid' && (
+                                <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Cerrar">
+                                    <Text style={[styles.statusLink, { color: theme.primary }]}>Cerrar</Text>
+                                </TouchableOpacity>
+                            )}
+                            {payState === 'pending' && donationId && (
+                                <TouchableOpacity onPress={() => { setPayState('checking'); verifyDonation(donationId); }} accessibilityRole="button" accessibilityLabel="Ya pagué, verificar">
+                                    <Text style={[styles.statusLink, { color: theme.primary }]}>Ya pagué, verificar</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    )}
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>¿Cuánto deseas donar?</Text>
 
                     <View style={styles.amountsGrid}>
@@ -120,7 +194,7 @@ export default function DonacionesScreen() {
                     <View style={[styles.trustBox, { backgroundColor: 'rgba(16, 185, 129, 0.05)' }]}>
                         <ShieldCheck size={20} color="#10b981" />
                         <Text style={[styles.trustText, { color: theme.textMuted }]}>
-                            Tus donaciones se registran con tu cuenta y van al fondo de rescate Michicondrias.
+                            El pago se hace de forma segura con Stripe. Tu donación va al fondo de rescate Michicondrias y se confirma cuando el cobro se completa.
                         </Text>
                     </View>
 
@@ -132,7 +206,7 @@ export default function DonacionesScreen() {
                         {loading ? <ActivityIndicator color="#fff" /> : (
                             <>
                                 <HeartPulse size={24} color="#fff" />
-                                <Text style={styles.submitBtnText}>Donar Ahora</Text>
+                                <Text style={styles.submitBtnText}>Donar con tarjeta</Text>
                             </>
                         )}
                     </TouchableOpacity>
@@ -273,6 +347,16 @@ const styles = StyleSheet.create({
         shadowRadius: 20,
         elevation: 8,
     },
+    statusBox: {
+        borderWidth: 1,
+        borderRadius: 16,
+        padding: 16,
+        gap: 8,
+        alignItems: 'center',
+    },
+    statusTitle: { fontSize: 16, fontWeight: '800', textAlign: 'center' },
+    statusText: { fontSize: 13, lineHeight: 19, textAlign: 'center' },
+    statusLink: { fontSize: 14, fontWeight: '800', marginTop: 4 },
     submitBtnText: {
         color: '#fff',
         fontSize: 18,

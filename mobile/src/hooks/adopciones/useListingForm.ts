@@ -110,7 +110,9 @@ export function useListingForm() {
     };
 
     const handleSave = async () => {
-        if (!form.name.trim()) return showAlert({ type: 'error', title: 'Error', message: 'El nombre es obligatorio' });
+        if (!form.name.trim()) return showAlert({ type: 'error', title: 'Falta el nombre', message: 'El nombre de la mascota es obligatorio.' });
+        if (form.age_months.trim() && (!/^\d+$/.test(form.age_months.trim()) || parseInt(form.age_months, 10) > 480)) return showAlert({ type: 'error', title: 'Edad inválida', message: 'Escribe la edad en meses (número entero, máx. 480).' });
+        if (!form.location.trim()) return showAlert({ type: 'error', title: 'Falta la ubicación', message: 'Indica la ciudad o zona donde está la mascota.' });
         if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
 
         setLoading(true);
@@ -141,10 +143,10 @@ export function useListingForm() {
 
             queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
-            showAlert({ type: 'success', title: isEditing ? '¡Cambios guardados!' : '¡Publicación enviada!', message: 'Un administrador la revisará y, al aprobarla, aparecerá en el listado de adopción. Puedes ver su estado en Mis publicaciones.' });
+            showAlert({ type: 'success', title: isEditing ? 'Cambios guardados' : 'Publicación enviada', message: 'Un administrador la revisará y, al aprobarla, aparecerá en el listado de adopción. Puedes ver su estado en Mis publicaciones.' });
             router.back();
         } catch (error) {
-            showAlert({ type: 'error', title: 'No se pudo crear la publicación', message: error instanceof Error ? error.message : 'Inténtalo de nuevo.' });
+            showAlert({ type: 'error', title: isEditing ? 'No se pudieron guardar los cambios' : 'No se pudo crear la publicación', message: error instanceof Error ? error.message : 'Inténtalo de nuevo.' });
         } finally {
             setLoading(false);
         }

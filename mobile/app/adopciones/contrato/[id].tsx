@@ -14,6 +14,8 @@ export default function AdoptionContractScreen() {
         agreed,
         setAgreed,
         handleSign,
+        handleReject,
+        isRejecting,
         isSigning,
     } = useAdoptionContract();
 
@@ -48,6 +50,17 @@ export default function AdoptionContractScreen() {
 
             <View style={[styles.footer, { borderTopColor: theme.border }]}>
                 <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel="Rechazar postulación"
+                    onPress={handleReject}
+                    disabled={isRejecting || isSigning}
+                    style={{ alignItems: 'center', paddingVertical: 10, marginBottom: 8 }}
+                >
+                    <Text style={{ color: theme.error, fontWeight: '800' }}>{isRejecting ? 'Rechazando...' : 'Rechazar postulación'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel="Firmar contrato"
                     style={[
                         styles.signBtn,
                         {

@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 14,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     dot: {
         width: 4,

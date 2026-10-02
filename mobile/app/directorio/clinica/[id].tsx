@@ -6,7 +6,7 @@ import { useClinicDetail } from '@/src/hooks/directorio/useClinicDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import BackButton from '@/src/components/BackButton';
-import { MapPin, Phone, Globe, Clock, Star, Info, Calendar } from 'lucide-react-native';
+import { MapPin, Phone, Globe, Clock, Star, Info, Calendar, Hospital } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -85,10 +85,13 @@ export default function ClinicDetailScreen() {
         <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.header}>
-                    <Image
-                        source={{ uri: clinic.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=1000' }}
-                        style={styles.coverImage}
-                    />
+                    {clinic.logo_url ? (
+                        <Image source={{ uri: clinic.logo_url }} style={styles.coverImage} />
+                    ) : (
+                        <View style={[styles.coverImage, { backgroundColor: theme.primaryLight, alignItems: 'center', justifyContent: 'center' }]}>
+                            <Hospital size={64} color={theme.primary} />
+                        </View>
+                    )}
                     <BackButton onPress={() => router.back()} color="#fff" style={styles.backBtn} />
                 </View>
 
@@ -98,11 +101,11 @@ export default function ClinicDetailScreen() {
                             <Text style={[styles.title, { color: theme.text }]}>{clinic.name}</Text>
                             <View style={styles.locationContainer}>
                                 <MapPin size={14} color={theme.textMuted} />
-                                <Text style={[styles.location, { color: theme.textMuted }]}>{clinic.address}, {clinic.city}</Text>
+                                <Text style={[styles.location, { color: theme.textMuted }]}>{[clinic.address, clinic.city].filter(Boolean).join(', ') || 'Dirección no registrada'}</Text>
                             </View>
                         </View>
                         <View style={styles.ratingBadge}>
-                            <Star size={16} color="#facc15" fill="#facc15" />
+                            <Star size={16} color={theme.warning} fill={theme.warning} />
                             <Text style={styles.ratingText}>{rating?.average_rating ? rating.average_rating.toFixed(1) : 'Nuevo'}</Text>
                         </View>
                     </View>
@@ -138,14 +141,14 @@ export default function ClinicDetailScreen() {
                         <View style={styles.features}>
                             {clinic.is_24_hours && (
                                 <View style={styles.featureItem}>
-                                    <Clock size={16} color="#60a5fa" />
-                                    <Text style={[styles.featureText, { color: '#60a5fa' }]}>Abierto 24 Horas</Text>
+                                    <Clock size={16} color={theme.info} />
+                                    <Text style={[styles.featureText, { color: theme.info }]}>Abierto 24 Horas</Text>
                                 </View>
                             )}
                             {clinic.has_emergency && (
                                 <View style={styles.featureItem}>
-                                    <Info size={16} color="#f87171" />
-                                    <Text style={[styles.featureText, { color: '#f87171' }]}>Servicio de Emergencias</Text>
+                                    <Info size={16} color={theme.error} />
+                                    <Text style={[styles.featureText, { color: theme.error }]}>Servicio de Emergencias</Text>
                                 </View>
                             )}
                         </View>
@@ -172,7 +175,7 @@ export default function ClinicDetailScreen() {
                                 </View>
                                 <View style={styles.serviceRight}>
                                     <Text style={[styles.servicePrice, { color: theme.primary }]}>
-                                        {service.price ? `$${service.price}` : 'Consultar'}
+                                        {service.price ? Number(service.price).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) : 'Consultar'}
                                     </Text>
                                     <Calendar size={18} color={theme.primary} />
                                 </View>
@@ -188,12 +191,12 @@ export default function ClinicDetailScreen() {
                         <View style={[styles.ratingSummaryCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <View style={styles.summaryLeft}>
                                 <Text style={[styles.bigRating, { color: theme.text }]}>
-                                    {rating?.average_rating?.toFixed(1) || '5.0'}
+                                    {rating?.total_reviews ? Number(rating.average_rating || 0).toFixed(1) : '—'}
                                 </Text>
                                 <View style={styles.starsRow}>
                                     {[1, 2, 3, 4, 5].map((s) => {
-                                        const isFilled = s <= Math.round(rating?.average_rating || 5);
-                                        return <Star key={s} size={16} color="#facc15" fill={isFilled ? "#facc15" : "transparent"} />;
+                                        const isFilled = s <= Math.round(rating?.average_rating || 0);
+                                        return <Star key={s} size={16} color={theme.warning} fill={isFilled ? theme.warning : "transparent"} />;
                                     })}
                                 </View>
                                 <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
@@ -215,15 +218,15 @@ export default function ClinicDetailScreen() {
                             
                             <View style={styles.interactiveStars}>
                                 {[1, 2, 3, 4, 5].map((starVal) => (
-                                    <TouchableOpacity 
+                                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Calificar con ${starVal} ${starVal === 1 ? 'estrella' : 'estrellas'}`}
                                         key={starVal} 
                                         onPress={() => setFormRating(starVal)}
                                         style={styles.starTouch}
                                     >
                                         <Star 
                                             size={32} 
-                                            color="#facc15" 
-                                            fill={starVal <= formRating ? "#facc15" : "transparent"} 
+                                            color={theme.warning} 
+                                            fill={starVal <= formRating ? theme.warning : "transparent"} 
                                         />
                                     </TouchableOpacity>
                                 ))}
@@ -282,8 +285,8 @@ export default function ClinicDetailScreen() {
                                                         <Star 
                                                             key={s} 
                                                             size={12} 
-                                                            color="#facc15" 
-                                                            fill={s <= review.rating ? "#facc15" : "transparent"} 
+                                                            color={theme.warning} 
+                                                            fill={s <= review.rating ? theme.warning : "transparent"} 
                                                         />
                                                     ))}
                                                 </View>
@@ -397,7 +400,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     actionLabel: {
         fontSize: 12,
@@ -408,7 +411,7 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         marginBottom: 24,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     sectionHeader: {
         marginBottom: 16,
@@ -448,7 +451,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     serviceName: {
         fontSize: 16,

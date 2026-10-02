@@ -74,7 +74,7 @@ export default function ReservarScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📅 Reservar Servicio"
+                title="Reservar Servicio"
                 subtitle="Selecciona un servicio funerario"
             />
 

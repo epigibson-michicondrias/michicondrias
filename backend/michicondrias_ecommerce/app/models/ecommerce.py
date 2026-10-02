@@ -99,4 +99,7 @@ class Donation(Base):
     currency = Column(String, default="MXN")
     message = Column(Text, nullable=True)
     date = Column(DateTime(timezone=True), server_default=func.now())
-    status = Column(String, default="completed") # e.g. "pending", "completed", "failed"
+    # "pending" (esperando pago), "paid" (cobrada por Stripe), "expired"/"failed". "completed" = registros anteriores al cobro real.
+    status = Column(String, default="pending")
+    stripe_session_id = Column(String, nullable=True, index=True)
+    paid_at = Column(DateTime(timezone=True), nullable=True)

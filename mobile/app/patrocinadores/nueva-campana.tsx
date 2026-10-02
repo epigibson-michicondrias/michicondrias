@@ -20,7 +20,7 @@ export default function NuevaCampanaScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📣 Nueva Campaña"
+                title="Nueva Campaña"
                 subtitle="Crea una campaña publicitaria"
             />
 

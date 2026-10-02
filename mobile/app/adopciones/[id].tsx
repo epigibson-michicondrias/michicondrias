@@ -6,7 +6,7 @@ import { useListingDetail } from '@/src/hooks/adopciones';
 import { formatAge, formatWeight } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { Share2, Heart, Bone, Info } from 'lucide-react-native';
+import { Share2, Heart, Bone, Info, PawPrint, Calendar, Ruler, Scale, MapPin } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { shareContent } from '@/src/utils/share';
 
@@ -45,10 +45,10 @@ export default function AdopcionDetalleScreen() {
 
     const getSpeciesColor = (species: string) => {
         switch (species.toLowerCase()) {
-            case 'perro': return '#f59e0b';
-            case 'gato': return '#ec4899';
-            case 'ave': return '#3b82f6';
-            default: return '#10b981';
+            case 'perro': return theme.warning;
+            case 'gato': return theme.accent;
+            case 'ave': return theme.info;
+            default: return theme.success;
         }
     };
 
@@ -66,7 +66,7 @@ export default function AdopcionDetalleScreen() {
                             style={styles.glassBtn}
                         />
                         <View style={{ flexDirection: 'row', gap: 12 }}>
-                            <TouchableOpacity style={styles.glassBtn} onPress={() => shareContent('Adopción', `Conoce a ${listing.name}, está en adopción en Michicondrias 🐾`)}>
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir" style={styles.glassBtn} onPress={() => shareContent('Adopción', `Conoce a ${listing.name}, está en adopción en Michicondrias 🐾`)}>
                                 <Share2 size={20} color="#fff" />
                             </TouchableOpacity>
                         </View>
@@ -76,9 +76,7 @@ export default function AdopcionDetalleScreen() {
                         <Image source={{ uri: listing.photo_url }} style={styles.heroImage} />
                     ) : (
                         <View style={styles.placeholderHero}>
-                            <Text style={styles.emojiPlaceholder}>
-                                {listing.species === 'perro' ? '🐕' : listing.species === 'gato' ? '🐈' : '🐾'}
-                            </Text>
+                            <PawPrint size={72} color={speciesColor} strokeWidth={1.5} />
                         </View>
                     )}
                     <View style={styles.heroOverlay} />
@@ -89,7 +87,7 @@ export default function AdopcionDetalleScreen() {
                         </View>
                         {listing.is_emergency && (
                             <View style={styles.emergencyBadge}>
-                                <Text style={styles.emergencyBadgeText}>🚨 URGENTE</Text>
+                                <Text style={styles.emergencyBadgeText}>URGENTE</Text>
                             </View>
                         )}
                     </View>
@@ -105,16 +103,16 @@ export default function AdopcionDetalleScreen() {
                             </Text>
                         </View>
                         <View style={[styles.speciesIconContainer, { backgroundColor: speciesColor + '20' }]}>
-                            <Text style={{ fontSize: 24 }}>{listing.species === 'perro' ? '🐶' : '🐱'}</Text>
+                            <PawPrint size={24} color={speciesColor} />
                         </View>
                     </View>
 
                     {/* Quick Stats */}
                     <View style={styles.quickStats}>
-                        <StatCard label="Edad" value={formatAge(listing.age_months)} icon="📅" theme={theme} />
-                        <StatCard label="Tamaño" value={listing.size || 'No indicado'} icon="📏" theme={theme} />
-                        <StatCard label="Peso" value={formatWeight(listing.weight_kg)} icon="⚖️" theme={theme} />
-                        <StatCard label="Ubicación" value={listing.location || 'No indicada'} icon="📍" theme={theme} />
+                        <StatCard label="Edad" value={formatAge(listing.age_months)} icon={<Calendar size={18} color={theme.primary} />} theme={theme} />
+                        <StatCard label="Tamaño" value={listing.size || 'No indicado'} icon={<Ruler size={18} color={theme.primary} />} theme={theme} />
+                        <StatCard label="Peso" value={formatWeight(listing.weight_kg)} icon={<Scale size={18} color={theme.primary} />} theme={theme} />
+                        <StatCard label="Ubicación" value={listing.location || 'No indicada'} icon={<MapPin size={18} color={theme.primary} />} theme={theme} />
                     </View>
 
                     {/* Description */}
@@ -181,10 +179,10 @@ export default function AdopcionDetalleScreen() {
     );
 }
 
-function StatCard({ label, value, icon, theme }: { label: string; value: string; icon: string; theme: any }) {
+function StatCard({ label, value, icon, theme }: { label: string; value: string; icon: React.ReactNode; theme: any }) {
     return (
         <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-            <Text style={styles.statIcon}>{icon}</Text>
+            <View>{icon}</View>
             <View>
                 <Text style={[styles.statLabel, { color: theme.textMuted }]}>{label.toUpperCase()}</Text>
                 <Text style={[styles.statValue, { color: theme.text }]}>{value}</Text>
@@ -196,7 +194,7 @@ function StatCard({ label, value, icon, theme }: { label: string; value: string;
 function FeatureItem({ label, ok, theme }: { label: string; ok?: boolean; theme: any }) {
     return (
         <View style={[styles.featureItem, { borderColor: theme.cardBorder }]}>
-            <View style={[styles.dot, { backgroundColor: ok ? '#10b981' : theme.textMuted }]} />
+            <View style={[styles.dot, { backgroundColor: ok ? theme.success : theme.textMuted }]} />
             <Text style={[styles.featureText, { color: theme.text }]}>{label}</Text>
         </View>
     );
@@ -364,7 +362,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 15,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -390,7 +388,7 @@ const styles = StyleSheet.create({
     featureItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         paddingHorizontal: 12,
         paddingVertical: 8,
         borderRadius: 12,

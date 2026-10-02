@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -20,10 +21,7 @@ export default function PlanDetailScreen() {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Detalle del Plan" rightElement={<View style={styles.placeholder} />} />
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando información del plan...</Text>
-                </View>
+                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
             </ScreenContainer>
         );
     }
@@ -120,7 +118,7 @@ export default function PlanDetailScreen() {
                                 {plan.allowed_species.map((species, i) => (
                                     <View key={i} style={[styles.speciesBadge, { backgroundColor: theme.border + '30' }]}>
                                         <Text style={[styles.speciesText, { color: theme.text }]}>
-                                            {species === 'dog' || species === 'perro' ? '🐕 Perro' : species === 'cat' || species === 'gato' ? '🐈 Gato' : species}
+                                            {species === 'dog' || species === 'perro' ? 'Perro' : species === 'cat' || species === 'gato' ? 'Gato' : species}
                                         </Text>
                                     </View>
                                 ))}
@@ -235,7 +233,7 @@ const styles = StyleSheet.create({
     },
     planName: {
         fontSize: 22,
-        fontWeight: '900',
+        fontWeight: '800',
         textAlign: 'center',
         marginBottom: 8,
     },

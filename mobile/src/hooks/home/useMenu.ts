@@ -51,7 +51,7 @@ const BANNERS: Record<string, BannerProps> = {
     estilista: { title: 'Mi agenda', sub: 'Citas de estética', route: '/grooming/gestion', colors: ['#ec4899', '#be185d'], icon: Scissors },
     laboratorio: { title: 'Órdenes', sub: 'Resultados y análisis', route: '/laboratorio/gestion', colors: ['#10b981', '#047857'], icon: FlaskConical },
     patrocinador: { title: 'Mis campañas', sub: 'Impacto y estadísticas', route: '/patrocinadores/estadisticas', colors: ['#f59e0b', '#b45309'], icon: Award },
-    transportista: { title: 'Mis viajes', sub: 'Historial y conductor', route: '/transportistas/historial', colors: ['#6366f1', '#4338ca'], icon: Car },
+    transportista: { title: 'Mis viajes', sub: 'Solicitudes y conductor', route: '/transportistas/solicitudes', colors: ['#6366f1', '#4338ca'], icon: Car },
     establecimiento: { title: 'Mi establecimiento', sub: 'Locales pet-friendly', route: '/establecimientos', colors: ['#f59e0b', '#b45309'], icon: Store },
 };
 

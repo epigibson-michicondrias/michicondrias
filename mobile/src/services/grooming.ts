@@ -15,6 +15,8 @@ export interface GroomingAppointment {
     pet_name?: string | null;
     client_name?: string | null;
     groomer_name?: string | null;
+    /** El usuario ya reseñó esta cita (solo viene en la lista del cliente). */
+    reviewed?: boolean;
 }
 
 export interface GroomingAppointmentCreate {
@@ -58,6 +60,8 @@ export interface GroomingService {
     is_active: boolean;
     created_at: string;
     groomer_name?: string | null;
+    groomer_rating_avg?: number;
+    groomer_rating_count?: number;
 }
 
 export interface GroomingServiceCreate {
@@ -126,5 +130,33 @@ export async function updateGroomingService(
     return apiFetch<GroomingService>("estilistas", `/services/${serviceId}`, {
         method: "PATCH",
         body: JSON.stringify(data),
+    });
+}
+
+export interface GroomingReview {
+    id: string;
+    appointment_id: string;
+    rating: number;
+    comment?: string | null;
+    created_at?: string | null;
+    author_name?: string | null;
+    is_mine: boolean;
+}
+
+export interface GroomingReviewsSummary {
+    average: number;
+    count: number;
+    reviews: GroomingReview[];
+}
+
+export async function getGroomerReviews(groomerId: string): Promise<GroomingReviewsSummary> {
+    return apiFetch<GroomingReviewsSummary>("estilistas", `/groomers/${groomerId}/reviews`);
+}
+
+/** Reseña una cita completada (solo el dueño de la mascota, una vez por cita). */
+export async function createAppointmentReview(appointmentId: string, rating: number, comment?: string): Promise<GroomingReview> {
+    return apiFetch<GroomingReview>("estilistas", `/appointments/${appointmentId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({ rating, comment: comment || undefined }),
     });
 }

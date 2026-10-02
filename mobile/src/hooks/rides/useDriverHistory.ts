@@ -5,14 +5,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { getDriverRideHistory } from '@/src/services/rides';
-import type { PetRide } from '@/src/services/rides';
+import type { DriverRideHistory } from '@/src/services/rides';
 
-export interface DriverHistoryData {
-  driver_id: string;
-  total_earnings: number;
-  rides_count: number;
-  rides: PetRide[];
-}
+export type DriverHistoryData = DriverRideHistory;
 
 export function useDriverHistory() {
   const router = useRouter();
@@ -21,6 +16,7 @@ export function useDriverHistory() {
     data: history,
     isLoading,
     isError,
+    isRefetching,
     refetch,
   } = useQuery<DriverHistoryData>({
     queryKey: ['driver-ride-history'],
@@ -30,14 +26,19 @@ export function useDriverHistory() {
   const totalEarnings = history?.total_earnings ?? 0;
   const ridesCount = history?.rides_count ?? 0;
   const rides = history?.rides ?? [];
+  const ratingAvg = history?.rating_avg ?? null;
+  const ratingCount = history?.rating_count ?? 0;
 
   return {
     // Data
     totalEarnings,
     ridesCount,
     rides,
+    ratingAvg,
+    ratingCount,
     isLoading,
     isError,
+    isRefetching,
 
     // Actions
     refetch,

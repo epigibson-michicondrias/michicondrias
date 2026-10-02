@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { showAlert } from '@/src/components/AppAlert';
 import { createClinic } from '../../src/services/directorio';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -9,6 +10,7 @@ import { Hospital, MapPin, Phone, Globe, Info, CheckCircle2 } from 'lucide-react
 
 export default function NuevoRegistroProfesionalScreen() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const { theme, isDark } = useTheme();
 
     const [loading, setLoading] = useState(false);
@@ -24,23 +26,40 @@ export default function NuevoRegistroProfesionalScreen() {
     });
 
     const handleSubmit = async () => {
-        if (!form.name || !form.city || !form.phone) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios (Nombre, Ciudad y Teléfono)' });
+        if (!form.name.trim() || !form.city.trim() || !form.phone.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'Completa los campos obligatorios: nombre, ciudad y teléfono.' });
+            return;
+        }
+        if (form.phone.replace(/\D/g, '').length < 10) {
+            showAlert({ type: 'error', title: 'Teléfono inválido', message: 'Escribe un teléfono de 10 dígitos.' });
+            return;
+        }
+        if (form.website.trim() && !/^https?:\/\//i.test(form.website.trim())) {
+            showAlert({ type: 'error', title: 'Sitio web inválido', message: 'El enlace debe empezar con http:// o https://' });
             return;
         }
 
         setLoading(true);
         try {
-            await createClinic(form);
+            await createClinic({
+                ...form,
+                name: form.name.trim(),
+                address: form.address.trim() || null,
+                city: form.city.trim(),
+                phone: form.phone.trim(),
+                website: form.website.trim() || null,
+                description: form.description.trim() || null,
+            });
+            queryClient.invalidateQueries({ queryKey: ['my-clinics'] });
+            queryClient.invalidateQueries({ queryKey: ['hospital-clinics'] });
             showAlert({
                 type: 'success',
                 title: '¡Éxito!',
                 message: 'Tu solicitud ha sido enviada. Un administrador revisará tu información pronto.',
                 onButtonPress: () => router.back(),
             });
-        } catch (error) {
-            console.error("Error al registrar:", error);
-            showAlert({ type: 'error', title: 'Error', message: 'No pudimos procesar tu registro. Inténtalo de nuevo.' });
+        } catch (error: any) {
+            showAlert({ type: 'error', title: 'No se pudo registrar', message: error?.message || 'No pudimos procesar tu registro. Inténtalo de nuevo.' });
         } finally {
             setLoading(false);
         }
@@ -58,7 +77,7 @@ export default function NuevoRegistroProfesionalScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Nombre de la Clínica *</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Ej. Veterinaria San José"
                             placeholderTextColor={theme.textMuted}
                             value={form.name}
@@ -69,7 +88,7 @@ export default function NuevoRegistroProfesionalScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Dirección</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Calle, número y colonia"
                             placeholderTextColor={theme.textMuted}
                             value={form.address}
@@ -81,7 +100,7 @@ export default function NuevoRegistroProfesionalScreen() {
                         <View style={[styles.inputGroup, { flex: 1 }]}>
                             <Text style={[styles.label, { color: theme.text }]}>Ciudad *</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Ej. CDMX"
                                 placeholderTextColor={theme.textMuted}
                                 value={form.city}
@@ -91,7 +110,7 @@ export default function NuevoRegistroProfesionalScreen() {
                         <View style={[styles.inputGroup, { flex: 1 }]}>
                             <Text style={[styles.label, { color: theme.text }]}>Teléfono *</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="10 dígitos"
                                 placeholderTextColor={theme.textMuted}
                                 keyboardType="phone-pad"
@@ -104,7 +123,7 @@ export default function NuevoRegistroProfesionalScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Sitio Web / Facebook</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="https://..."
                             placeholderTextColor={theme.textMuted}
                             autoCapitalize="none"
@@ -116,7 +135,7 @@ export default function NuevoRegistroProfesionalScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Descripción del Servicio</Text>
                         <TextInput
-                            style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Cuéntanos sobre tus especialidades y servicios..."
                             placeholderTextColor={theme.textMuted}
                             multiline
@@ -129,6 +148,9 @@ export default function NuevoRegistroProfesionalScreen() {
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Especiales</Text>
 
                     <TouchableOpacity
+                        accessibilityRole="switch"
+                        accessibilityLabel="Servicio 24 horas"
+                        accessibilityState={{ checked: form.is_24_hours }}
                         style={[styles.toggleItem, { backgroundColor: theme.surface }]}
                         onPress={() => setForm(f => ({ ...f, is_24_hours: !f.is_24_hours }))}
                     >
@@ -140,6 +162,9 @@ export default function NuevoRegistroProfesionalScreen() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
+                        accessibilityRole="switch"
+                        accessibilityLabel="Urgencias"
+                        accessibilityState={{ checked: form.has_emergency }}
                         style={[styles.toggleItem, { backgroundColor: theme.surface }]}
                         onPress={() => setForm(f => ({ ...f, has_emergency: !f.has_emergency }))}
                     >
@@ -197,7 +222,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         fontSize: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     textArea: {
         height: 120,
@@ -207,7 +232,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textAlignVertical: 'top',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     sectionTitle: {
         fontSize: 18,
@@ -221,7 +246,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     toggleText: {
         flex: 1,

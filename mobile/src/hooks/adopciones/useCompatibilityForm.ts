@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { submitAdoptionForm } from '@/src/services/adopciones';
 import { showAlert } from '@/src/components/AppAlert';
 import type { AdoptionFormCreate } from '@/src/types/adopciones';
@@ -41,6 +41,7 @@ export const HOURS_OPTIONS = [
 export function useCompatibilityForm() {
     const { petId } = useLocalSearchParams<{ petId: string }>();
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const [step, setStep] = useState(0);
     const [form, setForm] = useState<CompatibilityFormState>(INITIAL_FORM);
@@ -50,18 +51,19 @@ export function useCompatibilityForm() {
     const submitMutation = useMutation({
         mutationFn: (data: AdoptionFormCreate) => submitAdoptionForm(data),
         onSuccess: (result) => {
+            queryClient.invalidateQueries({ queryKey: ['refuge-applications'] });
             showAlert({
                 type: 'success',
-                title: '¡Formulario Enviado!',
-                message: `Tu puntuación de compatibilidad es: ${result.compatibility_score}%. Nos pondremos en contacto contigo.`,
+                title: 'Formulario enviado',
+                message: `Tu compatibilidad es del ${result.compatibility_score}%. El refugio revisará tu formulario y te avisará.`,
             });
             router.back();
         },
-        onError: () => {
+        onError: (e: any) => {
             showAlert({
                 type: 'error',
-                title: 'Error',
-                message: 'No se pudo enviar el formulario. Intenta de nuevo.',
+                title: 'No se pudo enviar',
+                message: e?.message || 'No se pudo enviar el formulario. Intenta de nuevo.',
             });
         },
     });

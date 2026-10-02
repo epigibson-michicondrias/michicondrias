@@ -49,7 +49,7 @@ export default function CotizarScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="🛡️ Cotizar Seguro" subtitle="Protege a tu mascota" />
+                <ScreenHeader title="Cotizar Seguro" subtitle="Protege a tu mascota" />
                 <LoadingOverlay message="Cargando datos..." />
             </ScreenContainer>
         );
@@ -58,7 +58,7 @@ export default function CotizarScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🛡️ Cotizar Seguro"
+                title="Cotizar Seguro"
                 subtitle="Calcula y contrata el mejor plan"
             />
 
@@ -137,7 +137,7 @@ export default function CotizarScreen() {
                                 </View>
                                 {selectedPlanId === plan.id && <CheckCircle size={20} color={theme.primary} />}
                             </View>
-                            <View style={styles.planOptionStats}>
+                            <View style={[styles.planOptionStats, { borderTopColor: theme.border }]}>
                                 <View style={styles.planStat}>
                                     <DollarSign size={12} color={theme.secondary} />
                                     <Text style={[styles.planStatText, { color: theme.text }]}>
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     },
     quoteTitle: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     quoteDetails: {
         padding: 20,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     },
     quotePremium: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     subscribeBtn: {
         flexDirection: 'row',

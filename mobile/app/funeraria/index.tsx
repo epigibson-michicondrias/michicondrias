@@ -62,7 +62,7 @@ export default function FunerariaScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🕊️ Funeraria"
+                title="Funeraria"
                 subtitle="Servicios funerarios y memorial para tus mascotas"
             />
 

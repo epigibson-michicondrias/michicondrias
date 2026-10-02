@@ -1,18 +1,17 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useEnrollment } from '@/src/hooks/training';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { BookOpen, PawPrint, Calendar, TrendingUp, ChevronRight } from 'lucide-react-native';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-    active: { label: 'Activo', color: '#22c55e' },
-    completed: { label: 'Completado', color: '#3b82f6' },
-    cancelled: { label: 'Cancelado', color: '#ef4444' },
-    pending: { label: 'Pendiente', color: '#f59e0b' },
-};
+const STATUS_LABEL: Record<string, string> = { active: 'Activo', completed: 'Completado', cancelled: 'Cancelado', pending: 'Pendiente' };
+const statusColorOf = (status: string, theme: any): string =>
+    ({ active: theme.success, completed: theme.info, cancelled: theme.error } as Record<string, string>)[status] || theme.warning;
 
 export default function MyEnrollmentsScreen() {
     const { theme } = useTheme();
@@ -25,10 +24,10 @@ export default function MyEnrollmentsScreen() {
     } = useEnrollment();
 
     const renderEnrollment = ({ item }: { item: typeof enrollments[0] }) => {
-        const statusInfo = STATUS_CONFIG[item.status] || STATUS_CONFIG.pending;
+        const statusInfo = { label: STATUS_LABEL[item.status] || STATUS_LABEL.pending, color: statusColorOf(item.status, theme) };
 
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 style={[styles.enrollmentCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                 onPress={() => router.push(`/entrenadores/metas/${item.id}` as any)}
                 activeOpacity={0.7}
@@ -47,10 +46,7 @@ export default function MyEnrollmentsScreen() {
                             <Text style={[styles.petName, { color: theme.textMuted }]}>{item.petName}</Text>
                         </View>
                     </View>
-                    <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '20' }]}>
-                        <View style={[styles.statusDot, { backgroundColor: statusInfo.color }]} />
-                        <Text style={[styles.statusText, { color: statusInfo.color }]}>{statusInfo.label}</Text>
-                    </View>
+                    <StatusBadge label={statusInfo.label} color={statusInfo.color} dot />
                 </View>
 
                 {/* Progress Bar */}
@@ -82,6 +78,16 @@ export default function MyEnrollmentsScreen() {
                     </View>
                     <ChevronRight size={18} color={theme.textMuted} />
                 </View>
+                {item.status === 'completed' && (
+                    <TouchableOpacity
+                        onPress={() => router.push(`/entrenadores/${item.program_id}` as any)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Calificar programa"
+                        style={{ paddingTop: 10 }}
+                    >
+                        <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Calificar programa</Text>
+                    </TouchableOpacity>
+                )}
             </TouchableOpacity>
         );
     };
@@ -91,10 +97,7 @@ export default function MyEnrollmentsScreen() {
             <ScreenHeader title="Mis Inscripciones" rightElement={<View style={styles.placeholder} />} />
 
             {isEnrollmentsLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando inscripciones...</Text>
-                </View>
+                <SkeletonList count={4} />
             ) : (
                 <FlatList
                     data={enrollments}
@@ -113,7 +116,7 @@ export default function MyEnrollmentsScreen() {
                             <Text style={[styles.emptyDesc, { color: theme.textMuted }]}>
                                 Explora nuestros programas de entrenamiento y ¡inscribe a tu mascota!
                             </Text>
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.exploreButton, { backgroundColor: theme.primary }]}
                                 onPress={() => router.push('/entrenadores')}
                                 activeOpacity={0.8}

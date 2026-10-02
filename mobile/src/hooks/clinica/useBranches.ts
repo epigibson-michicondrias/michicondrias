@@ -70,6 +70,7 @@ export function useBranches() {
                     await deleteClinic(item.id);
                     showAlert({ type: 'success', title: 'Éxito', message: 'Clínica eliminada correctamente.' });
                     queryClient.invalidateQueries({ queryKey: ['hospital-clinics'] });
+                    queryClient.invalidateQueries({ queryKey: ['my-clinics'] });
                 } catch (err: any) {
                     showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo eliminar la clínica.' });
                 } finally {
@@ -82,6 +83,15 @@ export function useBranches() {
     const handleSave = async () => {
         if (!name.trim()) {
             showAlert({ type: 'error', title: 'Error', message: 'El nombre de la clínica es obligatorio.' });
+            return;
+        }
+
+        if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            showAlert({ type: 'error', title: 'Correo inválido', message: 'Escribe un correo electrónico válido.' });
+            return;
+        }
+        if (website.trim() && !/^https?:\/\//i.test(website.trim())) {
+            showAlert({ type: 'error', title: 'Sitio web inválido', message: 'El sitio web debe empezar con http:// o https://' });
             return;
         }
 
@@ -110,6 +120,7 @@ export function useBranches() {
             setModalVisible(false);
             resetForm();
             queryClient.invalidateQueries({ queryKey: ['hospital-clinics'] });
+            queryClient.invalidateQueries({ queryKey: ['my-clinics'] });
         } catch (err: any) {
             showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo guardar la clínica.' });
         } finally {

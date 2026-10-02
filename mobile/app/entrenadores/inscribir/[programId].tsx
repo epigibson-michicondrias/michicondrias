@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useEnrollment } from '@/src/hooks/training';
@@ -22,10 +23,7 @@ export default function EnrollPetScreen() {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Inscribir Mascota" rightElement={<View style={styles.placeholder} />} />
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando información...</Text>
-                </View>
+                <SkeletonList count={4} />
             </ScreenContainer>
         );
     }
@@ -81,7 +79,7 @@ export default function EnrollPetScreen() {
                             {pets.map((pet) => {
                                 const isSelected = selectedPetId === pet.id;
                                 return (
-                                    <TouchableOpacity
+                                    <TouchableOpacity accessibilityRole="button"
                                         key={pet.id}
                                         style={[
                                             styles.petCard,
@@ -117,7 +115,7 @@ export default function EnrollPetScreen() {
 
                 {/* Enroll Button */}
                 <View style={styles.actionContainer}>
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[
                             styles.enrollButton,
                             {

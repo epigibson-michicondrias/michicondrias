@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 26,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     priceRow: {
         flexDirection: 'row',
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     },
     price: {
         fontSize: 28,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     ratingBox: {
         flexDirection: 'row',
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
     cartBadgeText: {
         color: '#fff',
         fontSize: 10,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     buyBtnText: {
         color: '#fff',
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
     },
     bigRating: {
         fontSize: 36,
-        fontWeight: '900',
+        fontWeight: '800',
         lineHeight: 42,
     },
     totalReviewsText: {

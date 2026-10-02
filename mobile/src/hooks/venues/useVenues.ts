@@ -12,6 +12,7 @@ export function useVenues() {
     const {
         data: venues = [],
         isLoading,
+        isError,
         refetch,
         isRefetching,
     } = useQuery<Venue[]>({
@@ -31,6 +32,7 @@ export function useVenues() {
     return {
         venues: filteredVenues,
         isLoading,
+        isError,
         refetch,
         isRefetching,
         searchQuery,

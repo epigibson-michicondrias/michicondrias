@@ -19,7 +19,7 @@ export default function ServiciosClinicaScreen() {
     } = useClinicServices();
 
     const renderItem = ({ item }: { item: ClinicServiceItem }) => (
-        <View style={[styles.card, { backgroundColor: theme.surface }]}>
+        <View style={[styles.card, { backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }]}>
             <View style={styles.cardMain}>
                 <View style={[styles.iconBox, { backgroundColor: theme.primary + '15' }]}>
                     <Briefcase size={20} color={theme.primary} />
@@ -41,18 +41,18 @@ export default function ServiciosClinicaScreen() {
                     </View>
                 </View>
                 <View style={styles.priceBox}>
-                    <Text style={[styles.priceText, { color: theme.primary }]}>${item.price}</Text>
+                    <Text style={[styles.priceText, { color: theme.primary }]}>{Number(item.price || 0).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</Text>
                 </View>
             </View>
 
-            <View style={[styles.actions, { borderTopColor: 'rgba(255,255,255,0.05)' }]}>
+            <View style={[styles.actions, { borderTopColor: theme.border }]}>
                 <TouchableOpacity style={styles.actionBtn} onPress={() => handleEdit(item)}>
                     <Pencil size={16} color={theme.textMuted} />
                     <Text style={[styles.actionText, { color: theme.textMuted }]}>Editar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionBtn} onPress={() => handleDelete(item.id)}>
-                    <Trash2 size={16} color="#ef4444" />
-                    <Text style={[styles.actionText, { color: '#ef4444' }]}>Eliminar</Text>
+                    <Trash2 size={16} color={theme.error} />
+                    <Text style={[styles.actionText, { color: theme.error }]}>Eliminar</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -100,7 +100,7 @@ export default function ServiciosClinicaScreen() {
                             <Text style={[styles.modalTitle, { color: theme.text }]}>
                                 {editingService ? 'Editar Servicio' : 'Nuevo Servicio'}
                             </Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setModalVisible(false)}>
                                 <X size={24} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -184,7 +184,7 @@ export default function ServiciosClinicaScreen() {
 
 const styles = StyleSheet.create({
     list: { padding: 24, paddingBottom: 100 },
-    card: { borderRadius: 28, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    card: { borderRadius: 28, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     cardMain: { flexDirection: 'row', alignItems: 'center', gap: 16 },
     iconBox: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     info: { flex: 1, gap: 4 },

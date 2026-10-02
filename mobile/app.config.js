@@ -5,7 +5,9 @@ export default {
     "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    // "michicondrias" es el esquema que usan el backend (APP_DEEP_LINK_SCHEME: retorno de Stripe, reset de contraseña);
+    // "mobile" se conserva por compatibilidad. Añadir un esquema requiere una build nativa nueva (no llega por OTA).
+    "scheme": ["mobile", "michicondrias"],
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",

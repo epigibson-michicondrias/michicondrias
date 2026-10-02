@@ -24,8 +24,8 @@ export default function AdminProductosScreen() {
             <View style={styles.productInfo}>
                 <View style={styles.topRow}>
                     <Text style={[styles.productName, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
-                    <View style={[styles.stockBadge, { backgroundColor: item.stock > 0 ? '#10b98115' : '#ef444415' }]}>
-                        <Text style={[styles.stockText, { color: item.stock > 0 ? '#10b981' : '#ef4444' }]}>
+                    <View style={[styles.stockBadge, { backgroundColor: item.stock > 0 ? theme.success + '15' : theme.error + '15' }]}>
+                        <Text style={[styles.stockText, { color: item.stock > 0 ? theme.success : theme.error }]}>
                             {item.stock > 0 ? `${item.stock} en stock` : 'Agotado'}
                         </Text>
                     </View>
@@ -33,14 +33,14 @@ export default function AdminProductosScreen() {
                 <Text style={[styles.price, { color: theme.primary }]}>${item.price.toFixed(2)}</Text>
                 
                 <View style={styles.actions}>
-                    <TouchableOpacity 
+                    <TouchableOpacity accessibilityRole="button" 
                         style={[styles.manageBtn, { backgroundColor: theme.background }]}
                         onPress={() => showAlert({ type: 'info', title: 'Inventario', message: 'Abrir ajuste de stock' })}
                     >
                         <Box size={14} color={theme.textMuted} />
                         <Text style={[styles.manageBtnText, { color: theme.text }]}>Stock</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
+                    <TouchableOpacity accessibilityRole="button" 
                         style={[styles.manageBtn, { backgroundColor: theme.primary }]}
                         onPress={() => showAlert({ type: 'info', title: 'Producto', message: `Gestionar: ${item.name}` })}
                     >
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     },
     productName: { 
         fontSize: 16, 
-        fontWeight: '900', 
+        fontWeight: '800', 
         flex: 1,
         marginRight: 8,
     },
@@ -157,11 +157,11 @@ const styles = StyleSheet.create({
     },
     stockText: { 
         fontSize: 9, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     price: { 
         fontSize: 18, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     actions: { 
         flexDirection: 'row', 

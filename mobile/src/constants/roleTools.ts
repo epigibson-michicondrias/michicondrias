@@ -115,6 +115,7 @@ export const ROLE_TOOLS: Record<string, RoleTool[]> = {
     ],
 
     transportista: [
+        t('trans-solicitudes', 'Solicitudes de viaje', 'Viajes por aceptar y en curso', '/transportistas/solicitudes', '#10b981', ClipboardList, true),
         t('trans-conductor', 'Perfil de conductor', 'Datos del conductor', '/transportistas/perfil-conductor', '#6366f1', User, true),
         t('trans-historial', 'Historial de viajes', 'Viajes realizados', '/transportistas/historial', '#64748b', Clock, true),
     ],
@@ -192,6 +193,7 @@ export const ROUTE_ACCESS: { prefix: string; roles: string[] }[] = [
     { prefix: '/patrocinadores/nueva-campana', roles: ['patrocinador'] },
     { prefix: '/patrocinadores/boost-alerta', roles: ['patrocinador'] },
     { prefix: '/patrocinadores/estadisticas', roles: ['patrocinador'] },
+    { prefix: '/transportistas/solicitudes', roles: ['transportista'] },
     { prefix: '/transportistas/perfil-conductor', roles: ['transportista'] },
     { prefix: '/transportistas/historial', roles: ['transportista'] },
 ];

@@ -2,25 +2,29 @@
  * Mis Citas Grooming — Client's grooming appointment list
  * Tabs: Upcoming / History with status badges
  */
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Scissors, Calendar, Clock, ChevronRight, Sparkles } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { useGroomingClient } from '@/src/hooks/grooming/useGroomingClient';
 import type { AppointmentTab } from '@/src/hooks/grooming/useGroomingClient';
+import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
+import { createAppointmentReview } from '@/src/services/grooming';
 import type { GroomingAppointment } from '@/src/services/grooming';
+import { ReviewForm } from '@/src/components/reviews/ReviewsSection';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-    pending:     { label: 'Programada',  color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
-    scheduled:   { label: 'Programada',  color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
+    pending:     { label: 'Programada',  color: '#3b82f6', bg: 'rgba(14,165,233,0.12)' },
+    scheduled:   { label: 'Programada',  color: '#3b82f6', bg: 'rgba(14,165,233,0.12)' },
     confirmed:   { label: 'Confirmada',  color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
     in_progress: { label: 'En Progreso', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-    completed:   { label: 'Completada',  color: '#6366f1', bg: 'rgba(99,102,241,0.12)' },
+    completed:   { label: 'Completada',  color: '#8b5cf6', bg: 'rgba(99,102,241,0.12)' },
     cancelled:   { label: 'Cancelada',   color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
 };
 
@@ -40,6 +44,19 @@ export default function MisCitasGroomingScreen() {
         cancellingId,
     } = useGroomingClient();
 
+    const queryClient = useQueryClient();
+    const [reviewing, setReviewing] = useState<GroomingAppointment | null>(null);
+    const reviewMutation = useMutation({
+        mutationFn: ({ id, rating, comment }: { id: string; rating: number; comment: string }) => createAppointmentReview(id, rating, comment),
+        onSuccess: () => {
+            setReviewing(null);
+            queryClient.invalidateQueries({ queryKey: ['grooming-client-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['grooming-services'] });
+            showAlert({ type: 'success', title: '¡Gracias por tu reseña!', message: 'Tu opinión ayuda a otros dueños a elegir estilista.' });
+        },
+        onError: (e: any) => showAlert({ type: 'error', title: 'No se pudo enviar', message: e?.message || 'Inténtalo de nuevo.' }),
+    });
+
     const tabs: { key: AppointmentTab; label: string; count: number }[] = [
         { key: 'upcoming', label: 'Próximas', count: upcomingAppointments.length },
         { key: 'history',  label: 'Historial', count: pastAppointments.length },
@@ -48,7 +65,7 @@ export default function MisCitasGroomingScreen() {
     const renderTab = (tab: typeof tabs[number]) => {
         const isActive = activeTab === tab.key;
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 key={tab.key}
                 style={[
                     styles.tab,
@@ -77,7 +94,7 @@ export default function MisCitasGroomingScreen() {
     const renderAppointment = ({ item }: { item: GroomingAppointment }) => {
         const status = STATUS_MAP[item.status || 'scheduled'] ?? STATUS_MAP.scheduled;
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                 activeOpacity={0.7}
                 onPress={() => {
@@ -105,15 +122,26 @@ export default function MisCitasGroomingScreen() {
                 </View>
 
                 <View style={styles.cardBottom}>
-                    <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
-                        <View style={[styles.statusDot, { backgroundColor: status.color }]} />
-                        <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
-                    </View>
+                    <StatusBadge label={status.label} color={status.color} dot />
                     {item.skin_report ? (
                         <Text style={[styles.skinReport, { color: theme.textMuted }]} numberOfLines={1}>
-                            📝 {item.skin_report}
+                            {item.skin_report}
                         </Text>
                     ) : null}
+                    {item.status === 'completed' && (
+                        item.reviewed ? (
+                            <Text style={{ color: theme.textMuted, fontWeight: '700', fontSize: 12 }}>Reseñada</Text>
+                        ) : (
+                            <TouchableOpacity
+                                onPress={() => setReviewing(item)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Calificar servicio"
+                                hitSlop={8}
+                            >
+                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Calificar</Text>
+                            </TouchableOpacity>
+                        )
+                    )}
                     {['scheduled', 'pending', 'confirmed'].includes(item.status || 'scheduled') && (
                         <TouchableOpacity
                             onPress={() => showAlert({
@@ -172,11 +200,30 @@ export default function MisCitasGroomingScreen() {
                 onEmptyAction={activeTab === 'upcoming' ? () => router.push('/grooming/agendar' as any) : undefined}
                 contentStyle={styles.list}
             />
+
+            <Modal visible={!!reviewing} transparent animationType="slide" onRequestClose={() => setReviewing(null)}>
+                <View style={styles.modalBackdrop}>
+                    <View style={[styles.modalSheet, { backgroundColor: theme.surface }]}>
+                        {reviewing ? (
+                            <ReviewForm
+                                prompt={`¿Cómo fue el servicio${reviewing.groomer_name ? ` de ${reviewing.groomer_name}` : ''}?`}
+                                submitting={reviewMutation.isPending}
+                                onSubmit={(rating, comment) => reviewMutation.mutate({ id: reviewing.id, rating, comment })}
+                            />
+                        ) : null}
+                        <TouchableOpacity onPress={() => setReviewing(null)} accessibilityRole="button" accessibilityLabel="Cerrar" style={{ alignSelf: 'center', paddingTop: 14 }}>
+                            <Text style={{ color: theme.textMuted, fontWeight: '700' }}>Ahora no</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
+    modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
+    modalSheet: { padding: 24, paddingBottom: 36, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
     list: {
         paddingHorizontal: 24,
         paddingBottom: 100,

@@ -81,7 +81,7 @@ export default function GestionScreen() {
                     </Text>
                     <Text style={[styles.statLabel, { color: theme.textMuted }]}>Cobertura</Text>
                 </View>
-                <View style={styles.statDivider} />
+                <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
                 <View style={styles.statItem}>
                     <DollarSign size={14} color={theme.secondary} />
                     <Text style={[styles.statValue, { color: theme.text }]}>
@@ -89,7 +89,7 @@ export default function GestionScreen() {
                     </Text>
                     <Text style={[styles.statLabel, { color: theme.textMuted }]}>Prima</Text>
                 </View>
-                <View style={styles.statDivider} />
+                <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
                 <View style={styles.statItem}>
                     <Clock size={14} color={theme.textMuted} />
                     <Text style={[styles.statValue, { color: theme.text }]}>
@@ -103,7 +103,7 @@ export default function GestionScreen() {
                 {item.allowed_species.map((species, index) => (
                     <View key={index} style={[styles.speciesTag, { backgroundColor: theme.secondary + '15' }]}>
                         <Text style={[styles.speciesTagText, { color: theme.secondary }]}>
-                            {species === 'dog' ? '🐕 Perro' : species === 'cat' ? '🐈 Gato' : species}
+                            {species === 'dog' ? 'Perro' : species === 'cat' ? 'Gato' : species}
                         </Text>
                     </View>
                 ))}
@@ -114,7 +114,7 @@ export default function GestionScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="⚙️ Gestión de Planes"
+                title="Gestión de Planes"
                 subtitle="Administra tus planes de seguro"
                 actionIcon={showCreateForm ? X : Plus}
                 onAction={() => setShowCreateForm(!showCreateForm)}
@@ -223,7 +223,7 @@ export default function GestionScreen() {
                                     onPress={() => toggleSpecies('dog')}
                                 >
                                     <Text style={[styles.speciesButtonText, { color: allowedSpecies.includes('dog') ? theme.primary : theme.text }]}>
-                                        🐕 Perros
+                                        Perros
                                     </Text>
                                     {allowedSpecies.includes('dog') && <CheckCircle2 size={14} color={theme.primary} />}
                                 </TouchableOpacity>
@@ -238,7 +238,7 @@ export default function GestionScreen() {
                                     onPress={() => toggleSpecies('cat')}
                                 >
                                     <Text style={[styles.speciesButtonText, { color: allowedSpecies.includes('cat') ? theme.primary : theme.text }]}>
-                                        🐈 Gatos
+                                        Gatos
                                     </Text>
                                     {allowedSpecies.includes('cat') && <CheckCircle2 size={14} color={theme.primary} />}
                                 </TouchableOpacity>
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     },
     formTitle: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     inputGroup: {
         gap: 8,

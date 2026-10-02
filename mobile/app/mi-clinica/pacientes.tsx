@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, FlatList, ActivityIndicator, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, FlatList, ActivityIndicator, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -16,6 +17,7 @@ type Filter = 'all' | 'upcoming' | 'critical';
 
 export default function PacientesScreen() {
     const { theme } = useTheme();
+    const router = useRouter();
     const [filter, setFilter] = useState<Filter>('all');
     const [q, setQ] = useState('');
 
@@ -38,7 +40,12 @@ export default function PacientesScreen() {
         const critical = item.alert_level === 'red' || item.alert_level === 'yellow';
         const tone = item.alert_level === 'red' ? theme.error : theme.warning;
         return (
-            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={`Abrir carnet de ${item.name}`}
+                onPress={() => router.push(`/carnet/${item.id}` as any)}
+                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
+            >
                 <View style={styles.head}>
                     <View style={[styles.icon, { backgroundColor: critical ? theme.errorLight : theme.primary + '15' }]}>
                         {critical ? <AlertTriangle size={22} color={tone} /> : <PawPrint size={22} color={theme.primary} />}
@@ -60,7 +67,7 @@ export default function PacientesScreen() {
                     <View style={styles.stat}><Text style={[styles.statLabel, { color: theme.textMuted }]}>Última</Text><Text style={[styles.statValue, { color: theme.text }]}>{formatDateMx(item.last_visit) || '—'}</Text></View>
                     <View style={styles.stat}><Text style={[styles.statLabel, { color: theme.textMuted }]}>Próxima</Text><Text style={[styles.statValue, { color: theme.text }]}>{formatDateMx(item.next_visit) || 'Sin cita'}</Text></View>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     };
 

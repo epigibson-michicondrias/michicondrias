@@ -39,11 +39,11 @@ export default function AdminCategoriasScreen() {
                 </Text>
             </View>
             <View style={styles.actions}>
-                <TouchableOpacity onPress={() => handleAction(item)} style={styles.actionBtn}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => handleAction(item)} style={styles.actionBtn}>
                     <Edit2 size={18} color={theme.textMuted} />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDelete(item.id, item.name)} style={styles.actionBtn}>
-                    <Trash2 size={18} color="#ef4444" />
+                <TouchableOpacity accessibilityRole="button" onPress={() => handleDelete(item.id, item.name)} style={styles.actionBtn}>
+                    <Trash2 size={18} color={theme.error} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -84,7 +84,7 @@ export default function AdminCategoriasScreen() {
                             <Text style={[styles.modalTitle, { color: theme.text }]}>
                                 {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
                             </Text>
-                            <TouchableOpacity onPress={closeModal}>
+                            <TouchableOpacity accessibilityRole="button" onPress={closeModal}>
                                 <X size={24} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -111,7 +111,7 @@ export default function AdminCategoriasScreen() {
                                 onChangeText={(text) => setFormData({ ...formData, description: text })}
                             />
 
-                            <TouchableOpacity 
+                            <TouchableOpacity accessibilityRole="button" 
                                 style={[styles.submitBtn, { backgroundColor: theme.primary }]}
                                 disabled={isSaving}
                                 onPress={handleSubmit}
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     cardInfo: { flex: 1 },
     categoryName: { 
         fontSize: 16, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     categoryDesc: { 
         fontSize: 12, 
@@ -203,13 +203,13 @@ const styles = StyleSheet.create({
     },
     modalTitle: { 
         fontSize: 22, 
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: -0.5 
     },
     form: { gap: 12 },
     label: { 
         fontSize: 11, 
-        fontWeight: '900', 
+        fontWeight: '800', 
         letterSpacing: 1.2,
         marginLeft: 4,
     },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         marginTop: 24, 
         elevation: 6,
-        shadowColor: '#7c3aed',
+        shadowColor: '#8b5cf6',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 10,
@@ -238,6 +238,6 @@ const styles = StyleSheet.create({
     submitBtnText: { 
         color: '#fff', 
         fontSize: 16, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     }
 });

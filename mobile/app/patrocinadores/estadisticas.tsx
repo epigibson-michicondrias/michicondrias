@@ -143,7 +143,7 @@ export default function EstadisticasScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="📊 Estadísticas" subtitle="Métricas de tus campañas" />
+                <ScreenHeader title="Estadísticas" subtitle="Métricas de tus campañas" />
                 <LoadingOverlay message="Cargando estadísticas..." />
             </ScreenContainer>
         );
@@ -152,7 +152,7 @@ export default function EstadisticasScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📊 Estadísticas"
+                title="Estadísticas"
                 subtitle="Métricas de tus campañas"
             />
 
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     },
     statValue: {
         fontSize: 22,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     statLabel: {
         fontSize: 12,

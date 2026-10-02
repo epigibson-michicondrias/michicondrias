@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -36,7 +37,7 @@ export default function BusquedaScreen() {
         const TabIcon = tab.icon;
 
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 key={tab.key}
                 style={[
                     styles.tab,
@@ -67,7 +68,7 @@ export default function BusquedaScreen() {
     };
 
     const renderResultItem = ({ item }: { item: any }) => (
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
             style={[styles.resultCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
             onPress={() => router.push((activeTab === 'mascotas' ? `/mascotas/${item.id}` : activeTab === 'clinicas' ? `/directorio/clinica/${item.id}` : `/tienda/producto/${item.id}`) as any)}
         >
@@ -117,12 +118,7 @@ export default function BusquedaScreen() {
 
             {/* Results */}
             {isLoading ? (
-                <View style={styles.centerContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.centerText, { color: theme.textMuted }]}>
-                        Buscando...
-                    </Text>
-                </View>
+                <SkeletonList count={4} />
             ) : !hasSearched ? (
                 <View style={styles.centerContainer}>
                     <Search size={48} color={theme.textMuted} />

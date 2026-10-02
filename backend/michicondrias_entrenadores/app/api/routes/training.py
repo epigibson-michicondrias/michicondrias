@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.api import deps
 from app.crud import crud_training
-from app.models.training import PetTrainingGoal, TrainingEnrollment, TrainingProgram
+from app.models.training import PetTrainingGoal, TrainingEnrollment, TrainingProgram, TrainingReview
 from app.schemas.training import (
     TrainingProgramCreate,
     TrainingProgramUpdate,
@@ -17,6 +17,9 @@ from app.schemas.training import (
     PetTrainingGoalUpdate,
     TrainingEnrollmentCreate,
     TrainingEnrollmentResponse,
+    TrainingReviewCreate,
+    TrainingReviewResponse,
+    TrainingReviewsSummary,
 )
 
 router = APIRouter()
@@ -50,11 +53,23 @@ def _programs_out(db: Session, programs: list) -> list:
             .all()
         )
         counts = {r[0]: r[1] for r in rows}
+    ratings = {}
+    if programs:
+        rows = (
+            db.query(TrainingReview.program_id, func.avg(TrainingReview.rating), func.count(TrainingReview.id))
+            .filter(TrainingReview.program_id.in_([p.id for p in programs]))
+            .group_by(TrainingReview.program_id)
+            .all()
+        )
+        ratings = {r[0]: (float(r[1] or 0), r[2]) for r in rows}
     out = []
     for p in programs:
         item = TrainingProgramResponse.model_validate(p)
         item.trainer_name = users.get(p.trainer_id)
         item.enrollments_count = counts.get(p.id, 0)
+        avg, cnt = ratings.get(p.id, (0.0, 0))
+        item.rating_avg = round(avg, 2)
+        item.rating_count = cnt
         out.append(item)
     return out
 
@@ -366,3 +381,92 @@ def review_pet_goal_video(
     db.commit()
     db.refresh(goal)
     return goal
+
+
+
+# ==========================================
+# RESEÑAS
+# ==========================================
+
+@router.get("/programs/{program_id}/reviews", response_model=TrainingReviewsSummary)
+def read_program_reviews(
+    program_id: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.get_optional_user_id),
+) -> Any:
+    """Promedio y reseñas de un programa (público). Con sesión indica además si el usuario puede reseñarlo."""
+    program = crud_training.get_program_by_id(db=db, program_id=program_id)
+    if not program:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El programa no existe")
+    reviews = (
+        db.query(TrainingReview)
+        .filter(TrainingReview.program_id == program_id)
+        .order_by(TrainingReview.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    stats = db.query(func.avg(TrainingReview.rating), func.count(TrainingReview.id)).filter(TrainingReview.program_id == program_id).first()
+    names = _names(db, "users", "full_name", {r.user_id for r in reviews})
+    mine = next((r for r in reviews if current_user_id and r.user_id == current_user_id), None)
+    can_review = False
+    if current_user_id and not mine and program.trainer_id != current_user_id:
+        can_review = _completed_enrollment(db, program_id, current_user_id) is not None
+    return TrainingReviewsSummary(
+        average=round(float(stats[0] or 0), 2),
+        count=stats[1] or 0,
+        reviews=[
+            TrainingReviewResponse(
+                id=r.id, program_id=r.program_id, rating=r.rating, comment=r.comment, created_at=r.created_at,
+                author_name=names.get(r.user_id) or "Usuario", is_mine=bool(current_user_id and r.user_id == current_user_id),
+            )
+            for r in reviews
+        ],
+        can_review=can_review,
+        my_review_id=mine.id if mine else None,
+    )
+
+
+def _completed_enrollment(db: Session, program_id: str, user_id: str):
+    return db.query(TrainingEnrollment).filter(
+        TrainingEnrollment.program_id == program_id,
+        TrainingEnrollment.client_id == user_id,
+        TrainingEnrollment.status == "completed",
+    ).first()
+
+
+@router.post("/programs/{program_id}/reviews", response_model=TrainingReviewResponse, status_code=status.HTTP_201_CREATED)
+def create_program_review(
+    program_id: str,
+    review_in: TrainingReviewCreate,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Reseña un programa completado (1 a 5). Una por usuario y programa; el entrenador no puede reseñar lo suyo."""
+    program = crud_training.get_program_by_id(db=db, program_id=program_id)
+    if not program:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El programa no existe")
+    if program.trainer_id == current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes reseñar tu propio programa")
+    if not _completed_enrollment(db, program_id, current_user_id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo puedes reseñar un programa que completaste")
+    if db.query(TrainingReview.id).filter(TrainingReview.program_id == program_id, TrainingReview.user_id == current_user_id).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya reseñaste este programa")
+    comment = (review_in.comment or "").strip() or None
+    review = TrainingReview(
+        program_id=program_id, trainer_id=program.trainer_id, user_id=current_user_id,
+        rating=review_in.rating, comment=comment,
+    )
+    db.add(review)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()  # carrera con otra petición igual: la restricción única lo impide
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya reseñaste este programa")
+    db.refresh(review)
+    names = _names(db, "users", "full_name", {current_user_id})
+    return TrainingReviewResponse(
+        id=review.id, program_id=review.program_id, rating=review.rating, comment=review.comment,
+        created_at=review.created_at, author_name=names.get(current_user_id) or "Usuario", is_mine=True,
+    )

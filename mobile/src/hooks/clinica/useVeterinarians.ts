@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMyClinics, getVets, createVet, updateVet, dissociateVeterinarian, getHospitalVeterinarians, associateVeterinarian } from '@/src/services/directorio';
+import { getMyClinics, getManagedClinicVets, createVet, updateVet, dissociateVeterinarian, getHospitalVeterinarians, associateVeterinarian } from '@/src/services/directorio';
 import type { Vet } from '@/src/services/directorio';
 import { showAlert } from '@/src/components/AppAlert';
 
@@ -17,7 +17,6 @@ export function useVeterinarians() {
     const [phone, setPhone] = useState('');
     const [specialty, setSpecialty] = useState('');
     const [licenseNumber, setLicenseNumber] = useState('');
-    const [experience, setExperience] = useState('');
     const [bio, setBio] = useState('');
 
     const { data: clinics = [], isLoading: loadingClinics } = useQuery({
@@ -28,7 +27,7 @@ export function useVeterinarians() {
 
     const { data: veterinarians = [], isLoading: loadingVets } = useQuery({
         queryKey: ['clinic-vets', clinic?.id],
-        queryFn: () => clinic ? getVets(clinic.id) : Promise.resolve([]),
+        queryFn: () => clinic ? getManagedClinicVets(clinic.id) : Promise.resolve([]),
         enabled: !!clinic?.id,
     });
 
@@ -56,7 +55,6 @@ export function useVeterinarians() {
         setPhone('');
         setSpecialty('');
         setLicenseNumber('');
-        setExperience('');
         setBio('');
         setEditingVet(null);
     };
@@ -68,7 +66,6 @@ export function useVeterinarians() {
         setPhone(vet.phone || '');
         setSpecialty(vet.specialty || '');
         setLicenseNumber(vet.license_number || '');
-        setExperience(vet.experience_years?.toString() || '0');
         setBio(vet.bio || '');
         setModalVisible(true);
     };
@@ -88,6 +85,8 @@ export function useVeterinarians() {
                     await dissociateVeterinarian(clinic.id, vet.id);
                     showAlert({ type: 'success', title: 'Éxito', message: 'Veterinario desasociado correctamente' });
                     queryClient.invalidateQueries({ queryKey: ['clinic-vets', clinic.id] });
+                    queryClient.invalidateQueries({ queryKey: ['hospital-veterinarians'] });
+                    queryClient.invalidateQueries({ queryKey: ['public-vets'] });
                 } catch (err: any) {
                     showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo desasociar' });
                 } finally {
@@ -98,22 +97,26 @@ export function useVeterinarians() {
     };
 
     const handleSave = async () => {
-        if (!name || !email || !specialty) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
+        if (!name.trim() || !email.trim() || !specialty.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'Nombre, correo y especialidad son obligatorios.' });
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            showAlert({ type: 'error', title: 'Correo inválido', message: 'Escribe un correo electrónico válido.' });
             return;
         }
 
         setLoadingAction(true);
         try {
-            const [firstName, lastName] = name.split(' ');
+            const parts = name.trim().split(/\s+/);
             const vetData = {
-                first_name: firstName || name,
-                last_name: lastName || '',
-                email,
-                phone,
-                specialty,
-                license_number: licenseNumber,
-                bio,
+                first_name: parts[0],
+                last_name: parts.slice(1).join(' '),
+                email: email.trim(),
+                phone: phone.trim() || null,
+                specialty: specialty.trim(),
+                license_number: licenseNumber.trim() || null,
+                bio: bio.trim() || null,
                 photo_url: editingVet?.photo_url || null,
                 clinic_id: clinic.id
             };
@@ -128,6 +131,8 @@ export function useVeterinarians() {
             setModalVisible(false);
             resetForm();
             queryClient.invalidateQueries({ queryKey: ['clinic-vets', clinic.id] });
+            queryClient.invalidateQueries({ queryKey: ['hospital-veterinarians'] });
+            queryClient.invalidateQueries({ queryKey: ['public-vets'] });
         } catch (error: any) {
             showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo guardar el veterinario' });
         } finally {
@@ -140,7 +145,7 @@ export function useVeterinarians() {
         setModalVisible(true);
     };
 
-    const activeVetsCount = veterinarians.filter((v: any) => v.is_active).length;
+    const activeVetsCount = veterinarians.filter((v: any) => v.is_approved).length;
 
     return {
         // State
@@ -153,7 +158,6 @@ export function useVeterinarians() {
         phone, setPhone,
         specialty, setSpecialty,
         licenseNumber, setLicenseNumber,
-        experience, setExperience,
         bio, setBio,
         // Data
         loadingClinics,

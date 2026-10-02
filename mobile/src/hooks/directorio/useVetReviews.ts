@@ -27,10 +27,11 @@ export function useVetReviews(vetId: string) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['vet-reviews', vetId] });
             queryClient.invalidateQueries({ queryKey: ['vet-rating', vetId] });
-            showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada con éxito.' });
+            queryClient.invalidateQueries({ queryKey: ['directorio-vets'] });
+            showAlert({ type: 'success', title: 'Reseña enviada', message: 'Tu reseña ha sido publicada.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo enviar la reseña.' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo enviar', message: e?.message || 'No se pudo enviar la reseña.' });
         },
     });
 

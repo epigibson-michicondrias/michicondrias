@@ -27,7 +27,7 @@ export default function AdminVerificacionesScreen() {
         <View style={styles.docItem}>
             <Text style={[styles.docLabel, { color: theme.textMuted }]}>{label}</Text>
             {url ? (
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.docPreview, { backgroundColor: theme.background, borderColor: theme.border }]}
                     onPress={() => showAlert({ type: 'info', title: 'Documento', message: 'Aquí se abriría el visor de documentos a pantalla completa.' })}
                 >
@@ -59,8 +59,8 @@ export default function AdminVerificacionesScreen() {
                     </View>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: '#f59e0b20' }]}>
-                    <Activity size={10} color="#f59e0b" />
-                    <Text style={[styles.statusText, { color: "#f59e0b" }]}>EN REVISIÓN</Text>
+                    <Activity size={10} color={theme.warning} />
+                    <Text style={[styles.statusText, { color: theme.warning }]}>EN REVISIÓN</Text>
                 </View>
             </View>
 
@@ -71,16 +71,16 @@ export default function AdminVerificacionesScreen() {
             </View>
 
             <View style={styles.cardActions}>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     activeOpacity={0.7}
-                    style={[styles.btnAction, styles.btnReject, { borderColor: '#ef444450' }]}
+                    style={[styles.btnAction, styles.btnReject, { borderColor: theme.error + '50' }]}
                     onPress={() => handleAction(item.id, item.full_name, 'REJECTED')}
                     disabled={verifyMutation.isPending}
                 >
-                    <XCircle size={18} color="#ef4444" />
-                    <Text style={[styles.btnText, { color: '#ef4444' }]}>Rechazar</Text>
+                    <XCircle size={18} color={theme.error} />
+                    <Text style={[styles.btnText, { color: theme.error }]}>Rechazar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     activeOpacity={0.7}
                     style={[styles.btnAction, styles.btnApprove, { backgroundColor: theme.primary }]}
                     onPress={() => handleAction(item.id, item.full_name, 'VERIFIED')}
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     userInfo: { flex: 1 },
     userName: { 
         fontSize: 17, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     infoRow: { 
         flexDirection: 'row', 
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     },
     statusText: { 
         fontSize: 9, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     docsGrid: { 
         flexDirection: 'row', 
@@ -241,13 +241,13 @@ const styles = StyleSheet.create({
     },
     btnApprove: { 
         elevation: 6, 
-        shadowColor: '#7c3aed', 
+        shadowColor: '#8b5cf6', 
         shadowOffset: { width: 0, height: 4 }, 
         shadowOpacity: 0.3, 
         shadowRadius: 10 
     },
     btnText: { 
         fontSize: 14, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     }
 });

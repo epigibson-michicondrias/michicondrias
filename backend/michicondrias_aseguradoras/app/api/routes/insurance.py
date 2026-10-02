@@ -387,11 +387,22 @@ def subscribe_to_plan(
             detail="Esta mascota ya cuenta con una póliza de seguro activa"
         )
 
+    # Edad y especie salen de la mascota en BD, nunca de lo que mande el cliente
+    try:
+        pet_row = db.execute(text("SELECT species, age_months FROM pets WHERE id = :pid"), {"pid": sub_req.pet_id}).first()
+    except Exception:
+        db.rollback()
+        pet_row = None
+    if not pet_row or not pet_row[0]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se pudo verificar la especie de la mascota")
+    real_species = pet_row[0]
+    real_age = int((pet_row[1] or 0) // 12)
+
     # Calculate quote
     quote_res = calculate_quote(db=db, quote_req=schemas.InsuranceQuoteRequest(
         plan_id=sub_req.plan_id,
-        pet_age=sub_req.pet_age,
-        pet_species=sub_req.pet_species,
+        pet_age=real_age,
+        pet_species=real_species,
         has_preexisting_conditions=sub_req.has_preexisting_conditions
     ))
 
@@ -403,7 +414,7 @@ def subscribe_to_plan(
         pet_id=sub_req.pet_id,
         insurer_id=plan.insurer_id,
         policy_number=policy_number,
-        coverage_details=f"Plan contratado: {plan.name}. Límite de cobertura: {plan.coverage_limit}. Especie: {sub_req.pet_species}. Edad al momento de contratación: {sub_req.pet_age}.",
+        coverage_details=f"Plan contratado: {plan.name}. Límite de cobertura: {plan.coverage_limit}. Especie: {real_species}. Edad al momento de contratación: {real_age}.",
         start_date=start_date,
         end_date=end_date,
         monthly_premium=quote_res.calculated_premium,

@@ -16,7 +16,7 @@ export default function NuevoServicioScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🕊️ Nuevo Servicio"
+                title="Nuevo Servicio"
                 subtitle="Registra un servicio funerario"
             />
 

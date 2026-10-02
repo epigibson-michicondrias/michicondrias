@@ -92,6 +92,7 @@ export const QUICK_ACTIONS: Record<string, QuickAction[]> = {
     { title: 'Estadísticas', icon: BarChart3, color: '#0ea5e9', route: '/patrocinadores/estadisticas' },
   ],
   transportista: [
+    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/transportistas/solicitudes' },
     { title: 'Conductor', icon: UserCheck, color: '#6366f1', route: '/transportistas/perfil-conductor' },
     { title: 'Historial', icon: Clock, color: '#64748b', route: '/transportistas/historial' },
   ],

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Check, User, Tag, Calendar, Weight, Cpu, FileText } from 'lucide-react-native';
+import { Check, User, Tag, Calendar, Weight, Cpu, FileText, Trash2 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useEditPet } from '@/src/hooks/mascotas';
 import { SPECIES_OPTIONS, GENDER_OPTIONS } from '@/src/types/mascotas';
@@ -10,10 +10,11 @@ import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import FormSelect from '@/src/components/forms/FormSelect';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import Button from '@/src/components/Button';
 
 export default function EditarMascotaScreen() {
     const { theme } = useTheme();
-    const { form, updateField, image, setImage, isLoadingPet, isUpdating, handleUpdate } = useEditPet();
+    const { form, updateField, image, setImage, isLoadingPet, isUpdating, isDeleting, handleUpdate, handleDelete } = useEditPet();
     const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
     if (isLoadingPet) {
@@ -230,6 +231,22 @@ export default function EditarMascotaScreen() {
                                 </View>
                             </View>
                         </View>
+                    </View>
+
+                    {/* Zona de peligro */}
+                    <View style={[styles.formCard, { backgroundColor: theme.surface, borderColor: theme.borderLight, gap: 12 }]}>
+                        <Text style={[styles.label, { color: theme.text }]}>Eliminar mascota</Text>
+                        <Text style={{ color: theme.textMuted, fontSize: 13, lineHeight: 19 }}>
+                            Dejará de aparecer en tu lista. Si tiene Michi-Tracker Pro activo, cancela primero la suscripción.
+                        </Text>
+                        <Button
+                            label="Eliminar mascota"
+                            variant="danger"
+                            icon={<Trash2 size={18} color="#fff" />}
+                            onPress={handleDelete}
+                            loading={isDeleting}
+                            disabled={isUpdating}
+                        />
                     </View>
                 </ScrollView>
 

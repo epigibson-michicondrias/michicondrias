@@ -16,6 +16,11 @@ class User(BaseModel):
     # Foto de perfil (URL pública en el bucket de fotos)
     avatar_url = Column(String(512), nullable=True)
 
+    # Perfil público básico (todos opcionales)
+    phone = Column(String(30), nullable=True)
+    location = Column(String(120), nullable=True)
+    bio = Column(String(500), nullable=True)
+
     # KYC Verification
     verification_status = Column(String(50), default="UNVERIFIED")  # UNVERIFIED, PENDING, VERIFIED, REJECTED
     id_front_url = Column(String(512), nullable=True)

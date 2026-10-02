@@ -50,7 +50,7 @@ export default function NuevoReclamoScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="📋 Nuevo Reclamo" />
+                <ScreenHeader title="Nuevo Reclamo" />
                 <LoadingOverlay message="Cargando datos..." />
             </ScreenContainer>
         );
@@ -59,7 +59,7 @@ export default function NuevoReclamoScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📋 Nuevo Reclamo"
+                title="Nuevo Reclamo"
                 subtitle="Presenta un reclamo de seguro"
             />
 

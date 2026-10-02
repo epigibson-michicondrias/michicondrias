@@ -58,11 +58,11 @@ export function useViewApplications() {
         });
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string, theme: { success: string; error: string; warning: string }) => {
         switch (status) {
-            case 'APPROVED': case 'ADOPTED': return '#10b981';
-            case 'REJECTED': return '#ef4444';
-            default: return '#f59e0b';
+            case 'APPROVED': case 'ADOPTED': return theme.success;
+            case 'REJECTED': return theme.error;
+            default: return theme.warning;
         }
     };
 

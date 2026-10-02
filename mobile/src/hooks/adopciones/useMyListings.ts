@@ -26,7 +26,8 @@ export function useMyListings() {
         mutationFn: ({ id, data }: { id: string; data: Partial<Listing> }) => updateListing(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
-            showAlert({ type: 'success', title: '¡Actualizado!', message: 'La publicación se actualizó correctamente.' });
+            queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
+            showAlert({ type: 'success', title: 'Actualizado', message: 'La publicación se actualizó correctamente.' });
         },
         onError: (e: Error) => {
             showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo actualizar la publicación.' });
@@ -37,6 +38,8 @@ export function useMyListings() {
         mutationFn: (id: string) => deleteListing(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
+            queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
+            queryClient.invalidateQueries({ queryKey: ['user-listings-with-requests'] });
             showAlert({ type: 'success', title: 'Eliminada', message: 'La publicación ha sido eliminada.' });
         },
         onError: (e: Error) => {

@@ -9,6 +9,8 @@ export interface TrainingProgram {
     duration_weeks: number;
     trainer_name?: string | null;
     enrollments_count?: number;
+    rating_avg?: number;
+    rating_count?: number;
 }
 
 export interface TrainingProgramCreate {
@@ -120,5 +122,35 @@ export async function reviewGoalVideo(goalId: string, approved: boolean, notes: 
 export async function updateEnrollmentStatus(enrollmentId: string, status: string): Promise<TrainingEnrollment> {
     return apiFetch<TrainingEnrollment>("entrenadores", `/enrollments/${enrollmentId}/status?status=${status}`, {
         method: "PATCH",
+    });
+}
+
+export interface ProgramReview {
+    id: string;
+    program_id: string;
+    rating: number;
+    comment?: string | null;
+    created_at?: string | null;
+    author_name?: string | null;
+    is_mine: boolean;
+}
+
+export interface ProgramReviewsSummary {
+    average: number;
+    count: number;
+    reviews: ProgramReview[];
+    /** Completó el programa, no es suyo y aún no lo reseñó. */
+    can_review: boolean;
+    my_review_id?: string | null;
+}
+
+export async function getProgramReviews(programId: string): Promise<ProgramReviewsSummary> {
+    return apiFetch<ProgramReviewsSummary>("entrenadores", `/programs/${programId}/reviews`);
+}
+
+export async function createProgramReview(programId: string, rating: number, comment?: string): Promise<ProgramReview> {
+    return apiFetch<ProgramReview>("entrenadores", `/programs/${programId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({ rating, comment: comment || undefined }),
     });
 }

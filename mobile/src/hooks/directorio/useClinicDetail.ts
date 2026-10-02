@@ -39,10 +39,11 @@ export function useClinicDetail() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clinic-reviews', clinicId] });
             queryClient.invalidateQueries({ queryKey: ['clinic-rating', clinicId] });
-            showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada.' });
+            queryClient.invalidateQueries({ queryKey: ['directorio-clinics'] });
+            showAlert({ type: 'success', title: 'Reseña enviada', message: 'Tu reseña ha sido publicada.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo enviar la reseña.' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo enviar', message: e?.message || 'No se pudo enviar la reseña.' });
         },
     });
 

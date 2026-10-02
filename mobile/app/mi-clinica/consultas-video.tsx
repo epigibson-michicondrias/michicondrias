@@ -10,6 +10,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Video, Calendar, Clock, VideoOff, ExternalLink, X } from 'lucide-react-native';
 import { Picker } from '@react-native-picker/picker';
+import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function ConsultasVideoScreen() {
@@ -20,14 +21,25 @@ export default function ConsultasVideoScreen() {
         selectedVetId, setSelectedVetId, scheduledAt, setScheduledAt,
         notes, setNotes, isVet, isLoading, consultations,
         pets, clinics, vets, handleBook, handleStatusUpdate,
-        launchVideoRoom, getStatusColor, openBookingModal,
+        launchVideoRoom, openBookingModal,
     } = useVideoConsultations();
+
+    const STATUS_LABELS: Record<string, string> = { scheduled: 'Programada', active: 'En curso', completed: 'Finalizada', cancelled: 'Cancelada' };
+    const getStatusColor = (status: string) => {
+        switch ((status || '').toLowerCase()) {
+            case 'scheduled': return theme.info;
+            case 'active': return theme.success;
+            case 'completed': return theme.primary;
+            case 'cancelled': return theme.error;
+            default: return theme.textMuted;
+        }
+    };
 
     const renderConsultationItem = ({ item }: { item: ConsultationItem }) => {
         const statusColor = getStatusColor(item.status);
         const dateObj = new Date(item.scheduled_at);
-        const formattedDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        const formattedTime = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        const formattedDate = dateObj.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const formattedTime = dateObj.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
         return (
             <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -38,7 +50,7 @@ export default function ConsultasVideoScreen() {
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: statusColor + '15' }]}>
                         <Text style={[styles.statusText, { color: statusColor }]}>
-                            {item.status.toUpperCase()}
+                            {(STATUS_LABELS[item.status] || item.status).toUpperCase()}
                         </Text>
                     </View>
                 </View>
@@ -61,27 +73,38 @@ export default function ConsultasVideoScreen() {
                 </View>
 
                 <View style={[styles.cardFooter, { borderTopColor: theme.border }]}>
+                    {(item.status === 'scheduled' || item.status === 'active') && !(isVet && item.status === 'active') && (
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Cancelar videoconsulta"
+                            style={[styles.btnSecondary, { borderColor: theme.error, borderWidth: 1 }]}
+                            onPress={() => handleStatusUpdate(item.id, 'cancelled')}
+                        >
+                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: 13 }}>Cancelar</Text>
+                        </TouchableOpacity>
+                    )}
+
                     {isVet && item.status === 'scheduled' && (
                         <TouchableOpacity
-                            style={[styles.btnSecondary, { borderColor: '#10b981', borderWidth: 1 }]}
+                            style={[styles.btnSecondary, { borderColor: theme.success, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'active')}
                         >
-                            <Text style={{ color: '#10b981', fontWeight: '800', fontSize: 13 }}>Iniciar Sala</Text>
+                            <Text style={{ color: theme.success, fontWeight: '800', fontSize: 13 }}>Iniciar Sala</Text>
                         </TouchableOpacity>
                     )}
 
                     {isVet && item.status === 'active' && (
                         <TouchableOpacity
-                            style={[styles.btnSecondary, { borderColor: '#8b5cf6', borderWidth: 1 }]}
+                            style={[styles.btnSecondary, { borderColor: theme.primary, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'completed')}
                         >
-                            <Text style={{ color: '#8b5cf6', fontWeight: '800', fontSize: 13 }}>Finalizar Consulta</Text>
+                            <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Finalizar Consulta</Text>
                         </TouchableOpacity>
                     )}
 
                     {item.status === 'active' && item.room_url ? (
                         <TouchableOpacity
-                            style={[styles.btnPrimary, { backgroundColor: '#10b981' }]}
+                            style={[styles.btnPrimary, { backgroundColor: theme.success }]}
                             onPress={() => launchVideoRoom(item.room_url)}
                         >
                             <ExternalLink size={16} color="#fff" />
@@ -105,6 +128,8 @@ export default function ConsultasVideoScreen() {
                 rightElement={
                     !isVet ? (
                         <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Agendar videoconsulta"
                             style={[styles.addBtn, { backgroundColor: theme.primary }]}
                             onPress={openBookingModal}
                         >
@@ -130,7 +155,8 @@ export default function ConsultasVideoScreen() {
                         ListEmptyComponent={
                             <EmptyState
                                 icon={<VideoOff size={64} color={theme.textMuted} strokeWidth={1} />}
-                                title="No tienes videoconsultas programadas"
+                                title={isVet ? "No tienes videoconsultas asignadas" : "No tienes videoconsultas programadas"}
+                                subtitle={isVet ? undefined : "Agenda una con el botón +"}
                             />
                         }
                     />
@@ -141,11 +167,11 @@ export default function ConsultasVideoScreen() {
             <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
                 <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
                     <View style={styles.modalHeader}>
-                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cerrar">
                             <X size={24} color={theme.text} />
                         </TouchableOpacity>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Agendar Consulta</Text>
-                        <TouchableOpacity onPress={handleBook} disabled={loadingAction}>
+                        <TouchableOpacity onPress={handleBook} disabled={loadingAction} accessibilityRole="button" accessibilityLabel="Agendar videoconsulta">
                             {loadingAction ? (
                                 <ActivityIndicator size="small" color={theme.primary} />
                             ) : (
@@ -156,14 +182,14 @@ export default function ConsultasVideoScreen() {
 
                     <KeyboardScreen style={{ padding: 24 }}>
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Mascota</Text>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>Mascota *</Text>
                             <View style={[styles.pickerContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                                 <Picker
                                     selectedValue={selectedPetId}
                                     onValueChange={(val) => setSelectedPetId(val)}
                                     style={{ color: theme.text }}
                                 >
-                                    <Picker.Item label="-- Elige una mascota --" value="" />
+                                    <Picker.Item label="Elige una mascota" value="" />
                                     {pets.map((pet) => (
                                         <Picker.Item key={pet.id} label={pet.name} value={pet.id} />
                                     ))}
@@ -179,7 +205,7 @@ export default function ConsultasVideoScreen() {
                                     onValueChange={(val) => setSelectedClinicId(val)}
                                     style={{ color: theme.text }}
                                 >
-                                    <Picker.Item label="-- Elige una clínica (Opcional) --" value="" />
+                                    <Picker.Item label="Elige una clínica (opcional)" value="" />
                                     {clinics.map((c) => (
                                         <Picker.Item key={c.id} label={c.name} value={c.id} />
                                     ))}
@@ -196,7 +222,7 @@ export default function ConsultasVideoScreen() {
                                     style={{ color: theme.text }}
                                     enabled={!!selectedClinicId}
                                 >
-                                    <Picker.Item label="-- Elige un médico (Opcional) --" value="" />
+                                    <Picker.Item label="Elige un médico (opcional)" value="" />
                                     {vets.map((v) => (
                                         <Picker.Item key={v.id} label={`${v.first_name} ${v.last_name || ''}`} value={v.id} />
                                     ))}
@@ -205,13 +231,19 @@ export default function ConsultasVideoScreen() {
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Fecha y Hora (ISO Formato) *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                            <DatePicker
+                                label="Fecha *"
                                 value={scheduledAt}
-                                onChangeText={setScheduledAt}
-                                placeholder="Ej. 2026-06-20T10:00:00Z"
-                                placeholderTextColor={theme.textMuted}
+                                minimumDate={new Date()}
+                                onChange={(d) => { const n = new Date(scheduledAt); n.setFullYear(d.getFullYear(), d.getMonth(), d.getDate()); setScheduledAt(n); }}
+                            />
+                        </View>
+                        <View style={styles.formGroup}>
+                            <DatePicker
+                                label="Hora *"
+                                mode="time"
+                                value={scheduledAt}
+                                onChange={(d) => { const n = new Date(scheduledAt); n.setHours(d.getHours(), d.getMinutes(), 0, 0); setScheduledAt(n); }}
                             />
                         </View>
 
@@ -252,7 +284,7 @@ const styles = StyleSheet.create({
     cardBody: { gap: 6 },
     timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     timeText: { fontSize: 13, fontWeight: '600' },
-    notesBox: { padding: 12, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.02)', marginTop: 6 },
+    notesBox: { padding: 12, borderRadius: 12, backgroundColor: 'rgba(128,128,128,0.08)', marginTop: 6 },
     notesLabel: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5, marginBottom: 4 },
     notesText: { fontSize: 12, fontWeight: '500', lineHeight: 16 },
     cardFooter: {
@@ -265,7 +297,7 @@ const styles = StyleSheet.create({
     disabledRoom: {
         flexDirection: 'row', alignItems: 'center', gap: 6,
         paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
     },
     disabledRoomText: { fontSize: 12, fontWeight: '700' },
     addBtn: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
@@ -273,7 +305,7 @@ const styles = StyleSheet.create({
     modalHeader: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
         paddingHorizontal: 24, paddingVertical: 20,
-        borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)',
+        borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.2)',
     },
     modalTitle: { fontSize: 18, fontWeight: '800' },
     saveBtnText: { fontSize: 16, fontWeight: '800' },

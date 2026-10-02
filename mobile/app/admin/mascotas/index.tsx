@@ -25,7 +25,7 @@ export default function AdminMascotasScreen() {
     const renderPetCard = ({ item }: { item: Pet }) => {
         const color = SPECIES_COLORS[item.species] || '#6b7280';
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
                 onPress={() => router.push(`/mascotas/${item.id}` as any)}
             >
@@ -35,7 +35,7 @@ export default function AdminMascotasScreen() {
                 <View style={styles.cardInfo}>
                     <View style={styles.nameRow}>
                         <Text style={[styles.petName, { color: theme.text }]}>{item.name}</Text>
-                        {item.is_vaccinated && <Shield size={14} color="#3b82f6" fill="#3b82f630" />}
+                        {item.is_vaccinated && <Shield size={14} color={theme.info} fill={theme.info + '30'} />}
                     </View>
                     <Text style={[styles.petDetails, { color: theme.textMuted }]}>{item.species}{item.breed ? ` • ${item.breed}` : ''}</Text>
                     <Text style={[styles.ownerName, { color: theme.primary }]}>Dueño: {item.owner_id}</Text>
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     },
     statVal: { 
         fontSize: 22, 
-        fontWeight: '900',
+        fontWeight: '800',
     },
     statLab: { 
         fontSize: 10, 
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     },
     petName: { 
         fontSize: 17, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     petDetails: { 
         fontSize: 13, 

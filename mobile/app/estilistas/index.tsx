@@ -9,6 +9,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
+import { Stars } from '@/src/components/reviews/ReviewsSection';
 
 import { useAuth } from '@/src/contexts/AuthContext';
 
@@ -31,7 +32,7 @@ export default function EstilistasScreen() {
     } = useGroomingServices();
 
     const renderServiceItem = ({ item }: { item: GroomingService }) => (
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
             style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => router.push({ pathname: '/grooming/agendar', params: { service_id: item.id } } as any)}
         >
@@ -46,6 +47,14 @@ export default function EstilistasScreen() {
                             {item.description}
                         </Text>
                     )}
+                    {item.groomer_rating_count ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                            <Stars value={item.groomer_rating_avg ?? 0} size={13} />
+                            <Text style={[styles.cardDesc, { color: theme.textMuted }]}>
+                                {(item.groomer_rating_avg ?? 0).toFixed(1)} ({item.groomer_rating_count})
+                            </Text>
+                        </View>
+                    ) : null}
                 </View>
             </View>
 
@@ -66,7 +75,7 @@ export default function EstilistasScreen() {
         <>
             <View style={styles.actionButtons}>
                 {isStyler ? (
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.actionButton, { backgroundColor: theme.primary }]}
                         onPress={() => router.push('/estilistas/nuevo')}
                     >
@@ -74,7 +83,7 @@ export default function EstilistasScreen() {
                         <Text style={[styles.actionButtonText, { color: '#fff' }]}>Ofrecer Servicios</Text>
                     </TouchableOpacity>
                 ) : (
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                         onPress={() => router.push('/grooming/mis-citas')}
                     >
@@ -97,7 +106,7 @@ export default function EstilistasScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="✂️ Estilistas"
+                title="Estilistas"
                 subtitle="Servicios de grooming y estética para tu mascota"
             />
 

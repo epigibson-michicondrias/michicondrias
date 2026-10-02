@@ -115,7 +115,7 @@ export default function VendedorAnalyticsScreen() {
                   <View style={[styles.breakdownDot, { backgroundColor: item.color }]} />
                   <Text style={[styles.breakdownText, { color: theme.text }]}>{item.label}</Text>
                 </View>
-                <View style={styles.breakdownBar}>
+                <View style={[styles.breakdownBar, { backgroundColor: theme.overlayHover }]}>
                   <View style={[styles.breakdownFill, { width: `${pct}%`, backgroundColor: item.color }]} />
                 </View>
                 <Text style={[styles.breakdownCount, { color: theme.textMuted }]}>{item.count}</Text>
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   revenueValue: {
     fontSize: 36,
-    fontWeight: '900',
+    fontWeight: '800',
     color: '#fff',
     marginTop: 4,
     marginBottom: 20,
@@ -206,11 +206,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statValue: { fontSize: 22, fontWeight: '900' },
+  statValue: { fontSize: 22, fontWeight: '800' },
   statLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 12,

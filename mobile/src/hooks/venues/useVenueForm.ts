@@ -79,7 +79,7 @@ export function useVenueForm(mode: 'create' | 'edit' = 'create') {
             queryClient.invalidateQueries({ queryKey: ['venues'] });
             showAlert({
                 type: 'success',
-                title: '¡Establecimiento creado!',
+                title: 'Establecimiento creado',
                 message: 'El establecimiento ha sido registrado exitosamente.',
             });
             router.back();
@@ -101,7 +101,7 @@ export function useVenueForm(mode: 'create' | 'edit' = 'create') {
             queryClient.invalidateQueries({ queryKey: ['venue', id] });
             showAlert({
                 type: 'success',
-                title: '¡Actualizado!',
+                title: 'Actualizado',
                 message: 'El establecimiento ha sido actualizado exitosamente.',
             });
             router.back();
@@ -120,6 +120,7 @@ export function useVenueForm(mode: 'create' | 'edit' = 'create') {
         mutationFn: (venueId) => deleteVenue(venueId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['venues'] });
+            queryClient.removeQueries({ queryKey: ['venue', id] });
             showAlert({
                 type: 'success',
                 title: 'Eliminado',
@@ -162,12 +163,19 @@ export function useVenueForm(mode: 'create' | 'edit' = 'create') {
             return;
         }
 
+        if (formData.name.trim().length > 150 || formData.address.trim().length > 255 || formData.discount_coupon.trim().length > 50) {
+            showAlert({ type: 'error', title: 'Texto demasiado largo', message: 'Nombre: máx. 150, dirección: máx. 255 y cupón: máx. 50 caracteres.' });
+            return;
+        }
+
+        // En edición se envía null para poder quitar un cupón o descripción ya guardados
+        const clearValue = mode === 'edit' ? (null as any) : undefined;
         const venueData = {
             name: formData.name.trim(),
             address: formData.address.trim(),
             amenities: getActiveAmenities(),
-            discount_coupon: formData.discount_coupon.trim() || undefined,
-            discount_description: formData.discount_description.trim() || undefined,
+            discount_coupon: formData.discount_coupon.trim() || clearValue,
+            discount_description: formData.discount_description.trim() || clearValue,
         };
 
         if (mode === 'edit' && id) {

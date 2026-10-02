@@ -57,7 +57,7 @@ export default function PatrocinadoresScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📣 Patrocinadores"
+                title="Patrocinadores"
                 subtitle="Campañas publicitarias y promociones activas"
             />
 

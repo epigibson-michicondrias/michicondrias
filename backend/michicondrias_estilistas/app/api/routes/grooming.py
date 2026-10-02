@@ -1,11 +1,12 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import bindparam, text
+from sqlalchemy import bindparam, func, text
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
 import logging
 
 import httpx
+from jose import jwt, JWTError
 
 from app.api import deps
 from app.db.session import get_db
@@ -20,10 +21,23 @@ from app.schemas.grooming import (
     GroomingServiceCreate,
     GroomingServiceUpdate,
     GroomingServiceOut,
+    GroomingReviewCreate,
+    GroomingReviewOut,
+    GroomingReviewsSummary,
 )
-from app.models.grooming import GroomingService
+from app.models.grooming import GroomingService, GroomingReview
 
 logger = logging.getLogger(__name__)
+
+
+def _optional_user_id(token: str | None = Depends(deps.oauth2_scheme)) -> str | None:
+    """Id del usuario si manda un token válido; None si es anónimo (deps.py no trae esta variante)."""
+    if not token:
+        return None
+    try:
+        return jwt.decode(token, settings.SECRET_KEY, algorithms=[deps.ALGORITHM]).get("sub")
+    except JWTError:
+        return None
 
 
 def _pet_owner_id(db: Session, pet_id: str):
@@ -57,7 +71,13 @@ def _names(db: Session, table: str, column: str, ids: set) -> dict:
         return {}
 
 
-def _appointments_out(db: Session, appts: list) -> list:
+def _appointments_out(db: Session, appts: list, viewer_id: str | None = None) -> list:
+    reviewed = set()
+    if appts and viewer_id:
+        rows = db.query(GroomingReview.appointment_id).filter(
+            GroomingReview.appointment_id.in_([a.id for a in appts]), GroomingReview.user_id == viewer_id
+        ).all()
+        reviewed = {r[0] for r in rows}
     pets = {}
     owners = {}
     if appts:
@@ -75,16 +95,29 @@ def _appointments_out(db: Session, appts: list) -> list:
         item.pet_name = pets.get(a.pet_id)
         item.client_name = users.get(owners.get(a.pet_id))
         item.groomer_name = users.get(a.groomer_id)
+        item.reviewed = a.id in reviewed
         out.append(item)
     return out
 
 
 def _services_out(db: Session, services: list) -> list:
     users = _names(db, "users", "full_name", {s.groomer_id for s in services})
+    ratings = {}
+    if services:
+        rows = (
+            db.query(GroomingReview.groomer_id, func.avg(GroomingReview.rating), func.count(GroomingReview.id))
+            .filter(GroomingReview.groomer_id.in_({s.groomer_id for s in services}))
+            .group_by(GroomingReview.groomer_id)
+            .all()
+        )
+        ratings = {r[0]: (float(r[1] or 0), r[2]) for r in rows}
     out = []
     for svc in services:
         item = GroomingServiceOut.model_validate(svc)
         item.groomer_name = users.get(svc.groomer_id)
+        avg, cnt = ratings.get(svc.groomer_id, (0.0, 0))
+        item.groomer_rating_avg = round(avg, 2)
+        item.groomer_rating_count = cnt
         out.append(item)
     return out
 
@@ -248,7 +281,7 @@ def read_client_appointments(
     pet_ids = [r[0] for r in db.execute(text("SELECT id FROM pets WHERE owner_id = :uid"), {"uid": current_user_id}).fetchall()]
     appts = crud_grooming.get_appointments_by_pet_ids(db=db, pet_ids=pet_ids)
     appts.sort(key=lambda a: (a.date, a.time), reverse=True)
-    return _appointments_out(db, appts)
+    return _appointments_out(db, appts, viewer_id=current_user_id)
 
 
 @router.get("/appointments/provider", response_model=List[GroomingAppointmentOut])
@@ -290,7 +323,7 @@ def update_appointment_status(
     updated = crud_grooming.update_appointment_photos(
         db, db_appt=appt, update_in=GroomingAppointmentUpdatePhotos(status=new_status)
     )
-    return _appointments_out(db, [updated])[0]
+    return _appointments_out(db, [updated], viewer_id=current_user_id)[0]
 
 
 @router.get("/groomers/{groomer_id}/available-slots", response_model=List[str])
@@ -315,3 +348,75 @@ def read_available_slots(
     all_hours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
     available = [h for h in all_hours if h not in taken_hours]
     return available
+
+
+# ==========================================
+# RESEÑAS
+# ==========================================
+
+@router.get("/groomers/{groomer_id}/reviews", response_model=GroomingReviewsSummary)
+def read_groomer_reviews(
+    groomer_id: str,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str | None = Depends(_optional_user_id),
+) -> Any:
+    """Promedio y reseñas de un estilista (público)."""
+    reviews = (
+        db.query(GroomingReview)
+        .filter(GroomingReview.groomer_id == groomer_id)
+        .order_by(GroomingReview.created_at.desc())
+        .limit(100)
+        .all()
+    )
+    stats = db.query(func.avg(GroomingReview.rating), func.count(GroomingReview.id)).filter(GroomingReview.groomer_id == groomer_id).first()
+    names = _names(db, "users", "full_name", {r.user_id for r in reviews})
+    return GroomingReviewsSummary(
+        average=round(float(stats[0] or 0), 2),
+        count=stats[1] or 0,
+        reviews=[
+            GroomingReviewOut(
+                id=r.id, appointment_id=r.appointment_id, rating=r.rating, comment=r.comment, created_at=r.created_at,
+                author_name=names.get(r.user_id) or "Usuario", is_mine=bool(current_user_id and r.user_id == current_user_id),
+            )
+            for r in reviews
+        ],
+    )
+
+
+@router.post("/appointments/{appointment_id}/reviews", response_model=GroomingReviewOut, status_code=status.HTTP_201_CREATED)
+def create_appointment_review(
+    appointment_id: str,
+    review_in: GroomingReviewCreate,
+    *,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Reseña una cita completada (1 a 5). Solo el dueño de la mascota, una vez por cita; el estilista no puede reseñarse."""
+    appt = crud_grooming.get_appointment(db, appointment_id=appointment_id)
+    if not appt:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cita de estilismo no encontrada")
+    if appt.groomer_id == current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No puedes reseñar tu propio servicio")
+    if _pet_owner_id(db, appt.pet_id) != current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede reseñar esta cita")
+    if appt.status != "completed":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Solo puedes reseñar una cita completada")
+    if db.query(GroomingReview.id).filter(GroomingReview.appointment_id == appointment_id, GroomingReview.user_id == current_user_id).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya reseñaste esta cita")
+    review = GroomingReview(
+        appointment_id=appointment_id, groomer_id=appt.groomer_id, user_id=current_user_id,
+        rating=review_in.rating, comment=(review_in.comment or "").strip() or None,
+    )
+    db.add(review)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya reseñaste esta cita")
+    db.refresh(review)
+    names = _names(db, "users", "full_name", {current_user_id})
+    return GroomingReviewOut(
+        id=review.id, appointment_id=review.appointment_id, rating=review.rating, comment=review.comment,
+        created_at=review.created_at, author_name=names.get(current_user_id) or "Usuario", is_mine=True,
+    )

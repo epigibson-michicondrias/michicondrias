@@ -14,7 +14,11 @@ const { width } = Dimensions.get('window');
 export default function SpecialistDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { specialist, isLoading, clinic, services } = useVetDetail();
+    const { vetId, specialist, isLoading, isError, refetch, clinic, services } = useVetDetail();
+    // Los hooks van ANTES de cualquier return anticipado (si no, React falla al pasar de cargando a cargado)
+    const { rating, reviews, handleCreateReview, isCreatingReview } = useVetReviews(vetId);
+    const [formRating, setFormRating] = React.useState(5);
+    const [formComment, setFormComment] = React.useState('');
 
     if (isLoading) {
         return (
@@ -27,14 +31,20 @@ export default function SpecialistDetailScreen() {
     if (!specialist) {
         return (
             <ScreenContainer style={styles.center}>
-                <Text style={{ color: theme.text }}>Especialista no encontrado</Text>
+                <Text style={{ color: theme.text, fontWeight: '700', marginBottom: 12 }}>
+                    {isError ? 'No se pudo cargar el especialista' : 'Especialista no encontrado'}
+                </Text>
+                {isError && (
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Reintentar" onPress={() => refetch()}>
+                        <Text style={{ color: theme.primary, fontWeight: '700' }}>Reintentar</Text>
+                    </TouchableOpacity>
+                )}
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Volver" onPress={() => router.back()} style={{ marginTop: 16 }}>
+                    <Text style={{ color: theme.textMuted }}>Volver</Text>
+                </TouchableOpacity>
             </ScreenContainer>
         );
     }
-
-    const { rating, reviews, handleCreateReview, isCreatingReview } = useVetReviews(specialist.id);
-    const [formRating, setFormRating] = React.useState(5);
-    const [formComment, setFormComment] = React.useState('');
 
     const handleBookConsultation = (serviceId?: string) => {
         if (specialist.clinic_id) {
@@ -81,21 +91,29 @@ export default function SpecialistDetailScreen() {
                         </Text>
 
                         <View style={styles.headerRatingRow}>
-                            <Star size={16} color="#facc15" fill="#facc15" />
-                            <Text style={[styles.headerRatingText, { color: theme.text }]}>
-                                {rating?.average_rating?.toFixed(1) || '5.0'}
-                            </Text>
-                            <Text style={[styles.headerReviewsText, { color: theme.textMuted }]}>
-                                ({rating?.total_reviews || 0})
-                            </Text>
+                            {rating?.total_reviews ? (
+                                <>
+                                    <Star size={16} color={theme.warning} fill={theme.warning} />
+                                    <Text style={[styles.headerRatingText, { color: theme.text }]}>
+                                        {Number(rating.average_rating || 0).toFixed(1)}
+                                    </Text>
+                                    <Text style={[styles.headerReviewsText, { color: theme.textMuted }]}>
+                                        ({rating.total_reviews})
+                                    </Text>
+                                </>
+                            ) : (
+                                <Text style={[styles.headerReviewsText, { color: theme.textMuted }]}>Sin reseñas todavía</Text>
+                            )}
                         </View>
 
-                        <View style={styles.verifiedBadge}>
-                            <ShieldCheck size={14} color="#10b981" />
-                            <Text style={styles.verifiedText}>
-                                Cédula: {specialist.license_number || 'Verificada'}
-                            </Text>
-                        </View>
+                        {!!specialist.license_number && (
+                            <View style={styles.verifiedBadge}>
+                                <ShieldCheck size={14} color={theme.success} />
+                                <Text style={[styles.verifiedText, { color: theme.success }]}>
+                                    Cédula: {specialist.license_number}
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
@@ -103,8 +121,8 @@ export default function SpecialistDetailScreen() {
                     <View style={styles.statsRow}>
                         <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <Award size={20} color={theme.primary} />
-                            <Text style={[styles.statValue, { color: theme.text }]}>Exp.</Text>
-                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Verificada</Text>
+                            <Text style={[styles.statValue, { color: theme.text }]}>{rating?.total_reviews || 0}</Text>
+                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Reseñas</Text>
                         </View>
                         
                         <TouchableOpacity 
@@ -126,12 +144,12 @@ export default function SpecialistDetailScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-                        <Text style={[styles.cardTitle, { color: theme.text }]}>Biografía Profesional</Text>
-                        <Text style={[styles.bio, { color: theme.textMuted }]}>
-                            {specialist.bio || 'El Dr. es un especialista dedicado a la salud animal con años de experiencia en medicina veterinaria y cirugía.'}
-                        </Text>
-                    </View>
+                    {!!specialist.bio && (
+                        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                            <Text style={[styles.cardTitle, { color: theme.text }]}>Biografía Profesional</Text>
+                            <Text style={[styles.bio, { color: theme.textMuted }]}>{specialist.bio}</Text>
+                        </View>
+                    )}
 
                     {clinic && (
                         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
@@ -175,7 +193,7 @@ export default function SpecialistDetailScreen() {
                                         </View>
                                         <View style={styles.serviceRight}>
                                             <Text style={[styles.servicePrice, { color: theme.primary }]}>
-                                                {service.price ? `$${service.price}` : 'Consultar'}
+                                                {service.price ? Number(service.price).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) : 'Consultar'}
                                             </Text>
                                             <Calendar size={18} color={theme.primary} />
                                         </View>
@@ -188,7 +206,7 @@ export default function SpecialistDetailScreen() {
                     <View style={styles.contactSection}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Contacto</Text>
                         <View style={styles.contactList}>
-                            {specialist.phone && (
+                            {!!specialist.phone && (
                                 <TouchableOpacity 
                                     style={[styles.contactItem, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
                                     onPress={() => {
@@ -256,12 +274,12 @@ export default function SpecialistDetailScreen() {
                         <View style={[styles.ratingSummaryCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <View style={styles.summaryLeft}>
                                 <Text style={[styles.bigRating, { color: theme.text }]}>
-                                    {rating?.average_rating?.toFixed(1) || '5.0'}
+                                    {rating?.total_reviews ? Number(rating.average_rating || 0).toFixed(1) : '—'}
                                 </Text>
                                 <View style={styles.starsRow}>
                                     {[1, 2, 3, 4, 5].map((s) => {
-                                        const isFilled = s <= Math.round(rating?.average_rating || 5);
-                                        return <Star key={s} size={16} color="#facc15" fill={isFilled ? "#facc15" : "transparent"} />;
+                                        const isFilled = s <= Math.round(rating?.average_rating || 0);
+                                        return <Star key={s} size={16} color={theme.warning} fill={isFilled ? theme.warning : "transparent"} />;
                                     })}
                                 </View>
                                 <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
@@ -283,15 +301,15 @@ export default function SpecialistDetailScreen() {
                             
                             <View style={styles.interactiveStars}>
                                 {[1, 2, 3, 4, 5].map((starVal) => (
-                                    <TouchableOpacity 
+                                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Calificar con ${starVal} ${starVal === 1 ? 'estrella' : 'estrellas'}`}
                                         key={starVal} 
                                         onPress={() => setFormRating(starVal)}
                                         style={styles.starTouch}
                                     >
                                         <Star 
                                             size={32} 
-                                            color="#facc15" 
-                                            fill={starVal <= formRating ? "#facc15" : "transparent"} 
+                                            color={theme.warning} 
+                                            fill={starVal <= formRating ? theme.warning : "transparent"} 
                                         />
                                     </TouchableOpacity>
                                 ))}
@@ -311,7 +329,9 @@ export default function SpecialistDetailScreen() {
                                 numberOfLines={3}
                             />
 
-                            <TouchableOpacity 
+                            <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityLabel="Publicar reseña"
                                 style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
                                 onPress={() => {
                                     handleCreateReview(formRating, formComment.trim() || undefined);
@@ -350,8 +370,8 @@ export default function SpecialistDetailScreen() {
                                                         <Star 
                                                             key={s} 
                                                             size={12} 
-                                                            color="#facc15" 
-                                                            fill={s <= review.rating ? "#facc15" : "transparent"} 
+                                                            color={theme.warning} 
+                                                            fill={s <= review.rating ? theme.warning : "transparent"} 
                                                         />
                                                     ))}
                                                 </View>
@@ -363,7 +383,7 @@ export default function SpecialistDetailScreen() {
                                                 }) : ''}
                                             </Text>
                                         </View>
-                                        {review.comment && (
+                                        {!!review.comment && (
                                             <Text style={[styles.reviewCommentText, { color: theme.textMuted }]}>
                                                 {review.comment}
                                             </Text>
@@ -377,7 +397,9 @@ export default function SpecialistDetailScreen() {
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: theme.borderLight }]}>
-                <TouchableOpacity 
+                <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel="Agendar consulta"
                     style={[styles.bookBtn, { backgroundColor: theme.primary }]}
                     onPress={() => handleBookConsultation()}
                 >
@@ -409,7 +431,7 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -433,7 +455,7 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         borderRadius: 56,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         justifyContent: 'center',
         alignItems: 'center',
     },

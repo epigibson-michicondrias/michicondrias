@@ -109,7 +109,7 @@ export default function GestionScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="📊 Gestión"
+                title="Gestión"
                 subtitle="Reservas de clientes"
                 actionIcon={Plus}
                 onAction={() => router.push('/funeraria/nuevo-servicio')}

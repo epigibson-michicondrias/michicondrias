@@ -113,6 +113,7 @@ class InsuranceQuoteOut(BaseModel):
 class InsuranceSubscribeRequest(BaseModel):
     pet_id: str
     plan_id: str
-    pet_age: int
-    pet_species: str
+    # Informativos: el servidor toma edad y especie reales de la mascota en BD (no confía en el cliente)
+    pet_age: Optional[int] = None
+    pet_species: Optional[str] = None
     has_preexisting_conditions: Optional[bool] = False

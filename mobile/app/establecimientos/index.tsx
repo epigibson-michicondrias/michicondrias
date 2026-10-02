@@ -11,19 +11,30 @@ import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import FilterChip from '@/src/components/FilterChip';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function EstablecimientosScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const { user } = useAuth();
+    const isVenueOwner = user?.role_name === 'establecimiento';
+    const [onlyMine, setOnlyMine] = React.useState(false);
     const {
-        venues: filteredVenues,
+        venues: allVenues,
         isLoading,
+        isError,
+        refetch,
         searchQuery,
         setSearchQuery,
     } = useVenues();
 
+    const filteredVenues = onlyMine ? allVenues.filter((v) => v.owner_id === user?.id) : allVenues;
+
     const renderVenueItem = ({ item }: { item: Venue }) => (
         <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={`Ver ${item.name}`}
             style={[styles.venueCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => router.push({ pathname: '/establecimientos/[id]', params: { id: item.id } } as any)}
         >
@@ -57,13 +68,13 @@ export default function EstablecimientosScreen() {
                 </View>
             )}
 
-            {item.discount_coupon && (
+            {!!item.discount_coupon && (
                 <View style={[styles.discountBanner, { backgroundColor: theme.warningLight }]}>
                     <Tag size={14} color={theme.warning} />
                     <Text style={[styles.discountText, { color: theme.warning }]}>
                         Cupón: {item.discount_coupon}
                     </Text>
-                    {item.discount_description && (
+                    {!!item.discount_description && (
                         <Text style={[styles.discountDesc, { color: theme.textMuted }]}>
                             - {item.discount_description}
                         </Text>
@@ -76,7 +87,7 @@ export default function EstablecimientosScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🏢 Establecimientos"
+                title="Establecimientos"
                 subtitle="Encuentra los mejores lugares para tu mascota"
             />
 
@@ -87,6 +98,13 @@ export default function EstablecimientosScreen() {
                     placeholder="Buscar por nombre o dirección..."
                 />
             </View>
+
+            {isVenueOwner && (
+                <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 24, marginBottom: 12 }}>
+                    <FilterChip label="Todos" active={!onlyMine} onPress={() => setOnlyMine(false)} />
+                    <FilterChip label="Mis locales" active={onlyMine} onPress={() => setOnlyMine(true)} />
+                </View>
+            )}
 
             {isLoading ? (
                 <LoadingOverlay message="Cargando establecimientos..." />
@@ -99,10 +117,22 @@ export default function EstablecimientosScreen() {
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <EmptyState
-                            icon={<Building2 size={32} color={theme.textMuted} />}
-                            title={searchQuery ? 'No encontramos establecimientos con esos criterios.' : 'No hay establecimientos disponibles.'}
-                        />
+                        isError ? (
+                            <EmptyState
+                                icon={<Building2 size={32} color={theme.textMuted} />}
+                                title="No se pudieron cargar los establecimientos"
+                                subtitle="Revisa tu conexión e inténtalo de nuevo."
+                                actionLabel="Reintentar"
+                                onAction={() => refetch()}
+                            />
+                        ) : (
+                            <EmptyState
+                                icon={<Building2 size={32} color={theme.textMuted} />}
+                                title={searchQuery ? 'No encontramos establecimientos con esos criterios.' : onlyMine ? 'Aún no has registrado locales.' : 'No hay establecimientos disponibles.'}
+                                actionLabel={isVenueOwner && !searchQuery ? 'Registrar establecimiento' : undefined}
+                                onAction={isVenueOwner && !searchQuery ? () => router.push('/establecimientos/nuevo' as any) : undefined}
+                            />
+                        )
                     }
                 />
             )}
@@ -164,7 +194,7 @@ const styles = StyleSheet.create({
         marginTop: 16,
         paddingTop: 16,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.05)',
+        borderTopColor: 'rgba(128,128,128,0.2)',
     },
     amenityTag: {
         paddingHorizontal: 10,

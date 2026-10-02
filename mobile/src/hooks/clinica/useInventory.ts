@@ -57,17 +57,23 @@ export function useInventory() {
     const toggleSearch = () => setShowSearch(!showSearch);
 
     const handleSaveItem = async () => {
-        if (!newItem.name || !newItem.unit) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre y la unidad son obligatorios' });
+        if (!newItem.name.trim() || !newItem.unit?.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'El nombre y la unidad son obligatorios.' });
+            return;
+        }
+        if ((newItem.currentStock ?? 0) < 0 || (newItem.minStock ?? 0) < 0) {
+            showAlert({ type: 'error', title: 'Cantidad inválida', message: 'El stock no puede ser negativo.' });
             return;
         }
         setLoadingAction(true);
         try {
-            await addInventoryItem(clinic!.id, newItem);
+            await addInventoryItem(clinic!.id, { ...newItem, name: newItem.name.trim(), unit: newItem.unit?.trim() });
             setModalVisible(false);
             setNewItem({ name: '', category: '', unit: 'unidad', currentStock: 0, minStock: 0 });
             showAlert({ type: 'success', title: 'Éxito', message: 'Producto agregado al inventario' });
             queryClient.invalidateQueries({ queryKey: ['clinic-inventory', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-inventory-critical', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-alerts', clinic?.id] });
         } catch (error) {
             showAlert({ type: 'error', title: 'Error', message: 'No se pudo agregar el producto' });
         } finally {
@@ -84,6 +90,7 @@ export function useInventory() {
             showAlert({ type: 'success', title: 'Éxito', message: 'Producto actualizado' });
             queryClient.invalidateQueries({ queryKey: ['clinic-inventory', clinic?.id] });
             queryClient.invalidateQueries({ queryKey: ['clinic-inventory-critical', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-alerts', clinic?.id] });
         },
         onError: () => {
             showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el producto' });
@@ -109,7 +116,11 @@ export function useInventory() {
 
     const handleUpdateItem = () => {
         if (!editingItem?.id) return;
-        updateMutation.mutate({ itemId: editingItem.id, data: editingItem });
+        if ((editingItem.currentStock ?? 0) < 0 || (editingItem.minStock ?? 0) < 0) {
+            showAlert({ type: 'error', title: 'Cantidad inválida', message: 'El stock no puede ser negativo.' });
+            return;
+        }
+        updateMutation.mutate({ itemId: editingItem.id, data: { name: editingItem.name, category: editingItem.category, unit: editingItem.unit, currentStock: editingItem.currentStock, minStock: editingItem.minStock } });
     };
 
     const handleDeleteItem = (itemId: string) => {
@@ -120,7 +131,7 @@ export function useInventory() {
             showCancel: true,
             cancelText: 'Cancelar',
             buttonText: 'Eliminar',
-            onButtonPress: () => deleteMutation.mutate(itemId),
+            onButtonPress: () => { setEditModalVisible(false); setEditingItem(null); deleteMutation.mutate(itemId); },
         });
     };
 

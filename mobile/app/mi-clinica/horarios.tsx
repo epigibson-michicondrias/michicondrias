@@ -8,6 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
 import { Clock, Calendar, Plus, X, Save, Info, Globe } from 'lucide-react-native';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
+import DatePicker from '@/src/components/DatePicker';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 
@@ -47,10 +48,10 @@ export default function HorariosClinicaScreen() {
                 <View style={styles.dayInfo}>
                     <Text style={[styles.dayName, { color: theme.text }]}>{day.day}</Text>
                     <View style={[styles.statusBadge, { 
-                        backgroundColor: day.isOpen ? '#10b98120' : '#ef444420' 
+                        backgroundColor: day.isOpen ? theme.success + '20' : theme.error + '20' 
                     }]}>
                         <Text style={[styles.statusText, { 
-                            color: day.isOpen ? '#10b981' : '#ef4444' 
+                            color: day.isOpen ? theme.success : theme.error 
                         }]}>
                             {day.isOpen ? 'Abierto' : 'Cerrado'}
                         </Text>
@@ -59,8 +60,8 @@ export default function HorariosClinicaScreen() {
                 <Switch
                     value={day.isOpen}
                     onValueChange={(value) => updateDaySchedule(index, 'isOpen', value)}
-                    trackColor={{ false: '#767577', true: theme.primary + '80' }}
-                    thumbColor={day.isOpen ? theme.primary : '#f4f3f4'}
+                    trackColor={{ false: theme.border, true: theme.primary + '80' }}
+                    thumbColor={day.isOpen ? theme.primary : theme.surface}
                 />
             </View>
 
@@ -99,23 +100,23 @@ export default function HorariosClinicaScreen() {
             <View style={styles.holidayInfo}>
                 <View style={styles.holidayHeader}>
                     <Text style={[styles.holidayName, { color: theme.text }]}>{holiday.name}</Text>
-                    <TouchableOpacity
-                        style={[styles.deleteBtn, { backgroundColor: '#ef444420' }]}
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Eliminar día festivo"
+                        style={[styles.deleteBtn, { backgroundColor: theme.error + '20' }]}
                         onPress={() => handleDeleteHoliday(holiday.id)}
                     >
-                        <X size={16} color="#ef4444" />
+                        <X size={16} color={theme.error} />
                     </TouchableOpacity>
                 </View>
                 <View style={styles.holidayDetails}>
                     <View style={styles.holidayDate}>
                         <Calendar size={14} color={theme.primary} />
-                        <Text style={[styles.holidayDateText, { color: theme.text }]}>{holiday.date}</Text>
+                        <Text style={[styles.holidayDateText, { color: theme.text }]}>{new Date(holiday.date + 'T12:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}</Text>
                     </View>
                     <Text style={[styles.holidayReason, { color: theme.textMuted }]}>{holiday.reason}</Text>
                 </View>
             </View>
-            <View style={[styles.holidayStatus, { backgroundColor: '#ef444420' }]}>
-                <Text style={[styles.holidayStatusText, { color: '#ef4444' }]}>Cerrado</Text>
+            <View style={[styles.holidayStatus, { backgroundColor: theme.error + '20' }]}>
+                <Text style={[styles.holidayStatusText, { color: theme.error }]}>Cerrado</Text>
             </View>
         </View>
     );
@@ -146,6 +147,8 @@ export default function HorariosClinicaScreen() {
                 title="Horarios"
                 rightElement={
                     <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel="Guardar horarios"
                         style={[styles.saveBtn, { backgroundColor: theme.primary }]}
                         onPress={handleSaveSchedule}
                         disabled={loading}
@@ -176,6 +179,8 @@ export default function HorariosClinicaScreen() {
                 <View style={styles.holidaysHeader}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Días Festivos</Text>
                     <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel="Agregar día festivo"
                         style={[styles.addHolidayBtn, { backgroundColor: theme.primary }]}
                         onPress={() => setHolidayModalVisible(true)}
                     >
@@ -184,26 +189,29 @@ export default function HorariosClinicaScreen() {
                     </TouchableOpacity>
                 </View>
 
-                {holidays.map(renderHoliday)}
+                {holidays.length === 0 ? (
+                    <Text style={{ color: theme.textMuted, fontSize: 13, marginBottom: 16 }}>No has registrado días festivos ni cierres.</Text>
+                ) : holidays.map(renderHoliday)}
 
                 {/* Emergency Hours */}
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicio de Emergencias</Text>
                 <View style={[styles.emergencyCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <View style={styles.emergencyHeader}>
                         <View style={styles.emergencyInfo}>
-                            <Globe size={20} color="#ef4444" />
+                            <Globe size={20} color={theme.error} />
                             <View>
                                 <Text style={[styles.emergencyTitle, { color: theme.text }]}>24/7 Emergencias</Text>
                                 <Text style={[styles.emergencySub, { color: theme.textMuted }]}>
-                                    Atención inmediata fuera de horario
+                                    Se configura en el perfil de la clínica
                                 </Text>
                             </View>
                         </View>
                         <Switch
                             value={clinic.has_emergency}
-                            onValueChange={() => showAlert({ type: 'info', title: 'Configuración', message: 'Esta opción se configura en el perfil de la clínica' })}
-                            trackColor={{ false: '#767577', true: '#ef444480' }}
-                            thumbColor={clinic.has_emergency ? '#ef4444' : '#f4f3f4'}
+                            disabled
+                            accessibilityLabel="Servicio de emergencias (se configura en el perfil de la clínica)"
+                            trackColor={{ false: theme.border, true: theme.error + '80' }}
+                            thumbColor={clinic.has_emergency ? theme.error : theme.surface}
                         />
                     </View>
                     {clinic.has_emergency && (
@@ -229,11 +237,11 @@ export default function HorariosClinicaScreen() {
             >
                 <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
                     <View style={styles.modalHeader}>
-                        <TouchableOpacity onPress={() => setHolidayModalVisible(false)}>
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setHolidayModalVisible(false)}>
                             <X size={24} color={theme.text} />
                         </TouchableOpacity>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Agregar Día Festivo</Text>
-                        <TouchableOpacity onPress={handleAddHoliday}>
+                        <TouchableOpacity onPress={handleAddHoliday} accessibilityRole="button" accessibilityLabel="Guardar día festivo">
                             <Text style={[styles.saveBtnText, { color: theme.primary }]}>Guardar</Text>
                         </TouchableOpacity>
                     </View>
@@ -244,6 +252,7 @@ export default function HorariosClinicaScreen() {
                             <TextInput
                                 style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Ej: Navidad"
+                                placeholderTextColor={theme.textMuted}
                                 value={holidayName}
                                 onChangeText={setHolidayName}
                             />
@@ -251,11 +260,10 @@ export default function HorariosClinicaScreen() {
 
                         <View style={styles.formGroup}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>Fecha *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="YYYY-MM-DD"
-                                value={holidayDate}
-                                onChangeText={setHolidayDate}
+                            <DatePicker
+                                value={new Date(holidayDate + 'T12:00:00')}
+                                minimumDate={new Date()}
+                                onChange={(d) => setHolidayDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`)}
                             />
                         </View>
 
@@ -264,6 +272,7 @@ export default function HorariosClinicaScreen() {
                             <TextInput
                                 style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Motivo del cierre..."
+                                placeholderTextColor={theme.textMuted}
                                 value={holidayReason}
                                 onChangeText={setHolidayReason}
                                 multiline
@@ -306,7 +315,7 @@ export default function HorariosClinicaScreen() {
 
                         <View style={styles.timePickerActions}>
                             <TouchableOpacity 
-                                style={[styles.timePickerBtn, { backgroundColor: 'rgba(255,255,255,0.1)' }]} 
+                                style={[styles.timePickerBtn, { backgroundColor: theme.surface }]} 
                                 onPress={cancelTimePicker}
                             >
                                 <Text style={[styles.timePickerBtnText, { color: theme.text }]}>Cancelar</Text>

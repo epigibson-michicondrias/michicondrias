@@ -22,7 +22,10 @@ export default function PetfriendlyDetalleScreen() {
         reviews,
         reviewsLoading,
         isCreatingReview,
-        handleCreateReview
+        handleCreateReview,
+        isOwner,
+        handleDelete,
+        isDeleting,
     } = usePlaceDetail();
 
     const [formRating, setFormRating] = React.useState(5);
@@ -66,7 +69,7 @@ export default function PetfriendlyDetalleScreen() {
                     <View style={styles.topOverlay}>
                         <BackButton onPress={goBack} color="#fff" style={styles.circleBtn} />
                         <Text style={styles.headerTitle}>Detalles del Lugar</Text>
-                        <TouchableOpacity style={styles.circleBtn} onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)}>
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir" style={styles.circleBtn} onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)}>
                             <Share2 size={20} color="#fff" />
                         </TouchableOpacity>
                     </View>
@@ -122,6 +125,18 @@ export default function PetfriendlyDetalleScreen() {
                         </View>
                     </View>
 
+                    {isOwner && (
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Eliminar este lugar"
+                            disabled={isDeleting}
+                            onPress={handleDelete}
+                            style={{ alignSelf: 'flex-start', paddingVertical: 8, marginBottom: 12 }}
+                        >
+                            <Text style={{ color: theme.error, fontWeight: '800' }}>Eliminar este lugar</Text>
+                        </TouchableOpacity>
+                    )}
+
                     {/* Puntos Michi (Reseñas) */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
@@ -133,7 +148,7 @@ export default function PetfriendlyDetalleScreen() {
                         <View style={[styles.ratingSummaryCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                             <View style={styles.summaryLeft}>
                                 <Text style={[styles.bigRating, { color: theme.text }]}>
-                                    {place.rating ? place.rating.toFixed(1) : '0.0'}
+                                    {place.rating ? place.rating.toFixed(1) : '—'}
                                 </Text>
                                 <View style={styles.starsRow}>
                                     {[1, 2, 3, 4, 5].map((star) => (
@@ -164,7 +179,7 @@ export default function PetfriendlyDetalleScreen() {
                             
                             <View style={styles.interactiveStars}>
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                    <TouchableOpacity
+                                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Calificar con ${star} ${star === 1 ? 'estrella' : 'estrellas'}`}
                                         key={star}
                                         onPress={() => setFormRating(star)}
                                         style={styles.starTouch}
@@ -189,6 +204,8 @@ export default function PetfriendlyDetalleScreen() {
                             />
 
                             <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityLabel="Publicar reseña"
                                 style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
                                 onPress={async () => {
                                     if (formComment.trim().length < 5) {
@@ -223,12 +240,12 @@ export default function PetfriendlyDetalleScreen() {
                                         <View style={styles.reviewItemHeader}>
                                             <View style={[styles.reviewAvatar, { backgroundColor: theme.primary + '20' }]}>
                                                 <Text style={[styles.reviewAvatarText, { color: theme.primary }]}>
-                                                    {rev.user_id.substring(0, 2).toUpperCase()}
+                                                    V
                                                 </Text>
                                             </View>
                                             <View style={{ flex: 1 }}>
                                                 <Text style={[styles.reviewUserName, { color: theme.text }]}>
-                                                    Usuario ({rev.user_id.substring(0, 6)})
+                                                    Visitante
                                                 </Text>
                                                 <View style={styles.reviewStarsRow}>
                                                     {[1, 2, 3, 4, 5].map((star) => (
@@ -242,7 +259,7 @@ export default function PetfriendlyDetalleScreen() {
                                                 </View>
                                             </View>
                                             <Text style={[styles.reviewDate, { color: theme.textMuted }]}>
-                                                {new Date(rev.created_at).toLocaleDateString()}
+                                                {new Date(rev.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </Text>
                                         </View>
                                         {rev.comment ? (
@@ -366,7 +383,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 4,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     ratingValue: {
         fontSize: 16,
@@ -383,7 +400,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     actionLabel: {
         fontSize: 12,
@@ -429,7 +446,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     addressTitle: {
         fontSize: 14,
@@ -444,7 +461,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     hourRow: {
         flexDirection: 'row',

@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, TextInput, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -38,9 +39,7 @@ export default function ClinicDetailScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
         );
     }
 
@@ -48,7 +47,7 @@ export default function ClinicDetailScreen() {
         return (
             <View style={[styles.center, { backgroundColor: theme.background }]}>
                 <Text style={{ color: theme.textMuted }}>No se pudo cargar la información de la clínica.</Text>
-                <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} style={{ marginTop: 20 }}>
                     <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Regresar</Text>
                 </TouchableOpacity>
             </View>
@@ -124,14 +123,14 @@ export default function ClinicDetailScreen() {
                         </View>
 
                         <View style={styles.editActions}>
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.btnAction, { backgroundColor: theme.backgroundSecondary, borderWidth: 1, borderColor: theme.border }]}
                                 onPress={handleCancelEdit}
                             >
                                 <X size={18} color={theme.textMuted} />
                                 <Text style={[styles.btnActionText, { color: theme.textMuted }]}>Cancelar</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.btnAction, { backgroundColor: theme.primary, opacity: isSaving ? 0.6 : 1 }]}
                                 onPress={handleSave}
                                 disabled={isSaving}
@@ -162,11 +161,11 @@ export default function ClinicDetailScreen() {
                                     <Text style={[styles.name, { color: theme.text }]}>{clinic.name}</Text>
                                     <View style={styles.statusBadgeRow}>
                                         <View style={[styles.statusBadge, { backgroundColor: '#10b98120' }]}>
-                                            <Text style={[styles.statusText, { color: '#10b981' }]}>ACTIVA</Text>
+                                            <Text style={[styles.statusText, { color: theme.success }]}>ACTIVA</Text>
                                         </View>
                                         {clinic.is_24_hours && (
                                             <View style={[styles.statusBadge, { backgroundColor: '#3b82f620' }]}>
-                                                <Text style={[styles.statusText, { color: '#3b82f6' }]}>24 HORAS</Text>
+                                                <Text style={[styles.statusText, { color: theme.info }]}>24 HORAS</Text>
                                             </View>
                                         )}
                                     </View>
@@ -213,13 +212,13 @@ export default function ClinicDetailScreen() {
 
                         {/* Quick Actions */}
                         <View style={styles.actionRow}>
-                            <TouchableOpacity 
+                            <TouchableOpacity accessibilityRole="button" 
                                 style={[styles.btnAction, { backgroundColor: theme.primary }]}
                                 onPress={startEditing}
                             >
                                 <Text style={styles.btnActionText}>Editar Información</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
+                            <TouchableOpacity accessibilityRole="button" 
                                 style={[styles.btnAction, { backgroundColor: '#ef4444' }]}
                                 onPress={handleSuspend}
                             >
@@ -302,7 +301,7 @@ const styles = StyleSheet.create({
     mainMeta: { flex: 1 },
     name: {
         fontSize: 22,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 8,
     },
     statusBadgeRow: {
@@ -316,7 +315,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: 10,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     divider: {
         height: 1,
@@ -401,7 +400,7 @@ const styles = StyleSheet.create({
     btnActionText: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     // Edit form styles
     formCard: {

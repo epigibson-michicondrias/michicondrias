@@ -36,7 +36,7 @@ export default function EditarEstablecimientoScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="✏️ Editar Establecimiento"
+                title="Editar Establecimiento"
                 subtitle="Actualiza la información de tu negocio"
             />
 
@@ -84,7 +84,7 @@ export default function EditarEstablecimientoScreen() {
                     <FormSection title="Descuento (opcional)">
                         <View style={[styles.inputGroup, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                             <View style={styles.inputRow}>
-                                <Tag size={18} color="#f59e0b" />
+                                <Tag size={18} color={theme.warning} />
                                 <TextInput
                                     style={[styles.input, { color: theme.text }]}
                                     placeholder="Código de cupón"
@@ -98,7 +98,7 @@ export default function EditarEstablecimientoScreen() {
 
                         <View style={[styles.inputGroup, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                             <View style={styles.inputRow}>
-                                <FileText size={18} color="#f59e0b" />
+                                <FileText size={18} color={theme.warning} />
                                 <TextInput
                                     style={[styles.input, { color: theme.text }]}
                                     placeholder="Descripción del descuento"
@@ -134,18 +134,18 @@ export default function EditarEstablecimientoScreen() {
                         <TouchableOpacity
                             style={[
                                 styles.deleteButton,
-                                { backgroundColor: '#ef444415', borderColor: '#ef4444' },
+                                { backgroundColor: theme.error + '15', borderColor: theme.error },
                                 isDeleting && styles.submitDisabled,
                             ]}
                             onPress={handleDelete}
                             disabled={isSubmitting || isDeleting}
                         >
                             {isDeleting ? (
-                                <ActivityIndicator size="small" color="#ef4444" />
+                                <ActivityIndicator size="small" color={theme.error} />
                             ) : (
                                 <>
-                                    <Trash2 size={20} color="#ef4444" />
-                                    <Text style={[styles.deleteText, { color: '#ef4444' }]}>Eliminar</Text>
+                                    <Trash2 size={20} color={theme.error} />
+                                    <Text style={[styles.deleteText, { color: theme.error }]}>Eliminar</Text>
                                 </>
                             )}
                         </TouchableOpacity>

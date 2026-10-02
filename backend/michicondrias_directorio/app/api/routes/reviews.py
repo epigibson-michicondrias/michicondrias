@@ -34,6 +34,8 @@ def create_review(
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     if review_in.rating < 1 or review_in.rating > 5:
         raise HTTPException(status_code=400, detail="La calificación debe ser entre 1 y 5")
+    if clinic.owner_user_id == user_id:
+        raise HTTPException(status_code=403, detail="No puedes calificar tu propia clínica")
     return crud.crud_clinic.create_clinic_review(db, clinic_id=clinic_id, user_id=user_id, review=review_in)
 
 @router.get("/clinics/{clinic_id}/rating")
@@ -76,6 +78,8 @@ def create_vet_review(
         raise HTTPException(status_code=404, detail="Especialista no encontrado")
     if review_in.rating < 1 or review_in.rating > 5:
         raise HTTPException(status_code=400, detail="La calificación debe ser entre 1 y 5")
+    if vet.user_id == user_id:
+        raise HTTPException(status_code=403, detail="No puedes calificar tu propio perfil")
     return crud.crud_clinic.create_vet_review(db, vet_id=vet_id, user_id=user_id, review=review_in)
 
 @router.get("/vets/{vet_id}/rating")

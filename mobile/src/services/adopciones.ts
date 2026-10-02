@@ -211,3 +211,7 @@ export async function signAdoptionContract(data: AdoptionContractCreate): Promis
     });
 }
 
+
+export async function updateAdoptionFormStatus(formId: string, status: 'under_review' | 'rejected'): Promise<AdoptionForm> {
+    return apiFetch<AdoptionForm>("adopciones", `/pets/adoptions/forms/${formId}/status?status=${status}`, { method: "PUT" });
+}

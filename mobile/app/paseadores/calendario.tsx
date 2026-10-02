@@ -1,7 +1,9 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useWalkerCalendar, MONTHS_ES, DAYS_ES, STATUS_COLORS } from '@/src/hooks/paseadores/useWalkerCalendar';
+import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react-native';
@@ -26,9 +28,7 @@ export default function PaseadoresCalendarioScreen() {
   if (isLoading) {
     return (
       <ScreenContainer>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={theme.primary} />
-        </View>
+        <SkeletonList count={4} />
       </ScreenContainer>
     );
   }
@@ -40,13 +40,13 @@ export default function PaseadoresCalendarioScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Month Navigator */}
         <View style={[styles.monthNav, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <TouchableOpacity onPress={prevMonth} style={styles.navBtn}>
+          <TouchableOpacity accessibilityRole="button" onPress={prevMonth} style={styles.navBtn}>
             <ChevronLeft size={20} color={theme.primary} />
           </TouchableOpacity>
           <Text style={[styles.monthText, { color: theme.text }]}>
             {MONTHS_ES[currentMonth]} {currentYear}
           </Text>
-          <TouchableOpacity onPress={nextMonth} style={styles.navBtn}>
+          <TouchableOpacity accessibilityRole="button" onPress={nextMonth} style={styles.navBtn}>
             <ChevronRight size={20} color={theme.primary} />
           </TouchableOpacity>
         </View>
@@ -70,7 +70,7 @@ export default function PaseadoresCalendarioScreen() {
             const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
 
             return (
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 key={`day-${day}`}
                 style={[
                   styles.dayCell,
@@ -114,7 +114,7 @@ export default function PaseadoresCalendarioScreen() {
             selectedRequests.map((req) => {
               const st = STATUS_COLORS[req.status] || STATUS_COLORS.pending;
               return (
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                   key={req.id}
                   style={[styles.requestCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
                   onPress={() => showAlert({
@@ -125,9 +125,7 @@ export default function PaseadoresCalendarioScreen() {
                 >
                   <View style={styles.reqTop}>
                     <Text style={[styles.reqId, { color: theme.text }]}>{req.pet_name || 'Paseo'}</Text>
-                    <View style={[styles.statusBadge, { backgroundColor: st.bg }]}>
-                      <Text style={[styles.statusText, { color: st.color }]}>{st.label}</Text>
-                    </View>
+                    <StatusBadge status={req.status} />
                   </View>
                   <View style={styles.reqDetails}>
                     <View style={styles.reqDetailRow}>

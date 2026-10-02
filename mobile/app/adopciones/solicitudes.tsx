@@ -32,7 +32,7 @@ export default function SolicitudesAdopcionScreen() {
     } = useApplications();
 
     const renderRequestItem = ({ request, listing }: { request: AdoptionRequest, listing: Listing }) => {
-        const statusInfo = getStatusInfo(request.status);
+        const statusInfo = getStatusInfo(request.status, theme);
 
         return (
             <View style={[styles.requestCard, { backgroundColor: theme.surface }]}>
@@ -46,13 +46,13 @@ export default function SolicitudesAdopcionScreen() {
                                 {request.applicant_name || 'Usuario'}
                             </Text>
                             <Text style={[styles.requestDate, { color: theme.textMuted }]}>
-                                {new Date(request.created_at).toLocaleDateString()}
+                                {new Date(request.created_at).toLocaleDateString('es-MX')}
                             </Text>
                         </View>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '20' }]}>
                         <Text style={[styles.statusText, { color: statusInfo.color }]}>
-                            {statusInfo.icon} {statusInfo.label}
+                            {statusInfo.label}
                         </Text>
                     </View>
                 </View>
@@ -72,16 +72,16 @@ export default function SolicitudesAdopcionScreen() {
                         </Text>
                     </View>
 
-                    {request.has_yard && (
+                    {!!request.has_yard && (
                         <View style={styles.infoRow}>
-                            <CheckCircle size={14} color="#22c55e" />
+                            <CheckCircle size={14} color={theme.success} />
                             <Text style={[styles.infoText, { color: theme.text }]}>
                             Tiene patio/jardín
                             </Text>
                         </View>
                     )}
 
-                    {request.reason && (
+                    {!!request.reason && (
                         <View style={styles.reasonSection}>
                             <Text style={[styles.reasonLabel, { color: theme.textMuted }]}>
                                 Razón de adopción:
@@ -104,14 +104,14 @@ export default function SolicitudesAdopcionScreen() {
                     {request.status === 'PENDING' && (
                         <View style={styles.statusActions}>
                             <TouchableOpacity
-                                style={[styles.statusButton, { backgroundColor: '#ef4444' }]}
+                                style={[styles.statusButton, { backgroundColor: theme.error }]}
                                 onPress={() => handleStatusUpdate(request.id, 'REJECTED')}
                             >
                                 <XCircle size={16} color="#fff" />
                                 <Text style={styles.statusButtonText}>Rechazar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.statusButton, { backgroundColor: '#22c55e' }]}
+                                style={[styles.statusButton, { backgroundColor: theme.success }]}
                                 onPress={() => handleStatusUpdate(request.id, 'REVIEWING')}
                             >
                                 <CheckCircle size={16} color="#fff" />
@@ -122,7 +122,7 @@ export default function SolicitudesAdopcionScreen() {
 
                     {request.status === 'REVIEWING' && (
                         <TouchableOpacity
-                            style={[styles.statusButton, { backgroundColor: '#8b5cf6' }]}
+                            style={[styles.statusButton, { backgroundColor: theme.primary }]}
                             onPress={() => handleStatusUpdate(request.id, 'INTERVIEW_SCHEDULED')}
                         >
                             <Clock size={16} color="#fff" />
@@ -219,7 +219,7 @@ export default function SolicitudesAdopcionScreen() {
                     subtitle={
                         filterStatus === 'all'
                             ? "No tienes solicitudes de adopción pendientes"
-                            : `No hay solicitudes con estado "${filterStatus}"`
+                            : `No hay solicitudes en el estado seleccionado`
                     }
                 />
             ) : (
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     requestHeader: {
         flexDirection: 'row',
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     reasonSection: {
         marginTop: 12,
         padding: 12,
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         borderRadius: 8,
     },
     reasonLabel: {

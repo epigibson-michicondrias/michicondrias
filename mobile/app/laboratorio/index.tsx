@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -118,7 +119,7 @@ export default function LaboratorioScreen() {
 
             {view === 'estudios' ? (
                 isLoadingTests ? (
-                    <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                    <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
                 ) : (
                     <FlatList
                         data={tests}
@@ -153,12 +154,7 @@ export default function LaboratorioScreen() {
                     />
                 )
             ) : isLoadingAppointments ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>
-                        Cargando citas...
-                    </Text>
-                </View>
+                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
             ) : (
                 <FlatList
                     data={appointments}
@@ -437,7 +433,7 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     closeBtn: {
         width: 36,

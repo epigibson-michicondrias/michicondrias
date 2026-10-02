@@ -7,7 +7,7 @@ import DataList from '@/src/components/data/DataList';
 import { ClipboardList, Eye, Clock, CheckCircle, XCircle } from 'lucide-react-native';
 import {
     useRefugeApplications,
-    STATUS_COLORS,
+    STATUS_TONES,
     STATUS_LABELS,
 } from '@/src/hooks/adopciones/useRefugeApplications';
 import type { AdoptionForm } from '@/src/types/adopciones';
@@ -22,14 +22,16 @@ export default function RefugeApplicationsScreen() {
         goToApplicationDetail,
     } = useRefugeApplications();
 
+    const colorFor = (status: string) => theme[STATUS_TONES[status] || 'warning'] as string;
+
     const getStatusIcon = (status: string) => {
         switch (status) {
             case 'approved':
-                return <CheckCircle size={14} color={STATUS_COLORS[status]} />;
+                return <CheckCircle size={14} color={colorFor(status)} />;
             case 'rejected':
-                return <XCircle size={14} color={STATUS_COLORS[status]} />;
+                return <XCircle size={14} color={colorFor(status)} />;
             default:
-                return <Clock size={14} color={STATUS_COLORS[status] || '#f59e0b'} />;
+                return <Clock size={14} color={colorFor(status)} />;
         }
     };
 
@@ -43,12 +45,14 @@ export default function RefugeApplicationsScreen() {
     };
 
     const renderItem = ({ item }: { item: AdoptionForm }) => {
-        const statusColor = STATUS_COLORS[item.status] || '#f59e0b';
+        const statusColor = colorFor(item.status);
         const statusLabel = STATUS_LABELS[item.status] || item.status;
 
         return (
             <TouchableOpacity
                 style={[styles.card, { backgroundColor: theme.surface }]}
+                accessibilityRole="button"
+                accessibilityLabel={`Revisar postulación${item.pet_name ? ` por ${item.pet_name}` : ''}`}
                 onPress={() => goToApplicationDetail(item.id)}
                 activeOpacity={0.7}
             >
@@ -56,7 +60,7 @@ export default function RefugeApplicationsScreen() {
                     <View style={styles.cardTitleRow}>
                         <ClipboardList size={20} color={theme.primary} />
                         <Text style={[styles.cardTitle, { color: theme.text }]}>
-                            Solicitud #{item.id.slice(0, 8)}
+                            {item.pet_name ? `Postulación por ${item.pet_name}` : `Postulación #${item.id.slice(0, 8)}`}
                         </Text>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
@@ -76,8 +80,8 @@ export default function RefugeApplicationsScreen() {
                                         {
                                             width: `${item.compatibility_score}%`,
                                             backgroundColor:
-                                                item.compatibility_score >= 70 ? '#10b981' :
-                                                item.compatibility_score >= 40 ? '#f59e0b' : '#ef4444',
+                                                item.compatibility_score >= 70 ? theme.success :
+                                                item.compatibility_score >= 40 ? theme.warning : theme.error,
                                         },
                                     ]}
                                 />
@@ -91,7 +95,7 @@ export default function RefugeApplicationsScreen() {
                     <View style={styles.infoRow}>
                         <Text style={[styles.infoLabel, { color: theme.textMuted }]}>Experiencia</Text>
                         <Text style={[styles.infoValue, { color: theme.text }]}>
-                            {item.experience_level || 'No especificada'}
+                            {item.experience_level ? item.experience_level.charAt(0).toUpperCase() + item.experience_level.slice(1) : 'No especificada'}
                         </Text>
                     </View>
 
@@ -126,7 +130,7 @@ export default function RefugeApplicationsScreen() {
                 onRefresh={refetch}
                 isRefreshing={isRefetching}
                 contentStyle={styles.list}
-                emptyIcon={<Text style={{ fontSize: 48 }}>📋</Text>}
+                emptyIcon={<ClipboardList size={48} color={theme.textMuted} strokeWidth={1.5} />}
                 emptyTitle="Sin solicitudes"
                 emptySubtitle="Aún no hay solicitudes de adopción para revisar"
             />
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     cardHeader: {
         flexDirection: 'row',

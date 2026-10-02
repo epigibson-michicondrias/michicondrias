@@ -305,7 +305,9 @@ def get_clinic_appointments(db: Session, clinic_id: str, status: str = None):
         query = query.filter(Appointment.status == status)
     return query.order_by(Appointment.date, Appointment.start_time).all()
 
-def update_appointment_status(db: Session, appointment_id: str, status: str, reason: str = None):
+def update_appointment_status(db: Session, appointment_id: str, status: str, reason: str = None, actor_id: str = None):
+    """Cambia el estado de la cita y notifica SOLO a la contraparte de quien hace el cambio
+    (si cancela el dueño, se avisa a la clínica; si la clínica cambia el estado, se avisa al dueño)."""
     appt = get_appointment(db, appointment_id)
     if appt:
         appt.status = status
@@ -316,8 +318,12 @@ def update_appointment_status(db: Session, appointment_id: str, status: str, rea
         when = f"{appt.date.isoformat()} {appt.start_time.strftime('%H:%M')}" if appt.date and appt.start_time else ""
         labels = {"confirmed": "confirmada", "completed": "completada", "cancelled": "cancelada"}
         if status in labels:
-            _, clinic_name = _clinic_owner(db, appt.clinic_id)
-            notify_user(db, appt.user_id, f"Cita {labels[status]}", f"Tu cita en {clinic_name or 'la clínica'} ({when}) fue {labels[status]}." + (f" Motivo: {reason}" if reason and status == "cancelled" else ""))
+            owner_id, clinic_name = _clinic_owner(db, appt.clinic_id)
+            suffix = f" Motivo: {reason}" if reason and status == "cancelled" else ""
+            if actor_id and actor_id == appt.user_id and owner_id and owner_id != actor_id:
+                notify_user(db, owner_id, f"Cita {labels[status]}", f"El cliente {labels[status]} su cita del {when}." + suffix)
+            elif actor_id != appt.user_id or not actor_id:
+                notify_user(db, appt.user_id, f"Cita {labels[status]}", f"Tu cita en {clinic_name or 'la clínica'} ({when}) fue {labels[status]}." + suffix)
     return appt
 
 def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_start_time: str):
@@ -393,5 +399,9 @@ def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_
             )
             db.add(reminder)
     db.commit()
+
+    owner_id, _ = _clinic_owner(db, new_appt.clinic_id)
+    if owner_id and owner_id != appt.user_id:
+        notify_user(db, owner_id, "Cita reagendada", f"Un cliente reagendó su cita para el {d.isoformat()} a las {start.strftime('%H:%M')}.")
 
     return new_appt

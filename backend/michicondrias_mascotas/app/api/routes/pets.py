@@ -165,7 +165,7 @@ def get_all_pets_admin(
 @router.get("/{pet_id}", response_model=PetResponse)
 def get_pet_by_id(pet_id: str, db: Session = Depends(get_db), identity: dict = Depends(identity_or_internal)) -> Any:
     """Get a specific permanent pet by its ID. Requiere sesión."""
-    pet = db.query(Pet).filter(Pet.id == pet_id).first()
+    pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
     return pet
@@ -178,7 +178,7 @@ def update_pet(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """Update a pet's information. Only its owner can."""
-    pet = db.query(Pet).filter(Pet.id == pet_id).first()
+    pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
     if pet.owner_id != user_id:
@@ -189,6 +189,39 @@ def update_pet(
     db.commit()
     db.refresh(pet)
     return pet
+
+
+@router.delete("/{pet_id}")
+def delete_pet(
+    pet_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Elimina (borrado lógico) una mascota. Solo su dueño.
+    Se conserva la fila con is_active=False para no romper carnet, citas, adopciones ni reportes que la referencian;
+    deja de aparecer en listados, detalle y edición. Si tiene Michi-Tracker Pro activo hay que cancelarlo antes."""
+    pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
+    if not pet:
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    if pet.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Solo el dueño puede eliminar esta mascota")
+    if pet.has_active_subscription:
+        raise HTTPException(
+            status_code=409,
+            detail="Esta mascota tiene Michi-Tracker Pro activo. Cancela la suscripción desde Facturación antes de eliminarla.",
+        )
+    _soft_delete_pet(pet)
+    db.commit()
+    return {"deleted": True}  # JSON (no 204): el cliente móvil siempre parsea el cuerpo
+
+
+def _soft_delete_pet(pet: Pet) -> None:
+    pet.is_active = False
+    # Datos identificables que no hace falta conservar
+    pet.photo_url = None
+    pet.gallery = None
+    pet.microchip_number = None
+
 
 @router.get("/adopted-from/{listing_id}", response_model=PetResponse)
 def get_pet_by_listing(listing_id: str, db: Session = Depends(get_db), identity: dict = Depends(identity_or_internal)) -> Any:
@@ -254,7 +287,7 @@ def share_pet_passport(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """Generate a temporary signed token and shareable link for the pet's passport (QR code target)."""
-    pet = db.query(Pet).filter(Pet.id == pet_id).first()
+    pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
     if pet.owner_id != user_id:
@@ -282,7 +315,7 @@ async def view_public_passport(
     except JWTError:
         raise HTTPException(status_code=403, detail="El enlace para compartir ha expirado o es inválido")
         
-    pet = db.query(Pet).filter(Pet.id == pet_id).first()
+    pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
 

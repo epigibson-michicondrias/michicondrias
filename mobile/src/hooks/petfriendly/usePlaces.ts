@@ -2,7 +2,7 @@
  * usePlaces — Hook for pet-friendly places list screen
  * Manages place list fetching, search filtering, and view mode toggle
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { getPlaces, PetfriendlyPlace } from '@/src/services/petfriendly';
@@ -11,16 +11,21 @@ export function usePlaces() {
     const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [category, setCategory] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
 
-    const { data: places = [], isLoading } = useQuery({
+    const { data: places = [], isLoading, isError, refetch } = useQuery({
         queryKey: ['petfriendly-places'],
         queryFn: () => getPlaces(),
     });
 
+    const categories = useMemo(() => Array.from(new Set(places.map(p => p.category).filter(Boolean))).sort(), [places]);
+
     const filteredPlaces = places.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchQuery.toLowerCase())
+        (!category || p.category === category) &&
+        (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.city || '').toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const mapMarkers = filteredPlaces
@@ -31,7 +36,6 @@ export function usePlaces() {
             longitude: place.longitude!,
             title: place.name,
             description: place.category,
-            color: '#0ea5e9',
         }));
 
     const toggleViewMode = () => {
@@ -46,6 +50,11 @@ export function usePlaces() {
         // Data
         places: filteredPlaces,
         isLoading,
+        isError,
+        refetch,
+        categories,
+        category,
+        setCategory,
         searchQuery,
         viewMode,
         mapMarkers,

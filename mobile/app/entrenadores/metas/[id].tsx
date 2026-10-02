@@ -33,7 +33,7 @@ const STATUS_INFO: Record<string, { label: string; color: string; icon: any }> =
     not_started: { label: 'Pendiente', color: '#f59e0b', icon: ClipboardList },
     in_progress: { label: 'En progreso', color: '#3b82f6', icon: Target },
     video_submitted: { label: 'Video enviado', color: '#8b5cf6', icon: Video },
-    completed: { label: 'Completado', color: '#22c55e', icon: Trophy },
+    completed: { label: 'Completado', color: '#10b981', icon: Trophy },
     rejected: { label: 'Rechazado', color: '#ef4444', icon: XCircle },
 };
 
@@ -154,7 +154,7 @@ export default function GoalManagementScreen() {
                     <View style={styles.goalsSectionHeader}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Lista de Metas</Text>
                         {isTrainer && (
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.addGoalBtn, { backgroundColor: theme.primary }]}
                                 onPress={() => setShowCreateModal(true)}
                                 activeOpacity={0.8}
@@ -228,7 +228,7 @@ export default function GoalManagementScreen() {
                                 {/* Video Review Button */}
                                 {hasVideo && (
                                     <View style={styles.videoActions}>
-                                        <TouchableOpacity
+                                        <TouchableOpacity accessibilityRole="button"
                                             style={[styles.reviewBtn, { backgroundColor: '#22c55e' }]}
                                             onPress={() => openReview(goal)}
                                             activeOpacity={0.8}
@@ -252,7 +252,7 @@ export default function GoalManagementScreen() {
                     <View style={[styles.modalContainer, { backgroundColor: theme.surface }]}>
                         <View style={styles.modalHeader}>
                             <Text style={[styles.modalTitle, { color: theme.text }]}>Nueva Meta</Text>
-                            <TouchableOpacity onPress={() => setShowCreateModal(false)}>
+                            <TouchableOpacity accessibilityRole="button" onPress={() => setShowCreateModal(false)}>
                                 <X size={22} color={theme.textMuted} />
                             </TouchableOpacity>
                         </View>
@@ -283,7 +283,7 @@ export default function GoalManagementScreen() {
                             />
                         </View>
 
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button"
                             style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
                             onPress={() => {
                                 if (!enrollment) return;
@@ -309,7 +309,7 @@ export default function GoalManagementScreen() {
                     <View style={[styles.modalContainer, { backgroundColor: theme.surface }]}>
                         <View style={styles.modalHeader}>
                             <Text style={[styles.modalTitle, { color: theme.text }]}>Revisar Video</Text>
-                            <TouchableOpacity onPress={() => setShowReviewModal(false)}>
+                            <TouchableOpacity accessibilityRole="button" onPress={() => setShowReviewModal(false)}>
                                 <X size={22} color={theme.textMuted} />
                             </TouchableOpacity>
                         </View>
@@ -344,8 +344,8 @@ export default function GoalManagementScreen() {
                         </View>
 
                         <View style={styles.reviewActions}>
-                            <TouchableOpacity
-                                style={[styles.rejectBtn, { borderColor: '#ef4444' }]}
+                            <TouchableOpacity accessibilityRole="button"
+                                style={[styles.rejectBtn, { borderColor: theme.error }]}
                                 onPress={() => {
                                     if (selectedGoal) handleReviewVideo(selectedGoal.id, false);
                                     setShowReviewModal(false);
@@ -353,11 +353,11 @@ export default function GoalManagementScreen() {
                                 disabled={isReviewingVideo}
                                 activeOpacity={0.8}
                             >
-                                <XCircle size={18} color="#ef4444" />
-                                <Text style={[styles.rejectBtnText, { color: '#ef4444' }]}>Rechazar</Text>
+                                <XCircle size={18} color={theme.error} />
+                                <Text style={[styles.rejectBtnText, { color: theme.error }]}>Rechazar</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.approveBtn, { backgroundColor: '#22c55e' }]}
                                 onPress={() => {
                                     if (selectedGoal) handleReviewVideo(selectedGoal.id, true);
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
     },
     progressPercent: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     progressStats: {
         flex: 1,

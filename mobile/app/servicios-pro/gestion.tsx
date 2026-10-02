@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     statsRow: { flexDirection: 'row', gap: 12, marginBottom: 16 },
     statBox: { flex: 1, flexDirection: 'row', padding: 16, borderRadius: 18, alignItems: 'center', gap: 12, borderWidth: 1 },
-    statValue: { fontSize: 18, fontWeight: '900' },
+    statValue: { fontSize: 18, fontWeight: '800' },
     statLabel: { fontSize: 11, fontWeight: '700' },
     chips: { gap: 8, paddingBottom: 16 },
     list: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 100 },

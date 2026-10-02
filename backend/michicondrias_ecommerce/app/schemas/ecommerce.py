@@ -164,11 +164,22 @@ class DonationCreate(DonationBase):
 class DonationUpdate(BaseModel):
     status: str
 
+class DonationCheckoutCreate(BaseModel):
+    amount: float = Field(..., ge=10, le=100000)
+    message: Optional[str] = Field(None, max_length=500)
+    source: Optional[str] = "app"  # "app" (vuelve por deep link) o "web"
+
+class DonationCheckoutResponse(BaseModel):
+    donation_id: str
+    sessionId: str
+    url: str
+
 class DonationResponse(DonationBase):
     id: str
     user_id: Optional[str] = None
     date: datetime
     status: str
+    paid_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

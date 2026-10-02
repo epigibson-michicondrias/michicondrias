@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -20,10 +21,7 @@ export default function PedidoDetailScreen() {
         return (
             <ScreenContainer style={{ backgroundColor: theme.background }}>
                 <ScreenHeader title="Detalle de Pedido" />
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                    <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando pedido...</Text>
-                </View>
+                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
             </ScreenContainer>
         );
     }
@@ -309,7 +307,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: 10,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     divider: {
         height: 1,
@@ -317,7 +315,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 16,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 12,
     },
     itemsContainer: {
@@ -361,7 +359,7 @@ const styles = StyleSheet.create({
     },
     itemSubtotal: {
         fontSize: 13,
-        fontWeight: '900',
+        fontWeight: '800',
         marginTop: 2,
     },
     arrow: {
@@ -428,11 +426,11 @@ const styles = StyleSheet.create({
     },
     totalLabel: {
         fontSize: 14,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     totalValue: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     actionCard: {
         borderRadius: 24,
@@ -441,7 +439,7 @@ const styles = StyleSheet.create({
         gap: 12,
         marginBottom: 24,
     },
-    actionTitle: { fontSize: 16, fontWeight: '900' },
+    actionTitle: { fontSize: 16, fontWeight: '800' },
     actionText: { fontSize: 13, fontWeight: '500', lineHeight: 19 },
     payBtn: {
         height: 52,

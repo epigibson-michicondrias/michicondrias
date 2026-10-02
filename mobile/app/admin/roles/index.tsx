@@ -40,17 +40,17 @@ export default function AdminRolesScreen() {
                 </View>
             </View>
             <View style={styles.actions}>
-                <TouchableOpacity 
+                <TouchableOpacity accessibilityRole="button" 
                     style={styles.editBtn}
                     onPress={() => handleAction(item)}
                 >
                     <Edit3 size={18} color={theme.textMuted} />
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity accessibilityRole="button" 
                     style={styles.editBtn}
                     onPress={() => handleDelete(item.id, item.name)}
                 >
-                    <Trash2 size={18} color="#ef4444" />
+                    <Trash2 size={18} color={theme.error} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -85,7 +85,7 @@ export default function AdminRolesScreen() {
                             <Text style={[styles.modalTitle, { color: theme.text }]}>
                                 {editingRole ? 'Editar Rol' : 'Nuevo Rol'}
                             </Text>
-                            <TouchableOpacity onPress={closeModal}>
+                            <TouchableOpacity accessibilityRole="button" onPress={closeModal}>
                                 <X size={24} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -112,7 +112,7 @@ export default function AdminRolesScreen() {
                                 onChangeText={(text) => setFormData({ ...formData, description: text })}
                             />
 
-                            <TouchableOpacity 
+                            <TouchableOpacity accessibilityRole="button" 
                                 style={[styles.submitBtn, { backgroundColor: theme.primary }]}
                                 disabled={isSaving}
                                 onPress={handleSubmit}
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     cardInfo: { flex: 1 },
     roleName: { 
         fontSize: 17, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     roleDesc: { 
         fontSize: 12, 
@@ -207,13 +207,13 @@ const styles = StyleSheet.create({
     },
     modalTitle: { 
         fontSize: 22, 
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: -0.5 
     },
     form: { gap: 12 },
     label: { 
         fontSize: 11, 
-        fontWeight: '900', 
+        fontWeight: '800', 
         letterSpacing: 1.2,
         marginLeft: 4,
     },
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     submitBtnText: { 
         color: '#fff', 
         fontSize: 16, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     editBtn: { 
         width: 40, 

@@ -52,17 +52,23 @@ export default function DirectorioIndexScreen() {
                         <View style={styles.locationRow}>
                             <MapPin size={13} color={theme.textMuted} />
                             <Text style={[styles.cardSubtitle, { color: theme.textMuted }]} numberOfLines={1}>
-                                {item.city || "Ciudad"}, {item.state || "MX"}
+                                {[item.city, item.state].filter(Boolean).join(', ') || 'Ubicación no indicada'}
                             </Text>
                         </View>
                         <View style={styles.ratingRowInline}>
-                            <Star size={13} color="#facc15" fill="#facc15" />
-                            <Text style={[styles.ratingTextInline, { color: theme.text }]}>
-                                {item.average_rating ? item.average_rating.toFixed(1) : '5.0'}
-                            </Text>
-                            <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>
-                                ({item.total_reviews || 0})
-                            </Text>
+                            {item.total_reviews ? (
+                                <>
+                                    <Star size={13} color={theme.warning} fill={theme.warning} />
+                                    <Text style={[styles.ratingTextInline, { color: theme.text }]}>
+                                        {Number(item.average_rating || 0).toFixed(1)}
+                                    </Text>
+                                    <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>
+                                        ({item.total_reviews})
+                                    </Text>
+                                </>
+                            ) : (
+                                <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>Sin reseñas</Text>
+                            )}
                         </View>
                     </View>
                 </View>
@@ -98,7 +104,7 @@ export default function DirectorioIndexScreen() {
                         </Text>
                     </View>
                 )}
-                {item.description && (
+                {!!item.description && (
                     <Text style={[styles.description, { color: theme.textMuted }]} numberOfLines={2}>
                         {item.description}
                     </Text>
@@ -106,8 +112,10 @@ export default function DirectorioIndexScreen() {
             </View>
 
             <View style={[styles.cardFooter, { borderTopColor: theme.border }]}>
-                {item.phone && (
+                {!!item.phone && (
                     <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={`Llamar a ${item.name}`}
                         style={[styles.actionBtn, { backgroundColor: theme.overlay, borderColor: theme.border }]}
                         onPress={() => {
                             Linking.openURL(`tel:${item.phone}`).catch(() => {
@@ -157,20 +165,26 @@ export default function DirectorioIndexScreen() {
                             </Text>
                         </View>
                         <View style={styles.ratingRowInline}>
-                            <Star size={13} color="#facc15" fill="#facc15" />
-                            <Text style={[styles.ratingTextInline, { color: theme.text }]}>
-                                {item.average_rating ? item.average_rating.toFixed(1) : '5.0'}
-                            </Text>
-                            <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>
-                                ({item.total_reviews || 0})
-                            </Text>
+                            {item.total_reviews ? (
+                                <>
+                                    <Star size={13} color={theme.warning} fill={theme.warning} />
+                                    <Text style={[styles.ratingTextInline, { color: theme.text }]}>
+                                        {Number(item.average_rating || 0).toFixed(1)}
+                                    </Text>
+                                    <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>
+                                        ({item.total_reviews})
+                                    </Text>
+                                </>
+                            ) : (
+                                <Text style={[styles.ratingCountInline, { color: theme.textMuted }]}>Sin reseñas</Text>
+                            )}
                         </View>
                     </View>
                 </View>
                 <ChevronRight size={20} color={theme.textMuted} />
             </View>
 
-            {item.bio && (
+            {!!item.bio && (
                 <Text style={[styles.description, { color: theme.textMuted, marginTop: 12 }]} numberOfLines={2}>
                     {item.bio}
                 </Text>
@@ -179,7 +193,7 @@ export default function DirectorioIndexScreen() {
             <View style={[styles.certificationBox, { backgroundColor: theme.successLight, borderColor: theme.success + '20' }]}>
                 <ShieldCheck size={14} color={theme.success} />
                 <Text style={[styles.certificationText, { color: theme.success }]}>
-                    Cédula: {item.license_number ? "Verificada" : "En Validación"}
+                    {item.license_number ? 'Cédula registrada' : 'Cédula sin registrar'}
                 </Text>
             </View>
         </TouchableOpacity>
@@ -191,9 +205,9 @@ export default function DirectorioIndexScreen() {
             <View style={styles.header}>
                 <View style={styles.headerRow}>
                     <BackButton onPress={() => router.back()} />
-                    <Text style={[styles.title, { color: isDark ? '#fff' : '#0c4a6e' }]}>Directorio Médico</Text>
+                    <Text accessibilityRole="header" style={[styles.title, { color: theme.text }]}>Directorio Médico</Text>
                 </View>
-                <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.6)' : '#0369a1' }]}>
+                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
                     Encuentra salud de calidad para tu mejor amigo
                 </Text>
             </View>
@@ -248,6 +262,8 @@ export default function DirectorioIndexScreen() {
                     ].map(f => (
                         <TouchableOpacity
                             key={f.key}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: filterService === f.key }}
                             style={[styles.filterChip, {
                                 backgroundColor: filterService === f.key ? theme.primary : theme.surface,
                                 borderColor: filterService === f.key ? theme.primary : theme.border,
@@ -324,7 +340,7 @@ export default function DirectorioIndexScreen() {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar style={isDark ? 'light' : 'dark'} />
             <LinearGradient
-                colors={isDark ? ['#1c2f6b', theme.background] : ['#dfe7fb', theme.background]}
+                colors={[theme.primaryLight, theme.background]}
                 style={StyleSheet.absoluteFillObject}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 0.4 }}
@@ -555,7 +571,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 10,
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         padding: 8,
         borderRadius: 10,
     },

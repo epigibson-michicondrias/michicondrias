@@ -158,7 +158,7 @@ export default function NuevoPlanScreen() {
                         onPress={() => toggleSpecies('dog')}
                     >
                         <Text style={[styles.speciesButtonText, { color: allowedSpecies.includes('dog') ? theme.primary : theme.text }]}>
-                            🐕 Perros
+                            Perros
                         </Text>
                         {allowedSpecies.includes('dog') && <CheckCircle2 size={16} color={theme.primary} />}
                     </TouchableOpacity>
@@ -170,7 +170,7 @@ export default function NuevoPlanScreen() {
                         onPress={() => toggleSpecies('cat')}
                     >
                         <Text style={[styles.speciesButtonText, { color: allowedSpecies.includes('cat') ? theme.primary : theme.text }]}>
-                            🐈 Gatos
+                            Gatos
                         </Text>
                         {allowedSpecies.includes('cat') && <CheckCircle2 size={16} color={theme.primary} />}
                     </TouchableOpacity>
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 28,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     subtitle: {
         fontSize: 14,

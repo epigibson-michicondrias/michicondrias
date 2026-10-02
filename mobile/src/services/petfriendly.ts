@@ -43,6 +43,10 @@ export async function createPlace(placeData: Partial<PetfriendlyPlace>): Promise
     });
 }
 
+export async function deletePlace(placeId: string): Promise<{ message: string }> {
+    return apiFetch<{ message: string }>("perdidas", `/places/${placeId}`, { method: "DELETE" });
+}
+
 export interface PetfriendlyReview {
     id: string;
     place_id: string;

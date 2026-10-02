@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useReminders } from '@/src/hooks/carnet/useReminders';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -20,7 +21,7 @@ export default function PetRemindersScreen() {
 
     const renderReminderItem = (item: ReminderWithDetails, isCompleted: boolean) => {
         const overdue = !isCompleted && isOverdue(item.remind_at);
-        const statusColor = isCompleted ? '#10b981' : overdue ? '#ef4444' : theme.primary;
+        const statusColor = isCompleted ? theme.success : overdue ? theme.error : theme.primary;
 
         return (
             <View
@@ -29,7 +30,7 @@ export default function PetRemindersScreen() {
                     styles.reminderCard,
                     {
                         backgroundColor: theme.surface,
-                        borderColor: isCompleted ? '#10b98130' : overdue ? '#ef444430' : theme.borderLight,
+                        borderColor: isCompleted ? theme.success + '30' : overdue ? theme.error + '30' : theme.borderLight,
                     },
                 ]}
             >
@@ -71,7 +72,7 @@ export default function PetRemindersScreen() {
 
                 {isCompleted && (
                     <View style={[styles.completedBadge, { backgroundColor: '#10b98120' }]}>
-                        <Check size={14} color="#10b981" />
+                        <Check size={14} color={theme.success} />
                     </View>
                 )}
             </View>
@@ -86,7 +87,7 @@ export default function PetRemindersScreen() {
                 rightElement={
                     <Badge
                         label={`${pendingReminders.length} pendiente${pendingReminders.length !== 1 ? 's' : ''}`}
-                        color={pendingReminders.length > 0 ? '#f59e0b' : '#10b981'}
+                        color={pendingReminders.length > 0 ? theme.warning : theme.success}
                     />
                 }
             />
@@ -99,9 +100,7 @@ export default function PetRemindersScreen() {
                 }
             >
                 {isLoading ? (
-                    <View style={styles.center}>
-                        <ActivityIndicator size="large" color={theme.primary} />
-                    </View>
+                    <SkeletonList count={4} />
                 ) : reminders.length === 0 ? (
                     <EmptyState
                         icon={<Bell size={32} color={theme.primary} />}

@@ -452,7 +452,7 @@ async def approve_adoption(
 # ========================================
 
 @router.post("/adoptions/forms", response_model=AdoptionFormResponse)
-def submit_adoption_form(
+async def submit_adoption_form(
     *,
     db: Session = Depends(get_db),
     form_in: AdoptionFormCreate,
@@ -469,7 +469,19 @@ def submit_adoption_form(
     if listing.status != "abierto":
         raise HTTPException(status_code=400, detail="Esta mascota ya no está disponible para adopción")
     
-    return crud.create_adoption_form(db=db, form_in=form_in, applicant_id=user_id)
+    if listing.published_by == user_id:
+        raise HTTPException(status_code=400, detail="No puedes postularte a tu propia publicación")
+    if form_in.hours_left_alone is not None and not (0 <= form_in.hours_left_alone <= 24):
+        raise HTTPException(status_code=400, detail="Las horas a solas deben estar entre 0 y 24")
+
+    created = crud.create_adoption_form(db=db, form_in=form_in, applicant_id=user_id)
+    await _notify(
+        listing.published_by,
+        f"Nuevo formulario de compatibilidad: {listing.name}",
+        f"Una persona completó el formulario para adoptar a {listing.name} (compatibilidad {created.compatibility_score}%). Revísalo en Postulaciones.",
+    )
+    created.pet_name = listing.name
+    return created
 
 
 @router.get("/adoptions/refuge/applications", response_model=List[AdoptionFormResponse])
@@ -485,11 +497,18 @@ def get_refuge_applications(
             status_code=403,
             detail="Solo usuarios con rol refugio o admin pueden listar aplicaciones",
         )
-    return crud.get_adoption_forms_for_refuge(db=db, refuge_id=user_id)
+    forms = crud.get_adoption_forms_for_refuge(db=db, refuge_id=user_id)
+    names: dict = {}
+    for f in forms:
+        if f.pet_id not in names:
+            l = crud.get_listing(db, f.pet_id)
+            names[f.pet_id] = l.name if l else None
+        f.pet_name = names[f.pet_id]
+    return forms
 
 
 @router.post("/adoptions/contracts/sign", response_model=AdoptionContractResponse)
-def sign_adoption_contract(
+async def sign_adoption_contract(
     *,
     db: Session = Depends(get_db),
     contract_in: AdoptionContractCreate,
@@ -513,10 +532,53 @@ def sign_adoption_contract(
             detail="No tienes permiso para firmar contratos para esta mascota",
         )
     
+    # Un contrato por formulario (evita duplicados al tocar "Firmar" dos veces)
+    from app.models.pet import AdoptionContract
+    if db.query(AdoptionContract).filter(AdoptionContract.form_id == form.id).first():
+        raise HTTPException(status_code=409, detail="Este formulario ya tiene un contrato firmado")
+    if form.status == "rejected":
+        raise HTTPException(status_code=400, detail="Este formulario fue rechazado")
+
     # El firmante es siempre quien está autenticado (no lo que diga el cuerpo de la petición)
     contract_in.refuge_id = user_id
     contract = crud.create_adoption_contract(db=db, contract_in=contract_in)
     # Update form status to 'approved' if not already
     crud.update_adoption_form_status(db, form.id, "approved")
+    await _notify(
+        form.applicant_id,
+        f"Contrato de adopción: {listing.name}",
+        f"El refugio firmó el contrato de adopción de {listing.name}. Tu postulación fue aprobada.",
+    )
     return contract
 
+
+
+@router.put("/adoptions/forms/{form_id}/status", response_model=AdoptionFormResponse)
+async def update_adoption_form_status_route(
+    form_id: str,
+    status: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """El refugio (o admin) marca un formulario como 'under_review' o 'rejected'. La aprobación se hace firmando el contrato."""
+    if status not in ("under_review", "rejected"):
+        raise HTTPException(status_code=400, detail="Estado no válido")
+    form = crud.get_adoption_form(db, form_id)
+    if not form:
+        raise HTTPException(status_code=404, detail="El formulario de adopción no existe")
+    listing = crud.get_listing(db, form.pet_id)
+    if not listing:
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    if role != "admin" and listing.published_by != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permiso sobre esta postulación")
+    if form.status == "approved":
+        raise HTTPException(status_code=409, detail="Esta postulación ya fue aprobada")
+    updated = crud.update_adoption_form_status(db, form_id, status)
+    await _notify(
+        form.applicant_id,
+        f"Tu formulario por {listing.name}",
+        f"Tu formulario para adoptar a {listing.name} " + ("está en revisión." if status == "under_review" else "no fue aceptado."),
+    )
+    updated.pet_name = listing.name
+    return updated

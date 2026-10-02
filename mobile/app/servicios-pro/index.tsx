@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -14,8 +15,8 @@ export default function ServiciosProScreen() {
     const { activeTab, setActiveTab, searchQuery, setSearchQuery, filteredData, isLoading } = useServiciosPro();
 
     const renderItem = ({ item }: { item: any }) => (
-        <TouchableOpacity
-            style={[styles.card, { backgroundColor: theme.surface }]}
+        <TouchableOpacity accessibilityRole="button"
+            style={[styles.card, { borderColor: theme.border }, { backgroundColor: theme.surface }]}
             onPress={() => router.push((activeTab === 'walkers' ? `/paseadores/${item.id}` : `/cuidadores/${item.id}`) as any)}
         >
             <View style={styles.cardHeader}>
@@ -45,7 +46,7 @@ export default function ServiciosProScreen() {
                 </View>
             </View>
 
-            <View style={styles.cardFooter}>
+            <View style={[styles.cardFooter, { borderTopColor: theme.border }]}>
                 <View style={styles.tagsContainer}>
                     {item.accepts_dogs && <View style={[styles.tag, { backgroundColor: theme.primary + '15' }]}><Dog size={12} color={theme.primary} /><Text style={[styles.tagText, { color: theme.primary }]}>Perros</Text></View>}
                     {item.accepts_cats && <View style={[styles.tag, { backgroundColor: theme.secondary + '15' }]}><Cat size={12} color={theme.secondary} /><Text style={[styles.tagText, { color: theme.secondary }]}>Gatos</Text></View>}
@@ -64,7 +65,7 @@ export default function ServiciosProScreen() {
                 title="Servicios Pro"
                 subtitle="Expertos al cuidado de tu mascota"
                 rightElement={
-                    <TouchableOpacity
+                    <TouchableOpacity accessibilityRole="button"
                         style={[styles.profileBtn, { backgroundColor: theme.surface }]}
                         onPress={() => router.push('/servicios-pro/perfil' as any)}
                     >
@@ -74,14 +75,14 @@ export default function ServiciosProScreen() {
             />
 
             <View style={styles.tabsContainer}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'walkers' && { backgroundColor: theme.primary }]}
+                <TouchableOpacity accessibilityRole="button"
+                    style={[styles.tab, { backgroundColor: theme.overlay }, activeTab === 'walkers' && { backgroundColor: theme.primary }]}
                     onPress={() => setActiveTab('walkers')}
                 >
                     <Text style={[styles.tabText, { color: activeTab === 'walkers' ? '#fff' : theme.textMuted }]}>Paseadores</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'sitters' && { backgroundColor: theme.primary }]}
+                <TouchableOpacity accessibilityRole="button"
+                    style={[styles.tab, { backgroundColor: theme.overlay }, activeTab === 'sitters' && { backgroundColor: theme.primary }]}
                     onPress={() => setActiveTab('sitters')}
                 >
                     <Text style={[styles.tabText, { color: activeTab === 'sitters' ? '#fff' : theme.textMuted }]}>Cuidadores</Text>
@@ -89,7 +90,7 @@ export default function ServiciosProScreen() {
             </View>
 
             <View style={styles.searchSection}>
-                <View style={[styles.searchBar, { backgroundColor: theme.surface }]}>
+                <View style={[styles.searchBar, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                     <Search size={20} color={theme.textMuted} />
                     <TextInput
                         placeholder={`Buscar ${activeTab === 'walkers' ? 'paseadores' : 'cuidadores'}...`}
@@ -102,9 +103,7 @@ export default function ServiciosProScreen() {
             </View>
 
             {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
+                <SkeletonList count={4} />
             ) : (
                 <FlatList
             refreshControl={<AppRefreshControl />}
@@ -143,7 +142,6 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 14,
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     tabText: {
         fontSize: 14,
@@ -161,7 +159,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     searchInput: {
         flex: 1,
@@ -176,7 +173,6 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         marginBottom: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     cardHeader: {
         flexDirection: 'row',
@@ -241,7 +237,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingTop: 16,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.05)',
     },
     tagsContainer: {
         flexDirection: 'row',

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from app.api.deps import RoleChecker, get_current_user_id, _decode_token, oauth2_scheme
+from app.api.deps import RoleChecker, get_current_user_id, get_current_user_role, _decode_token, oauth2_scheme
 from app.db.session import get_db
 from app.models.funerary import PetDeath, PetMemorialPost, FuneraryBooking, FuneraryService
 from sqlalchemy import text, bindparam
@@ -141,7 +141,8 @@ def create_post(
     *,
     db: Session = Depends(get_db),
     post_in: PetMemorialPostCreate,
-    current_user_id: str = Depends(get_current_user_id)
+    current_user_id: str = Depends(get_current_user_id),
+    role: str = Depends(get_current_user_role),
 ):
     """
     Create a new memorial post for a pet. Requires authentication.
@@ -153,6 +154,11 @@ def create_post(
             detail="La mascota especificada no existe."
         )
     
+    # Solo quien cuidaba a la mascota (su dueño) o un admin puede publicar en su memorial.
+    owner_id = _pet_owner_id(db, post_in.pet_id)
+    if str(owner_id) != str(current_user_id) and role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede publicar en su memorial.")
+
     post = crud_funerary.create_memorial_post(db, post_in=post_in, user_id=current_user_id)
     return post
 

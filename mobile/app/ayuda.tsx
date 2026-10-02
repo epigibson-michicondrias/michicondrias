@@ -35,7 +35,7 @@ export default function HelpScreen() {
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                <View style={[styles.searchBar, { backgroundColor: theme.surface }]}>
+                <View style={[styles.searchBar, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                     <Search size={20} color={theme.textMuted} />
                     <TextInput
                         placeholder="Busca una solución..."
@@ -48,7 +48,7 @@ export default function HelpScreen() {
 
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>PREGUNTAS FRECUENTES</Text>
-                    <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                    <View style={[styles.card, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                         {faqs.length === 0 && (
                             <Text style={{ color: theme.textMuted, padding: 16 }}>No encontramos preguntas con esa búsqueda.</Text>
                         )}
@@ -76,20 +76,20 @@ export default function HelpScreen() {
                     <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>CONTACTO DIRECTO</Text>
                     <View style={styles.contactGrid}>
                         {!!SUPPORT_WHATSAPP && (
-                            <ContactBtn icon={MessageCircle} label="WhatsApp" color="#22c55e" theme={theme}
+                            <ContactBtn icon={MessageCircle} label="WhatsApp" color={theme.success} theme={theme}
                                 onPress={() => open(`https://wa.me/${SUPPORT_WHATSAPP.replace(/\D/g, '')}`)} />
                         )}
-                        <ContactBtn icon={Mail} label="Email" color="#3b82f6" theme={theme}
+                        <ContactBtn icon={Mail} label="Email" color={theme.info} theme={theme}
                             onPress={() => open(`mailto:${SUPPORT_EMAIL}?subject=Ayuda%20Michicondrias`)} />
                         {!!SUPPORT_PHONE && (
-                            <ContactBtn icon={Phone} label="Teléfono" color="#8b5cf6" theme={theme}
+                            <ContactBtn icon={Phone} label="Teléfono" color={theme.secondary} theme={theme}
                                 onPress={() => open(`tel:${SUPPORT_PHONE}`)} />
                         )}
                     </View>
                 </View>
 
                 {!!TERMS_URL && (
-                    <TouchableOpacity style={[styles.footerCard, { backgroundColor: theme.surface }]} onPress={() => open(TERMS_URL)}>
+                    <TouchableOpacity accessibilityRole="button" style={[styles.footerCard, { borderColor: theme.border }, { backgroundColor: theme.surface }]} onPress={() => open(TERMS_URL)}>
                         <ExternalLink size={20} color={theme.primary} />
                         <Text style={[styles.footerCardText, { color: theme.text }]}>Términos y Condiciones</Text>
                         <ChevronRight size={18} color={theme.textMuted} />
@@ -102,7 +102,7 @@ export default function HelpScreen() {
 
 function ContactBtn({ icon: Icon, label, color, theme, onPress }: any) {
     return (
-        <TouchableOpacity style={[styles.contactBtn, { backgroundColor: theme.surface }]} onPress={onPress} accessibilityRole="button" accessibilityLabel={`Contactar por ${label}`}>
+        <TouchableOpacity style={[styles.contactBtn, { borderColor: theme.border }, { backgroundColor: theme.surface }]} onPress={onPress} accessibilityRole="button" accessibilityLabel={`Contactar por ${label}`}>
             <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>
                 <Icon size={24} color={color} />
             </View>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     title: {
         flex: 1,
         fontSize: 20,
-        fontWeight: '900',
+        fontWeight: '800',
         textAlign: 'center',
     },
     scroll: {
@@ -140,7 +140,6 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     searchInput: {
         flex: 1,
@@ -159,7 +158,6 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     faqItem: {
         flexDirection: 'row',
@@ -183,7 +181,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     iconBox: {
         width: 54,
@@ -203,7 +200,6 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         gap: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     footerCardText: {
         flex: 1,

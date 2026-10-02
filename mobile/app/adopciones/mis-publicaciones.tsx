@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Plus, MessageSquare, Edit3, Trash2 } from 'lucide-react-native';
+import { Plus, MessageSquare, Edit3, Trash2, PawPrint, Heart } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
@@ -30,7 +30,7 @@ export default function MisPublicacionesScreen() {
                 <Image source={{ uri: item.photo_url }} style={styles.image} />
             ) : (
                 <View style={[styles.image, { backgroundColor: theme.overlay, alignItems: 'center', justifyContent: 'center' }]}>
-                    <Text style={{ fontSize: 32 }}>🐾</Text>
+                    <PawPrint size={32} color={theme.textMuted} />
                 </View>
             )}
             <View style={styles.info}>
@@ -44,6 +44,8 @@ export default function MisPublicacionesScreen() {
 
                 <View style={styles.actions}>
                     <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={`Ver solicitudes de ${item.name}`}
                         style={[styles.actionBtn, { backgroundColor: theme.primary + '15' }]}
                         onPress={() => goToRequests(item.id)}
                     >
@@ -64,13 +66,15 @@ export default function MisPublicacionesScreen() {
                         )}
                         <TouchableOpacity
                             style={styles.iconBtn}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Eliminar publicación de ${item.name}`}
                             onPress={() => handleDelete(item.id, item.name)}
                             disabled={isDeleting}
                         >
                             {isDeleting ? (
-                                <ActivityIndicator size={18} color="#ef4444" />
+                                <ActivityIndicator size={18} color={theme.error} />
                             ) : (
-                                <Trash2 size={18} color="#ef4444" />
+                                <Trash2 size={18} color={theme.error} />
                             )}
                         </TouchableOpacity>
                     </View>
@@ -96,7 +100,7 @@ export default function MisPublicacionesScreen() {
                 onRefresh={refetch}
                 isRefreshing={isRefetching}
                 contentStyle={styles.list}
-                emptyIcon={<Text style={{ fontSize: 48 }}>🏠</Text>}
+                emptyIcon={<Heart size={48} color={theme.textMuted} strokeWidth={1.5} />}
                 emptyTitle="No has publicado mascotas"
                 emptySubtitle="Si tienes un michi o lomito buscando hogar, ¡publícalo aquí!"
                 emptyActionLabel="Publicar"
@@ -116,7 +120,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     image: {
         width: 100,

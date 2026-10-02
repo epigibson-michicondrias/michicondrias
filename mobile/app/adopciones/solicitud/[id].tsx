@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
-import { useApplicationDetail, STATUS_LABELS } from '@/src/hooks/adopciones/useApplicationDetail';
+import { useApplicationDetail } from '@/src/hooks/adopciones/useApplicationDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -26,6 +26,8 @@ export default function ProcesarSolicitudScreen() {
         );
     }
 
+    const statusColor = theme[statusInfo.tone] as string;
+
     if (!request) {
         return (
             <ScreenContainer>
@@ -42,15 +44,15 @@ export default function ProcesarSolicitudScreen() {
             <ScreenHeader title="Procesar Solicitud" onBack={goBack} />
 
             {/* Status Badge */}
-            <View style={[styles.statusCard, { backgroundColor: statusInfo.color + '15', borderColor: statusInfo.color + '30' }]}>
+            <View style={[styles.statusCard, { backgroundColor: statusColor + '15', borderColor: statusColor + '30' }]}>
                 <View style={styles.statusHeader}>
-                    <Text style={[styles.statusIcon]}>{statusInfo.icon}</Text>
+                    {request.status === 'REJECTED' ? <XCircle size={26} color={statusColor} /> : request.status === 'PENDING' ? <Clock size={26} color={statusColor} /> : <CheckCircle size={26} color={statusColor} />}
                     <View style={styles.statusInfo}>
-                        <Text style={[styles.statusTitle, { color: statusInfo.color }]}>
+                        <Text style={[styles.statusTitle, { color: statusColor }]}>
                             {statusInfo.label}
                         </Text>
                         <Text style={[styles.statusDate, { color: theme.textMuted }]}>
-                            Solicitado: {new Date(request.created_at).toLocaleDateString()}
+                            Solicitado: {new Date(request.created_at).toLocaleDateString('es-MX')}
                         </Text>
                     </View>
                 </View>
@@ -126,7 +128,7 @@ export default function ProcesarSolicitudScreen() {
                 <View style={styles.checkboxRow}>
                     <CheckCircle 
                         size={20} 
-                        color={request.has_yard ? '#22c55e' : theme.textMuted} 
+                        color={request.has_yard ? theme.success : theme.textMuted} 
                     />
                     <Text style={[styles.checkboxText, { color: theme.text }]}>
                         Tiene patio/jardín
@@ -198,7 +200,7 @@ export default function ProcesarSolicitudScreen() {
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.actionButton, { backgroundColor: '#8b5cf6' }]}
+                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
                         onPress={() => handleStatusUpdate('INTERVIEW_SCHEDULED')}
                     >
                         <Calendar size={20} color="#fff" />
@@ -233,14 +235,14 @@ export default function ProcesarSolicitudScreen() {
                 {request.status === 'PENDING' && (
                     <View style={styles.buttonRow}>
                         <TouchableOpacity
-                            style={[styles.rejectButton, { backgroundColor: '#ef4444' }]}
+                            style={[styles.rejectButton, { backgroundColor: theme.error }]}
                             onPress={() => handleStatusUpdate('REJECTED')}
                         >
                             <XCircle size={20} color="#fff" />
                             <Text style={styles.buttonText}>Rechazar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.reviewButton, { backgroundColor: '#3b82f6' }]}
+                            style={[styles.reviewButton, { backgroundColor: theme.info }]}
                             onPress={() => handleStatusUpdate('REVIEWING')}
                         >
                             <FileText size={20} color="#fff" />
@@ -262,7 +264,7 @@ export default function ProcesarSolicitudScreen() {
 
                 {(request.status === 'REVIEWING' || request.status === 'APPROVED') && (
                     <TouchableOpacity
-                        style={[styles.approveButton, { backgroundColor: '#22c55e' }]}
+                        style={[styles.approveButton, { backgroundColor: theme.success }]}
                         onPress={handleApprove}
                     >
                         <CheckCircle size={20} color="#fff" />
@@ -272,7 +274,7 @@ export default function ProcesarSolicitudScreen() {
 
                 {request.status === 'INTERVIEW_SCHEDULED' && (
                     <TouchableOpacity
-                        style={[styles.approveButton, { backgroundColor: '#22c55e' }]}
+                        style={[styles.approveButton, { backgroundColor: theme.success }]}
                         onPress={handleApprove}
                     >
                         <CheckCircle size={20} color="#fff" />
@@ -320,7 +322,7 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     cardTitle: {
         fontSize: 18,

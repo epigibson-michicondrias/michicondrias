@@ -8,6 +8,7 @@ import {
     getMyClinics,
     getClinicSurgeries,
     createSurgery,
+    updateSurgeryStatus,
     getTodaySurgeries,
     SurgeryItem,
 } from '@/src/services/directorio';
@@ -25,9 +26,10 @@ export function useSurgeries() {
     // Form State
     const [surgName, setSurgName] = useState('');
     const [surgType, setSurgType] = useState('elective');
-    const [surgDate, setSurgDate] = useState('');
+    const defaultDate = () => { const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); return d; };
+    const [surgDate, setSurgDate] = useState<Date>(defaultDate);
     const [surgDuration, setSurgDuration] = useState('60');
-    const [surgRoom, setSurgRoom] = useState('OR-1');
+    const [surgRoom, setSurgRoom] = useState('');
 
     const { data: clinics = [] } = useQuery({
         queryKey: ['my-clinics'],
@@ -51,27 +53,52 @@ export function useSurgeries() {
         mutationFn: () => createSurgery({
             clinic_id: clinic!.id,
             patient_id: selectedPatientId,
-            surgery_name: surgName,
+            surgery_name: surgName.trim(),
             surgery_type: surgType,
-            scheduled_date: surgDate || new Date().toISOString().slice(0, 16),
+            scheduled_date: surgDate.toISOString(),
             estimated_duration: parseInt(surgDuration) || 60,
-            operating_room: surgRoom,
+            operating_room: surgRoom.trim() || undefined,
         }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['clinic-surgeries'] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-surgeries-today'] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-metrics'] });
             setModalVisible(false);
             setSurgName('');
             setSelectedPatientId('');
+            setSurgDate(defaultDate());
+            setSurgRoom('');
             showAlert({ type: 'success', title: 'Éxito', message: 'Cirugía programada correctamente.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo programar la cirugía.' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'Error', message: e?.message || 'No se pudo programar la cirugía.' });
+        },
+    });
+
+    const statusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string; status: string }) => updateSurgeryStatus(clinic!.id, id, status),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['clinic-surgeries'] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-surgeries-today'] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-metrics'] });
+        },
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo actualizar', message: e?.message || 'Intenta de nuevo.' });
         },
     });
 
     const handleCreate = () => {
-        if (!surgName || !surgDate || !selectedPatientId) {
-            showAlert({ type: 'warning', title: 'Campos requeridos', message: 'Por favor ingresa el nombre de la cirugía, la fecha y selecciona un paciente.' });
+        if (!surgName.trim() || !selectedPatientId) {
+            showAlert({ type: 'warning', title: 'Campos requeridos', message: 'Escribe el nombre del procedimiento y selecciona un paciente.' });
+            return;
+        }
+        if (surgDate.getTime() <= Date.now()) {
+            showAlert({ type: 'warning', title: 'Fecha inválida', message: 'La cirugía debe programarse en una fecha y hora futuras.' });
+            return;
+        }
+        const dur = parseInt(surgDuration, 10);
+        if (!Number.isFinite(dur) || dur <= 0) {
+            showAlert({ type: 'warning', title: 'Duración inválida', message: 'Indica una duración estimada en minutos.' });
             return;
         }
         createMutation.mutate();
@@ -120,5 +147,7 @@ export function useSurgeries() {
         // Mutation
         handleCreate,
         isCreating: createMutation.isPending,
+        changeStatus: (id: string, status: string) => statusMutation.mutate({ id, status }),
+        isChangingStatus: statusMutation.isPending,
     };
 }

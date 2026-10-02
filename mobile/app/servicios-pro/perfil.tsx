@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -21,9 +22,7 @@ export default function ProfessionalProfileScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
         );
     }
 
@@ -38,7 +37,7 @@ export default function ProfessionalProfileScreen() {
                         title="Configuración Prof."
                         subtitle="Tus servicios y precios"
                         rightElement={
-                            <TouchableOpacity
+                            <TouchableOpacity accessibilityRole="button"
                                 style={[styles.saveBtn, { backgroundColor: theme.primary }]}
                                 onPress={handleSave}
                                 disabled={saving}
@@ -50,7 +49,7 @@ export default function ProfessionalProfileScreen() {
 
                     <View style={styles.content}>
                         {/* Status Toggle */}
-                        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <View style={styles.toggleRow}>
                                 <View style={styles.toggleText}>
                                     <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 4 }]}>Estatus de Servicio</Text>
@@ -69,7 +68,7 @@ export default function ProfessionalProfileScreen() {
 
                         {/* Basic Info */}
                         <Text style={[styles.groupTitle, { color: theme.textMuted }]}>INFORMACIÓN BÁSICA</Text>
-                        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <View style={styles.inputGroup}>
                                 <Text style={[styles.label, { color: theme.textMuted }]}>Nombre a mostrar</Text>
                                 <TextInput
@@ -96,7 +95,7 @@ export default function ProfessionalProfileScreen() {
 
                         {/* Pricing */}
                         <Text style={[styles.groupTitle, { color: theme.textMuted }]}>TARIFAS Y PRECIOS (MXN)</Text>
-                        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             {isWalker ? (
                                 <>
                                     <View style={styles.inputRow}>
@@ -148,14 +147,14 @@ export default function ProfessionalProfileScreen() {
 
                         {/* Preferences */}
                         <Text style={[styles.groupTitle, { color: theme.textMuted }]}>PREFERENCIAS</Text>
-                        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <View style={styles.toggleItem}>
                                 <Text style={[styles.infoLabel, { color: theme.text }]}>Acepta Perros</Text>
                                 <Switch
                                     value={formData.accepts_dogs}
                                     onValueChange={(val) => updateField('accepts_dogs', val)}
-                                    trackColor={{ false: '#767577', true: '#10b98180' }}
-                                    thumbColor={formData.accepts_dogs ? '#10b981' : '#f4f3f4'}
+                                    trackColor={{ false: '#767577', true: theme.success + '80' }}
+                                    thumbColor={formData.accepts_dogs ? theme.success : '#f4f3f4'}
                                 />
                             </View>
                             <View style={[styles.toggleItem, { marginTop: 12 }]}>
@@ -163,8 +162,8 @@ export default function ProfessionalProfileScreen() {
                                 <Switch
                                     value={formData.accepts_cats}
                                     onValueChange={(val) => updateField('accepts_cats', val)}
-                                    trackColor={{ false: '#767577', true: '#10b98180' }}
-                                    thumbColor={formData.accepts_cats ? '#10b981' : '#f4f3f4'}
+                                    trackColor={{ false: '#767577', true: theme.success + '80' }}
+                                    thumbColor={formData.accepts_cats ? theme.success : '#f4f3f4'}
                                 />
                             </View>
                         </View>
@@ -178,7 +177,7 @@ export default function ProfessionalProfileScreen() {
 const styles = StyleSheet.create({
     saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     content: { padding: 24, paddingBottom: 100 },
-    section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1 },
     groupTitle: { fontSize: 12, fontWeight: '800', marginBottom: 12, marginLeft: 12, letterSpacing: 1 },
     sectionTitle: { fontSize: 16, fontWeight: '800' },
     sectionSubtitle: { fontSize: 12, fontWeight: '600' },

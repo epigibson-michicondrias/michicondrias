@@ -6,18 +6,19 @@ import { useMemorial } from '@/src/hooks/funerary/useMemorial';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import PetPicker from '@/src/features/salud/PetPicker';
+import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Heart, Send, Info } from 'lucide-react-native';
 
 export default function NuevoMemorialScreen() {
     const { theme } = useTheme();
     const { petId } = useLocalSearchParams<{ petId?: string }>();
-    const { form, updateForm, handleCreatePost, isCreating } = useMemorial(petId);
+    const { form, updateForm, handleCreatePost, isCreating, photoUri, setPhotoUri } = useMemorial(petId);
 
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="✍️ Nuevo Mensaje"
+                title="Nuevo Mensaje"
                 subtitle="Comparte un recuerdo de tu mascota"
             />
 
@@ -42,19 +43,15 @@ export default function NuevoMemorialScreen() {
                         />
                     </View>
 
-                    {/* Photo URL (optional) */}
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>URL de Foto (opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="https://..."
-                            placeholderTextColor={theme.textMuted}
-                            value={form.photo_url}
-                            onChangeText={(val) => updateForm('photo_url', val)}
-                            autoCapitalize="none"
-                            keyboardType="url"
-                        />
-                    </View>
+                    {/* Foto (opcional) */}
+                    <FormImagePicker
+                        label="Foto (opcional)"
+                        imageUri={photoUri}
+                        onImageSelected={setPhotoUri}
+                        onImageRemoved={() => setPhotoUri(null)}
+                        placeholder="Agregar una foto del recuerdo"
+                        previewHeight={200}
+                    />
 
                     {/* Info box */}
                     <View style={[styles.infoBox, { backgroundColor: theme.secondary + '10' }]}>
@@ -66,6 +63,8 @@ export default function NuevoMemorialScreen() {
 
                     {/* Submit */}
                     <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel="Publicar mensaje de memorial"
                         style={[styles.submitBtn, { backgroundColor: theme.secondary }, isCreating && { opacity: 0.7 }]}
                         disabled={isCreating}
                         onPress={handleCreatePost}

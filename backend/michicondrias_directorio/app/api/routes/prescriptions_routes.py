@@ -7,6 +7,8 @@ from app.api import deps
 from app.core.config import settings
 from app.models.dashboard import Prescriptions
 from app.models.clinic import Clinic
+from sqlalchemy import text, bindparam
+from app.crud.crud_services import notify_user
 
 router = APIRouter()
 
@@ -25,12 +27,22 @@ def get_clinic_prescriptions(
     if status:
         query = query.filter(Prescriptions.status == status)
         
-    prescriptions = query.all()
-    
+    prescriptions = query.order_by(Prescriptions.issued_date.desc()).all()
+
+    pet_ids = list({p.patient_id for p in prescriptions if p.patient_id})
+    names = {}
+    if pet_ids:
+        try:
+            rows = db.execute(text("SELECT id, name FROM pets WHERE id IN :ids").bindparams(bindparam("ids", expanding=True)), {"ids": pet_ids}).fetchall()
+            names = {r[0]: r[1] for r in rows}
+        except Exception:
+            db.rollback()
+
     return [
         {
             "id": str(p.id),
             "patientId": p.patient_id,
+            "patientName": names.get(p.patient_id),
             "veterinarianId": p.veterinarian_id,
             "medications": p.medications,
             "status": p.status,
@@ -54,6 +66,15 @@ def create_prescription(
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     generate_link = prescription_data.get("generatePurchaseLink", False)
+
+    patient_id = prescription_data.get("patientId")
+    if not patient_id:
+        raise HTTPException(status_code=400, detail="Indica el paciente de la receta")
+    if not prescription_data.get("medications"):
+        raise HTTPException(status_code=400, detail="La receta necesita al menos un medicamento")
+    pet_row = db.execute(text("SELECT owner_id, name FROM pets WHERE id = :pid"), {"pid": patient_id}).first()
+    if not pet_row:
+        raise HTTPException(status_code=404, detail="La mascota indicada no existe")
     
     new_prescription = Prescriptions(
         clinic_id=clinic_id,
@@ -67,6 +88,9 @@ def create_prescription(
     db.commit()
     db.refresh(new_prescription)
     
+    if pet_row[0] and pet_row[0] != user_id:
+        notify_user(db, pet_row[0], "Nueva receta médica", f"{clinic.name} emitió una receta para {pet_row[1] or 'tu mascota'}.", "recetas")
+
     response_data = {
         "id": str(new_prescription.id), 
         "message": "Prescription created successfully"
@@ -102,6 +126,8 @@ def update_prescription_status(
         raise HTTPException(status_code=404, detail="Prescription not found")
         
     if "status" in status_data:
+        if status_data["status"] not in ("active", "filled", "cancelled", "expired"):
+            raise HTTPException(status_code=400, detail="Estado de receta no válido")
         prescription.status = status_data["status"]
         if prescription.status == "filled" and not prescription.filled_date:
             prescription.filled_date = datetime.utcnow()

@@ -18,42 +18,48 @@ export default function VeterinariosClinicaScreen() {
         modalVisible, setModalVisible, editingVet, loadingAction,
         name, setName, email, setEmail, phone, setPhone,
         specialty, setSpecialty, licenseNumber, setLicenseNumber,
-        experience, setExperience, bio, setBio,
+        bio, setBio,
         loadingClinics, loadingVets, clinic, veterinarians, activeVetsCount,
         handleEdit, handleDelete, handleSave, openCreateModal,
     } = useVeterinarians();
 
     const renderVeterinarioItem = ({ item }: { item: any }) => {
         const vetName = item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim();
-        const fallbackPhoto = 'https://images.unsplash.com/photo-1559839731-f7b2eff31c3f?q=80&w=400';
         return (
             <View style={[styles.vetCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                 <View style={styles.vetHeader}>
                     <View style={styles.vetInfo}>
-                        <Image source={{ uri: item.photo_url || fallbackPhoto }} style={styles.vetAvatar} />
+                        {item.photo_url ? (
+                            <Image source={{ uri: item.photo_url }} style={styles.vetAvatar} />
+                        ) : (
+                            <View style={[styles.vetAvatar, { backgroundColor: theme.primary + '15', alignItems: 'center', justifyContent: 'center' }]}>
+                                <Stethoscope size={26} color={theme.primary} />
+                            </View>
+                        )}
                         <View style={styles.vetDetails}>
                             <Text style={[styles.vetName, { color: theme.text }]}>{vetName}</Text>
                             <Text style={[styles.vetSpecialty, { color: theme.primary }]}>{item.specialty || 'General'}</Text>
-                            <View style={styles.vetMeta}>
-                                <View style={styles.ratingContainer}>
-                                    <Star size={14} color="#fbbf24" fill="#fbbf24" />
-                                    <Text style={[styles.ratingText, { color: theme.text }]}>
-                                        {item.rating || '5.0'}
-                                    </Text>
+                            {item.total_reviews ? (
+                                <View style={styles.vetMeta}>
+                                    <View style={styles.ratingContainer}>
+                                        <Star size={14} color={theme.warning} fill={theme.warning} />
+                                        <Text style={[styles.ratingText, { color: theme.text }]}>
+                                            {Number(item.average_rating || 0).toFixed(1)} ({item.total_reviews})
+                                        </Text>
+                                    </View>
                                 </View>
-                                <Text style={[styles.experienceText, { color: theme.textMuted }]}>
-                                    {item.experience_years || '5'} años exp.
-                                </Text>
-                            </View>
+                            ) : (
+                                <Text style={[styles.experienceText, { color: theme.textMuted }]}>Sin reseñas todavía</Text>
+                            )}
                         </View>
                     </View>
                     <View style={[styles.statusBadge, { 
-                        backgroundColor: item.is_active !== false ? '#10b98120' : '#ef444420' 
+                        backgroundColor: item.is_approved ? theme.success + '20' : theme.warning + '20' 
                     }]}>
                         <Text style={[styles.statusText, { 
-                            color: item.is_active !== false ? '#10b981' : '#ef4444' 
+                            color: item.is_approved ? theme.success : theme.warning 
                         }]}>
-                            {item.is_active !== false ? 'Activo' : 'Inactivo'}
+                            {item.is_approved ? 'Aprobado' : 'En revisión'}
                         </Text>
                     </View>
                 </View>
@@ -61,7 +67,7 @@ export default function VeterinariosClinicaScreen() {
                 <View style={styles.vetContact}>
                     <View style={styles.contactRow}>
                         <Mail size={14} color={theme.textMuted} />
-                        <Text style={[styles.contactText, { color: theme.textMuted }]}>{item.email}</Text>
+                        <Text style={[styles.contactText, { color: theme.textMuted }]}>{item.email || 'Sin correo'}</Text>
                     </View>
                     <View style={styles.contactRow}>
                         <Phone size={14} color={theme.textMuted} />
@@ -83,17 +89,17 @@ export default function VeterinariosClinicaScreen() {
                         </Text>
                     </View>
                     <View style={styles.actionButtons}>
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Editar"
                             style={[styles.actionBtn, { backgroundColor: theme.primary + '15' }]}
                             onPress={() => handleEdit(item)}
                         >
                             <Edit size={16} color={theme.primary} />
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.actionBtn, { backgroundColor: '#ef444420' }]}
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Desasociar veterinario"
+                            style={[styles.actionBtn, { backgroundColor: theme.error + '20' }]}
                             onPress={() => handleDelete(item)}
                         >
-                            <Trash2 size={16} color="#ef4444" />
+                            <Trash2 size={16} color={theme.error} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -139,9 +145,9 @@ export default function VeterinariosClinicaScreen() {
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Total Veterinarios</Text>
                     </View>
                     <View style={[styles.statCard, { backgroundColor: theme.surface }]}>
-                        <Stethoscope size={24} color="#10b981" />
+                        <Stethoscope size={24} color={theme.success} />
                         <Text style={[styles.statNumber, { color: theme.text }]}>{activeVetsCount}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Activos</Text>
+                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Aprobados</Text>
                     </View>
                 </View>
 
@@ -173,7 +179,7 @@ export default function VeterinariosClinicaScreen() {
             >
                 <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
                     <View style={styles.modalHeader}>
-                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setModalVisible(false)}>
                             <X size={24} color={theme.text} />
                         </TouchableOpacity>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>
@@ -196,6 +202,7 @@ export default function VeterinariosClinicaScreen() {
                                 value={name}
                                 onChangeText={setName}
                                 placeholder="Dr. Juan Pérez"
+                                placeholderTextColor={theme.textMuted}
                             />
                         </View>
 
@@ -206,18 +213,20 @@ export default function VeterinariosClinicaScreen() {
                                 value={email}
                                 onChangeText={setEmail}
                                 placeholder="email@clinica.com"
+                                placeholderTextColor={theme.textMuted}
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                             />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono *</Text>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono</Text>
                             <TextInput
                                 style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 value={phone}
                                 onChangeText={setPhone}
                                 placeholder="+52 55 1234 5678"
+                                placeholderTextColor={theme.textMuted}
                                 keyboardType="phone-pad"
                             />
                         </View>
@@ -229,27 +238,18 @@ export default function VeterinariosClinicaScreen() {
                                 value={specialty}
                                 onChangeText={setSpecialty}
                                 placeholder="Medicina General"
+                                placeholderTextColor={theme.textMuted}
                             />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Número de Cédula *</Text>
+                            <Text style={[styles.label, { color: theme.textMuted }]}>Número de Cédula</Text>
                             <TextInput
                                 style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 value={licenseNumber}
                                 onChangeText={setLicenseNumber}
                                 placeholder="VET-12345"
-                            />
-                        </View>
-
-                        <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Años de Experiencia</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={experience}
-                                onChangeText={setExperience}
-                                placeholder="5"
-                                keyboardType="numeric"
+                                placeholderTextColor={theme.textMuted}
                             />
                         </View>
 
@@ -260,6 +260,7 @@ export default function VeterinariosClinicaScreen() {
                                 value={bio}
                                 onChangeText={setBio}
                                 placeholder="Breve descripción profesional..."
+                                placeholderTextColor={theme.textMuted}
                                 multiline
                                 numberOfLines={4}
                             />
@@ -276,7 +277,7 @@ export default function VeterinariosClinicaScreen() {
 const styles = StyleSheet.create({
     content: { flex: 1, paddingHorizontal: 24 },
     statsContainer: { flexDirection: 'row', gap: 16, marginBottom: 24 },
-    statCard: { flex: 1, padding: 20, borderRadius: 16, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    statCard: { flex: 1, padding: 20, borderRadius: 16, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     statNumber: { fontSize: 24, fontWeight: '900' },
     statLabel: { fontSize: 12, fontWeight: '600' },
     list: { paddingBottom: 100 },

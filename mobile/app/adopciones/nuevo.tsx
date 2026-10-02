@@ -190,11 +190,11 @@ export default function NuevaAdopcionScreen() {
                         <View style={styles.divider} />
 
                         <CustomSwitch
-                            label="🚨 ¿Es un Caso Urgente?"
+                            label="¿Es un caso urgente?"
                             active={form.is_emergency}
                             onPress={() => toggleField('is_emergency')}
                             theme={theme}
-                            activeColor="#ef4444"
+                            activeColor={theme.error}
                         />
 
                         <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>Salud</Text>
@@ -239,8 +239,11 @@ function CustomSwitch({ label, active, onPress, theme, activeColor }: { label: s
         <View style={styles.switchRow}>
             <Text style={[styles.switchLabel, { color: theme.text }]}>{label}</Text>
             <TouchableOpacity
-                style={[styles.switch, { backgroundColor: active ? (activeColor || '#10b981') : theme.surface }]}
+                style={[styles.switch, { backgroundColor: active ? (activeColor || theme.success) : theme.surface }]}
                 onPress={onPress}
+                accessibilityRole="switch"
+                accessibilityLabel={label}
+                accessibilityState={{ checked: active }}
             >
                 <View style={[styles.switchThumb, active && styles.switchThumbActive]} />
             </TouchableOpacity>
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
         borderStyle: 'dashed',
     },
     imagePlaceholderText: {
@@ -292,7 +295,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         fontSize: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     inputWrapper: {
         position: 'relative',
@@ -324,7 +327,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 10,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     choiceText: {
         fontSize: 15,
@@ -343,9 +346,9 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     genderBtnText: {
         fontSize: 20,
@@ -361,7 +364,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     sizeText: {
         fontSize: 12,
@@ -390,7 +393,7 @@ const styles = StyleSheet.create({
     },
     divider: {
         height: 1,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(128,128,128,0.08)',
         marginVertical: 8,
     },
     sectionSubtitle: {

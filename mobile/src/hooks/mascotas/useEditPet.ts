@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getPetById, updatePet, getMascotasPresignedUrl } from '@/src/services/mascotas';
+import { getPetById, updatePet, deletePet, getMascotasPresignedUrl } from '@/src/services/mascotas';
 import { showAlert } from '@/src/components/AppAlert';
 import { getFileExtension, getS3Url } from '@/src/utils/helpers';
 import type { PetFormData } from '@/src/types/mascotas';
@@ -16,6 +16,7 @@ export function useEditPet() {
     const [form, setForm] = useState<PetFormData>({ ...PET_FORM_DEFAULTS });
     const [image, setImage] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Fetch the existing pet profile
     const { data: pet, isLoading: isLoadingPet } = useQuery({
@@ -143,6 +144,35 @@ export function useEditPet() {
         }
     };
 
+    /** Pide confirmación y elimina la mascota (solo el dueño; el backend la desactiva sin romper su carnet ni citas). */
+    const handleDelete = () => {
+        if (!id) return;
+        const petName = pet?.name || 'esta mascota';
+        showAlert({
+            type: 'warning',
+            title: `Eliminar a ${petName}`,
+            message: 'Dejará de aparecer en tu lista y no podrás recuperarla. ¿Seguro que quieres eliminarla?',
+            showCancel: true,
+            cancelText: 'Conservar',
+            buttonText: 'Eliminar',
+            onButtonPress: async () => {
+                setIsDeleting(true);
+                try {
+                    await deletePet(id);
+                    queryClient.removeQueries({ queryKey: ['pet-profile', id] });
+                    queryClient.removeQueries({ queryKey: ['pet', id] });
+                    queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+                    queryClient.invalidateQueries({ queryKey: ['my-pets-carnet'] });
+                    router.replace('/mascotas' as any);
+                } catch (error: any) {
+                    showAlert({ type: 'error', title: 'No se pudo eliminar', message: error?.message || 'Inténtalo de nuevo en unos minutos.' });
+                } finally {
+                    setIsDeleting(false);
+                }
+            },
+        });
+    };
+
     return {
         form,
         updateField,
@@ -150,6 +180,8 @@ export function useEditPet() {
         setImage,
         isLoadingPet,
         isUpdating,
+        isDeleting,
         handleUpdate,
+        handleDelete,
     };
 }

@@ -48,7 +48,7 @@ export default function EditarReporteScreen() {
             <ScreenHeader title="Editar Reporte" />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-                <TouchableOpacity style={styles.imageSelector} onPress={pickImage}>
+                <TouchableOpacity style={[styles.imageSelector, { borderColor: theme.border }]} onPress={pickImage}>
                     {image ? (
                         <Image source={{ uri: image }} style={styles.selectedImage} />
                     ) : (
@@ -68,7 +68,7 @@ export default function EditarReporteScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Nombre o Identificador</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Ej. Firulais"
                             placeholderTextColor={theme.textMuted}
                             value={form.pet_name}
@@ -87,7 +87,7 @@ export default function EditarReporteScreen() {
                         <View style={[styles.inputGroup, { flex: 1 }]}>
                             <Text style={[styles.label, { color: theme.text }]}>Raza</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Ej. Husky"
                                 placeholderTextColor={theme.textMuted}
                                 value={form.breed}
@@ -97,7 +97,7 @@ export default function EditarReporteScreen() {
                         <View style={[styles.inputGroup, { flex: 1 }]}>
                             <Text style={[styles.label, { color: theme.text }]}>Color</Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Ej. Blanco"
                                 placeholderTextColor={theme.textMuted}
                                 value={form.color}
@@ -123,7 +123,7 @@ export default function EditarReporteScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Última ubicación conocida</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Ej. Parque México"
                             placeholderTextColor={theme.textMuted}
                             value={form.last_seen_location}
@@ -134,7 +134,7 @@ export default function EditarReporteScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Teléfono de Contacto</Text>
                         <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Tus 10 dígitos"
                             keyboardType="phone-pad"
                             placeholderTextColor={theme.textMuted}
@@ -146,7 +146,7 @@ export default function EditarReporteScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Detalles Extra</Text>
                         <TextInput
-                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
+                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                             placeholder="Comportamiento, señas particulares..."
                             placeholderTextColor={theme.textMuted}
                             multiline
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         marginBottom: 24,
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'transparent',
     },
     imagePlaceholder: {
         flex: 1,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 14,
-        fontWeight: '900',
+        fontWeight: '800',
         marginLeft: 4,
     },
     input: {
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'transparent',
     },
     textArea: {
         height: 120,

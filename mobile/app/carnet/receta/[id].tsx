@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePrescriptionDetail } from '@/src/hooks/carnet/usePrescriptionDetail';
@@ -16,9 +17,7 @@ export default function PrescriptionDetailScreen() {
 
     if (loading) {
         return (
-            <ScreenContainer style={styles.center}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </ScreenContainer>
+            <ScreenContainer><SkeletonList count={4} /></ScreenContainer>
         );
     }
 
@@ -140,7 +139,7 @@ export default function PrescriptionDetailScreen() {
                                 {p.instructions && (
                                     <View style={[styles.ticketInstructionsContainer, { borderTopColor: theme.borderLight }]}>
                                         <Text style={[styles.ticketInstructionsText, { color: theme.text }]}>
-                                            📋 Instrucciones: {p.instructions}
+                                            Instrucciones: {p.instructions}
                                         </Text>
                                     </View>
                                 )}
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     scroll: {
         flex: 1,
@@ -239,7 +238,7 @@ const styles = StyleSheet.create({
     },
     ticketTitle: {
         fontSize: 15,
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: 0.5,
     },
     ticketSubtitle: {
@@ -266,7 +265,7 @@ const styles = StyleSheet.create({
     },
     ticketSectionTitle: {
         fontSize: 11,
-        fontWeight: '900',
+        fontWeight: '800',
         letterSpacing: 1,
         marginBottom: 14,
     },

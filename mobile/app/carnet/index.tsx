@@ -65,14 +65,14 @@ export default function CarnetListScreen() {
                 <HealthChip
                     label="Vacunas"
                     ok={item.is_vaccinated}
-                    icon={<Syringe size={12} color={item.is_vaccinated ? '#10b981' : '#f59e0b'} />}
-                    color={item.is_vaccinated ? '#10b981' : '#f59e0b'}
+                    icon={<Syringe size={12} color={item.is_vaccinated ? theme.success : theme.warning} />}
+                    color={item.is_vaccinated ? theme.success : theme.warning}
                 />
                 <HealthChip
                     label="Esterilizado"
                     ok={item.is_sterilized}
-                    icon={<Scissors size={12} color={item.is_sterilized ? '#3b82f6' : '#6b7280'} />}
-                    color={item.is_sterilized ? '#3b82f6' : '#6b7280'}
+                    icon={<Scissors size={12} color={item.is_sterilized ? theme.info : '#6b7280'} />}
+                    color={item.is_sterilized ? theme.info : '#6b7280'}
                 />
             </View>
 
@@ -81,7 +81,7 @@ export default function CarnetListScreen() {
                     <Text style={[styles.idLabel, { color: theme.textMuted }]}>DIGITAL ID:</Text>
                     <Text style={[styles.idValue, { color: theme.text }]}>{item.id.substring(0, 12)}...</Text>
                 </View>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.btnOpen, { backgroundColor: theme.primary + '15' }]}
                     onPress={() => router.push(`/carnet/${item.id}` as any)}
                 >
@@ -98,7 +98,7 @@ export default function CarnetListScreen() {
                 <View style={[styles.medicalTerminal, { backgroundColor: '#0891b220', borderColor: '#0891b240' }]}>
                     <View style={styles.terminalHeader}>
                         <View style={styles.terminalIconBox}>
-                            <Stethoscope size={20} color="#0891b2" />
+                            <Stethoscope size={20} color={theme.info} />
                         </View>
                         <View>
                             <Text style={[styles.terminalTitle, { color: theme.text }]}>Modo Médico Habilitado</Text>
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     },
     petName: {
         fontSize: 18,
-        fontWeight: '900',
+        fontWeight: '800',
         marginBottom: 2,
     },
     petBreed: {

@@ -21,7 +21,7 @@ export default function EntrenadoresScreen() {
     const { programs, isLoading, refetch, isRefetching } = usePrograms();
 
     const renderProgramItem = ({ item }: { item: TrainingProgram }) => (
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button"
             style={[styles.programCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => router.push({ pathname: '/entrenadores/[id]', params: { id: item.id } } as any)}
         >
@@ -73,7 +73,7 @@ export default function EntrenadoresScreen() {
     const listHeader = (
         <View style={styles.actionButtons}>
             {isTrainer ? (
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push('/entrenadores/nuevo-programa' as any)}
                 >
@@ -81,7 +81,7 @@ export default function EntrenadoresScreen() {
                     <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nuevo Programa</Text>
                 </TouchableOpacity>
             ) : (
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                     onPress={() => router.push('/entrenadores/mis-inscripciones' as any)}
                 >

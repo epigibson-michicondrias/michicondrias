@@ -18,6 +18,8 @@ export default function InventarioScreen() {
         showSearch, searchQuery, setSearchQuery, modalVisible, setModalVisible,
         loadingAction, newItem, setNewItem, isLoading, criticalItems,
         filteredInventory, toggleSearch, handleSaveItem,
+        editModalVisible, setEditModalVisible, editingItem, setEditingItem,
+        handleEditItem, handleUpdateItem, handleDeleteItem, isUpdating, isDeleting,
     } = useInventory();
 
     if (isLoading) {
@@ -32,9 +34,8 @@ export default function InventarioScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Inventario Médico"
-                gradient={['#8b5cf6', '#7c3aed', '#6d28d9']}
                 rightElement={
-                    <TouchableOpacity 
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={showSearch ? "Cerrar búsqueda" : "Buscar en el inventario"}
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
                         onPress={toggleSearch}
                     >
@@ -62,13 +63,13 @@ export default function InventarioScreen() {
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Atención Inmediata</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
                                 {criticalItems.map(item => (
-                                    <View key={item.id} style={[styles.criticalCard, { backgroundColor: '#ef444415', borderColor: '#ef444450' }]}>
+                                    <View key={item.id} style={[styles.criticalCard, { backgroundColor: theme.error + '15', borderColor: theme.error + '50' }]}>
                                         <View style={styles.criticalIconBox}>
-                                            <AlertTriangle size={20} color="#ef4444" />
+                                            <AlertTriangle size={20} color={theme.error} />
                                         </View>
                                         <View>
                                             <Text style={[styles.criticalName, { color: theme.text }]}>{item.name}</Text>
-                                            <Text style={styles.criticalStock}>Quedan: {item.currentStock} {item.unit}</Text>
+                                            <Text style={[styles.criticalStock, { color: theme.error }]}>Quedan: {item.currentStock} {item.unit}</Text>
                                         </View>
                                     </View>
                                 ))}
@@ -79,7 +80,9 @@ export default function InventarioScreen() {
                     {/* Inventory Actions */}
                     <View style={styles.actionsRow}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Catálogo General</Text>
-                        <TouchableOpacity 
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Agregar producto al inventario"
                             style={[styles.addBtn, { backgroundColor: theme.primary + '15' }]}
                             onPress={() => setModalVisible(true)}
                         >
@@ -96,7 +99,13 @@ export default function InventarioScreen() {
                         />
                     ) : (
                         filteredInventory.map(item => (
-                            <View key={item.id} style={[styles.itemCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                            <TouchableOpacity
+                                key={item.id}
+                                accessibilityRole="button"
+                                accessibilityLabel={`Editar ${item.name}, ${item.currentStock} ${item.unit}`}
+                                onPress={() => handleEditItem(item)}
+                                style={[styles.itemCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                            >
                                 <View style={[styles.itemIcon, { backgroundColor: theme.secondary + '15' }]}>
                                     <Package size={22} color={theme.secondary} />
                                 </View>
@@ -105,12 +114,12 @@ export default function InventarioScreen() {
                                     <Text style={[styles.itemCategory, { color: theme.textMuted }]}>{item.category || 'Sin categoría'}</Text>
                                 </View>
                                 <View style={styles.stockInfo}>
-                                    <Text style={[styles.stockValue, { color: item.currentStock <= item.minStock ? '#ef4444' : '#10b981' }]}>
+                                    <Text style={[styles.stockValue, { color: item.currentStock <= item.minStock ? theme.error : theme.success }]}>
                                         {item.currentStock}
                                     </Text>
                                     <Text style={[styles.stockUnit, { color: theme.textMuted }]}>{item.unit}</Text>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         ))
                     )}
                 </View>
@@ -173,7 +182,7 @@ export default function InventarioScreen() {
                         </ScrollView>
 
                         <View style={styles.modalActions}>
-                            <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
+                            <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: theme.surface }]} onPress={() => setModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cancelar">
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity 
@@ -182,6 +191,84 @@ export default function InventarioScreen() {
                                 disabled={loadingAction}
                             >
                                 {loadingAction ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Guardar</Text>}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Edit Item Modal */}
+            <Modal visible={editModalVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+                        <Text style={[styles.modalTitle, { color: theme.text }]}>Editar Producto</Text>
+                        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                            <Text style={[styles.inputLabel, { color: theme.text }]}>Nombre *</Text>
+                            <TextInput
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                value={editingItem?.name || ''}
+                                onChangeText={t => setEditingItem({ ...editingItem, name: t })}
+                                placeholderTextColor={theme.textMuted}
+                            />
+                            <Text style={[styles.inputLabel, { color: theme.text }]}>Categoría</Text>
+                            <TextInput
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                value={editingItem?.category || ''}
+                                onChangeText={t => setEditingItem({ ...editingItem, category: t })}
+                                placeholderTextColor={theme.textMuted}
+                            />
+                            <View style={{ flexDirection: 'row', gap: 12 }}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Stock actual</Text>
+                                    <TextInput
+                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                        value={String(editingItem?.currentStock ?? 0)}
+                                        onChangeText={t => setEditingItem({ ...editingItem, currentStock: Math.max(0, parseInt(t) || 0) })}
+                                        keyboardType="numeric"
+                                    />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Stock mínimo</Text>
+                                    <TextInput
+                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                        value={String(editingItem?.minStock ?? 0)}
+                                        onChangeText={t => setEditingItem({ ...editingItem, minStock: Math.max(0, parseInt(t) || 0) })}
+                                        keyboardType="numeric"
+                                    />
+                                </View>
+                            </View>
+                            <Text style={[styles.inputLabel, { color: theme.text }]}>Unidad de medida</Text>
+                            <TextInput
+                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                value={editingItem?.unit || ''}
+                                onChangeText={t => setEditingItem({ ...editingItem, unit: t })}
+                                placeholderTextColor={theme.textMuted}
+                            />
+                            <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityLabel="Eliminar producto del inventario"
+                                disabled={isDeleting}
+                                onPress={() => editingItem?.id && handleDeleteItem(editingItem.id)}
+                                style={{ marginTop: 20, alignItems: 'center', paddingVertical: 12 }}
+                            >
+                                <Text style={{ color: theme.error, fontWeight: '800' }}>Eliminar producto</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity
+                                style={[styles.cancelBtn, { backgroundColor: theme.surface }]}
+                                onPress={() => { setEditModalVisible(false); setEditingItem(null); }}
+                                accessibilityRole="button"
+                                accessibilityLabel="Cancelar"
+                            >
+                                <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
+                                onPress={handleUpdateItem}
+                                disabled={isUpdating}
+                            >
+                                {isUpdating ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Guardar</Text>}
                             </TouchableOpacity>
                         </View>
                     </View>

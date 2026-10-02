@@ -21,14 +21,14 @@ export function useApplyForm() {
     const [form, setForm] = useState<AdoptionRequestCreate>({
         applicant_name: user?.full_name || '',
         house_type: 'Casa',
-        has_yard: true,
+        has_yard: false,
         own_or_rent: 'Propia',
-        landlord_permission: true,
+        landlord_permission: false,
         other_pets: '',
         has_children: false,
         children_ages: '',
         hours_alone: 4,
-        financial_commitment: true,
+        financial_commitment: false,
         reason: '',
         previous_experience: '',
     });
@@ -52,14 +52,19 @@ export function useApplyForm() {
 
     const handleNext = () => {
         if (step === 1) {
-            if (!form.applicant_name) {
-                showAlert({ type: 'error', title: 'Error', message: 'Tu nombre es obligatorio' });
+            if (!form.applicant_name?.trim()) {
+                showAlert({ type: 'error', title: 'Falta tu nombre', message: 'Tu nombre es obligatorio.' });
                 return;
             }
             setStep(2);
         } else if (step === 2) {
-            if (!form.hours_alone && form.hours_alone !== 0) {
-                showAlert({ type: 'error', title: 'Error', message: 'Indica las horas que pasará solo' });
+            const h = Number(form.hours_alone);
+            if (form.hours_alone === undefined || form.hours_alone === null || !Number.isFinite(h) || h < 0 || h > 24) {
+                showAlert({ type: 'error', title: 'Horas inválidas', message: 'Indica cuántas horas al día pasará solo (entre 0 y 24).' });
+                return;
+            }
+            if (form.own_or_rent === 'Renta' && !form.landlord_permission) {
+                showAlert({ type: 'error', title: 'Permiso del arrendador', message: 'Si rentas, necesitas el permiso de tu arrendador para tener mascotas.' });
                 return;
             }
             setStep(3);
@@ -73,11 +78,11 @@ export function useApplyForm() {
 
     const handleSubmit = async () => {
         if (!form.reason?.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'Cuéntanos por qué deseas adoptar' });
+            showAlert({ type: 'error', title: 'Falta el motivo', message: 'Cuéntanos por qué deseas adoptar.' });
             return;
         }
         if (!form.financial_commitment) {
-            showAlert({ type: 'error', title: 'Error', message: 'Debes aceptar el compromiso financiero' });
+            showAlert({ type: 'error', title: 'Compromiso necesario', message: 'Debes aceptar el compromiso financiero para continuar.' });
             return;
         }
 
@@ -86,6 +91,7 @@ export function useApplyForm() {
             await requestAdoption(id as string, form);
             queryClient.invalidateQueries({ queryKey: ['my-adoption-requests'] });
             queryClient.invalidateQueries({ queryKey: ['my-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['adopcion', id] });
             setSuccess(true);
         } catch (error) {
             showAlert({

@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, Date, DateTime
+from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, Date, DateTime, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.session import Base
@@ -41,4 +41,21 @@ class TrainingEnrollment(Base):
     start_date = Column(Date, nullable=False)
     status = Column(String(20), default="active")  # 'active', 'completed', 'cancelled'
     total_paid = Column(Float, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class TrainingReview(Base):
+    """Reseña de un programa. Una por usuario y programa; solo quien lo completó (inscripción 'completed')."""
+    __tablename__ = "training_reviews"
+    __table_args__ = (
+        UniqueConstraint("program_id", "user_id", name="uq_training_reviews_program_user"),
+        CheckConstraint("rating >= 1 AND rating <= 5", name="ck_training_reviews_rating"),
+    )
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    program_id = Column(String(36), ForeignKey("training_programs.id", ondelete="CASCADE"), nullable=False, index=True)
+    trainer_id = Column(String(36), nullable=False, index=True)
+    user_id = Column(String(36), nullable=False, index=True)
+    rating = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

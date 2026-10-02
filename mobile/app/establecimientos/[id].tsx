@@ -71,7 +71,7 @@ export default function VenueDetailScreen() {
     const renderStarRating = (rating: number, interactive: boolean = false) => (
         <View style={styles.starsRow}>
             {[1, 2, 3, 4, 5].map((star) => (
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Calificar con ${star} ${star === 1 ? 'estrella' : 'estrellas'}`}
                     key={star}
                     disabled={!interactive}
                     onPress={() => interactive && setReviewRating(star)}
@@ -94,14 +94,14 @@ export default function VenueDetailScreen() {
                     {new Date(review.created_at).toLocaleDateString('es-MX')}
                 </Text>
             </View>
-            {review.review_text && (
+            {!!review.review_text && (
                 <Text style={[styles.reviewText, { color: theme.text }]}>{review.review_text}</Text>
             )}
         </View>
     );
 
     const isOwner = !!user && !!venue && user.id === venue.owner_id;
-    const canEdit = user && venue && (user.role_name === 'admin' || user.id === venue.owner_id);
+    const canEdit = isOwner;
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -109,7 +109,7 @@ export default function VenueDetailScreen() {
                 title="Detalle del Establecimiento"
                 rightElement={
                     canEdit ? (
-                        <TouchableOpacity
+                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Editar establecimiento"
                             style={[styles.editBtn, { backgroundColor: theme.primary + '20' }]}
                             onPress={() => router.push({ pathname: '/establecimientos/editar/[id]', params: { id: venue.id } } as any)}
                         >
@@ -127,7 +127,7 @@ export default function VenueDetailScreen() {
                 <Text style={[styles.venueName, { color: theme.text }]}>{venue.name}</Text>
 
                 {/* Score badge */}
-                {score && (
+                {score && score.reviews_count > 0 && (
                     <View style={[styles.scoreBadge, { backgroundColor: theme.warningLight }]}>
                         <Star size={18} color={theme.warning} fill={theme.warning} />
                         <Text style={styles.scoreValue}>{score.average_rating.toFixed(1)}</Text>
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+        borderColor: 'rgba(128,128,128,0.2)',
     },
     amenityKey: {
         fontSize: 12,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
         gap: 10,
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
+        borderBottomColor: 'rgba(128,128,128,0.2)',
     },
     infoLabel: {
         fontSize: 14,

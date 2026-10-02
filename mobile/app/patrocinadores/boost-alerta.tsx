@@ -53,7 +53,7 @@ export default function BoostAlertaScreen() {
                     )}
                 </View>
                 {item.last_seen_location && (
-                    <View style={styles.locationRow}>
+                    <View style={[styles.locationRow, { borderTopColor: theme.border }]}>
                         <MapPin size={12} color={theme.textMuted} />
                         <Text style={[styles.locationText, { color: theme.textMuted }]} numberOfLines={1}>
                             {item.last_seen_location}
@@ -67,7 +67,7 @@ export default function BoostAlertaScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="⚡ Impulsar Alerta"
+                title="Impulsar Alerta"
                 subtitle="Amplía el alcance de una alerta de mascota perdida"
             />
 
@@ -97,7 +97,7 @@ export default function BoostAlertaScreen() {
                             <View style={styles.inputRow}>
                                 <MapPin size={18} color={theme.primary} />
                                 <TextInput
-                                    style={[styles.input, { color: theme.text }]}
+                                    style={[styles.input, { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border }]}
                                     placeholder="Radio extra (metros)"
                                     placeholderTextColor={theme.textMuted}
                                     value={boostForm.extra_radius_meters}
@@ -117,7 +117,7 @@ export default function BoostAlertaScreen() {
                             <View style={styles.inputRow}>
                                 <DollarSign size={18} color={theme.secondary} />
                                 <TextInput
-                                    style={[styles.input, { color: theme.text }]}
+                                    style={[styles.input, { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border }]}
                                     placeholder="Monto a pagar (MXN)"
                                     placeholderTextColor={theme.textMuted}
                                     value={boostForm.amount_paid}
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingTop: 10,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.05)',
+        borderTopColor: 'transparent',
     },
     locationText: {
         fontSize: 12,

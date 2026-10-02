@@ -1,19 +1,17 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useTrainerDashboard } from '@/src/hooks/training';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { Plus, Users, Dumbbell, Target, Calendar, ChevronRight } from 'lucide-react-native';
 import type { TrainingEnrollment } from '@/src/services/training';
 
-const STATUS_COLORS: Record<string, string> = {
-    active: '#22c55e',
-    completed: '#3b82f6',
-    cancelled: '#ef4444',
-    pending: '#f59e0b',
-};
+const statusColorOf = (status: string, theme: any): string =>
+    ({ active: theme.success, completed: theme.info, cancelled: theme.error } as Record<string, string>)[status] || theme.warning;
 
 const STATUS_LABELS: Record<string, string> = {
     active: 'Activo',
@@ -37,11 +35,11 @@ export default function TrainerDashboardScreen() {
     const totalCompleted = enrollments.filter(e => e.status === 'completed').length;
 
     const renderEnrollment = ({ item }: { item: TrainingEnrollment }) => {
-        const statusColor = STATUS_COLORS[item.status] || STATUS_COLORS.pending;
+        const statusColor = statusColorOf(item.status, theme);
         const statusLabel = STATUS_LABELS[item.status] || 'Pendiente';
 
         return (
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button"
                 style={[styles.enrollmentCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                 onPress={() => router.push(`/entrenadores/metas/${item.id}`)}
                 activeOpacity={0.7}
@@ -58,10 +56,7 @@ export default function TrainerDashboardScreen() {
                             {item.program_title || 'Programa'}
                         </Text>
                     </View>
-                    <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
-                        <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
-                        <Text style={[styles.statusLabel, { color: statusColor }]}>{statusLabel}</Text>
-                    </View>
+                    <StatusBadge label={statusLabel} color={statusColor} dot />
                 </View>
 
                 <View style={styles.enrollmentFooter}>
@@ -89,7 +84,7 @@ export default function TrainerDashboardScreen() {
 
             {/* Quick Actions */}
             <View style={styles.actionsRow}>
-                <TouchableOpacity
+                <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionCard, { backgroundColor: theme.primaryLight }]}
                     onPress={() => router.push('/entrenadores/nuevo-programa')}
                     activeOpacity={0.7}
@@ -110,12 +105,12 @@ export default function TrainerDashboardScreen() {
                 </View>
                 <View style={[styles.statDivider, { backgroundColor: theme.divider }]} />
                 <View style={styles.statItem}>
-                    <Text style={[styles.statNumber, { color: '#22c55e' }]}>{totalActive}</Text>
+                    <Text style={[styles.statNumber, { color: theme.success }]}>{totalActive}</Text>
                     <Text style={[styles.statLabel, { color: theme.textMuted }]}>Activos</Text>
                 </View>
                 <View style={[styles.statDivider, { backgroundColor: theme.divider }]} />
                 <View style={styles.statItem}>
-                    <Text style={[styles.statNumber, { color: '#3b82f6' }]}>{totalCompleted}</Text>
+                    <Text style={[styles.statNumber, { color: theme.info }]}>{totalCompleted}</Text>
                     <Text style={[styles.statLabel, { color: theme.textMuted }]}>Completos</Text>
                 </View>
             </View>
@@ -127,9 +122,7 @@ export default function TrainerDashboardScreen() {
             </View>
 
             {isEnrollmentsLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
+                <SkeletonList count={4} />
             ) : (
                 <FlatList
                     data={enrollments}
@@ -204,7 +197,7 @@ const styles = StyleSheet.create({
     },
     statNumber: {
         fontSize: 24,
-        fontWeight: '900',
+        fontWeight: '800',
     },
     statLabel: {
         fontSize: 12,

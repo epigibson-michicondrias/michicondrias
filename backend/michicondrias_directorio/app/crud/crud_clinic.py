@@ -34,6 +34,9 @@ def create_clinic(db: Session, clinic: ClinicCreate, owner_user_id: str = None):
 
 def update_clinic(db: Session, db_clinic: Clinic, clinic_update: ClinicUpdate):
     update_data = clinic_update.model_dump(exclude_unset=True)
+    # La propiedad y la aprobación no se cambian desde el cliente
+    update_data.pop("owner_user_id", None)
+    update_data.pop("is_approved", None)
     for key, value in update_data.items():
         setattr(db_clinic, key, value)
     
@@ -101,6 +104,14 @@ def get_clinic_reviews(db: Session, clinic_id: str):
     return db.query(ClinicReview).filter(ClinicReview.clinic_id == clinic_id).order_by(ClinicReview.created_at.desc()).all()
 
 def create_clinic_review(db: Session, clinic_id: str, user_id: str, review: ClinicReviewCreate):
+    # Una reseña por usuario y clínica: si ya existe, se actualiza (evita inflar la calificación)
+    existing = db.query(ClinicReview).filter(ClinicReview.clinic_id == clinic_id, ClinicReview.user_id == user_id).first()
+    if existing:
+        existing.rating = review.rating
+        existing.comment = review.comment
+        db.commit()
+        db.refresh(existing)
+        return existing
     db_review = ClinicReview(
         clinic_id=clinic_id,
         user_id=user_id,
@@ -122,6 +133,13 @@ def get_vet_reviews(db: Session, vet_id: str):
     return db.query(VetReview).filter(VetReview.vet_id == vet_id).order_by(VetReview.created_at.desc()).all()
 
 def create_vet_review(db: Session, vet_id: str, user_id: str, review: VetReviewCreate):
+    existing = db.query(VetReview).filter(VetReview.vet_id == vet_id, VetReview.user_id == user_id).first()
+    if existing:
+        existing.rating = review.rating
+        existing.comment = review.comment
+        db.commit()
+        db.refresh(existing)
+        return existing
     db_review = VetReview(
         vet_id=vet_id,
         user_id=user_id,

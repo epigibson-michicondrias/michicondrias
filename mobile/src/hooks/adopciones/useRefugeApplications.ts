@@ -7,13 +7,14 @@ import { useRouter } from 'expo-router';
 import { getRefugeApplications } from '@/src/services/adopciones';
 import type { AdoptionForm } from '@/src/types/adopciones';
 
-export const STATUS_COLORS: Record<string, string> = {
-    pending: '#f59e0b',
-    submitted: '#f59e0b',
-    under_review: '#3b82f6',
-    approved: '#10b981',
-    rejected: '#ef4444',
-    reviewing: '#3b82f6',
+/** Tono semántico por estado; el color real se toma del tema en la pantalla. */
+export const STATUS_TONES: Record<string, 'warning' | 'info' | 'success' | 'error'> = {
+    pending: 'warning',
+    submitted: 'warning',
+    under_review: 'info',
+    approved: 'success',
+    rejected: 'error',
+    reviewing: 'info',
 };
 
 export const STATUS_LABELS: Record<string, string> = {

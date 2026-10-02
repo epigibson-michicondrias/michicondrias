@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminConfig } from '@/src/hooks/admin/useAdminConfig';
@@ -20,9 +21,7 @@ export default function AdminConfigScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.center, { backgroundColor: theme.background }]}>
-                <ActivityIndicator size="large" color={theme.primary} />
-            </View>
+            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
         );
     }
 
@@ -108,7 +107,7 @@ export default function AdminConfigScreen() {
                             icon={HardDrive} 
                             label="Limpiar Caché Global" 
                             theme={theme} 
-                            color="#ef4444" 
+                            color={theme.error} 
                             isLast 
                             onPress={clearCache}
                             loading={isClearing}
@@ -142,7 +141,7 @@ function ConfigRow({ icon: Icon, label, desc, value, onToggle, theme, isLast }: 
 
 function ActionRow({ icon: Icon, label, theme, color, isLast, onPress, loading }: any) {
     return (
-        <TouchableOpacity 
+        <TouchableOpacity accessibilityRole="button" 
             style={[styles.row, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.border }]}
             onPress={onPress}
             disabled={loading}
@@ -183,7 +182,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: { 
         fontSize: 11, 
-        fontWeight: '900', 
+        fontWeight: '800', 
         letterSpacing: 1.2 
     },
     card: { 

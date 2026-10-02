@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native';
 import WebMapView from '../../src/components/WebMapView';
 import { PetfriendlyPlace } from '../../src/services/petfriendly';
 import { usePlaces } from '@/src/hooks/petfriendly/usePlaces';
@@ -11,37 +11,41 @@ import SearchBar from '@/src/components/SearchBar';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-
-const { width } = Dimensions.get('window');
+import FilterChip from '@/src/components/FilterChip';
 
 export default function PetfriendlyScreen() {
     const { theme } = useTheme();
     const {
-        places, isLoading, searchQuery, viewMode, mapMarkers,
+        places, isLoading, isError, refetch, categories, category, setCategory, searchQuery, viewMode, mapMarkers,
         setSearchQuery, toggleViewMode, goToPlace, goToNewPlace, goBack,
     } = usePlaces();
 
     const renderPlaceItem = ({ item }: { item: PetfriendlyPlace }) => (
         <TouchableOpacity
             style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
+            accessibilityRole="button"
+            accessibilityLabel={`${item.name}, ${item.category}`}
             onPress={() => goToPlace(item.id)}
         >
-            <Image
-                source={{ uri: item.image_url || 'https://via.placeholder.com/100' }}
-                style={styles.cardImage}
-            />
+            {item.image_url ? (
+                <Image source={{ uri: item.image_url }} style={styles.cardImage} />
+            ) : (
+                <View style={[styles.cardImage, { backgroundColor: theme.primary + '15', alignItems: 'center', justifyContent: 'center' }]}>
+                    <MapPin size={28} color={theme.primary} />
+                </View>
+            )}
             <View style={styles.cardInfo}>
                 <View style={styles.cardHeader}>
                     <Text style={[styles.placeName, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
-                    {item.rating != null && (
+                    {!!item.rating && item.rating > 0 && (
                         <View style={styles.rating}>
-                            <Star size={12} color="#f59e0b" fill="#f59e0b" />
+                            <Star size={12} color={theme.warning} fill={theme.warning} />
                             <Text style={[styles.ratingText, { color: theme.text }]}>{item.rating?.toFixed(1)}</Text>
                         </View>
                     )}
                 </View>
                 <Text style={[styles.category, { color: theme.primary }]}>{item.category}</Text>
-                {item.address && (
+                {!!item.address && (
                     <View style={styles.addressRow}>
                         <MapPin size={12} color={theme.textMuted} />
                         <Text style={[styles.address, { color: theme.textMuted }]} numberOfLines={1}>{item.address}</Text>
@@ -67,6 +71,8 @@ export default function PetfriendlyScreen() {
                     placeholder="Buscar lugares..."
                 />
                 <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={viewMode === 'map' ? 'Ver como lista' : 'Ver en el mapa'}
                     style={[styles.mapToggleBtn, { backgroundColor: viewMode === 'map' ? theme.primary : theme.primary + '15' }]}
                     onPress={toggleViewMode}
                 >
@@ -74,11 +80,20 @@ export default function PetfriendlyScreen() {
                 </TouchableOpacity>
             </View>
 
+            {categories.length > 0 && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={styles.chips}>
+                    <FilterChip label="Todos" active={!category} onPress={() => setCategory(null)} />
+                    {categories.map((c) => (
+                        <FilterChip key={c} label={c} active={category === c} onPress={() => setCategory(category === c ? null : c)} />
+                    ))}
+                </ScrollView>
+            )}
+
             {viewMode === 'map' ? (
                     <View style={{ flex: 1 }}>
                     <WebMapView
                         style={{ flex: 1 }}
-                        markers={mapMarkers}
+                        markers={mapMarkers.map((m) => ({ ...m, color: theme.primary }))}
                         onMarkerPress={(id: string) => goToPlace(id)}
                     />
                     </View>
@@ -94,11 +109,19 @@ export default function PetfriendlyScreen() {
                             <View style={styles.empty}>
                                 <LoadingOverlay message="Cargando lugares..." />
                             </View>
+                        ) : isError ? (
+                            <EmptyState
+                                icon={<MapPin size={32} color={theme.textMuted} />}
+                                title="No se pudieron cargar los lugares"
+                                subtitle="Revisa tu conexión e inténtalo de nuevo."
+                                actionLabel="Reintentar"
+                                onAction={() => refetch()}
+                            />
                         ) : (
                             <EmptyState
                                 icon={<MapPin size={32} color={theme.textMuted} />}
-                                title="Sin resultados"
-                                subtitle="No se encontraron lugares"
+                                title={searchQuery || category ? 'Sin resultados' : 'Aún no hay lugares'}
+                                subtitle={searchQuery || category ? 'Prueba con otra búsqueda o categoría.' : 'Sé el primero en agregar un lugar pet friendly con el botón +.'}
                             />
                         )
                     }
@@ -122,6 +145,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    chips: { paddingHorizontal: 24, gap: 8, paddingBottom: 8 },
     list: {
         paddingHorizontal: 24,
         paddingBottom: 100,
@@ -131,6 +155,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderRadius: 20,
         overflow: 'hidden',
+        borderWidth: 1,
     },
     cardImage: {
         width: 100,

@@ -43,11 +43,11 @@ export default function NuevaVacunaScreen() {
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <Syringe size={18} color="#0891b2" />
+                            <Syringe size={18} color={theme.info} />
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Información de la Vacuna</Text>
                         </View>
 
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>NOMBRE DE LA VACUNA *</Text>
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
@@ -58,7 +58,7 @@ export default function NuevaVacunaScreen() {
                             />
                         </View>
 
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <View style={styles.labelRow}>
                                 <Hash size={14} color={theme.textMuted} />
                                 <Text style={[styles.label, { color: theme.textMuted }]}>NÚMERO DE LOTE</Text>
@@ -72,7 +72,7 @@ export default function NuevaVacunaScreen() {
                             />
                         </View>
 
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <DatePicker
                                 value={nextDue || new Date()}
                                 onChange={setNextDue}
@@ -82,7 +82,7 @@ export default function NuevaVacunaScreen() {
                             />
                         </View>
 
-                        <View style={[styles.inputGroup, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>NOTAS ADICIONALES</Text>
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
@@ -96,7 +96,7 @@ export default function NuevaVacunaScreen() {
                     </View>
 
                     <View style={[styles.infoBox, { backgroundColor: '#0891b215' }]}>
-                        <Info size={16} color="#0891b2" />
+                        <Info size={16} color={theme.info} />
                         <Text style={[styles.infoText, { color: theme.text }]}>
                             {isVet
                                 ? 'Como veterinario, asegúrate de verificar la vigencia de la vacuna antes de registrarla. El sistema notificará al dueño sobre su próximo refuerzo.'
@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     label: {
         fontSize: 10,

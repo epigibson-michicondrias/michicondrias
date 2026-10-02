@@ -1,4 +1,5 @@
 import React from 'react';
+import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminVets } from '@/src/hooks/admin/useAdminVets';
@@ -36,8 +37,8 @@ export default function AdminVeterinariosScreen() {
                     </View>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: '#10b98115' }]}>
-                    <UserCheck size={12} color="#10b981" />
-                    <Text style={[styles.statusText, { color: '#10b981' }]}>ACTIVO</Text>
+                    <UserCheck size={12} color={theme.success} />
+                    <Text style={[styles.statusText, { color: theme.success }]}>ACTIVO</Text>
                 </View>
             </View>
 
@@ -47,19 +48,19 @@ export default function AdminVeterinariosScreen() {
                     <Text style={[styles.detailText, { color: theme.text }]}>{item.email || 'Sin correo'}</Text>
                 </View>
                 <View style={styles.detailItem}>
-                    <Star size={14} color="#f59e0b" />
+                    <Star size={14} color={theme.warning} />
                     <Text style={[styles.detailText, { color: theme.text }]}>Estado: {item.is_active ? 'Activo' : 'Inactivo'}</Text>
                 </View>
             </View>
 
             <View style={styles.actions}>
-                <TouchableOpacity 
+                <TouchableOpacity accessibilityRole="button" 
                     style={[styles.btn, { backgroundColor: theme.background }]}
                     onPress={handleViewProfile}
                 >
                     <Text style={[styles.btnText, { color: theme.text }]}>Ver Perfil</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity accessibilityRole="button" 
                     style={[styles.btn, { backgroundColor: theme.primary }]}
                     onPress={handleManage}
                 >
@@ -79,9 +80,7 @@ export default function AdminVeterinariosScreen() {
             />
 
             {isLoading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
-                </View>
+                <SkeletonList count={4} />
             ) : (
                 <FlatList
             refreshControl={<AppRefreshControl />}
@@ -150,13 +149,13 @@ const styles = StyleSheet.create({
     },
     avatarInitial: {
         fontSize: 24,
-        fontWeight: '900',
+        fontWeight: '800',
         color: '#fff',
     },
     info: { flex: 1 },
     name: { 
         fontSize: 17, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     row: { 
         flexDirection: 'row', 
@@ -178,7 +177,7 @@ const styles = StyleSheet.create({
     },
     statusText: { 
         fontSize: 9, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     },
     details: { 
         gap: 10,
@@ -210,6 +209,6 @@ const styles = StyleSheet.create({
     },
     btnText: { 
         fontSize: 14, 
-        fontWeight: '900' 
+        fontWeight: '800' 
     }
 });

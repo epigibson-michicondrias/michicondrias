@@ -32,10 +32,10 @@ export default function AdopcionesScreen() {
 
     const getSpeciesColor = (species: string) => {
         switch (species.toLowerCase()) {
-            case 'perro': return '#f59e0b';
-            case 'gato': return '#ec4899';
-            case 'ave': return '#3b82f6';
-            default: return '#10b981';
+            case 'perro': return theme.warning;
+            case 'gato': return theme.accent;
+            case 'ave': return theme.info;
+            default: return theme.success;
         }
     };
 
@@ -44,6 +44,8 @@ export default function AdopcionesScreen() {
         return (
             <TouchableOpacity
                 style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                accessibilityRole="button"
+                accessibilityLabel={`${item.name}, ${item.species}${item.is_emergency ? ', urgente' : ''}`}
                 onPress={() => router.push(`/adopciones/${item.id}` as any)}
             >
                 <View style={styles.imageWrapper}>
@@ -54,14 +56,14 @@ export default function AdopcionesScreen() {
                             <Heart size={40} color={speciesColor} strokeWidth={1} />
                         </View>
                     )}
-                    {item.is_emergency && (
+                    {!!item.is_emergency && (
                         <View style={styles.emergencyBadge}>
-                            <Text style={styles.emergencyText}>🚨 URGENTE</Text>
+                            <Text style={styles.emergencyText}>URGENTE</Text>
                         </View>
                     )}
                     <View style={styles.cardOverlay} />
                     <View style={styles.genderBadge}>
-                        <Text style={styles.genderText}>{item.gender === 'hembra' ? '♀️' : '♂️'}</Text>
+                        <Text style={styles.genderText}>{item.gender === 'hembra' ? '♀' : '♂'}</Text>
                     </View>
                 </View>
                 <View style={styles.info}>
@@ -118,7 +120,7 @@ export default function AdopcionesScreen() {
                 onRefresh={refetch}
                 isRefreshing={isRefetching}
                 header={header}
-                emptyIcon={<Text style={{ fontSize: 60 }}>🐕</Text>}
+                emptyIcon={<Heart size={48} color={theme.textMuted} strokeWidth={1.5} />}
                 emptyTitle="No hay michis ni lomitos"
                 emptySubtitle="Intenta con otra búsqueda o vuelve más tarde."
                 contentStyle={styles.list}

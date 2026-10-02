@@ -32,7 +32,7 @@ export function useClinicsAndVets() {
         queryFn: () => getVets(),
     });
 
-    const canRegister = user?.role_name === 'veterinario' || user?.role_name === 'admin';
+    const canRegister = ['veterinario', 'hospital', 'admin'].includes(user?.role_name || '');
 
     const filteredClinics = useMemo(() => {
         return clinics.filter(c => {

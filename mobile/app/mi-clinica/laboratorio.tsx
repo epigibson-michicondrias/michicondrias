@@ -31,9 +31,8 @@ export default function LaboratorioScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Laboratorio"
-                gradient={['#0ea5e9', '#0284c7', '#0369a1']}
                 rightElement={
-                    <TouchableOpacity 
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Agregar" 
                         style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
                         onPress={() => setModalVisible(true)}
                     >
@@ -44,20 +43,24 @@ export default function LaboratorioScreen() {
 
             {/* Glassmorphic Tabs */}
             <View style={styles.tabsWrapper}>
-                <View style={styles.tabsContainer}>
+                <View style={[styles.tabsContainer, { backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }]}>
                     <TouchableOpacity 
-                        style={[styles.tab, filter === 'pending' && styles.activeTab]}
+                        style={[styles.tab, filter === 'pending' && { backgroundColor: theme.info + '20' }]}
+                        accessibilityRole="tab"
+                        accessibilityState={{ selected: filter === 'pending' }}
                         onPress={() => setFilter('pending')}
                     >
-                        <Clock size={16} color={filter === 'pending' ? '#0284c7' : '#666'} />
-                        <Text style={[styles.tabText, { color: filter === 'pending' ? '#0284c7' : '#666' }]}>Pendientes</Text>
+                        <Clock size={16} color={filter === 'pending' ? theme.info : theme.textMuted} />
+                        <Text style={[styles.tabText, { color: filter === 'pending' ? theme.info : theme.textMuted }]}>Pendientes</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                        style={[styles.tab, filter === 'completed' && styles.activeTab]}
+                        style={[styles.tab, filter === 'completed' && { backgroundColor: theme.info + '20' }]}
+                        accessibilityRole="tab"
+                        accessibilityState={{ selected: filter === 'completed' }}
                         onPress={() => setFilter('completed')}
                     >
-                        <CheckCircle2 size={16} color={filter === 'completed' ? '#0284c7' : '#666'} />
-                        <Text style={[styles.tabText, { color: filter === 'completed' ? '#0284c7' : '#666' }]}>Completados</Text>
+                        <CheckCircle2 size={16} color={filter === 'completed' ? theme.info : theme.textMuted} />
+                        <Text style={[styles.tabText, { color: filter === 'completed' ? theme.info : theme.textMuted }]}>Completados</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -76,8 +79,8 @@ export default function LaboratorioScreen() {
                         labTests.map(test => (
                             <View key={test.id} style={[styles.testCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                                 <View style={styles.testHeader}>
-                                    <View style={[styles.testIcon, { backgroundColor: filter === 'pending' ? '#f59e0b15' : '#10b98115' }]}>
-                                        <FlaskConical size={20} color={filter === 'pending' ? '#f59e0b' : '#10b981'} />
+                                    <View style={[styles.testIcon, { backgroundColor: filter === 'pending' ? theme.warning + '15' : theme.success + '15' }]}>
+                                        <FlaskConical size={20} color={filter === 'pending' ? theme.warning : theme.success} />
                                     </View>
                                     <View style={styles.testInfo}>
                                         <Text style={[styles.testName, { color: theme.text }]}>{test.testName}</Text>
@@ -86,24 +89,32 @@ export default function LaboratorioScreen() {
                                 </View>
                                 <View style={styles.testFooter}>
                                     <View style={styles.footerItem}>
-                                        <Text style={styles.footerLabel}>Paciente ID</Text>
-                                        <Text style={[styles.footerValue, { color: theme.text }]}>{test.patientId.substring(0,8)}</Text>
+                                        <Text style={[styles.footerLabel, { color: theme.textMuted }]}>Paciente</Text>
+                                        <Text style={[styles.footerValue, { color: theme.text }]}>{test.patientName || 'Paciente'}</Text>
                                     </View>
                                     <View style={styles.footerItem}>
-                                        <Text style={styles.footerLabel}>Solicitado</Text>
+                                        <Text style={[styles.footerLabel, { color: theme.textMuted }]}>Solicitado</Text>
                                         <Text style={[styles.footerValue, { color: theme.text }]}>
-                                            {test.requestedDate ? new Date(test.requestedDate).toLocaleDateString() : 'N/A'}
+                                            {test.requestedDate ? new Date(test.requestedDate).toLocaleDateString('es-MX') : 'N/A'}
                                         </Text>
                                     </View>
                                 </View>
 
+                                {filter === 'completed' && !!test.results && (
+                                    <View style={[styles.resultBox, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                                        <Text style={[styles.footerLabel, { color: theme.textMuted }]}>Resultados</Text>
+                                        <Text style={{ color: theme.text, fontSize: 13, marginTop: 4 }}>{typeof test.results === 'string' ? test.results : JSON.stringify(test.results)}</Text>
+                                        {!!test.interpretation && <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 6 }}>{test.interpretation}</Text>}
+                                    </View>
+                                )}
+
                                 {filter === 'pending' && (
                                     <TouchableOpacity
-                                        style={[styles.resultBtn, { backgroundColor: '#0ea5e915' }]}
+                                        style={[styles.resultBtn, { backgroundColor: theme.info + '15' }]}
                                         onPress={() => handleOpenResultModal(test.id)}
                                     >
-                                        <Edit3 size={14} color="#0ea5e9" />
-                                        <Text style={[styles.resultBtnText, { color: '#0ea5e9' }]}>Ingresar Resultados</Text>
+                                        <Edit3 size={14} color={theme.info} />
+                                        <Text style={[styles.resultBtnText, { color: theme.info }]}>Ingresar Resultados</Text>
                                     </TouchableOpacity>
                                 )}
                             </View>
@@ -151,7 +162,7 @@ export default function LaboratorioScreen() {
                         </KeyboardScreen>
 
                         <View style={styles.modalActions}>
-                            <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
+                            <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: theme.surface }]} onPress={() => setModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cancelar">
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity 
@@ -195,11 +206,11 @@ export default function LaboratorioScreen() {
                         </KeyboardScreen>
 
                         <View style={styles.modalActions}>
-                            <TouchableOpacity style={styles.cancelBtn} onPress={() => setResultModalVisible(false)}>
+                            <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: theme.surface }]} onPress={() => setResultModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cancelar">
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity 
-                                style={[styles.saveBtn, { backgroundColor: '#0ea5e9' }]}
+                                style={[styles.saveBtn, { backgroundColor: theme.info }]}
                                 onPress={handleSaveResults}
                                 disabled={isSavingResults}
                             >
@@ -217,7 +228,6 @@ const styles = StyleSheet.create({
     tabsWrapper: { paddingHorizontal: 24, paddingVertical: 16 },
     tabsContainer: {
         flexDirection: 'row',
-        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 16,
         padding: 4,
     },
@@ -230,7 +240,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         gap: 8,
     },
-    activeTab: { backgroundColor: '#fff' },
     tabText: { fontSize: 13, fontWeight: '800' },
     contentScroll: { flex: 1 },
     content: { padding: 24, paddingBottom: 100 },
@@ -243,9 +252,9 @@ const styles = StyleSheet.create({
     testInfo: { flex: 1 },
     testName: { fontSize: 16, fontWeight: '800' },
     testType: { fontSize: 12, fontWeight: '600', marginTop: 2 },
-    testFooter: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)', paddingTop: 16 },
+    testFooter: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: 'rgba(128,128,128,0.15)', paddingTop: 16 },
     footerItem: { flex: 1 },
-    footerLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase', color: '#888' },
+    footerLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
     footerValue: { fontSize: 13, fontWeight: '700', marginTop: 4 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '80%' },
@@ -257,6 +266,7 @@ const styles = StyleSheet.create({
     cancelBtnText: { fontSize: 15, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    resultBox: { padding: 12, borderRadius: 12, borderWidth: 1, marginTop: 12 },
     headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     resultBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 10, borderRadius: 12, marginTop: 12 },
     resultBtnText: { fontSize: 13, fontWeight: '800' },
