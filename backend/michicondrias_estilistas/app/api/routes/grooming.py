@@ -2,10 +2,14 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import date
+import logging
+
+import httpx
 
 from app.api import deps
 from app.db.session import get_db
 from app.crud import crud_grooming
+from app.core.config import settings
 from app.models.grooming import GroomingAppointment
 from app.schemas.grooming import (
     GroomingAppointmentCreate,
@@ -15,6 +19,8 @@ from app.schemas.grooming import (
     GroomingServiceCreate,
     GroomingServiceOut,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -106,9 +112,16 @@ def read_client_appointments(
     current_user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     """
-    Get all grooming appointments for the logged-in client.
+    Get the grooming appointments of the pets owned by the logged-in client.
     """
-    return crud_grooming.get_appointments_for_client(db=db, client_id=current_user_id)
+    try:
+        resp = httpx.get(f"{settings.API_GATEWAY_URL}/mascotas/api/v1/pets/user/{current_user_id}", timeout=8.0)
+        resp.raise_for_status()
+        pet_ids = [pet["id"] for pet in resp.json()]
+    except (httpx.HTTPError, ValueError, KeyError) as e:
+        logger.warning("No se pudieron obtener las mascotas de %s: %s", current_user_id, e)
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No se pudieron cargar tus citas en este momento. Intenta de nuevo.")
+    return crud_grooming.get_appointments_by_pet_ids(db=db, pet_ids=pet_ids)
 
 
 @router.get("/appointments/provider", response_model=List[GroomingAppointmentOut])

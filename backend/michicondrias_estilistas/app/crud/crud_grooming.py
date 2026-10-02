@@ -74,24 +74,11 @@ def get_active_grooming_services(db: Session) -> List[GroomingService]:
     return db.query(GroomingService).filter(GroomingService.is_active == True).all()
 
 # Additional Appointments lookup
-def get_appointments_for_client(db: Session, client_id: str) -> List[GroomingAppointment]:
-    # We retrieve appointments made by a client. In this system, pet owns the appointment, 
-    # but the client is usually the owner of the pet. For simplicity in the styling service,
-    # let's assume we can fetch appointments where pet_id is accessible. Since we don't have pet owners table here,
-    # we'll allow retrieving all appointments where the pet matches, or simple mock filter.
-    # Actually, let's allow fetching by client_id if we want. But the table grooming_appointments doesn't have client_id!
-    # Ah! Let's check: grooming_appointments has groomer_id and pet_id.
-    # How does get_appointments/client work if there's no client_id in grooming_appointments?
-    # Wait, we can query all appointments for now, or get appointments for pets of this user.
-    # Since this is a standalone microservice database and it doesn't have pets-users ownership,
-    # let's return all appointments, or return empty list for now, or query by matching groomer_id!
-    # Wait! Let's look at the database schema in `supabase_roles_migration_v2.sql` for grooming_appointments:
-    # id, groomer_id, pet_id, date, time, service_type, status, before_photo_url, after_photo_url, skin_report.
-    # Yes, it only has groomer_id and pet_id.
-    # So to get client appointments, we can retrieve all appointments or by pet_id.
-    # Let's provide a function `get_appointments_by_pet_id_list(db, pet_ids)`!
-    # Yes! That is extremely logical because a client owns multiple pets.
-    return db.query(GroomingAppointment).all()
+def get_appointments_by_pet_ids(db: Session, pet_ids: List[str]) -> List[GroomingAppointment]:
+    """Citas de un cliente: la tabla no guarda el dueño, así que se filtra por las mascotas del cliente."""
+    if not pet_ids:
+        return []
+    return db.query(GroomingAppointment).filter(GroomingAppointment.pet_id.in_(pet_ids)).all()
 
 def get_appointments_for_provider(db: Session, groomer_id: str) -> List[GroomingAppointment]:
     return db.query(GroomingAppointment).filter(GroomingAppointment.groomer_id == groomer_id).all()

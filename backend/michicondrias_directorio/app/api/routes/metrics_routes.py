@@ -5,7 +5,7 @@ from sqlalchemy import func, and_, or_
 from datetime import date, datetime, timedelta
 
 from app.crud.crud_clinic import get_clinic
-from app.crud.dashboard_crud import get_daily_metrics, create_or_update_daily_metrics, calculate_real_time_metrics
+from app.crud.dashboard_crud import get_daily_metrics, create_or_update_daily_metrics, calculate_real_time_metrics, clinic_today
 from app.api import deps
 from app.db.session import get_db
 from app.models.dashboard import ClinicMetrics
@@ -24,21 +24,12 @@ def get_daily_metrics_endpoint(
     if not clinic or clinic.owner_user_id != user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
-    today = date.today()
+    today = clinic_today()
     
-    # Intentar obtener métricas existentes
-    existing_metrics = get_daily_metrics(db, clinic_id, today)
-    
-    if existing_metrics:
-        # Usar métricas existentes
-        metrics = existing_metrics
-    else:
-        # Calcular métricas en tiempo real y guardarlas
-        realtime_metrics = calculate_real_time_metrics(db, clinic_id)
-        
-        # Crear o actualizar métricas en la base de datos
-        metrics = create_or_update_daily_metrics(db, clinic_id, today, realtime_metrics)
-    
+    # El día de hoy se recalcula en cada consulta (antes se guardaba una sola vez y quedaba congelado)
+    realtime_metrics = calculate_real_time_metrics(db, clinic_id)
+    metrics = create_or_update_daily_metrics(db, clinic_id, today, realtime_metrics)
+
     return {
         "todayAppointments": metrics.today_appointments,
         "pendingConfirmations": metrics.pending_confirmations,
@@ -68,7 +59,7 @@ def update_daily_metrics(
     if not clinic or clinic.owner_user_id != user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
-    today = date.today()
+    today = clinic_today()
     
     # Crear o actualizar métricas
     updated_metrics = create_or_update_daily_metrics(db, clinic_id, today, metrics_data)
@@ -93,7 +84,7 @@ def get_weekly_metrics(
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Obtener métricas de los últimos 7 días
-    start_date = date.today() - timedelta(days=7)
+    start_date = clinic_today() - timedelta(days=7)
     
     weekly_metrics = db.query(ClinicMetrics).filter(
         ClinicMetrics.clinic_id == clinic_id,
@@ -137,14 +128,14 @@ def get_clinic_revenue(
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     if period == "daily":
-        metrics = get_daily_metrics(db, clinic_id, date.today())
+        metrics = get_daily_metrics(db, clinic_id, clinic_today())
         return {
             "period": "daily",
             "revenue": float(metrics.daily_revenue) if metrics and metrics.daily_revenue else 0,
-            "date": date.today().isoformat()
+            "date": clinic_today().isoformat()
         }
     elif period == "weekly":
-        start_date = date.today() - timedelta(days=7)
+        start_date = clinic_today() - timedelta(days=7)
         weekly_metrics = db.query(ClinicMetrics).filter(
             ClinicMetrics.clinic_id == clinic_id,
             ClinicMetrics.metric_date >= start_date
@@ -154,10 +145,10 @@ def get_clinic_revenue(
             "period": "weekly",
             "revenue": total_revenue,
             "start_date": start_date.isoformat(),
-            "end_date": date.today().isoformat()
+            "end_date": clinic_today().isoformat()
         }
     elif period == "monthly":
-        start_date = date.today() - timedelta(days=30)
+        start_date = clinic_today() - timedelta(days=30)
         monthly_metrics = db.query(ClinicMetrics).filter(
             ClinicMetrics.clinic_id == clinic_id,
             ClinicMetrics.metric_date >= start_date
@@ -167,7 +158,7 @@ def get_clinic_revenue(
             "period": "monthly",
             "revenue": total_revenue,
             "start_date": start_date.isoformat(),
-            "end_date": date.today().isoformat()
+            "end_date": clinic_today().isoformat()
         }
     else:
         raise HTTPException(status_code=400, detail="Periodo no válido. Use: daily, weekly, monthly")
@@ -184,12 +175,12 @@ def get_clinic_occupancy(
     if not clinic or clinic.owner_user_id != user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
-    metrics = get_daily_metrics(db, clinic_id, date.today())
+    metrics = get_daily_metrics(db, clinic_id, clinic_today())
     occupancy_rate = metrics.occupancy_rate if metrics else 0
     
     return {
         "clinic_id": clinic_id,
         "occupancy_rate": occupancy_rate,
-        "date": date.today().isoformat(),
+        "date": clinic_today().isoformat(),
         "status": "high" if occupancy_rate > 80 else "medium" if occupancy_rate > 50 else "low"
     }

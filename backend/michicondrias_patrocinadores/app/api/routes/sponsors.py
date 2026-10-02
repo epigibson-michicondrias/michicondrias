@@ -116,7 +116,7 @@ def read_geo_targeted_campaigns(
     db: Session = Depends(get_db)
 ) -> Any:
     """
-    Retrieve active sponsor campaigns that match target geo-coordinates (Mock filter). Public endpoint.
+    Campañas activas. Las campañas todavía no guardan ubicación, así que NO se filtra por lat/lng/radio:
+    devuelve todas las activas (los parámetros se aceptan para no romper a los clientes). Endpoint público.
     """
-    # For now, return all active campaigns as a mock of matching the coords
     return crud_sponsor.get_active_campaigns_and_increment_views(db=db)

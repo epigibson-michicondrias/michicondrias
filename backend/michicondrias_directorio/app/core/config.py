@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "super_secreto_cambiar_en_produccion" 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
+    # Zona horaria de las clínicas: define qué es "hoy" para las métricas del dashboard
+    CLINIC_TIMEZONE: str = "America/Mexico_City"
+
     # API Gateway Configuration
     API_GATEWAY_URL: str = "http://localhost:8000"
     

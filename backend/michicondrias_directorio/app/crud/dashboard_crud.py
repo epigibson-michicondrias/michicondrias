@@ -1,12 +1,30 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func, desc
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
+from zoneinfo import ZoneInfo
+
+from app.core.config import settings
 
 from app.models.dashboard import (
     MedicalRecordExtended, ClinicMetrics, ClinicAlerts, 
     InventoryItems, LabTests, Surgeries
 )
+
+def clinic_now() -> datetime:
+    return datetime.now(ZoneInfo(settings.CLINIC_TIMEZONE))
+
+
+def clinic_today() -> date:
+    """\"Hoy\" en la zona horaria de la clínica (el servidor corre en UTC: desde las 18:00 de México ya sería mañana)."""
+    return clinic_now().date()
+
+
+def _day_bounds(day: date):
+    tz = ZoneInfo(settings.CLINIC_TIMEZONE)
+    start = datetime.combine(day, time.min, tzinfo=tz)
+    return start, start + timedelta(days=1)
+
 
 # Medical Records Extended CRUD
 def get_critical_patients(db: Session, clinic_id: str) -> List[MedicalRecordExtended]:
@@ -55,7 +73,7 @@ def get_daily_metrics(
     """Obtener métricas diarias de una clínica"""
     return db.query(ClinicMetrics).filter(
         ClinicMetrics.clinic_id == clinic_id,
-        ClinicMetrics.metric_date == metric_date
+        ClinicMetrics.metric_date == datetime.combine(metric_date, time.min)
     ).first()
 
 def create_or_update_daily_metrics(
@@ -78,7 +96,7 @@ def create_or_update_daily_metrics(
         # Crear nuevas métricas
         metrics_data.update({
             "clinic_id": clinic_id,
-            "metric_date": metric_date
+            "metric_date": datetime.combine(metric_date, time.min)
         })
         db_metrics = ClinicMetrics(**metrics_data)
         db.add(db_metrics)
@@ -87,86 +105,93 @@ def create_or_update_daily_metrics(
         return db_metrics
 
 def calculate_real_time_metrics(db: Session, clinic_id: str) -> dict:
-    """Calcular métricas en tiempo real desde datos existentes"""
-    today = date.today()
-    
-    # Importar modelos existentes para cálculos
-    try:
-        from app.models.appointment import Appointment
-        from app.models.clinic_service import ClinicService
-        from app.models.medical_record import MedicalRecord
-        from app.models.prescription import Prescription
-        from app.models.vaccine import Vaccine
-        from app.models.pet import Pet
-    except ImportError:
-        # Si no existen los modelos, retornar valores por defecto
-        return {
-            "todayAppointments": 0,
-            "pendingConfirmations": 0,
-            "surgeriesToday": 0,
-            "emergencyCases": 0,
-            "vaccinationsToday": 0,
-            "checkupsToday": 0,
-            "labResultsPending": 0,
-            "prescriptionsActive": 0,
-            "inventoryAlerts": 0,
-            "dailyRevenue": 0,
-            "occupancyRate": 0,
-            "newPatientsToday": 0,
-            "criticalPatients": 0
-        }
-    
-    # Calcular métricas basadas en datos existentes
-    metrics = {}
-    
-    # Citas de hoy (simulado - necesitaría adaptarse a la estructura real)
-    try:
-        today_appointments = db.query(Appointment).filter(
-            # Ajustar según la estructura real de appointments
-            # Appointment.clinic_id == clinic_id,
-            # Appointment.date == today
+    """Métricas del día calculadas desde los datos reales de la clínica.
+
+    Devuelve claves con los nombres de las columnas de ClinicMetrics (snake_case)."""
+    from app.models.services import Appointment, ClinicService, ClinicSchedule
+    from app.models.dashboard import Prescriptions, LabTests, InventoryItems
+
+    today = clinic_today()
+    day_start, day_end = _day_bounds(today)
+    not_cancelled = Appointment.status != "cancelled"
+
+    todays = db.query(Appointment).filter(Appointment.clinic_id == clinic_id, Appointment.date == today, not_cancelled)
+    today_appointments = todays.count()
+
+    pending_confirmations = db.query(Appointment).filter(
+        Appointment.clinic_id == clinic_id, Appointment.status == "pending", Appointment.date >= today
+    ).count()
+
+    # Citas de hoy según el tipo de servicio
+    def todays_by_service(*keywords):
+        conds = []
+        for k in keywords:
+            conds += [ClinicService.category.ilike(f"%{k}%"), ClinicService.name.ilike(f"%{k}%")]
+        return todays.join(ClinicService, ClinicService.id == Appointment.service_id).filter(or_(*conds)).count()
+
+    vaccinations_today = todays_by_service("vacun")
+    checkups_today = todays_by_service("consulta", "revisi", "chequeo")
+
+    # Ingresos del día: precio de los servicios de las citas completadas hoy
+    daily_revenue = db.query(func.coalesce(func.sum(ClinicService.price), 0.0)).join(
+        Appointment, Appointment.service_id == ClinicService.id
+    ).filter(Appointment.clinic_id == clinic_id, Appointment.date == today, Appointment.status == "completed").scalar() or 0.0
+
+    # Ocupación: citas de hoy / turnos que ofrece el horario de la clínica en este día de la semana
+    capacity = 0
+    for sched in db.query(ClinicSchedule).filter(
+        ClinicSchedule.clinic_id == clinic_id, ClinicSchedule.day_of_week == today.weekday(), ClinicSchedule.is_active == True
+    ).all():
+        minutes = (sched.end_time.hour * 60 + sched.end_time.minute) - (sched.start_time.hour * 60 + sched.start_time.minute)
+        capacity += max(minutes, 0) // max(sched.slot_duration_minutes or 30, 1)
+    occupancy_rate = min(100, round(100 * today_appointments / capacity)) if capacity else 0
+
+    # Pacientes nuevos: mascotas con cita hoy y sin ninguna cita anterior en esta clínica
+    new_patients_today = 0
+    for (pet_id,) in todays.with_entities(Appointment.pet_id).distinct().all():
+        earlier = db.query(Appointment).filter(
+            Appointment.clinic_id == clinic_id, Appointment.pet_id == pet_id, Appointment.date < today
         ).count()
-        metrics["todayAppointments"] = today_appointments
-    except:
-        metrics["todayAppointments"] = 0
-    
-    # Cirugías de hoy
-    try:
-        surgeries_today = db.query(Surgeries).filter(
-            Surgeries.clinic_id == clinic_id,
-            func.date(Surgeries.scheduled_date) == today,
-            Surgeries.status == "scheduled"
-        ).count()
-        metrics["surgeriesToday"] = surgeries_today
-    except:
-        metrics["surgeriesToday"] = 0
-    
-    # Pacientes críticos
-    try:
-        critical_patients = db.query(MedicalRecordExtended).filter(
-            MedicalRecordExtended.clinic_id == clinic_id,
-            MedicalRecordExtended.is_critical == True,
-            MedicalRecordExtended.alert_level.in_(["yellow", "red"])
-        ).count()
-        metrics["criticalPatients"] = critical_patients
-    except:
-        metrics["criticalPatients"] = 0
-    
-    # Resto de métricas con valores por defecto por ahora
-    metrics.update({
-        "pendingConfirmations": 0,
-        "emergencyCases": 0,
-        "vaccinationsToday": 0,
-        "checkupsToday": 0,
-        "labResultsPending": 0,
-        "prescriptionsActive": 0,
-        "inventoryAlerts": 0,
-        "dailyRevenue": 0,
-        "occupancyRate": 0,
-        "newPatientsToday": 0
-    })
-    
-    return metrics
+        if earlier == 0:
+            new_patients_today += 1
+
+    critical_filter = and_(
+        MedicalRecordExtended.clinic_id == clinic_id,
+        MedicalRecordExtended.is_critical == True,
+    )
+    critical_patients = db.query(MedicalRecordExtended).filter(
+        critical_filter, MedicalRecordExtended.alert_level.in_(["yellow", "red"])
+    ).count()
+    emergency_cases = db.query(MedicalRecordExtended).filter(critical_filter, MedicalRecordExtended.alert_level == "red").count()
+
+    surgeries_today = db.query(Surgeries).filter(
+        Surgeries.clinic_id == clinic_id,
+        Surgeries.scheduled_date >= day_start,
+        Surgeries.scheduled_date < day_end,
+        Surgeries.status.in_(["scheduled", "in-progress", "in_progress"]),
+    ).count()
+
+    lab_results_pending = db.query(LabTests).filter(LabTests.clinic_id == clinic_id, LabTests.status == "pending").count()
+    prescriptions_active = db.query(Prescriptions).filter(Prescriptions.clinic_id == clinic_id, Prescriptions.status == "active").count()
+    inventory_alerts = db.query(InventoryItems).filter(
+        InventoryItems.clinic_id == clinic_id, InventoryItems.current_stock <= InventoryItems.min_stock
+    ).count()
+
+    return {
+        "today_appointments": today_appointments,
+        "pending_confirmations": pending_confirmations,
+        "surgeries_today": surgeries_today,
+        "emergency_cases": emergency_cases,
+        "vaccinations_today": vaccinations_today,
+        "checkups_today": checkups_today,
+        "lab_results_pending": lab_results_pending,
+        "prescriptions_active": prescriptions_active,
+        "critical_patients": critical_patients,
+        "inventory_alerts": inventory_alerts,
+        "daily_revenue": float(daily_revenue),
+        "occupancy_rate": occupancy_rate,
+        "new_patients_today": new_patients_today,
+    }
 
 # Clinic Alerts CRUD
 def get_clinic_alerts(
@@ -316,7 +341,7 @@ def get_surgeries(
 
 def get_today_surgeries(db: Session, clinic_id: str) -> List[Surgeries]:
     """Obtener cirugías de hoy"""
-    today = date.today()
+    today = clinic_today()
     return db.query(Surgeries).filter(
         Surgeries.clinic_id == clinic_id,
         func.date(Surgeries.scheduled_date) == today,
