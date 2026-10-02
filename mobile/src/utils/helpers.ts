@@ -7,7 +7,7 @@
  * Configurable con EXPO_PUBLIC_STORAGE_URL; debe coincidir con STORAGE_PUBLIC_BASE_URL del backend.
  */
 export const S3_BUCKET_URL = (
-    process.env.EXPO_PUBLIC_STORAGE_URL || 'https://michicondrias-storage-1.s3.us-east-1.amazonaws.com'
+    process.env.EXPO_PUBLIC_STORAGE_URL || 'https://objectstorage.us-ashburn-1.oraclecloud.com/n/idoshxlv8ry1/b/michicondrias-storage/o'
 ).replace(/\/+$/, '');
 
 /**

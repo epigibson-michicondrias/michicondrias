@@ -8,21 +8,24 @@
             "developmentClient": true,
             "distribution": "internal",
             "env": {
-                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org"
+                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org",
+                "EXPO_PUBLIC_STORAGE_URL": "https://objectstorage.us-ashburn-1.oraclecloud.com/n/idoshxlv8ry1/b/michicondrias-storage/o"
             }
         },
         "preview": {
             "distribution": "internal",
             "channel": "preview",
             "env": {
-                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org"
+                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org",
+                "EXPO_PUBLIC_STORAGE_URL": "https://objectstorage.us-ashburn-1.oraclecloud.com/n/idoshxlv8ry1/b/michicondrias-storage/o"
             }
         },
         "production": {
             "channel": "production",
             "autoIncrement": true,
             "env": {
-                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org"
+                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org",
+                "EXPO_PUBLIC_STORAGE_URL": "https://objectstorage.us-ashburn-1.oraclecloud.com/n/idoshxlv8ry1/b/michicondrias-storage/o"
             }
         },
         "apk": {
@@ -31,7 +34,8 @@
                 "buildType": "apk"
             },
             "env": {
-                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org"
+                "EXPO_PUBLIC_API_URL": "https://michicondrias.duckdns.org",
+                "EXPO_PUBLIC_STORAGE_URL": "https://objectstorage.us-ashburn-1.oraclecloud.com/n/idoshxlv8ry1/b/michicondrias-storage/o"
             }
         }
     },
