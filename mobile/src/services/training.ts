@@ -7,6 +7,8 @@ export interface TrainingProgram {
     description?: string;
     price: number;
     duration_weeks: number;
+    trainer_name?: string | null;
+    enrollments_count?: number;
 }
 
 export interface TrainingProgramCreate {
@@ -50,6 +52,12 @@ export interface TrainingEnrollment {
     status: string;
     total_paid: number;
     created_at: string;
+    program_title?: string | null;
+    pet_name?: string | null;
+    client_name?: string | null;
+    trainer_name?: string | null;
+    goals_total?: number;
+    goals_done?: number;
 }
 
 export interface TrainingEnrollmentCreate {
@@ -106,5 +114,11 @@ export async function reviewGoalVideo(goalId: string, approved: boolean, notes: 
     const params = new URLSearchParams({ approved: String(approved), notes });
     return apiFetch<PetTrainingGoal>("entrenadores", `/goals/${goalId}/review-video?${params}`, {
         method: "POST",
+    });
+}
+
+export async function updateEnrollmentStatus(enrollmentId: string, status: string): Promise<TrainingEnrollment> {
+    return apiFetch<TrainingEnrollment>("entrenadores", `/enrollments/${enrollmentId}/status?status=${status}`, {
+        method: "PATCH",
     });
 }

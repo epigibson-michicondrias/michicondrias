@@ -26,15 +26,18 @@ export default function MisPublicacionesScreen() {
 
     const renderItem = ({ item }: { item: Listing }) => (
         <View style={[styles.card, { backgroundColor: theme.surface }]}>
-            <Image
-                source={{ uri: item.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=300' }}
-                style={styles.image}
-            />
+            {item.photo_url ? (
+                <Image source={{ uri: item.photo_url }} style={styles.image} />
+            ) : (
+                <View style={[styles.image, { backgroundColor: theme.overlay, alignItems: 'center', justifyContent: 'center' }]}>
+                    <Text style={{ fontSize: 32 }}>🐾</Text>
+                </View>
+            )}
             <View style={styles.info}>
                 <View style={styles.nameHeader}>
                     <Text style={[styles.name, { color: theme.text }]}>{item.name}</Text>
-                    <View style={[styles.statusBadge, { backgroundColor: item.is_approved ? '#10b981' : '#f59e0b' }]}>
-                        <Text style={styles.statusText}>{item.is_approved ? 'Publicado' : 'Pendiente'}</Text>
+                    <View style={[styles.statusBadge, { backgroundColor: item.status?.toLowerCase() === 'adoptado' ? theme.info : item.is_approved ? theme.success : theme.warning }]}>
+                        <Text style={styles.statusText}>{item.status?.toLowerCase() === 'adoptado' ? 'Adoptado' : item.is_approved ? 'Publicado' : 'En revisión'}</Text>
                     </View>
                 </View>
                 <Text style={[styles.breed, { color: theme.textMuted }]}>{item.breed || item.species}</Text>
@@ -49,12 +52,16 @@ export default function MisPublicacionesScreen() {
                     </TouchableOpacity>
 
                     <View style={styles.miniActions}>
+                        {item.status?.toLowerCase() !== 'adoptado' && (
                         <TouchableOpacity
                             style={styles.iconBtn}
+                            accessibilityRole="button"
+                            accessibilityLabel="Editar publicación"
                             onPress={() => goToEditListing(item.id)}
                         >
                             <Edit3 size={18} color={theme.textMuted} />
                         </TouchableOpacity>
+                        )}
                         <TouchableOpacity
                             style={styles.iconBtn}
                             onPress={() => handleDelete(item.id, item.name)}
@@ -77,6 +84,7 @@ export default function MisPublicacionesScreen() {
             <ScreenHeader
                 title="Mis Publicaciones"
                 actionIcon={Plus}
+                actionLabel="Publicar mascota"
                 onAction={goToNewListing}
             />
 

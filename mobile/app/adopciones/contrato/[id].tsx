@@ -28,7 +28,7 @@ export default function AdoptionContractScreen() {
                         Contrato de Adopción Responsable
                     </Text>
                     <Text style={[styles.contractSubtitle, { color: theme.textMuted }]}>
-                        Lee atentamente los términos antes de firmar
+                        El refugio firma este contrato para cerrar la postulación
                     </Text>
                 </View>
 
@@ -38,7 +38,7 @@ export default function AdoptionContractScreen() {
 
                 <View style={styles.agreementSection}>
                     <FormSwitch
-                        label="He leído y acepto los términos del contrato"
+                        label="He revisado los términos y los firmo como refugio"
                         description="Al marcar esta casilla, confirmas que entiendes y aceptas todas las condiciones"
                         value={agreed}
                         onChange={setAgreed}

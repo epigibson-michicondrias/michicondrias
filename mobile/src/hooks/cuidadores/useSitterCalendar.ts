@@ -3,13 +3,15 @@
  * Manages calendar state, sit requests fetching, and date-range grouping
  */
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getMySitRequests, SitRequest } from '@/src/services/cuidadores';
+import { useProRequests } from '@/src/hooks/servicios-pro/useProRequests';
+import type { SitRequest } from '@/src/services/cuidadores';
 
 export const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 export const DAYS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 export const STATUS_COLORS: Record<string, { color: string; bg: string; label: string }> = {
+    accepted: { color: '#10b981', bg: '#10b98120', label: 'Aceptada' },
+    in_progress: { color: '#0ea5e9', bg: '#0ea5e920', label: 'En curso' },
     pending: { color: '#f59e0b', bg: '#f59e0b20', label: 'Pendiente' },
     confirmed: { color: '#10b981', bg: '#10b98120', label: 'Confirmado' },
     completed: { color: '#6366f1', bg: '#6366f120', label: 'Completado' },
@@ -42,10 +44,8 @@ export function useSitterCalendar() {
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
     const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
-    const { data: requests = [], isLoading } = useQuery({
-        queryKey: ['my-sit-requests'],
-        queryFn: getMySitRequests,
-    });
+    const { allRequests, isLoading } = useProRequests('sit');
+    const requests = allRequests as SitRequest[];
 
     const requestsByDate = useMemo(() => {
         const map: Record<string, SitRequest[]> = {};

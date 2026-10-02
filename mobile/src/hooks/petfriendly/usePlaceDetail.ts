@@ -41,14 +41,18 @@ export function usePlaceDetail() {
             showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una calificación.' });
             return;
         }
-        await createReviewMutation.mutateAsync({ rating, comment });
+        try {
+            await createReviewMutation.mutateAsync({ rating, comment });
+        } catch {
+            // el error ya se muestra en onError
+        }
     };
 
     const openMap = () => {
-        if (place) {
-            const url = `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`;
-            Linking.openURL(url);
-        }
+        if (!place) return;
+        const hasCoords = place.latitude != null && place.longitude != null;
+        const query = hasCoords ? `${place.latitude},${place.longitude}` : encodeURIComponent(`${place.name} ${place.address || ''} ${place.city || ''}`);
+        Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`).catch(() => {});
     };
 
     const callPlace = () => {

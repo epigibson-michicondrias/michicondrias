@@ -3,7 +3,7 @@
  * Handles recording pet death reports and downloading death certificates
  */
 import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import {
   recordDeathReport,
@@ -11,15 +11,17 @@ import {
   PetDeathCreate,
   PetDeath,
 } from '@/src/services/funerary';
+import { toISODate } from '@/src/features/salud/format';
 import { showAlert } from '@/src/components/AppAlert';
 
 export function useDeathReport(deathId?: string) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // --- Form state ---
   const [form, setForm] = useState<PetDeathCreate>({
     pet_id: '',
-    date_of_death: '',
+    date_of_death: toISODate(new Date()),
     cause_of_death: '',
     cremation_type: 'individual',
     urn_model: '',
@@ -33,7 +35,7 @@ export function useDeathReport(deathId?: string) {
   const resetForm = () => {
     setForm({
       pet_id: '',
-      date_of_death: '',
+      date_of_death: toISODate(new Date()),
       cause_of_death: '',
       cremation_type: 'individual',
       urn_model: '',
@@ -45,6 +47,8 @@ export function useDeathReport(deathId?: string) {
   const reportMutation = useMutation({
     mutationFn: (data: PetDeathCreate) => recordDeathReport(data),
     onSuccess: (result: PetDeath) => {
+      queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+      queryClient.invalidateQueries({ queryKey: ['funerary-provider-bookings'] });
       showAlert({
         type: 'success',
         title: 'Reporte registrado',
@@ -53,11 +57,11 @@ export function useDeathReport(deathId?: string) {
       });
       resetForm();
     },
-    onError: () => {
+    onError: (e: any) => {
       showAlert({
         type: 'error',
-        title: 'Error',
-        message: 'No se pudo registrar el reporte. Intenta de nuevo.',
+        title: 'No se pudo registrar',
+        message: e?.message || 'No se pudo registrar el reporte. Intenta de nuevo.',
       });
     },
   });
@@ -69,6 +73,10 @@ export function useDeathReport(deathId?: string) {
         title: 'Datos incompletos',
         message: 'La mascota y la fecha de defunción son obligatorias.',
       });
+      return;
+    }
+    if (form.date_of_death > toISODate(new Date())) {
+      showAlert({ type: 'error', title: 'Fecha inválida', message: 'La fecha de defunción no puede ser futura.' });
       return;
     }
     reportMutation.mutate({

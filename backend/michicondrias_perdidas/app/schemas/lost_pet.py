@@ -29,6 +29,11 @@ class LostPetReportCreate(LostPetReportBase):
 
 class LostPetReportUpdate(BaseModel):
     pet_name: Optional[str] = None
+    species: Optional[str] = None
+    breed: Optional[str] = None
+    color: Optional[str] = None
+    size: Optional[str] = None
+    age_approx: Optional[str] = None
     description: Optional[str] = None
     image_url: Optional[str] = None
     last_seen_location: Optional[str] = None

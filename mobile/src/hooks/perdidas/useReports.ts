@@ -16,9 +16,15 @@ export function useReports() {
     const [filterType, setFilterType] = useState<FilterType>('all');
     const [filterSpecies, setFilterSpecies] = useState('all');
 
-    const { data: reports = [], isLoading } = useQuery({
-        queryKey: ['lost-pet-reports', filterType, filterSpecies],
+    const { data: reports = [], isLoading, isError, refetch, isRefetching } = useQuery({
+        queryKey: ['lost-pet-reports', filterType],
         queryFn: () => getReports(filterType === 'all' ? undefined : filterType),
+    });
+
+    // El listado solo trae reportes activos: los reunidos se cuentan aparte para que la cifra sea real
+    const { data: resolvedReports = [] } = useQuery({
+        queryKey: ['lost-pet-resolved'],
+        queryFn: () => getReports(undefined, 'resolved'),
     });
 
     const filteredReports = useMemo(() => {
@@ -33,16 +39,16 @@ export function useReports() {
     const stats = useMemo(() => ({
         lost: reports.filter(r => r.report_type === 'lost' && !r.is_resolved).length,
         found: reports.filter(r => r.report_type === 'found' && !r.is_resolved).length,
-        reunited: reports.filter(r => r.is_resolved).length,
-    }), [reports]);
+        reunited: resolvedReports.length,
+    }), [reports, resolvedReports]);
 
     const mapMarkers = useMemo(() => {
         return filteredReports
-            .filter(r => r.latitude && r.longitude)
+            .filter(r => r.latitude != null && r.longitude != null)
             .map((report) => ({
                 id: report.id,
-                latitude: report.latitude || 19.4326,
-                longitude: report.longitude || -99.1332,
+                latitude: report.latitude as number,
+                longitude: report.longitude as number,
                 title: report.pet_name,
                 description: report.report_type === 'lost' ? 'Perdida' : 'Encontrada',
                 reportType: report.report_type,
@@ -64,6 +70,9 @@ export function useReports() {
         stats,
         mapMarkers,
         isLoading,
+        isError,
+        refetch,
+        isRefetching,
 
         // Filters
         searchQuery,

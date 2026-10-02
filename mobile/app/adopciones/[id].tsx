@@ -6,15 +6,34 @@ import { useListingDetail } from '@/src/hooks/adopciones';
 import { formatAge, formatWeight } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { Share2, Heart, Bone, User, Info, MessageCircle } from 'lucide-react-native';
+import { Share2, Heart, Bone, Info } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { shareContent } from '@/src/utils/share';
 
 const { width, height } = Dimensions.get('window');
 
+const STATUS_LABELS: Record<string, string> = { abierto: 'En adopción', en_proceso: 'En proceso', adoptado: 'Adoptado' };
+
 export default function AdopcionDetalleScreen() {
     const { theme } = useTheme();
-    const { listing, isLoading, goBack, goToSolicitar } = useListingDetail();
+    const { listing, isLoading, error, refetch, goBack, goToSolicitar, goToMyRequests, myRequest, isOwner } = useListingDetail();
+
+    if (!isLoading && (error || !listing)) {
+        return (
+            <ScreenContainer style={styles.center}>
+                <Text style={{ color: theme.text, fontWeight: '700', marginBottom: 6 }}>No pudimos cargar la mascota</Text>
+                <Text style={{ color: theme.textMuted, marginBottom: 16, textAlign: 'center' }}>Puede que ya no esté disponible o que no tengas conexión.</Text>
+                <View style={{ flexDirection: 'row', gap: 12 }}>
+                    <TouchableOpacity onPress={goBack} accessibilityRole="button" style={{ backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 }}>
+                        <Text style={{ color: theme.text, fontWeight: '700' }}>Volver</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => refetch()} accessibilityRole="button" style={{ backgroundColor: theme.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 }}>
+                        <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScreenContainer>
+        );
+    }
 
     if (isLoading || !listing) {
         return (
@@ -66,7 +85,7 @@ export default function AdopcionDetalleScreen() {
 
                     <View style={styles.heroTags}>
                         <View style={[styles.statusBadge, { borderColor: speciesColor + '40', backgroundColor: 'rgba(0,0,0,0.4)' }]}>
-                            <Text style={[styles.statusText, { color: speciesColor }]}>{listing.status.toUpperCase()}</Text>
+                            <Text style={[styles.statusText, { color: speciesColor }]}>{(STATUS_LABELS[listing.status?.toLowerCase()] || listing.status || '').toUpperCase()}</Text>
                         </View>
                         {listing.is_emergency && (
                             <View style={styles.emergencyBadge}>
@@ -82,7 +101,7 @@ export default function AdopcionDetalleScreen() {
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.name, { color: theme.text }]}>{listing.name}</Text>
                             <Text style={[styles.breed, { color: speciesColor }]}>
-                                {listing.breed || 'Mestizo'} • {listing.gender}
+                                {[listing.breed || 'Mestizo', listing.gender].filter(Boolean).join(' • ')}
                             </Text>
                         </View>
                         <View style={[styles.speciesIconContainer, { backgroundColor: speciesColor + '20' }]}>
@@ -93,34 +112,17 @@ export default function AdopcionDetalleScreen() {
                     {/* Quick Stats */}
                     <View style={styles.quickStats}>
                         <StatCard label="Edad" value={formatAge(listing.age_months)} icon="📅" theme={theme} />
-                        <StatCard label="Tamaño" value={listing.size || 'Mediano'} icon="📏" theme={theme} />
+                        <StatCard label="Tamaño" value={listing.size || 'No indicado'} icon="📏" theme={theme} />
                         <StatCard label="Peso" value={formatWeight(listing.weight_kg)} icon="⚖️" theme={theme} />
-                        <StatCard label="Ubicación" value={listing.location || 'CDMX'} icon="📍" theme={theme} />
+                        <StatCard label="Ubicación" value={listing.location || 'No indicada'} icon="📍" theme={theme} />
                     </View>
 
                     {/* Description */}
                     <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 32 }]}>Su Historia</Text>
                     <View style={[styles.descriptionContainer, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                         <Text style={[styles.description, { color: theme.text }]}>
-                            {listing.description || "Este pequeño busca una familia que le dé mucho amor. Es muy juguetón, sociable con otros animales y está esperando por ti."}
+                            {listing.description?.trim() || 'Aún no hay una historia escrita para esta mascota.'}
                         </Text>
-                    </View>
-
-                    {/* Rescuer */}
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <User size={20} color={theme.primary} />
-                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Rescatista</Text>
-                        </View>
-                        <View style={[styles.rescatistaCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                            <View style={styles.rescatistaIcon}>
-                                <Text style={{ fontSize: 24 }}>🏠</Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.rescatistaName, { color: theme.text }]}>Resguardo Michicondrias</Text>
-                                <Text style={[styles.rescatistaMeta, { color: theme.textMuted }]}>Protección animal verificada</Text>
-                            </View>
-                        </View>
                     </View>
 
                     {/* Health & Socialization */}
@@ -160,10 +162,20 @@ export default function AdopcionDetalleScreen() {
 
             {/* Fixed Footer CTA */}
             <View style={[styles.footer, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
-                <TouchableOpacity style={[styles.applyBtn, { backgroundColor: theme.primary }]} onPress={goToSolicitar}>
-                    <Heart size={20} color="#fff" />
-                    <Text style={styles.applyBtnText}>¡Quiero Adoptar!</Text>
-                </TouchableOpacity>
+                {isOwner ? (
+                    <Text style={{ color: theme.textMuted, textAlign: 'center', fontWeight: '600' }}>Esta es tu publicación. Gestiona las solicitudes desde "Solicitudes recibidas".</Text>
+                ) : listing.status?.toLowerCase() !== 'abierto' ? (
+                    <Text style={{ color: theme.textMuted, textAlign: 'center', fontWeight: '600' }}>Esta mascota ya no está disponible para adopción.</Text>
+                ) : myRequest ? (
+                    <TouchableOpacity style={[styles.applyBtn, { backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.primary }]} onPress={goToMyRequests} accessibilityRole="button">
+                        <Text style={[styles.applyBtnText, { color: theme.primary }]}>Ya postulaste: ver mi solicitud</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity style={[styles.applyBtn, { backgroundColor: theme.primary }]} onPress={goToSolicitar} accessibilityRole="button">
+                        <Heart size={20} color="#fff" />
+                        <Text style={styles.applyBtnText}>¡Quiero Adoptar!</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </ScreenContainer>
     );

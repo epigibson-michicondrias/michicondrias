@@ -1,243 +1,105 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useServiceManagement, AnyRequest } from '@/src/hooks/servicios-pro';
+import { useServiceManagement } from '@/src/hooks/servicios-pro';
+import { normalizeStatus, STATUS_FILTERS } from '@/src/hooks/servicios-pro/requestStatus';
+import ServiceRequestCard from '@/src/features/servicios-pro/ServiceRequestCard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Clock, MapPin, Bone, User, CheckCircle2, XCircle, Activity } from 'lucide-react-native';
-
-const { width } = Dimensions.get('window');
+import EmptyState from '@/src/components/EmptyState';
+import FilterChip from '@/src/components/FilterChip';
+import LoadingOverlay from '@/src/components/LoadingOverlay';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { Clock, ClipboardList, User, Activity } from 'lucide-react-native';
 
 export default function ProfessionalGestionScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const {
-        filter,
-        setFilter,
-        actionLoading,
-        allRequests,
-        filtered,
-        isLoading,
-        handleStatusUpdate,
-    } = useServiceManagement();
+    const { kind, filter, setFilter, actionLoading, allRequests, filtered, isLoading, handleStatusUpdate } = useServiceManagement();
 
-    const renderItem = ({ item }: { item: AnyRequest }) => (
-        <View style={[styles.card, { backgroundColor: theme.surface }]}>
-            <View style={styles.cardHeader}>
-                <View style={[styles.typeBadge, { backgroundColor: item.type === 'walk' ? '#6366f120' : '#8b5cf620' }]}>
-                    <Text style={[styles.typeText, { color: item.type === 'walk' ? '#6366f1' : '#8b5cf6' }]}>
-                        {item.type === 'walk' ? '🚶 Paseo' : '🏠 Cuidado'}
-                    </Text>
+    const pending = allRequests.filter(r => normalizeStatus(r.status) === 'pending').length;
+    const active = allRequests.filter(r => ['accepted', 'in_progress'].includes(normalizeStatus(r.status))).length;
+
+    const header = (
+        <View>
+            <View style={styles.statsRow}>
+                <View style={[styles.statBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <Clock size={18} color={theme.warning} />
+                    <View>
+                        <Text style={[styles.statValue, { color: theme.text }]}>{pending}</Text>
+                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Pendientes</Text>
+                    </View>
                 </View>
-                <Text style={[styles.dateText, { color: theme.textMuted }]}>
-                    {item.type === 'walk' ? (item as any).requested_date : `${(item as any).start_date} - ${(item as any).end_date}`}
-                </Text>
-            </View>
-
-            <View style={styles.cardBody}>
-                <View style={styles.infoRow}>
-                    <User size={16} color={theme.textMuted} />
-                    <Text style={[styles.infoLabel, { color: theme.text }]}>Cliente ID: {item.client_user_id.substring(0, 8)}...</Text>
+                <View style={[styles.statBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <Activity size={18} color={theme.success} />
+                    <View>
+                        <Text style={[styles.statValue, { color: theme.text }]}>{active}</Text>
+                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Por atender</Text>
+                    </View>
                 </View>
-                <View style={styles.infoRow}>
-                    <Bone size={16} color={theme.textMuted} />
-                    <Text style={[styles.infoLabel, { color: theme.text }]}>Mascota ID: {item.pet_id.substring(0, 8)}...</Text>
-                </View>
-                {item.type === 'walk' && (item as any).pickup_address && (
-                    <View style={styles.infoRow}>
-                        <MapPin size={16} color={theme.textMuted} />
-                        <Text style={[styles.infoLabel, { color: theme.text }]} numberOfLines={1}>{(item as any).pickup_address}</Text>
-                    </View>
-                )}
-                {item.notes && (
-                    <View style={[styles.notesBox, { backgroundColor: theme.background }]}>
-                        <Text style={[styles.notesText, { color: theme.textMuted }]}>"{item.notes}"</Text>
-                    </View>
-                )}
             </View>
-
-            <View style={styles.cardFooter}>
-                <Text style={[styles.priceText, { color: theme.primary }]}>${item.total_price || 0}</Text>
-
-                {item.status === 'pending' ? (
-                    <View style={styles.actionRow}>
-                        <TouchableOpacity
-                            style={[styles.actionBtn, { backgroundColor: '#ef4444' }]}
-                            onPress={() => handleStatusUpdate(item.id, item.type, 'rejected')}
-                            disabled={!!actionLoading}
-                        >
-                            <XCircle size={18} color="#fff" />
-                            <Text style={styles.btnText}>Rechazar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.actionBtn, { backgroundColor: '#10b981' }]}
-                            onPress={() => handleStatusUpdate(item.id, item.type, 'accepted')}
-                            disabled={!!actionLoading}
-                        >
-                            <CheckCircle2 size={18} color="#fff" />
-                            <Text style={styles.btnText}>Aceptar</Text>
-                        </TouchableOpacity>
-                    </View>
-                ) : (
-                    <View style={[styles.statusBadge, { backgroundColor: item.status === 'accepted' ? '#10b98120' : '#ef444420' }]}>
-                        <Text style={[styles.statusLabel, { color: item.status === 'accepted' ? '#10b981' : '#ef4444' }]}>
-                            {item.status.toUpperCase()}
-                        </Text>
-                    </View>
-                )}
-            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+                {STATUS_FILTERS.map(f => (
+                    <FilterChip key={f.id} label={f.label} active={filter === f.id} onPress={() => setFilter(f.id)} />
+                ))}
+            </ScrollView>
         </View>
     );
 
     return (
         <ScreenContainer>
-            {/* Header Premium */}
             <ScreenHeader
-                title="Servicios Pro"
-                subtitle="Gestión de Solicitudes"
-                gradient={['#6366f1', '#4338ca', '#3730a3']}
+                title="Mis tareas"
+                subtitle={kind === 'walk' ? 'Solicitudes de paseo' : 'Solicitudes de cuidado'}
                 rightElement={
                     <TouchableOpacity
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
+                        style={[styles.headerAction, { backgroundColor: theme.surface }]}
                         onPress={() => router.push('/servicios-pro/perfil' as any)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Editar perfil profesional"
                     >
-                        <User size={22} color="#fff" />
+                        <User size={22} color={theme.text} />
                     </TouchableOpacity>
                 }
             />
-
-            <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
-
-                {/* Stats Summary Refined */}
-                <View style={styles.statsRow}>
-                    <View style={[styles.statBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <Activity size={18} color="#6366f1" />
-                        <View>
-                            <Text style={[styles.statValue, { color: theme.text }]}>{allRequests.length}</Text>
-                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Totales</Text>
-                        </View>
-                    </View>
-                    <View style={[styles.statBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <Clock size={18} color="#f59e0b" />
-                        <View>
-                            <Text style={[styles.statValue, { color: theme.text }]}>{allRequests.filter(r => r.status === 'pending').length}</Text>
-                            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Pendientes</Text>
-                        </View>
-                    </View>
-                </View>
-
-            {/* Filter Tabs */}
-            <View style={styles.tabsRow}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
-                    {[
-                        { key: 'pending', label: '⏳ Pendientes' },
-                        { key: 'accepted', label: '✅ Aceptadas' },
-                        { key: 'completed', label: '🎉 Finalizadas' },
-                        { key: 'rejected', label: '❌ Rechazadas' },
-                        { key: 'all', label: '🔍 Todas' },
-                    ].map(tab => (
-                        <TouchableOpacity
-                            key={tab.key}
-                            onPress={() => setFilter(tab.key)}
-                            style={[
-                                styles.tab,
-                                { backgroundColor: theme.surface, borderColor: theme.border },
-                                filter === tab.key && { backgroundColor: theme.primary + '20', borderColor: theme.primary }
-                            ]}
-                        >
-                            <Text style={[
-                                styles.tabText,
-                                { color: theme.textMuted },
-                                filter === tab.key && { color: theme.primary, fontWeight: '800' }
-                            ]}>{tab.label}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
-
-                {isLoading ? (
-                    <View style={styles.centerLoading}>
-                        <ActivityIndicator size="large" color="#6366f1" />
-                    </View>
-                ) : filtered.length === 0 ? (
-                    <View style={styles.empty}>
-                        <Bone size={64} color={theme.textMuted} strokeWidth={1} />
-                        <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay solicitudes en esta categoría</Text>
-                    </View>
-                ) : (
-                    <View style={styles.list}>
-                        {filtered.map(item => renderItem({ item }))}
-                    </View>
-                )}
-            </ScrollView>
+            {isLoading ? (
+                <LoadingOverlay message="Cargando solicitudes..." />
+            ) : (
+                <FlatList
+                    refreshControl={<AppRefreshControl />}
+                    data={filtered}
+                    keyExtractor={r => r.id}
+                    ListHeaderComponent={header}
+                    contentContainerStyle={styles.list}
+                    renderItem={({ item }) => (
+                        <ServiceRequestCard
+                            kind={kind}
+                            request={item}
+                            perspective="provider"
+                            busy={actionLoading === item.id}
+                            onStatus={s => handleStatusUpdate(item.id, s)}
+                        />
+                    )}
+                    ListEmptyComponent={
+                        <EmptyState
+                            icon={<ClipboardList size={32} color={theme.textMuted} />}
+                            title="Sin solicitudes"
+                            subtitle={filter === 'all' ? 'Cuando un cliente te solicite un servicio aparecerá aquí.' : 'No hay solicitudes en esta categoría.'}
+                        />
+                    }
+                />
+            )}
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    contentScroll: {
-        flex: 1,
-    },
-    statsRow: {
-        flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginTop: 24,
-        marginBottom: 16
-    },
-    statBox: {
-        flex: 1,
-        flexDirection: 'row',
-        padding: 16,
-        borderRadius: 20,
-        alignItems: 'center',
-        gap: 12,
-        borderWidth: 1,
-    },
+    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    statsRow: { flexDirection: 'row', gap: 12, marginBottom: 16 },
+    statBox: { flex: 1, flexDirection: 'row', padding: 16, borderRadius: 18, alignItems: 'center', gap: 12, borderWidth: 1 },
     statValue: { fontSize: 18, fontWeight: '900' },
-    statLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-    tabsRow: { marginBottom: 16 },
-    tabsScroll: { paddingHorizontal: 24, gap: 8 },
-    tab: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 14,
-        borderWidth: 1,
-        backgroundColor: 'rgba(255,255,255,0.03)'
-    },
-    tabText: { fontSize: 13, fontWeight: '700' },
-    list: { padding: 24, paddingBottom: 100 },
-    card: {
-        borderRadius: 24,
-        padding: 18,
-        marginBottom: 16,
-        borderWidth: 1,
-    },
-    cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-    typeBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-    typeText: { fontSize: 10, fontWeight: '900' },
-    dateText: { fontSize: 11, fontWeight: '700' },
-    cardBody: { gap: 10, marginBottom: 14 },
-    infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    infoLabel: { fontSize: 13, fontWeight: '600' },
-    notesBox: { padding: 12, borderRadius: 12, borderLeftWidth: 3, borderLeftColor: '#6366f1' },
-    notesText: { fontSize: 12, fontWeight: '500', fontStyle: 'italic' },
-    cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' },
-    priceText: { fontSize: 18, fontWeight: '900' },
-    actionRow: { flexDirection: 'row', gap: 8 },
-    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
-    btnText: { color: '#fff', fontSize: 11, fontWeight: '900' },
-    statusBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
-    statusLabel: { fontSize: 10, fontWeight: '900' },
-    centerLoading: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 100 },
-    empty: { paddingTop: 60, alignItems: 'center', gap: 16 },
-    emptyText: { fontSize: 14, fontWeight: '700', textAlign: 'center' }
+    statLabel: { fontSize: 11, fontWeight: '700' },
+    chips: { gap: 8, paddingBottom: 16 },
+    list: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 100 },
 });

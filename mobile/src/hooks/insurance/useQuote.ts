@@ -24,10 +24,10 @@ import { showAlert } from '@/src/components/AppAlert';
 export function useQuote() {
     const { user } = useAuth();
     const router = useRouter();
-    const { plan_id } = useLocalSearchParams<{ plan_id?: string }>();
+    const { plan_id, pet_id } = useLocalSearchParams<{ plan_id?: string; pet_id?: string }>();
     const queryClient = useQueryClient();
 
-    const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
+    const [selectedPetId, setSelectedPetId] = useState<string | null>(pet_id || null);
     const [selectedPlanId, setSelectedPlanId] = useState<string | null>(plan_id || null);
     const [hasPreexisting, setHasPreexisting] = useState(false);
     const [quote, setQuote] = useState<InsuranceQuoteOut | null>(null);
@@ -67,8 +67,8 @@ export function useQuote() {
         onSuccess: (data) => {
             setQuote(data);
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No pudimos calcular la cotización.' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No pudimos cotizar', message: e?.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -82,11 +82,11 @@ export function useQuote() {
                 type: 'success',
                 title: '¡Suscripción exitosa!',
                 message: 'Tu mascota ahora está asegurada. La póliza ha sido creada.',
-                onButtonPress: () => router.back(),
+                onButtonPress: () => router.replace('/aseguradoras/mis-polizas' as any),
             });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No pudimos completar la suscripción.' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No pudimos completar la contratación', message: e?.message || 'Inténtalo de nuevo.' });
         },
     });
 

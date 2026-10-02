@@ -78,12 +78,38 @@ export async function updateReport(reportId: string, reportData: Partial<LostPet
 
 // --- Report Matching & Broadcasting ---
 
-export async function getReportMatches(reportId: string): Promise<any[]> {
-    return apiFetch<any[]>("perdidas", `/reports/${reportId}/matches`);
+export async function getReportMatches(reportId: string): Promise<LostPetReport[]> {
+    return apiFetch<LostPetReport[]>("perdidas", `/reports/${reportId}/matches`);
 }
 
 export async function broadcastReport(reportId: string): Promise<{ success: boolean }> {
     return apiFetch<{ success: boolean }>("perdidas", `/reports/${reportId}/broadcast`, {
         method: "POST",
+    });
+}
+
+// --- Avistamientos ---
+
+export interface Sighting {
+    id: string;
+    report_id: string;
+    location_text: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    note: string | null;
+    created_at: string | null;
+}
+
+export async function getSightings(reportId: string): Promise<Sighting[]> {
+    return apiFetch<Sighting[]>("perdidas", `/reports/${reportId}/sightings`);
+}
+
+export async function createSighting(
+    reportId: string,
+    data: { location_text?: string; latitude?: number; longitude?: number; note?: string }
+): Promise<Sighting> {
+    return apiFetch<Sighting>("perdidas", `/reports/${reportId}/sightings`, {
+        method: "POST",
+        body: JSON.stringify(data),
     });
 }

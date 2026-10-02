@@ -20,6 +20,13 @@ import {
     Briefcase,
     Store,
     Users,
+    Shield,
+    FlaskConical,
+    Dumbbell,
+    Scissors,
+    Car,
+    Award,
+    Flower2,
 } from 'lucide-react-native';
 
 export type CategoryKey = 'Salud' | 'Servicios' | 'Tienda' | 'Comunidad';
@@ -53,11 +60,18 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     { title: 'Veterinarios', subtitle: 'Busca un experto', icon: Stethoscope, color: '#0ea5e9', route: '/directorio', category: 'Salud' },
     { title: 'Carnet Salud', subtitle: 'Historial médico', icon: ClipboardList, color: '#3b82f6', route: '/carnet', category: 'Salud' },
     { title: 'Diagnóstico IA', subtitle: 'Análisis inteligente', icon: Sparkles, color: '#8b5cf6', route: '/mascotas/diagnostico-ia', category: 'Salud' },
+    { title: 'Laboratorios', subtitle: 'Análisis y resultados', icon: FlaskConical, color: '#10b981', route: '/laboratorio', category: 'Salud' },
+    { title: 'Seguros', subtitle: 'Aseguradoras y pólizas', icon: Shield, color: '#0ea5e9', route: '/aseguradoras', category: 'Salud' },
 
     // Servicios
     { title: 'Paseadores', subtitle: 'Busca paseadores', icon: UserCheck, color: '#8b5cf6', route: '/paseadores', category: 'Servicios' },
     { title: 'Cuidadores', subtitle: 'Pensiones Michi', icon: Home, color: '#7c3aed', route: '/cuidadores', category: 'Servicios' },
     { title: 'Petfriendly', subtitle: 'Sitios populares', icon: MapPin, color: '#14b8a6', route: '/petfriendly', category: 'Servicios' },
+    { title: 'Entrenadores', subtitle: 'Adiestramiento canino', icon: Dumbbell, color: '#8b5cf6', route: '/entrenadores', category: 'Servicios' },
+    { title: 'Estilistas', subtitle: 'Peluquería y estética', icon: Scissors, color: '#ec4899', route: '/estilistas', category: 'Servicios' },
+    { title: 'Transporte', subtitle: 'Viajes para mascotas', icon: Car, color: '#6366f1', route: '/transportistas', category: 'Servicios' },
+    { title: 'Establecimientos', subtitle: 'Lugares y comercios', icon: Store, color: '#f59e0b', route: '/establecimientos', category: 'Servicios' },
+    { title: 'Funeraria', subtitle: 'Despedida y memoriales', icon: Flower2, color: '#64748b', route: '/funeraria', category: 'Servicios' },
 
     // Tienda
     { title: 'Michi-Shop', subtitle: 'Artículos para tu mascota', icon: ShoppingBag, color: '#ec4899', route: '/tienda', category: 'Tienda' },
@@ -67,6 +81,7 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     { title: 'Adopciones', subtitle: 'Busca un amigo', icon: Heart, color: '#f43f5e', route: '/adopciones', category: 'Comunidad' },
     { title: 'Mascotas Perdidas', subtitle: 'Reportes activos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas', category: 'Comunidad' },
     { title: 'Donaciones', subtitle: 'Apoyo refugios', icon: Bone, color: '#f59e0b', route: '/donaciones', category: 'Comunidad' },
+    { title: 'Patrocinadores', subtitle: 'Aliados comerciales', icon: Award, color: '#10b981', route: '/patrocinadores', category: 'Comunidad' },
 ];
 
 export function useExplore() {

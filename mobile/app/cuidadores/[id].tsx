@@ -8,21 +8,23 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { showAlert } from '@/src/components/AppAlert';
 import { 
-    MapPin, Star, Clock, Home, Users, Phone, MessageCircle, Calendar, 
-    Shield, Heart, Share2, Dog, Cat, CheckCircle, Sun, Moon
+    MapPin, Star, Clock, Home, Users, Phone, Calendar, 
+    Shield, Share2, Dog, Cat, CheckCircle, Sun, Moon
 } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
+import DatePicker from '@/src/components/DatePicker';
+import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
 
 export default function SitterDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const {
         sitter,
+        isOwnProfile,
+        sitServiceType,
+        setSitServiceType,
         isLoading,
         error,
-        isFavorite,
-        toggleFavorite,
-        handleContact,
         handleBook,
         getServiceName,
         // Sit request
@@ -47,16 +49,13 @@ export default function SitterDetailScreen() {
         unreviewedCompletedRequests,
     } = useSitterDetail();
 
-    const { contact } = useLocalSearchParams<{ contact?: string }>();
-    const [contactModalVisible, setContactModalVisible] = React.useState(contact === 'true');
-    const [contactMessage, setContactMessage] = React.useState('');
     const [formRating, setFormRating] = React.useState(5);
     const [formComment, setFormComment] = React.useState('');
 
     const getServiceIcon = (type: string) => {
         switch (type) {
-            case 'daycare': return <Sun size={20} color={theme.primary} />;
-            case 'boarding': return <Moon size={20} color={theme.primary} />;
+            case 'visiting': return <Sun size={20} color={theme.primary} />;
+            case 'hosting': return <Moon size={20} color={theme.primary} />;
             default: return <Home size={20} color={theme.primary} />;
         }
     };
@@ -96,11 +95,6 @@ export default function SitterDetailScreen() {
             <ScrollView style={{ flex: 1 }}>
                 <ScreenHeader
                     title="Perfil del Cuidador"
-                    rightElement={
-                        <TouchableOpacity onPress={toggleFavorite}>
-                            <Heart size={24} color={isFavorite ? '#ef4444' : theme.textMuted} fill={isFavorite ? '#ef4444' : 'none'} />
-                        </TouchableOpacity>
-                    }
                 />
 
                 {/* Profile Header */}
@@ -120,7 +114,7 @@ export default function SitterDetailScreen() {
                         <View style={styles.ratingRow}>
                             <Star size={16} color="#fbbf24" fill="#fbbf24" />
                             <Text style={[styles.ratingText, { color: theme.text }]}>
-                                {sitter.rating ? sitter.rating.toFixed(1) : '5.0'} ({sitter.total_sits} cuidados)
+                                {sitter.rating ? sitter.rating.toFixed(1) : 'Nuevo'} ({sitter.total_sits} cuidados)
                             </Text>
                         </View>
                         
@@ -147,7 +141,7 @@ export default function SitterDetailScreen() {
                     <View style={styles.statDivider} />
                     <View style={styles.statItem}>
                         <Clock size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{sitter.experience_years || 1}+</Text>
+                        <Text style={[styles.statNumber, { color: theme.text }]}>{sitter.experience_years ?? 0}</Text>
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Años</Text>
                     </View>
                     <View style={styles.statDivider} />
@@ -177,10 +171,7 @@ export default function SitterDetailScreen() {
                                     {getServiceName(sitter.service_type)}
                                 </Text>
                                 <Text style={[styles.serviceDesc, { color: theme.textMuted }]}>
-                                    {sitter.service_type === 'daycare' ? 
-                                        'Cuidado durante el día, perfecto para dueños ocupados' :
-                                        'Cuidado nocturno, ideal para viajes y fines de semana'
-                                    }
+                                    {sitter.service_type === 'visiting' ? 'Visita a tu mascota en tu domicilio' : sitter.service_type === 'hosting' ? 'Tu mascota se hospeda en casa del cuidador' : 'Hospedaje en casa del cuidador o visitas a domicilio'}
                                 </Text>
                             </View>
                             <CheckCircle size={20} color="#10b981" />
@@ -213,20 +204,18 @@ export default function SitterDetailScreen() {
                 <View style={[styles.section, { backgroundColor: theme.surface }]}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Características del Hogar</Text>
                     <View style={styles.featuresGrid}>
-                        <View style={styles.featureItem}>
-                            <Home size={20} color={theme.primary} />
-                            <Text style={[styles.featureText, { color: theme.textMuted }]}>Hogar seguro</Text>
-                        </View>
+                        {sitter.home_type ? (
+                            <View style={styles.featureItem}>
+                                <Home size={20} color={theme.primary} />
+                                <Text style={[styles.featureText, { color: theme.textMuted }]}>{sitter.home_type}</Text>
+                            </View>
+                        ) : null}
                         {sitter.has_yard && (
                             <View style={styles.featureItem}>
                                 <Sun size={20} color={theme.secondary} />
                                 <Text style={[styles.featureText, { color: theme.textMuted }]}>Patio privado</Text>
                             </View>
                         )}
-                        <View style={styles.featureItem}>
-                            <Shield size={20} color={theme.primary} />
-                            <Text style={[styles.featureText, { color: theme.textMuted }]}>Supervisión 24/7</Text>
-                        </View>
                     </View>
                 </View>
 
@@ -249,7 +238,7 @@ export default function SitterDetailScreen() {
                     <View style={styles.pricingCard}>
                         <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Cuidado por día</Text>
                         <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                            ${sitter.price_per_day || 30}
+                            {sitter.price_per_day ? `$${sitter.price_per_day}` : 'Por acordar'}
                         </Text>
                     </View>
                     {sitter.price_per_visit && (
@@ -270,11 +259,11 @@ export default function SitterDetailScreen() {
                     <View style={[styles.ratingSummaryCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
                         <View style={styles.summaryLeft}>
                             <Text style={[styles.bigRating, { color: theme.text }]}>
-                                {sitter.rating ? sitter.rating.toFixed(1) : '5.0'}
+                                {sitter.rating ? sitter.rating.toFixed(1) : '—'}
                             </Text>
                             <View style={styles.starsRow}>
                                 {[1, 2, 3, 4, 5].map((s) => {
-                                    const isFilled = s <= Math.round(sitter.rating || 5);
+                                    const isFilled = s <= Math.round(sitter.rating || 0);
                                     return <Star key={s} size={16} color="#fbbf24" fill={isFilled ? "#fbbf24" : "transparent"} />;
                                 })}
                             </View>
@@ -339,8 +328,6 @@ export default function SitterDetailScreen() {
                                         rating: formRating,
                                         comment: formComment.trim() || '',
                                     });
-                                    setFormComment('');
-                                    setFormRating(5);
                                 }}
                                 disabled={isCreatingReview}
                             >
@@ -417,16 +404,9 @@ export default function SitterDetailScreen() {
             </ScrollView>
 
             {/* Action Buttons (Sticky Footer) */}
+            {!isOwnProfile && (
             <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
-                <TouchableOpacity
-                    style={[styles.contactBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                    onPress={() => setContactModalVisible(true)}
-                >
-                    <MessageCircle size={20} color={theme.primary} />
-                    <Text style={[styles.contactBtnText, { color: theme.primary }]}>Enviar Mensaje</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
+<TouchableOpacity
                     style={[styles.bookButton, { backgroundColor: theme.primary }]}
                     onPress={() => handleBook(getServiceName(sitter.service_type))}
                 >
@@ -434,6 +414,7 @@ export default function SitterDetailScreen() {
                     <Text style={styles.bookButtonText}>Reservar Cuidado</Text>
                 </TouchableOpacity>
             </View>
+            )}
 
             {/* Sit Request Modal */}
             <Modal visible={sitModalVisible} transparent animationType="slide">
@@ -467,22 +448,41 @@ export default function SitterDetailScreen() {
                             />
                         )}
 
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha de Inicio</Text>
-                        <TextInput
-                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 50 }]}
-                            value={startDate}
-                            onChangeText={setStartDate}
-                            placeholder="YYYY-MM-DD"
-                            placeholderTextColor={theme.textMuted}
+                        {sitter.service_type === 'both' && (
+                            <>
+                                <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Tipo de servicio</Text>
+                                <View style={{ flexDirection: 'row', gap: 12 }}>
+                                    {([['hosting', 'Hospedaje'], ['visiting', 'Visitas']] as const).map(([val, label]) => (
+                                        <TouchableOpacity
+                                            key={val}
+                                            style={[styles.petChip, { flex: 1, alignItems: 'center', backgroundColor: sitServiceType === val ? theme.primary : theme.surface, borderColor: theme.border }]}
+                                            onPress={() => setSitServiceType(val)}
+                                            accessibilityRole="button"
+                                            accessibilityState={{ selected: sitServiceType === val }}
+                                        >
+                                            <Text style={[styles.petChipText, { color: sitServiceType === val ? '#fff' : theme.text }]}>{label}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </>
+                        )}
+
+                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha de inicio</Text>
+                        <DatePicker
+                            value={new Date(startDate + 'T12:00:00')}
+                            onChange={(d) => {
+                                const iso = toLocalIsoDate(d);
+                                setStartDate(iso);
+                                if (endDate < iso) setEndDate(iso);
+                            }}
+                            minimumDate={new Date()}
                         />
 
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha de Fin</Text>
-                        <TextInput
-                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 50 }]}
-                            value={endDate}
-                            onChangeText={setEndDate}
-                            placeholder="YYYY-MM-DD"
-                            placeholderTextColor={theme.textMuted}
+                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha de fin</Text>
+                        <DatePicker
+                            value={new Date(endDate + 'T12:00:00')}
+                            onChange={(d) => setEndDate(toLocalIsoDate(d))}
+                            minimumDate={new Date(startDate + 'T12:00:00')}
                         />
 
                         <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Notas (opcional)</Text>
@@ -513,54 +513,6 @@ export default function SitterDetailScreen() {
                 </View>
             </Modal>
 
-            {/* Contact Modal */}
-            <Modal visible={contactModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-                        <Text style={[styles.modalTitle, { color: theme.text }]}>Enviar Mensaje</Text>
-                        
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Escribe tu mensaje para {sitter.display_name}</Text>
-                        <TextInput
-                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            value={contactMessage}
-                            onChangeText={setContactMessage}
-                            placeholder="Hola, me gustaría saber si tienes disponibilidad para..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                        />
-
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity 
-                                style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} 
-                                onPress={() => {
-                                    setContactModalVisible(false);
-                                    setContactMessage('');
-                                }}
-                            >
-                                <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => {
-                                    if (!contactMessage.trim()) {
-                                        showAlert({ type: 'error', title: 'Mensaje Vacío', message: 'Por favor escribe un mensaje antes de enviar.' });
-                                        return;
-                                    }
-                                    setContactModalVisible(false);
-                                    setContactMessage('');
-                                    showAlert({ 
-                                        type: 'success', 
-                                        title: '¡Mensaje Enviado!', 
-                                        message: `Tu mensaje ha sido enviado a ${sitter.display_name}. Se pondrá en contacto contigo pronto.` 
-                                    });
-                                }}
-                            >
-                                <Text style={styles.modalSubmitText}>Enviar Mensaje</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
         </ScreenContainer>
     );
 }

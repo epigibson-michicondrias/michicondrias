@@ -50,7 +50,7 @@ export default function CuidadoresScreen() {
                 <View style={styles.ratingContainer}>
                     <Star size={16} color="#fbbf24" fill="#fbbf24" />
                     <Text style={[styles.ratingText, { color: theme.text }]}>
-                        {item.rating ? item.rating.toFixed(1) : '5.0'}
+                        {item.rating ? item.rating.toFixed(1) : 'Nuevo'}
                     </Text>
                 </View>
             </View>
@@ -59,13 +59,13 @@ export default function CuidadoresScreen() {
                 <View style={styles.statItem}>
                     <Home size={14} color={theme.textMuted} />
                     <Text style={[styles.statText, { color: theme.textMuted }]}>
-                        {item.total_sits || 0} cuidades
+                        {item.total_sits || 0} cuidados
                     </Text>
                 </View>
                 <View style={styles.statItem}>
                     <Clock size={14} color={theme.textMuted} />
                     <Text style={[styles.statText, { color: theme.textMuted }]}>
-                        {item.experience_years || 1}+ años
+                        {item.experience_years ?? 0} años exp.
                     </Text>
                 </View>
             </View>
@@ -79,7 +79,7 @@ export default function CuidadoresScreen() {
                 </View>
                 <View style={[styles.serviceTag, { backgroundColor: theme.primary + '10' }]}>
                     <Text style={[styles.serviceText, { color: theme.primary }]}>
-                        👥 {item.max_pets || 1} mascotas
+                        Hasta {item.max_pets || 1} mascotas
                     </Text>
                 </View>
                 {item.is_verified && (
@@ -100,21 +100,21 @@ export default function CuidadoresScreen() {
             </View>
 
             <Text style={[styles.bioText, { color: theme.textMuted }]} numberOfLines={2}>
-                {item.bio || 'Profesional dedicado al cuidado de mascotas con experiencia y amor.'}
+                {item.bio || 'Este cuidador aún no agregó una descripción.'}
             </Text>
 
             <View style={styles.sitterFooter}>
                 <View style={styles.priceContainer}>
                     <Text style={[styles.priceText, { color: theme.primary }]}>
-                        ${item.price_per_day || 30}
+                        {item.price_per_day ? `$${item.price_per_day}` : item.price_per_visit ? `$${item.price_per_visit}` : 'Por acordar'}
                     </Text>
                     <Text style={[styles.priceUnit, { color: theme.textMuted }]}>/día</Text>
                 </View>
                 <TouchableOpacity 
                     style={[styles.contactButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push({ pathname: '/cuidadores/[id]', params: { id: item.id, contact: 'true' } } as any)}
+                    onPress={() => router.push({ pathname: '/cuidadores/[id]', params: { id: item.id } } as any)}
                 >
-                    <Text style={styles.contactButtonText}>Contactar</Text>
+                    <Text style={styles.contactButtonText}>Ver perfil</Text>
                     <ChevronRight size={16} color="#fff" />
                 </TouchableOpacity>
             </View>

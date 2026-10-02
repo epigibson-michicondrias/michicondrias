@@ -35,16 +35,18 @@ export function useViewApplications() {
             updateRequestStatus(requestId, status),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['listing-requests', id] });
+            queryClient.invalidateQueries({ queryKey: ['user-listings-with-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['my-requests'] });
             setSelectedRequest(null);
             showAlert({ type: 'success', title: 'Éxito', message: 'Estado de la solicitud actualizado.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la solicitud.' });
+        onError: (e: Error) => {
+            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo actualizar la solicitud.' });
         },
     });
 
     const handleStatusUpdate = (requestId: string, status: string) => {
-        const action = status === 'aprobado' ? 'aprobar' : 'rechazar';
+        const action = status === 'APPROVED' ? 'aprobar' : 'rechazar';
         showAlert({
             type: 'warning',
             title: 'Confirmar Acción',
@@ -58,8 +60,8 @@ export function useViewApplications() {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'aprobado': return '#10b981';
-            case 'rechazado': return '#ef4444';
+            case 'APPROVED': case 'ADOPTED': return '#10b981';
+            case 'REJECTED': return '#ef4444';
             default: return '#f59e0b';
         }
     };

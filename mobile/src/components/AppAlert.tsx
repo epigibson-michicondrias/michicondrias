@@ -91,7 +91,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
     return (
         <>
             {children}
-            <Modal transparent visible={alert.visible} animationType="none" statusBarTranslucent>
+            <Modal transparent visible={alert.visible} animationType="none" statusBarTranslucent onRequestClose={dismiss}>
                 <Animated.View style={[styles.backdrop, { opacity: backdrop }]}>
                     <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={dismiss} />
                     <Animated.View style={[styles.container, {
@@ -132,7 +132,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                             activeOpacity={0.85}
                             accessibilityRole="button"
                         >
-                            <Text style={styles.buttonText}>{alert.buttonText || 'Entendido'}</Text>
+                            <Text style={[styles.buttonText, alert.type === 'warning' && { color: '#101c3d' }]}>{alert.buttonText || 'Entendido'}</Text>
                         </TouchableOpacity>
                     </Animated.View>
                 </Animated.View>
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 32,
     },
     container: {
-        width: width - 64,
+        width: Math.min(width - 64, 420),
         borderRadius: 28,
         borderWidth: 1,
         padding: 32,

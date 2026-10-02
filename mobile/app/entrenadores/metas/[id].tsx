@@ -12,7 +12,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useTrainerDashboard } from '@/src/hooks/training';
+import { useTrainerDashboard, useEnrollment } from '@/src/hooks/training';
+import { showAlert } from '@/src/components/AppAlert';
 import { getEnrollmentGoals, type PetTrainingGoal } from '@/src/services/training';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -47,6 +48,10 @@ export default function GoalManagementScreen() {
         setReviewNotes,
         handleCreateGoal,
         handleReviewVideo,
+        handleUpdateGoal,
+        setEnrollmentStatus,
+        isUpdatingEnrollment,
+        isUpdatingGoal,
         isCreatingGoal,
         isReviewingVideo,
     } = useTrainerDashboard();
@@ -64,6 +69,20 @@ export default function GoalManagementScreen() {
     // La lista del entrenador solo trae sus inscripciones: si esta está ahí, quien mira es el entrenador
     const enrollment = enrollments.find(e => e.id === enrollmentId);
     const isTrainer = !!enrollment;
+    const { enrollments: myEnrollments } = useEnrollment();
+    const current = enrollment || myEnrollments.find(e => e.id === enrollmentId);
+    const isActive = current?.status === 'active';
+
+    const confirmStatus = (status: 'completed' | 'cancelled') =>
+        showAlert({
+            type: 'warning',
+            title: status === 'completed' ? 'Finalizar programa' : 'Cancelar inscripción',
+            message: status === 'completed' ? '¿Marcar este programa como completado para esta mascota?' : '¿Seguro que quieres cancelar esta inscripción?',
+            showCancel: true,
+            cancelText: 'Volver',
+            buttonText: 'Confirmar',
+            onButtonPress: () => setEnrollmentStatus(enrollmentId, status),
+        });
 
     const completedCount = goals.filter(g => g.status === 'completed').length;
     const progressPercent = goals.length > 0 ? Math.round((completedCount / goals.length) * 100) : 0;
@@ -104,6 +123,31 @@ export default function GoalManagementScreen() {
                         </View>
                     </View>
                 </View>
+
+                {isActive && (
+                    <View style={styles.enrollActions}>
+                        {isTrainer && (
+                            <TouchableOpacity
+                                style={[styles.enrollActionBtn, { backgroundColor: theme.success }]}
+                                onPress={() => confirmStatus('completed')}
+                                disabled={isUpdatingEnrollment}
+                                accessibilityRole="button"
+                                accessibilityLabel="Finalizar programa"
+                            >
+                                <Text style={styles.enrollActionText}>Finalizar programa</Text>
+                            </TouchableOpacity>
+                        )}
+                        <TouchableOpacity
+                            style={[styles.enrollActionBtn, { borderWidth: 1, borderColor: theme.error }]}
+                            onPress={() => confirmStatus('cancelled')}
+                            disabled={isUpdatingEnrollment}
+                            accessibilityRole="button"
+                            accessibilityLabel="Cancelar inscripción"
+                        >
+                            <Text style={[styles.enrollActionText, { color: theme.error }]}>Cancelar inscripción</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
 
                 {/* Goals List */}
                 <View style={styles.goalsSection}>
@@ -155,6 +199,30 @@ export default function GoalManagementScreen() {
                                     <Text style={[styles.goalNotes, { color: theme.textMuted }]}>
                                         {goal.progress_notes}
                                     </Text>
+                                )}
+
+                                {isTrainer && isActive && goal.status !== 'completed' && goal.status !== 'video_submitted' && (
+                                    <View style={styles.videoActions}>
+                                        {goal.status !== 'in_progress' && (
+                                            <TouchableOpacity
+                                                style={[styles.reviewBtn, { backgroundColor: theme.info }]}
+                                                onPress={() => handleUpdateGoal(goal.id, { status: 'in_progress' })}
+                                                disabled={isUpdatingGoal}
+                                                accessibilityRole="button"
+                                            >
+                                                <Text style={styles.reviewBtnText}>En progreso</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                        <TouchableOpacity
+                                            style={[styles.reviewBtn, { backgroundColor: theme.success }]}
+                                            onPress={() => handleUpdateGoal(goal.id, { status: 'completed' })}
+                                            disabled={isUpdatingGoal}
+                                            accessibilityRole="button"
+                                        >
+                                            <CheckCircle size={16} color="#fff" />
+                                            <Text style={styles.reviewBtnText}>Lograda</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 )}
 
                                 {/* Video Review Button */}
@@ -317,6 +385,9 @@ export default function GoalManagementScreen() {
 
 const styles = StyleSheet.create({
     placeholder: { width: 24 },
+    enrollActions: { flexDirection: 'row', gap: 12, marginHorizontal: 24, marginBottom: 16 },
+    enrollActionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 14 },
+    enrollActionText: { color: '#fff', fontSize: 13, fontWeight: '800' },
     progressCard: {
         marginHorizontal: 24,
         padding: 20,

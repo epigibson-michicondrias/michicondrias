@@ -59,7 +59,7 @@ export default function HelpScreen() {
                                     key={faq.question}
                                     style={index < faqs.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }}
                                 >
-                                    <TouchableOpacity style={styles.faqItem} onPress={() => setExpanded(isOpen ? null : index)}>
+                                    <TouchableOpacity style={styles.faqItem} onPress={() => setExpanded(isOpen ? null : index)} accessibilityRole="button" accessibilityState={{ expanded: isOpen }}>
                                         <Text style={[styles.faqQuestion, { color: theme.text }]}>{faq.question}</Text>
                                         <ChevronRight size={18} color={theme.textMuted} style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }} />
                                     </TouchableOpacity>
@@ -102,7 +102,7 @@ export default function HelpScreen() {
 
 function ContactBtn({ icon: Icon, label, color, theme, onPress }: any) {
     return (
-        <TouchableOpacity style={[styles.contactBtn, { backgroundColor: theme.surface }]} onPress={onPress}>
+        <TouchableOpacity style={[styles.contactBtn, { backgroundColor: theme.surface }]} onPress={onPress} accessibilityRole="button" accessibilityLabel={`Contactar por ${label}`}>
             <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>
                 <Icon size={24} color={color} />
             </View>

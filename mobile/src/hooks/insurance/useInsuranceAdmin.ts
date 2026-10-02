@@ -5,7 +5,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-    getActivePlans,
+    getMyPlans,
+    setPlanActive,
+    getProviderClaims,
     createPlan,
     createPolicy,
     updateClaimStatus,
@@ -17,6 +19,7 @@ import type {
     PetInsurancePolicyCreate,
     InsuranceClaim,
     InsuranceClaimUpdate,
+    InsuranceClaimDetail,
 } from '@/src/services/insurance';
 import { showAlert } from '@/src/components/AppAlert';
 
@@ -62,19 +65,34 @@ export function useInsuranceAdmin() {
         refetch: refetchPlans,
         isRefetching: isRefetchingPlans,
     } = useQuery<InsurancePlan[]>({
-        queryKey: ['insurancePlans'],
-        queryFn: () => getActivePlans(),
+        queryKey: ['insurancePlansMine'],
+        queryFn: () => getMyPlans(),
     });
 
-    // Collect all claims from plans' policies (if available via API)
-    // For now we derive claims from plan data
-    const allClaims: (InsuranceClaim & { planName?: string })[] = [];
+    // Reclamos sobre las pólizas de esta aseguradora
+    const {
+        data: allClaims = [],
+        isLoading: isLoadingClaims,
+    } = useQuery<InsuranceClaimDetail[]>({
+        queryKey: ['insuranceClaims', 'provider'],
+        queryFn: () => getProviderClaims(),
+    });
+
+    const toggleActiveMutation = useMutation<InsurancePlan, Error, { planId: string; active: boolean }>({
+        mutationFn: ({ planId, active }) => setPlanActive(planId, active),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['insurancePlansMine'] });
+            queryClient.invalidateQueries({ queryKey: ['insurancePlans'] });
+        },
+        onError: (e) => showAlert({ type: 'error', title: 'No se pudo actualizar', message: e.message || 'Inténtalo de nuevo.' }),
+    });
 
     // Create plan mutation
     const createPlanMutation = useMutation<InsurancePlan, Error, InsurancePlanCreate>({
         mutationFn: (data) => createPlan(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['insurancePlans'] });
+            queryClient.invalidateQueries({ queryKey: ['insurancePlansMine'] });
             showAlert({
                 type: 'success',
                 title: '¡Plan creado!',
@@ -83,8 +101,8 @@ export function useInsuranceAdmin() {
             setPlanForm({ ...PLAN_FORM_DEFAULTS });
             setShowCreateForm(false);
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No pudimos crear el plan. Inténtalo de nuevo.' });
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No pudimos crear el plan', message: e.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -121,24 +139,40 @@ export function useInsuranceAdmin() {
                 message: `El reclamo ha sido ${statusLabel}.`,
             });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No pudimos actualizar el estado del reclamo.' });
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No pudimos actualizar el reclamo', message: e.message || 'Inténtalo de nuevo.' });
         },
     });
 
     const handleCreatePlan = () => {
-        if (!planForm.name || !planForm.coverage_limit || !planForm.base_premium) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios.' });
+        if (!planForm.name.trim() || !planForm.coverage_limit || !planForm.base_premium) {
+            showAlert({ type: 'error', title: 'Datos incompletos', message: 'Por favor completa los campos obligatorios.' });
+            return;
+        }
+        const coverage = parseFloat(planForm.coverage_limit.replace(',', '.'));
+        const premium = parseFloat(planForm.base_premium.replace(',', '.'));
+        if (isNaN(coverage) || coverage <= 0 || isNaN(premium) || premium <= 0) {
+            showAlert({ type: 'error', title: 'Montos inválidos', message: 'La cobertura y la prima deben ser mayores a cero.' });
+            return;
+        }
+        const minAge = parseInt(planForm.min_age) || 0;
+        const maxAge = parseInt(planForm.max_age) || 20;
+        if (minAge > maxAge) {
+            showAlert({ type: 'error', title: 'Edades inválidas', message: 'La edad mínima no puede ser mayor que la máxima.' });
+            return;
+        }
+        if (allowedSpecies.length === 0) {
+            showAlert({ type: 'error', title: 'Especies', message: 'Selecciona al menos una especie.' });
             return;
         }
 
         createPlanMutation.mutate({
-            name: planForm.name,
+            name: planForm.name.trim(),
             description: planForm.description || undefined,
-            coverage_limit: parseFloat(planForm.coverage_limit),
-            base_premium: parseFloat(planForm.base_premium),
-            min_age: parseInt(planForm.min_age) || 0,
-            max_age: parseInt(planForm.max_age) || 20,
+            coverage_limit: coverage,
+            base_premium: premium,
+            min_age: minAge,
+            max_age: maxAge,
             allowed_species: allowedSpecies,
         });
     };
@@ -150,6 +184,7 @@ export function useInsuranceAdmin() {
             message: `Esta acción cambiará el estado del reclamo a "${status === 'approved' ? 'Aprobado' : 'Rechazado'}".`,
             buttonText: 'Confirmar',
             showCancel: true,
+            cancelText: 'Volver',
             onButtonPress: () => updateClaimMutation.mutate({ claimId, data: { status } }),
         });
     };
@@ -173,6 +208,8 @@ export function useInsuranceAdmin() {
 
         // Claims
         allClaims,
+        isLoadingClaims,
+        toggleActive: (planId: string, active: boolean) => toggleActiveMutation.mutate({ planId, active }),
         handleUpdateClaimStatus,
         isUpdatingClaim: updateClaimMutation.isPending,
 

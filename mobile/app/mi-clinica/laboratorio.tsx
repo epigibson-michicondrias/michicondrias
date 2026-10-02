@@ -6,6 +6,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import PatientPicker from '@/src/features/salud/PatientPicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { FlaskConical, TestTube2, CheckCircle2, Clock, PlusCircle, Edit3 } from 'lucide-react-native';
 
@@ -118,14 +119,7 @@ export default function LaboratorioScreen() {
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Solicitar Prueba</Text>
                         
                         <KeyboardScreen>
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>ID del Paciente *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newTest.patientId}
-                                onChangeText={t => setNewTest({...newTest, patientId: t})}
-                                placeholder="UUID del paciente"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <PatientPicker value={newTest.patientId} onChange={(id) => setNewTest({ ...newTest, patientId: id })} />
 
                             <Text style={[styles.inputLabel, { color: theme.text }]}>Tipo de Prueba *</Text>
                             <TextInput

@@ -24,6 +24,9 @@ class TrainingProgramUpdate(BaseModel):
 class TrainingProgramResponse(TrainingProgramBase):
     id: str
     trainer_id: str
+    # Datos de apoyo (opcionales: no rompen clientes anteriores)
+    trainer_name: Optional[str] = None
+    enrollments_count: int = 0
 
     class Config:
         from_attributes = True
@@ -74,6 +77,13 @@ class TrainingEnrollmentResponse(BaseModel):
     status: str
     total_paid: float
     created_at: datetime
+    # Datos de apoyo para mostrar la inscripción sin exponer IDs (opcionales: no rompen clientes anteriores)
+    program_title: Optional[str] = None
+    pet_name: Optional[str] = None
+    client_name: Optional[str] = None
+    trainer_name: Optional[str] = None
+    goals_total: int = 0
+    goals_done: int = 0
 
     class Config:
         from_attributes = True

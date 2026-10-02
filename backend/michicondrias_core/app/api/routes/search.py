@@ -11,7 +11,7 @@ router = APIRouter()
 def global_search(
     q: str = Query(..., min_length=2, description="Search query"),
     db: Session = Depends(get_db),
-    _user_id: str = Depends(deps.get_current_user_id),
+    user_id: str = Depends(deps.get_current_user_id),
 ):
     search_term = f"%{q.lower()}%"
     
@@ -21,9 +21,11 @@ def global_search(
         FROM pets 
         WHERE (LOWER(name) LIKE :q OR LOWER(species) LIKE :q OR LOWER(breed) LIKE :q)
         AND is_active = true
+        AND owner_id = :uid
         LIMIT 3
     """)
-    pets_result = db.execute(pets_query, {"q": search_term}).fetchall()
+    # Solo las mascotas del propio usuario: no se exponen las de otras personas
+    pets_result = db.execute(pets_query, {"q": search_term, "uid": user_id}).fetchall()
     
     # Search clinics
     clinics_query = text("""

@@ -15,6 +15,7 @@ export default function VenueDetailScreen() {
     const { theme } = useTheme();
     const { user } = useAuth();
     const { venue, isLoading, error, handleContact } = useVenueDetail();
+    const [redeemCode, setRedeemCode] = React.useState('');
 
     // Reviews hook — only enable when venue is loaded
     const venueId = venue?.id;
@@ -32,6 +33,8 @@ export default function VenueDetailScreen() {
         isSubmittingReview,
         handleClaimCoupon,
         isClaimingCoupon,
+        handleRedeemCoupon,
+        isRedeemingCoupon,
     } = useVenueReviews(venueId);
 
     if (isLoading) {
@@ -75,8 +78,8 @@ export default function VenueDetailScreen() {
                 >
                     <Star
                         size={interactive ? 28 : 16}
-                        color="#f59e0b"
-                        fill={star <= rating ? '#f59e0b' : 'transparent'}
+                        color={theme.warning}
+                        fill={star <= rating ? theme.warning : 'transparent'}
                     />
                 </TouchableOpacity>
             ))}
@@ -97,6 +100,7 @@ export default function VenueDetailScreen() {
         </View>
     );
 
+    const isOwner = !!user && !!venue && user.id === venue.owner_id;
     const canEdit = user && venue && (user.role_name === 'admin' || user.id === venue.owner_id);
 
     return (
@@ -124,8 +128,8 @@ export default function VenueDetailScreen() {
 
                 {/* Score badge */}
                 {score && (
-                    <View style={[styles.scoreBadge, { backgroundColor: '#f59e0b15' }]}>
-                        <Star size={18} color="#f59e0b" fill="#f59e0b" />
+                    <View style={[styles.scoreBadge, { backgroundColor: theme.warningLight }]}>
+                        <Star size={18} color={theme.warning} fill={theme.warning} />
                         <Text style={styles.scoreValue}>{score.average_rating.toFixed(1)}</Text>
                         <Text style={[styles.scoreCount, { color: theme.textMuted }]}>
                             ({score.reviews_count} reseñas)
@@ -162,17 +166,18 @@ export default function VenueDetailScreen() {
             {venue.discount_coupon && (
                 <View style={[styles.section, { backgroundColor: theme.surface }]}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Descuento Disponible</Text>
-                    <View style={[styles.discountCard, { backgroundColor: '#f59e0b15' }]}>
-                        <Tag size={24} color="#f59e0b" />
+                    <View style={[styles.discountCard, { backgroundColor: theme.warningLight }]}>
+                        <Tag size={24} color={theme.warning} />
                         <View style={styles.discountInfo}>
-                            <Text style={[styles.discountCode, { color: '#f59e0b' }]}>{venue.discount_coupon}</Text>
+                            <Text style={[styles.discountCode, { color: theme.warning }]}>{venue.discount_coupon}</Text>
                             {venue.discount_description && (
                                 <Text style={[styles.discountDesc, { color: theme.textMuted }]}>{venue.discount_description}</Text>
                             )}
                         </View>
                     </View>
+                    {!isOwner && (
                     <TouchableOpacity
-                        style={[styles.claimButton, { backgroundColor: '#f59e0b' }]}
+                        style={[styles.claimButton, { backgroundColor: theme.warning }]}
                         onPress={handleClaimCoupon}
                         disabled={isClaimingCoupon}
                     >
@@ -185,6 +190,27 @@ export default function VenueDetailScreen() {
                             </>
                         )}
                     </TouchableOpacity>
+                    )}
+                    {isOwner && (
+                        <View style={{ marginTop: 12, gap: 8 }}>
+                            <Text style={{ color: theme.textMuted, fontSize: 13 }}>Canjear el cupón de un cliente (pídele su código):</Text>
+                            <TextInput
+                                style={[styles.reviewInput, { color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
+                                placeholder="Código del cupón"
+                                placeholderTextColor={theme.textMuted}
+                                autoCapitalize="characters"
+                                value={redeemCode}
+                                onChangeText={setRedeemCode}
+                            />
+                            <TouchableOpacity
+                                style={[styles.claimButton, { backgroundColor: theme.warning, opacity: !redeemCode.trim() || isRedeemingCoupon ? 0.6 : 1 }]}
+                                disabled={!redeemCode.trim() || isRedeemingCoupon}
+                                onPress={() => { handleRedeemCoupon(redeemCode.trim()); setRedeemCode(''); }}
+                            >
+                                <Text style={styles.claimButtonText}>Canjear cupón</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
                 </View>
             )}
 
@@ -192,6 +218,7 @@ export default function VenueDetailScreen() {
             <View style={[styles.section, { backgroundColor: theme.surface }]}>
                 <View style={styles.reviewsSectionHeader}>
                     <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 0 }]}>Reseñas</Text>
+                    {!isOwner && (
                     <TouchableOpacity
                         style={[styles.addReviewBtn, { backgroundColor: theme.primary + '15' }]}
                         onPress={() => setShowReviewForm(!showReviewForm)}
@@ -205,6 +232,7 @@ export default function VenueDetailScreen() {
                             {showReviewForm ? 'Cancelar' : 'Escribir'}
                         </Text>
                     </TouchableOpacity>
+                    )}
                 </View>
 
                 {/* Review form */}
@@ -254,27 +282,13 @@ export default function VenueDetailScreen() {
                 )}
             </View>
 
-            {/* Info */}
-            <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                <View style={styles.infoRow}>
-                    <Info size={16} color={theme.textMuted} />
-                    <Text style={[styles.infoLabel, { color: theme.textMuted }]}>ID del Establecimiento:</Text>
-                    <Text style={[styles.infoValue, { color: theme.text }]}>{venue.id.substring(0, 12)}...</Text>
-                </View>
-                <View style={styles.infoRow}>
-                    <Info size={16} color={theme.textMuted} />
-                    <Text style={[styles.infoLabel, { color: theme.textMuted }]}>Propietario:</Text>
-                    <Text style={[styles.infoValue, { color: theme.text }]}>{venue.owner_id.substring(0, 12)}...</Text>
-                </View>
-            </View>
-
             {/* Action Buttons */}
             <View style={styles.actionContainer}>
                 <TouchableOpacity
                     style={[styles.contactButton, { backgroundColor: theme.primary }]}
                     onPress={handleContact}
                 >
-                    <Text style={styles.contactButtonText}>Contactar Establecimiento</Text>
+                    <Text style={styles.contactButtonText}>Cómo llegar</Text>
                 </TouchableOpacity>
             </View>
 
@@ -353,7 +367,7 @@ const styles = StyleSheet.create({
     scoreValue: {
         fontSize: 18,
         fontWeight: '900',
-        color: '#f59e0b',
+        color: '#d97706',
     },
     scoreCount: {
         fontSize: 13,

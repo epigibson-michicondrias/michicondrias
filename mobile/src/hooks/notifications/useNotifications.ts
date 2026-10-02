@@ -29,11 +29,20 @@ export function formatTimeAgo(dateStr: string): string {
   return `Hace ${diffDays} días`;
 }
 
+/** Pantalla a la que lleva cada tipo de notificación (null = solo informativa). */
+export const NOTIFICATION_ROUTES: Record<string, string | null> = {
+  lost: '/perdidas',
+  adoption: '/adopciones/mis-solicitudes',
+  store: '/tienda/compras',
+  system: null,
+  general: null,
+};
+
 export function useNotifications() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: notifications = [], isLoading } = useQuery({
+  const { data: notifications = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['notifications'],
     queryFn: getMyNotifications,
   });
@@ -77,6 +86,8 @@ export function useNotifications() {
     // Data
     notifications,
     isLoading,
+    isError,
+    refetch,
     unreadCount,
 
     // Actions

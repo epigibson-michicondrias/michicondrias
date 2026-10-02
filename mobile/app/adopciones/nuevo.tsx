@@ -20,6 +20,7 @@ export default function NuevaAdopcionScreen() {
         toggleField,
         handleImageSelected,
         handleSave,
+        isEditing,
     } = useListingForm();
 
     const pickImage = async () => {
@@ -38,7 +39,7 @@ export default function NuevaAdopcionScreen() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             <ScreenContainer>
-                <ScreenHeader title="Poner en Adopción" />
+                <ScreenHeader title={isEditing ? 'Editar publicación' : 'Poner en Adopción'} />
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
                     <TouchableOpacity style={styles.imageSelector} onPress={pickImage}>
@@ -223,7 +224,7 @@ export default function NuevaAdopcionScreen() {
                         ) : (
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                                 <Heart size={20} color="#fff" />
-                                <Text style={styles.saveBtnText}>Publicar Adopción</Text>
+                                <Text style={styles.saveBtnText}>{isEditing ? 'Guardar cambios' : 'Publicar Adopción'}</Text>
                             </View>
                         )}
                     </TouchableOpacity>

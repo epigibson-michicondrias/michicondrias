@@ -82,6 +82,17 @@ class FuneraryBookingResponse(BaseModel):
     status: str
     notes: Optional[str] = None
     created_at: Optional[datetime] = None
+    pet_name: Optional[str] = None
+    service_name: Optional[str] = None
+    service_price: Optional[float] = None
 
     class Config:
         from_attributes = True
+
+
+class FuneraryBookingStatusUpdate(BaseModel):
+    status: Literal['confirmed', 'completed', 'cancelled']
+
+
+class FuneraryServiceActiveUpdate(BaseModel):
+    is_active: bool

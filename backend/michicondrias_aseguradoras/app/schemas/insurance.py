@@ -26,6 +26,13 @@ class InsuranceClaim(InsuranceClaimInDBBase):
     pass
 
 
+class InsuranceClaimDetail(InsuranceClaimInDBBase):
+    """Reclamo con datos de la póliza y la mascota para listados (consumidor y aseguradora)."""
+    policy_number: Optional[str] = None
+    pet_id: Optional[str] = None
+    pet_name: Optional[str] = None
+
+
 # --- Policies Schemas ---
 
 class PetInsurancePolicyBase(BaseModel):
@@ -66,6 +73,10 @@ class InsurancePlanCreate(BaseModel):
     min_age: Optional[int] = 0
     max_age: Optional[int] = 15
     allowed_species: List[str]
+
+class InsurancePlanActiveUpdate(BaseModel):
+    is_active: bool
+
 
 class InsurancePlanOut(BaseModel):
     id: str

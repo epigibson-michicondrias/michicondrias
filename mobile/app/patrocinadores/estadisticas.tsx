@@ -17,7 +17,6 @@ export default function EstadisticasScreen() {
         refetch,
         isRefetching,
         metrics,
-        handleRecordClick,
     } = useCampaignStats();
 
     const renderStatsCards = () => (
@@ -75,7 +74,7 @@ export default function EstadisticasScreen() {
         return (
             <TouchableOpacity
                 style={[styles.campaignCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                onPress={() => handleRecordClick(item.id)}
+                disabled
             >
                 <View style={styles.campaignHeader}>
                     <View style={[styles.campaignIcon, { backgroundColor: '#f59e0b20' }]}>

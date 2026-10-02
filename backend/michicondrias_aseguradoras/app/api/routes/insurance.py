@@ -1,10 +1,11 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import text
+from sqlalchemy import text, bindparam
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
 import logging
 import secrets
+import uuid
 
 import httpx
 
@@ -21,6 +22,56 @@ router = APIRouter()
 def _pet_owner_id(db: Session, pet_id: str):
     row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
     return row[0] if row else None
+
+
+_SPECIES_ALIASES = {
+    "perro": "dog", "perra": "dog", "dog": "dog", "canino": "dog",
+    "gato": "cat", "gata": "cat", "cat": "cat", "felino": "cat",
+}
+
+
+def _norm_species(value: str) -> str:
+    """Las mascotas guardan la especie en español ('perro') y los planes en inglés ('dog'); se comparan normalizadas."""
+    v = (value or "").strip().lower()
+    return _SPECIES_ALIASES.get(v, v)
+
+
+def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "seguros") -> None:
+    """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
+    try:
+        db.execute(text(
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
+            "VALUES (:id, :uid, :title, :msg, :type, false)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+        db.commit()
+    except Exception:
+        db.rollback()
+
+
+def _claim_details(db: Session, claims: list) -> list:
+    """Agrega número de póliza y nombre de mascota a cada reclamo."""
+    if not claims:
+        return []
+    policies = {c.policy_id: c.policy for c in claims}
+    pet_ids = list({p.pet_id for p in policies.values() if p})
+    names = {}
+    if pet_ids:
+        try:
+            rows = db.execute(text("SELECT id, name FROM pets WHERE id IN :ids").bindparams(bindparam("ids", expanding=True)), {"ids": pet_ids}).fetchall()
+            names = {r[0]: r[1] for r in rows}
+        except Exception:
+            db.rollback()
+    out = []
+    for c in claims:
+        pol = policies.get(c.policy_id)
+        out.append({
+            "id": c.id, "policy_id": c.policy_id, "amount_claimed": c.amount_claimed, "reason": c.reason,
+            "medical_receipt_url": c.medical_receipt_url, "status": c.status,
+            "policy_number": pol.policy_number if pol else None,
+            "pet_id": pol.pet_id if pol else None,
+            "pet_name": names.get(pol.pet_id) if pol else None,
+        })
+    return out
 
 
 def _assert_pet_belongs_to_user(db: Session, pet_id: str, user_id: str) -> None:
@@ -108,8 +159,14 @@ def create_new_claim(
     elif _pet_owner_id(db, policy.pet_id) != user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede reclamar sobre esta póliza")
 
+    if claim_in.amount_claimed <= 0:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="El monto reclamado debe ser mayor a cero")
+
     claim_in.status = "pending"
-    return crud.create_claim(db, claim_in=claim_in)
+    claim = crud.create_claim(db, claim_in=claim_in)
+    if role != "aseguradora":
+        _notify(db, policy.insurer_id, "Nuevo reclamo recibido", f"Reclamo por ${claim_in.amount_claimed:,.2f} sobre la póliza {policy.policy_number}.")
+    return claim
 
 
 @router.patch("/claims/{claim_id}/status", response_model=schemas.InsuranceClaim)
@@ -141,7 +198,59 @@ def update_claim_status_endpoint(
             detail="No tiene permisos para modificar una reclamación de esta póliza"
         )
         
-    return crud.update_claim_status(db, claim_id=claim_id, status=claim_update.status)
+    if (claim.status or "pending") != "pending":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este reclamo ya fue resuelto")
+
+    updated = crud.update_claim_status(db, claim_id=claim_id, status=claim_update.status)
+    owner_id = _pet_owner_id(db, claim.policy.pet_id)
+    if owner_id:
+        label = "aprobado" if claim_update.status == "approved" else "rechazado"
+        _notify(db, owner_id, f"Reclamo {label}", f"Tu reclamo sobre la póliza {claim.policy.policy_number} fue {label}.")
+    return updated
+
+
+@router.get("/claims/provider", response_model=List[schemas.InsuranceClaimDetail])
+def read_provider_claims(
+    db: Session = Depends(get_db),
+    current_insurer_id: str = Depends(deps.require_aseguradora),
+) -> Any:
+    """Reclamos sobre las pólizas de la aseguradora autenticada (pendientes primero)."""
+    claims = (
+        db.query(models.InsuranceClaim)
+        .join(models.PetInsurancePolicy, models.PetInsurancePolicy.id == models.InsuranceClaim.policy_id)
+        .filter(models.PetInsurancePolicy.insurer_id == current_insurer_id)
+        .all()
+    )
+    claims.sort(key=lambda c: 0 if (c.status or "pending") == "pending" else 1)
+    return _claim_details(db, claims)
+
+
+@router.get("/claims/mine", response_model=List[schemas.InsuranceClaimDetail])
+def read_my_claims(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Reclamos de las mascotas del usuario autenticado."""
+    rows = db.execute(text("SELECT id FROM pets WHERE owner_id = :uid"), {"uid": user_id}).fetchall()
+    pet_ids = [r[0] for r in rows]
+    if not pet_ids:
+        return []
+    claims = (
+        db.query(models.InsuranceClaim)
+        .join(models.PetInsurancePolicy, models.PetInsurancePolicy.id == models.InsuranceClaim.policy_id)
+        .filter(models.PetInsurancePolicy.pet_id.in_(pet_ids))
+        .all()
+    )
+    return _claim_details(db, claims)
+
+
+@router.get("/policies/provider", response_model=List[schemas.PetInsurancePolicy])
+def read_provider_policies(
+    db: Session = Depends(get_db),
+    current_insurer_id: str = Depends(deps.require_aseguradora),
+) -> Any:
+    """Pólizas emitidas por la aseguradora autenticada."""
+    return db.query(models.PetInsurancePolicy).filter(models.PetInsurancePolicy.insurer_id == current_insurer_id).order_by(models.PetInsurancePolicy.start_date.desc()).all()
 
 
 # --- Plan Endpoints ---
@@ -157,6 +266,34 @@ def add_insurance_plan(
     Create a new insurance plan/template. Requires 'aseguradora' role.
     """
     return crud.create_plan(db, plan_in=plan_in, insurer_id=current_insurer_id)
+
+
+@router.get("/plans/mine", response_model=List[schemas.InsurancePlanOut])
+def read_my_plans(
+    db: Session = Depends(get_db),
+    current_insurer_id: str = Depends(deps.require_aseguradora),
+) -> Any:
+    """Todos los planes (activos o no) de la aseguradora autenticada."""
+    return db.query(models.InsurancePlan).filter(models.InsurancePlan.insurer_id == current_insurer_id).order_by(models.InsurancePlan.created_at.desc()).all()
+
+
+@router.patch("/plans/{plan_id}/active", response_model=schemas.InsurancePlanOut)
+def set_plan_active(
+    plan_id: str,
+    body: schemas.InsurancePlanActiveUpdate,
+    db: Session = Depends(get_db),
+    current_insurer_id: str = Depends(deps.require_aseguradora),
+) -> Any:
+    """Publica u oculta un plan propio. Las pólizas ya emitidas no se ven afectadas."""
+    plan = crud.get_plan_by_id(db, plan_id=plan_id)
+    if not plan:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El plan de seguro no existe")
+    if plan.insurer_id != current_insurer_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Este plan no es tuyo")
+    plan.is_active = body.is_active
+    db.commit()
+    db.refresh(plan)
+    return plan
 
 
 @router.get("/plans", response_model=List[schemas.InsurancePlanOut])
@@ -191,7 +328,7 @@ def calculate_quote(
             detail=f"La edad de la mascota ({quote_req.pet_age}) está fuera del rango permitido para este plan ({plan.min_age} - {plan.max_age})"
         )
         
-    if quote_req.pet_species.lower() not in [s.lower() for s in plan.allowed_species]:
+    if _norm_species(quote_req.pet_species) not in [_norm_species(s) for s in plan.allowed_species]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"La especie de mascota ({quote_req.pet_species}) no está permitida en este plan"
@@ -204,7 +341,7 @@ def calculate_quote(
         premium *= (1 + (quote_req.pet_age - 5) * 0.08)
     
     # Dog risk adjustment
-    if quote_req.pet_species.lower() == "dog":
+    if _norm_species(quote_req.pet_species) == "dog":
         premium *= 1.12
         
     # Pre-existing condition adjustment
@@ -239,6 +376,9 @@ def subscribe_to_plan(
             detail="El plan de seguro no existe"
         )
     
+    if not plan.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Este plan ya no está disponible")
+
     # Check if pet already has active policy
     existing_active = crud.get_active_policy_by_pet_id(db, pet_id=sub_req.pet_id)
     if existing_active:
@@ -270,7 +410,9 @@ def subscribe_to_plan(
         status="active"
     )
 
-    return crud.create_policy(db, policy_in=policy_create)
+    policy = crud.create_policy(db, policy_in=policy_create)
+    _notify(db, plan.insurer_id, "Nueva póliza contratada", f"Se contrató el plan {plan.name} (póliza {policy_number}).")
+    return policy
 
 
 @router.post("/claims/{claim_id}/verify-receipt", response_model=dict)

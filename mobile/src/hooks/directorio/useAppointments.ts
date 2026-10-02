@@ -13,6 +13,8 @@ export type FilterTab = 'all' | 'scheduled' | 'confirmed' | 'completed';
 
 export const STATUS_CONFIG: Record<string, { label: string; color: string; lightColor: string }> = {
     scheduled: { label: 'Pendiente', color: '#f59e0b', lightColor: '#f59e0b20' },
+    pending: { label: 'Pendiente', color: '#f59e0b', lightColor: '#f59e0b20' },
+    rescheduled: { label: 'Reagendada', color: '#6366f1', lightColor: '#6366f120' },
     confirmed: { label: 'Confirmada', color: '#22c55e', lightColor: '#22c55e20' },
     completed: { label: 'Completada', color: '#3b82f6', lightColor: '#3b82f620' },
     cancelled: { label: 'Cancelada', color: '#ef4444', lightColor: '#ef444420' },
@@ -57,10 +59,16 @@ export function useAppointments() {
         queryFn: getMyAppointments,
     });
 
+    const invalidateAppointments = () => {
+        queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
+        queryClient.invalidateQueries({ queryKey: ['my-directorio-appointments'] });
+        queryClient.invalidateQueries({ queryKey: ['clinic-slots'] });
+    };
+
     const cancelMutation = useMutation({
         mutationFn: (id: string) => cancelAppointment(id),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
+            invalidateAppointments();
             showAlert({
                 type: 'success',
                 title: 'Cita Cancelada',
@@ -89,11 +97,13 @@ export function useAppointments() {
     }, [cancelMutation]);
 
     const handleReschedule = useCallback((appointment: Appointment) => {
-        router.push(`/directorio/citas/agendar/${appointment.clinic_id}?reschedule_id=${appointment.id}` as any);
+        router.push(`/directorio/citas/agendar/${appointment.clinic_id}?reschedule_id=${appointment.id}&service_id=${appointment.service_id ?? ''}` as any);
     }, [router]);
 
     const filtered = appointments.filter(a => {
-        if (activeFilter === 'all') return a.status !== 'cancelled';
+        if (activeFilter === 'all') return a.status !== 'cancelled' && a.status !== 'rescheduled';
+        // El backend guarda las citas por confirmar como "pending"
+        if (activeFilter === 'scheduled') return a.status === 'pending' || a.status === 'scheduled';
         return a.status === activeFilter;
     });
 

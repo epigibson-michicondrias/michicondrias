@@ -8,6 +8,7 @@ import {
     createLabAppointment,
     getPetLabHistory,
     getLabTests,
+    updateLabAppointmentStatus,
 } from '@/src/services/laboratorio';
 import { showAlert } from '@/src/components/AppAlert';
 
@@ -34,10 +35,21 @@ export function useLabOrders(petId?: string) {
         mutationFn: (data: any) => createLabAppointment(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['lab-appointments-client'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Cita de laboratorio creada' });
+            queryClient.invalidateQueries({ queryKey: ['lab-appointments-provider'] });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la cita' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo crear la cita', message: e?.message || 'Inténtalo de nuevo.' });
+        },
+    });
+
+    const cancelAppointmentMutation = useMutation({
+        mutationFn: (id: string) => updateLabAppointmentStatus(id, 'cancelled'),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['lab-appointments-client'] });
+            queryClient.invalidateQueries({ queryKey: ['lab-appointments-provider'] });
+        },
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo cancelar', message: e?.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -53,7 +65,9 @@ export function useLabOrders(petId?: string) {
         isLoadingHistory: historyQuery.isLoading,
 
         // Actions
-        createAppointment: createAppointmentMutation.mutate,
+        createAppointment: createAppointmentMutation.mutateAsync,
+        cancelAppointment: cancelAppointmentMutation.mutate,
+        isCancelling: cancelAppointmentMutation.isPending,
         isCreatingAppointment: createAppointmentMutation.isPending,
 
         // Refetch

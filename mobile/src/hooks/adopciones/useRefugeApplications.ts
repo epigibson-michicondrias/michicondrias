@@ -9,6 +9,8 @@ import type { AdoptionForm } from '@/src/types/adopciones';
 
 export const STATUS_COLORS: Record<string, string> = {
     pending: '#f59e0b',
+    submitted: '#f59e0b',
+    under_review: '#3b82f6',
     approved: '#10b981',
     rejected: '#ef4444',
     reviewing: '#3b82f6',
@@ -16,6 +18,8 @@ export const STATUS_COLORS: Record<string, string> = {
 
 export const STATUS_LABELS: Record<string, string> = {
     pending: 'Pendiente',
+    submitted: 'Pendiente',
+    under_review: 'En revisión',
     approved: 'Aprobada',
     rejected: 'Rechazada',
     reviewing: 'En revisión',
@@ -35,7 +39,7 @@ export function useRefugeApplications() {
     });
 
     const goToApplicationDetail = (applicationId: string) => {
-        router.push(`/adopciones/solicitud/${applicationId}`);
+        router.push(`/adopciones/contrato/${applicationId}` as any);
     };
 
     return {

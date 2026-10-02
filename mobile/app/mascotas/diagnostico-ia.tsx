@@ -53,6 +53,8 @@ export default function DiagnosticoIAScreen() {
                 <TouchableOpacity
                     style={[styles.tab, activeTab === 'triage' && [styles.activeTab, { borderBottomColor: theme.primary }]]}
                     onPress={() => setActiveTab('triage')}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: activeTab === 'triage' }}
                 >
                     <Activity size={18} color={activeTab === 'triage' ? theme.primary : theme.textMuted} />
                     <Text style={[styles.tabText, { color: activeTab === 'triage' ? theme.text : theme.textMuted }]}>
@@ -62,10 +64,12 @@ export default function DiagnosticoIAScreen() {
                 <TouchableOpacity
                     style={[styles.tab, activeTab === 'diet' && [styles.activeTab, { borderBottomColor: theme.primary }]]}
                     onPress={() => setActiveTab('diet')}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: activeTab === 'diet' }}
                 >
                     <Heart size={18} color={activeTab === 'diet' ? theme.primary : theme.textMuted} />
                     <Text style={[styles.tabText, { color: activeTab === 'diet' ? theme.primary : theme.textMuted }]}>
-                        Nutrición IA
+                        Nutrición
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -155,7 +159,7 @@ export default function DiagnosticoIAScreen() {
                             Planificador Nutricional Personalizado
                         </Text>
                         <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                            Genera una guía de alimentación equilibrada y cálculo calórico por IA.
+                            Calcula las calorías diarias de tu mascota (fórmula RER/MER) y recibe una guía de alimentación.
                         </Text>
 
                         {loadingPets ? (
@@ -215,7 +219,7 @@ export default function DiagnosticoIAScreen() {
                                     <Text style={[styles.label, { color: theme.text }]}>Peso Objetivo en kg (Opcional)</Text>
                                     <TextInput
                                         style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        keyboardType="numeric"
+                                        keyboardType="decimal-pad"
                                         placeholder="Ej. 8.5"
                                         placeholderTextColor={theme.textMuted}
                                         value={targetWeight}
@@ -245,7 +249,7 @@ export default function DiagnosticoIAScreen() {
                                 <View style={styles.resultHeader}>
                                     <Clipboard size={24} color={theme.primary} />
                                     <Text style={[styles.resultTitle, { color: theme.text }]}>
-                                        Guía de Nutrición IA
+                                        Guía de Nutrición
                                     </Text>
                                 </View>
 

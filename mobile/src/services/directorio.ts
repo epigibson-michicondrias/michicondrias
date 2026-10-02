@@ -242,6 +242,9 @@ export interface AppointmentItem {
     created_at: string | null;
     service_name: string | null;
     clinic_name: string | null;
+    pet_name?: string | null;
+    reason?: string | null;
+    is_emergency?: boolean;
 }
 
 export async function getAvailableSlots(clinicId: string, date: string, serviceId: string): Promise<AvailableSlot[]> {

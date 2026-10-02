@@ -15,6 +15,7 @@ import {
 import type { GroomingService, GroomingAppointmentCreate } from '@/src/services/grooming';
 import { getUserPets } from '@/src/services/mascotas';
 import type { Pet } from '@/src/types/mascotas';
+import { errorMessage, toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
 
 export function useGroomingBooking() {
     const router = useRouter();
@@ -52,7 +53,7 @@ export function useGroomingBooking() {
     );
 
     const dateString = useMemo(
-        () => selectedDate.toISOString().split('T')[0],
+        () => toLocalIsoDate(selectedDate),
         [selectedDate],
     );
 
@@ -73,6 +74,8 @@ export function useGroomingBooking() {
         mutationFn: (data: GroomingAppointmentCreate) => createAppointment(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['grooming-client-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['grooming-provider-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['grooming-slots'] });
             showAlert({
                 type: 'success',
                 title: '¡Cita Agendada!',
@@ -80,11 +83,12 @@ export function useGroomingBooking() {
                 onButtonPress: () => router.back(),
             });
         },
-        onError: () => {
+        onError: (e) => {
+            queryClient.invalidateQueries({ queryKey: ['grooming-slots'] });
             showAlert({
                 type: 'error',
-                title: 'Error',
-                message: 'No se pudo agendar la cita. Intenta de nuevo.',
+                title: 'No se pudo agendar',
+                message: errorMessage(e, 'No se pudo agendar la cita. Intenta de nuevo.'),
             });
         },
     });
@@ -113,7 +117,6 @@ export function useGroomingBooking() {
             date: dateString,
             time: selectedSlot,
             service_type: selectedService?.name ?? '',
-            status: 'scheduled',
         });
     };
 

@@ -6,14 +6,15 @@ import { useOrderDetail } from '@/src/hooks/ecommerce';
 import { STATUS_MAP } from '@/src/hooks/ecommerce/usePurchases';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Package, MapPin, Calendar, CreditCard, ChevronRight } from 'lucide-react-native';
+import { Package, MapPin, Calendar, CreditCard, ChevronRight, XCircle } from 'lucide-react-native';
+import { SUPPORT_EMAIL } from '@/src/constants/support';
 import { formatCurrency } from '@/src/utils/formatters';
 
 export default function PedidoDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const { theme, isDark } = useTheme();
-    const { order, isLoading, error } = useOrderDetail(id || '');
+    const { theme } = useTheme();
+    const { order, isLoading, error, refetch, payNow, isPaying, confirmCancel, isCancelling } = useOrderDetail(id || '');
 
     if (isLoading) {
         return (
@@ -36,16 +37,21 @@ export default function PedidoDetailScreen() {
                     <Text style={[styles.errorText, { color: theme.text }]}>No se pudo cargar la información del pedido</Text>
                     <TouchableOpacity
                         style={[styles.backButton, { backgroundColor: theme.primary }]}
-                        onPress={() => router.back()}
+                        onPress={() => refetch()}
                     >
-                        <Text style={styles.backButtonText}>Volver a Mis Compras</Text>
+                        <Text style={styles.backButtonText}>Reintentar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => router.replace('/tienda/compras' as any)}>
+                        <Text style={{ color: theme.textMuted, fontWeight: '700', marginTop: 12 }}>Ir a Mis compras</Text>
                     </TouchableOpacity>
                 </View>
             </ScreenContainer>
         );
     }
 
-    const statusInfo = STATUS_MAP[order.status] || { label: order.status, color: '#6b7280' };
+    const statusInfo = STATUS_MAP[order.status] || { label: order.status, color: theme.textMuted };
+    const isPending = order.status === 'pending';
+    const isCancelled = order.status === 'cancelled';
     const orderDate = new Date(order.created_at).toLocaleDateString('es-MX', {
         day: '2-digit',
         month: 'long',
@@ -86,6 +92,43 @@ export default function PedidoDetailScreen() {
                     </View>
                 </View>
 
+                {isPending ? (
+                    <View style={[styles.actionCard, { backgroundColor: theme.warningLight, borderColor: theme.warning }]}>
+                        <Text style={[styles.actionTitle, { color: theme.text }]}>Tu pedido espera el pago</Text>
+                        <Text style={[styles.actionText, { color: theme.textMuted }]}>
+                            Las unidades están apartadas por tiempo limitado. Si ya pagaste, esta pantalla se actualiza sola en unos segundos.
+                        </Text>
+                        <TouchableOpacity
+                            style={[styles.payBtn, { backgroundColor: theme.primary }, isPaying && { opacity: 0.7 }]}
+                            onPress={payNow}
+                            disabled={isPaying || isCancelling}
+                            accessibilityRole="button"
+                            accessibilityLabel="Pagar ahora"
+                        >
+                            {isPaying ? <ActivityIndicator color="#fff" /> : (
+                                <>
+                                    <CreditCard size={18} color="#fff" />
+                                    <Text style={styles.payBtnText}>Pagar ahora · {formatCurrency(order.total_amount)}</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.cancelBtn, { borderColor: theme.error }]}
+                            onPress={confirmCancel}
+                            disabled={isPaying || isCancelling}
+                            accessibilityRole="button"
+                            accessibilityLabel="Cancelar pedido"
+                        >
+                            {isCancelling ? <ActivityIndicator color={theme.error} /> : (
+                                <>
+                                    <XCircle size={16} color={theme.error} />
+                                    <Text style={[styles.cancelBtnText, { color: theme.error }]}>Cancelar pedido</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                ) : null}
+
                 {/* Items Title */}
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>Productos Adquiridos</Text>
 
@@ -94,8 +137,8 @@ export default function PedidoDetailScreen() {
                     {order.items && order.items.length > 0 ? (
                         order.items.map((item) => {
                             const product = item.product;
-                            const imageUri = product?.image_url || 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1000';
-                            
+                            const imageUri = product?.image_url;
+
                             return (
                                 <TouchableOpacity
                                     key={item.id}
@@ -103,7 +146,13 @@ export default function PedidoDetailScreen() {
                                     onPress={() => router.push(`/tienda/producto/${item.product_id}` as any)}
                                     activeOpacity={0.7}
                                 >
-                                    <Image source={{ uri: imageUri }} style={styles.itemImage} />
+                                    {imageUri ? (
+                                        <Image source={{ uri: imageUri }} style={styles.itemImage} />
+                                    ) : (
+                                        <View style={[styles.itemImage, { backgroundColor: theme.backgroundSecondary, justifyContent: 'center', alignItems: 'center' }]}>
+                                            <Package size={26} color={theme.textMuted} />
+                                        </View>
+                                    )}
                                     <View style={styles.itemInfo}>
                                         <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={2}>
                                             {product?.name || `Producto ID: ${item.product_id.slice(0, 8)}`}
@@ -139,7 +188,7 @@ export default function PedidoDetailScreen() {
                         <Text style={[styles.shippingTitle, { color: theme.text }]}>Dirección de Envío</Text>
                     </View>
                     <Text style={[styles.shippingAddress, { color: theme.textMuted }]}>
-                        {order.shipping_address || 'Entrega en tienda / Sin dirección registrada'}
+                        {order.shipping_address || 'Sin dirección registrada'}
                     </Text>
                 </View>
 
@@ -151,13 +200,13 @@ export default function PedidoDetailScreen() {
                     </View>
                     <View style={styles.invoiceRow}>
                         <Text style={[styles.invoiceLabel, { color: theme.textMuted }]}>Envío</Text>
-                        <Text style={[styles.invoiceValue, { color: '#10b981', fontWeight: '700' }]}>Gratis</Text>
+                        <Text style={[styles.invoiceValue, { color: theme.success, fontWeight: '700' }]}>Gratis</Text>
                     </View>
                     <View style={[styles.dottedDivider, { borderColor: theme.border }]} />
                     <View style={styles.invoiceRow}>
                         <View style={styles.totalLabelRow}>
                             <CreditCard size={18} color={theme.primary} />
-                            <Text style={[styles.totalLabel, { color: theme.text }]}>Total Pagado</Text>
+                            <Text style={[styles.totalLabel, { color: theme.text }]}>{isPending ? 'Total a pagar' : isCancelled ? 'Total (cancelado)' : 'Total pagado'}</Text>
                         </View>
                         <Text style={[styles.totalValue, { color: theme.primary }]}>{formatCurrency(order.total_amount)}</Text>
                     </View>
@@ -166,7 +215,7 @@ export default function PedidoDetailScreen() {
                 {/* Help Button */}
                 <TouchableOpacity
                     style={[styles.helpButton, { borderColor: theme.border }]}
-                    onPress={() => showAlert({ type: 'info', title: 'Soporte', message: 'Para dudas o devoluciones sobre esta compra, contáctanos en soporte@michicondrias.com' })}
+                    onPress={() => showAlert({ type: 'info', title: 'Soporte', message: `Para dudas sobre esta compra escríbenos a ${SUPPORT_EMAIL} indicando el pedido #${order.id.slice(0, 8).toUpperCase()}.` })}
                 >
                     <Text style={[styles.helpButtonText, { color: theme.textMuted }]}>¿Necesitas ayuda con este pedido?</Text>
                 </TouchableOpacity>
@@ -385,6 +434,34 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '900',
     },
+    actionCard: {
+        borderRadius: 24,
+        padding: 20,
+        borderWidth: 1,
+        gap: 12,
+        marginBottom: 24,
+    },
+    actionTitle: { fontSize: 16, fontWeight: '900' },
+    actionText: { fontSize: 13, fontWeight: '500', lineHeight: 19 },
+    payBtn: {
+        height: 52,
+        borderRadius: 16,
+        flexDirection: 'row',
+        gap: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    payBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    cancelBtn: {
+        height: 46,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        flexDirection: 'row',
+        gap: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cancelBtnText: { fontSize: 14, fontWeight: '800' },
     helpButton: {
         borderWidth: 1.5,
         borderRadius: 18,

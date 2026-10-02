@@ -17,6 +17,7 @@ def read_all_services_admin(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
+    _admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Admin endpoint: Get all services across all clinics."""
     return db.query(ClinicService).filter(ClinicService.is_active == True).offset(skip).limit(limit).all()

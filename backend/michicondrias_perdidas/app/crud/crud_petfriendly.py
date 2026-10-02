@@ -7,7 +7,7 @@ from app.schemas.petfriendly import PlaceCreate
 
 
 def create_place(db: Session, place_in: PlaceCreate, user_id: str) -> PetfriendlyPlace:
-    db_place = PetfriendlyPlace(added_by=user_id, **place_in.model_dump())
+    db_place = PetfriendlyPlace(added_by=user_id, rating=0, **place_in.model_dump(exclude={"rating"}))
     db.add(db_place)
     db.commit()
     db.refresh(db_place)

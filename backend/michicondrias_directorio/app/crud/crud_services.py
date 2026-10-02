@@ -1,6 +1,7 @@
 from datetime import datetime, date, time, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, text
+import uuid
 from app.models.services import ClinicService, ClinicSchedule, ScheduleException, Appointment, AppointmentReminder
 from app.schemas.services import (
     ClinicServiceCreate, ClinicServiceUpdate,
@@ -8,6 +9,29 @@ from app.schemas.services import (
     ScheduleExceptionCreate,
     AppointmentCreate,
 )
+
+
+def notify_user(db: Session, user_id, title: str, message: str, ntype: str = "citas") -> None:
+    """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
+    if not user_id:
+        return
+    try:
+        db.execute(text(
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
+            "VALUES (:id, :uid, :title, :msg, :type, false)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+        db.commit()
+    except Exception:
+        db.rollback()
+
+
+def _clinic_owner(db: Session, clinic_id: str):
+    try:
+        row = db.execute(text("SELECT owner_user_id, name FROM clinics WHERE id = :cid"), {"cid": clinic_id}).first()
+        return (row[0], row[1]) if row else (None, None)
+    except Exception:
+        db.rollback()
+        return (None, None)
 
 
 # ============================================================
@@ -215,6 +239,8 @@ def get_appointment(db: Session, appointment_id: str):
 def create_appointment(db: Session, user_id: str, appt: AppointmentCreate):
     d = date.fromisoformat(appt.date)
     start = time.fromisoformat(appt.start_time)
+    if datetime.combine(d, start) < datetime.now():
+        raise ValueError("No puedes agendar una cita en una fecha u hora que ya pasó.")
 
     # Calculate end_time from service duration
     service = db.query(ClinicService).filter(ClinicService.id == appt.service_id).first()
@@ -262,6 +288,10 @@ def create_appointment(db: Session, user_id: str, appt: AppointmentCreate):
             db.add(reminder)
     db.commit()
 
+    owner_id, clinic_name = _clinic_owner(db, db_appt.clinic_id)
+    if owner_id and owner_id != user_id:
+        notify_user(db, owner_id, "Nueva cita solicitada", f"Tienes una cita pendiente el {d.isoformat()} a las {start.strftime('%H:%M')}.")
+
     return db_appt
 
 def get_user_appointments(db: Session, user_id: str):
@@ -283,6 +313,11 @@ def update_appointment_status(db: Session, appointment_id: str, status: str, rea
             appt.cancellation_reason = reason
         db.commit()
         db.refresh(appt)
+        when = f"{appt.date.isoformat()} {appt.start_time.strftime('%H:%M')}" if appt.date and appt.start_time else ""
+        labels = {"confirmed": "confirmada", "completed": "completada", "cancelled": "cancelada"}
+        if status in labels:
+            _, clinic_name = _clinic_owner(db, appt.clinic_id)
+            notify_user(db, appt.user_id, f"Cita {labels[status]}", f"Tu cita en {clinic_name or 'la clínica'} ({when}) fue {labels[status]}." + (f" Motivo: {reason}" if reason and status == "cancelled" else ""))
     return appt
 
 def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_start_time: str):

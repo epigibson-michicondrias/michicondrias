@@ -19,6 +19,8 @@ export interface Sitter {
     accepts_dogs: boolean;
     accepts_cats: boolean;
     experience_years?: number;
+    home_type?: string | null;
+    gallery?: string | null;
 }
 
 export interface SitRequest {
@@ -33,6 +35,11 @@ export interface SitRequest {
     address?: string | null;
     notes?: string | null;
     total_price?: number | null;
+    /** Datos de apoyo que agrega el backend (pueden faltar en respuestas antiguas) */
+    pet_name?: string | null;
+    client_name?: string | null;
+    sitter_name?: string | null;
+    has_review?: boolean;
 }
 
 export async function listSitters(params?: Record<string, string>): Promise<Sitter[]> {

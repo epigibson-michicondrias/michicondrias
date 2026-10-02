@@ -58,11 +58,11 @@ export function useVenueReviews(venueId: string | undefined) {
                 message: 'Tu reseña ha sido publicada exitosamente.',
             });
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo enviar la reseña. Intenta de nuevo.',
+                message: e.message || 'No se pudo enviar la reseña. Intenta de nuevo.',
             });
         },
     });
@@ -77,11 +77,11 @@ export function useVenueReviews(venueId: string | undefined) {
                 message: `Tu código de cupón es: ${data.coupon_code}`,
             });
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo reclamar el cupón.',
+                message: e.message || 'No se pudo reclamar el cupón.',
             });
         },
     });
@@ -93,14 +93,14 @@ export function useVenueReviews(venueId: string | undefined) {
             showAlert({
                 type: 'success',
                 title: '¡Cupón canjeado!',
-                message: 'Tu cupón ha sido canjeado exitosamente.',
+                message: 'El cupón del cliente quedó canjeado y ya no puede volver a usarse.',
             });
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo canjear el cupón.',
+                message: e.message || 'No se pudo canjear el cupón.',
             });
         },
     });

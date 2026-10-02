@@ -8,15 +8,13 @@ import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { getMyWalkerProfile, updateWalker } from '@/src/services/paseadores';
 import { getMySitterProfile, updateSitter } from '@/src/services/cuidadores';
-import { useAuth } from '@/src/contexts/AuthContext';
+import { useProRole } from './useProRole';
 
 export function useServiceProfile() {
     const router = useRouter();
-    const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const isWalker = user?.role_name === 'walker';
-    const isSitter = user?.role_name === 'sitter';
+    const { isWalker, isSitter } = useProRole();
 
     const { data: walkerProfile, isLoading: loadingWalker } = useQuery({
         queryKey: ['my-walker-profile'],
@@ -59,28 +57,46 @@ export function useServiceProfile() {
         }
     }, [walkerProfile, sitterProfile, isWalker, isSitter]);
 
+    const num = (v: any) => {
+        const n = parseFloat(String(v ?? '').replace(',', '.'));
+        return Number.isFinite(n) && n >= 0 ? n : null;
+    };
+
     const handleSave = async () => {
+        if (!String(formData.display_name || '').trim()) {
+            showAlert({ type: 'error', title: 'Falta el nombre', message: 'Escribe el nombre que verán tus clientes.' });
+            return;
+        }
+        const keys = isWalker ? ['price_per_walk', 'price_per_hour'] : ['price_per_day', 'price_per_visit'];
+        if (keys.some(k => String(formData[k] ?? '').trim() !== '' && num(formData[k]) === null)) {
+            showAlert({ type: 'error', title: 'Tarifa inválida', message: 'Las tarifas deben ser números mayores o iguales a 0.' });
+            return;
+        }
         setSaving(true);
         try {
             if (isWalker && walkerProfile) {
                 await updateWalker(walkerProfile.id, {
                     ...formData,
-                    price_per_walk: parseFloat(formData.price_per_walk),
-                    price_per_hour: parseFloat(formData.price_per_hour),
+                    price_per_walk: num(formData.price_per_walk) || null,
+                    price_per_hour: num(formData.price_per_hour) || null,
                 });
                 queryClient.invalidateQueries({ queryKey: ['my-walker-profile'] });
+                queryClient.invalidateQueries({ queryKey: ['walkers'] });
+                queryClient.invalidateQueries({ queryKey: ['walker'] });
             } else if (isSitter && sitterProfile) {
                 await updateSitter(sitterProfile.id, {
                     ...formData,
-                    price_per_day: parseFloat(formData.price_per_day),
-                    price_per_visit: parseFloat(formData.price_per_visit),
+                    price_per_day: num(formData.price_per_day) || null,
+                    price_per_visit: num(formData.price_per_visit) || null,
                 });
                 queryClient.invalidateQueries({ queryKey: ['my-sitter-profile'] });
+                queryClient.invalidateQueries({ queryKey: ['sitters'] });
+                queryClient.invalidateQueries({ queryKey: ['sitter'] });
             }
             showAlert({ type: 'success', title: 'Éxito', message: 'Perfil actualizado correctamente' });
             router.back();
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo guardar el perfil' });
+        } catch (e: any) {
+            showAlert({ type: 'error', title: 'Error', message: e?.message || 'No se pudo guardar el perfil' });
         } finally {
             setSaving(false);
         }

@@ -121,11 +121,11 @@ export default function CuidadoresCalendarioScreen() {
                   onPress={() => showAlert({
                     type: 'info',
                     title: 'Detalle del Servicio',
-                    message: `Mascota: ${req.pet_id}\nTipo: ${req.service_type}\nDesde: ${req.start_date.substring(0, 10)}\nHasta: ${req.end_date.substring(0, 10)}\nEstado: ${st.label}`,
+                    message: `Mascota: ${req.pet_name || "—"}\nTipo: ${req.service_type}\nDesde: ${req.start_date.substring(0, 10)}\nHasta: ${req.end_date.substring(0, 10)}\nEstado: ${st.label}`,
                   })}
                 >
                   <View style={styles.reqTop}>
-                    <Text style={[styles.reqId, { color: theme.text }]}>Cuidado #{req.id.substring(0, 6).toUpperCase()}</Text>
+                    <Text style={[styles.reqId, { color: theme.text }]}>{req.pet_name || 'Cuidado'}</Text>
                     <View style={[styles.statusBadge, { backgroundColor: st.bg }]}>
                       <Text style={[styles.statusText, { color: st.color }]}>{st.label}</Text>
                     </View>

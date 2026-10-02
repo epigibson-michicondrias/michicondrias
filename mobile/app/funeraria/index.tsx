@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useFuneraryServices } from '@/src/hooks/funerary/useFuneraryServices';
-import { FuneraryService } from '@/src/services/funerary';
+import { FuneraryService, cremationLabel } from '@/src/services/funerary';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Heart, DollarSign, Plus } from 'lucide-react-native';
@@ -47,12 +47,12 @@ export default function FunerariaScreen() {
                 </View>
                 {item.cremation_type && (
                     <View style={[styles.tag, { backgroundColor: theme.secondary + '10' }]}>
-                        <Text style={[styles.tagText, { color: theme.secondary }]}>{item.cremation_type}</Text>
+                        <Text style={[styles.tagText, { color: theme.secondary }]}>{cremationLabel(item.cremation_type)}</Text>
                     </View>
                 )}
                 {item.urn_included && (
-                    <View style={[styles.tag, { backgroundColor: '#f59e0b20' }]}>
-                        <Text style={[styles.tagText, { color: '#f59e0b' }]}>Urna incluida</Text>
+                    <View style={[styles.tag, { backgroundColor: theme.warningLight }]}>
+                        <Text style={[styles.tagText, { color: theme.warning }]}>Urna incluida</Text>
                     </View>
                 )}
             </View>
@@ -68,13 +68,24 @@ export default function FunerariaScreen() {
 
             <View style={styles.actionButtons}>
                 {isFuneralHome ? (
-                    <TouchableOpacity
-                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
-                        onPress={() => router.push('/funeraria/nuevo-servicio')}
-                    >
-                        <Plus size={18} color="#fff" />
-                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Crear Servicio</Text>
-                    </TouchableOpacity>
+                    <>
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            style={[styles.actionButton, { backgroundColor: theme.primary }]}
+                            onPress={() => router.push('/funeraria/nuevo-servicio')}
+                        >
+                            <Plus size={18} color="#fff" />
+                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Crear Servicio</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            style={[styles.actionButton, { backgroundColor: theme.secondary }]}
+                            onPress={() => router.push('/funeraria/gestion' as any)}
+                        >
+                            <Heart size={18} color="#fff" />
+                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitudes</Text>
+                        </TouchableOpacity>
+                    </>
                 ) : (
                     <TouchableOpacity
                         style={[styles.actionButton, { backgroundColor: theme.secondary }]}
@@ -98,7 +109,7 @@ export default function FunerariaScreen() {
                 <LoadingOverlay message="Cargando servicios..." />
             ) : (
                 <FlatList
-            refreshControl={<AppRefreshControl />}
+                    refreshControl={<AppRefreshControl />}
                     data={services}
                     renderItem={renderServiceItem}
                     keyExtractor={(item) => item.id}
@@ -108,6 +119,7 @@ export default function FunerariaScreen() {
                         <EmptyState
                             icon={<Heart size={32} color={theme.textMuted} />}
                             title={searchQuery ? 'No se encontraron servicios.' : 'No hay servicios disponibles.'}
+                            subtitle={searchQuery ? 'Prueba con otra palabra.' : 'Pronto habrá funerarias disponibles en tu zona.'}
                         />
                     }
                 />

@@ -21,8 +21,8 @@ export default function ServiciosProScreen() {
             <View style={styles.cardHeader}>
                 <View style={styles.imageContainer}>
                     <Image
-                        source={{ uri: item.photo_url || 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?q=80&w=200' }}
-                        style={styles.profileImage}
+                        source={item.photo_url ? { uri: item.photo_url } : undefined}
+                        style={[styles.profileImage, { backgroundColor: theme.primaryLight }]}
                     />
                     {item.is_verified && (
                         <View style={styles.verifiedBadge}>
@@ -35,12 +35,12 @@ export default function ServiciosProScreen() {
                         <Text style={[styles.name, { color: theme.text }]}>{item.display_name}</Text>
                         <View style={styles.ratingBox}>
                             <Star size={14} color="#facc15" fill="#facc15" />
-                            <Text style={[styles.ratingText, { color: theme.text }]}>{item.rating?.toFixed(1) || '5.0'}</Text>
+                            <Text style={[styles.ratingText, { color: theme.text }]}>{item.rating ? item.rating.toFixed(1) : 'Nuevo'}</Text>
                         </View>
                     </View>
                     <View style={styles.locationRow}>
                         <MapPin size={14} color={theme.textMuted} />
-                        <Text style={[styles.location, { color: theme.textMuted }]}>{item.location || 'Ciudad de México'}</Text>
+                        <Text style={[styles.location, { color: theme.textMuted }]}>{item.location || 'Ubicación no indicada'}</Text>
                     </View>
                 </View>
             </View>
@@ -51,7 +51,7 @@ export default function ServiciosProScreen() {
                     {item.accepts_cats && <View style={[styles.tag, { backgroundColor: theme.secondary + '15' }]}><Cat size={12} color={theme.secondary} /><Text style={[styles.tagText, { color: theme.secondary }]}>Gatos</Text></View>}
                 </View>
                 <Text style={[styles.price, { color: theme.primary }]}>
-                    ${activeTab === 'walkers' ? item.price_per_walk || 150 : item.price_per_day || 250}
+                    {(activeTab === 'walkers' ? item.price_per_walk : item.price_per_day) ? `$${activeTab === 'walkers' ? item.price_per_walk : item.price_per_day}` : 'Por acordar'}
                     <Text style={[styles.priceUnit, { color: theme.textMuted }]}> / {activeTab === 'walkers' ? 'paseo' : 'día'}</Text>
                 </Text>
             </View>
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#1e293b',
+        borderColor: '#101c3d',
     },
     mainInfo: {
         flex: 1,

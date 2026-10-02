@@ -12,6 +12,8 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useInsuranceClaim } from '@/src/hooks/insurance/useInsuranceClaim';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import FormImagePicker from '@/src/components/forms/FormImagePicker';
+import { formatDateMx } from '@/src/features/salud/format';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import type { Pet } from '@/src/types/mascotas';
@@ -39,7 +41,8 @@ export default function NuevoReclamoScreen() {
         isLoading,
         isLoadingPolicy,
         isSubmitting,
-        isVerifying,
+        receiptUri,
+        setReceiptUri,
         setSelectedPetId,
         handleSubmit,
     } = useInsuranceClaim();
@@ -58,7 +61,6 @@ export default function NuevoReclamoScreen() {
             <ScreenHeader
                 title="📋 Nuevo Reclamo"
                 subtitle="Presenta un reclamo de seguro"
-                gradient={['#f59e0b', '#d97706']}
             />
 
             <KeyboardScreen style={styles.keyboardContainer}>
@@ -123,11 +125,11 @@ export default function NuevoReclamoScreen() {
                                 styles.policyStatus,
                                 {
                                     backgroundColor: activePolicy
-                                        ? '#10b981' + '10'
-                                        : '#ef4444' + '10',
+                                        ? theme.successLight
+                                        : theme.errorLight,
                                     borderColor: activePolicy
-                                        ? '#10b981' + '30'
-                                        : '#ef4444' + '30',
+                                        ? theme.success
+                                        : theme.error,
                                 },
                             ]}
                         >
@@ -135,21 +137,21 @@ export default function NuevoReclamoScreen() {
                                 <ActivityIndicator size="small" color={theme.primary} />
                             ) : activePolicy ? (
                                 <>
-                                    <Shield size={18} color="#10b981" />
+                                    <Shield size={18} color={theme.success} />
                                     <View style={styles.policyStatusInfo}>
-                                        <Text style={[styles.policyStatusTitle, { color: '#10b981' }]}>
+                                        <Text style={[styles.policyStatusTitle, { color: theme.success }]}>
                                             Póliza activa: {activePolicy.policy_number}
                                         </Text>
                                         <Text style={[styles.policyStatusDesc, { color: theme.textMuted }]}>
                                             Cobertura vigente hasta{' '}
-                                            {new Date(activePolicy.end_date).toLocaleDateString()}
+                                            {formatDateMx(activePolicy.end_date)}
                                         </Text>
                                     </View>
                                 </>
                             ) : (
                                 <>
-                                    <AlertTriangle size={18} color="#ef4444" />
-                                    <Text style={[styles.policyStatusTitle, { color: '#ef4444' }]}>
+                                    <AlertTriangle size={18} color={theme.error} />
+                                    <Text style={[styles.policyStatusTitle, { color: theme.error }]}>
                                         {selectedPet?.name} no tiene póliza activa
                                     </Text>
                                 </>
@@ -226,29 +228,14 @@ export default function NuevoReclamoScreen() {
                                         Recibo médico
                                     </Text>
                                 </View>
-                                <View style={styles.inputGroup}>
-                                    <Text style={[styles.label, { color: theme.text }]}>
-                                        URL del recibo (opcional)
-                                    </Text>
-                                    <TextInput
-                                        style={[
-                                            styles.input,
-                                            {
-                                                backgroundColor: theme.surface,
-                                                color: theme.text,
-                                                borderColor: theme.border,
-                                            },
-                                        ]}
-                                        placeholder="https://..."
-                                        placeholderTextColor={theme.textMuted}
-                                        value={form.medical_receipt_url}
-                                        onChangeText={(val) =>
-                                            updateField('medical_receipt_url', val)
-                                        }
-                                        autoCapitalize="none"
-                                        keyboardType="url"
-                                    />
-                                </View>
+                                <FormImagePicker
+                                    imageUri={receiptUri}
+                                    onImageSelected={setReceiptUri}
+                                    onImageRemoved={() => setReceiptUri(null)}
+                                    aspect={[3, 4]}
+                                    previewHeight={180}
+                                    placeholder="Adjuntar foto del recibo"
+                                />
                             </View>
 
                             {/* AI Verification info box */}
@@ -260,8 +247,7 @@ export default function NuevoReclamoScreen() {
                             >
                                 <Sparkles size={18} color={theme.primary} />
                                 <Text style={[styles.aiInfoText, { color: theme.textMuted }]}>
-                                    Una vez enviado, nuestro sistema de IA verificará automáticamente
-                                    la información del recibo médico.
+                                    La aseguradora revisará tu reclamo y el comprobante, y te avisaremos cuando lo resuelva.
                                 </Text>
                             </View>
 

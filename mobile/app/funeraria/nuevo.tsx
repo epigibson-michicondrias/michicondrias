@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
-import { createFuneraryService } from '../../src/services/funerary';
+import { createFuneraryService, CREMATION_OPTIONS } from '../../src/services/funerary';
 import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Heart, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
@@ -21,7 +21,7 @@ export default function NuevaFunerariaScreen() {
         urn_included: false,
     });
 
-    const CREMATION_TYPES = ['individual', 'colectiva', 'doméstica'];
+    const CREMATION_TYPES = CREMATION_OPTIONS;
 
     const handleSubmit = async () => {
         if (!form.name || !form.price) {
@@ -98,18 +98,18 @@ export default function NuevaFunerariaScreen() {
 
                 <Text style={[styles.label, { color: theme.text }]}>Tipo de Cremación</Text>
                 <View style={styles.typeRow}>
-                    {CREMATION_TYPES.map((type) => (
+                    {CREMATION_TYPES.map((opt) => (
                         <TouchableOpacity
-                            key={type}
+                            key={opt.value}
                             style={[
                                 styles.typeBtn,
                                 { backgroundColor: theme.surface, borderColor: theme.border },
-                                form.cremation_type === type && { backgroundColor: theme.primary, borderColor: theme.primary }
+                                form.cremation_type === opt.value && { backgroundColor: theme.primary, borderColor: theme.primary }
                             ]}
-                            onPress={() => setForm(f => ({ ...f, cremation_type: type }))}
+                            onPress={() => setForm(f => ({ ...f, cremation_type: opt.value }))}
                         >
-                            <Text style={[styles.typeText, { color: form.cremation_type === type ? '#fff' : theme.text }]}>
-                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                            <Text style={[styles.typeText, { color: form.cremation_type === opt.value ? '#fff' : theme.text }]}>
+                                {opt.label}
                             </Text>
                         </TouchableOpacity>
                     ))}

@@ -4,7 +4,10 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
-import { apiFetch } from '../../src/lib/api';
+import { apiFetch, setToken, clearApiCache } from '../../src/lib/api';
+import * as SecureStore from 'expo-secure-store';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../src/contexts/AuthContext';
 import { getCurrentUser } from '../../src/lib/auth';
 import Colors from '../../constants/Colors';
 import { useTheme } from '../../src/contexts/ThemeContext';
@@ -12,40 +15,29 @@ import { ShieldCheck, ShoppingBag, Users, Home, ArrowRight, CheckCircle } from '
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
+    const { reloadUser } = useAuth();
+    const queryClient = useQueryClient();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const [loading, setLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
     const roles = [
-        { 
-            id: "veterinario", 
-            icon: "🩺", 
-            title: "Clínica o Veterinario", 
-            desc: "Ofrece atención médica, registra historiales y atiende emergencias.",
-            benefits: ["🏥 Gestión de pacientes", "📅 Sistema de citas", "💳 Pagos en línea", "⭐ Reseñas verified"]
-        },
-        { 
-            id: "vendedor", 
-            icon: "🛒", 
-            title: "Marca o Vendedor", 
-            desc: "Vende alimentos, accesorios o medicinas en nuestra Tienda Global.",
-            benefits: ["🛍️ Tienda online", "📦 Gestión de inventario", "💰 Pagos seguros", "📊 Análisis de ventas"]
-        },
-        { 
-            id: "paseador", 
-            icon: "🦮", 
-            title: "Paseador o Pet Sitter", 
-            desc: "Ofrece tus servicios de compañía y paseo para dueños ocupados.",
-            benefits: ["🚶 Calendario flexible", "📍 GPS tracking", "💳 Cobros automáticos", "⭐ Sistema de rating"]
-        },
-        { 
-            id: "refugio", 
-            icon: "🏠", 
-            title: "Refugio Organizacional", 
-            desc: "Administra decenas de adopciones y recibe donaciones corporativas.",
-            benefits: ["🐾 Gestión de adopciones", "💳 Donaciones", "📋 Perfiles verified", "🏆 Badge de confianza"]
-        }
+        { id: "veterinario", icon: "🩺", title: "Veterinario", desc: "Atiende pacientes, agenda citas y emite recetas.", benefits: ["🏥 Gestión de pacientes", "📅 Sistema de citas", "🎥 Videoconsultas"] },
+        { id: "hospital", icon: "🏥", title: "Clínica u Hospital", desc: "Administra sedes, médicos asociados y agenda.", benefits: ["🏢 Sucursales", "👩‍⚕️ Médicos asociados", "📦 Inventario"] },
+        { id: "vendedor", icon: "🛒", title: "Marca o Vendedor", desc: "Vende alimentos, accesorios o medicinas en la Michi-Shop.", benefits: ["🛍️ Tienda online", "📦 Pedidos", "📊 Análisis de ventas"] },
+        { id: "paseador", icon: "🦮", title: "Paseador", desc: "Ofrece paseos para dueños ocupados.", benefits: ["🚶 Calendario flexible", "📍 Solicitudes", "⭐ Reseñas"] },
+        { id: "cuidador", icon: "🏡", title: "Cuidador / Pensión", desc: "Hospeda y cuida mascotas en tu hogar.", benefits: ["🛏️ Hospedaje", "📅 Calendario", "⭐ Reseñas"] },
+        { id: "refugio", icon: "🏠", title: "Refugio", desc: "Gestiona adopciones y recibe donaciones.", benefits: ["🐾 Adopciones", "💳 Donaciones", "🏆 Insignia de confianza"] },
+        { id: "hogar_temporal", icon: "💛", title: "Hogar temporal", desc: "Cuida mascotas rescatadas mientras encuentran familia.", benefits: ["🐾 Publicaciones", "📋 Solicitudes"] },
+        { id: "aseguradora", icon: "🛡️", title: "Aseguradora", desc: "Publica planes y gestiona reclamos.", benefits: ["📄 Planes", "🧾 Reclamos"] },
+        { id: "laboratorio", icon: "🧪", title: "Laboratorio", desc: "Recibe órdenes y entrega resultados.", benefits: ["🧫 Órdenes", "📑 Resultados"] },
+        { id: "funeraria", icon: "🕊️", title: "Funeraria", desc: "Servicios de despedida y memoriales.", benefits: ["⚱️ Paquetes", "🕯️ Memoriales"] },
+        { id: "entrenador", icon: "🎓", title: "Entrenador", desc: "Ofrece programas de adiestramiento.", benefits: ["📚 Programas", "👥 Alumnos"] },
+        { id: "estilista", icon: "✂️", title: "Estilista", desc: "Agenda citas de estética y grooming.", benefits: ["📅 Agenda", "💈 Servicios"] },
+        { id: "patrocinador", icon: "🏅", title: "Patrocinador", desc: "Crea campañas y apoya alertas de mascotas perdidas.", benefits: ["📣 Campañas", "📊 Estadísticas"] },
+        { id: "transportista", icon: "🚗", title: "Transportista", desc: "Transporta mascotas con seguimiento del viaje.", benefits: ["🧭 Viajes", "📍 Tracking"] },
+        { id: "establecimiento", icon: "☕", title: "Establecimiento pet-friendly", desc: "Registra tu local y atrae clientes con mascotas.", benefits: ["📍 Perfil del local", "🎟️ Cupones"] },
     ];
 
     async function handleUpgrade() {
@@ -57,6 +49,7 @@ export default function PartnerOnboardingScreen() {
         setLoading(true);
         try {
             // Un rol profesional requiere identidad aprobada por un administrador
+            clearApiCache();
             const me: any = await getCurrentUser();
             if (me?.verification_status !== 'VERIFIED') {
                 showAlert({
@@ -73,24 +66,23 @@ export default function PartnerOnboardingScreen() {
                 return;
             }
 
-            await apiFetch("core", `/users/me/upgrade-role?role_name=${selectedRole}`, {
+            // El JWT lleva el rol: el backend devuelve un token nuevo para que las herramientas funcionen sin volver a entrar.
+            const res: any = await apiFetch("core", `/users/me/upgrade-role?role_name=${selectedRole}`, {
                 method: "POST"
             });
-
-            // Actualizar el rol del usuario
-            const user = await getCurrentUser();
-            if (user) {
-                // Forzar refresh del contexto de autenticación
-                showAlert({
-                    type: 'success',
-                    title: '¡Rol Actualizado!',
-                    message: `Tu cuenta ha sido actualizada a ${roles.find(r => r.id === selectedRole)?.title}. Redirigiendo...`,
-                    onButtonPress: () => {
-                        // Redirigir al dashboard principal
-                        router.replace('/(tabs)');
-                    },
-                });
+            if (res?.access_token) {
+                await setToken(res.access_token);
+                try { await SecureStore.setItemAsync('user_role', selectedRole); } catch { /* web */ }
             }
+            clearApiCache();
+            await reloadUser();
+            queryClient.invalidateQueries();
+            showAlert({
+                type: 'success',
+                title: '¡Cuenta profesional activada!',
+                message: `Ahora eres ${roles.find(r => r.id === selectedRole)?.title}. Encontrarás tus herramientas en Inicio y en la pestaña Herramientas.`,
+                onButtonPress: () => router.replace('/(tabs)'),
+            });
         } catch (error: any) {
             console.error("Error upgrading role:", error);
             showAlert({

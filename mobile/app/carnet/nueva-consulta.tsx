@@ -36,6 +36,8 @@ export default function NuevaConsultaScreen() {
                             style={[styles.saveBtn, { backgroundColor: theme.primary }]}
                             onPress={handleSave}
                             disabled={isSaving}
+                            accessibilityRole="button"
+                            accessibilityLabel="Guardar consulta"
                         >
                             {isSaving ? <ActivityIndicator color="#fff" size="small" /> : <Save size={20} color="#fff" />}
                         </TouchableOpacity>
@@ -109,7 +111,7 @@ export default function NuevaConsultaScreen() {
                                     style={[styles.input, { color: theme.text }]}
                                     placeholder="0.0"
                                     placeholderTextColor={theme.textMuted}
-                                    keyboardType="numeric"
+                                    keyboardType="decimal-pad"
                                     value={weight}
                                     onChangeText={setWeight}
                                 />
@@ -123,7 +125,7 @@ export default function NuevaConsultaScreen() {
                                     style={[styles.input, { color: theme.text }]}
                                     placeholder="38.5"
                                     placeholderTextColor={theme.textMuted}
-                                    keyboardType="numeric"
+                                    keyboardType="decimal-pad"
                                     value={temp}
                                     onChangeText={setTemp}
                                 />
@@ -141,7 +143,12 @@ export default function NuevaConsultaScreen() {
                             <View key={index} style={[styles.prescriptionCard, { backgroundColor: theme.surface }]}>
                                 <View style={styles.pCardHeader}>
                                     <Text style={[styles.pNumber, { color: theme.primary }]}>Medicamento #{index + 1}</Text>
-                                    <TouchableOpacity onPress={() => removePrescription(index)}>
+                                    <TouchableOpacity
+                                        onPress={() => removePrescription(index)}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Quitar medicamento ${index + 1}`}
+                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                    >
                                         <Trash2 size={16} color="#ef4444" />
                                     </TouchableOpacity>
                                 </View>

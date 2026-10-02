@@ -30,16 +30,44 @@ def get_admin_dashboard_metrics(
         count = crud.crud_user.count_users_by_role(db, role.id)
         users_by_role[role.name] = count
 
-    # Optional: Get registration trends (simplified here)
-    # Since we don't have a created_at column explicitly verified in migrations yet, 
-    # we'll return the raw numbers. If created_at exists, we could group by date.
-    
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    since_7 = now - timedelta(days=7)
+    since_30 = now - timedelta(days=30)
+    active_users = db.query(User).filter(User.is_active == True).count()  # noqa: E712
+    new_7 = db.query(User).filter(User.created_at >= since_7).count()
+    new_30 = db.query(User).filter(User.created_at >= since_30).count()
+    rejected_kyc = crud.crud_user.count_users_by_status(db, "REJECTED")
+
+    # Registros por día (últimos 14 días) — datos reales de users.created_at
+    since_14 = now - timedelta(days=13)
+    rows = db.query(User.created_at).filter(User.created_at >= since_14.replace(hour=0, minute=0, second=0, microsecond=0)).all()
+    per_day = {}
+    for (created,) in rows:
+        if created:
+            key = created.date().isoformat()
+            per_day[key] = per_day.get(key, 0) + 1
+    registrations = []
+    for i in range(14):
+        d = (since_14 + timedelta(days=i)).date().isoformat()
+        registrations.append({"date": d, "count": per_day.get(d, 0)})
+
+    professionals = sum(c for name, c in users_by_role.items() if name not in ("consumidor", "admin"))
+
     return {
         "kpis": {
             "total_users": total_users,
             "pending_verifications": pending_kyc,
             "approved_verifications": verified_kyc,
             "system_admins": users_by_role.get("admin", 0),
+            # nuevos (aditivos: la app publicada ignora claves desconocidas)
+            "active_users": active_users,
+            "inactive_users": total_users - active_users,
+            "rejected_verifications": rejected_kyc,
+            "professionals": professionals,
+            "new_users_7d": new_7,
+            "new_users_30d": new_30,
         },
-        "role_distribution": users_by_role
+        "role_distribution": users_by_role,
+        "registrations_14d": registrations,
     }

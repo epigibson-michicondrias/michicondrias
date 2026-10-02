@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { getProducts, getCategories } from '@/src/services/ecommerce';
+import { useCart } from '@/src/contexts/CartContext';
 import {
   Sparkles, Package, Star, Heart, Tag, ShoppingBag,
 } from 'lucide-react-native';
@@ -26,6 +27,8 @@ export function useShopTab() {
 
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
+  const { cartCount } = useCart();
 
   // Update selectedCategory when category query parameter changes
   useEffect(() => {
@@ -81,16 +84,24 @@ export function useShopTab() {
     return list;
   }, [dbCategories]);
 
-  const { data: products = [], isLoading } = useQuery({
+  const { data: allProducts = [], isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['store-products', selectedCategory],
     queryFn: () => getProducts(selectedCategory === 'all' ? undefined : selectedCategory),
   });
 
+  // Búsqueda por nombre o descripción sobre el catálogo de la categoría elegida
+  const products = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return allProducts;
+    return allProducts.filter(p =>
+      p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q)
+    );
+  }, [allProducts, searchQuery]);
+
   const isVendedor = user?.role_name === 'vendedor';
 
-  const handleSearch = () => {
-    router.push(`/tienda?q=${searchQuery}` as any);
-  };
+  // La búsqueda filtra en vivo; al enviar solo se muestran todos los resultados
+  const handleSearch = () => setShowAll(true);
 
   return {
     // State
@@ -101,6 +112,12 @@ export function useShopTab() {
 
     // Data
     products,
+    totalProducts: allProducts.length,
+    showAll,
+    setShowAll,
+    cartCount,
+    refetch,
+    isRefetching,
     isLoading: isLoading || categoriesLoading,
     isVendedor,
     categories,

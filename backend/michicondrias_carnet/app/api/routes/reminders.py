@@ -7,6 +7,7 @@ from app import crud
 from app.api import deps
 from app.db.session import get_db
 from app.schemas.carnet import MedicationReminderResponse
+from app.api.pet_access import get_identity, assert_can_read_pet_record
 
 router = APIRouter()
 
@@ -17,28 +18,13 @@ def read_reminders_by_pet(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
-    user_id: str = Depends(deps.get_current_user_id),
+    identity: dict = Depends(get_identity),
 ) -> Any:
     """
     Retrieve medication reminders for a specific pet.
     Security: Only the pet owner or a registered veterinarian can view these reminders.
     """
-    pet_result = db.execute(
-        text("SELECT owner_id FROM pets WHERE id = :pet_id"),
-        {"pet_id": pet_id}
-    ).fetchone()
-    if not pet_result:
-        raise HTTPException(status_code=404, detail="Mascota no encontrada")
-    
-    owner_id = pet_result[0]
-    if owner_id != user_id:
-        # Check if the user is a vet
-        vet_result = db.execute(
-            text("SELECT id FROM veterinarians WHERE id = :user_id"),
-            {"user_id": user_id}
-        ).fetchone()
-        if not vet_result:
-            raise HTTPException(status_code=403, detail="No tienes permiso para ver los recordatorios de esta mascota")
+    assert_can_read_pet_record(db, pet_id, identity)
 
     reminders = crud.crud_carnet.get_reminders_by_pet(
         db, pet_id=pet_id, unread_only=unread_only, skip=skip, limit=limit

@@ -9,6 +9,7 @@ import { getWalker, requestWalk, registerAsWalker, getWalkerReviews, createWalke
 import { getUserPets } from '@/src/services/mascotas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
+import { errorMessage, toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
 
 export function useWalkerDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -61,9 +62,10 @@ export function useWalkerDetail() {
             resetWalkForm();
             showAlert({ type: 'success', title: '¡Solicitud Enviada!', message: 'Tu solicitud de paseo ha sido enviada al paseador.' });
             queryClient.invalidateQueries({ queryKey: ['my-walk-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['walker-requests'] });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo enviar la solicitud de paseo.' });
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No se pudo enviar', message: errorMessage(e, 'No se pudo enviar la solicitud de paseo.') });
         },
     });
 
@@ -83,17 +85,19 @@ export function useWalkerDetail() {
             createWalkerReview(id as string, requestId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['walker-reviews', id] });
+            queryClient.invalidateQueries({ queryKey: ['walker', id] });
+            queryClient.invalidateQueries({ queryKey: ['walkers'] });
             queryClient.invalidateQueries({ queryKey: ['my-walk-requests'] });
             showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo enviar la reseña.' });
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No se pudo enviar', message: errorMessage(e, 'No se pudo enviar la reseña.') });
         },
     });
 
     const resetWalkForm = () => {
         setSelectedPetId(null);
-        setWalkDate('');
+        setWalkDate(toLocalIsoDate(new Date()));
         setWalkNotes('');
         setWalkDuration(30);
     };
@@ -127,7 +131,7 @@ export function useWalkerDetail() {
         }
         requestWalkMutation.mutate({
             pet_id: selectedPetId,
-            requested_date: walkDate || new Date().toISOString().split('T')[0],
+            requested_date: walkDate || toLocalIsoDate(new Date()),
             duration_minutes: walkDuration,
             notes: walkNotes || undefined,
         });
@@ -141,7 +145,10 @@ export function useWalkerDetail() {
         createReviewMutation.mutate({ requestId, data });
     };
 
+    const isOwnProfile = !!walker && walker.user_id === user?.id;
+
     return {
+        isOwnProfile,
         walker,
         isLoading,
         error,

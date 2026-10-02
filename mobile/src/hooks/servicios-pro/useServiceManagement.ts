@@ -1,72 +1,32 @@
 /**
- * useServiceManagement — Business logic for professional service request management
- * Handles incoming walk/sit requests, status updates, and filtering
+ * useServiceManagement — "Mis Tareas" del paseador o cuidador: solicitudes entrantes y sus cambios de estado.
  */
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { showAlert } from '@/src/components/AppAlert';
-import { getIncomingWalkRequests, updateWalkRequestStatus, WalkRequest } from '@/src/services/paseadores';
-import { getIncomingSitRequests, updateSitRequestStatus, SitRequest } from '@/src/services/cuidadores';
-import { useAuth } from '@/src/contexts/AuthContext';
+import { useProRequests, ProRequest } from './useProRequests';
+import { useProRole } from './useProRole';
+import { normalizeStatus } from './requestStatus';
 
-type AnyRequest = (WalkRequest | SitRequest) & { type: 'walk' | 'sit' };
+export type AnyRequest = ProRequest & { type: 'walk' | 'sit' };
 
 export function useServiceManagement() {
-    const { user } = useAuth();
+    const { isWalker } = useProRole();
+    const kind: 'walk' | 'sit' = isWalker ? 'walk' : 'sit';
+    const base = useProRequests(kind);
     const [filter, setFilter] = useState('pending');
-    const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-    const isWalker = user?.role_name === 'walker';
-    const isSitter = user?.role_name === 'sitter';
-
-    const { data: walkRequests = [], isLoading: loadingWalks, refetch: refetchWalks } = useQuery({
-        queryKey: ['incoming-walks'],
-        queryFn: getIncomingWalkRequests,
-        enabled: isWalker,
-    });
-
-    const { data: sitRequests = [], isLoading: loadingSits, refetch: refetchSits } = useQuery({
-        queryKey: ['incoming-sits'],
-        queryFn: getIncomingSitRequests,
-        enabled: isSitter,
-    });
-
-    const allRequests: AnyRequest[] = [
-        ...walkRequests.map(r => ({ ...r, type: 'walk' as const })),
-        ...sitRequests.map(r => ({ ...r, type: 'sit' as const })),
-    ];
-
-    const filtered = allRequests.filter(r => filter === 'all' ? true : r.status === filter);
-
-    const handleStatusUpdate = async (id: string, type: 'walk' | 'sit', newStatus: string) => {
-        setActionLoading(id);
-        try {
-            if (type === 'walk') {
-                await updateWalkRequestStatus(id, newStatus);
-                refetchWalks();
-            } else {
-                await updateSitRequestStatus(id, newStatus);
-                refetchSits();
-            }
-            showAlert({ type: 'success', title: 'Éxito', message: `Solicitud ${newStatus === 'accepted' ? 'aceptada' : 'rechazada'} correctamente` });
-        } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estatus' });
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const isLoading = loadingWalks || loadingSits;
+    const allRequests: AnyRequest[] = base.allRequests.map(r => ({ ...r, type: kind }));
+    const filtered = allRequests.filter(r => filter === 'all' || normalizeStatus(r.status) === filter);
 
     return {
+        kind,
         filter,
         setFilter,
-        actionLoading,
+        actionLoading: base.updatingId,
         allRequests,
         filtered,
-        isLoading,
-        handleStatusUpdate,
+        isLoading: base.isLoading,
+        isRefetching: base.isRefetching,
+        refetch: base.refetch,
+        handleStatusUpdate: base.updateStatus,
     };
 }
-
-export type { AnyRequest };

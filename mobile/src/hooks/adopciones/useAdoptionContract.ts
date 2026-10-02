@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { signAdoptionContract } from '@/src/services/adopciones';
 import { showAlert } from '@/src/components/AppAlert';
 import type { AdoptionContractCreate } from '@/src/types/adopciones';
@@ -34,6 +34,7 @@ El incumplimiento de cualquiera de estas cláusulas faculta al refugio a solicit
 export function useAdoptionContract() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const [agreed, setAgreed] = useState(false);
     const [formId] = useState(id || '');
@@ -42,18 +43,19 @@ export function useAdoptionContract() {
     const signMutation = useMutation({
         mutationFn: (data: AdoptionContractCreate) => signAdoptionContract(data),
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['refuge-applications'] });
             showAlert({
                 type: 'success',
                 title: '¡Contrato Firmado!',
-                message: '¡Felicidades! El contrato de adopción ha sido firmado exitosamente. Pronto recibirás información sobre los próximos pasos.',
+                message: 'El contrato quedó registrado y la postulación pasó a aprobada.',
             });
             router.back();
         },
-        onError: () => {
+        onError: (e: Error) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo firmar el contrato. Intenta de nuevo.',
+                message: e.message || 'No se pudo firmar el contrato. Intenta de nuevo.',
             });
         },
     });

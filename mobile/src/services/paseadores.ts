@@ -34,6 +34,11 @@ export interface WalkRequest {
     pickup_address?: string | null;
     notes?: string | null;
     total_price?: number | null;
+    /** Datos de apoyo que agrega el backend (pueden faltar en respuestas antiguas) */
+    pet_name?: string | null;
+    client_name?: string | null;
+    walker_name?: string | null;
+    has_review?: boolean;
 }
 
 export async function listWalkers(params?: Record<string, string>): Promise<Walker[]> {

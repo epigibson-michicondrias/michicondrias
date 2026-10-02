@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     TextInput,
     ScrollView,
+    Switch,
     ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -31,6 +32,7 @@ export default function GestionScreen() {
         isLoadingPlans,
         refetchPlans,
         isRefetchingPlans,
+        toggleActive,
         planForm,
         updatePlanField,
         allowedSpecies,
@@ -55,12 +57,20 @@ export default function GestionScreen() {
                         </Text>
                     )}
                 </View>
-                {item.is_active && (
-                    <View style={[styles.activeBadge, { backgroundColor: '#10b981' + '15' }]}>
-                        <CheckCircle size={12} color="#10b981" />
-                        <Text style={[styles.activeText, { color: '#10b981' }]}>Activo</Text>
+                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                    <View style={[styles.activeBadge, { backgroundColor: item.is_active ? theme.successLight : theme.overlay }]}>
+                        <CheckCircle size={12} color={item.is_active ? theme.success : theme.textMuted} />
+                        <Text style={[styles.activeText, { color: item.is_active ? theme.success : theme.textMuted }]}>
+                            {item.is_active ? 'Publicado' : 'Oculto'}
+                        </Text>
                     </View>
-                )}
+                    <Switch
+                        accessibilityLabel={`Publicar plan ${item.name}`}
+                        value={!!item.is_active}
+                        onValueChange={(v) => toggleActive(item.id, v)}
+                        trackColor={{ true: theme.primary, false: theme.border }}
+                    />
+                </View>
             </View>
 
             <View style={[styles.planStats, { borderTopColor: theme.border }]}>

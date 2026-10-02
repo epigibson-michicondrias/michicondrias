@@ -28,8 +28,8 @@ export function useMyListings() {
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
             showAlert({ type: 'success', title: '¡Actualizado!', message: 'La publicación se actualizó correctamente.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la publicación.' });
+        onError: (e: Error) => {
+            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo actualizar la publicación.' });
         },
     });
 
@@ -39,8 +39,8 @@ export function useMyListings() {
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
             showAlert({ type: 'success', title: 'Eliminada', message: 'La publicación ha sido eliminada.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar la publicación.' });
+        onError: (e: Error) => {
+            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo eliminar la publicación.' });
         },
     });
 

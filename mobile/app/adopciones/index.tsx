@@ -75,7 +75,7 @@ export default function AdopcionesScreen() {
                     <View style={styles.location}>
                         <MapPin size={12} color={theme.primary} />
                         <Text style={[styles.locationText, { color: theme.textMuted }]} numberOfLines={1}>
-                            {item.location || 'CDMX'}
+                            {item.location || 'Sin ubicación'}
                         </Text>
                     </View>
                 </View>
@@ -91,10 +91,10 @@ export default function AdopcionesScreen() {
                 placeholder="Busca por nombre, raza..."
             />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chipsContainer}>
-                <FilterChip label="Todos" active={speciesFilter === 'all'} onPress={() => setSpeciesFilter('all')} />
-                <FilterChip label="Perros" active={speciesFilter === 'perro'} onPress={() => setSpeciesFilter('perro')} />
-                <FilterChip label="Gatos" active={speciesFilter === 'gato'} onPress={() => setSpeciesFilter('gato')} />
-                <FilterChip label="Grandes" active={sizeFilter === 'grande'} onPress={() => setSizeFilter('grande')} />
+                <FilterChip label="Todos" active={speciesFilter === 'all' && sizeFilter === 'all'} onPress={() => { setSpeciesFilter('all'); setSizeFilter('all'); }} />
+                <FilterChip label="Perros" active={speciesFilter === 'perro'} onPress={() => setSpeciesFilter(speciesFilter === 'perro' ? 'all' : 'perro')} />
+                <FilterChip label="Gatos" active={speciesFilter === 'gato'} onPress={() => setSpeciesFilter(speciesFilter === 'gato' ? 'all' : 'gato')} />
+                <FilterChip label="Grandes" active={sizeFilter === 'grande'} onPress={() => setSizeFilter(sizeFilter === 'grande' ? 'all' : 'grande')} />
             </ScrollView>
         </View>
     );
@@ -105,6 +105,7 @@ export default function AdopcionesScreen() {
                 title="Mascotas en Adopción"
                 subtitle="Encuentra a tu nuevo mejor amigo"
                 actionIcon={Plus}
+                actionLabel="Publicar mascota"
                 onAction={() => router.push('/adopciones/nuevo')}
             />
 

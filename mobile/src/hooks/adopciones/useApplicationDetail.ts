@@ -7,7 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     getListing,
-    getListingRequests,
+    getRequest,
     updateRequestStatus,
     approveAdoption,
     AdoptionRequest,
@@ -36,10 +36,7 @@ export function useApplicationDetail() {
 
     const { data: request, isLoading } = useQuery({
         queryKey: ['adoption-request', id],
-        queryFn: async () => {
-            const requests = await getListingRequests('all');
-            return requests.find(r => r.id === id) || null;
-        },
+        queryFn: () => getRequest(id as string),
         enabled: !!id,
     });
 
@@ -50,13 +47,22 @@ export function useApplicationDetail() {
     });
 
     const statusMutation = useMutation({
-        mutationFn: (status: string) => updateRequestStatus(id as string, status),
+        mutationFn: (status: string) => {
+            const parts: string[] = [];
+            if (status === 'INTERVIEW_SCHEDULED' && interviewDate) parts.push(`Entrevista: ${interviewDate}.`);
+            if (notes.trim()) parts.push(notes.trim());
+            return updateRequestStatus(id as string, status, parts.join(' ') || undefined);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['adoption-request', id] });
+            queryClient.invalidateQueries({ queryKey: ['user-listings-with-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['listing-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
+            queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
             showAlert({ type: 'success', title: 'Éxito', message: 'Estado actualizado correctamente' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estado' });
+        onError: (e: Error) => {
+            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo actualizar el estado' });
         },
     });
 
@@ -64,10 +70,14 @@ export function useApplicationDetail() {
         mutationFn: () => approveAdoption(id as string),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['adoption-request', id] });
+            queryClient.invalidateQueries({ queryKey: ['user-listings-with-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['listing-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
+            queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
             showAlert({ type: 'success', title: '¡Éxito!', message: 'Adopción aprobada exitosamente' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo aprobar la adopción' });
+        onError: (e: Error) => {
+            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo aprobar la adopción' });
         },
     });
 
@@ -94,7 +104,7 @@ export function useApplicationDetail() {
         showAlert({
             type: 'warning',
             title: 'Aprobar Adopción',
-            message: '¿Estás seguro de que deseas aprobar esta adopción? Esta acción es irreversible.',
+            message: '¿Aprobar esta adopción? La mascota se registrará a nombre del adoptante, las demás solicitudes se rechazarán y esta acción no se puede deshacer.',
             showCancel: true,
             cancelText: 'Cancelar',
             buttonText: 'Aprobar',

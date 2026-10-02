@@ -7,7 +7,7 @@ import { useAvatar } from '@/src/hooks/perfil/useAvatar';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { Mail, Phone, MapPin, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, ChevronLeft, Palette, CreditCard, Lock } from 'lucide-react-native';
+import { Mail, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, ChevronLeft, Palette, CreditCard, Lock } from 'lucide-react-native';
 
 export default function PerfilScreen() {
     const router = useRouter();
@@ -15,6 +15,8 @@ export default function PerfilScreen() {
     const {
         profile,
         isLoading,
+        isError,
+        refetch,
         formData,
         isEditing,
         isSaving,
@@ -40,6 +42,26 @@ export default function PerfilScreen() {
         }
     };
 
+    if (isError && !profile) {
+        return (
+            <ScreenContainer>
+                <ScreenHeader title="Mi Perfil" />
+                <View style={styles.loadingContainer}>
+                    <Text style={[styles.loadingText, { color: theme.textMuted, textAlign: 'center', marginBottom: 16 }]}>
+                        No pudimos cargar tu perfil. Revisa tu conexión.
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() => refetch()}
+                        style={{ backgroundColor: theme.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }}
+                        accessibilityRole="button"
+                    >
+                        <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScreenContainer>
+        );
+    }
+
     if (isLoading) {
         return (
             <ScreenContainer>
@@ -60,6 +82,8 @@ export default function PerfilScreen() {
                     <TouchableOpacity
                         style={styles.editButton}
                         onPress={toggleEditing}
+                        accessibilityRole="button"
+                        accessibilityLabel={isEditing ? 'Cerrar edición' : 'Editar perfil'}
                     >
                         <Edit2 size={20} color={theme.primary} />
                     </TouchableOpacity>
@@ -97,9 +121,11 @@ export default function PerfilScreen() {
                             {getRoleLabel(profile?.role_name || 'consumidor')}
                         </Text>
                     </View>
-                    <Text style={[styles.memberSince, { color: theme.textMuted }]}>
-                        Miembro desde {new Date(profile?.created_at || Date.now()).getFullYear()}
-                    </Text>
+                    {profile?.created_at ? (
+                        <Text style={[styles.memberSince, { color: theme.textMuted }]}>
+                            Miembro desde {new Date(profile.created_at).getFullYear()}
+                        </Text>
+                    ) : null}
                 </View>
             </View>
 
@@ -142,63 +168,11 @@ export default function PerfilScreen() {
                             placeholder="tu@email.com"
                             placeholderTextColor={theme.textMuted}
                             keyboardType="email-address"
-                            editable={false} // Email no debería ser editable
+                            editable={false} // El correo es tu identidad de acceso y no se edita aquí
                         />
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: theme.textMuted }]}>
-                            Teléfono
+                        <Text style={[styles.inputLabel, { color: theme.textMuted, marginTop: 6, marginBottom: 0 }]}>
+                            El correo no se puede cambiar desde la app.
                         </Text>
-                        <TextInput
-                            style={[styles.textInput, { 
-                                backgroundColor: theme.background,
-                                borderColor: theme.border,
-                                color: theme.text 
-                            }]}
-                            value={formData.phone}
-                            onChangeText={(text) => updateField('phone', text)}
-                            placeholder="+52 1 000 000 0000"
-                            placeholderTextColor={theme.textMuted}
-                            keyboardType="phone-pad"
-                        />
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: theme.textMuted }]}>
-                            Ubicación
-                        </Text>
-                        <TextInput
-                            style={[styles.textInput, { 
-                                backgroundColor: theme.background,
-                                borderColor: theme.border,
-                                color: theme.text 
-                            }]}
-                            value={formData.location}
-                            onChangeText={(text) => updateField('location', text)}
-                            placeholder="Ciudad, País"
-                            placeholderTextColor={theme.textMuted}
-                        />
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.inputLabel, { color: theme.textMuted }]}>
-                            Biografía
-                        </Text>
-                        <TextInput
-                            style={[styles.textArea, { 
-                                backgroundColor: theme.background,
-                                borderColor: theme.border,
-                                color: theme.text 
-                            }]}
-                            value={formData.bio}
-                            onChangeText={(text) => updateField('bio', text)}
-                            placeholder="Cuéntanos sobre ti y tus mascotas..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            numberOfLines={4}
-                            textAlignVertical="top"
-                        />
                     </View>
 
                     <View style={styles.editActions}>
@@ -237,30 +211,6 @@ export default function PerfilScreen() {
                         </Text>
                         <Text style={[styles.infoValue, { color: theme.text }]}>
                             {profile?.email || 'No especificado'}
-                        </Text>
-                    </View>
-                </View>
-
-                <View style={styles.infoRow}>
-                    <Phone size={20} color={theme.primary} />
-                    <View style={styles.infoContent}>
-                        <Text style={[styles.infoLabel, { color: theme.textMuted }]}>
-                            Teléfono
-                        </Text>
-                        <Text style={[styles.infoValue, { color: theme.text }]}>
-                            No especificado
-                        </Text>
-                    </View>
-                </View>
-
-                <View style={styles.infoRow}>
-                    <MapPin size={20} color={theme.primary} />
-                    <View style={styles.infoContent}>
-                        <Text style={[styles.infoLabel, { color: theme.textMuted }]}>
-                            Ubicación
-                        </Text>
-                        <Text style={[styles.infoValue, { color: theme.text }]}>
-                            No especificado
                         </Text>
                     </View>
                 </View>
@@ -395,6 +345,8 @@ export default function PerfilScreen() {
                 <TouchableOpacity
                     style={[styles.logoutRow, { backgroundColor: '#ef444410' }]}
                     onPress={handleLogout}
+                    accessibilityRole="button"
+                    accessibilityLabel="Cerrar sesión"
                 >
                     <LogOut size={20} color="#ef4444" />
                     <Text style={[styles.logoutText, { color: '#ef4444' }]}>

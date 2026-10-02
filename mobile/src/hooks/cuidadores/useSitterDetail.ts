@@ -9,6 +9,7 @@ import { getSitter, requestSit, registerAsSitter, getSitterReviews, createSitter
 import { getUserPets } from '@/src/services/mascotas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
+import { errorMessage, toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
 
 export function useSitterDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -19,8 +20,9 @@ export function useSitterDetail() {
     const [sitModalVisible, setSitModalVisible] = useState(false);
     const [registerModalVisible, setRegisterModalVisible] = useState(false);
     const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [startDate, setStartDate] = useState(toLocalIsoDate(new Date()));
+    const [endDate, setEndDate] = useState(toLocalIsoDate(new Date()));
+    const [sitServiceType, setSitServiceType] = useState<'hosting' | 'visiting'>('hosting');
     const [sitNotes, setSitNotes] = useState('');
 
     const { data: sitter, isLoading, error } = useQuery<Sitter>({
@@ -61,9 +63,10 @@ export function useSitterDetail() {
             resetSitForm();
             showAlert({ type: 'success', title: '¡Solicitud Enviada!', message: 'Tu solicitud de cuidado ha sido enviada.' });
             queryClient.invalidateQueries({ queryKey: ['my-sit-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['sitter-requests'] });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo enviar la solicitud.' });
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No se pudo enviar', message: errorMessage(e, 'No se pudo enviar la solicitud.') });
         },
     });
 
@@ -83,18 +86,20 @@ export function useSitterDetail() {
             createSitterReview(id as string, requestId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['sitter-reviews', id] });
+            queryClient.invalidateQueries({ queryKey: ['sitter', id] });
+            queryClient.invalidateQueries({ queryKey: ['sitters'] });
             queryClient.invalidateQueries({ queryKey: ['my-sit-requests'] });
             showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo enviar la reseña.' });
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No se pudo enviar', message: errorMessage(e, 'No se pudo enviar la reseña.') });
         },
     });
 
     const resetSitForm = () => {
         setSelectedPetId(null);
-        setStartDate('');
-        setEndDate('');
+        setStartDate(toLocalIsoDate(new Date()));
+        setEndDate(toLocalIsoDate(new Date()));
         setSitNotes('');
     };
 
@@ -129,9 +134,13 @@ export function useSitterDetail() {
             showAlert({ type: 'error', title: 'Error', message: 'Selecciona las fechas de inicio y fin.' });
             return;
         }
+        if (endDate < startDate) {
+            showAlert({ type: 'error', title: 'Fechas inválidas', message: 'La fecha de fin no puede ser anterior a la de inicio.' });
+            return;
+        }
         requestSitMutation.mutate({
             pet_id: selectedPetId,
-            service_type: sitter?.service_type || 'daycare',
+            service_type: sitter?.service_type === 'both' ? sitServiceType : (sitter?.service_type || sitServiceType),
             start_date: startDate,
             end_date: endDate,
             notes: sitNotes || undefined,
@@ -148,13 +157,18 @@ export function useSitterDetail() {
 
     const getServiceName = (type: string) => {
         switch (type) {
-            case 'daycare': return 'Guardería Diaria';
-            case 'boarding': return 'Hospedaje Nocturno';
-            default: return 'Cuidado Completo';
+            case 'hosting': return 'Hospedaje en casa del cuidador';
+            case 'visiting': return 'Visitas a domicilio';
+            default: return 'Hospedaje y visitas';
         }
     };
 
+    const isOwnProfile = !!sitter && sitter.user_id === user?.id;
+
     return {
+        isOwnProfile,
+        sitServiceType,
+        setSitServiceType,
         sitter,
         isLoading,
         error,

@@ -7,7 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Heart, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
 
-const CREMATION_TYPES = ['individual', 'colectiva', 'doméstica'];
+import { CREMATION_OPTIONS } from '@/src/services/funerary';
 
 export default function NuevoServicioScreen() {
     const { theme } = useTheme();
@@ -66,23 +66,23 @@ export default function NuevoServicioScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Tipo de Cremación</Text>
                         <View style={styles.typeRow}>
-                            {CREMATION_TYPES.map((type) => (
+                            {CREMATION_OPTIONS.map((opt) => (
                                 <TouchableOpacity
-                                    key={type}
+                                    key={opt.value}
                                     style={[
                                         styles.typeBtn,
                                         { backgroundColor: theme.surface, borderColor: theme.border },
-                                        form.cremation_type === type && { backgroundColor: theme.primary, borderColor: theme.primary },
+                                        form.cremation_type === opt.value && { backgroundColor: theme.primary, borderColor: theme.primary },
                                     ]}
-                                    onPress={() => updateForm('cremation_type', type)}
+                                    onPress={() => updateForm('cremation_type', opt.value)}
                                 >
                                     <Text
                                         style={[
                                             styles.typeText,
-                                            { color: form.cremation_type === type ? '#fff' : theme.text },
+                                            { color: form.cremation_type === opt.value ? '#fff' : theme.text },
                                         ]}
                                     >
-                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                        {opt.label}
                                     </Text>
                                 </TouchableOpacity>
                             ))}

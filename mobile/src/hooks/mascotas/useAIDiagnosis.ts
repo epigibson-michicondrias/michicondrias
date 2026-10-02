@@ -46,8 +46,13 @@ export function useAIDiagnosis() {
   });
 
   const handleSymptomCheck = useCallback(async () => {
-    if (!symptoms.trim()) {
-      showAlert({ type: 'error', title: 'Error', message: 'Por favor ingresa una descripción de los síntomas.' });
+    if (symptoms.trim().length < 3) {
+      showAlert({ type: 'error', title: 'Faltan datos', message: 'Describe los síntomas de tu mascota (al menos unas palabras).' });
+      return;
+    }
+    const hours = durationHours.trim() === '' ? 12 : parseInt(durationHours, 10);
+    if (isNaN(hours) || hours < 0 || hours > 24 * 365) {
+      showAlert({ type: 'error', title: 'Faltan datos', message: 'Indica las horas desde que comenzaron los síntomas (número entero).' });
       return;
     }
 
@@ -55,8 +60,8 @@ export function useAIDiagnosis() {
     setTriageResult(null);
     try {
       const res = await aiSymptomCheck({
-        symptom_description: symptoms,
-        duration_hours: parseInt(durationHours, 10) || 12,
+        symptom_description: symptoms.trim(),
+        duration_hours: hours,
       });
       setTriageResult(res);
     } catch (err: any) {
@@ -68,7 +73,12 @@ export function useAIDiagnosis() {
 
   const handleDietPlan = useCallback(async () => {
     if (!selectedPetId) {
-      showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una mascota.' });
+      showAlert({ type: 'error', title: 'Faltan datos', message: 'Por favor selecciona una mascota.' });
+      return;
+    }
+    const target = targetWeight.trim() === '' ? undefined : parseFloat(targetWeight.replace(',', '.'));
+    if (target !== undefined && (isNaN(target) || target <= 0)) {
+      showAlert({ type: 'error', title: 'Faltan datos', message: 'El peso objetivo debe ser un número mayor a cero.' });
       return;
     }
 
@@ -78,7 +88,7 @@ export function useAIDiagnosis() {
       const res = await aiDietPlan(selectedPetId, {
         activity_level: activityLevel,
         allergies: allergies.trim() ? allergies : undefined,
-        target_weight_kg: targetWeight ? parseFloat(targetWeight) : undefined,
+        target_weight_kg: target,
       });
       setDietResult(res);
     } catch (err: any) {

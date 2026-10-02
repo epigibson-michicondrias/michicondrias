@@ -6,7 +6,6 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormSection from '@/src/components/forms/FormSection';
-import FormSwitch from '@/src/components/forms/FormSwitch';
 import { Megaphone, DollarSign, Link2, Type, Image } from 'lucide-react-native';
 
 export default function NuevaCampanaScreen() {
@@ -93,15 +92,6 @@ export default function NuevaCampanaScreen() {
                                 El presupuesto se irá descontando conforme los usuarios interactúen con tu campaña.
                             </Text>
                         </View>
-                    </FormSection>
-
-                    <FormSection title="Opciones avanzadas">
-                        <FormSwitch
-                            label="Modo alerta impulsada"
-                            description="Impulsa alertas de mascotas perdidas a más usuarios"
-                            value={campaignForm.is_boosted}
-                            onChange={(v) => updateCampaignField('is_boosted', v)}
-                        />
                     </FormSection>
 
                     <TouchableOpacity

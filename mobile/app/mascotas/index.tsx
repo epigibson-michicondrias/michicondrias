@@ -19,15 +19,29 @@ export default function MascotasListScreen() {
         <TouchableOpacity
             style={[styles.petCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={() => router.push(`/mascotas/${item.id}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver a ${item.name}`}
         >
-            <Image source={{ uri: item.photo_url || 'https://via.placeholder.com/150' }} style={styles.petImage} />
+            {item.photo_url ? (
+                <Image source={{ uri: item.photo_url }} style={styles.petImage} />
+            ) : (
+                <View style={[styles.petImage, styles.petImageFallback, { backgroundColor: theme.backgroundSecondary }]}>
+                    <Text style={{ fontSize: 56 }}>{item.species === 'gato' ? '🐱' : '🐶'}</Text>
+                </View>
+            )}
             <View style={styles.petInfo}>
                 <View style={styles.petHeader}>
                     <View>
                         <Text style={[styles.petName, { color: theme.text }]}>{item.name}</Text>
-                        <Text style={[styles.petBreed, { color: theme.textMuted }]}>{item.breed || item.species}</Text>
+                        <Text style={[styles.petBreed, { color: theme.textMuted }]}>{item.breed || getSpeciesLabel(item.species)}</Text>
                     </View>
-                    <TouchableOpacity style={styles.settingsBtn} onPress={() => router.push(`/mascotas/editar/${item.id}`)}>
+                    <TouchableOpacity
+                        style={styles.settingsBtn}
+                        onPress={() => router.push(`/mascotas/editar/${item.id}`)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Editar a ${item.name}`}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
                         <Settings size={20} color={theme.textMuted} />
                     </TouchableOpacity>
                 </View>
@@ -94,6 +108,10 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 180,
     },
+    petImageFallback: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     petInfo: {
         padding: 20,
     },
@@ -147,7 +165,7 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: '#22c55e',
+        backgroundColor: '#22c55e', // estado semántico: activo
     },
     trackerText: {
         fontSize: 12,

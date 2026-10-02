@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminUsersService, AdminUser } from '@/src/services/adminUsers';
-import { ROLE_IDS, ROLE_COLORS, getRoleName } from '@/src/constants/roles';
+import { ROLE_IDS, getRoleName, normalizeRole, getRoleLabelFor, getRoleColorFor } from '@/src/constants/roles';
 import { showAlert } from '@/src/components/AppAlert';
 
 export interface UserFormData {
@@ -37,6 +37,20 @@ export function useAdminUsers() {
         queryKey: ['admin-users'],
         queryFn: () => adminUsersService.getUsers(),
     });
+
+    // Roles reales desde la API (antes: 4 UUID fijos, así que no se podía asignar ningún rol profesional)
+    const { data: rolesData } = useQuery({
+        queryKey: ['admin-roles-list'],
+        queryFn: () => adminUsersService.getRoles(),
+    });
+    const roleOptions: { id: string; label: string; color: string; name: string }[] = (rolesData && rolesData.length
+        ? rolesData.map((r: any) => ({ id: r.id, name: r.name, label: getRoleLabelFor(r.name), color: getRoleColorFor(r.name) }))
+        : [ROLE_IDS.ADMIN, ROLE_IDS.VETERINARIO, ROLE_IDS.PASEADOR, ROLE_IDS.CONSUMIDOR].map((id) => {
+            const name = getRoleName(id);
+            return { id, name, label: getRoleLabelFor(name), color: getRoleColorFor(name) };
+        })
+    ).sort((a, b) => a.label.localeCompare(b.label));
+    const defaultRoleId = roleOptions.find((r) => r.name === 'consumidor')?.id || ROLE_IDS.CONSUMIDOR;
 
     // Mutations
     const toggleUserStatus = useMutation({
@@ -101,7 +115,7 @@ export function useAdminUsers() {
 
     const openCreateModal = () => {
         setEditingUser(null);
-        setFormData(INITIAL_FORM);
+        setFormData({ ...INITIAL_FORM, role_id: defaultRoleId });
         setModalVisible(true);
     };
 
@@ -111,7 +125,7 @@ export function useAdminUsers() {
             full_name: user.full_name,
             email: user.email,
             password: '',
-            role_id: user.role_id || ROLE_IDS.CONSUMIDOR,
+            role_id: user.role_id || defaultRoleId,
         });
         setModalVisible(true);
     };
@@ -141,12 +155,8 @@ export function useAdminUsers() {
         const matchesSearch = user.full_name.toLowerCase().includes(searchText.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchText.toLowerCase());
 
-        const userRoleName = getRoleName(user.role_id, user.role_name).toLowerCase();
-
-        let normalizedUserRole = userRoleName;
-        if (userRoleName === 'veterinarian') normalizedUserRole = 'veterinario';
-        if (userRoleName === 'user' || userRoleName === 'usuario') normalizedUserRole = 'consumidor';
-        if (userRoleName === 'desconocido') normalizedUserRole = 'unassigned';
+        const known = getRoleName(user.role_id, user.role_name);
+        const normalizedUserRole = known === 'desconocido' ? 'unassigned' : normalizeRole(known);
 
         const matchesRole = filterRole === 'all' || normalizedUserRole === filterRole;
         return matchesSearch && matchesRole;
@@ -155,24 +165,12 @@ export function useAdminUsers() {
     // Helpers
     const getRoleColorLocal = (role: string) => {
         if (!role || role === 'unassigned' || role === 'desconocido') return '#6b7280';
-        const normalizedRole = role.toLowerCase();
-        if (normalizedRole === 'veterinarian') return ROLE_COLORS.veterinario;
-        if (normalizedRole === 'user') return ROLE_COLORS.consumidor;
-        return ROLE_COLORS[normalizedRole as keyof typeof ROLE_COLORS] || "#6b7280";
+        return getRoleColorFor(role);
     };
 
     const getRoleLabelLocal = (role: string) => {
         if (!role || role === 'unassigned' || role === 'desconocido') return 'Sin Rol';
-        const normalizedRole = role.toLowerCase();
-        switch (normalizedRole) {
-            case 'admin': return 'Administrador';
-            case 'veterinario':
-            case 'veterinarian': return 'Veterinario';
-            case 'paseador': return 'Paseador';
-            case 'consumidor':
-            case 'user': return 'Usuario';
-            default: return role;
-        }
+        return getRoleLabelFor(role);
     };
 
     const activeCount = users.filter(u => u.is_active).length;
@@ -207,6 +205,8 @@ export function useAdminUsers() {
         createUserMutation,
         updateUserMutation,
         handleDeletePress,
+
+        roleOptions,
 
         // Helpers
         getRoleColorLocal,

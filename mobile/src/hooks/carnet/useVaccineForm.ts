@@ -15,6 +15,7 @@ export function useVaccineForm() {
     const queryClient = useQueryClient();
     const { user } = useAuth();
     const petId = pet_id as string;
+    const isVet = user?.role_name === 'veterinario' || user?.role_name === 'admin';
 
     // Form fields
     const [name, setName] = useState('');
@@ -26,6 +27,7 @@ export function useVaccineForm() {
         mutationFn: (data: any) => createVaccine(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['pet-vaccines', petId] });
+            showAlert({ type: 'success', title: 'Vacuna registrada', message: 'Se agregó al carnet de tu mascota.' });
             router.back();
         },
         onError: (error: any) => {
@@ -39,18 +41,25 @@ export function useVaccineForm() {
             return;
         }
 
+        if (!petId) {
+            showAlert({ type: 'error', title: 'Error', message: 'No se encontró la mascota de esta vacuna.' });
+            return;
+        }
+
         mutation.mutate({
             pet_id: petId,
-            name: name,
-            batch_number: batch || undefined,
+            name: name.trim(),
+            batch_number: batch.trim() || undefined,
             next_due_date: nextDue ? nextDue.toISOString().split('T')[0] : undefined,
-            notes: notes || undefined,
-            administered_by_vet_id: user?.id || null,
+            notes: notes.trim() || undefined,
+            // El backend asigna quién la aplicó según la sesión; solo se declara cuando es personal veterinario
+            administered_by_vet_id: isVet ? user?.id || null : null,
         });
     };
 
     return {
         petId,
+        isVet,
         // Form fields
         name, setName,
         batch, setBatch,

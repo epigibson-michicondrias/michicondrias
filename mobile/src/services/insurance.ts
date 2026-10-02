@@ -57,6 +57,12 @@ export interface InsuranceClaim {
     status?: string;
 }
 
+export interface InsuranceClaimDetail extends InsuranceClaim {
+    policy_number?: string | null;
+    pet_id?: string | null;
+    pet_name?: string | null;
+}
+
 export interface InsuranceClaimCreate {
     policy_id: string;
     amount_claimed: number;
@@ -146,4 +152,27 @@ export async function verifyClaimReceipt(claimId: string): Promise<any> {
     return apiFetch<any>("aseguradoras", `/claims/${claimId}/verify-receipt`, {
         method: "POST",
     });
+}
+
+export async function getMyPlans(): Promise<InsurancePlan[]> {
+    return apiFetch<InsurancePlan[]>("aseguradoras", "/plans/mine");
+}
+
+export async function setPlanActive(planId: string, isActive: boolean): Promise<InsurancePlan> {
+    return apiFetch<InsurancePlan>("aseguradoras", `/plans/${planId}/active`, {
+        method: "PATCH",
+        body: JSON.stringify({ is_active: isActive }),
+    });
+}
+
+export async function getProviderClaims(): Promise<InsuranceClaimDetail[]> {
+    return apiFetch<InsuranceClaimDetail[]>("aseguradoras", "/claims/provider");
+}
+
+export async function getMyClaims(): Promise<InsuranceClaimDetail[]> {
+    return apiFetch<InsuranceClaimDetail[]>("aseguradoras", "/claims/mine");
+}
+
+export async function getProviderPolicies(): Promise<PetInsurancePolicy[]> {
+    return apiFetch<PetInsurancePolicy[]>("aseguradoras", "/policies/provider");
 }

@@ -103,7 +103,7 @@ export default function ClinicDetailScreen() {
                         </View>
                         <View style={styles.ratingBadge}>
                             <Star size={16} color="#facc15" fill="#facc15" />
-                            <Text style={styles.ratingText}>{rating?.average_rating?.toFixed(1) || '5.0'}</Text>
+                            <Text style={styles.ratingText}>{rating?.average_rating ? rating.average_rating.toFixed(1) : 'Nuevo'}</Text>
                         </View>
                     </View>
 
@@ -162,7 +162,9 @@ export default function ClinicDetailScreen() {
                             <TouchableOpacity
                                 key={service.id}
                                 style={[styles.serviceItem, { backgroundColor: theme.surface }]}
-                                onPress={() => showAlert({ type: 'info', title: 'Agendar', message: `¿Deseas agendar ${service.name}?` })}
+                                accessibilityRole="button"
+                                accessibilityLabel={`Agendar ${service.name}`}
+                                onPress={() => router.push({ pathname: '/directorio/citas/agendar/[clinic_id]', params: { clinic_id: clinic.id, service_id: service.id } } as any)}
                             >
                                 <View style={{ flex: 1 }}>
                                     <Text style={[styles.serviceName, { color: theme.text }]}>{service.name}</Text>

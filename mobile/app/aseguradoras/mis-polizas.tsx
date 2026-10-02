@@ -6,6 +6,7 @@ import { useMyPolicies } from '@/src/hooks/insurance/useMyPolicies';
 import type { PetWithPolicy } from '@/src/hooks/insurance/useMyPolicies';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import DataList from '@/src/components/data/DataList';
 import {
     Shield,
@@ -49,18 +50,18 @@ export default function MisPolizasScreen() {
                     <View
                         style={[
                             styles.statusBadge,
-                            { backgroundColor: hasPolicy ? '#10b981' + '15' : '#ef4444' + '15' },
+                            { backgroundColor: hasPolicy ? theme.successLight : theme.errorLight },
                         ]}
                     >
                         {hasPolicy ? (
-                            <ShieldCheck size={14} color="#10b981" />
+                            <ShieldCheck size={14} color={theme.success} />
                         ) : (
-                            <ShieldX size={14} color="#ef4444" />
+                            <ShieldX size={14} color={theme.error} />
                         )}
                         <Text
                             style={[
                                 styles.statusText,
-                                { color: hasPolicy ? '#10b981' : '#ef4444' },
+                                { color: hasPolicy ? theme.success : theme.error },
                             ]}
                         >
                             {hasPolicy ? 'Asegurado' : 'Sin seguro'}
@@ -89,7 +90,7 @@ export default function MisPolizasScreen() {
                             <Calendar size={14} color={theme.textMuted} />
                             <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Vigencia</Text>
                             <Text style={[styles.detailValue, { color: theme.text }]}>
-                                {new Date(policy.start_date).toLocaleDateString()} — {new Date(policy.end_date).toLocaleDateString()}
+                                {formatDateMx(policy.start_date)} — {formatDateMx(policy.end_date)}
                             </Text>
                         </View>
                         {policy.coverage_details && (
@@ -103,15 +104,35 @@ export default function MisPolizasScreen() {
                         {policy.status && (
                             <View style={[styles.policyStatusBadge, { backgroundColor: theme.primary + '10' }]}>
                                 <Text style={[styles.policyStatusText, { color: theme.primary }]}>
-                                    Estado: {policy.status}
+                                    Estado: {statusTone(theme, policy.status).label}
                                 </Text>
                             </View>
                         )}
+                        {(policy.claims || []).map((c) => {
+                            const tone = statusTone(theme, c.status);
+                            return (
+                                <View key={c.id} style={styles.detailRow}>
+                                    <FileText size={14} color={tone.color} />
+                                    <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Reclamo</Text>
+                                    <Text style={[styles.detailValue, { color: theme.text }]} numberOfLines={1}>${c.amount_claimed}</Text>
+                                    <Text style={{ color: tone.color, fontWeight: '700', fontSize: 12 }}>{tone.label}</Text>
+                                </View>
+                            );
+                        })}
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel={`Presentar reclamo para ${pet.name}`}
+                            style={[styles.insureCta, { backgroundColor: theme.primary + '10' }]}
+                            onPress={() => router.push({ pathname: '/aseguradoras/reclamo/nuevo', params: { pet_id: pet.id } } as any)}
+                        >
+                            <Text style={[styles.insureCtaText, { color: theme.primary }]}>Presentar reclamo</Text>
+                            <ChevronRight size={16} color={theme.primary} />
+                        </TouchableOpacity>
                     </View>
                 ) : (
                     <TouchableOpacity
                         style={[styles.insureCta, { backgroundColor: theme.primary + '10' }]}
-                        onPress={() => router.push('/aseguradoras/cotizar' as any)}
+                        onPress={() => router.push({ pathname: '/aseguradoras/cotizar', params: { pet_id: pet.id } } as any)}
                     >
                         <Text style={[styles.insureCtaText, { color: theme.primary }]}>
                             Cotizar seguro para {pet.name}
@@ -133,15 +154,15 @@ export default function MisPolizasScreen() {
             {/* Summary Stats */}
             {!isLoading && petsWithPolicies.length > 0 && (
                 <View style={styles.statsRow}>
-                    <View style={[styles.statCard, { backgroundColor: '#10b981' + '15' }]}>
-                        <ShieldCheck size={20} color="#10b981" />
-                        <Text style={[styles.statValue, { color: '#10b981' }]}>{insuredCount}</Text>
-                        <Text style={[styles.statLabel, { color: '#10b981' }]}>Aseguradas</Text>
+                    <View style={[styles.statCard, { backgroundColor: theme.successLight }]}>
+                        <ShieldCheck size={20} color={theme.success} />
+                        <Text style={[styles.statValue, { color: theme.success }]}>{insuredCount}</Text>
+                        <Text style={[styles.statLabel, { color: theme.success }]}>Aseguradas</Text>
                     </View>
-                    <View style={[styles.statCard, { backgroundColor: '#ef4444' + '15' }]}>
-                        <ShieldX size={20} color="#ef4444" />
-                        <Text style={[styles.statValue, { color: '#ef4444' }]}>{uninsuredCount}</Text>
-                        <Text style={[styles.statLabel, { color: '#ef4444' }]}>Sin seguro</Text>
+                    <View style={[styles.statCard, { backgroundColor: theme.errorLight }]}>
+                        <ShieldX size={20} color={theme.error} />
+                        <Text style={[styles.statValue, { color: theme.error }]}>{uninsuredCount}</Text>
+                        <Text style={[styles.statLabel, { color: theme.error }]}>Sin seguro</Text>
                     </View>
                 </View>
             )}

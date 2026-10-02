@@ -2,9 +2,10 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, Linking } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useSponsors } from '@/src/hooks/sponsors/useSponsors';
-import { SponsorCampaign } from '@/src/services/sponsors';
+import { SponsorCampaign, recordCampaignClick } from '@/src/services/sponsors';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { Megaphone, DollarSign, TrendingUp, Plus } from 'lucide-react-native';
 import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
@@ -13,13 +14,14 @@ import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function PatrocinadoresScreen() {
     const { theme } = useTheme();
+    const { user } = useAuth();
     const { searchQuery, setSearchQuery, campaigns, isLoading, router } = useSponsors();
 
     const renderCampaignItem = ({ item }: { item: SponsorCampaign }) => (
         <TouchableOpacity
             style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
             disabled={!item.target_link}
-            onPress={() => item.target_link && Linking.openURL(item.target_link)}
+            onPress={() => { if (item.target_link) { recordCampaignClick(item.id).catch(() => {}); Linking.openURL(item.target_link).catch(() => {}); } }}
         >
             <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, { backgroundColor: '#f59e0b20' }]}>
@@ -35,6 +37,7 @@ export default function PatrocinadoresScreen() {
                 </View>
             </View>
 
+            {item.sponsor_id === user?.id && (
             <View style={styles.statsRow}>
                 <View style={[styles.statItem, { backgroundColor: theme.background }]}>
                     <DollarSign size={14} color={theme.secondary} />
@@ -47,6 +50,7 @@ export default function PatrocinadoresScreen() {
                     <Text style={[styles.statValue, { color: theme.primary }]}>${item.spent}</Text>
                 </View>
             </View>
+            )}
         </TouchableOpacity>
     );
 
@@ -57,15 +61,17 @@ export default function PatrocinadoresScreen() {
                 subtitle="Campañas publicitarias y promociones activas"
             />
 
+            {user?.role_name === 'patrocinador' && (
             <View style={styles.actionButtons}>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push('/patrocinadores/nuevo')}
                 >
                     <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Ser Patrocinador</Text>
+                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nueva campaña</Text>
                 </TouchableOpacity>
             </View>
+            )}
 
             <View style={{ marginHorizontal: 24, marginBottom: 20 }}>
                 <SearchBar

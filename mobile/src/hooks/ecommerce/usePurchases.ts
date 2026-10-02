@@ -7,13 +7,14 @@ import { getMyOrders, Order } from '@/src/services/ecommerce';
 export const STATUS_MAP: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pendiente', color: '#f59e0b' },
     paid: { label: 'Pagado', color: '#3b82f6' },
-    shipped: { label: 'En Camino', color: '#3b82f6' },
+    confirmed: { label: 'Confirmado', color: '#6366f1' },
+    shipped: { label: 'En camino', color: '#3b82f6' },
     delivered: { label: 'Entregado', color: '#10b981' },
     cancelled: { label: 'Cancelado', color: '#ef4444' },
 };
 
 export function usePurchases() {
-    const { data: orders = [], isLoading } = useQuery({
+    const { data: orders = [], isLoading, refetch, isRefetching } = useQuery({
         queryKey: ['my-orders'],
         queryFn: getMyOrders,
     });
@@ -21,5 +22,7 @@ export function usePurchases() {
     return {
         orders,
         isLoading,
+        refetch,
+        isRefetching,
     };
 }

@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ShoppingBag, Search, ShoppingCart, Package, CreditCard,
   ChevronRight, Star, Heart, Tag, Sparkles, TrendingUp,
-  Filter, ArrowRight
+  Filter, ArrowRight, X
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -31,8 +31,14 @@ export default function TiendaTabScreen() {
     isVendedor,
     categories,
     handleSearch,
+    totalProducts,
+    showAll,
+    setShowAll,
+    cartCount,
     router,
   } = useShopTab();
+  const isSearching = searchQuery.trim().length > 0;
+  const visibleProducts = showAll || isSearching ? products : products.slice(0, 6);
 
   return (
     <ScreenContainer>
@@ -53,8 +59,15 @@ export default function TiendaTabScreen() {
               <TouchableOpacity
                 style={styles.headerBtn}
                 onPress={() => router.push('/tienda/carrito' as any)}
+                accessibilityRole="button"
+                accessibilityLabel={`Abrir bolsa, ${cartCount} artículos`}
               >
                 <ShoppingCart size={22} color="#fff" />
+                {cartCount > 0 ? (
+                  <View style={[styles.cartBadge, { backgroundColor: theme.error }]}>
+                    <Text style={styles.cartBadgeText}>{cartCount > 99 ? '99+' : cartCount}</Text>
+                  </View>
+                ) : null}
               </TouchableOpacity>
             </View>
           </View>
@@ -69,10 +82,28 @@ export default function TiendaTabScreen() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               onSubmitEditing={handleSearch}
+              returnKeyType="search"
+              accessibilityLabel="Buscar productos"
             />
-            <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/tienda/categorias' as any)}>
-              <Filter size={16} color="#fff" />
-            </TouchableOpacity>
+            {isSearching ? (
+              <TouchableOpacity
+                style={styles.filterBtn}
+                onPress={() => setSearchQuery('')}
+                accessibilityRole="button"
+                accessibilityLabel="Borrar búsqueda"
+              >
+                <X size={16} color="#fff" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.filterBtn}
+                onPress={() => router.push('/tienda/categorias' as any)}
+                accessibilityRole="button"
+                accessibilityLabel="Ver categorías"
+              >
+                <Filter size={16} color="#fff" />
+              </TouchableOpacity>
+            )}
           </View>
         </LinearGradient>
 
@@ -82,8 +113,8 @@ export default function TiendaTabScreen() {
             style={[styles.quickAction, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => router.push('/tienda/categorias' as any)}
           >
-            <View style={[styles.quickIconBox, { backgroundColor: '#ec489915' }]}>
-              <ShoppingBag size={20} color="#ec4899" />
+            <View style={[styles.quickIconBox, { backgroundColor: theme.secondaryLight }]}>
+              <ShoppingBag size={20} color={theme.secondary} />
             </View>
             <Text style={[styles.quickLabel, { color: theme.text }]}>Categor{'\u00ed'}as</Text>
             <ChevronRight size={14} color={theme.textMuted} />
@@ -93,8 +124,8 @@ export default function TiendaTabScreen() {
             style={[styles.quickAction, { backgroundColor: theme.surface, borderColor: theme.border }]}
             onPress={() => router.push('/tienda/compras' as any)}
           >
-            <View style={[styles.quickIconBox, { backgroundColor: '#f59e0b15' }]}>
-              <CreditCard size={20} color="#f59e0b" />
+            <View style={[styles.quickIconBox, { backgroundColor: theme.accentLight }]}>
+              <CreditCard size={20} color={theme.accent} />
             </View>
             <Text style={[styles.quickLabel, { color: theme.text }]}>Mis Compras</Text>
             <ChevronRight size={14} color={theme.textMuted} />
@@ -105,8 +136,8 @@ export default function TiendaTabScreen() {
               style={[styles.quickAction, { backgroundColor: theme.surface, borderColor: theme.border }]}
               onPress={() => router.push('/tienda/vendedor' as any)}
             >
-              <View style={[styles.quickIconBox, { backgroundColor: '#10b98115' }]}>
-                <TrendingUp size={20} color="#10b981" />
+              <View style={[styles.quickIconBox, { backgroundColor: theme.successLight }]}>
+                <TrendingUp size={20} color={theme.success} />
               </View>
               <Text style={[styles.quickLabel, { color: theme.text }]}>Mi Tienda</Text>
               <ChevronRight size={14} color={theme.textMuted} />
@@ -131,6 +162,9 @@ export default function TiendaTabScreen() {
                       : { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1 }
                   ]}
                   onPress={() => setSelectedCategory(cat.id)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isActive }}
+                  accessibilityLabel={`Categoría ${cat.label}`}
                 >
                   <Icon size={16} color={isActive ? '#fff' : cat.color} />
                   <Text style={[
@@ -146,11 +180,15 @@ export default function TiendaTabScreen() {
         {/* Products Grid */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Productos Destacados</Text>
-            <TouchableOpacity onPress={() => router.push('/tienda' as any)} style={styles.seeAllBtn}>
-              <Text style={[styles.seeAllText, { color: theme.primary }]}>Ver todos</Text>
-              <ArrowRight size={14} color={theme.primary} />
-            </TouchableOpacity>
+            <Text style={[styles.sectionTitle, styles.sectionTitleInline, { color: theme.text }]}>
+              {isSearching ? `Resultados (${products.length})` : showAll ? 'Todos los productos' : 'Productos destacados'}
+            </Text>
+            {!isSearching && totalProducts > 6 ? (
+              <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.seeAllBtn} accessibilityRole="button">
+                <Text style={[styles.seeAllText, { color: theme.primary }]}>{showAll ? 'Ver menos' : 'Ver todos'}</Text>
+                <ArrowRight size={14} color={theme.primary} />
+              </TouchableOpacity>
+            ) : null}
           </View>
 
           {isLoading ? (
@@ -162,19 +200,27 @@ export default function TiendaTabScreen() {
           ) : products.length === 0 ? (
             <View style={[styles.emptyState, { backgroundColor: theme.surface }]}>
               <ShoppingBag size={48} color={theme.textMuted} />
-              <Text style={[styles.emptyTitle, { color: theme.text }]}>Tienda en crecimiento</Text>
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>
+                {isSearching ? 'Sin resultados' : 'Aún no hay productos aquí'}
+              </Text>
               <Text style={[styles.emptyDesc, { color: theme.textMuted }]}>
-                Pronto tendremos productos incre{'\u00ed'}bles para tu michi
+                {isSearching
+                  ? `No encontramos "${searchQuery.trim()}". Prueba con otra palabra o revisa las categorías.`
+                  : selectedCategory === 'all'
+                    ? 'Los vendedores están publicando sus productos. Vuelve pronto.'
+                    : 'Esta categoría todavía no tiene productos.'}
               </Text>
             </View>
           ) : (
             <View style={styles.productsGrid}>
-              {products.slice(0, 6).map((product: any) => (
+              {visibleProducts.map((product: any) => (
                 <TouchableOpacity
                   key={product.id}
                   style={[styles.productCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
                   onPress={() => router.push(`/tienda/producto/${product.id}` as any)}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${product.name}, $${product.price?.toFixed(2)}`}
                 >
                   <View style={styles.productImageContainer}>
                     {product.image_url ? (
@@ -184,9 +230,9 @@ export default function TiendaTabScreen() {
                         <Package size={32} color={theme.textMuted} />
                       </View>
                     )}
-                    {product.discount && (
-                      <View style={styles.discountBadge}>
-                        <Text style={styles.discountText}>-{product.discount}%</Text>
+                    {product.stock <= 0 && (
+                      <View style={[styles.discountBadge, { backgroundColor: theme.error }]}>
+                        <Text style={styles.discountText}>Agotado</Text>
                       </View>
                     )}
                   </View>
@@ -195,10 +241,12 @@ export default function TiendaTabScreen() {
                     <Text style={[styles.productPrice, { color: theme.primary }]}>
                       ${product.price?.toFixed(2) || '0.00'}
                     </Text>
-                    {product.rating && (
+                    {product.review_count > 0 && (
                       <View style={styles.ratingRow}>
-                        <Star size={12} color="#f59e0b" fill="#f59e0b" />
-                        <Text style={[styles.ratingText, { color: theme.textMuted }]}>{product.rating}</Text>
+                        <Star size={12} color={theme.accent} fill={theme.accent} />
+                        <Text style={[styles.ratingText, { color: theme.textMuted }]}>
+                          {Number(product.average_rating).toFixed(1)} ({product.review_count})
+                        </Text>
                       </View>
                     )}
                   </View>
@@ -208,25 +256,6 @@ export default function TiendaTabScreen() {
           )}
         </View>
 
-        {/* Promo Banner */}
-        <View style={styles.promoSection}>
-          <TouchableOpacity style={styles.promoBanner} activeOpacity={0.9} onPress={() => router.push('/tienda' as any)}>
-            <LinearGradient
-              colors={['#243b85', '#101c3d']}
-              style={styles.promoGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            />
-            <View style={styles.promoContent}>
-              <View style={styles.promoTextCol}>
-                <Text style={styles.promoTag}>EXCLUSIVO APP</Text>
-                <Text style={styles.promoTitle}>Env{'\u00ed'}o Gratis</Text>
-                <Text style={styles.promoDesc}>En tu primera compra de +$500</Text>
-              </View>
-              <ShoppingBag size={48} color="rgba(255,255,255,0.2)" />
-            </View>
-          </TouchableOpacity>
-        </View>
       </KeyboardScreen>
     </ScreenContainer>
   );
@@ -334,6 +363,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 16,
   },
+  sectionTitleInline: {
+    marginBottom: 0,
+    paddingHorizontal: 0,
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBadgeText: { color: '#fff', fontSize: 10, fontWeight: '900' },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '900',

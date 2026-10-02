@@ -35,17 +35,19 @@ export function useProduct() {
     const createReviewMutation = useMutation({
         mutationFn: (data: ReviewCreate) => createProductReview(id!, data),
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['store-products'] });
             queryClient.invalidateQueries({ queryKey: ['product-reviews', id] });
             queryClient.invalidateQueries({ queryKey: ['product', id] });
             showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo enviar la reseña.' });
+        onError: (error: any) => {
+            // El backend explica el motivo (no compraste el producto, ya lo calificaste, etc.)
+            showAlert({ type: 'error', title: 'No se pudo enviar la reseña', message: error?.message || 'Inténtalo de nuevo en unos minutos.' });
         },
     });
 
-    const handleCreateReview = (data: ReviewCreate) => {
-        createReviewMutation.mutate(data);
+    const handleCreateReview = (data: ReviewCreate, onDone?: () => void) => {
+        createReviewMutation.mutate(data, { onSuccess: onDone });
     };
 
     return {

@@ -138,18 +138,18 @@ export default function VerSolicitudesScreen() {
                         )}
 
                         <View style={[styles.modalFooter, { borderTopColor: theme.border }]}>
-                            {selectedRequest?.status === 'pendiente' ? (
+                            {selectedRequest?.status === 'PENDING' ? (
                                 <>
                                     <TouchableOpacity
                                         style={[styles.statusBtn, { backgroundColor: '#ef444420', borderColor: '#ef4444' }]}
-                                        onPress={() => handleStatusUpdate(selectedRequest.id, 'rechazado')}
+                                        onPress={() => handleStatusUpdate(selectedRequest.id, 'REJECTED')}
                                     >
                                         <X size={20} color="#ef4444" />
                                         <Text style={[styles.statusBtnText, { color: '#ef4444' }]}>Rechazar</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.statusBtn, { backgroundColor: '#10b98120', borderColor: '#10b981' }]}
-                                        onPress={() => handleStatusUpdate(selectedRequest.id, 'aprobado')}
+                                        onPress={() => handleStatusUpdate(selectedRequest.id, 'APPROVED')}
                                     >
                                         <Check size={20} color="#10b981" />
                                         <Text style={[styles.statusBtnText, { color: '#10b981' }]}>Aprobar</Text>

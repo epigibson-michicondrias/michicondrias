@@ -22,11 +22,13 @@ export interface Appointment {
 export interface AppointmentCreate {
     clinic_id: string;
     pet_id: string;
-    service_id?: string | null;
-    appointment_date: string;
+    /** El backend exige el servicio: de él se calcula la duración y el horario disponible */
+    service_id: string;
+    /** "YYYY-MM-DD" y "HH:MM" (un horario devuelto por /slots) */
+    date: string;
+    start_time: string;
     reason: string;
     is_emergency?: boolean;
-    status?: string;
 }
 
 // Authenticated

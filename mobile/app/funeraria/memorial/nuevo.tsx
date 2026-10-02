@@ -5,6 +5,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useMemorial } from '@/src/hooks/funerary/useMemorial';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import PetPicker from '@/src/features/salud/PetPicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Heart, Send, Info } from 'lucide-react-native';
 
@@ -22,18 +23,8 @@ export default function NuevoMemorialScreen() {
 
             <KeyboardScreen contentContainerStyle={styles.scrollContent}>
                 <View style={styles.content}>
-                    {/* Pet ID */}
                     {!petId && (
-                        <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>ID de Mascota *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Ingresa el ID de la mascota"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.pet_id}
-                                onChangeText={(val) => updateForm('pet_id', val)}
-                            />
-                        </View>
+                        <PetPicker value={form.pet_id} onChange={(id) => updateForm('pet_id', id)} />
                     )}
 
                     {/* Message */}

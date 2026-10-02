@@ -1,5 +1,9 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, View, Linking } from 'react-native';
+import { showAlert } from '../../src/components/AppAlert';
+import { PRIVACY_URL, TERMS_URL } from '../../src/constants/support';
+import { getRoleLabelFor, isProRole, normalizeRole } from '../../src/constants/roles';
+import { Handshake } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -51,7 +55,7 @@ export default function ProfileScreen() {
                     <View style={[styles.roleBadge, { backgroundColor: theme.primary + '20' }]}>
                         <Shield size={10} color={theme.primary} />
                         <Text style={[styles.roleText, { color: theme.primary }]}>
-                            {user?.role_name?.toUpperCase() || 'CONSUMIDOR'}
+                            {getRoleLabelFor(user?.role_name).toUpperCase()}
                         </Text>
                     </View>
                 </View>
@@ -82,6 +86,14 @@ export default function ProfileScreen() {
               theme={theme}
               onPress={() => router.push('/adopciones/mis-publicaciones' as any)}
             />
+            {!isProRole(user?.role_name) && normalizeRole(user?.role_name) !== 'admin' && (
+              <MenuItem
+                  icon={<Handshake size={20} color="#7c3aed" />}
+                  title="Ser Profesional"
+                  theme={theme}
+                  onPress={() => router.push('/perfil/partner' as any)}
+              />
+            )}
             <MenuItem 
                 icon={<Shield size={20} color="#22c55e" />} 
                 title="Seguridad y KYC" 
@@ -161,16 +173,26 @@ export default function ProfileScreen() {
                 title="Ayuda y Soporte" 
                 theme={theme} 
                 isFirst 
+                isLast={!PRIVACY_URL}
+                onPress={() => router.push('/ayuda' as any)}
             />
-            <MenuItem 
-                icon={<Shield size={20} color={theme.textMuted} />} 
-                title="Privacidad y Términos" 
-                theme={theme} 
-                isLast 
-            />
+            {!!(PRIVACY_URL || TERMS_URL) && (
+              <MenuItem 
+                  icon={<Shield size={20} color={theme.textMuted} />} 
+                  title="Privacidad y Términos" 
+                  theme={theme} 
+                  isLast 
+                  onPress={() => Linking.openURL((PRIVACY_URL || TERMS_URL) as string).catch(() => {})}
+              />
+            )}
           </View>
           
-          <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: theme.surface }]} onPress={signOut}>
+          <TouchableOpacity
+            style={[styles.logoutBtn, { backgroundColor: theme.surface }]}
+            accessibilityRole="button"
+            accessibilityLabel="Cerrar sesión"
+            onPress={() => showAlert({ type: 'warning', title: 'Cerrar Sesión', message: '¿Estás seguro de que quieres cerrar sesión?', showCancel: true, cancelText: 'Cancelar', buttonText: 'Cerrar Sesión', onButtonPress: () => signOut() })}
+          >
             <View style={styles.logoutIconBox}>
                 <LogOut size={20} color="#ef4444" />
             </View>

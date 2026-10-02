@@ -1,7 +1,9 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
-import { Home, Compass, ShoppingBag, User, Menu } from 'lucide-react-native';
+import { Home, Compass, ShoppingBag, User, Briefcase, ShieldCheck } from 'lucide-react-native';
+import { useAuth } from '../../src/contexts/AuthContext';
+import { normalizeRole, isProRole } from '../../src/constants/roles';
 
 import { useTheme } from '../../src/contexts/ThemeContext';
 import Colors from '../../constants/Colors';
@@ -9,6 +11,12 @@ import Colors from '../../constants/Colors';
 export default function TabLayout() {
   const { colorScheme } = useTheme();
   const theme = Colors[colorScheme];
+  const { user } = useAuth();
+  const role = normalizeRole(user?.role_name);
+  // La 5.ª pestaña solo existe para quien tiene herramientas (profesionales y admin). Los dueños de mascota ven 4 pestañas;
+  // su cuenta/ayuda/alta profesional viven en Perfil.
+  const showTools = isProRole(role) || role === 'admin';
+  const ToolsIcon = role === 'admin' ? ShieldCheck : Briefcase;
 
   return (
     <Tabs
@@ -81,9 +89,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="menu"
         options={{
-          title: 'Más',
+          title: role === 'admin' ? 'Admin' : 'Herramientas',
+          href: showTools ? undefined : null,
           tabBarIcon: ({ color, focused }) => (
-            <Menu size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
+            <ToolsIcon size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
           ),
         }}
       />

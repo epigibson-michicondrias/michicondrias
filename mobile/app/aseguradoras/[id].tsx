@@ -48,15 +48,12 @@ export default function PlanDetailScreen() {
         );
     }
 
-    // Standard high-value benefits list for premium feel
+    // Pasos reales del flujo (no promesas de cobertura inventadas: el detalle lo define el plan)
     const benefits = [
-        "🩺 Consultas veterinarias generales y de urgencia",
-        "🏥 Hospitalización y cirugías complejas por accidente o enfermedad",
-        "💉 Cobertura de vacunas obligatorias y desparasitación anual",
-        "⚖️ Responsabilidad civil por daños a terceros o mascotas",
-        "🧼 Descuentos especiales en servicios de estética y hospedaje",
-        "📞 Orientación médica telefónica disponible las 24 horas",
-        "🧬 Cobertura de análisis de laboratorio y radiografías"
+        "Cotiza según la edad y especie de tu mascota",
+        "Contrata y recibe tu póliza con vigencia de 1 año",
+        "Presenta reclamos con tu comprobante desde Mis Pólizas",
+        "La aseguradora revisa y resuelve; te avisamos por notificación",
     ];
 
     return (
@@ -75,7 +72,7 @@ export default function PlanDetailScreen() {
                     </View>
                     <Text style={[styles.planName, { color: theme.text }]}>{plan.name}</Text>
                     <Text style={[styles.planDesc, { color: theme.textMuted }]}>
-                        {plan.description || "Protección de salud completa para tu mascota ante emergencias médicas y accidentes."}
+                        {plan.description || "Consulta las condiciones con la aseguradora al contratar."}
                     </Text>
                 </View>
 
@@ -89,7 +86,7 @@ export default function PlanDetailScreen() {
                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>Cobertura Máxima</Text>
                     </View>
                     <View style={[styles.metricCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                        <DollarSign size={20} color="#10b981" />
+                        <DollarSign size={20} color={theme.success} />
                         <Text style={[styles.metricValue, { color: theme.text }]}>
                             ${plan.base_premium.toLocaleString()}
                         </Text>
@@ -136,11 +133,11 @@ export default function PlanDetailScreen() {
                 <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <View style={styles.sectionHeaderRow}>
                         <HeartHandshake size={20} color={theme.secondary} />
-                        <Text style={[styles.sectionTitle, { color: theme.text, marginLeft: 8 }]}>¿Qué incluye este plan?</Text>
+                        <Text style={[styles.sectionTitle, { color: theme.text, marginLeft: 8 }]}>¿Cómo funciona?</Text>
                     </View>
                     {benefits.map((benefit, index) => (
                         <View key={index} style={styles.benefitItem}>
-                            <CheckCircle size={16} color="#10b981" style={styles.checkIcon} />
+                            <CheckCircle size={16} color={theme.success} style={styles.checkIcon} />
                             <Text style={[styles.benefitText, { color: theme.text }]}>{benefit}</Text>
                         </View>
                     ))}

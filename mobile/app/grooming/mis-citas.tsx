@@ -7,6 +7,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Scissors, Calendar, Clock, ChevronRight, Sparkles } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { useGroomingClient } from '@/src/hooks/grooming/useGroomingClient';
 import type { AppointmentTab } from '@/src/hooks/grooming/useGroomingClient';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -15,6 +16,7 @@ import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+    pending:     { label: 'Programada',  color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
     scheduled:   { label: 'Programada',  color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)' },
     confirmed:   { label: 'Confirmada',  color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
     in_progress: { label: 'En Progreso', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
@@ -34,6 +36,8 @@ export default function MisCitasGroomingScreen() {
         refetchAppointments,
         upcomingAppointments,
         pastAppointments,
+        cancelAppointment,
+        cancellingId,
     } = useGroomingClient();
 
     const tabs: { key: AppointmentTab; label: string; count: number }[] = [
@@ -88,7 +92,7 @@ export default function MisCitasGroomingScreen() {
                     </View>
                     <View style={styles.cardInfo}>
                         <Text style={[styles.cardService, { color: theme.text }]}>
-                            {item.service_type || 'Grooming'}
+                            {item.service_type || 'Grooming'}{item.pet_name ? ` · ${item.pet_name}` : ''}
                         </Text>
                         <View style={styles.cardDateRow}>
                             <Calendar size={13} color={theme.textMuted} />
@@ -110,6 +114,27 @@ export default function MisCitasGroomingScreen() {
                             📝 {item.skin_report}
                         </Text>
                     ) : null}
+                    {['scheduled', 'pending', 'confirmed'].includes(item.status || 'scheduled') && (
+                        <TouchableOpacity
+                            onPress={() => showAlert({
+                                type: 'warning',
+                                title: 'Cancelar cita',
+                                message: '¿Quieres cancelar esta cita? El horario quedará libre.',
+                                showCancel: true,
+                                cancelText: 'Volver',
+                                buttonText: 'Cancelar cita',
+                                onButtonPress: () => cancelAppointment(item.id),
+                            })}
+                            disabled={cancellingId === item.id}
+                            accessibilityRole="button"
+                            accessibilityLabel="Cancelar cita"
+                            hitSlop={8}
+                        >
+                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: 13 }}>
+                                {cancellingId === item.id ? 'Cancelando...' : 'Cancelar'}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </TouchableOpacity>
         );

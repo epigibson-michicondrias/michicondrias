@@ -21,6 +21,9 @@ export default function PetCarnetDetailScreen() {
         petId,
         pet,
         loadingPet,
+        petError,
+        refetchPet,
+        canEdit,
         records,
         loadingRecords,
         vaccines,
@@ -31,7 +34,6 @@ export default function PetCarnetDetailScreen() {
         loadingLabHistory,
         activeTab,
         setActiveTab,
-        isVet,
         handleAddRecord,
         handleAddVaccine,
         handleCheck,
@@ -59,6 +61,28 @@ export default function PetCarnetDetailScreen() {
         return (
             <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" color={theme.primary} />
+            </ScreenContainer>
+        );
+    }
+
+    if (petError || !pet) {
+        return (
+            <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+                <Text style={{ fontSize: 48, marginBottom: 12 }}>🩺</Text>
+                <Text style={[styles.emptyTitle, { color: theme.text, textAlign: 'center' }]}>No pudimos abrir este expediente</Text>
+                <Text style={{ color: theme.textMuted, textAlign: 'center', marginBottom: 20 }}>
+                    Verifica tu conexión o que tengas permiso para ver a esta mascota.
+                </Text>
+                <TouchableOpacity
+                    onPress={() => refetchPet()}
+                    style={{ backgroundColor: theme.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }}
+                    accessibilityRole="button"
+                >
+                    <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 12, padding: 8 }} accessibilityRole="button">
+                    <Text style={{ color: theme.textMuted, fontWeight: '600' }}>Regresar</Text>
+                </TouchableOpacity>
             </ScreenContainer>
         );
     }
@@ -344,16 +368,18 @@ export default function PetCarnetDetailScreen() {
 
     return (
         <ScreenContainer>
-            <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[1]}>
+            <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[1]} refreshControl={<AppRefreshControl />}>
                 <View style={[styles.hero, { backgroundColor: theme.primary + '08' }]}>
                     <View style={styles.headerTop}>
                         <BackButton onPress={() => router.back()} />
-                        <View style={styles.medicalIdTag}>
-                            <Text style={styles.medicalIdText}>PATIENT_ID: {pet?.id.substring(0, 12)}</Text>
+                        <View style={[styles.medicalIdTag, { backgroundColor: theme.overlay }]}>
+                            <Text style={[styles.medicalIdText, { color: theme.textMuted }]}>PATIENT_ID: {pet?.id.substring(0, 12)}</Text>
                         </View>
                         <TouchableOpacity
                             style={[styles.backBtn, { backgroundColor: theme.borderLight, borderColor: theme.borderLight }]}
                             onPress={() => router.push({ pathname: '/mascotas/diagnostico-ia', params: { petId: pet?.id } } as any)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Asistente de salud con IA"
                         >
                             <Activity size={20} color={theme.text} />
                         </TouchableOpacity>
@@ -377,7 +403,7 @@ export default function PetCarnetDetailScreen() {
 
                         <Text style={[styles.heroPetName, { color: theme.text }]}>{pet?.name}</Text>
                         <Text style={[styles.heroPetBreed, { color: theme.textMuted }]}>
-                            {pet?.breed || pet?.species} · {pet?.gender} · {pet?.age_months ? `${Math.floor(pet.age_months / 12)}a ${pet.age_months % 12}m` : 'N/A'}
+                            {pet?.breed || pet?.species} · {pet?.gender || 'sin género'} · {pet?.age_months ? `${Math.floor(pet.age_months / 12)}a ${pet.age_months % 12}m` : 'N/A'}
                         </Text>
 
                         <ScrollView
@@ -388,7 +414,9 @@ export default function PetCarnetDetailScreen() {
                         >
                             <View style={[styles.clinicalBadge, { backgroundColor: pet?.is_vaccinated ? '#10b98115' : '#ef444415' }]}>
                                 <ShieldCheck size={14} color={pet?.is_vaccinated ? '#10b981' : '#ef4444'} />
-                                <Text style={{ color: pet?.is_vaccinated ? '#10b981' : '#ef4444', fontSize: 11, fontWeight: '800' }}>VACUNACIÓN OK</Text>
+                                <Text style={{ color: pet?.is_vaccinated ? '#10b981' : '#ef4444', fontSize: 11, fontWeight: '800' }}>
+                                    {pet?.is_vaccinated ? 'VACUNAS AL DÍA' : 'VACUNAS PENDIENTES'}
+                                </Text>
                             </View>
                             {pet?.is_sterilized && (
                                 <View style={[styles.clinicalBadge, { backgroundColor: '#8b5cf615' }]}>
@@ -458,7 +486,6 @@ export default function PetCarnetDetailScreen() {
                 </View>
 
                 <FlatList
-            refreshControl={<AppRefreshControl />}
                     scrollEnabled={false}
                     data={activeTab === 'records' ? sortedRecords : activeTab === 'vaccines' ? vaccines : activeTab === 'reminders' ? reminders : labHistory}
                     keyExtractor={(item: any) => item.id}
@@ -491,10 +518,12 @@ export default function PetCarnetDetailScreen() {
                 />
             </ScrollView>
 
-            {isVet && activeTab !== 'reminders' && activeTab !== 'laboratorio' && (
+            {canEdit && activeTab !== 'reminders' && activeTab !== 'laboratorio' && (
                 <TouchableOpacity
                     style={[styles.fab, { backgroundColor: activeTab === 'records' ? theme.primary : '#0891b2' }]}
                     onPress={activeTab === 'records' ? handleAddRecord : handleAddVaccine}
+                    accessibilityRole="button"
+                    accessibilityLabel={activeTab === 'records' ? 'Agregar consulta' : 'Agregar vacuna'}
                 >
                     <Plus size={28} color="#fff" />
                 </TouchableOpacity>

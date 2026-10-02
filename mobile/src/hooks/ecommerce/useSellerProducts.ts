@@ -19,16 +19,19 @@ export function useSellerProducts() {
         mutationFn: deleteProduct,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-products'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Producto eliminado correctamente' });
+            queryClient.invalidateQueries({ queryKey: ['store-products'] });
+            showAlert({ type: 'success', title: 'Listo', message: 'Producto eliminado. Si ya tenía ventas, se ocultó para conservar el historial.' });
         },
-        onError: () => showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el producto' }),
+        onError: (e: any) => showAlert({ type: 'error', title: 'No se pudo eliminar', message: e?.message || 'Inténtalo de nuevo.' }),
     });
 
     const toggleStatusMutation = useMutation({
         mutationFn: ({ id, active }: { id: string; active: boolean }) => updateProduct(id, { is_active: !active }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-products'] });
+            queryClient.invalidateQueries({ queryKey: ['store-products'] });
         },
+        onError: (e: any) => showAlert({ type: 'error', title: 'No se pudo actualizar', message: e?.message || 'Inténtalo de nuevo.' }),
     });
 
     const handleDelete = (id: string) => {

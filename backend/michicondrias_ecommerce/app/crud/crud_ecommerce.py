@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
@@ -62,6 +63,22 @@ def get_pending_products(db: Session):
 
 # ... (approve_product and others remain same, skipping to new Review CRUD)
 
+PURCHASED_STATUSES = ("paid", "confirmed", "shipped", "delivered")
+
+
+def user_has_purchased(db: Session, user_id: str, product_id: str) -> bool:
+    """True si el usuario tiene un pedido pagado (no pendiente ni cancelado) con ese producto."""
+    return db.query(OrderItem.id).join(Order, Order.id == OrderItem.order_id).filter(
+        Order.user_id == user_id,
+        OrderItem.product_id == product_id,
+        Order.status.in_(PURCHASED_STATUSES),
+    ).first() is not None
+
+
+def user_has_reviewed(db: Session, user_id: str, product_id: str) -> bool:
+    return db.query(Review.id).filter(Review.user_id == user_id, Review.product_id == product_id).first() is not None
+
+
 def create_review(db: Session, review: ReviewCreate, product_id: str, user_id: str):
     db_review = Review(**review.model_dump(), product_id=product_id, user_id=user_id)
     db.add(db_review)
@@ -98,10 +115,16 @@ def update_product(db: Session, db_product: Product, product_update: ProductUpda
     return db_product
 
 def delete_product(db: Session, product_id: str):
+    """Elimina el producto; si ya tiene ventas (FK de order_items) lo desactiva para conservar el historial."""
     db_product = db.query(Product).filter(Product.id == product_id).first()
     if db_product:
-        db.delete(db_product)
-        db.commit()
+        has_orders = db.query(OrderItem.id).filter(OrderItem.product_id == product_id).first() is not None
+        if has_orders:
+            db_product.is_active = False
+            db.commit()
+        else:
+            db.delete(db_product)
+            db.commit()
     return db_product
 
 # CRUD DONATIONS
@@ -127,58 +150,89 @@ def update_donation_status(db: Session, db_donation: Donation, status: str):
     return db_donation
 
 # CRUD ORDERS
+# Un pedido pendiente aparta stock; si no se paga en este tiempo se cancela y el stock regresa.
+PENDING_ORDER_TTL_MINUTES = 40
+STOCK_HOLDING_STATUSES = ("pending", "paid", "confirmed")
+
+
+def release_stale_pending_orders(db: Session) -> int:
+    """Cancela pedidos pendientes de pago abandonados y devuelve el stock apartado."""
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=PENDING_ORDER_TTL_MINUTES)
+    stale = db.query(Order).options(joinedload(Order.items)).filter(
+        Order.status == "pending", Order.created_at < cutoff
+    ).all()
+    for order in stale:
+        _restock_order(db, order)
+        order.status = "cancelled"
+    if stale:
+        db.commit()
+    return len(stale)
+
+
+def _restock_order(db: Session, order: Order):
+    for item in order.items:
+        product = db.query(Product).filter(Product.id == item.product_id).with_for_update().first()
+        if product:
+            product.stock = (product.stock or 0) + item.quantity
+
+
 def create_order(db: Session, order_in: OrderCreate, user_id: str):
-    # 1. Calculate total and check stock
+    """Crea un pedido pendiente validando producto, disponibilidad y stock. Lanza ValueError con mensaje para el usuario."""
+    if not order_in.items:
+        raise ValueError("El carrito está vacío")
+
+    release_stale_pending_orders(db)
+
+    # Une líneas repetidas del mismo producto y bloquea en orden estable (evita interbloqueos entre compras simultáneas)
+    quantities: dict = {}
+    for item in order_in.items:
+        quantities[item.product_id] = quantities.get(item.product_id, 0) + item.quantity
+
     total_amount = 0.0
     items_to_create = []
-    
-    # Use a nested transaction or just the main one. Since we are in a function called by a route, 
-    # we use the 'db' session. We'll use 'with_for_update()' to lock the rows.
-    
-    for item in order_in.items:
-        product = db.query(Product).filter(Product.id == item.product_id).with_for_update().first()
+
+    for product_id in sorted(quantities):
+        quantity = quantities[product_id]
+        if quantity > 100:
+            raise ValueError("Cantidad máxima por producto: 100")
+        product = db.query(Product).filter(Product.id == product_id).with_for_update().first()
         if not product:
-            raise Exception(f"Producto {item.product_id} no encontrado")
-        
-        if product.stock < item.quantity:
-            raise Exception(f"Stock insuficiente para {product.name}. Solo quedan {product.stock}.")
-        
-        # Calculate price
-        item_total = product.price * item.quantity
-        total_amount += item_total
-        
-        # Prepare OrderItem
+            raise ValueError("Uno de los productos ya no existe. Quítalo de tu bolsa.")
+        if not product.is_active or not product.is_approved:
+            raise ValueError(f"\"{product.name}\" ya no está disponible. Quítalo de tu bolsa.")
+        if product.seller_id and product.seller_id == user_id:
+            raise ValueError(f"No puedes comprar tu propio producto (\"{product.name}\").")
+        if (product.stock or 0) < quantity:
+            raise ValueError(f"Stock insuficiente para {product.name}. Solo quedan {product.stock or 0}.")
+
+        total_amount += product.price * quantity
         items_to_create.append(OrderItem(
             product_id=product.id,
-            quantity=item.quantity,
-            price_at_purchase=product.price
+            quantity=quantity,
+            price_at_purchase=product.price,
         ))
-        
-        # Deduct stock
-        product.stock -= item.quantity
+        product.stock -= quantity
 
-    # 2. Create Order
     db_order = Order(
         user_id=user_id,
-        total_amount=total_amount,
-        shipping_address=order_in.shipping_address,
-        status="pending" # Wait for Stripe Webhook to mark as paid
+        total_amount=round(total_amount, 2),
+        shipping_address=(order_in.shipping_address or "").strip() or None,
+        status="pending",  # Wait for Stripe Webhook to mark as paid
     )
     db.add(db_order)
-    db.flush() # Get order ID
+    db.flush()  # Get order ID
 
-    # 3. Save Items
     for oi in items_to_create:
         oi.order_id = db_order.id
         db.add(oi)
-    
+
     try:
         db.commit()
         db.refresh(db_order)
         return db_order
-    except Exception as e:
+    except Exception:
         db.rollback()
-        raise e
+        raise
 
 def get_user_orders(db: Session, user_id: str, skip: int = 0, limit: int = 20):
     return db.query(Order).options(
@@ -211,6 +265,9 @@ def get_all_orders(db: Session, skip: int = 0, limit: int = 50):
 def update_order_status(db: Session, order_id: str, status: str):
     db_order = get_order(db, order_id)
     if db_order:
+        # Cancelar un pedido que aún tenía stock apartado lo devuelve al inventario (una sola vez)
+        if status == "cancelled" and db_order.status in STOCK_HOLDING_STATUSES:
+            _restock_order(db, db_order)
         db_order.status = status
         db.commit()
         db.refresh(db_order)

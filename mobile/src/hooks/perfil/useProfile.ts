@@ -5,7 +5,8 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { getCurrentUser, type User } from '@/src/lib/auth';
+import { getCurrentUser } from '@/src/lib/auth';
+import { updateMyProfile } from '@/src/services/profile';
 import { createBillingPortalSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 import { Linking } from 'react-native';
@@ -13,24 +14,18 @@ import { Linking } from 'react-native';
 export interface ProfileFormData {
     full_name: string;
     email: string;
-    phone: string;
-    location: string;
-    bio: string;
 }
 
 export function useProfile() {
-    const { user, signOut } = useAuth();
+    const { user, signOut, reloadUser } = useAuth();
     const queryClient = useQueryClient();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<ProfileFormData>({
         full_name: '',
         email: '',
-        phone: '',
-        location: '',
-        bio: '',
     });
 
-    const { data: profile, isLoading } = useQuery({
+    const { data: profile, isLoading, isError, refetch } = useQuery({
         queryKey: ['user-profile'],
         queryFn: getCurrentUser,
     });
@@ -40,31 +35,28 @@ export function useProfile() {
             setFormData({
                 full_name: profile.full_name || '',
                 email: profile.email || '',
-                phone: '', // No está en la interfaz User
-                location: '', // No está en la interfaz User
-                bio: '', // No está en la interfaz User
             });
         }
     }, [profile]);
 
     const updateMutation = useMutation({
-        mutationFn: (data: Partial<User>) => {
-            // Por ahora simulamos la actualización
-            return Promise.resolve(data as User);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+        mutationFn: (data: ProfileFormData) => updateMyProfile({ full_name: data.full_name.trim() }),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+            // El nombre también se muestra en inicio y menú (contexto de sesión)
+            await reloadUser();
             setIsEditing(false);
-            showAlert({ type: 'success', title: 'Éxito', message: 'Tu perfil ha sido actualizado' });
+            showAlert({ type: 'success', title: 'Perfil actualizado', message: 'Tu nombre se guardó correctamente.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el perfil' });
+        onError: (error: any) => {
+            showAlert({ type: 'error', title: 'No se pudo guardar', message: error?.message || 'No se pudo actualizar el perfil' });
         },
     });
 
     const handleSave = () => {
-        if (!formData.full_name.trim()) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre es requerido' });
+        const name = formData.full_name.trim();
+        if (name.length < 2) {
+            showAlert({ type: 'error', title: 'Nombre requerido', message: 'Escribe tu nombre completo (mínimo 2 caracteres).' });
             return;
         }
         updateMutation.mutate(formData);
@@ -76,9 +68,6 @@ export function useProfile() {
             setFormData({
                 full_name: profile.full_name || '',
                 email: profile.email || '',
-                phone: formData.phone || '',
-                location: formData.location || '',
-                bio: formData.bio || '',
             });
         }
     };
@@ -113,6 +102,15 @@ export function useProfile() {
         switch (role) {
             case 'veterinario': return 'Veterinario';
             case 'admin': return 'Administrador';
+            case 'paseador': return 'Paseador';
+            case 'vendedor': return 'Vendedor';
+            case 'refugio': return 'Refugio';
+            case 'cuidador': return 'Cuidador';
+            case 'patrocinador': return 'Patrocinador';
+            case 'establecimiento': return 'Establecimiento';
+            case 'clinica': return 'Clínica';
+            case 'hogar_temporal': return 'Hogar temporal';
+            case 'funeraria': return 'Funeraria';
             default: return 'Usuario';
         }
     };
@@ -137,6 +135,8 @@ export function useProfile() {
         // Data
         profile,
         isLoading,
+        isError,
+        refetch,
         formData,
         isEditing,
         isSaving: updateMutation.isPending,

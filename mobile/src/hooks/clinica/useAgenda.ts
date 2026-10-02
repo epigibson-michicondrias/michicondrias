@@ -43,17 +43,26 @@ export function useAgenda() {
         return (filter === 'all' ? appointments : appointments.filter(a => a.status === filter))
             .filter(a =>
                 a.service_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                a.pet_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 a.notes?.toLowerCase().includes(searchQuery.toLowerCase())
             );
     }, [appointments, filter, searchQuery]);
+
+    // Refresca también "Mis citas" del dueño de la mascota
+    const syncUserSide = () => {
+        queryClient.invalidateQueries({ queryKey: ['user-appointments'] });
+        queryClient.invalidateQueries({ queryKey: ['my-directorio-appointments'] });
+        queryClient.invalidateQueries({ queryKey: ['clinic-slots'] });
+    };
 
     const handleConfirm = async (id: string) => {
         setActionLoading(id);
         try {
             await confirmAppointment(id);
             refetch();
+            syncUserSide();
         } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo confirmar la cita' });
+            showAlert({ type: 'error', title: 'No se pudo confirmar', message: (e as any)?.message || 'Inténtalo de nuevo.' });
         } finally {
             setActionLoading(null);
         }
@@ -64,10 +73,11 @@ export function useAgenda() {
         try {
             await completeAppointment(id);
             refetch();
+            syncUserSide();
             queryClient.invalidateQueries({ queryKey: ['clinic-appointments'] });
             router.push(`/mi-clinica/historial/nuevo?appointment_id=${id}` as any);
         } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo completar la cita' });
+            showAlert({ type: 'error', title: 'No se pudo completar', message: (e as any)?.message || 'Inténtalo de nuevo.' });
         } finally {
             setActionLoading(null);
         }
@@ -81,8 +91,9 @@ export function useAgenda() {
             setCancelModal({ visible: false, apptId: null });
             setCancelReason('');
             refetch();
+            syncUserSide();
         } catch (e) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo cancelar la cita' });
+            showAlert({ type: 'error', title: 'No se pudo cancelar', message: (e as any)?.message || 'Inténtalo de nuevo.' });
         } finally {
             setActionLoading(null);
         }

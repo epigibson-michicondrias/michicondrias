@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePrescriptionDetail } from '@/src/hooks/carnet/usePrescriptionDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import BackButton from '@/src/components/BackButton';
-import { ShoppingBag, Scissors, QrCode, Share2, Download } from 'lucide-react-native';
+import { ShoppingBag, Share2 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -29,12 +29,33 @@ export default function PrescriptionDetailScreen() {
                 <TouchableOpacity 
                     style={[styles.backErrorBtn, { backgroundColor: theme.primary }]}
                     onPress={() => router.back()}
+                    accessibilityRole="button"
                 >
                     <Text style={styles.backErrorBtnText}>Volver</Text>
                 </TouchableOpacity>
             </ScreenContainer>
         );
     }
+
+    const handleShare = async () => {
+        const lines = [
+            `Receta digital RX-${record.id.substring(0, 8).toUpperCase()}`,
+            `Paciente: ${pet?.name ?? 'N/A'}`,
+            `Fecha: ${new Date(record.date).toLocaleDateString()}`,
+            `Motivo: ${record.reason_for_visit}`,
+            ...(record.diagnosis ? [`Diagnóstico: ${record.diagnosis}`] : []),
+            '',
+            'Medicamentos:',
+            ...(record.prescriptions ?? []).map(
+                (p) => `- ${p.medication_name}: ${p.dosage}, cada ${p.frequency_hours} h por ${p.duration_days} días${p.instructions ? ` (${p.instructions})` : ''}`
+            ),
+        ];
+        try {
+            await Share.share({ message: lines.join('\n'), title: 'Receta digital' });
+        } catch {
+            // El usuario canceló o el sistema no pudo abrir el menú de compartir
+        }
+    };
 
     return (
         <ScreenContainer style={{ backgroundColor: theme.background }}>
@@ -106,7 +127,7 @@ export default function PrescriptionDetailScreen() {
                     </View>
 
                     <View style={styles.ticketSection}>
-                        <Text style={[styles.ticketSectionTitle, { color: theme.primary }]}>MEDICAMENTOS PRESECRITOS</Text>
+                        <Text style={[styles.ticketSectionTitle, { color: theme.primary }]}>MEDICAMENTOS PRESCRITOS</Text>
                         {record.prescriptions?.map((p, idx) => (
                             <View key={idx} style={[styles.ticketMedCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
                                 <Text style={[styles.ticketMedName, { color: theme.text }]}>{p.medication_name}</Text>
@@ -127,58 +148,17 @@ export default function PrescriptionDetailScreen() {
                         ))}
                     </View>
 
-                    <View style={styles.cutLineContainer}>
-                        <Scissors size={16} color={theme.textMuted} style={styles.scissorsIcon} />
-                        <View style={[styles.cutLine, { borderBottomColor: theme.borderLight }]} />
-                    </View>
-
-                    <View style={styles.barcodeWrapper}>
-                        <QrCode size={100} color={theme.text} />
-                        <Text style={[styles.barcodeText, { color: theme.textMuted }]}>
-                            MICHICONDRIAS-VET-SECURE-RX
-                        </Text>
-                        <Text style={[styles.barcodeSubText, { color: theme.textMuted }]}>
-                            Válido en establecimientos afiliados y farmacias de socios
-                        </Text>
-                    </View>
                 </View>
 
                 <View style={styles.actionButtonsRow}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[styles.actionBtn, { backgroundColor: theme.primary }]}
-                        onPress={() => {
-                            Alert.alert(
-                                "Compartir Receta",
-                                "La receta se ha preparado para compartir en formato PDF.",
-                                [{ text: "OK" }]
-                            );
-                        }}
+                        onPress={handleShare}
+                        accessibilityRole="button"
+                        accessibilityLabel="Compartir receta"
                     >
                         <Share2 size={18} color="#fff" />
                         <Text style={styles.actionBtnText}>Compartir Receta</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={[
-                            styles.actionBtn, 
-                            { 
-                                backgroundColor: 'transparent', 
-                                borderWidth: 1.5, 
-                                borderColor: theme.primary,
-                                shadowOpacity: 0,
-                                elevation: 0,
-                            }
-                        ]}
-                        onPress={() => {
-                            Alert.alert(
-                                "Guardar PDF",
-                                "La receta en PDF se ha descargado exitosamente en tus archivos locales.",
-                                [{ text: "OK" }]
-                            );
-                        }}
-                    >
-                        <Download size={18} color={theme.primary} />
-                        <Text style={[styles.actionBtnText, { color: theme.primary }]}>Guardar PDF</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>

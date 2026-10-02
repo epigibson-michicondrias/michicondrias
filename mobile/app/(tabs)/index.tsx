@@ -7,7 +7,7 @@ import {
   Plus, Bell, Bone, Stethoscope, ShoppingBag, AlertTriangle, Activity,
   Settings, Home, Sparkles, ChevronRight, Calendar, UserCheck, ShieldCheck,
   MapPin, Heart, CreditCard, ClipboardList, Building, Package, BarChart3,
-  Menu as MenuIcon, Zap,
+  Search, Zap, Handshake, Clock, XCircle,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,6 +37,9 @@ export default function DashboardScreen() {
     upcomingAppointments,
     appointmentsLoading,
     actions,
+    roleTools,
+    panelTitle,
+    proOnboarding,
     handleAction,
     router,
   } = useHome();
@@ -60,14 +63,14 @@ export default function DashboardScreen() {
 
         {/* ─── Top Bar ─── */}
         <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/menu' as any)}>
-            <MenuIcon size={24} color="#fff" />
+          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/busqueda' as any)} accessibilityRole="button" accessibilityLabel="Buscar">
+            <Search size={24} color="#fff" />
           </TouchableOpacity>
           <View style={styles.topLogo}>
             <Sparkles size={16} color="#e9c883" />
             <Text style={styles.logoText}>MICHICONDRIAS</Text>
           </View>
-          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/notificaciones' as any)}>
+          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/notificaciones' as any)} accessibilityRole="button" accessibilityLabel="Notificaciones">
             <Bell size={24} color="#fff" />
             <View style={styles.notifDot} />
           </TouchableOpacity>
@@ -125,6 +128,68 @@ export default function DashboardScreen() {
 
         {/* ─── Primeros pasos (cuenta nueva sin mascotas) ─── */}
         {!petsLoading && pets.length === 0 && <GettingStartedCard />}
+
+        {/* ─── Alta profesional: estado de la verificación ─── */}
+        {proOnboarding !== 'none' && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              onPress={() => router.push((proOnboarding === 'approved' ? '/perfil/partner' : '/perfil/verificacion') as any)}
+              style={[styles.actionCard, { width: 'auto', alignSelf: 'stretch', flexBasis: 'auto', marginHorizontal: 24, flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: theme.surface, borderColor: theme.accent }]}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: theme.accentLight, marginBottom: 0 }]}>
+                {proOnboarding === 'approved' ? <Handshake size={24} color={theme.accent} />
+                  : proOnboarding === 'pending' ? <Clock size={24} color={theme.accent} />
+                  : <XCircle size={24} color={theme.error} />}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.actionTitle, { color: theme.text, textAlign: 'left' }]}>
+                  {proOnboarding === 'approved' ? 'Identidad aprobada' : proOnboarding === 'pending' ? 'Verificación en revisión' : 'Verificación rechazada'}
+                </Text>
+                <Text style={{ color: theme.textMuted, fontSize: 12, fontWeight: '500', marginTop: 2 }}>
+                  {proOnboarding === 'approved' ? 'Activa tu cuenta profesional ahora' : proOnboarding === 'pending' ? 'Un administrador revisa tus documentos' : 'Vuelve a subir tus documentos'}
+                </Text>
+              </View>
+              <ChevronRight size={18} color={theme.textMuted} />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* ─── Panel del rol (profesionales y admin) ─── */}
+        {roleTools.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.titleRow}>
+                <ShieldCheck size={20} color={theme.accent} />
+                <Text accessibilityRole="header" style={[styles.sectionTitle, { color: theme.text }]}>{panelTitle || 'Tu panel'}</Text>
+              </View>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/menu' as any)}>
+                <Text style={[styles.seeAll, { color: theme.primary }]}>Todas las herramientas</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.actionsGrid}>
+              {roleTools.map((tool) => {
+                const ToolIcon = tool.icon;
+                return (
+                  <TouchableOpacity
+                    key={tool.id}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${tool.label}. ${tool.desc}`}
+                    style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                    onPress={() => router.push(tool.route as any)}
+                  >
+                    <View style={[styles.actionIconBox, { backgroundColor: tool.color + '18' }]}>
+                      <ToolIcon size={24} color={tool.color} />
+                    </View>
+                    <Text style={[styles.actionTitle, { color: theme.text }]} numberOfLines={1}>{tool.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         {/* ─── Mis Mascotas (Horizontal Carousel) ─── */}
         <View style={styles.section}>
@@ -195,7 +260,7 @@ export default function DashboardScreen() {
           <View style={styles.sectionHeader}>
             <View style={styles.titleRow}>
               <Zap size={20} color={theme.accent} />
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Acciones Rápidas</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>{roleTools.length > 0 ? 'Para tu mascota' : 'Acciones Rápidas'}</Text>
             </View>
           </View>
 

@@ -27,6 +27,9 @@ export function useConsultationForm() {
         mutationFn: (data: MedicalRecordCreate) => createRecord(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['pet-records', petId] });
+            // La receta genera recordatorios de medicamento en el backend
+            queryClient.invalidateQueries({ queryKey: ['pet-reminders', petId] });
+            showAlert({ type: 'success', title: 'Consulta guardada', message: 'El expediente se actualizó correctamente.' });
             router.back();
         },
         onError: (error: any) => {
@@ -54,15 +57,43 @@ export function useConsultationForm() {
             return;
         }
 
+        if (!petId) {
+            showAlert({ type: 'error', title: 'Error', message: 'No se encontró la mascota de esta consulta.' });
+            return;
+        }
+
+        const weightVal = weight.trim() ? parseFloat(weight.replace(',', '.')) : undefined;
+        if (weightVal !== undefined && (isNaN(weightVal) || weightVal <= 0)) {
+            showAlert({ type: 'error', title: 'Dato inválido', message: 'El peso debe ser un número mayor a cero.' });
+            return;
+        }
+        const tempVal = temp.trim() ? parseFloat(temp.replace(',', '.')) : undefined;
+        if (tempVal !== undefined && (isNaN(tempVal) || tempVal < 30 || tempVal > 45)) {
+            showAlert({ type: 'error', title: 'Dato inválido', message: 'La temperatura debe estar entre 30 y 45 °C.' });
+            return;
+        }
+
+        const validPrescriptions = prescriptions.filter(p => p.medication_name.trim());
+        for (const p of validPrescriptions) {
+            if (!p.dosage.trim()) {
+                showAlert({ type: 'error', title: 'Receta incompleta', message: `Indica la dosis de ${p.medication_name.trim()}.` });
+                return;
+            }
+            if (!(p.frequency_hours >= 1 && p.frequency_hours <= 168) || !(p.duration_days >= 1 && p.duration_days <= 365)) {
+                showAlert({ type: 'error', title: 'Receta incompleta', message: `Revisa cada cuántas horas (1 a 168) y por cuántos días (1 a 365) se da ${p.medication_name.trim()}.` });
+                return;
+            }
+        }
+
         mutation.mutate({
             pet_id: petId,
-            reason_for_visit: reason,
-            diagnosis: diagnosis || undefined,
-            treatment: treatment || undefined,
-            notes: notes || undefined,
-            weight_kg: weight ? parseFloat(weight) : undefined,
-            temperature_c: temp ? parseFloat(temp) : undefined,
-            prescriptions: prescriptions.filter(p => p.medication_name.trim())
+            reason_for_visit: reason.trim(),
+            diagnosis: diagnosis.trim() || undefined,
+            treatment: treatment.trim() || undefined,
+            notes: notes.trim() || undefined,
+            weight_kg: weightVal,
+            temperature_c: tempVal,
+            prescriptions: validPrescriptions
         });
     };
 

@@ -84,6 +84,7 @@ class PetResponse(PetCreate):
 
 class PetUpdate(BaseModel):
     name: Optional[str] = None
+    species: Optional[str] = None
     breed: Optional[str] = None
     age_months: Optional[int] = None
     size: Optional[str] = None

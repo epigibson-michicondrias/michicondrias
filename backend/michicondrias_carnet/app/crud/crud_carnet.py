@@ -36,7 +36,7 @@ def create_medical_record(db: Session, record: MedicalRecordCreate, vet_id: str 
             if db_prescription.frequency_hours > 0 and db_prescription.duration_days > 0:
                 total_hours = db_prescription.duration_days * 24
                 # Calculate how many doses are needed
-                doses_count = total_hours // db_prescription.frequency_hours
+                doses_count = min(total_hours // db_prescription.frequency_hours, 400)  # tope para evitar miles de filas
                 
                 # Start remind time from *now* (or next interval)
                 start_time = datetime.now(timezone.utc)

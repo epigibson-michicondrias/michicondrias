@@ -84,11 +84,11 @@ export function useVenueForm(mode: 'create' | 'edit' = 'create') {
             });
             router.back();
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo crear el establecimiento. Intenta de nuevo.',
+                message: e.message || 'No se pudo crear el establecimiento. Intenta de nuevo.',
             });
         },
     });
@@ -106,11 +106,11 @@ export function useVenueForm(mode: 'create' | 'edit' = 'create') {
             });
             router.back();
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo actualizar el establecimiento.',
+                message: e.message || 'No se pudo actualizar el establecimiento.',
             });
         },
     });
@@ -127,11 +127,11 @@ export function useVenueForm(mode: 'create' | 'edit' = 'create') {
             });
             router.replace('/establecimientos');
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo eliminar el establecimiento.',
+                message: e.message || 'No se pudo eliminar el establecimiento.',
             });
         },
     });

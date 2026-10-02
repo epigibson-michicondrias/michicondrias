@@ -3,16 +3,16 @@ import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, 
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useLabOrders } from '@/src/hooks/laboratorio';
+import { useQuery } from '@tanstack/react-query';
+import { getPetLabHistory } from '@/src/services/laboratorio';
+import FilterChip from '@/src/components/FilterChip';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { usePets } from '@/src/hooks/mascotas';
+import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { FlaskConical, Calendar, Clock, ChevronRight, X, Info, DollarSign, Activity, PawPrint, CheckCircle } from 'lucide-react-native';
-
-const LAB_NAMES: Record<string, string> = {
-    'u008': 'Clínica Patitas',
-    'u002': 'Dra. Ana López',
-    'u001': 'Clínica Central',
-};
 
 export default function LaboratorioScreen() {
     const router = useRouter();
@@ -20,17 +20,40 @@ export default function LaboratorioScreen() {
     const { pets } = usePets();
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [view, setView] = useState<'citas' | 'estudios'>('citas');
     const {
         appointments,
         tests,
         isLoadingAppointments,
         isLoadingTests,
-        refetchAppointments,
+        cancelAppointment,
+        isCancelling,
     } = useLabOrders();
+
+    const { data: petResults = [] } = useQuery({
+        queryKey: ['lab-history', selectedAppointment?.pet_id],
+        queryFn: () => getPetLabHistory(selectedAppointment.pet_id),
+        enabled: !!selectedAppointment?.pet_id && selectedAppointment?.status === 'completed',
+    });
+
+    const confirmCancel = (id: string) =>
+        showAlert({
+            type: 'warning',
+            title: '¿Cancelar la cita?',
+            message: 'El laboratorio será notificado.',
+            buttonText: 'Sí, cancelar',
+            showCancel: true,
+            cancelText: 'Volver',
+            onButtonPress: () => {
+                cancelAppointment(id);
+                setModalVisible(false);
+            },
+        });
 
     const renderAppointmentItem = ({ item }: { item: any }) => {
         const test = tests.find(t => t.id === item.test_id);
-        const testName = test ? test.name : 'Prueba de laboratorio';
+        const testName = item.test_name || (test ? test.name : 'Prueba de laboratorio');
+        const tone = statusTone(theme, item.status);
 
         return (
             <TouchableOpacity
@@ -50,20 +73,11 @@ export default function LaboratorioScreen() {
                     <View style={styles.cardMeta}>
                         <Calendar size={14} color={theme.textMuted} />
                         <Text style={[styles.cardMetaText, { color: theme.textMuted }]}>
-                            {item.scheduled_date || item.created_at || 'Sin fecha'}
+                            {formatDateMx(item.scheduled_date) || 'Sin fecha'}{item.scheduled_time ? ` · ${item.scheduled_time.slice(0, 5)}` : ''}{item.pet_name ? ` · ${item.pet_name}` : ''}
                         </Text>
                     </View>
-                    <View style={[styles.statusBadge, {
-                        backgroundColor: item.status === 'completed' ? '#10b98120' : '#f59e0b20',
-                    }]}>
-                        <Text style={[styles.statusText, {
-                            color: item.status === 'completed' ? '#10b981' : '#f59e0b',
-                        }]}>
-                            {item.status === 'completed' ? 'Completada'
-                                : item.status === 'pending' ? 'Pendiente'
-                                : item.status === 'confirmed' ? 'Confirmada'
-                                : item.status || 'En proceso'}
-                        </Text>
+                    <View style={[styles.statusBadge, { backgroundColor: tone.bg }]}>
+                        <Text style={[styles.statusText, { color: tone.color }]}>{tone.label}</Text>
                     </View>
                 </View>
                 <ChevronRight size={20} color={theme.textMuted} />
@@ -78,8 +92,15 @@ export default function LaboratorioScreen() {
                 Sin citas de laboratorio
             </Text>
             <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
-                Cuando agendes una cita de laboratorio aparecerá aquí.
+                Elige un estudio del catálogo para agendar tu primera cita.
             </Text>
+            <TouchableOpacity
+                accessibilityRole="button"
+                onPress={() => setView('estudios')}
+                style={{ marginTop: 16, backgroundColor: theme.primary, paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12 }}
+            >
+                <Text style={{ color: '#fff', fontWeight: '800' }}>Ver estudios</Text>
+            </TouchableOpacity>
         </View>
     );
 
@@ -87,21 +108,51 @@ export default function LaboratorioScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Laboratorio"
-                subtitle="Mis citas y resultados"
+                subtitle="Estudios clínicos para tu mascota"
             />
 
-            {/* Tests Summary */}
-            {!isLoadingTests && tests.length > 0 && (
-                <View style={[styles.summaryCard, { backgroundColor: theme.primary + '10', borderColor: theme.primary + '30' }]}>
-                    <FlaskConical size={20} color={theme.primary} />
-                    <Text style={[styles.summaryText, { color: theme.primary }]}>
-                        {tests.length} pruebas disponibles en el catálogo
-                    </Text>
-                </View>
-            )}
+            <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 24, marginBottom: 12 }}>
+                <FilterChip label="Mis citas" active={view === 'citas'} onPress={() => setView('citas')} />
+                <FilterChip label={`Estudios${tests.length ? ` (${tests.length})` : ''}`} active={view === 'estudios'} onPress={() => setView('estudios')} />
+            </View>
 
-            {/* Appointments List */}
-            {isLoadingAppointments ? (
+            {view === 'estudios' ? (
+                isLoadingTests ? (
+                    <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                ) : (
+                    <FlatList
+                        data={tests}
+                        keyExtractor={(t) => t.id}
+                        refreshControl={<AppRefreshControl />}
+                        contentContainerStyle={[styles.listContent, tests.length === 0 && styles.emptyList]}
+                        ListEmptyComponent={
+                            <View style={styles.emptyContainer}>
+                                <FlaskConical size={48} color={theme.textMuted} />
+                                <Text style={[styles.emptyTitle, { color: theme.text }]}>Aún no hay estudios disponibles</Text>
+                                <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>Los laboratorios publicarán su catálogo pronto.</Text>
+                            </View>
+                        }
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityLabel={`Agendar ${item.name}`}
+                                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
+                                onPress={() => router.push({ pathname: '/laboratorio/agendar', params: { test_id: item.id } } as any)}
+                            >
+                                <View style={[styles.cardIcon, { backgroundColor: theme.primary + '15' }]}>
+                                    <FlaskConical size={24} color={theme.primary} />
+                                </View>
+                                <View style={styles.cardContent}>
+                                    <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
+                                    {!!item.description && <Text style={[styles.cardMetaText, { color: theme.textMuted }]} numberOfLines={2}>{item.description}</Text>}
+                                    <Text style={{ color: theme.primary, fontWeight: '800' }}>${Number(item.price).toFixed(2)} MXN</Text>
+                                </View>
+                                <ChevronRight size={20} color={theme.textMuted} />
+                            </TouchableOpacity>
+                        )}
+                    />
+                )
+            ) : isLoadingAppointments ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.primary} />
                     <Text style={[styles.loadingText, { color: theme.textMuted }]}>
@@ -119,8 +170,7 @@ export default function LaboratorioScreen() {
                     ]}
                     ListEmptyComponent={renderEmpty}
                     showsVerticalScrollIndicator={false}
-                    refreshing={isLoadingAppointments}
-                    onRefresh={refetchAppointments}
+                    refreshControl={<AppRefreshControl />}
                 />
             )}
 
@@ -147,17 +197,11 @@ export default function LaboratorioScreen() {
                         {selectedAppointment && (() => {
                             const test = tests.find(t => t.id === selectedAppointment.test_id);
                             const pet = pets.find(p => p.id === selectedAppointment.pet_id);
-                            const testName = test ? test.name : 'Prueba de laboratorio';
-                            const petName = pet ? pet.name : 'Mascota';
-                            const labName = LAB_NAMES[selectedAppointment.lab_id] || `Laboratorio #${selectedAppointment.lab_id?.slice(0, 8)}`;
+                            const testName = selectedAppointment.test_name || (test ? test.name : 'Prueba de laboratorio');
+                            const petName = selectedAppointment.pet_name || (pet ? pet.name : 'Mascota');
+                            const labName = 'Laboratorio';
                             
-                            const statusInfo = selectedAppointment.status === 'completed' 
-                                ? { label: 'Completada', color: '#10b981', bg: '#10b98120' }
-                                : selectedAppointment.status === 'confirmed'
-                                ? { label: 'Confirmada', color: '#0ea5e9', bg: '#0ea5e920' }
-                                : selectedAppointment.status === 'cancelled'
-                                ? { label: 'Cancelada', color: '#ef4444', bg: '#ef444420' }
-                                : { label: 'Pendiente', color: '#f59e0b', bg: '#f59e0b20' };
+                            const statusInfo = statusTone(theme, selectedAppointment.status);
 
                             return (
                                 <View style={styles.modalBody}>
@@ -201,7 +245,7 @@ export default function LaboratorioScreen() {
                                                 <View style={{ marginLeft: 2 }}>
                                                     <Text style={[styles.gridLabel, { color: theme.textMuted }]}>Fecha</Text>
                                                     <Text style={[styles.gridValue, { color: theme.text }]}>
-                                                        {selectedAppointment.scheduled_date || 'Sin fecha'}
+                                                        {formatDateMx(selectedAppointment.scheduled_date) || 'Sin fecha'}
                                                     </Text>
                                                 </View>
                                             </View>
@@ -218,20 +262,20 @@ export default function LaboratorioScreen() {
                                     </View>
 
                                     {/* Cost/Price Info if available */}
-                                    {test && (
+                                    {(test || selectedAppointment.test_price != null) && (
                                         <View style={[styles.priceRow, { borderBottomColor: theme.borderLight }]}>
                                             <DollarSign size={18} color={theme.textMuted} />
                                             <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Costo del Estudio</Text>
                                             <Text style={[styles.priceValue, { color: theme.text }]}>
-                                                ${test.price.toFixed(2)} MXN
+                                                ${Number(selectedAppointment.test_price ?? test?.price ?? 0).toFixed(2)} MXN
                                             </Text>
                                         </View>
                                     )}
 
                                     {/* Notes / Indications */}
                                     {selectedAppointment.notes ? (
-                                        <View style={[styles.notesCard, { backgroundColor: '#f59e0b10', borderColor: '#f59e0b30' }]}>
-                                            <Info size={18} color="#f59e0b" style={{ marginTop: 2 }} />
+                                        <View style={[styles.notesCard, { backgroundColor: theme.warningLight, borderColor: theme.warning }]}>
+                                            <Info size={18} color={theme.warning} style={{ marginTop: 2 }} />
                                             <View style={{ flex: 1, marginLeft: 2 }}>
                                                 <Text style={styles.notesTitle}>Indicaciones de Preparación</Text>
                                                 <Text style={[styles.notesText, { color: theme.text }]}>
@@ -241,17 +285,36 @@ export default function LaboratorioScreen() {
                                         </View>
                                     ) : null}
 
-                                    {/* Completed message */}
                                     {selectedAppointment.status === 'completed' && (
-                                        <View style={[styles.completedCard, { backgroundColor: '#10b98110', borderColor: '#10b98130' }]}>
-                                            <CheckCircle size={18} color="#10b981" style={{ marginTop: 2 }} />
+                                        <View style={[styles.completedCard, { backgroundColor: theme.successLight, borderColor: theme.success }]}>
+                                            <CheckCircle size={18} color={theme.success} style={{ marginTop: 2 }} />
                                             <View style={{ flex: 1, marginLeft: 2 }}>
-                                                <Text style={styles.completedTitle}>Resultados Listos</Text>
-                                                <Text style={[styles.completedText, { color: theme.text }]}>
-                                                    Los resultados de este estudio han sido cargados al Historial Clínico de tu mascota. Puedes verlos en el Carnet Digital.
-                                                </Text>
+                                                <Text style={[styles.completedTitle, { color: theme.success }]}>Resultados de {petName}</Text>
+                                                {petResults.length === 0 ? (
+                                                    <Text style={[styles.completedText, { color: theme.text }]}>
+                                                        El laboratorio aún no ha cargado resultados. Te avisaremos cuando estén listos.
+                                                    </Text>
+                                                ) : (
+                                                    petResults.slice(0, 12).map((r: any) => (
+                                                        <Text key={r.id} style={[styles.completedText, { color: r.is_anomaly ? theme.error : theme.text }]}>
+                                                            {r.parameter_name}: {r.measured_value}{r.unit ? ` ${r.unit}` : ''}
+                                                            {r.reference_range ? ` (ref. ${r.reference_range})` : ''}{r.is_anomaly ? '  fuera de rango' : ''}
+                                                        </Text>
+                                                    ))
+                                                )}
                                             </View>
                                         </View>
+                                    )}
+
+                                    {(selectedAppointment.status === 'pending' || selectedAppointment.status === 'confirmed') && (
+                                        <TouchableOpacity
+                                            accessibilityRole="button"
+                                            disabled={isCancelling}
+                                            onPress={() => confirmCancel(selectedAppointment.id)}
+                                            style={{ borderWidth: 1, borderColor: theme.error, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}
+                                        >
+                                            <Text style={{ color: theme.error, fontWeight: '700' }}>Cancelar cita</Text>
+                                        </TouchableOpacity>
                                     )}
                                 </View>
                             );

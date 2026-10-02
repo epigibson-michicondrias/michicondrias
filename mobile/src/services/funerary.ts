@@ -67,6 +67,22 @@ export interface FuneraryBooking {
     status: string;
     notes?: string;
     created_at?: string;
+    pet_name?: string | null;
+    service_name?: string | null;
+    service_price?: number | null;
+}
+
+export type FuneraryBookingStatus = 'confirmed' | 'completed' | 'cancelled';
+
+/** Valores aceptados por el backend para el tipo de cremación, con su etiqueta en español. */
+export const CREMATION_OPTIONS: { value: string; label: string }[] = [
+    { value: 'individual', label: 'Individual' },
+    { value: 'collective', label: 'Colectiva' },
+    { value: 'no_cremation', label: 'Sin cremación' },
+];
+
+export function cremationLabel(value?: string | null): string {
+    return CREMATION_OPTIONS.find((o) => o.value === value)?.label || value || '';
 }
 
 export interface FuneraryBookingCreate {
@@ -129,4 +145,22 @@ export async function getMemorialFeed(petId: string, sortBy?: string): Promise<P
     if (sortBy) params.append("sort_by", sortBy);
     const query = params.toString();
     return apiFetch<PetMemorialPost[]>("funeraria", `/memorial/${petId}/feed${query ? `?${query}` : ""}`);
+}
+
+export async function updateBookingStatus(bookingId: string, status: FuneraryBookingStatus): Promise<FuneraryBooking> {
+    return apiFetch<FuneraryBooking>("funeraria", `/bookings/${bookingId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+    });
+}
+
+export async function getMyFuneraryServices(): Promise<FuneraryService[]> {
+    return apiFetch<FuneraryService[]>("funeraria", "/services/mine");
+}
+
+export async function setFuneraryServiceActive(serviceId: string, isActive: boolean): Promise<FuneraryService> {
+    return apiFetch<FuneraryService>("funeraria", `/services/${serviceId}/active`, {
+        method: "PATCH",
+        body: JSON.stringify({ is_active: isActive }),
+    });
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -8,32 +8,49 @@ import { formatCurrency } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { useCart } from '@/src/contexts/CartContext';
-import { ShoppingCart, Star, ShieldCheck, Truck, RotateCcw, Minus, Plus, Heart } from 'lucide-react-native';
+import { ShoppingCart, Star, ShieldCheck, Truck, Minus, Plus, Package, Edit3 } from 'lucide-react-native';
+import { useAuth } from '@/src/contexts/AuthContext';
 import BackButton from '@/src/components/BackButton';
 
-const { width } = Dimensions.get('window');
 
 export default function ProductDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const { product, reviews, isLoading, goBack, handleCreateReview, isCreatingReview } = useProduct();
     const [quantity, setQuantity] = useState(1);
-    const [isFavorite, setIsFavorite] = useState(false);
     const [formRating, setFormRating] = useState(5);
     const [formComment, setFormComment] = useState('');
-    const { addToCart } = useCart();
+    const { addToCart, cartCount } = useCart();
+    const { user } = useAuth();
+
+    const stock = product?.stock ?? 0;
+    const soldOut = !product || stock <= 0;
+    const isOwner = !!product && !!user && product.seller_id === user.id;
+    const hasReviews = (product?.review_count || 0) > 0;
+    const rating = product?.average_rating || 0;
 
     const handleAddToCart = () => {
         if (!product) return;
-        addToCart(product, quantity);
-        showAlert({ type: 'success', title: 'Agregado', message: 'El producto se ha añadido a tu bolsa de compras.' });
-        router.back();
+        if (!addToCart(product, quantity)) return;
+        showAlert({
+            type: 'success',
+            title: 'Agregado a tu bolsa',
+            message: `${quantity} × ${product.name}`,
+            buttonText: 'Ver bolsa',
+            onButtonPress: () => router.push('/tienda/carrito' as any),
+            showCancel: true,
+            cancelText: 'Seguir comprando',
+        });
     };
 
     if (isLoading) return <ScreenContainer style={styles.center}><LoadingOverlay /></ScreenContainer>;
     if (!product) return (
         <ScreenContainer style={styles.center}>
-            <Text style={{ color: theme.text }}>Producto no encontrado</Text>
+            <Package size={44} color={theme.textMuted} />
+            <Text style={{ color: theme.text, fontWeight: '800', fontSize: 16, marginTop: 12 }}>Este producto ya no está disponible</Text>
+            <TouchableOpacity onPress={goBack} style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: theme.primary }}>
+                <Text style={{ color: '#fff', fontWeight: '800' }}>Volver a la tienda</Text>
+            </TouchableOpacity>
         </ScreenContainer>
     );
 
@@ -41,11 +58,25 @@ export default function ProductDetailScreen() {
         <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={[styles.imageSection, { backgroundColor: theme.surface }]}>
-                    <Image source={{ uri: product.image_url || 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=1000' }} style={styles.productImage} />
+                    {product.image_url ? (
+                        <Image source={{ uri: product.image_url }} style={styles.productImage} accessibilityLabel={product.name} />
+                    ) : (
+                        <Package size={72} color={theme.textMuted} />
+                    )}
                     <View style={styles.headerActions}>
-                        <BackButton onPress={goBack} color={theme.text} style={[styles.circleBtn, { backgroundColor: theme.border, borderColor: theme.border }]} />
-                        <TouchableOpacity style={[styles.circleBtn, { backgroundColor: theme.border, borderColor: theme.border }]} onPress={() => setIsFavorite(!isFavorite)}>
-                            <Heart size={24} color={isFavorite ? '#ef4444' : theme.text} fill={isFavorite ? '#ef4444' : 'transparent'} />
+                        <BackButton onPress={goBack} color={theme.text} style={[styles.circleBtn, { backgroundColor: theme.surface, borderColor: theme.border }]} />
+                        <TouchableOpacity
+                            style={[styles.circleBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                            onPress={() => router.push('/tienda/carrito' as any)}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Abrir bolsa, ${cartCount} artículos`}
+                        >
+                            <ShoppingCart size={20} color={theme.text} />
+                            {cartCount > 0 ? (
+                                <View style={[styles.cartBadge, { backgroundColor: theme.error }]}>
+                                    <Text style={styles.cartBadgeText}>{cartCount > 99 ? '99+' : cartCount}</Text>
+                                </View>
+                            ) : null}
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -56,9 +87,15 @@ export default function ProductDetailScreen() {
                         <View style={styles.priceRow}>
                             <Text style={[styles.price, { color: theme.primary }]}>{formatCurrency(product.price)}</Text>
                             <View style={styles.ratingBox}>
-                                <Star size={16} color="#facc15" fill="#facc15" />
-                                <Text style={[styles.ratingText, { color: theme.text }]}>{product.average_rating?.toFixed(1) || '5.0'}</Text>
-                                <Text style={[styles.reviewCount, { color: theme.textMuted }]}>({product.review_count || 0} reviews)</Text>
+                                {hasReviews ? (
+                                    <>
+                                        <Star size={16} color={theme.accent} fill={theme.accent} />
+                                        <Text style={[styles.ratingText, { color: theme.text }]}>{rating.toFixed(1)}</Text>
+                                        <Text style={[styles.reviewCount, { color: theme.textMuted }]}>({product.review_count} {product.review_count === 1 ? 'opinión' : 'opiniones'})</Text>
+                                    </>
+                                ) : (
+                                    <Text style={[styles.reviewCount, { color: theme.textMuted }]}>Sin opiniones aún</Text>
+                                )}
                             </View>
                         </View>
                         
@@ -68,10 +105,10 @@ export default function ProductDetailScreen() {
                             <Text 
                                 style={[
                                     styles.stockValue, 
-                                    { color: product.stock > 0 ? '#10b981' : '#ef4444', fontWeight: '800' }
+                                    { color: stock > 0 ? theme.success : theme.error, fontWeight: '800' }
                                 ]}
                             >
-                                {product.stock > 0 ? `En Stock (${product.stock} unidades)` : 'Agotado'}
+                                {stock > 0 ? (stock <= 5 ? `¡Últimas ${stock} ${stock === 1 ? 'unidad' : 'unidades'}!` : `En stock (${stock} unidades)`) : 'Agotado'}
                             </Text>
                         </View>
                     </View>
@@ -81,11 +118,22 @@ export default function ProductDetailScreen() {
                     <View style={styles.quantitySection}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Cantidad</Text>
                         <View style={[styles.quantityPicker, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-                            <TouchableOpacity onPress={() => setQuantity(Math.max(1, quantity - 1))}>
+                            <TouchableOpacity
+                                onPress={() => setQuantity(Math.max(1, quantity - 1))}
+                                accessibilityRole="button"
+                                accessibilityLabel="Disminuir cantidad"
+                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            >
                                 <Minus size={20} color={theme.text} />
                             </TouchableOpacity>
-                            <Text style={[styles.quantityValue, { color: theme.text }]}>{quantity}</Text>
-                            <TouchableOpacity onPress={() => setQuantity(quantity + 1)}>
+                            <Text style={[styles.quantityValue, { color: theme.text }]} accessibilityLabel={`Cantidad ${quantity}`}>{quantity}</Text>
+                            <TouchableOpacity
+                                onPress={() => setQuantity(Math.min(Math.max(stock, 1), quantity + 1))}
+                                style={quantity >= stock ? { opacity: 0.4 } : undefined}
+                                accessibilityRole="button"
+                                accessibilityLabel="Aumentar cantidad"
+                                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            >
                                 <Plus size={20} color={theme.text} />
                             </TouchableOpacity>
                         </View>
@@ -94,7 +142,7 @@ export default function ProductDetailScreen() {
                     <View style={styles.tabsSection}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Descripción</Text>
                         <Text style={[styles.description, { color: theme.textMuted }]}>
-                            {product.description || 'Este producto de alta calidad está diseñado pensando en el bienestar de tu mascota. Fabricado con materiales premium y seguros.'}
+                            {product.description || 'El vendedor aún no agregó una descripción para este producto.'}
                         </Text>
                     </View>
 
@@ -107,18 +155,14 @@ export default function ProductDetailScreen() {
                         </View>
                     ) : null}
 
-                    <View style={styles.benefitSection}>
+                    <View style={[styles.benefitSection, { backgroundColor: theme.overlay, borderColor: theme.borderLight }]}>
                         <View style={styles.benefitItem}>
                             <Truck size={20} color={theme.primary} />
-                            <Text style={[styles.benefitText, { color: theme.text }]}>Envío Gratis</Text>
+                            <Text style={[styles.benefitText, { color: theme.text }]}>Envío gratis</Text>
                         </View>
                         <View style={styles.benefitItem}>
                             <ShieldCheck size={20} color={theme.primary} />
-                            <Text style={[styles.benefitText, { color: theme.text }]}>Garantía Michi</Text>
-                        </View>
-                        <View style={styles.benefitItem}>
-                            <RotateCcw size={20} color={theme.primary} />
-                            <Text style={[styles.benefitText, { color: theme.text }]}>30 Días Devo</Text>
+                            <Text style={[styles.benefitText, { color: theme.text }]}>Pago seguro con Stripe</Text>
                         </View>
                     </View>
 
@@ -130,12 +174,12 @@ export default function ProductDetailScreen() {
                         <View style={[styles.ratingSummaryCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <View style={styles.summaryLeft}>
                                 <Text style={[styles.bigRating, { color: theme.text }]}>
-                                    {product.average_rating?.toFixed(1) || '5.0'}
+                                    {hasReviews ? rating.toFixed(1) : '–'}
                                 </Text>
                                 <View style={styles.starsRow}>
                                     {[1, 2, 3, 4, 5].map((s) => {
-                                        const isFilled = s <= Math.round(product.average_rating || 5);
-                                        return <Star key={s} size={14} color="#facc15" fill={isFilled ? "#facc15" : "transparent"} />;
+                                        const isFilled = hasReviews && s <= Math.round(rating);
+                                        return <Star key={s} size={14} color={theme.accent} fill={isFilled ? theme.accent : "transparent"} />;
                                     })}
                                 </View>
                                 <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
@@ -145,7 +189,7 @@ export default function ProductDetailScreen() {
                             <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
                             <View style={styles.summaryRight}>
                                 <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
-                                    Calificaciones reales proporcionadas por clientes verificados en Michi-Shop.
+                                    Opiniones de compradores que ya recibieron su pedido en Michi-Shop.
                                 </Text>
                             </View>
                         </View>
@@ -157,7 +201,7 @@ export default function ProductDetailScreen() {
                                     <View style={styles.reviewHeader}>
                                         <View style={styles.starsRow}>
                                             {[1, 2, 3, 4, 5].map(s => (
-                                                <Star key={s} size={12} color="#facc15" fill={s <= review.rating ? "#facc15" : "transparent"} />
+                                                <Star key={s} size={12} color={theme.accent} fill={s <= review.rating ? theme.accent : "transparent"} />
                                             ))}
                                         </View>
                                         <Text style={[styles.reviewDate, { color: theme.textMuted }]}>{new Date(review.created_at).toLocaleDateString()}</Text>
@@ -176,7 +220,7 @@ export default function ProductDetailScreen() {
                         {/* Formulario de Calificación */}
                         <View style={[styles.writeReviewCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar este producto</Text>
-                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>Toca las estrellas para calificar y deja tu comentario</Text>
+                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>Solo quienes compraron este producto pueden calificarlo</Text>
                             
                             <View style={styles.interactiveStars}>
                                 {[1, 2, 3, 4, 5].map((starVal) => (
@@ -187,8 +231,8 @@ export default function ProductDetailScreen() {
                                     >
                                         <Star 
                                             size={30} 
-                                            color="#facc15" 
-                                            fill={starVal <= formRating ? "#facc15" : "transparent"} 
+                                            color={theme.accent} 
+                                            fill={starVal <= formRating ? theme.accent : "transparent"} 
                                         />
                                     </TouchableOpacity>
                                 ))}
@@ -210,13 +254,15 @@ export default function ProductDetailScreen() {
 
                             <TouchableOpacity 
                                 style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => {
-                                    handleCreateReview({ rating: formRating, comment: formComment.trim() || undefined });
-                                    setFormComment('');
-                                }}
+                                onPress={() => handleCreateReview(
+                                    { rating: formRating, comment: formComment.trim() || undefined },
+                                    () => setFormComment(''),
+                                )}
                                 disabled={isCreatingReview}
+                                accessibilityRole="button"
+                                accessibilityLabel="Publicar reseña"
                             >
-                                <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
+                                {isCreatingReview ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitReviewBtnText}>Publicar reseña</Text>}
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -224,18 +270,29 @@ export default function ProductDetailScreen() {
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
-                <TouchableOpacity
-                    style={[styles.cartBtn, { borderColor: theme.primary }]}
-                    onPress={handleAddToCart}
-                >
-                    <ShoppingCart size={24} color={theme.primary} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.buyBtn, { backgroundColor: theme.primary }]}
-                    onPress={handleAddToCart}
-                >
-                    <Text style={styles.buyBtnText}>Agregar a la Bolsa</Text>
-                </TouchableOpacity>
+                {isOwner ? (
+                    <TouchableOpacity
+                        style={[styles.buyBtn, { backgroundColor: theme.primary }]}
+                        onPress={() => router.push(`/tienda/vendedor/productos/${product.id}` as any)}
+                        accessibilityRole="button"
+                        accessibilityLabel="Editar mi producto"
+                    >
+                        <Edit3 size={20} color="#fff" />
+                        <Text style={styles.buyBtnText}>Editar mi producto</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.buyBtn, { backgroundColor: theme.primary }, soldOut && { opacity: 0.5 }]}
+                        onPress={handleAddToCart}
+                        disabled={soldOut}
+                        accessibilityRole="button"
+                        accessibilityLabel={soldOut ? 'Producto agotado' : 'Agregar a la bolsa'}
+                        accessibilityState={{ disabled: soldOut }}
+                    >
+                        <ShoppingCart size={20} color="#fff" />
+                        <Text style={styles.buyBtnText}>{soldOut ? 'Agotado' : `Agregar a la bolsa · ${formatCurrency(product.price * quantity)}`}</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </ScreenContainer>
     );
@@ -262,7 +319,7 @@ const styles = StyleSheet.create({
     },
     headerActions: {
         position: 'absolute',
-        top: 60,
+        top: 52,
         left: 0,
         right: 0,
         flexDirection: 'row',
@@ -349,11 +406,11 @@ const styles = StyleSheet.create({
     },
     benefitSection: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         marginBottom: 32,
-        backgroundColor: 'rgba(255,255,255,0.02)',
         padding: 16,
         borderRadius: 20,
+        borderWidth: 1,
     },
     benefitItem: {
         alignItems: 'center',
@@ -411,14 +468,32 @@ const styles = StyleSheet.create({
     },
     buyBtn: {
         flex: 1,
-        height: 64,
-        borderRadius: 24,
+        height: 60,
+        borderRadius: 22,
+        flexDirection: 'row',
+        gap: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
+    cartBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        minWidth: 18,
+        height: 18,
+        borderRadius: 9,
+        paddingHorizontal: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cartBadgeText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: '900',
+    },
     buyBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '800',
     },
     stockRow: {

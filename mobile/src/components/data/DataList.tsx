@@ -7,6 +7,7 @@ import {
     FlatList,
     FlatListProps,
     View,
+    Text,
     RefreshControl,
     StyleSheet,
     ViewStyle,
@@ -14,6 +15,7 @@ import {
 import { useTheme } from '@/src/hooks/useTheme';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'> {
     /** Data array */
@@ -42,6 +44,9 @@ interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'>
     contentStyle?: ViewStyle;
     /** Optional header component */
     header?: React.ReactElement;
+    /** Muestra skeletons en lugar del spinner mientras carga */
+    skeleton?: boolean;
+    skeletonCount?: number;
 }
 
 export default function DataList<T>({
@@ -58,22 +63,21 @@ export default function DataList<T>({
     onEmptyAction,
     contentStyle,
     header,
+    skeleton,
+    skeletonCount = 4,
     ...flatListProps
 }: DataListProps<T>) {
     const { theme } = useTheme();
 
     if (isLoading) {
-        return <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
+        return skeleton ? <SkeletonList count={skeletonCount} /> : <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
     }
 
     if (data.length === 0 && !isLoading) {
+        // Un emoji/texto debe ir dentro de <Text> (RN falla si hay texto suelto dentro de <View>)
         const iconElement =
             typeof emptyIcon === 'string' ? (
-                <View style={styles.emojiContainer}>
-                    <View style={styles.emojiText}>
-                        {/* Using a Text inside works for emoji strings */}
-                    </View>
-                </View>
+                <Text style={styles.emoji} accessibilityElementsHidden>{emptyIcon}</Text>
             ) : (
                 emptyIcon
             );
@@ -82,13 +86,7 @@ export default function DataList<T>({
             <View style={styles.emptyContainer}>
                 {header}
                 <EmptyState
-                    icon={
-                        typeof emptyIcon === 'string' ? (
-                            <View><View style={{ alignItems: 'center' }}><View><>{emptyIcon}</></View></View></View>
-                        ) : (
-                            emptyIcon
-                        )
-                    }
+                    icon={iconElement}
                     title={emptyTitle}
                     subtitle={emptySubtitle}
                     actionLabel={emptyActionLabel}
@@ -128,11 +126,8 @@ const styles = StyleSheet.create({
     emptyContainer: {
         flex: 1,
     },
-    emojiContainer: {
-        alignItems: 'center',
-    },
-    emojiText: {
-        alignItems: 'center',
-        justifyContent: 'center',
+    emoji: {
+        fontSize: 32,
+        textAlign: 'center',
     },
 });

@@ -5,6 +5,8 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
 import { useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Camera, MapPin, AlertCircle, Check, Search, Phone, Mail, Info, Fingerprint, Scale, Calendar, ChevronDown } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
@@ -19,7 +21,9 @@ const { width } = Dimensions.get('window');
 export default function NuevoReporteScreen() {
     const { user } = useAuth();
     const router = useRouter();
-    const { theme, isDark } = useTheme();
+    const queryClient = useQueryClient();
+    const { theme } = useTheme();
+    const [locating, setLocating] = useState(false);
 
     const [loading, setLoading] = useState(false);
     const [image, setImage] = useState<string | null>(null);
@@ -38,24 +42,26 @@ export default function NuevoReporteScreen() {
         contact_email: user?.email || '',
     });
 
-    useEffect(() => {
-        (async () => {
-            try {
-                let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Necesitamos tu ubicación para marcar el reporte.' });
-                    return;
-                }
-
-                let loc = await Location.getCurrentPositionAsync({});
-                setLocation({
-                    latitude: loc.coords.latitude,
-                    longitude: loc.coords.longitude,
-                });
-            } catch (error) {
-                console.warn('Location services unavailable:', error);
+    const fetchLocation = async () => {
+        setLocating(true);
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Activa el permiso de ubicación en los ajustes del teléfono para marcar dónde fue visto.' });
+                return;
             }
-        })();
+            const loc = await Location.getCurrentPositionAsync({});
+            setLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+        } catch (error) {
+            showAlert({ type: 'error', title: 'Sin ubicación', message: 'No pudimos obtener tu ubicación. Revisa que el GPS esté activo e inténtalo de nuevo.' });
+        } finally {
+            setLocating(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchLocation();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const pickImage = async () => {
@@ -72,8 +78,10 @@ export default function NuevoReporteScreen() {
     };
 
     const handleSave = async () => {
-        if (!form.pet_name) return showAlert({ type: 'error', title: 'Error', message: 'El nombre o descripción corta es obligatorio' });
-        if (!location) return showAlert({ type: 'error', title: 'Error', message: 'Debes marcar la ubicación en el mapa' });
+        if (!form.pet_name.trim()) return showAlert({ type: 'error', title: 'Falta el nombre', message: 'El nombre o descripción corta es obligatorio' });
+        if (!location) return showAlert({ type: 'error', title: 'Falta la ubicación', message: 'Usa el botón "Usar mi ubicación" para marcar el punto en el mapa.' });
+        if (!form.contact_phone.trim() && !form.contact_email.trim()) return showAlert({ type: 'error', title: 'Falta un contacto', message: 'Agrega un teléfono o correo para que puedan avisarte.' });
+        if (form.contact_phone.trim() && form.contact_phone.replace(/\D/g, '').length < 8) return showAlert({ type: 'error', title: 'Teléfono inválido', message: 'Escribe un teléfono de al menos 8 dígitos.' });
         if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
 
         setLoading(true);
@@ -97,11 +105,11 @@ export default function NuevoReporteScreen() {
                 status: 'active',
             });
 
-            showAlert({ type: 'success', title: '¡Reporte Enviado!', message: 'La comunidad ha sido notificada. Gracias por ayudar.' });
+            queryClient.invalidateQueries({ queryKey: ['lost-pet-reports'] });
+            showAlert({ type: 'success', title: '¡Reporte publicado!', message: 'Ya aparece en el listado y en el mapa. Te avisaremos si alguien reporta haberlo visto.' });
             router.back();
         } catch (error) {
-            console.error(error);
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear el reporte.' });
+            showAlert({ type: 'error', title: 'No se pudo publicar', message: error instanceof Error ? error.message : 'Inténtalo de nuevo.' });
         } finally {
             setLoading(false);
         }
@@ -133,18 +141,14 @@ export default function NuevoReporteScreen() {
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
             <View style={[styles.container, { backgroundColor: theme.background }]}>
-                <View style={styles.header}>
-                    <BackButton onPress={() => router.back()} />
-                    <Text style={[styles.title, { color: theme.text }]}>Nuevo Reporte</Text>
-                    <View style={{ width: 44 }} />
-                </View>
+                <ScreenHeader title="Nuevo reporte" />
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
                     <View style={styles.typeSelector}>
                         <TouchableOpacity
                             style={[
                                 styles.typeBtn,
-                                form.report_type === 'lost' && { backgroundColor: '#ef4444', borderColor: '#ef4444' }
+                                form.report_type === 'lost' && { backgroundColor: theme.error, borderColor: theme.error }
                             ]}
                             onPress={() => setForm({ ...form, report_type: 'lost' })}
                         >
@@ -154,7 +158,7 @@ export default function NuevoReporteScreen() {
                         <TouchableOpacity
                             style={[
                                 styles.typeBtn,
-                                form.report_type === 'found' && { backgroundColor: '#6366f1', borderColor: '#6366f1' }
+                                form.report_type === 'found' && { backgroundColor: theme.info, borderColor: theme.info }
                             ]}
                             onPress={() => setForm({ ...form, report_type: 'found' })}
                         >
@@ -230,7 +234,10 @@ export default function NuevoReporteScreen() {
                             />
                         </View>
 
-                        <Text style={[styles.label, { color: theme.text }]}>Marca en el mapa (Arrastra o presiona)</Text>
+                        <Text style={[styles.label, { color: theme.text }]}>Punto en el mapa</Text>
+                        <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 8 }}>
+                            El reporte se ubica en tu posición actual. Si no estás en el lugar, escribe la zona exacta arriba.
+                        </Text>
                         <View style={styles.mapWrapper}>
                             <WebMapView
                                 style={styles.map}
@@ -246,6 +253,18 @@ export default function NuevoReporteScreen() {
                                 }] : []}
                             />
                         </View>
+
+                        <TouchableOpacity
+                            onPress={fetchLocation}
+                            disabled={locating}
+                            accessibilityRole="button"
+                            style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16, opacity: locating ? 0.6 : 1 }}
+                        >
+                            {locating ? <ActivityIndicator size="small" color={theme.primary} /> : <MapPin size={16} color={theme.primary} />}
+                            <Text style={{ color: theme.primary, fontWeight: '700' }}>
+                                {location ? 'Actualizar mi ubicación' : 'Usar mi ubicación'}
+                            </Text>
+                        </TouchableOpacity>
 
                         <View style={styles.inputGroup}>
                             <Text style={[styles.label, { color: theme.text }]}>Teléfono de Contacto</Text>
@@ -278,7 +297,7 @@ export default function NuevoReporteScreen() {
                     <TouchableOpacity
                         style={[
                             styles.saveBtn,
-                            { backgroundColor: form.report_type === 'lost' ? '#ef4444' : '#6366f1' },
+                            { backgroundColor: form.report_type === 'lost' ? theme.error : theme.info },
                             loading && { opacity: 0.7 }
                         ]}
                         onPress={handleSave}

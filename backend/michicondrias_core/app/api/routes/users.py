@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 import os
@@ -18,7 +18,7 @@ from app.schemas.user import (
     TwoFactorVerifyRequest
 )
 import pyotp
-from pydantic import BaseModel as PydanticBaseModel
+from pydantic import BaseModel as PydanticBaseModel, EmailStr
 
 from app.models.user import User
 from app.models.role import Role
@@ -46,6 +46,26 @@ def read_user_me(
     }
     # Transform URLs for viewing
     return _add_kyc_presigned_urls(user_data)
+
+class ProfileUpdate(PydanticBaseModel):
+    full_name: str
+
+
+@router.patch("/me", response_model=UserMeResponse)
+def update_user_me(
+    body: ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """El propio usuario edita su nombre. (Correo, rol y verificación no se pueden cambiar desde aquí.)"""
+    name = " ".join(body.full_name.split())
+    if len(name) < 2 or len(name) > 120:
+        raise HTTPException(status_code=422, detail="El nombre debe tener entre 2 y 120 caracteres")
+    current_user.full_name = name
+    db.commit()
+    db.refresh(current_user)
+    return read_user_me(current_user=current_user)
+
 
 @router.post("/register", response_model=UserResponse)
 def register_user(
@@ -80,6 +100,8 @@ def read_users(
     Retrieve users. (Admin only)
     """
     users = crud.crud_user.get_users(db, skip=skip, limit=limit)
+    for u in users:  # la app muestra el rol por nombre; el ORM solo trae role_id
+        setattr(u, "role_name", u.role.name if u.role else None)
     return users
 
 @router.post("/", response_model=UserResponse)
@@ -261,22 +283,63 @@ def get_my_avatar(current_user: User = Depends(deps.get_current_active_user)) ->
     return {"avatar_url": current_user.avatar_url}
 
 
-@router.post("/me/upgrade-role", response_model=UserResponse)
+# Roles profesionales que un usuario puede solicitar tras tener su identidad (KYC) aprobada.
+# 'admin' y 'consumidor' nunca se auto-asignan. 'clinica' se conserva por compatibilidad (la app usa 'hospital').
+SELF_SERVICE_ROLES = [
+    "veterinario", "hospital", "clinica", "refugio", "hogar_temporal", "vendedor",
+    "paseador", "cuidador", "patrocinador", "establecimiento", "funeraria",
+    "aseguradora", "laboratorio", "entrenador", "estilista", "transportista",
+]
+
+
+class RoleUpgradeResponse(UserResponse):
+    """Usuario + token nuevo: el JWT lleva el rol, así que tras el cambio hay que emitir uno actualizado."""
+    access_token: str
+    token_type: str = "bearer"
+
+
+class RefreshTokenResponse(PydanticBaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    role_name: str
+    verification_status: str
+
+
+def _issue_token_for(user: User) -> tuple[str, str]:
+    from app.core import security
+    role_name = user.role.name if user.role else "consumidor"
+    return security.create_access_token(user.id, role=role_name), role_name
+
+
+@router.post("/me/refresh-token", response_model=RefreshTokenResponse)
+def refresh_my_token(
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Emite un access token nuevo con el rol ACTUAL de la base de datos.
+    Úsalo cuando el rol cambió (aprobación de rol, cambio hecho por un admin) sin cerrar sesión.
+    """
+    token, role_name = _issue_token_for(current_user)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "role_name": role_name,
+        "verification_status": current_user.verification_status or "UNVERIFIED",
+    }
+
+
+@router.post("/me/upgrade-role", response_model=RoleUpgradeResponse)
 def upgrade_user_role(
     role_name: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    User self-upgrades to a Partner role (e.g., 'veterinario').
+    El usuario se convierte en Partner (p. ej. 'veterinario').
     Requiere que un admin ya haya aprobado la verificación de identidad (KYC).
+    Devuelve un token nuevo con el rol actualizado (el JWT lleva el rol).
     """
-    valid_roles = [
-        "veterinario", "paseador", "vendedor", "refugio", 
-        "cuidador", "patrocinador", "establecimiento", "clinica",
-        "hogar_temporal", "funeraria"
-    ]
-    if role_name not in valid_roles:
+    if role_name not in SELF_SERVICE_ROLES:
         raise HTTPException(status_code=400, detail="Rol de asociado inválido")
 
     # Los roles profesionales dan acceso a datos y funciones sensibles: antes cualquiera podía elegirlos sin verificación.
@@ -286,7 +349,10 @@ def upgrade_user_role(
             detail="Primero verifica tu identidad y espera la aprobación de un administrador para tener una cuenta profesional.",
         )
 
-    
+    # Un admin no puede degradarse a sí mismo por esta vía.
+    if current_user.role and current_user.role.name == "admin":
+        raise HTTPException(status_code=400, detail="Una cuenta de administrador no puede cambiar a un rol de asociado")
+
     role = db.query(Role).filter(Role.name == role_name).first()
     if not role:
         raise HTTPException(status_code=404, detail=f"El rol {role_name} no existe en la base de datos")
@@ -294,11 +360,13 @@ def upgrade_user_role(
     current_user.role_id = role.id
     db.commit()
     db.refresh(current_user)
-    
-    # We must also return the joined role_name conceptually. The schema might need manual population
-    setattr(current_user, "role_name", role.name)
 
-    return current_user
+    setattr(current_user, "role_name", role.name)
+    token, _ = _issue_token_for(current_user)
+    data = _add_kyc_presigned_urls(current_user)
+    data["access_token"] = token
+    data["token_type"] = "bearer"
+    return data
 
 def _add_kyc_presigned_urls(user_data: Any) -> dict:
     """Helper to transform static S3 URLs into temporary presigned GET URLs without modifying DB state."""
@@ -336,28 +404,69 @@ def _add_kyc_presigned_urls(user_data: Any) -> dict:
                 res[attr] = presigned
     return res
 
+class AdminUserUpdate(PydanticBaseModel):
+    """Campos que un admin puede editar. Todos opcionales (antes role_id y password se ignoraban en silencio)."""
+    full_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    is_active: Optional[bool] = None
+    role_id: Optional[str] = None
+    password: Optional[str] = None
+    verification_status: Optional[str] = None
+
+
 @router.patch("/{user_id}", response_model=UserResponse)
 def update_user(
     user_id: str,
     *,
     db: Session = Depends(get_db),
-    user_in: UserUpdate,
+    user_in: AdminUserUpdate,
     current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
     """
-    Update a user. (Admin only)
+    Update a user. (Admin only). Puede cambiar nombre, correo, rol, estado, contraseña y verificación.
+    El usuario afectado recibe el rol nuevo en su siguiente sincronización de sesión (POST /users/me/refresh-token).
     """
     user = crud.crud_user.get_user(db, user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
-    update_data = user_in.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
+
+    data = user_in.model_dump(exclude_unset=True)
+
+    if "role_id" in data and data["role_id"]:
+        if not db.query(Role).filter(Role.id == data["role_id"]).first():
+            raise HTTPException(status_code=400, detail="El rol indicado no existe")
+        # Un admin no puede quitarse a sí mismo el rol de admin (evita quedarse sin acceso)
+        if user.id == current_user.id and data["role_id"] != user.role_id:
+            raise HTTPException(status_code=400, detail="No puedes cambiar tu propio rol")
+    else:
+        data.pop("role_id", None)
+
+    if "email" in data and data["email"] and data["email"] != user.email:
+        if crud.crud_user.get_user_by_email(db, email=data["email"]):
+            raise HTTPException(status_code=400, detail="Ya existe un usuario con ese correo")
+
+    if "verification_status" in data and data["verification_status"] not in (None, "UNVERIFIED", "PENDING", "VERIFIED", "REJECTED"):
+        raise HTTPException(status_code=400, detail="Estado de verificación inválido")
+
+    if "is_active" in data and data["is_active"] is False and user.id == current_user.id:
+        raise HTTPException(status_code=400, detail="No puedes desactivar tu propia cuenta")
+
+    password = data.pop("password", None)
+    if password:
+        if len(password) < 8:
+            raise HTTPException(status_code=422, detail="La contraseña debe tener al menos 8 caracteres")
+        from app.core.security import get_password_hash
+        user.hashed_password = get_password_hash(password)
+
+    for field, value in data.items():
+        if value is None and field in ("email", "is_active"):
+            continue
         setattr(user, field, value)
-    
+
     db.add(user)
     db.commit()
     db.refresh(user)
+    setattr(user, "role_name", user.role.name if user.role else None)
     return _add_kyc_presigned_urls(user)
 
 
@@ -382,15 +491,30 @@ def verify_user_kyc(
 ) -> Any:
     """
     Approve or reject a user's KYC verification. (Admin only)
+    Notifica al usuario para que la app le muestre el siguiente paso (elegir su cuenta profesional).
     """
+    status = (status or "").upper()
+    if status not in ("VERIFIED", "REJECTED"):
+        raise HTTPException(status_code=400, detail="status debe ser VERIFIED o REJECTED")
     user = crud.crud_user.get_user(db, user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
+
     user.verification_status = status
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    try:
+        from app.schemas.notification import NotificationCreate
+        from app.crud import crud_notification
+        if status == "VERIFIED":
+            title, message = "Identidad verificada", "Aprobamos tu identidad. Ya puedes activar tu cuenta profesional desde Más > Ser Profesional."
+        else:
+            title, message = "Verificación rechazada", "No pudimos aprobar tus documentos. Súbelos de nuevo con fotos claras desde Perfil > Seguridad y KYC."
+        crud_notification.create_notification(db, NotificationCreate(user_id=user.id, title=title, message=message, type="kyc"))
+    except Exception:  # la notificación nunca debe impedir la decisión del admin
+        db.rollback()
     return _add_kyc_presigned_urls(user)
 
 @router.post("/{user_id}/toggle-status", response_model=UserResponse)
@@ -402,6 +526,8 @@ def toggle_user_status(
     """
     Toggle user active/inactive status. (Admin only)
     """
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="No puedes desactivar tu propia cuenta")
     user = crud.crud_user.get_user(db, user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -421,6 +547,8 @@ def delete_user(
     """
     Delete a user. (Admin only)
     """
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="No puedes eliminar tu propia cuenta")
     user = crud.crud_user.remove_user(db, user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")

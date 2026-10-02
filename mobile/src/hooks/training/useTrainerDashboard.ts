@@ -11,6 +11,7 @@ import {
     createGoal,
     updateGoal,
     reviewGoalVideo,
+    updateEnrollmentStatus,
     TrainingEnrollment,
     TrainingProgram,
     TrainingProgramCreate,
@@ -85,6 +86,8 @@ export function useTrainerDashboard() {
         onSuccess: () => {
             showAlert({ type: 'success', title: '¡Meta creada!', message: 'La meta de entrenamiento ha sido asignada.' });
             queryClient.invalidateQueries({ queryKey: ['trainingGoals'] });
+            queryClient.invalidateQueries({ queryKey: ['providerEnrollments'] });
+            queryClient.invalidateQueries({ queryKey: ['clientEnrollments'] });
             setGoalForm({ ...GOAL_FORM_DEFAULTS });
         },
         onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo crear la meta.' }),
@@ -95,6 +98,8 @@ export function useTrainerDashboard() {
         onSuccess: () => {
             showAlert({ type: 'success', title: 'Meta actualizada', message: 'El progreso ha sido guardado.' });
             queryClient.invalidateQueries({ queryKey: ['trainingGoals'] });
+            queryClient.invalidateQueries({ queryKey: ['providerEnrollments'] });
+            queryClient.invalidateQueries({ queryKey: ['clientEnrollments'] });
         },
         onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo actualizar la meta.' }),
     });
@@ -109,6 +114,17 @@ export function useTrainerDashboard() {
             setReviewNotes('');
         },
         onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo revisar el video.' }),
+    });
+
+    const enrollmentStatusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string; status: string }) => updateEnrollmentStatus(id, status),
+        onSuccess: (_d, v) => {
+            showAlert({ type: 'success', title: v.status === 'completed' ? 'Programa finalizado' : 'Inscripción cancelada', message: 'El cambio ya es visible para ambas partes.' });
+            queryClient.invalidateQueries({ queryKey: ['providerEnrollments'] });
+            queryClient.invalidateQueries({ queryKey: ['clientEnrollments'] });
+            queryClient.invalidateQueries({ queryKey: ['trainingPrograms'] });
+        },
+        onError: (error: any) => showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo actualizar la inscripción.' }),
     });
 
     // — Handlers —
@@ -127,11 +143,21 @@ export function useTrainerDashboard() {
             return;
         }
 
+        const price = parseFloat(programForm.price.replace(',', '.'));
+        if (!Number.isFinite(price) || price <= 0) {
+            showAlert({ type: 'warning', title: 'Precio inválido', message: 'Escribe un precio mayor a 0.' });
+            return;
+        }
+        const weeks = programForm.duration_weeks ? parseInt(programForm.duration_weeks, 10) : undefined;
+        if (weeks !== undefined && (!Number.isFinite(weeks) || weeks < 1)) {
+            showAlert({ type: 'warning', title: 'Duración inválida', message: 'Las semanas deben ser al menos 1.' });
+            return;
+        }
         createProgramMutation.mutate({
             title: programForm.title.trim(),
             description: programForm.description.trim() || undefined,
-            price: parseFloat(programForm.price),
-            duration_weeks: programForm.duration_weeks ? parseInt(programForm.duration_weeks) : undefined,
+            price: parseFloat(programForm.price.replace(',', '.')),
+            duration_weeks: weeks,
         });
     };
 
@@ -171,6 +197,8 @@ export function useTrainerDashboard() {
     };
 
     return {
+        setEnrollmentStatus: (id: string, status: string) => enrollmentStatusMutation.mutate({ id, status }),
+        isUpdatingEnrollment: enrollmentStatusMutation.isPending,
         // Provider enrollments
         enrollments,
         isEnrollmentsLoading,

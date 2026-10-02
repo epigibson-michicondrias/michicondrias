@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useNotifications, formatTimeAgo } from '@/src/hooks/notifications/useNotifications';
+import { useNotifications, formatTimeAgo, NOTIFICATION_ROUTES } from '@/src/hooks/notifications/useNotifications';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Bell, CheckCheck, Heart, Package, ShieldCheck, MapPin, Bone } from 'lucide-react-native';
@@ -20,7 +20,7 @@ const TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
 
 export default function NotificationsScreen() {
     const { theme } = useTheme();
-    const { notifications, isLoading, handleMarkAsRead, handleMarkAllAsRead, unreadCount, router } = useNotifications();
+    const { notifications, isLoading, isError, refetch, handleMarkAsRead, handleMarkAllAsRead, unreadCount, router } = useNotifications();
 
     const renderItem = ({ item }: { item: Notification }) => {
         const config = TYPE_CONFIG[item.type] || TYPE_CONFIG.general;
@@ -33,10 +33,14 @@ export default function NotificationsScreen() {
                     item.is_read && { opacity: 0.7 },
                 ]}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`${item.is_read ? '' : 'No leída. '}${item.title}. ${item.message}`}
                 onPress={() => {
                     if (!item.is_read) {
                         handleMarkAsRead(item.id);
                     }
+                    const route = NOTIFICATION_ROUTES[item.type];
+                    if (route) router.push(route as any);
                 }}
             >
                 <View style={[styles.iconBox, { backgroundColor: config.color + '15' }]}>
@@ -68,7 +72,12 @@ export default function NotificationsScreen() {
                 title="Notificaciones"
                 rightElement={
                     unreadCount > 0 ? (
-                        <TouchableOpacity style={styles.clearBtn} onPress={handleMarkAllAsRead}>
+                        <TouchableOpacity
+                            style={styles.clearBtn}
+                            onPress={handleMarkAllAsRead}
+                            accessibilityRole="button"
+                            accessibilityLabel="Marcar todas como leídas"
+                        >
                             <CheckCheck size={20} color={theme.primary} />
                         </TouchableOpacity>
                     ) : (
@@ -86,7 +95,18 @@ export default function NotificationsScreen() {
                 ListEmptyComponent={
                     <View style={styles.empty}>
                         <Bell size={64} color={theme.textMuted} strokeWidth={1} />
-                        <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay notificaciones por ahora</Text>
+                        <Text style={[styles.emptyText, { color: theme.textMuted }]}>
+                            {isError ? 'No pudimos cargar tus notificaciones' : 'No hay notificaciones por ahora'}
+                        </Text>
+                        {isError && (
+                            <TouchableOpacity
+                                onPress={() => refetch()}
+                                style={{ backgroundColor: theme.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }}
+                                accessibilityRole="button"
+                            >
+                                <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 }
             />

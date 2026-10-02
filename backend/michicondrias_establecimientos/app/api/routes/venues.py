@@ -139,6 +139,16 @@ def claim_venue_coupon(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Este establecimiento no tiene un cupón de descuento activo actualmente."
         )
+    if venue.owner_id == current_user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No puedes reclamar el cupón de tu propio establecimiento")
+    # Un solo cupón vigente por cliente y establecimiento: si ya lo reclamó, se devuelve ese mismo
+    existing = db.query(ClaimedCoupon).filter(
+        ClaimedCoupon.venue_id == venue_id,
+        ClaimedCoupon.client_id == current_user_id,
+        ClaimedCoupon.status == "active",
+    ).first()
+    if existing:
+        return existing
     return crud_venue.claim_coupon(db=db, venue_id=venue_id, client_id=current_user_id, coupon_code=venue.discount_coupon)
 
 
@@ -160,6 +170,18 @@ def write_venue_review(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Establecimiento no encontrado"
         )
+    if venue.owner_id == current_user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No puedes reseñar tu propio establecimiento")
+    # Una reseña por usuario y establecimiento: si ya opinó, se actualiza
+    existing = db.query(VenueReview).filter(
+        VenueReview.venue_id == venue_id, VenueReview.client_id == current_user_id
+    ).first()
+    if existing:
+        existing.rating = review_in.rating
+        existing.review_text = review_in.review_text
+        db.commit()
+        db.refresh(existing)
+        return existing
     return crud_venue.create_review(db=db, venue_id=venue_id, client_id=current_user_id, review_in=review_in)
 
 
@@ -191,25 +213,28 @@ def redeem_venue_coupon(
     """
     Redeem/validate a claimed coupon code. Requires 'establecimiento' role (the venue owner).
     """
-    coupon = db.query(ClaimedCoupon).filter(
+    # Solo cupones activos con ese código que pertenezcan a un establecimiento de quien canjea
+    candidates = db.query(ClaimedCoupon).filter(
         ClaimedCoupon.coupon_code == coupon_code,
         ClaimedCoupon.status == "active"
-    ).first()
-    
-    if not coupon:
+    ).all()
+    if not candidates:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Cupón no encontrado o ya canjeado."
         )
-        
-    # Check if this user owns the venue
-    venue = crud_venue.get_venue_by_id(db, venue_id=coupon.venue_id)
-    if not venue or venue.owner_id != current_user_id:
+    coupon = None
+    for c in candidates:
+        v = crud_venue.get_venue_by_id(db, venue_id=c.venue_id)
+        if v and v.owner_id == current_user_id:
+            coupon = c
+            break
+    if not coupon:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tienes permisos para canjear cupones de este establecimiento."
         )
-        
+
     coupon.status = "redeemed"
     db.commit()
     db.refresh(coupon)

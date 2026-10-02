@@ -62,6 +62,7 @@ export function useCampaignForm(mode: 'campaign' | 'boost' = 'campaign') {
         mutationFn: (data) => createCampaign(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['sponsor-campaigns'] });
+            queryClient.invalidateQueries({ queryKey: ['campaign-stats'] });
             showAlert({
                 type: 'success',
                 title: '¡Campaña creada!',
@@ -69,11 +70,11 @@ export function useCampaignForm(mode: 'campaign' | 'boost' = 'campaign') {
             });
             router.back();
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo crear la campaña. Intenta de nuevo.',
+                message: e.message || 'No se pudo crear la campaña. Intenta de nuevo.',
             });
         },
     });
@@ -86,15 +87,15 @@ export function useCampaignForm(mode: 'campaign' | 'boost' = 'campaign') {
             showAlert({
                 type: 'success',
                 title: '¡Alerta impulsada!',
-                message: 'Tu alerta de mascota perdida ha sido impulsada exitosamente.',
+                message: 'Registramos tu impulso. La difusión ampliada a usuarios cercanos aún no está activa y el cobro no se procesa en la app.',
             });
             router.back();
         },
-        onError: () => {
+        onError: (e) => {
             showAlert({
                 type: 'error',
                 title: 'Error',
-                message: 'No se pudo impulsar la alerta. Intenta de nuevo.',
+                message: e.message || 'No se pudo impulsar la alerta. Intenta de nuevo.',
             });
         },
     });

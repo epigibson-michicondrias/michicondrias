@@ -63,7 +63,7 @@ export default function EntrenadoresScreen() {
             <View style={styles.programFooter}>
                 <View style={[styles.trainerTag, { backgroundColor: theme.primary + '15' }]}>
                     <Text style={[styles.trainerText, { color: theme.primary }]}>
-                        👤 Entrenador ID: {item.trainer_id.substring(0, 8)}...
+                        Entrenador: {item.trainer_name || 'Sin nombre'}
                     </Text>
                 </View>
             </View>
@@ -95,7 +95,7 @@ export default function EntrenadoresScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🏋️ Entrenadores"
+                title="Entrenadores"
                 subtitle="Programas de entrenamiento para tu mascota"
             />
 
@@ -184,9 +184,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         paddingVertical: 16,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.05)',
+        borderTopColor: 'rgba(128,128,128,0.2)',
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
+        borderBottomColor: 'rgba(128,128,128,0.2)',
         marginBottom: 16,
     },
     statItem: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     },
     statDivider: {
         width: 1,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(128,128,128,0.25)',
     },
     statText: {
         fontSize: 16,

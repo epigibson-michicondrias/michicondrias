@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useBookAppointment } from '@/src/hooks/directorio/useBookAppointment';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -10,14 +11,16 @@ import { Calendar, MapPin, Stethoscope, Heart, CheckCircle, AlertCircle } from '
 
 export default function AgendarCitaScreen() {
     const { theme } = useTheme();
+    const router = useRouter();
     const {
-        clinic, pets, clinicLoading, petsLoading, isRescheduling,
-        selectedPet, selectedDate, selectedTime, reason, isEmergency, isPending,
-        setSelectedPet, setSelectedDate, setSelectedTime, setReason,
+        clinic, pets, services, slots, clinicLoading, clinicError, refetchClinic, petsLoading, servicesLoading,
+        slotsLoading, slotsError, refetchSlots, isRescheduling,
+        selectedPet, selectedService, selectedDate, selectedSlot, reason, isEmergency, isPending,
+        setSelectedPet, setSelectedService, setSelectedDate, setSelectedSlot, setReason,
         toggleEmergency, handleAgendar, goBack,
     } = useBookAppointment();
 
-    if (clinicLoading || petsLoading) {
+    if (clinicLoading || petsLoading || servicesLoading) {
         return (
             <ScreenContainer>
                 <View style={styles.loadingContainer}>
@@ -32,10 +35,20 @@ export default function AgendarCitaScreen() {
     if (!clinic) {
         return (
             <ScreenContainer>
+                <ScreenHeader title="Agendar Cita" onBack={goBack} />
                 <View style={styles.errorContainer}>
                     <Text style={[styles.errorText, { color: theme.text }]}>
-                        No se encontró la clínica
+                        {clinicError ? 'No pudimos cargar la clínica. Revisa tu conexión.' : 'No se encontró la clínica'}
                     </Text>
+                    {clinicError && (
+                        <TouchableOpacity
+                            onPress={() => refetchClinic()}
+                            style={[styles.retryBtn, { backgroundColor: theme.primary }]}
+                            accessibilityRole="button"
+                        >
+                            <Text style={styles.retryBtnText}>Reintentar</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </ScreenContainer>
         );
@@ -82,44 +95,102 @@ export default function AgendarCitaScreen() {
             </View>
 
             {/* Pet Selection */}
+            {!isRescheduling && (
+                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                    <Text style={[styles.cardTitle, { color: theme.text }]}>
+                        Selecciona tu Mascota
+                    </Text>
+
+                    {pets.length === 0 ? (
+                        <View>
+                            <Text style={[styles.hintText, { color: theme.textMuted }]}>
+                                Aún no tienes mascotas registradas. Agrega una para poder agendar.
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => router.push('/mascotas/nuevo' as any)}
+                                style={[styles.retryBtn, { backgroundColor: theme.primary, alignSelf: 'flex-start' }]}
+                                accessibilityRole="button"
+                            >
+                                <Text style={styles.retryBtnText}>Agregar mascota</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            <View style={styles.petsContainer}>
+                                {pets.map((pet) => (
+                                    <TouchableOpacity
+                                        key={pet.id}
+                                        style={[
+                                            styles.petCard,
+                                            {
+                                                backgroundColor: selectedPet === pet.id ? theme.primary + '20' : 'transparent',
+                                                borderColor: selectedPet === pet.id ? theme.primary : theme.border
+                                            }
+                                        ]}
+                                        onPress={() => setSelectedPet(pet.id)}
+                                        accessibilityRole="button"
+                                        accessibilityState={{ selected: selectedPet === pet.id }}
+                                        accessibilityLabel={`Mascota ${pet.name}`}
+                                    >
+                                        <Heart size={20} color={selectedPet === pet.id ? theme.primary : theme.textMuted} />
+                                        <View style={styles.petInfo}>
+                                            <Text style={[
+                                                styles.petName,
+                                                { color: selectedPet === pet.id ? theme.primary : theme.text }
+                                            ]}>
+                                                {pet.name}
+                                            </Text>
+                                            <Text style={[styles.petBreed, { color: theme.textMuted }]}>
+                                                {pet.breed || 'Mestizo'}
+                                            </Text>
+                                        </View>
+                                        {selectedPet === pet.id && (
+                                            <CheckCircle size={20} color={theme.primary} />
+                                        )}
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </ScrollView>
+                    )}
+                </View>
+            )}
+
+            {/* Service Selection */}
             <View style={[styles.card, { backgroundColor: theme.surface }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>
-                    Selecciona tu Mascota
+                    Servicio
                 </Text>
-                
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View style={styles.petsContainer}>
-                        {pets.map((pet) => (
-                            <TouchableOpacity
-                                key={pet.id}
-                                style={[
-                                    styles.petCard,
-                                    {
-                                        backgroundColor: selectedPet === pet.id ? theme.primary + '20' : 'transparent',
-                                        borderColor: selectedPet === pet.id ? theme.primary : theme.border
-                                    }
-                                ]}
-                                onPress={() => setSelectedPet(pet.id)}
-                            >
-                                <Heart size={20} color={selectedPet === pet.id ? theme.primary : theme.textMuted} />
-                                <View style={styles.petInfo}>
-                                    <Text style={[
-                                        styles.petName,
-                                        { color: selectedPet === pet.id ? theme.primary : theme.text }
-                                    ]}>
-                                        {pet.name}
+                {services.length === 0 ? (
+                    <Text style={[styles.hintText, { color: theme.textMuted }]}>
+                        Esta clínica aún no tiene servicios disponibles para agendar en línea.
+                    </Text>
+                ) : (
+                    <View style={styles.chipsWrap}>
+                        {services.map((svc) => {
+                            const active = selectedService === svc.id;
+                            return (
+                                <TouchableOpacity
+                                    key={svc.id}
+                                    style={[
+                                        styles.chip,
+                                        {
+                                            backgroundColor: active ? theme.primary : 'transparent',
+                                            borderColor: active ? theme.primary : theme.border,
+                                        },
+                                    ]}
+                                    onPress={() => !isRescheduling && setSelectedService(svc.id)}
+                                    disabled={isRescheduling && !active}
+                                    accessibilityRole="button"
+                                    accessibilityState={{ selected: active }}
+                                >
+                                    <Text style={[styles.chipText, { color: active ? '#fff' : theme.text }]}>
+                                        {svc.name} · {svc.duration_minutes} min{svc.price ? ` · $${svc.price}` : ''}
                                     </Text>
-                                    <Text style={[styles.petBreed, { color: theme.textMuted }]}>
-                                        {pet.breed || 'Mestizo'}
-                                    </Text>
-                                </View>
-                                {selectedPet === pet.id && (
-                                    <CheckCircle size={20} color={theme.primary} />
-                                )}
-                            </TouchableOpacity>
-                        ))}
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
-                </ScrollView>
+                )}
             </View>
 
             {/* Date Selection */}
@@ -141,19 +212,56 @@ export default function AgendarCitaScreen() {
             {/* Time Selection */}
             <View style={[styles.card, { backgroundColor: theme.surface }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>
-                    Hora Preferida
+                    Horarios disponibles
                 </Text>
-                
-                <DatePicker
-                    value={selectedTime}
-                    onChange={setSelectedTime}
-                    mode="time"
-                    label="Hora"
-                    placeholder="Seleccionar hora"
-                />
+                {!selectedService ? (
+                    <Text style={[styles.hintText, { color: theme.textMuted }]}>Elige un servicio para ver los horarios.</Text>
+                ) : slotsLoading ? (
+                    <ActivityIndicator color={theme.primary} />
+                ) : slotsError ? (
+                    <View>
+                        <Text style={[styles.hintText, { color: theme.textMuted }]}>No pudimos cargar los horarios.</Text>
+                        <TouchableOpacity
+                            onPress={() => refetchSlots()}
+                            style={[styles.retryBtn, { backgroundColor: theme.primary, alignSelf: 'flex-start' }]}
+                            accessibilityRole="button"
+                        >
+                            <Text style={styles.retryBtnText}>Reintentar</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : slots.length === 0 ? (
+                    <Text style={[styles.hintText, { color: theme.textMuted }]}>
+                        No hay horarios disponibles ese día. Prueba con otra fecha.
+                    </Text>
+                ) : (
+                    <View style={styles.chipsWrap}>
+                        {slots.map((slot) => {
+                            const active = selectedSlot === slot.start_time;
+                            return (
+                                <TouchableOpacity
+                                    key={slot.start_time}
+                                    style={[
+                                        styles.slotChip,
+                                        {
+                                            backgroundColor: active ? theme.primary : 'transparent',
+                                            borderColor: active ? theme.primary : theme.border,
+                                        },
+                                    ]}
+                                    onPress={() => setSelectedSlot(slot.start_time)}
+                                    accessibilityRole="button"
+                                    accessibilityState={{ selected: active }}
+                                    accessibilityLabel={`Horario ${slot.start_time}`}
+                                >
+                                    <Text style={[styles.chipText, { color: active ? '#fff' : theme.text }]}>{slot.start_time}</Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                )}
             </View>
 
             {/* Reason */}
+            {!isRescheduling && (
             <View style={[styles.card, { backgroundColor: theme.surface }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>
                     Motivo de la Consulta
@@ -175,7 +283,10 @@ export default function AgendarCitaScreen() {
                 />
             </View>
 
+            )}
+
             {/* Emergency Option */}
+            {!isRescheduling && (
             <View style={[styles.card, { backgroundColor: theme.surface }]}>
                 <View style={styles.emergencyHeader}>
                     <AlertCircle size={20} color="#ef4444" />
@@ -212,6 +323,8 @@ export default function AgendarCitaScreen() {
                 )}
             </View>
 
+            )}
+
             {/* Action Button */}
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
@@ -224,6 +337,7 @@ export default function AgendarCitaScreen() {
                     ]}
                     onPress={handleAgendar}
                     disabled={isPending}
+                    accessibilityRole="button"
                 >
                     <Calendar size={20} color="#fff" />
                     <Text style={styles.agendarButtonText}>
@@ -238,6 +352,45 @@ export default function AgendarCitaScreen() {
 }
 
 const styles = StyleSheet.create({
+    hintText: {
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: 12,
+    },
+    retryBtn: {
+        marginTop: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 12,
+    },
+    retryBtnText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    chipsWrap: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    chip: {
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 14,
+        borderWidth: 1,
+    },
+    slotChip: {
+        minWidth: 76,
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderRadius: 14,
+        borderWidth: 1,
+    },
+    chipText: {
+        fontSize: 14,
+        fontWeight: '700',
+    },
     container: {
         flex: 1,
     },

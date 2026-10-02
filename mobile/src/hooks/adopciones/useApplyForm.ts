@@ -4,7 +4,7 @@
  */
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getListing, requestAdoption, AdoptionRequestCreate } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
@@ -13,6 +13,7 @@ export function useApplyForm() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const { user } = useAuth();
+    const queryClient = useQueryClient();
 
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -71,7 +72,7 @@ export function useApplyForm() {
     };
 
     const handleSubmit = async () => {
-        if (!form.reason) {
+        if (!form.reason?.trim()) {
             showAlert({ type: 'error', title: 'Error', message: 'Cuéntanos por qué deseas adoptar' });
             return;
         }
@@ -83,9 +84,10 @@ export function useApplyForm() {
         setLoading(true);
         try {
             await requestAdoption(id as string, form);
+            queryClient.invalidateQueries({ queryKey: ['my-adoption-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['my-requests'] });
             setSuccess(true);
         } catch (error) {
-            console.error(error);
             showAlert({
                 type: 'error',
                 title: 'Error',

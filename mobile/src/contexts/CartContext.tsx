@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Product, createOrder, createCheckoutSession, updateOrderStatus } from '../services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 import * as Linking from 'expo-linking';
+import { router } from 'expo-router';
 
 export interface CartItem {
     product: Product;
@@ -11,13 +12,14 @@ export interface CartItem {
 
 interface CartContextType {
     items: CartItem[];
-    addToCart: (product: Product, quantity?: number) => void;
+    /** Devuelve false si no se pudo agregar (agotado o límite de stock alcanzado). */
+    addToCart: (product: Product, quantity?: number) => boolean;
     removeFromCart: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
     cartTotal: number;
     cartCount: number;
-    checkout: () => Promise<void>;
+    checkout: (shippingAddress?: string) => Promise<void>;
     isCheckingOut: boolean;
 }
 
@@ -49,18 +51,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items)).catch(console.error);
     }, [items]);
 
-    const addToCart = (product: Product, quantity: number = 1) => {
+    const addToCart = (product: Product, quantity: number = 1): boolean => {
+        const stock = product.stock ?? 0;
+        const inCart = items.find(item => item.product.id === product.id)?.quantity ?? 0;
+        if (stock <= 0) {
+            showAlert({ type: 'warning', title: 'Producto agotado', message: 'Por ahora no hay unidades disponibles de este producto.' });
+            return false;
+        }
+        if (inCart >= stock) {
+            showAlert({ type: 'info', title: 'Ya tienes todo el stock', message: `Solo hay ${stock} ${stock === 1 ? 'unidad disponible' : 'unidades disponibles'} y ya están en tu bolsa.` });
+            return false;
+        }
+        const toAdd = Math.max(1, Math.min(quantity, stock - inCart));
+        if (toAdd < quantity) {
+            showAlert({ type: 'info', title: 'Cantidad ajustada', message: `Solo hay ${stock} ${stock === 1 ? 'unidad disponible' : 'unidades disponibles'}; agregamos ${toAdd}.` });
+        }
         setItems(prevItems => {
             const existingItem = prevItems.find(item => item.product.id === product.id);
             if (existingItem) {
                 return prevItems.map(item =>
                     item.product.id === product.id
-                        ? { ...item, quantity: item.quantity + quantity }
+                        ? { ...item, product, quantity: item.quantity + toAdd }
                         : item
                 );
             }
-            return [...prevItems, { product, quantity }];
+            return [...prevItems, { product, quantity: toAdd }];
         });
+        return true;
     };
 
     const removeFromCart = (productId: string) => {
@@ -73,9 +90,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             return;
         }
         setItems(prevItems =>
-            prevItems.map(item =>
-                item.product.id === productId ? { ...item, quantity } : item
-            )
+            prevItems.map(item => {
+                if (item.product.id !== productId) return item;
+                const stock = item.product.stock ?? 0;
+                // No se permite pedir más unidades que el stock conocido del producto
+                return { ...item, quantity: stock > 0 ? Math.min(quantity, stock) : quantity };
+            })
         );
     };
 
@@ -84,7 +104,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const cartTotal = items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
     const cartCount = items.reduce((count, item) => count + item.quantity, 0);
 
-    const checkout = async () => {
+    const checkout = async (shippingAddress?: string) => {
         if (items.length === 0) return;
         setIsCheckingOut(true);
         let orderId: string | null = null;
@@ -94,7 +114,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 items: items.map(item => ({
                     product_id: item.product.id,
                     quantity: item.quantity
-                }))
+                })),
+                shipping_address: shippingAddress?.trim() || undefined,
             };
             const order = await createOrder(orderPayload);
             orderId = order.id;
@@ -106,8 +127,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const supported = await Linking.canOpenURL(session.url);
             if (!supported) throw new Error('No se puede abrir el enlace de pago.');
             await Linking.openURL(session.url);
-            // El pago se completa fuera de la app: se vacía el carrito al abrir la pasarela
+            // El pago se completa fuera de la app: se vacía el carrito al abrir la pasarela y se lleva al usuario
+            // al pedido, donde verá su estado (pendiente → pagado) y podrá reintentar el pago o cancelar.
             clearCart();
+            router.push(`/tienda/pedido/${order.id}` as any);
         } catch (error: any) {
             // Si el pedido se creó pero el pago no pudo iniciar, se cancela para devolver el stock apartado.
             // El carrito se conserva para que el usuario pueda reintentar.

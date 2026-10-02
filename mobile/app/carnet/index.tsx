@@ -17,6 +17,8 @@ export default function CarnetListScreen() {
     const {
         pets,
         isLoading,
+        isRefetching,
+        refetch,
         searchId,
         setSearchId,
         handleSearch,
@@ -27,6 +29,8 @@ export default function CarnetListScreen() {
         <TouchableOpacity
             style={[styles.petCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
             onPress={() => router.push(`/carnet/${item.id}` as any)}
+            accessibilityRole="button"
+            accessibilityLabel={`Abrir expediente de ${item.name}`}
         >
             <View style={styles.cardHeader}>
                 <View style={[styles.imageWrapper, { borderColor: theme.border }]}>
@@ -97,23 +101,27 @@ export default function CarnetListScreen() {
                             <Stethoscope size={20} color="#0891b2" />
                         </View>
                         <View>
-                            <Text style={styles.terminalTitle}>Modo Médico Habilitado</Text>
-                            <Text style={styles.terminalSubtitle}>Acceso global por ID de paciente</Text>
+                            <Text style={[styles.terminalTitle, { color: theme.text }]}>Modo Médico Habilitado</Text>
+                            <Text style={[styles.terminalSubtitle, { color: theme.textMuted }]}>Acceso global por ID de paciente</Text>
                         </View>
                     </View>
                     <View style={styles.searchRow}>
                         <TextInput
-                            style={[styles.terminalInput, { backgroundColor: 'rgba(0,0,0,0.2)', color: '#fff' }]}
+                            style={[styles.terminalInput, { backgroundColor: theme.inputBg, borderWidth: 1, borderColor: theme.inputBorder, color: theme.text }]}
                             placeholder="Introduce el ID del paciente..."
-                            placeholderTextColor="rgba(255,255,255,0.4)"
+                            placeholderTextColor={theme.textMuted}
                             value={searchId}
                             onChangeText={setSearchId}
                             autoCapitalize="none"
+                            returnKeyType="search"
+                            onSubmitEditing={handleSearch}
                         />
                         <TouchableOpacity
                             style={[styles.searchBtn, { backgroundColor: '#0891b2' }]}
                             onPress={handleSearch}
                             disabled={!searchId.trim()}
+                            accessibilityRole="button"
+                            accessibilityLabel="Buscar paciente por ID"
                         >
                             <Search size={20} color="#fff" />
                         </TouchableOpacity>
@@ -143,6 +151,8 @@ export default function CarnetListScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderPetItem}
                 isLoading={isLoading}
+                onRefresh={refetch}
+                isRefreshing={isRefetching}
                 contentStyle={styles.list}
                 header={listHeader}
                 emptyIcon={<Text style={{ fontSize: 80 }}>🩺</Text>}
@@ -193,12 +203,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     terminalTitle: {
-        color: '#fff',
         fontSize: 15,
         fontWeight: '800',
     },
     terminalSubtitle: {
-        color: 'rgba(255,255,255,0.6)',
         fontSize: 11,
     },
     searchRow: {

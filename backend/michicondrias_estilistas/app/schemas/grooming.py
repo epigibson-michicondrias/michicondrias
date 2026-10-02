@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import date, time, datetime
 
@@ -51,6 +51,10 @@ class GroomingAppointmentOut(GroomingAppointmentBase):
     before_photo_url: Optional[str] = None
     after_photo_url: Optional[str] = None
     skin_report: Optional[str] = None
+    # Datos de apoyo para mostrar la cita sin exponer IDs (opcionales: no rompen clientes anteriores)
+    pet_name: Optional[str] = None
+    client_name: Optional[str] = None
+    groomer_name: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -64,10 +68,18 @@ class GroomingHistory(BaseModel):
 
 # GroomingService Schemas
 class GroomingServiceCreate(BaseModel):
-    name: str
+    name: str = Field(..., min_length=2, max_length=150)
     description: Optional[str] = None
-    price: float
-    duration_minutes: Optional[float] = 60.0
+    price: float = Field(..., gt=0)
+    duration_minutes: Optional[float] = Field(60.0, ge=5, le=720)
+
+
+class GroomingServiceUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=2, max_length=150)
+    description: Optional[str] = None
+    price: Optional[float] = Field(None, gt=0)
+    duration_minutes: Optional[float] = Field(None, ge=5, le=720)
+    is_active: Optional[bool] = None
 
 class GroomingServiceOut(BaseModel):
     id: str
@@ -78,6 +90,7 @@ class GroomingServiceOut(BaseModel):
     duration_minutes: float
     is_active: bool
     created_at: datetime
+    groomer_name: Optional[str] = None
 
     class Config:
         from_attributes = True

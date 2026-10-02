@@ -18,9 +18,9 @@ export default function DonacionesScreen() {
     const [loading, setLoading] = useState(false);
 
     const handleDonation = async () => {
-        const numAmount = parseFloat(amount);
-        if (isNaN(numAmount) || numAmount <= 0) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor ingresa un monto válido' });
+        const numAmount = parseFloat(amount.replace(',', '.'));
+        if (isNaN(numAmount) || numAmount < 10 || numAmount > 100000) {
+            showAlert({ type: 'error', title: 'Monto inválido', message: 'Ingresa un monto entre $10 y $100,000 MXN.' });
             return;
         }
 
@@ -30,7 +30,7 @@ export default function DonacionesScreen() {
             showAlert({
                 type: 'success',
                 title: '¡Gracias!',
-                message: 'Tu donación ha sido procesada con éxito. Cada peso cuenta para ayudar a un michi.',
+                message: 'Registramos tu donación. Cada peso cuenta para ayudar a un michi.',
                 showCancel: false,
                 buttonText: 'OK',
                 onButtonPress: () => router.back(),
@@ -92,7 +92,7 @@ export default function DonacionesScreen() {
                             <DollarSign size={20} color={theme.primary} />
                             <TextInput
                                 style={[styles.input, { color: theme.text }]}
-                                keyboardType="numeric"
+                                keyboardType="decimal-pad"
                                 value={amount}
                                 onChangeText={setAmount}
                                 placeholder="0.00"
@@ -120,7 +120,7 @@ export default function DonacionesScreen() {
                     <View style={[styles.trustBox, { backgroundColor: 'rgba(16, 185, 129, 0.05)' }]}>
                         <ShieldCheck size={20} color="#10b981" />
                         <Text style={[styles.trustText, { color: theme.textMuted }]}>
-                            Tus donaciones son seguras y van directamente al fondo de rescate Michicondrias.
+                            Tus donaciones se registran con tu cuenta y van al fondo de rescate Michicondrias.
                         </Text>
                     </View>
 

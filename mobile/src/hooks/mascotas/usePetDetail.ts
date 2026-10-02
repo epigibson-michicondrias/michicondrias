@@ -3,7 +3,8 @@
  * Extracts data fetching from app/mascotas/[id].tsx
  */
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback } from 'react';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { getPetById, sharePetPassport } from '@/src/services/mascotas';
 import { createSubscriptionSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
@@ -24,6 +25,13 @@ export function usePetDetail() {
         queryFn: () => getPetById(id!),
         enabled: !!id,
     });
+
+    // Al volver (p. ej. del pago de Michi-Tracker) se refresca el estado de la mascota
+    useFocusEffect(
+        useCallback(() => {
+            if (id) refetch();
+        }, [id, refetch])
+    );
 
     const handleShare = async () => {
         if (!id) return;

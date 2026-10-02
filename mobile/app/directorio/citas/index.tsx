@@ -27,7 +27,7 @@ export default function CitasScreen() {
     const renderAppointment = ({ item }: { item: Appointment }) => {
         const statusInfo = STATUS_CONFIG[item.status] || STATUS_CONFIG.scheduled;
         const { date, time } = formatDateTime(item.appointment_date);
-        const isActive = item.status !== 'cancelled' && item.status !== 'completed';
+        const isActive = item.status !== 'cancelled' && item.status !== 'completed' && item.status !== 'rescheduled';
 
         return (
             <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -85,6 +85,8 @@ export default function CitasScreen() {
                         <TouchableOpacity
                             style={[styles.actionBtn, { backgroundColor: theme.overlay, borderColor: theme.border }]}
                             onPress={() => handleReschedule(item)}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Reagendar cita en ${item.clinic_name || 'la clínica'}`}
                         >
                             <CalendarClock size={16} color={theme.text} />
                             <Text style={[styles.actionBtnText, { color: theme.text }]}>Reagendar</Text>
@@ -93,6 +95,8 @@ export default function CitasScreen() {
                             style={[styles.actionBtn, styles.cancelBtn, { backgroundColor: '#ef444415', borderColor: '#ef444440' }]}
                             onPress={() => handleCancel(item)}
                             disabled={cancelMutation.isPending}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Cancelar cita en ${item.clinic_name || 'la clínica'}`}
                         >
                             <Ban size={16} color="#ef4444" />
                             <Text style={[styles.actionBtnText, { color: '#ef4444' }]}>Cancelar</Text>
@@ -116,6 +120,8 @@ export default function CitasScreen() {
                             borderColor: activeFilter === tab.key ? theme.primary : theme.border,
                         }]}
                         onPress={() => setActiveFilter(tab.key)}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: activeFilter === tab.key }}
                     >
                         <Text style={[styles.tabText, { color: activeFilter === tab.key ? '#fff' : theme.text }]}>
                             {tab.label}

@@ -17,6 +17,9 @@ export interface Product {
     category?: Category;
     image_url: string | null;
     is_active: boolean;
+    /** Los productos nuevos esperan aprobación de un admin antes de verse en la tienda. */
+    is_approved?: boolean | null;
+    subcategory_id?: string | null;
     seller_id: string | null;
     specifications: string | null;
     average_rating: number;
@@ -82,6 +85,10 @@ export async function getProducts(category?: string, sellerId?: string): Promise
 
 export async function getMyProducts(): Promise<Product[]> {
     return apiFetch<Product[]>("ecommerce", "/products/seller/me");
+}
+
+export async function getProductPresignedUrl(ext: string): Promise<{ url: string; object_key: string; public_url: string }> {
+    return apiFetch<{ url: string; object_key: string; public_url: string }>("ecommerce", `/products/presigned-url?file_extension=${encodeURIComponent(ext)}`);
 }
 
 export async function getProduct(productId: string): Promise<Product> {

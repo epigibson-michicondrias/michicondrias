@@ -12,6 +12,7 @@ from app.schemas.sponsor import (
     BoostedAlertOut,
     CampaignStatsOut,
     CampaignWithStatsOut,
+    CampaignUpdate,
 )
 
 router = APIRouter()
@@ -120,3 +121,27 @@ def read_geo_targeted_campaigns(
     devuelve todas las activas (los parámetros se aceptan para no romper a los clientes). Endpoint público.
     """
     return crud_sponsor.get_active_campaigns_and_increment_views(db=db)
+
+
+@router.patch("/campaigns/{campaign_id}", response_model=SponsorCampaignOut)
+def update_campaign(
+    campaign_id: str,
+    campaign_in: CampaignUpdate,
+    db: Session = Depends(get_db),
+    sponsor_id: str = Depends(deps.require_patrocinador)
+) -> Any:
+    """Pausar/reanudar o renombrar una campaña propia. Requires 'patrocinador' role."""
+    campaign = crud_sponsor.get_campaign(db, campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Campaña no encontrada")
+    if campaign.sponsor_id != sponsor_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permisos sobre esta campaña")
+    if campaign_in.active is True and campaign.spent >= campaign.budget_limit:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La campaña agotó su presupuesto")
+    if campaign_in.active is not None:
+        campaign.active = campaign_in.active
+    if campaign_in.title:
+        campaign.title = campaign_in.title
+    db.commit()
+    db.refresh(campaign)
+    return campaign

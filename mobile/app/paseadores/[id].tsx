@@ -6,23 +6,25 @@ import { useWalkerDetail } from '@/src/hooks/paseadores';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { 
-    MapPin, Star, Clock, Users, MessageCircle, Calendar, 
-    Shield, Heart, Share2, Dog, Cat, CheckCircle 
+    MapPin, Star, Clock, Users, Calendar, 
+    Shield, Share2, Dog, Cat, CheckCircle 
 } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
 import { shareContent } from '@/src/utils/share';
+import DatePicker from '@/src/components/DatePicker';
+import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const {
         walker,
+        isOwnProfile,
+        walkDate,
+        setWalkDate,
         isLoading,
         error,
-        isFavorite,
-        toggleFavorite,
-        handleContact,
         handleBook,
         // Walk request
         walkModalVisible,
@@ -46,9 +48,6 @@ export default function WalkerDetailScreen() {
 
     const [formRating, setFormRating] = React.useState(5);
     const [formComment, setFormComment] = React.useState('');
-    const { contact } = useLocalSearchParams<{ contact?: string }>();
-    const [contactModalVisible, setContactModalVisible] = React.useState(contact === 'true');
-    const [contactMessage, setContactMessage] = React.useState('');
 
     if (isLoading) {
         return (
@@ -84,11 +83,6 @@ export default function WalkerDetailScreen() {
         <ScreenContainer style={{ backgroundColor: theme.background }}>
             <ScreenHeader
                 title="Perfil del Paseador"
-                rightElement={
-                    <TouchableOpacity onPress={toggleFavorite}>
-                        <Heart size={24} color={isFavorite ? '#ef4444' : theme.textMuted} fill={isFavorite ? '#ef4444' : 'none'} />
-                    </TouchableOpacity>
-                }
             />
 
             <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContainer}>
@@ -109,7 +103,7 @@ export default function WalkerDetailScreen() {
                         <View style={styles.ratingRow}>
                             <Star size={16} color="#fbbf24" fill="#fbbf24" />
                             <Text style={[styles.ratingText, { color: theme.text }]}>
-                                {walker.rating ? walker.rating.toFixed(1) : '5.0'} ({walker.total_walks} paseos)
+                                {walker.rating ? walker.rating.toFixed(1) : 'Nuevo'} ({walker.total_walks} paseos)
                             </Text>
                         </View>
                         
@@ -136,7 +130,7 @@ export default function WalkerDetailScreen() {
                     <View style={styles.statDivider} />
                     <View style={styles.statItem}>
                         <Clock size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.experience_years || 1}+</Text>
+                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.experience_years ?? 0}</Text>
                         <Text style={[styles.statLabel, { color: theme.textMuted }]}>Años</Text>
                     </View>
                     <View style={styles.statDivider} />
@@ -198,9 +192,9 @@ export default function WalkerDetailScreen() {
                 <View style={[styles.section, { backgroundColor: theme.surface }]}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Tarifas</Text>
                     <View style={styles.pricingCard}>
-                        <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Paseo por hora</Text>
+                        <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Por hora</Text>
                         <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                            ${walker.price_per_hour || 20}
+                            {walker.price_per_hour ? `$${walker.price_per_hour}` : 'Por acordar'}
                         </Text>
                     </View>
                     {walker.price_per_walk && (
@@ -221,11 +215,11 @@ export default function WalkerDetailScreen() {
                     <View style={[styles.ratingSummaryCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
                         <View style={styles.summaryLeft}>
                             <Text style={[styles.bigRating, { color: theme.text }]}>
-                                {walker.rating ? walker.rating.toFixed(1) : '5.0'}
+                                {walker.rating ? walker.rating.toFixed(1) : '—'}
                             </Text>
                             <View style={styles.starsRow}>
                                 {[1, 2, 3, 4, 5].map((s) => {
-                                    const isFilled = s <= Math.round(walker.rating || 5);
+                                    const isFilled = s <= Math.round(walker.rating || 0);
                                     return <Star key={s} size={16} color="#fbbf24" fill={isFilled ? "#fbbf24" : "transparent"} />;
                                 })}
                             </View>
@@ -290,8 +284,6 @@ export default function WalkerDetailScreen() {
                                         rating: formRating,
                                         comment: formComment.trim() || '',
                                     });
-                                    setFormComment('');
-                                    setFormRating(5);
                                 }}
                                 disabled={isCreatingReview}
                             >
@@ -368,16 +360,9 @@ export default function WalkerDetailScreen() {
             </ScrollView>
 
             {/* Action Buttons (Sticky Footer) */}
+            {!isOwnProfile && (
             <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
-                <TouchableOpacity
-                    style={[styles.contactBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                    onPress={() => setContactModalVisible(true)}
-                >
-                    <MessageCircle size={20} color={theme.primary} />
-                    <Text style={[styles.contactBtnText, { color: theme.primary }]}>Enviar Mensaje</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
+<TouchableOpacity
                     style={[styles.bookButton, { backgroundColor: theme.primary }]}
                     onPress={handleBook}
                 >
@@ -385,6 +370,7 @@ export default function WalkerDetailScreen() {
                     <Text style={styles.bookButtonText}>Reservar Paseo</Text>
                 </TouchableOpacity>
             </View>
+            )}
 
             {/* Walk Request Modal */}
             <Modal visible={walkModalVisible} transparent animationType="slide">
@@ -417,6 +403,13 @@ export default function WalkerDetailScreen() {
                                 )}
                             />
                         )}
+
+                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha del paseo</Text>
+                        <DatePicker
+                            value={new Date(walkDate + 'T12:00:00')}
+                            onChange={(d) => setWalkDate(toLocalIsoDate(d))}
+                            minimumDate={new Date()}
+                        />
 
                         <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Duración (minutos)</Text>
                         <View style={styles.durationRow}>
@@ -462,54 +455,6 @@ export default function WalkerDetailScreen() {
                 </View>
             </Modal>
 
-            {/* Contact Modal */}
-            <Modal visible={contactModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-                        <Text style={[styles.modalTitle, { color: theme.text }]}>Enviar Mensaje</Text>
-                        
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Escribe tu mensaje para {walker.display_name}</Text>
-                        <TextInput
-                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            value={contactMessage}
-                            onChangeText={setContactMessage}
-                            placeholder="Hola, me gustaría saber si tienes disponibilidad para..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                        />
-
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity 
-                                style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} 
-                                onPress={() => {
-                                    setContactModalVisible(false);
-                                    setContactMessage('');
-                                }}
-                            >
-                                <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => {
-                                    if (!contactMessage.trim()) {
-                                        showAlert({ type: 'error', title: 'Mensaje Vacío', message: 'Por favor escribe un mensaje antes de enviar.' });
-                                        return;
-                                    }
-                                    setContactModalVisible(false);
-                                    setContactMessage('');
-                                    showAlert({ 
-                                        type: 'success', 
-                                        title: '¡Mensaje Enviado!', 
-                                        message: `Tu mensaje ha sido enviado a ${walker.display_name}. Se pondrá en contacto contigo pronto.` 
-                                    });
-                                }}
-                            >
-                                <Text style={styles.modalSubmitText}>Enviar Mensaje</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
         </ScreenContainer>
     );
 }

@@ -8,9 +8,10 @@ interface BadgeProps {
     color?: string;
     icon?: React.ReactNode;
     variant?: 'filled' | 'outlined';
+    size?: 'sm' | 'md';
 }
 
-export default function Badge({ label, color, icon, variant = 'filled' }: BadgeProps) {
+export default function Badge({ label, color, icon, variant = 'filled', size = 'md' }: BadgeProps) {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const badgeColor = color || theme.primary;
@@ -21,6 +22,7 @@ export default function Badge({ label, color, icon, variant = 'filled' }: BadgeP
         <View
             style={[
                 styles.badge,
+                size === 'sm' && styles.badgeSm,
                 isFilled
                     ? { backgroundColor: badgeColor + '20' }
                     : { backgroundColor: 'transparent', borderColor: badgeColor, borderWidth: 1 },
@@ -45,9 +47,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 6,
         paddingHorizontal: 12,
-        borderRadius: 8,
+        borderRadius: 999,
         alignSelf: 'flex-start',
         gap: 6,
+    },
+    badgeSm: {
+        paddingVertical: 3,
+        paddingHorizontal: 8,
+        borderRadius: 6,
     },
     icon: {
         marginLeft: -2,

@@ -31,14 +31,14 @@ export function useEditPet() {
                 name: pet.name || '',
                 species: pet.species || 'perro',
                 breed: pet.breed || '',
-                age_months: pet.age_months !== null ? String(pet.age_months) : '',
+                age_months: pet.age_months != null ? String(pet.age_months) : '',
                 gender: pet.gender || 'macho',
                 description: pet.description || '',
                 is_vaccinated: pet.is_vaccinated ?? false,
                 is_sterilized: pet.is_sterilized ?? false,
                 is_dewormed: pet.is_dewormed ?? false,
-                weight_kg: pet.weight_kg !== undefined ? String(pet.weight_kg) : '',
-                microchip_id: '', // Not in the main Pet model but kept in form
+                weight_kg: pet.weight_kg != null ? String(pet.weight_kg) : '',
+                microchip_id: pet.microchip_number || '',
             });
             setImage(pet.photo_url);
         }
@@ -53,17 +53,13 @@ export function useEditPet() {
             // Already uploaded S3 image URL, return as is
             return imageUri;
         }
-        try {
-            const ext = getFileExtension(imageUri);
-            const { url, object_key } = await getMascotasPresignedUrl(ext);
+        // Si falla la subida se propaga el error: nunca se borra la foto existente en silencio
+        const ext = getFileExtension(imageUri);
+        const { url, object_key } = await getMascotasPresignedUrl(ext);
 
-            await uploadImageToPresignedUrl(imageUri, url, ext);
+        await uploadImageToPresignedUrl(imageUri, url, ext);
 
-            return getS3Url(object_key);
-        } catch (err) {
-            console.error('Image upload failed:', err);
-            return null;
-        }
+        return getS3Url(object_key);
     };
 
     const handleUpdate = async () => {
@@ -123,12 +119,15 @@ export function useEditPet() {
                 is_sterilized: form.is_sterilized,
                 is_dewormed: form.is_dewormed,
                 weight_kg: weightVal,
+                microchip_number: form.microchip_id.trim() || null,
                 photo_url,
             });
 
             // Invalidate caches
             queryClient.invalidateQueries({ queryKey: ['pet-profile', id] });
+            queryClient.invalidateQueries({ queryKey: ['pet', id] });
             queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+            queryClient.invalidateQueries({ queryKey: ['my-pets-carnet'] });
 
             showAlert({
                 type: 'success',
@@ -138,7 +137,7 @@ export function useEditPet() {
             router.back();
         } catch (error) {
             console.error(error);
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la mascota.' });
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la mascota. Revisa tu conexión e inténtalo de nuevo.' });
         } finally {
             setIsUpdating(false);
         }

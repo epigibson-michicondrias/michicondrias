@@ -20,6 +20,7 @@ export interface Pet {
     is_sterilized: boolean;
     is_dewormed: boolean;
     weight_kg?: number;
+    microchip_number?: string | null;
 }
 
 export interface PetFormData {

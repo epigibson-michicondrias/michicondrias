@@ -45,6 +45,11 @@ function setCache(key: string, data: any) {
     cache.set(key, { data, timestamp: Date.now() });
 }
 
+/** Vacía la caché de GET en memoria (p. ej. tras cambiar de rol o cerrar sesión). */
+export function clearApiCache() {
+    cache.clear();
+}
+
 export async function getToken(): Promise<string | null> {
     if (Platform.OS === 'web') {
         return localStorage.getItem(TOKEN_KEY);
@@ -53,6 +58,7 @@ export async function getToken(): Promise<string | null> {
 }
 
 export async function setToken(token: string) {
+    cache.clear();
     if (Platform.OS === 'web') {
         localStorage.setItem(TOKEN_KEY, token);
         return;
@@ -61,6 +67,7 @@ export async function setToken(token: string) {
 }
 
 export async function removeToken() {
+    cache.clear();
     if (Platform.OS === 'web') {
         localStorage.removeItem(TOKEN_KEY);
         return;
@@ -132,9 +139,12 @@ export async function apiFetch<T>(
 
         const data = await res.json();
 
-        // Cache GET responses
+        // Cache GET responses; cualquier escritura exitosa invalida el caché para que
+        // el refetch posterior (invalidateQueries) no devuelva datos viejos
         if (isGet) {
             setCache(url, data);
+        } else {
+            cache.clear();
         }
 
         return data;

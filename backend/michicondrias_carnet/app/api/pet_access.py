@@ -31,3 +31,15 @@ def assert_can_write_pet_record(db: Session, pet_id: str, identity: dict) -> Non
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mascota no encontrada")
     if row[0] != identity["user_id"] and identity["role"] not in VET_ROLES:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño o un veterinario pueden modificar el carnet de esta mascota")
+
+
+def assert_can_read_pet_record(db: Session, pet_id: str, identity: dict) -> None:
+    """Lectura del carnet: el dueño, un admin o un veterinario (por rol del token o por registro en veterinarians)."""
+    row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mascota no encontrada")
+    if row[0] == identity["user_id"] or identity["role"] in ("admin", "veterinario"):
+        return
+    vet = db.execute(text("SELECT id FROM veterinarians WHERE id = :uid"), {"uid": identity["user_id"]}).first()
+    if not vet:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para ver el expediente de esta mascota")

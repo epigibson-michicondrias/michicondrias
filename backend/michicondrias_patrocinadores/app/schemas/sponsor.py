@@ -1,6 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
+
+def _check_http_url(value: Optional[str]) -> Optional[str]:
+    if value is None or value == "":
+        return None
+    if not value.lower().startswith(("http://", "https://")):
+        raise ValueError("La URL debe empezar con http:// o https://")
+    return value
+
 
 class SponsorCampaignBase(BaseModel):
     title: str
@@ -9,7 +17,24 @@ class SponsorCampaignBase(BaseModel):
     budget_limit: float
 
 class SponsorCampaignCreate(SponsorCampaignBase):
-    pass
+    # Las validaciones viven solo en la creación para no romper la lectura de campañas ya guardadas
+    title: str = Field(..., min_length=1, max_length=150)
+    banner_url: str = Field(..., max_length=500)
+    target_link: Optional[str] = Field(default=None, max_length=255)
+    budget_limit: float = Field(..., gt=0)
+
+    @field_validator("banner_url")
+    @classmethod
+    def _banner(cls, v: str) -> str:
+        checked = _check_http_url(v)
+        if not checked:
+            raise ValueError("El banner es obligatorio")
+        return checked
+
+    @field_validator("target_link")
+    @classmethod
+    def _link(cls, v: Optional[str]) -> Optional[str]:
+        return _check_http_url(v)
 
 class SponsorCampaignOut(SponsorCampaignBase):
     id: str
@@ -28,7 +53,8 @@ class BoostedAlertBase(BaseModel):
     amount_paid: float
 
 class BoostedAlertCreate(BoostedAlertBase):
-    pass
+    extra_radius_meters: int = Field(default=5000, ge=500, le=50000)
+    amount_paid: float = Field(..., gt=0)
 
 class BoostedAlertOut(BoostedAlertBase):
     id: str
@@ -51,3 +77,8 @@ class CampaignStatsOut(BaseModel):
 
 class CampaignWithStatsOut(SponsorCampaignOut):
     stats: Optional[CampaignStatsOut] = None
+
+
+class CampaignUpdate(BaseModel):
+    active: Optional[bool] = None
+    title: Optional[str] = Field(default=None, min_length=1, max_length=150)

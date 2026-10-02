@@ -1,31 +1,33 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions, ScrollView, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useReports } from '@/src/hooks/perdidas';
 import { getTimeAgo } from '@/src/utils/formatters';
 import type { LostPetReport } from '@/src/types/perdidas';
-import { Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, MapPin, Clock } from 'lucide-react-native';
+import { PawPrint, Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, MapPin, Clock } from 'lucide-react-native';
 import WebMapView from '../../src/components/WebMapView';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { StatusBar } from 'expo-status-bar';
-// @ts-ignore
-import { LinearGradient } from 'expo-linear-gradient';
-import BackButton from '@/src/components/BackButton';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 const { width } = Dimensions.get('window');
 
 export default function PerdidasScreen() {
     const router = useRouter();
-    const { theme, isDark } = useTheme();
+    const { theme } = useTheme();
     const {
         filteredReports,
         stats,
         mapMarkers,
         isLoading,
+        isError,
+        refetch,
+        isRefetching,
+        reports,
         searchQuery,
         setSearchQuery,
         filterType,
@@ -36,15 +38,7 @@ export default function PerdidasScreen() {
         toggleViewMode,
     } = useReports();
 
-    const getLocalTimeAgo = (dateStr: string | null) => {
-        if (!dateStr) return 'Reciente';
-        const diff = Date.now() - new Date(dateStr).getTime();
-        const mins = Math.floor(diff / 60000);
-        if (mins < 60) return `Hace ${mins}m`;
-        const hrs = Math.floor(mins / 60);
-        if (hrs < 24) return `Hace ${hrs}h`;
-        return `Hace ${Math.floor(hrs / 24)}d`;
-    };
+    const getLocalTimeAgo = (dateStr: string | null) => getTimeAgo(dateStr) || 'Reciente';
 
     const renderReportCard = (report: LostPetReport) => (
         <TouchableOpacity
@@ -52,14 +46,19 @@ export default function PerdidasScreen() {
             style={[styles.reportCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={() => router.push(`/perdidas/${report.id}`)}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={`${report.report_type === 'lost' ? 'Perdida' : 'Encontrada'}: ${report.pet_name}`}
         >
             <View style={styles.cardImageContainer}>
-                <Image
-                    source={{ uri: report.image_url || 'https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=400&auto=format&fit=crop' }}
-                    style={styles.cardImage}
-                />
+                {report.image_url ? (
+                    <Image source={{ uri: report.image_url }} style={styles.cardImage} accessibilityLabel={`Foto de ${report.pet_name}`} />
+                ) : (
+                    <View style={[styles.cardImage, { backgroundColor: theme.overlay, alignItems: 'center', justifyContent: 'center' }]}>
+                        <PawPrint size={36} color={theme.textMuted} />
+                    </View>
+                )}
                 <View style={[styles.badge, {
-                    backgroundColor: report.report_type === 'lost' ? theme.error : '#6366f1'
+                    backgroundColor: report.report_type === 'lost' ? theme.error : theme.info
                 }]}>
                     <Text style={styles.badgeText}>
                         {report.report_type === 'lost' ? 'PERDIDA' : 'ENCONTRADA'}
@@ -97,34 +96,20 @@ export default function PerdidasScreen() {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar style={isDark ? 'light' : 'dark'} />
-            <LinearGradient
-                colors={isDark ? ['#1c2f6b', theme.background] : ['#dfe7fb', theme.background]}
-                style={StyleSheet.absoluteFillObject}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 0.25 }}
-            />
-
-            <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.headerTop}>
-                        <BackButton
-                            onPress={() => router.back()}
-                        />
-                        <Text style={[styles.screenTitle, { color: isDark ? '#fff' : '#7f1d1d' }]}>Mascotas Perdidas</Text>
-                        <TouchableOpacity
-                            style={[styles.plusBtn, { backgroundColor: theme.error }]}
-                            onPress={() => router.push('/perdidas/nuevo')}
-                        >
-                            <Plus size={22} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={[styles.screenSubtitle, { color: isDark ? 'rgba(255,255,255,0.6)' : '#991b1b' }]}>
-                        La comunidad te ayuda a reunirte con tu mejor amigo
-                    </Text>
-                </View>
+        <ScreenContainer>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={theme.primary} />}
+            >
+                <ScreenHeader
+                    title="Mascotas perdidas"
+                    subtitle="La comunidad te ayuda a reunirte con tu mejor amigo"
+                    gradient={['#1c2f6b', '#101c3d']}
+                    actionIcon={Plus}
+                    actionLabel="Reportar mascota"
+                    onAction={() => router.push('/perdidas/nuevo')}
+                />
+                <View style={{ height: 16 }} />
 
                 {/* Stats */}
                 <View style={styles.statsStrip}>
@@ -159,7 +144,7 @@ export default function PerdidasScreen() {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.trackerTitle, { color: theme.success }]}>Michi-Tracker Pro</Text>
-                            <Text style={[styles.trackerDesc, { color: theme.textMuted }]}>GPS en tiempo real para tu mascota</Text>
+                            <Text style={[styles.trackerDesc, { color: theme.textMuted }]}>Los reportes con collar GPS muestran su posición en el mapa</Text>
                         </View>
                     </View>
                 </View>
@@ -206,6 +191,8 @@ export default function PerdidasScreen() {
                         <TouchableOpacity
                             style={[styles.viewToggle, { backgroundColor: theme.surface, borderColor: theme.border }]}
                             onPress={toggleViewMode}
+                            accessibilityRole="button"
+                            accessibilityLabel={viewMode === 'map' ? 'Ver como lista' : 'Ver en el mapa'}
                         >
                             {viewMode === 'map' ? <LayoutGrid size={18} color={theme.text} /> : <MapIcon size={18} color={theme.text} />}
                         </TouchableOpacity>
@@ -215,6 +202,11 @@ export default function PerdidasScreen() {
                 {/* Content */}
                 {viewMode === 'map' ? (
                     <View style={styles.mapContainer}>
+                        {mapMarkers.length === 0 && !isLoading && (
+                            <Text style={{ color: theme.textMuted, textAlign: 'center', paddingVertical: 8 }}>
+                                Ningún reporte tiene ubicación para mostrar en el mapa.
+                            </Text>
+                        )}
                         <WebMapView
                             style={styles.map}
                             markers={mapMarkers.map(m => ({
@@ -228,11 +220,21 @@ export default function PerdidasScreen() {
                     <View style={styles.feed}>
                         {isLoading ? (
                             <LoadingOverlay />
+                        ) : isError && reports.length === 0 ? (
+                            <EmptyState
+                                icon={<AlertCircle size={32} color={theme.error} />}
+                                title="No pudimos cargar los reportes"
+                                subtitle="Revisa tu conexión e inténtalo de nuevo."
+                                actionLabel="Reintentar"
+                                onAction={() => refetch()}
+                            />
                         ) : filteredReports.length === 0 ? (
                             <EmptyState
                                 icon={<Info size={32} color={theme.textMuted} />}
-                                title="Sin reportes"
-                                subtitle="No hay reportes con estos filtros."
+                                title={reports.length === 0 ? 'Sin reportes activos' : 'Sin resultados'}
+                                subtitle={reports.length === 0 ? 'Por ahora no hay mascotas perdidas ni encontradas. Si ves o pierdes una, repórtala.' : 'No hay reportes con estos filtros.'}
+                                actionLabel={reports.length === 0 ? 'Reportar una mascota' : undefined}
+                                onAction={reports.length === 0 ? () => router.push('/perdidas/nuevo') : undefined}
                             />
                         ) : (
                             <View style={styles.reportsGrid}>
@@ -243,7 +245,7 @@ export default function PerdidasScreen() {
                 )}
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 

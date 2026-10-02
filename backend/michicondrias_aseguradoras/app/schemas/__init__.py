@@ -5,6 +5,8 @@ from app.schemas.insurance import (
     InsuranceClaim,
     InsuranceClaimCreate,
     InsuranceClaimUpdate,
+    InsuranceClaimDetail,
+    InsurancePlanActiveUpdate,
     InsurancePlanCreate,
     InsurancePlanOut,
     InsuranceQuoteRequest,

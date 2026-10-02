@@ -8,9 +8,13 @@ interface FilterChipProps {
     active: boolean;
     onPress: () => void;
     color?: string;
+    /** Icono opcional (nodo) a la izquierda */
+    icon?: React.ReactNode;
+    /** Contador opcional */
+    count?: number;
 }
 
-export default function FilterChip({ label, active, onPress, color }: FilterChipProps) {
+export default function FilterChip({ label, active, onPress, color, icon, count }: FilterChipProps) {
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const accentColor = color || theme.primary;
@@ -29,13 +33,14 @@ export default function FilterChip({ label, active, onPress, color }: FilterChip
             accessibilityLabel={label}
             accessibilityState={{ selected: active }}
         >
+            {icon}
             <Text
                 style={[
                     styles.label,
                     { color: active ? '#fff' : theme.text },
                 ]}
             >
-                {label}
+                {label}{typeof count === 'number' ? `  ${count}` : ''}
             </Text>
         </TouchableOpacity>
     );
@@ -47,6 +52,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 18,
         borderRadius: 999,
         alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        minHeight: 40,
     },
     label: {
         fontSize: 13,

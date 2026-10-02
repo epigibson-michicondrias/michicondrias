@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
 import { useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Camera, MapPin, Check, Plus, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed, Info } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
@@ -28,6 +29,7 @@ const SIZES = ['Pequeño', 'Mediano', 'Grande', 'Todos'];
 export default function NuevoLugarScreen() {
     const { user } = useAuth();
     const router = useRouter();
+    const queryClient = useQueryClient();
     const { theme, isDark } = useTheme();
 
     const [loading, setLoading] = useState(false);
@@ -49,7 +51,10 @@ export default function NuevoLugarScreen() {
         (async () => {
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') return;
+                if (status !== 'granted') {
+                    showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Activa la ubicación para registrar el lugar en el mapa.' });
+                    return;
+                }
                 let loc = await Location.getCurrentPositionAsync({});
                 setLocation({
                     latitude: loc.coords.latitude,
@@ -97,14 +102,14 @@ export default function NuevoLugarScreen() {
                 latitude: location.latitude,
                 longitude: location.longitude,
                 image_url,
-                rating: 5.0, // Default rating for new places
             });
 
+            queryClient.invalidateQueries({ queryKey: ['petfriendly-places'] });
             showAlert({ type: 'success', title: '¡Gracias!', message: 'Has contribuido a que más michis y lomitos encuentren lugares geniales.' });
             router.back();
         } catch (error) {
             console.error(error);
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo registrar el lugar.' });
+            showAlert({ type: 'error', title: 'No se pudo registrar el lugar', message: error instanceof Error ? error.message : 'Inténtalo de nuevo.' });
         } finally {
             setLoading(false);
         }

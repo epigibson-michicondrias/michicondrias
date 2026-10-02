@@ -41,7 +41,30 @@ export default function AdminStatsScreen() {
                     <StatCard label="Aprobados" value={kpis!.approved_verifications} icon={<ShieldCheck size={20} color="#10b981" />} color="#10b981" theme={theme} />
                     <StatCard label="Pendientes" value={kpis!.pending_verifications} icon={<Activity size={20} color="#f59e0b" />} color="#f59e0b" theme={theme} />
                     <StatCard label="Admins" value={kpis!.system_admins} icon={<BarChart2 size={20} color="#3b82f6" />} color="#3b82f6" theme={theme} />
+                    {kpis!.professionals !== undefined && <StatCard label="Profesionales" value={kpis!.professionals} icon={<ShieldCheck size={20} color="#06b6d4" />} color="#06b6d4" theme={theme} />}
+                    {kpis!.new_users_7d !== undefined && <StatCard label="Nuevos 7 días" value={kpis!.new_users_7d} icon={<TrendingUp size={20} color="#ec4899" />} color="#ec4899" theme={theme} />}
+                    {kpis!.new_users_30d !== undefined && <StatCard label="Nuevos 30 días" value={kpis!.new_users_30d} icon={<TrendingUp size={20} color="#8b5cf6" />} color="#8b5cf6" theme={theme} />}
+                    {kpis!.active_users !== undefined && <StatCard label="Activos" value={kpis!.active_users} icon={<Activity size={20} color="#10b981" />} color="#10b981" theme={theme} />}
                 </View>
+
+                {!!metrics.registrations_14d?.length && (
+                    <View style={[styles.chartBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                        <View style={styles.sectionHeader}>
+                            <TrendingUp size={20} color={theme.primary} />
+                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Registros (14 días)</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: 90, gap: 4 }}>
+                            {metrics.registrations_14d.map((d) => {
+                                const max = Math.max(...metrics.registrations_14d!.map((x) => x.count), 1);
+                                return (
+                                    <View key={d.date} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' }} accessibilityLabel={`${d.date}: ${d.count} registros`}>
+                                        <View style={{ width: '100%', height: Math.max((d.count / max) * 80, 3), borderRadius: 4, backgroundColor: theme.accent }} />
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    </View>
+                )}
 
                 <View style={[styles.chartBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <View style={styles.sectionHeader}>
@@ -53,7 +76,7 @@ export default function AdminStatsScreen() {
                             <View style={styles.roleInfo}>
                                 <Text style={[styles.roleName, { color: theme.text }]}>{role.toUpperCase()}</Text>
                                 <Text style={[styles.rolePercentage, { color: theme.primary }]}>
-                                    {((count / kpis!.total_users) * 100).toFixed(1)}%
+                                    {kpis!.total_users ? ((count / kpis!.total_users) * 100).toFixed(1) : '0.0'}%
                                 </Text>
                             </View>
                             <View style={[styles.progressBar, { backgroundColor: theme.background }]}>
@@ -61,7 +84,7 @@ export default function AdminStatsScreen() {
                                     colors={['#1c2f6b', '#101c3d']}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
-                                    style={[styles.progressFill, { width: `${Math.max((count / kpis!.total_users) * 100, 5)}%` }]}
+                                    style={[styles.progressFill, { width: `${Math.max(kpis!.total_users ? (count / kpis!.total_users) * 100 : 0, 5)}%` }]}
                                 />
                             </View>
                             <Text style={[styles.roleCount, { color: theme.textMuted }]}>{count} usuarios registrados</Text>

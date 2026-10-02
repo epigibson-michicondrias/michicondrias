@@ -11,6 +11,10 @@ export interface GroomingAppointment {
     before_photo_url?: string;
     after_photo_url?: string;
     skin_report?: string;
+    /** Datos de apoyo que agrega el backend (pueden faltar en respuestas antiguas) */
+    pet_name?: string | null;
+    client_name?: string | null;
+    groomer_name?: string | null;
 }
 
 export interface GroomingAppointmentCreate {
@@ -53,6 +57,7 @@ export interface GroomingService {
     duration_minutes: number;
     is_active: boolean;
     created_at: string;
+    groomer_name?: string | null;
 }
 
 export interface GroomingServiceCreate {
@@ -102,4 +107,24 @@ export async function getProviderAppointments(): Promise<GroomingAppointment[]> 
 export async function getAvailableSlots(groomerId: string, targetDate: string): Promise<string[]> {
     const params = new URLSearchParams({ target_date: targetDate });
     return apiFetch<string[]>("estilistas", `/groomers/${groomerId}/available-slots?${params}`);
+}
+
+export async function updateAppointmentStatus(appointmentId: string, status: string): Promise<GroomingAppointment> {
+    return apiFetch<GroomingAppointment>("estilistas", `/appointments/${appointmentId}/status?status=${status}`, {
+        method: "PATCH",
+    });
+}
+
+export async function getMyGroomingServices(): Promise<GroomingService[]> {
+    return apiFetch<GroomingService[]>("estilistas", "/services/mine");
+}
+
+export async function updateGroomingService(
+    serviceId: string,
+    data: Partial<Pick<GroomingService, "name" | "description" | "price" | "duration_minutes" | "is_active">>
+): Promise<GroomingService> {
+    return apiFetch<GroomingService>("estilistas", `/services/${serviceId}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+    });
 }

@@ -9,6 +9,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { getPetById } from '@/src/services/mascotas';
 import { getRecordsByPet, getVaccinesByPet } from '@/src/services/carnet';
 import { getRemindersWithDetails, checkReminder } from '@/src/services/reminders';
+import { showAlert } from '@/src/components/AppAlert';
 import { getPetLabHistory } from '@/src/services/laboratorio';
 import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
 import type { ReminderWithDetails } from '@/src/services/reminders';
@@ -26,10 +27,13 @@ export function usePetCarnet() {
 
     const isVet = user?.role_name === 'veterinario' || user?.role_name === 'admin';
 
-    const { data: pet, isLoading: loadingPet } = useQuery({
+    const { data: pet, isLoading: loadingPet, isError: petError, refetch: refetchPet } = useQuery({
         queryKey: ['pet', petId],
         queryFn: () => getPetById(petId),
     });
+
+    // El dueño también puede registrar vacunas y consultas en el carnet de su mascota (el backend lo permite)
+    const canEdit = isVet || (!!pet && pet.owner_id === user?.id);
 
     const { data: records = [], isLoading: loadingRecords } = useQuery({
         queryKey: ['pet-records', petId],
@@ -56,6 +60,9 @@ export function usePetCarnet() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['pet-reminders', petId] });
         },
+        onError: (error: any) => {
+            showAlert({ type: 'error', title: 'No se pudo marcar', message: error?.message || 'Inténtalo de nuevo.' });
+        },
     });
 
     const handleCheck = (reminderId: string) => {
@@ -74,6 +81,9 @@ export function usePetCarnet() {
         petId,
         pet,
         loadingPet,
+        petError,
+        refetchPet,
+        canEdit,
         records,
         loadingRecords,
         vaccines,

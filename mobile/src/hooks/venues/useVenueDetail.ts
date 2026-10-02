@@ -4,6 +4,7 @@
  */
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
+import { Linking } from 'react-native';
 import { getVenue, Venue } from '@/src/services/venues';
 import { showAlert } from '@/src/components/AppAlert';
 
@@ -16,16 +17,12 @@ export function useVenueDetail() {
         enabled: !!id,
     });
 
+    /** Abre la dirección en la app de mapas del teléfono. */
     const handleContact = () => {
-        showAlert({
-            type: 'info',
-            title: 'Contactar',
-            message: '¿Cómo deseas contactar a este establecimiento?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Llamar',
-            onButtonPress: () => showAlert({ type: 'info', title: 'Contacto', message: 'Abriendo marcador telefónico...' }),
-        });
+        if (!venue?.address) return;
+        Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${venue.name} ${venue.address}`)}`).catch(() =>
+            showAlert({ type: 'error', title: 'No se pudo abrir', message: 'Tu dispositivo no pudo abrir el mapa.' })
+        );
     };
 
     return {

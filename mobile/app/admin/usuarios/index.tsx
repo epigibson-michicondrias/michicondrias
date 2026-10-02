@@ -21,7 +21,7 @@ import {
     Check
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ROLE_IDS, ROLE_COLORS, getRoleName } from '@/src/constants/roles';
+import { getRoleName, ALL_ROLES } from '@/src/constants/roles';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminUsersScreen() {
@@ -50,6 +50,7 @@ export default function AdminUsersScreen() {
         createUserMutation,
         updateUserMutation,
         handleDeletePress,
+        roleOptions,
         getRoleColorLocal,
         getRoleLabelLocal,
     } = useAdminUsers();
@@ -158,7 +159,7 @@ export default function AdminUsersScreen() {
 
             <View style={styles.filterSection}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScrollContent}>
-                    {['all', 'admin', 'veterinario', 'paseador', 'consumidor', 'unassigned'].map(role => (
+                    {['all', ...ALL_ROLES, 'unassigned'].map(role => (
                         <TouchableOpacity
                             key={role}
                             style={[
@@ -254,12 +255,7 @@ export default function AdminUsersScreen() {
 
                                 <Text style={[styles.inputLabel, { color: theme.textMuted }]}>ROL DE USUARIO</Text>
                                 <View style={styles.rolePickerGrid}>
-                                    {[
-                                        { id: ROLE_IDS.ADMIN, label: 'Admin', color: ROLE_COLORS.admin },
-                                        { id: ROLE_IDS.VETERINARIO, label: 'Veterinario', color: ROLE_COLORS.veterinario },
-                                        { id: ROLE_IDS.PASEADOR, label: 'Paseador', color: ROLE_COLORS.paseador },
-                                        { id: ROLE_IDS.CONSUMIDOR, label: 'Usuario', color: ROLE_COLORS.consumidor },
-                                    ].map((role) => (
+                                    {roleOptions.map((role) => (
                                         <TouchableOpacity
                                             key={role.id}
                                             style={[

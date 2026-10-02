@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePurchases, STATUS_MAP } from '@/src/hooks/ecommerce';
@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Package, ShoppingBag } from 'lucide-react-native';
 import { Order } from '@/src/services/ecommerce';
+import { formatCurrency } from '@/src/utils/formatters';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function ComprasScreen() {
@@ -17,29 +18,44 @@ export default function ComprasScreen() {
     const { orders, isLoading } = usePurchases();
 
     const renderItem = ({ item }: { item: Order }) => {
-        const statusInfo = STATUS_MAP[item.status] || { label: item.status, color: '#666' };
+        const statusInfo = STATUS_MAP[item.status] || { label: item.status, color: theme.textMuted };
         const date = new Date(item.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+        const first = item.items?.[0]?.product;
+        const units = (item.items || []).reduce((acc, i) => acc + i.quantity, 0);
+        const extra = (item.items?.length || 0) - 1;
+        const title = first?.name
+            ? (extra > 0 ? `${first.name} y ${extra} más` : first.name)
+            : `Pedido #${item.id.slice(0, 8).toUpperCase()}`;
         return (
             <TouchableOpacity
-                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
+                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                 onPress={() => router.push(`/tienda/pedido/${item.id}` as any)}
+                accessibilityRole="button"
+                accessibilityLabel={`${title}, ${statusInfo.label}, ${formatCurrency(item.total_amount)}`}
             >
-                <View style={[styles.itemImagePlaceholder, { backgroundColor: theme.borderLight }]}>
-                    <Package size={32} color={theme.textMuted} />
-                </View>
+                {first?.image_url ? (
+                    <Image source={{ uri: first.image_url }} style={styles.itemImagePlaceholder} />
+                ) : (
+                    <View style={[styles.itemImagePlaceholder, { backgroundColor: theme.backgroundSecondary }]}>
+                        <Package size={32} color={theme.textMuted} />
+                    </View>
+                )}
                 <View style={styles.content}>
                     <View style={styles.cardHeader}>
-                        <Text style={[styles.orderId, { color: theme.textMuted }]}>{item.id.slice(0, 8)}</Text>
-                        <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '15' }]}>
+                        <Text style={[styles.orderId, { color: theme.textMuted }]}>#{item.id.slice(0, 8).toUpperCase()}</Text>
+                        <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '22' }]}>
                             <Text style={[styles.statusText, { color: statusInfo.color }]}>{statusInfo.label}</Text>
                         </View>
                     </View>
-                    <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={1}>Pedido #{item.id.slice(0, 8)}</Text>
+                    <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={2}>{title}</Text>
                     <View style={styles.footerRow}>
-                        <Text style={[styles.price, { color: theme.text }]}>${item.total_amount.toFixed(2)}</Text>
+                        <Text style={[styles.price, { color: theme.text }]}>{formatCurrency(item.total_amount)}</Text>
                         <View style={[styles.dot, { backgroundColor: theme.border }]} />
-                        <Text style={[styles.date, { color: theme.textMuted }]}>{date}</Text>
+                        <Text style={[styles.date, { color: theme.textMuted }]}>{units > 0 ? `${units} ${units === 1 ? 'pieza' : 'piezas'} · ` : ''}{date}</Text>
                     </View>
+                    {item.status === 'pending' ? (
+                        <Text style={[styles.pendingHint, { color: theme.warning }]}>Pendiente de pago · toca para pagar o cancelar</Text>
+                    ) : null}
                 </View>
             </TouchableOpacity>
         );
@@ -58,7 +74,7 @@ export default function ComprasScreen() {
             <ScreenHeader title="Mis Compras" />
 
             <FlatList
-            refreshControl={<AppRefreshControl />}
+                refreshControl={<AppRefreshControl />}
                 data={orders}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
@@ -67,6 +83,9 @@ export default function ComprasScreen() {
                     <EmptyState
                         icon={<ShoppingBag size={40} color={theme.textMuted} strokeWidth={1} />}
                         title="Aún no has realizado compras"
+                        subtitle="Cuando compres en Michi-Shop verás aquí tus pedidos y su seguimiento."
+                        actionLabel="Ir a la tienda"
+                        onAction={() => router.replace('/(tabs)/tienda-tab' as any)}
                     />
                 }
             />
@@ -137,6 +156,7 @@ const styles = StyleSheet.create({
         height: 4,
         borderRadius: 2,
     },
+    pendingHint: { fontSize: 11, fontWeight: '700', marginTop: 2 },
     date: {
         fontSize: 12,
         fontWeight: '600',

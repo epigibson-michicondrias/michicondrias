@@ -5,13 +5,22 @@ import { useDeathReport } from '@/src/hooks/funerary/useDeathReport';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { FileText, Calendar, Info, AlertTriangle } from 'lucide-react-native';
-
-const CREMATION_TYPES = ['individual', 'colectiva', 'doméstica'];
+import DatePicker from '@/src/components/DatePicker';
+import PetPicker from '@/src/features/salud/PetPicker';
+import { toISODate } from '@/src/features/salud/format';
+import { CREMATION_OPTIONS } from '@/src/services/funerary';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
+import { FileText, Info, AlertTriangle, PawPrint } from 'lucide-react-native';
 
 export default function ReporteDefuncionScreen() {
     const { theme } = useTheme();
     const { form, updateForm, handleSubmitReport, isSubmitting } = useDeathReport();
+    const { user } = useAuth();
+    const isFuneralHome = user?.role_name === 'funeraria';
+    // La funeraria solo puede reportar mascotas con una reserva suya vigente (lo exige el backend)
+    const { providerBookings } = useFuneraryProvider();
+    const reportable = providerBookings.filter((b, i, arr) => b.status !== 'cancelled' && arr.findIndex((x) => x.pet_id === b.pet_id) === i);
 
     return (
         <ScreenContainer>
@@ -23,34 +32,61 @@ export default function ReporteDefuncionScreen() {
             <KeyboardScreen contentContainerStyle={styles.scrollContent}>
                 <View style={styles.content}>
                     {/* Warning banner */}
-                    <View style={[styles.warningBox, { backgroundColor: '#ef444410' }]}>
-                        <AlertTriangle size={18} color="#ef4444" />
-                        <Text style={[styles.warningText, { color: '#ef4444' }]}>
+                    <View style={[styles.warningBox, { backgroundColor: theme.errorLight }]}>
+                        <AlertTriangle size={18} color={theme.error} />
+                        <Text style={[styles.warningText, { color: theme.error }]}>
                             Este registro es oficial. Verifica los datos antes de enviar.
                         </Text>
                     </View>
 
-                    {/* Pet ID */}
+                    {/* Mascota */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>ID de Mascota *</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ingresa el ID de la mascota"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.pet_id}
-                            onChangeText={(val) => updateForm('pet_id', val)}
-                        />
+                        {isFuneralHome ? (
+                            <View>
+                                <Text style={[styles.label, { color: theme.text }]}>Mascota con reserva *</Text>
+                                {reportable.length === 0 ? (
+                                    <Text style={{ color: theme.textMuted, fontSize: 14 }}>
+                                        No tienes reservas vigentes. Solo puedes reportar mascotas con una reserva de tu funeraria.
+                                    </Text>
+                                ) : (
+                                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                                        {reportable.map((b) => {
+                                            const selected = form.pet_id === b.pet_id;
+                                            return (
+                                                <TouchableOpacity
+                                                    key={b.pet_id}
+                                                    accessibilityRole="button"
+                                                    accessibilityState={{ selected }}
+                                                    onPress={() => updateForm('pet_id', b.pet_id)}
+                                                    style={{
+                                                        flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14,
+                                                        borderRadius: 999, borderWidth: 1,
+                                                        backgroundColor: selected ? theme.primary : theme.surface,
+                                                        borderColor: selected ? theme.primary : theme.border,
+                                                    }}
+                                                >
+                                                    <PawPrint size={14} color={selected ? '#fff' : theme.textMuted} />
+                                                    <Text style={{ color: selected ? '#fff' : theme.text, fontWeight: '700', fontSize: 14 }}>
+                                                        {b.pet_name || `Mascota ${b.pet_id.slice(0, 6)}`}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            );
+                                        })}
+                                    </View>
+                                )}
+                            </View>
+                        ) : (
+                            <PetPicker value={form.pet_id} onChange={(id) => updateForm('pet_id', id)} />
+                        )}
                     </View>
 
-                    {/* Date of death */}
+                    {/* Fecha de defunción */}
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Fecha de Defunción *</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="YYYY-MM-DD"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.date_of_death}
-                            onChangeText={(val) => updateForm('date_of_death', val)}
+                        <DatePicker
+                            label="Fecha de Defunción *"
+                            value={form.date_of_death ? new Date(form.date_of_death + 'T12:00:00') : new Date()}
+                            maximumDate={new Date()}
+                            onChange={(d) => updateForm('date_of_death', toISODate(d))}
                         />
                     </View>
 
@@ -73,23 +109,23 @@ export default function ReporteDefuncionScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.text }]}>Tipo de Cremación</Text>
                         <View style={styles.typeRow}>
-                            {CREMATION_TYPES.map((type) => (
+                            {CREMATION_OPTIONS.map((opt) => (
                                 <TouchableOpacity
-                                    key={type}
+                                    key={opt.value}
                                     style={[
                                         styles.typeBtn,
                                         { backgroundColor: theme.surface, borderColor: theme.border },
-                                        form.cremation_type === type && { backgroundColor: theme.primary, borderColor: theme.primary },
+                                        form.cremation_type === opt.value && { backgroundColor: theme.primary, borderColor: theme.primary },
                                     ]}
-                                    onPress={() => updateForm('cremation_type', type)}
+                                    onPress={() => updateForm('cremation_type', opt.value)}
                                 >
                                     <Text
                                         style={[
                                             styles.typeText,
-                                            { color: form.cremation_type === type ? '#fff' : theme.text },
+                                            { color: form.cremation_type === opt.value ? '#fff' : theme.text },
                                         ]}
                                     >
-                                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                                        {opt.label}
                                     </Text>
                                 </TouchableOpacity>
                             ))}

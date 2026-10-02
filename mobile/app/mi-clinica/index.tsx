@@ -71,9 +71,9 @@ export default function MiClinicaScreen() {
                         />
                         <View style={styles.profileInfo}>
                             <View style={styles.statusBox}>
-                                <View style={[styles.statusBadge, { backgroundColor: clinic.is_approved ? '#10b98115' : '#f59e0b15' }]}>
-                                    <Text style={[styles.statusText, { color: clinic.is_approved ? '#10b981' : '#f59e0b' }]}>
-                                        {clinic.is_approved ? '✓ VERIFICADA' : '⏳ PENDIENTE'}
+                                <View style={[styles.statusBadge, { backgroundColor: clinic.is_approved ? theme.successLight : theme.warningLight }]}>
+                                    <Text style={[styles.statusText, { color: clinic.is_approved ? theme.success : theme.warning }]}>
+                                        {clinic.is_approved ? 'VERIFICADA' : 'EN REVISIÓN: aún no aparece en el directorio'}
                                     </Text>
                                 </View>
                             </View>

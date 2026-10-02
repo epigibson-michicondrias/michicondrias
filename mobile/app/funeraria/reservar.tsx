@@ -2,12 +2,15 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useFuneraryBooking } from '@/src/hooks/funerary/useFuneraryBooking';
-import { FuneraryService } from '@/src/services/funerary';
+import { FuneraryService, cremationLabel } from '@/src/services/funerary';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
+import DatePicker from '@/src/components/DatePicker';
+import PetPicker from '@/src/features/salud/PetPicker';
+import { toISODate } from '@/src/features/salud/format';
 import { Calendar, DollarSign, Check, Heart, Info, Send } from 'lucide-react-native';
 
 export default function ReservarScreen() {
@@ -55,12 +58,12 @@ export default function ReservarScreen() {
                     </View>
                     {item.cremation_type && (
                         <View style={[styles.tag, { backgroundColor: theme.secondary + '10' }]}>
-                            <Text style={[styles.tagText, { color: theme.secondary }]}>{item.cremation_type}</Text>
+                            <Text style={[styles.tagText, { color: theme.secondary }]}>{cremationLabel(item.cremation_type)}</Text>
                         </View>
                     )}
                     {item.urn_included && (
-                        <View style={[styles.tag, { backgroundColor: '#f59e0b20' }]}>
-                            <Text style={[styles.tagText, { color: '#f59e0b' }]}>Urna incluida</Text>
+                        <View style={[styles.tag, { backgroundColor: theme.warningLight }]}>
+                            <Text style={[styles.tagText, { color: theme.warning }]}>Urna incluida</Text>
                         </View>
                     )}
                 </View>
@@ -101,24 +104,16 @@ export default function ReservarScreen() {
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Datos de la Reserva</Text>
 
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>ID de Mascota *</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ingresa el ID de tu mascota"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.pet_id}
-                            onChangeText={(val) => updateForm('pet_id', val)}
-                        />
+                        <PetPicker value={form.pet_id} onChange={(id) => updateForm('pet_id', id)} />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Fecha Programada *</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="YYYY-MM-DD"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.scheduled_date}
-                            onChangeText={(val) => updateForm('scheduled_date', val)}
+                        <DatePicker
+                            label="Fecha Programada *"
+                            value={form.scheduled_date ? new Date(form.scheduled_date + 'T12:00:00') : new Date()}
+                            minimumDate={new Date()}
+                            placeholder="Seleccionar fecha"
+                            onChange={(d) => updateForm('scheduled_date', toISODate(d))}
                         />
                     </View>
 

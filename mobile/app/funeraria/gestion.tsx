@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, FlatList } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Switch } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
 import { FuneraryBooking } from '@/src/services/funerary';
@@ -7,35 +7,43 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
-import { Calendar, Clock, Inbox, User, Plus } from 'lucide-react-native';
-
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-    pending: { label: 'Pendiente', color: '#f59e0b', bg: '#f59e0b20' },
-    confirmed: { label: 'Confirmada', color: '#10b981', bg: '#10b98120' },
-    completed: { label: 'Completada', color: '#6366f1', bg: '#6366f120' },
-    cancelled: { label: 'Cancelada', color: '#ef4444', bg: '#ef444420' },
-};
+import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { formatDateMx, statusTone } from '@/src/features/salud/format';
+import { cremationLabel } from '@/src/services/funerary';
+import { showAlert } from '@/src/components/AppAlert';
+import { Calendar, Clock, Inbox, PawPrint, Plus } from 'lucide-react-native';
 
 export default function GestionScreen() {
     const { theme } = useTheme();
-    const { providerBookings, isLoadingBookings, refetchBookings, router } = useFuneraryProvider();
+    const {
+        providerBookings, isLoadingBookings, myServices, changeBookingStatus, isChangingStatus, toggleServiceActive, router,
+    } = useFuneraryProvider();
 
-    const formatDate = (dateStr?: string) => {
-        if (!dateStr) return '';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('es-MX', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+    const confirmReject = (id: string) =>
+        showAlert({
+            type: 'warning',
+            title: '¿Rechazar la solicitud?',
+            message: 'La familia será notificada de la cancelación.',
+            buttonText: 'Sí, rechazar',
+            showCancel: true,
+            cancelText: 'Volver',
+            onButtonPress: () => changeBookingStatus(id, 'cancelled'),
         });
-    };
 
-    const getStatusConfig = (status: string) => {
-        return STATUS_CONFIG[status.toLowerCase()] || STATUS_CONFIG.pending;
-    };
+    const ActionBtn = ({ label, onPress, color, filled }: { label: string; onPress: () => void; color: string; filled?: boolean }) => (
+        <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={label}
+            disabled={isChangingStatus}
+            onPress={onPress}
+            style={[styles.actionBtn, { borderColor: color, backgroundColor: filled ? color : 'transparent' }, isChangingStatus && { opacity: 0.6 }]}
+        >
+            <Text style={{ color: filled ? '#fff' : color, fontWeight: '700', fontSize: 13 }}>{label}</Text>
+        </TouchableOpacity>
+    );
 
     const renderBooking = ({ item }: { item: FuneraryBooking }) => {
-        const statusCfg = getStatusConfig(item.status);
+        const statusCfg = statusTone(theme, item.status);
 
         return (
             <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -45,12 +53,12 @@ export default function GestionScreen() {
                     </View>
                     <View style={styles.cardInfo}>
                         <Text style={[styles.cardTitle, { color: theme.text }]}>
-                            Solicitud #{item.id.slice(0, 8)}
+                            {item.service_name || `Solicitud #${item.id.slice(0, 8)}`}
                         </Text>
                         <View style={styles.metaRow}>
-                            <User size={12} color={theme.textMuted} />
+                            <PawPrint size={12} color={theme.textMuted} />
                             <Text style={[styles.metaText, { color: theme.textMuted }]}>
-                                Cliente: {item.client_id.slice(0, 8)}...
+                                {item.pet_name ? `Mascota: ${item.pet_name}` : 'Mascota no disponible'}
                             </Text>
                         </View>
                     </View>
@@ -63,14 +71,14 @@ export default function GestionScreen() {
                     <View style={styles.detailItem}>
                         <Calendar size={14} color={theme.textMuted} />
                         <Text style={[styles.detailText, { color: theme.text }]}>
-                            {formatDate(item.scheduled_date)}
+                            {formatDateMx(item.scheduled_date)}
                         </Text>
                     </View>
                     {item.created_at && (
                         <View style={styles.detailItem}>
                             <Clock size={14} color={theme.textMuted} />
                             <Text style={[styles.detailText, { color: theme.textMuted }]}>
-                                {formatDate(item.created_at)}
+                                {formatDateMx(item.created_at)}
                             </Text>
                         </View>
                     )}
@@ -78,8 +86,21 @@ export default function GestionScreen() {
 
                 {item.notes && (
                     <Text style={[styles.notes, { color: theme.textMuted }]} numberOfLines={2}>
-                        📝 {item.notes}
+                        {item.notes}
                     </Text>
+                )}
+
+                {item.status === 'pending' && (
+                    <View style={styles.actionsRow}>
+                        <ActionBtn label="Confirmar" color={theme.success} filled onPress={() => changeBookingStatus(item.id, 'confirmed')} />
+                        <ActionBtn label="Rechazar" color={theme.error} onPress={() => confirmReject(item.id)} />
+                    </View>
+                )}
+                {item.status === 'confirmed' && (
+                    <View style={styles.actionsRow}>
+                        <ActionBtn label="Marcar completada" color={theme.info} filled onPress={() => changeBookingStatus(item.id, 'completed')} />
+                        <ActionBtn label="Cancelar" color={theme.error} onPress={() => confirmReject(item.id)} />
+                    </View>
                 )}
             </View>
         );
@@ -103,8 +124,35 @@ export default function GestionScreen() {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
-                    onRefresh={refetchBookings}
-                    refreshing={isLoadingBookings}
+                    refreshControl={<AppRefreshControl />}
+                    ListHeaderComponent={
+                        <View style={{ marginBottom: 8 }}>
+                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Mis servicios</Text>
+                            {myServices.length === 0 ? (
+                                <Text style={[styles.metaText, { color: theme.textMuted, marginBottom: 12 }]}>
+                                    Aún no publicas servicios. Toca + para crear el primero.
+                                </Text>
+                            ) : (
+                                myServices.map((svc) => (
+                                    <View key={svc.id} style={[styles.svcRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.cardTitle, { color: theme.text, marginBottom: 2 }]} numberOfLines={1}>{svc.name}</Text>
+                                            <Text style={[styles.metaText, { color: theme.textMuted }]}>
+                                                ${svc.price}{svc.cremation_type ? ` · ${cremationLabel(svc.cremation_type)}` : ''} · {svc.is_active ? 'Visible' : 'Oculto'}
+                                            </Text>
+                                        </View>
+                                        <Switch
+                                            accessibilityLabel={`Publicar ${svc.name}`}
+                                            value={!!svc.is_active}
+                                            onValueChange={(v) => toggleServiceActive(svc.id, v)}
+                                            trackColor={{ true: theme.primary, false: theme.border }}
+                                        />
+                                    </View>
+                                ))
+                            )}
+                            <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 12 }]}>Solicitudes</Text>
+                        </View>
+                    }
                     ListEmptyComponent={
                         <EmptyState
                             icon={<Inbox size={32} color={theme.textMuted} />}
@@ -185,6 +233,10 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
     },
+    sectionTitle: { fontSize: 17, fontWeight: '800', marginBottom: 10 },
+    svcRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 14, borderWidth: 1, marginBottom: 10 },
+    actionsRow: { flexDirection: 'row', gap: 10, marginTop: 14, flexWrap: 'wrap' },
+    actionBtn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1 },
     notes: {
         fontSize: 13,
         lineHeight: 19,

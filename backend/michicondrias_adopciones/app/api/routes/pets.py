@@ -23,6 +23,49 @@ from app.schemas.pet import (
 
 router = APIRouter()
 
+# Estados válidos de una solicitud. Se aceptan sinónimos en español de versiones anteriores de la app.
+VALID_REQUEST_STATUSES = {"PENDING", "REVIEWING", "INTERVIEW_SCHEDULED", "APPROVED", "REJECTED"}
+STATUS_ALIASES = {"PENDIENTE": "PENDING", "APROBADO": "APPROVED", "RECHAZADO": "REJECTED"}
+STATUS_LABELS_ES = {
+    "REVIEWING": "está en revisión",
+    "INTERVIEW_SCHEDULED": "tiene una entrevista programada",
+    "APPROVED": "fue pre-aprobada",
+    "REJECTED": "no fue aceptada",
+    "ADOPTED": "fue aprobada: ¡la adopción se concretó!",
+}
+
+
+def _normalize_status(raw: str) -> str:
+    value = (raw or "").strip().upper()
+    value = STATUS_ALIASES.get(value, value)
+    if value not in VALID_REQUEST_STATUSES:
+        raise HTTPException(status_code=400, detail="Estado de solicitud no válido")
+    return value
+
+
+async def _notify(user_id: str, title: str, message: str) -> None:
+    """Notificación real vía el servicio core (con push por WebSocket). Un fallo no rompe el flujo."""
+    try:
+        payload = {"user_id": user_id, "title": title, "message": message, "type": "general"}
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                f"{settings.CORE_SERVICE_URL}/api/v1/notifications/broadcast", json=payload,
+                headers={"X-Internal-Token": os.getenv("INTERNAL_SERVICE_TOKEN", "")}, timeout=5.0,
+            )
+    except Exception as e:
+        print(f"[ADOPTION] No se pudo notificar a {user_id}: {e}")
+
+
+def _require_listing_owner_or_admin(db: Session, listing_id: str, user_id: str, role: str):
+    """La publicación debe existir y el usuario ser quien la publicó (refugio) o admin."""
+    listing = crud.get_listing(db, listing_id)
+    if not listing:
+        raise HTTPException(status_code=404, detail="Publicación no encontrada")
+    if role != "admin" and listing.published_by != user_id:
+        raise HTTPException(status_code=403, detail="Solo quien publicó la mascota puede gestionar sus solicitudes")
+    return listing
+
+
 
 # ========================================
 # PUBLIC — Approved listings only
@@ -59,6 +102,14 @@ def read_listings(
     """Browse approved adoption listings. Public."""
     return crud.get_approved_listings(db, skip=skip, limit=limit)
 
+@router.get("/me", response_model=List[ListingResponse])
+def read_my_listings(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """My published listings (see approval status)."""
+    return crud.get_listings_by_user(db, user_id=user_id)
+
 @router.get("/{listing_id}", response_model=ListingResponse)
 def read_listing(
     listing_id: str,
@@ -84,14 +135,6 @@ def create_listing(
 ) -> Any:
     """Publish an adoption listing. Pending admin approval."""
     return crud.create_listing(db=db, listing=listing_in, user_id=user_id)
-
-@router.get("/me", response_model=List[ListingResponse])
-def read_my_listings(
-    db: Session = Depends(get_db),
-    user_id: str = Depends(deps.get_current_user_id),
-) -> Any:
-    """My published listings (see approval status)."""
-    return crud.get_listings_by_user(db, user_id=user_id)
 
 @router.put("/{listing_id}", response_model=ListingResponse)
 def update_my_listing(
@@ -129,7 +172,7 @@ def delete_my_listing(
     return {"message": "Publicación eliminada"}
 
 @router.post("/{listing_id}/request", response_model=AdoptionRequestResponse)
-def request_adoption(
+async def request_adoption(
     listing_id: str,
     req_in: AdoptionRequestCreate,
     db: Session = Depends(get_db),
@@ -144,7 +187,18 @@ def request_adoption(
     if listing.status != "abierto":
         raise HTTPException(status_code=400, detail="Esta mascota ya fue adoptada")
 
-    return crud.create_adoption_request(db=db, listing_id=listing_id, user_id=user_id, req=req_in)
+    if listing.published_by == user_id:
+        raise HTTPException(status_code=400, detail="No puedes postularte a adoptar tu propia publicación")
+    if crud.get_active_request_for(db, listing_id, user_id):
+        raise HTTPException(status_code=409, detail="Ya enviaste una solicitud para esta mascota")
+
+    created = crud.create_adoption_request(db=db, listing_id=listing_id, user_id=user_id, req=req_in)
+    await _notify(
+        listing.published_by,
+        f"Nueva solicitud de adopción: {listing.name}",
+        f"{req_in.applicant_name or 'Una persona'} quiere adoptar a {listing.name}. Revísala en Solicitudes recibidas.",
+    )
+    return created
 
 @router.get("/requests/me", response_model=List[AdoptionRequestResponse])
 def read_my_requests(
@@ -171,6 +225,26 @@ def read_my_requests(
             
         results.append(r_dict)
     return results
+
+
+@router.get("/requests/{request_id}", response_model=AdoptionRequestResponse)
+def read_request(
+    request_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """Una solicitud: la ve su solicitante, quien publicó la mascota o un admin."""
+    req = db.query(AdoptionRequest).filter(AdoptionRequest.id == request_id).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="Solicitud no encontrada")
+    listing = crud.get_listing(db, req.listing_id)
+    if req.user_id != user_id and role != "admin" and (not listing or listing.published_by != user_id):
+        raise HTTPException(status_code=403, detail="No tienes permiso para ver esta solicitud")
+    if listing:
+        req.pet_name = listing.name
+        req.pet_photo_url = listing.photo_url
+    return crud.enrich_adoption_request_with_vetting(db, req)
 
 
 from app.models.pet import AdoptionRequest
@@ -223,25 +297,39 @@ def reject_listing(
 def read_listing_requests(
     listing_id: str,
     db: Session = Depends(get_db),
-    admin_id: str = Depends(deps.require_admin),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
-    """View all requests for a listing. Admin only."""
+    """Solicitudes de una publicación. Solo quien la publicó (refugio) o un admin."""
+    _require_listing_owner_or_admin(db, listing_id, user_id, role)
     return crud.get_requests_for_listing(db, listing_id)
 
 @router.put("/admin/requests/{request_id}/status", response_model=AdoptionRequestResponse)
-def update_adoption_request_status(
+async def update_adoption_request_status(
     request_id: str,
     status: str,
+    note: str | None = None,
     db: Session = Depends(get_db),
-    admin_id: str = Depends(deps.require_admin),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
-    Transition a request to an intermediate state (e.g., REVIEWING, INTERVIEW_SCHEDULED, APPROVED).
-    This doesn't finalize adoption, only updates the timeline.
+    Transition a request to an intermediate state (REVIEWING, INTERVIEW_SCHEDULED, APPROVED, REJECTED).
+    Solo quien publicó la mascota (refugio) o un admin. No finaliza la adopción, solo actualiza la línea de tiempo.
     """
-    req = crud.update_request_status(db, request_id, status)
-    if not req:
+    new_status = _normalize_status(status)
+    existing = db.query(AdoptionRequest).filter(AdoptionRequest.id == request_id).first()
+    if not existing:
         raise HTTPException(status_code=404, detail="Solicitud no encontrada")
+    if existing.status == "ADOPTED":
+        raise HTTPException(status_code=400, detail="Esta adopción ya se concretó")
+    listing = _require_listing_owner_or_admin(db, existing.listing_id, user_id, role)
+    req = crud.update_request_status(db, request_id, new_status)
+    await _notify(
+        existing.user_id,
+        f"Tu solicitud por {listing.name}",
+        f"Tu solicitud para adoptar a {listing.name} {STATUS_LABELS_ES.get(new_status, 'cambió de estado')}." + (f" Mensaje del refugio: {note.strip()[:300]}" if note and note.strip() else ""),
+    )
     return req
 
 @router.post("/admin/requests/{request_id}/approve", response_model=AdoptionRequestResponse)
@@ -249,10 +337,11 @@ async def approve_adoption(
     request_id: str,
     request: Request,
     db: Session = Depends(get_db),
-    admin_id: str = Depends(deps.require_admin),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
-    Approve an adoption request. Admin only.
+    Approve an adoption request. Solo quien publicó la mascota (refugio) o un admin.
     This marks the listing as 'ADOPTED', rejects other requests,
     and creates a permanent Pet record in the mascotas microservice
     linked to the adopter (user_id) and listing (adopted_from_listing_id).
@@ -268,7 +357,12 @@ async def approve_adoption(
     listing = crud.get_listing(db, req.listing_id)
     if not listing:
         raise HTTPException(status_code=404, detail="Publicación original no encontrada")
-    
+    _require_listing_owner_or_admin(db, listing.id, user_id, role)
+    if listing.status != "abierto" or req.status == "ADOPTED":
+        raise HTTPException(status_code=400, detail="Esta mascota ya fue adoptada")
+    if req.status == "REJECTED":
+        raise HTTPException(status_code=400, detail="Esta solicitud fue rechazada")
+
     # 2. Determine the service URL dynamically based on the current request Host
     # This allows it to work in local (localhost:8000), staging or production seamlessly
     host = request.headers.get("host", "localhost:8000")
@@ -345,6 +439,11 @@ async def approve_adoption(
     
     # 4. If pet creation succeeded, finalize the adoption in local DB
     result = crud.approve_adoption(db, request_id)
+    await _notify(
+        req.user_id,
+        f"¡Adopción aprobada: {listing.name}!",
+        f"Tu solicitud para adoptar a {listing.name} fue aprobada. La mascota ya aparece en tu cuenta.",
+    )
     return result
 
 
@@ -360,6 +459,9 @@ def submit_adoption_form(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """Submit a detailed adoption questionnaire/form for a pet."""
+    existing_form = crud.get_active_form_for(db, form_in.pet_id, user_id)
+    if existing_form:
+        raise HTTPException(status_code=409, detail="Ya enviaste un formulario para esta mascota")
     # Verify the pet/listing exists
     listing = crud.get_listing(db, form_in.pet_id)
     if not listing:
@@ -411,7 +513,8 @@ def sign_adoption_contract(
             detail="No tienes permiso para firmar contratos para esta mascota",
         )
     
-    # Create the contract
+    # El firmante es siempre quien está autenticado (no lo que diga el cuerpo de la petición)
+    contract_in.refuge_id = user_id
     contract = crud.create_adoption_contract(db=db, contract_in=contract_in)
     # Update form status to 'approved' if not already
     crud.update_adoption_form_status(db, form.id, "approved")

@@ -7,6 +7,9 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LogOut, ChevronRight, Crown } from 'lucide-react-native';
+import ListRow from '@/src/components/ListRow';
+import SectionHeader from '@/src/components/SectionHeader';
+import { getRoleLabelFor } from '@/src/constants/roles';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
 
 export default function MenuScreen() {
@@ -46,11 +49,11 @@ export default function MenuScreen() {
                     )}
                 </View>
                 <View style={styles.profileMasterInfo}>
-                    <Text style={styles.welcomeText}>¡Hola!</Text>
+                    <Text style={styles.welcomeText}>{isUserAdmin ? 'Administración' : 'Herramientas'}</Text>
                     <Text style={styles.profileName}>{user?.full_name || 'Explorador'}</Text>
                     <View style={[styles.roleLabel, { backgroundColor: isUserAdmin ? '#f59e0b40' : 'rgba(255,255,255,0.15)' }]}>
                         <Text style={[styles.roleText, { color: isUserAdmin ? '#fcd34d' : '#fff' }]}>
-                            {isUserAdmin ? 'Administrador' : user?.role_name || 'Usuario'}
+                            {getRoleLabelFor(user?.role_name)}
                         </Text>
                     </View>
                 </View>
@@ -68,6 +71,8 @@ export default function MenuScreen() {
                 <TouchableOpacity
                     style={[styles.adminBanner, { backgroundColor: theme.surface, borderColor: theme.border }]}
                     onPress={() => router.push(bannerProps.route as any)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${bannerProps.title}. ${bannerProps.sub}`}
                 >
                     <LinearGradient
                         colors={bannerProps.colors}
@@ -88,27 +93,18 @@ export default function MenuScreen() {
         );
     };
 
-    // ── Menu item ────────────────────────────────────────────────────
-    const renderMenuItem = (item: any) => {
-        const ItemIcon = item.icon;
-        return (
-            <TouchableOpacity
-                key={item.id}
-                activeOpacity={0.7}
-                style={[styles.menuCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                onPress={() => router.push(item.route as any)}
-            >
-                <View style={[styles.menuIconBox, { backgroundColor: item.color + '15' }]}>
-                    <ItemIcon size={20} color={item.color} />
-                </View>
-                <View style={styles.menuInfo}>
-                    <Text style={[styles.menuLabel, { color: theme.text }]}>{item.label}</Text>
-                    <Text style={[styles.menuDesc, { color: theme.textMuted }]} numberOfLines={1}>{item.desc}</Text>
-                </View>
-                <ChevronRight size={16} color={theme.textMuted} />
-            </TouchableOpacity>
-        );
-    };
+    // ── Menu item (componente compartido ListRow) ───────────────────
+    const renderMenuItem = (item: any) => (
+        <ListRow
+            key={item.id}
+            icon={item.icon}
+            label={item.label}
+            desc={item.desc}
+            color={item.color}
+            badge={item.badge}
+            onPress={() => router.push(item.route as any)}
+        />
+    );
 
     // ── Render ───────────────────────────────────────────────────────
     return (
@@ -128,10 +124,11 @@ export default function MenuScreen() {
                         const SectionIcon = section.icon;
                         return (
                             <View key={idx} style={styles.section}>
-                                <View style={styles.sectionHeader}>
-                                    {SectionIcon && <SectionIcon size={16} color={theme.textMuted} />}
-                                    <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>{section.title.toUpperCase()}</Text>
-                                </View>
+                                <SectionHeader
+                                    overline
+                                    title={section.title}
+                                    icon={SectionIcon ? <SectionIcon size={16} color={theme.textMuted} /> : undefined}
+                                />
                                 <View style={styles.grid}>
                                     {section.data.map(renderMenuItem)}
                                 </View>
@@ -142,6 +139,8 @@ export default function MenuScreen() {
                     <TouchableOpacity
                         style={[styles.logoutBtn, { borderColor: theme.border }]}
                         onPress={handleSignOut}
+                        accessibilityRole="button"
+                        accessibilityLabel="Cerrar sesión"
                     >
                         <LogOut size={20} color="#ef4444" />
                         <Text style={styles.logoutText}>Cerrar Sesión</Text>

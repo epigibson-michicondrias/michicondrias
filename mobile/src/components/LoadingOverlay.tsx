@@ -12,7 +12,7 @@ export default function LoadingOverlay({ message }: LoadingOverlayProps) {
     const theme = Colors[colorScheme];
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} accessibilityRole="progressbar" accessibilityLabel={message || 'Cargando'}>
             <ActivityIndicator size="large" color={theme.primary} />
             {message && (
                 <Text style={[styles.message, { color: theme.textMuted }]}>{message}</Text>

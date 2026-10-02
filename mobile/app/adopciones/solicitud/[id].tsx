@@ -77,7 +77,7 @@ export default function ProcesarSolicitudScreen() {
                     <View style={styles.infoContent}>
                         <Text style={[styles.infoLabel, { color: theme.textMuted }]}>Contacto</Text>
                         <Text style={[styles.infoValue, { color: theme.text }]}>
-                            Contacto no disponible
+                            El contacto es por notificaciones de la app
                         </Text>
                     </View>
                 </View>
@@ -138,7 +138,7 @@ export default function ProcesarSolicitudScreen() {
                     <View style={styles.infoContent}>
                         <Text style={[styles.infoLabel, { color: theme.textMuted }]}>Propiedad</Text>
                         <Text style={[styles.infoValue, { color: theme.text }]}>
-                            {request.own_or_rent === 'Propio' ? 'Propia' : 'Rentada'}
+                            {request.own_or_rent || 'No indicado'}
                         </Text>
                     </View>
                 </View>
@@ -155,6 +155,13 @@ export default function ProcesarSolicitudScreen() {
                     </View>
                 )}
             </View>
+
+            {request.compatibility_score != null && (
+                <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                    <Text style={[styles.cardTitle, { color: theme.text }]}>Compatibilidad estimada: {request.compatibility_score}/100</Text>
+                    {!!request.vetting_notes && <Text style={[styles.reasonText, { color: theme.textMuted }]}>{request.vetting_notes}</Text>}
+                </View>
+            )}
 
             {/* Adoption Reason */}
             <View style={[styles.card, { backgroundColor: theme.surface }]}>
@@ -203,7 +210,7 @@ export default function ProcesarSolicitudScreen() {
             {/* Notes */}
             <View style={[styles.card, { backgroundColor: theme.surface }]}>
                 <Text style={[styles.cardTitle, { color: theme.text }]}>
-                    Notas Internas
+                    Mensaje para el solicitante
                 </Text>
                 
                 <TextInput
@@ -212,7 +219,7 @@ export default function ProcesarSolicitudScreen() {
                         borderColor: theme.border,
                         color: theme.text 
                     }]}
-                    placeholder="Añade notas sobre esta solicitud..."
+                    placeholder="Se enviará al solicitante junto con el cambio de estado (opcional)"
                     placeholderTextColor={theme.textMuted}
                     value={notes}
                     onChangeText={setNotes}
@@ -242,7 +249,18 @@ export default function ProcesarSolicitudScreen() {
                     </View>
                 )}
 
-                {request.status === 'REVIEWING' && (
+                {(request.status === 'REVIEWING' || request.status === 'INTERVIEW_SCHEDULED' || request.status === 'APPROVED') && (
+                    <TouchableOpacity
+                        style={[styles.approveButton, { backgroundColor: theme.error, marginBottom: 12 }]}
+                        onPress={() => handleStatusUpdate('REJECTED')}
+                        accessibilityRole="button"
+                    >
+                        <XCircle size={20} color="#fff" />
+                        <Text style={styles.buttonText}>Rechazar solicitud</Text>
+                    </TouchableOpacity>
+                )}
+
+                {(request.status === 'REVIEWING' || request.status === 'APPROVED') && (
                     <TouchableOpacity
                         style={[styles.approveButton, { backgroundColor: '#22c55e' }]}
                         onPress={handleApprove}

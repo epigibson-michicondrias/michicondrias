@@ -87,12 +87,16 @@ def create_place_review(
     if not (1 <= review_in.rating <= 5):
         raise HTTPException(status_code=400, detail="La calificación debe estar entre 1 y 5 estrellas")
 
-    db_review = PetfriendlyReview(
-        place_id=place_id,
-        user_id=user_id,
-        **review_in.model_dump(),
-    )
-    db.add(db_review)
+    # Una reseña por usuario y lugar: si ya opinó, se actualiza en vez de duplicar (evita inflar la calificación)
+    db_review = db.query(PetfriendlyReview).filter(
+        PetfriendlyReview.place_id == place_id, PetfriendlyReview.user_id == user_id
+    ).first()
+    if db_review:
+        db_review.rating = review_in.rating
+        db_review.comment = review_in.comment
+    else:
+        db_review = PetfriendlyReview(place_id=place_id, user_id=user_id, **review_in.model_dump())
+        db.add(db_review)
     db.commit()
 
     # Recalculate average rating of the place

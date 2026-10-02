@@ -25,9 +25,9 @@ export async function getPetLabHistory(petId: string): Promise<any[]> {
 }
 
 export async function updateLabOrderStatus(orderId: string, status: string): Promise<any> {
-    return apiFetch<any>("laboratorio", `/labs/orders/${orderId}/status`, {
+    // El backend recibe el estado como parámetro de consulta (status_str)
+    return apiFetch<any>("laboratorio", `/labs/orders/${orderId}/status?status_str=${encodeURIComponent(status)}`, {
         method: "PATCH",
-        body: JSON.stringify({ status }),
     });
 }
 
@@ -65,4 +65,31 @@ export async function getProviderLabAppointments(): Promise<any[]> {
 
 export async function getLabAnomalies(): Promise<any[]> {
     return apiFetch<any[]>("laboratorio", "/labs/alerts/anomalies");
+}
+
+export async function getLabOrders(statusFilter?: string): Promise<any[]> {
+    const q = statusFilter ? `?status_filter=${encodeURIComponent(statusFilter)}` : "";
+    return apiFetch<any[]>("laboratorio", `/labs/orders/lab${q}`);
+}
+
+export async function getVetLabOrders(): Promise<any[]> {
+    return apiFetch<any[]>("laboratorio", "/labs/orders/vet");
+}
+
+export async function updateLabAppointmentStatus(id: string, status: 'confirmed' | 'completed' | 'cancelled'): Promise<any> {
+    return apiFetch<any>("laboratorio", `/labs/appointments/${id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+    });
+}
+
+export async function getMyLabTests(): Promise<any[]> {
+    return apiFetch<any[]>("laboratorio", "/labs/tests/mine");
+}
+
+export async function setLabTestActive(id: string, isActive: boolean): Promise<any> {
+    return apiFetch<any>("laboratorio", `/labs/tests/${id}/active`, {
+        method: "PATCH",
+        body: JSON.stringify({ is_active: isActive }),
+    });
 }

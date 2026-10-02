@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Image
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useSellerDashboard } from '@/src/hooks/ecommerce';
+import { useSellerDashboard, REVENUE_STATUSES, sellerSubtotal } from '@/src/hooks/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -27,9 +27,14 @@ export default function VendedorDashboardScreen() {
         );
     }
 
-    const totalSales = orders.reduce((acc, order) => acc + order.total_amount, 0);
+    const soldOrders = orders.filter(o => REVENUE_STATUSES.includes(o.status));
+    const totalSales = soldOrders.reduce((acc, order) => acc + sellerSubtotal(order, user?.id), 0);
     const activeProducts = products.filter(p => p.is_active).length;
-    const pendingOrders = orders.filter(o => o.status === 'pending').length;
+    const toShipOrders = orders.filter(o => o.status === 'paid' || o.status === 'confirmed').length;
+    const reviewCount = products.reduce((acc, p) => acc + (p.review_count || 0), 0);
+    const avgRating = reviewCount > 0
+        ? products.reduce((acc, p) => acc + (p.average_rating || 0) * (p.review_count || 0), 0) / reviewCount
+        : null;
 
     return (
         <ScreenContainer>
@@ -45,7 +50,7 @@ export default function VendedorDashboardScreen() {
                     <View style={[styles.summaryCard, { backgroundColor: theme.primary }]}>
                         <View style={styles.summaryTop}>
                             <View>
-                                <Text style={styles.summaryLabel}>Ventas Totales</Text>
+                                <Text style={styles.summaryLabel}>Ventas cobradas</Text>
                                 <Text style={styles.summaryValue}>{formatCurrency(totalSales)}</Text>
                             </View>
                             <View style={styles.summaryIconBox}>
@@ -54,8 +59,8 @@ export default function VendedorDashboardScreen() {
                         </View>
                         <View style={styles.summaryBottom}>
                             <View style={styles.summaryStat}>
-                                <Text style={styles.summaryStatLabel}>Pedidos</Text>
-                                <Text style={styles.summaryStatValue}>{orders.length}</Text>
+                                <Text style={styles.summaryStatLabel}>Pedidos cobrados</Text>
+                                <Text style={styles.summaryStatValue}>{soldOrders.length}</Text>
                             </View>
                             <View style={styles.summaryDivider} />
                             <View style={styles.summaryStat}>
@@ -74,12 +79,12 @@ export default function VendedorDashboardScreen() {
                         </View>
                         <View style={[styles.statItem, { backgroundColor: theme.surface }]}>
                             <Activity size={20} color="#f59e0b" />
-                            <Text style={[styles.statItemValue, { color: theme.text }]}>{pendingOrders}</Text>
-                            <Text style={[styles.statItemLabel, { color: theme.textMuted }]}>Pendientes</Text>
+                            <Text style={[styles.statItemValue, { color: theme.text }]}>{toShipOrders}</Text>
+                            <Text style={[styles.statItemLabel, { color: theme.textMuted }]}>Por enviar</Text>
                         </View>
                         <View style={[styles.statItem, { backgroundColor: theme.surface }]}>
                             <Star size={20} color="#facc15" fill="#facc15" />
-                            <Text style={[styles.statItemValue, { color: theme.text }]}>4.9</Text>
+                            <Text style={[styles.statItemValue, { color: theme.text }]}>{avgRating !== null ? avgRating.toFixed(1) : '–'}</Text>
                             <Text style={[styles.statItemLabel, { color: theme.textMuted }]}>Rating</Text>
                         </View>
                     </View>
@@ -106,7 +111,17 @@ export default function VendedorDashboardScreen() {
                                 <ShoppingBag size={24} color="#3b82f6" />
                             </View>
                             <Text style={[styles.menuLabel, { color: theme.text }]}>Pedidos</Text>
-                            <Text style={[styles.menuSub, { color: theme.textMuted }]}>Envíos y estados</Text>
+                            <Text style={[styles.menuSub, { color: theme.textMuted }]}>{toShipOrders > 0 ? `${toShipOrders} por enviar` : 'Envíos y estados'}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.menuItem, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                            onPress={() => router.push('/tienda/vendedor/analytics' as any)}
+                        >
+                            <View style={[styles.iconBox, { backgroundColor: '#6366f115' }]}>
+                                <TrendingUp size={24} color="#6366f1" />
+                            </View>
+                            <Text style={[styles.menuLabel, { color: theme.text }]}>Analíticas</Text>
+                            <Text style={[styles.menuSub, { color: theme.textMuted }]}>Ingresos y stock</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -130,12 +145,15 @@ export default function VendedorDashboardScreen() {
                             <TouchableOpacity
                                 key={product.id}
                                 style={[styles.productItem, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                                onPress={() => router.push(`/tienda/producto/${product.id}` as any)}
+                                onPress={() => router.push(`/tienda/vendedor/productos/${product.id}` as any)}
                             >
-                                <Image
-                                    source={{ uri: product.image_url || 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=400' }}
-                                    style={styles.productThumb}
-                                />
+                                {product.image_url ? (
+                                    <Image source={{ uri: product.image_url }} style={styles.productThumb} />
+                                ) : (
+                                    <View style={[styles.productThumb, { backgroundColor: theme.backgroundSecondary, justifyContent: 'center', alignItems: 'center' }]}>
+                                        <Package size={22} color={theme.textMuted} />
+                                    </View>
+                                )}
                                 <View style={styles.productInfo}>
                                     <Text style={[styles.productName, { color: theme.text }]}>{product.name}</Text>
                                     <Text style={[styles.productPrice, { color: theme.primary }]}>{formatCurrency(product.price)}</Text>

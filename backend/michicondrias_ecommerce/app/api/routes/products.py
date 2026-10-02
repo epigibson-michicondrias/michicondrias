@@ -37,30 +37,19 @@ def read_my_products(
     """
     return crud.crud_ecommerce.get_products(db, seller_id=user_id)
 
-@router.get("/{product_id}", response_model=ProductResponse)
-def read_product(
-    product_id: str,
-    db: Session = Depends(get_db),
-) -> Any:
-    """
-    Get a specific product by id. (Public endpoint)
-    """
-    product = crud.crud_ecommerce.get_product(db, product_id=product_id)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return product
-
 @router.get("/presigned-url", response_model=PresignedUrlResponse)
 def get_presigned_url(
-    file_extension: str,
+    file_extension: Optional[str] = None,
+    ext: Optional[str] = None,
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """
-    Get a presigned URL for S3 upload.
+    Get a presigned URL for S3 upload. Declarada antes de /{product_id}: si no, la ruta dinámica la tapaba (404).
+    Acepta `file_extension` o `ext` (como el resto de microservicios).
     """
     from app.core.s3 import image_content_type
     try:
-        clean_ext, content_type = image_content_type(file_extension)
+        clean_ext, content_type = image_content_type(file_extension or ext or "")
     except ValueError:
         raise HTTPException(status_code=400, detail="Formato de imagen no permitido. Usa jpg, png, webp, gif o heic.")
 
@@ -70,12 +59,49 @@ def get_presigned_url(
     url = generate_presigned_url(object_name, content_type=content_type)
     if not url:
         raise HTTPException(status_code=500, detail="Could not generate presigned URL")
-        
+
     return {
         "url": url,
         "object_key": object_name,
         "public_url": f"{settings.STORAGE_BASE_URL}/{object_name}"
     }
+
+def _viewer(token: Optional[str]) -> Optional[dict]:
+    """Payload del token si es válido (sin exigir login); None para visitantes."""
+    try:
+        return deps._decode_token(token) if token else None
+    except HTTPException:
+        return None
+
+
+@router.get("/{product_id}", response_model=ProductResponse)
+def read_product(
+    product_id: str,
+    db: Session = Depends(get_db),
+    token: Optional[str] = Depends(deps.oauth2_scheme),
+) -> Any:
+    """
+    Get a specific product by id. (Public endpoint)
+    Los productos pendientes de aprobación o desactivados solo los ve su vendedor o un admin.
+    """
+    product = crud.crud_ecommerce.get_product(db, product_id=product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if not (product.is_active and product.is_approved):
+        viewer = _viewer(token)
+        if not viewer or (viewer.get("sub") != product.seller_id and viewer.get("role") != "admin"):
+            raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+def _validate_category(db: Session, category_id: Optional[str], subcategory_id: Optional[str]) -> None:
+    from app.models.ecommerce import Category, Subcategory
+    if category_id and not db.query(Category.id).filter(Category.id == category_id).first():
+        raise HTTPException(status_code=400, detail="La categoría seleccionada no existe")
+    if subcategory_id:
+        sub = db.query(Subcategory).filter(Subcategory.id == subcategory_id).first()
+        if not sub or (category_id and sub.category_id != category_id):
+            raise HTTPException(status_code=400, detail="La subcategoría seleccionada no es válida")
+
 
 @router.post("/", response_model=ProductResponse)
 async def create_product(
@@ -93,12 +119,15 @@ async def create_product(
     try:
         # Override seller_id to ensure the current user is the owner
         product_in.seller_id = user_id
+        _validate_category(db, product_in.category_id, product_in.subcategory_id)
         
         product = crud.crud_ecommerce.create_product(db=db, product=product_in)
         return product
-    except Exception as e:
+    except HTTPException:
+        raise
+    except Exception:
         logger.exception("Error creating product in database")
-        raise HTTPException(status_code=500, detail=f"Error al guardar en base de datos: {str(e)}")
+        raise HTTPException(status_code=500, detail="No se pudo guardar el producto. Intenta de nuevo.")
 
 @router.put("/{product_id}", response_model=ProductResponse)
 async def update_product(
@@ -118,6 +147,9 @@ async def update_product(
         raise HTTPException(status_code=403, detail="Not authorized to update this product")
     
     update_data = product_in.model_dump(exclude_unset=True)
+    update_data.pop("category", None)  # campo legado: "category" es una relación, no una columna
+    if "category_id" in update_data or "subcategory_id" in update_data:
+        _validate_category(db, update_data.get("category_id", product.category_id), update_data.get("subcategory_id"))
     for field, value in update_data.items():
         setattr(product, field, value)
     
@@ -152,8 +184,15 @@ def create_product_review(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """
-    Leave a review for a product.
+    Leave a review for a product. Solo quien compró (pedido pagado) puede opinar, una vez por producto.
     """
+    product = crud.crud_ecommerce.get_product(db, product_id=product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    if not crud.crud_ecommerce.user_has_purchased(db, user_id, product_id):
+        raise HTTPException(status_code=403, detail="Solo puedes opinar sobre productos que ya compraste y pagaste.")
+    if crud.crud_ecommerce.user_has_reviewed(db, user_id, product_id):
+        raise HTTPException(status_code=409, detail="Ya calificaste este producto.")
     return crud.crud_ecommerce.create_review(db, review=review_in, product_id=product_id, user_id=user_id)
 
 @router.get("/{product_id}/reviews", response_model=List[ReviewResponse])

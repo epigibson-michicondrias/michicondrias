@@ -45,7 +45,7 @@ export default function PaseadoresScreen() {
                 <View style={styles.ratingContainer}>
                     <Star size={16} color="#fbbf24" fill="#fbbf24" />
                     <Text style={[styles.ratingText, { color: theme.text }]}>
-                        {item.rating ? item.rating.toFixed(1) : '5.0'}
+                        {item.rating ? item.rating.toFixed(1) : 'Nuevo'}
                     </Text>
                 </View>
             </View>
@@ -60,7 +60,7 @@ export default function PaseadoresScreen() {
                 <View style={styles.statItem}>
                     <Clock size={14} color={theme.textMuted} />
                     <Text style={[styles.statText, { color: theme.textMuted }]}>
-                        {item.experience_years || 1}+ años
+                        {item.experience_years ?? 0} años exp.
                     </Text>
                 </View>
             </View>
@@ -68,18 +68,18 @@ export default function PaseadoresScreen() {
             <View style={styles.servicesContainer}>
                 <View style={[styles.serviceTag, { backgroundColor: item.accepts_dogs ? theme.primary + '10' : theme.secondary + '10' }]}>
                     <Text style={[styles.serviceText, { color: item.accepts_dogs ? theme.primary : theme.secondary }]}>
-                        {item.accepts_dogs ? '🐕 Perros' : '🐈 Gatos'}
+                        {[item.accepts_dogs && 'Perros', item.accepts_cats && 'Gatos'].filter(Boolean).join(' y ') || 'Mascotas'}
                     </Text>
                 </View>
                 <View style={[styles.serviceTag, { backgroundColor: theme.secondary + '10' }]}>
                     <Text style={[styles.serviceText, { color: theme.secondary }]}>
-                        👥 {item.max_pets_per_walk} mascotas
+                        Hasta {item.max_pets_per_walk} mascotas
                     </Text>
                 </View>
                 {item.is_verified && (
                     <View style={[styles.serviceTag, { backgroundColor: '#10b98120' }]}>
                         <Text style={[styles.serviceText, { color: '#10b981' }]}>
-                            ✅ Verificado
+                            Verificado
                         </Text>
                     </View>
                 )}
@@ -87,13 +87,13 @@ export default function PaseadoresScreen() {
 
             <View style={styles.walkerFooter}>
                 <Text style={[styles.priceText, { color: theme.primary }]}>
-                    ${item.price_per_hour || 20}/hora
+                    {item.price_per_hour ? `$${item.price_per_hour}/hora` : item.price_per_walk ? `$${item.price_per_walk}/paseo` : 'Tarifa por acordar'}
                 </Text>
                 <TouchableOpacity 
                     style={[styles.contactButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push({ pathname: '/paseadores/[id]', params: { id: item.id, contact: 'true' } } as any)}
+                    onPress={() => router.push({ pathname: '/paseadores/[id]', params: { id: item.id } } as any)}
                 >
-                    <Text style={styles.contactButtonText}>Contactar</Text>
+                    <Text style={styles.contactButtonText}>Ver perfil</Text>
                     <ChevronRight size={16} color="#fff" />
                 </TouchableOpacity>
             </View>
@@ -103,7 +103,7 @@ export default function PaseadoresScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🚶 Paseadores"
+                title="Paseadores"
                 subtitle="Encuentra al paseador perfecto para tu mascota"
             />
 
@@ -112,13 +112,13 @@ export default function PaseadoresScreen() {
                     style={[styles.actionButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
                     onPress={() => router.push('/paseadores/solicitudes' as any)}
                 >
-                    <Text style={[styles.actionButtonText, { color: theme.text }]}>📋 Mis Solicitudes</Text>
+                    <Text style={[styles.actionButtonText, { color: theme.text }]}>Mis solicitudes</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionButton, { backgroundColor: theme.primary, borderColor: theme.primary }]}
                     onPress={() => router.push('/perfil/partner' as any)}
                 >
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>🐾 Quiero ser Paseador</Text>
+                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Quiero ser paseador</Text>
                 </TouchableOpacity>
             </View>
 

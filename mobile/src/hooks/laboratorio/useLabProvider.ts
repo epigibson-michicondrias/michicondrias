@@ -4,7 +4,10 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-    getPendingLabOrders,
+    getLabOrders,
+    getMyLabTests,
+    setLabTestActive,
+    updateLabAppointmentStatus,
     getProviderLabAppointments,
     getLabAnomalies,
     uploadLabResults,
@@ -18,8 +21,38 @@ export function useLabProvider() {
     const queryClient = useQueryClient();
 
     const pendingOrdersQuery = useQuery({
-        queryKey: ['lab-orders-pending'],
-        queryFn: getPendingLabOrders,
+        queryKey: ['lab-orders-all'],
+        queryFn: () => getLabOrders(),
+    });
+
+    const myTestsQuery = useQuery({
+        queryKey: ['lab-tests-mine'],
+        queryFn: getMyLabTests,
+    });
+
+    const invalidateOrders = () => {
+        queryClient.invalidateQueries({ queryKey: ['lab-orders-all'] });
+        queryClient.invalidateQueries({ queryKey: ['lab-anomalies'] });
+        queryClient.invalidateQueries({ queryKey: ['lab-history'] });
+    };
+
+    const appointmentStatusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string; status: 'confirmed' | 'completed' | 'cancelled' }) =>
+            updateLabAppointmentStatus(id, status),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['lab-appointments-provider'] });
+            queryClient.invalidateQueries({ queryKey: ['lab-appointments-client'] });
+        },
+        onError: (e: any) => showAlert({ type: 'error', title: 'No se pudo actualizar', message: e?.message || 'Inténtalo de nuevo.' }),
+    });
+
+    const toggleTestMutation = useMutation({
+        mutationFn: ({ id, active }: { id: string; active: boolean }) => setLabTestActive(id, active),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['lab-tests-mine'] });
+            queryClient.invalidateQueries({ queryKey: ['lab-tests'] });
+        },
+        onError: (e: any) => showAlert({ type: 'error', title: 'No se pudo actualizar', message: e?.message || 'Inténtalo de nuevo.' }),
     });
 
     const appointmentsQuery = useQuery({
@@ -36,11 +69,11 @@ export function useLabProvider() {
         mutationFn: ({ orderId, data }: { orderId: string; data: any }) =>
             uploadLabResults(orderId, data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['lab-orders-pending'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Resultados subidos correctamente' });
+            invalidateOrders();
+            showAlert({ type: 'success', title: 'Resultados enviados', message: 'Notificamos al dueño y al veterinario.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudieron subir los resultados' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudieron subir los resultados', message: e?.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -48,22 +81,21 @@ export function useLabProvider() {
         mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
             updateLabOrderStatus(orderId, status),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['lab-orders-pending'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Estado actualizado' });
+            invalidateOrders();
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estado' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo actualizar el estado', message: e?.message || 'Inténtalo de nuevo.' });
         },
     });
 
     const createOrderMutation = useMutation({
         mutationFn: (data: any) => createLabOrder(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['lab-orders-pending'] });
+            invalidateOrders();
             showAlert({ type: 'success', title: 'Éxito', message: 'Orden de laboratorio creada' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la orden' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo crear la orden', message: e?.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -71,10 +103,11 @@ export function useLabProvider() {
         mutationFn: (data: any) => createLabTest(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['lab-tests'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Prueba de laboratorio creada' });
+            queryClient.invalidateQueries({ queryKey: ['lab-tests-mine'] });
+            showAlert({ type: 'success', title: 'Estudio publicado', message: 'Ya aparece en el catálogo para los clientes.' });
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la prueba' });
+        onError: (e: any) => {
+            showAlert({ type: 'error', title: 'No se pudo crear el estudio', message: e?.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -90,13 +123,17 @@ export function useLabProvider() {
         isLoadingAnomalies: anomaliesQuery.isLoading,
 
         // Mutations
-        uploadResults: uploadResultsMutation.mutate,
+        myTests: myTestsQuery.data || [],
+        isLoadingTests: myTestsQuery.isLoading,
+        updateAppointmentStatus: (id: string, status: 'confirmed' | 'completed' | 'cancelled') => appointmentStatusMutation.mutate({ id, status }),
+        toggleTest: (id: string, active: boolean) => toggleTestMutation.mutate({ id, active }),
+        uploadResults: uploadResultsMutation.mutateAsync,
         isUploadingResults: uploadResultsMutation.isPending,
         updateOrderStatus: updateStatusMutation.mutate,
         isUpdatingStatus: updateStatusMutation.isPending,
         createOrder: createOrderMutation.mutate,
         isCreatingOrder: createOrderMutation.isPending,
-        createTest: createTestMutation.mutate,
+        createTest: createTestMutation.mutateAsync,
         isCreatingTest: createTestMutation.isPending,
 
         // Refetch

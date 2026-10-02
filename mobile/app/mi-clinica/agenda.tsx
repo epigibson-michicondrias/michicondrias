@@ -7,15 +7,8 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { AppointmentItem } from '@/src/services/directorio';
 import { CheckCircle2, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
+import { statusTone } from '@/src/features/salud/format';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-
-const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
-    pending: { label: "Pendiente", emoji: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    confirmed: { label: "Confirmada", emoji: "✅", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
-    completed: { label: "Completada", emoji: "🎉", color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
-    cancelled: { label: "Cancelada", emoji: "❌", color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
-    no_show: { label: "No Asistió", emoji: "👻", color: "#6b7280", bg: "rgba(107,114,128,0.12)" },
-};
 
 export default function AgendaClinicaScreen() {
     const router = useRouter();
@@ -42,22 +35,23 @@ export default function AgendaClinicaScreen() {
     } = useAgenda();
 
     const renderItem = ({ item }: { item: AppointmentItem }) => {
-        const s = STATUS_MAP[item.status] || STATUS_MAP.pending;
+        const s = statusTone(theme, item.status);
         const date = new Date(item.date + "T12:00");
 
         return (
-            <View style={[styles.card, { backgroundColor: theme.surface }]}>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                 <View style={styles.cardHeader}>
                     <View style={[styles.dateBox, { backgroundColor: theme.background }]}>
                         <Text style={[styles.dateDay, { color: theme.primary }]}>{date.getDate()}</Text>
                         <Text style={[styles.dateMonth, { color: theme.textMuted }]}>{date.toLocaleDateString("es-MX", { month: "short" }).toUpperCase()}</Text>
                     </View>
                     <View style={styles.headerInfo}>
-                        <Text style={[styles.serviceName, { color: theme.text }]}>{item.service_name}</Text>
+                        <Text style={[styles.serviceName, { color: theme.text }]}>{item.service_name}{item.is_emergency ? '  ·  Urgencia' : ''}</Text>
+                        {!!item.pet_name && <Text style={[styles.timeText, { color: theme.text }]}>Paciente: {item.pet_name}</Text>}
                         <Text style={[styles.timeText, { color: theme.textMuted }]}>🕒 {item.start_time} - {item.end_time}</Text>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: s.bg }]}>
-                        <Text style={[styles.statusLabel, { color: s.color }]}>{s.emoji} {s.label}</Text>
+                        <Text style={[styles.statusLabel, { color: s.color }]}>{s.label}</Text>
                     </View>
                 </View>
 
@@ -68,19 +62,19 @@ export default function AgendaClinicaScreen() {
                     </View>
                 )}
 
-                <View style={[styles.actions, { borderTopColor: 'rgba(255,255,255,0.05)' }]}>
+                <View style={[styles.actions, { borderTopColor: theme.border }]}>
                     {item.status === 'pending' && (
                         <TouchableOpacity
-                            style={[styles.actionBtn, { backgroundColor: '#10b98120' }]}
+                            style={[styles.actionBtn, { backgroundColor: theme.successLight }]}
                             onPress={() => handleConfirm(item.id)}
                             disabled={!!actionLoading}
                         >
                             {actionLoading === item.id ? (
-                                <ActivityIndicator size="small" color="#10b981" />
+                                <ActivityIndicator size="small" color={theme.success} />
                             ) : (
                                 <>
-                                    <CheckCircle2 size={16} color="#10b981" />
-                                    <Text style={[styles.actionText, { color: '#10b981' }]}>Confirmar</Text>
+                                    <CheckCircle2 size={16} color={theme.success} />
+                                    <Text style={[styles.actionText, { color: theme.success }]}>Confirmar</Text>
                                 </>
                             )}
                         </TouchableOpacity>
@@ -98,17 +92,17 @@ export default function AgendaClinicaScreen() {
 
                     {['pending', 'confirmed'].includes(item.status) && (
                         <TouchableOpacity
-                            style={[styles.actionBtn, { backgroundColor: '#ef444410' }]}
+                            style={[styles.actionBtn, { backgroundColor: theme.errorLight }]}
                             onPress={() => openCancelModal(item.id)}
                         >
-                            <X size={16} color="#ef4444" />
-                            <Text style={[styles.actionText, { color: '#ef4444' }]}>Cancelar</Text>
+                            <X size={16} color={theme.error} />
+                            <Text style={[styles.actionText, { color: theme.error }]}>Cancelar</Text>
                         </TouchableOpacity>
                     )}
 
                     {item.status === 'completed' && (
                         <TouchableOpacity
-                            style={[styles.actionBtn, { backgroundColor: 'rgba(255,255,255,0.05)' }]}
+                            style={[styles.actionBtn, { backgroundColor: theme.overlay }]}
                             onPress={() => goToRecord(item.id)}
                         >
                             <ClipboardList size={16} color={theme.text} />
@@ -206,7 +200,7 @@ export default function AgendaClinicaScreen() {
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: theme.surface }]}>
                         <View style={styles.modalHeaderTitle}>
-                            <AlertCircle size={32} color="#ef4444" />
+                            <AlertCircle size={32} color={theme.error} />
                             <Text style={[styles.modalTitle, { color: theme.text }]}>Declinar Cita</Text>
                             <Text style={[styles.modalSub, { color: theme.textMuted }]}>
                                 Indica el motivo por el cual no se puede atender esta cita.
@@ -230,7 +224,7 @@ export default function AgendaClinicaScreen() {
                                 <Text style={[styles.modalBtnText, { color: theme.text }]}>Mantener</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.modalBtn, { backgroundColor: '#ef4444' }]}
+                                style={[styles.modalBtn, { backgroundColor: theme.error }]}
                                 onPress={handleCancelSubmit}
                             >
                                 <Text style={styles.modalBtnTextDanger}>Confirmar Cierre</Text>

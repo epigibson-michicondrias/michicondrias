@@ -120,11 +120,11 @@ export default function PaseadoresCalendarioScreen() {
                   onPress={() => showAlert({
                     type: 'info',
                     title: 'Detalle del Paseo',
-                    message: `Mascota: ${req.pet_id}\nHora: ${req.requested_time || 'N/A'}\nDuración: ${req.duration_minutes} min\nEstado: ${st.label}`,
+                    message: `Mascota: ${req.pet_name || "—"}\nHora: ${req.requested_time || 'N/A'}\nDuración: ${req.duration_minutes} min\nEstado: ${st.label}`,
                   })}
                 >
                   <View style={styles.reqTop}>
-                    <Text style={[styles.reqId, { color: theme.text }]}>Paseo #{req.id.substring(0, 6).toUpperCase()}</Text>
+                    <Text style={[styles.reqId, { color: theme.text }]}>{req.pet_name || 'Paseo'}</Text>
                     <View style={[styles.statusBadge, { backgroundColor: st.bg }]}>
                       <Text style={[styles.statusText, { color: st.color }]}>{st.label}</Text>
                     </View>

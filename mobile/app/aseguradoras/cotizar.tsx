@@ -60,7 +60,6 @@ export default function CotizarScreen() {
             <ScreenHeader
                 title="🛡️ Cotizar Seguro"
                 subtitle="Calcula y contrata el mejor plan"
-                gradient={[theme.primary, '#1a7adb']}
             />
 
             <ScrollView
@@ -197,10 +196,10 @@ export default function CotizarScreen() {
 
                 {/* Quote Result */}
                 {quote && (
-                    <View style={[styles.quoteCard, { backgroundColor: theme.surface, borderColor: '#10b981' + '40' }]}>
+                    <View style={[styles.quoteCard, { backgroundColor: theme.surface, borderColor: theme.success }]}>
                         <View style={[styles.quoteHeader, { borderBottomColor: theme.border }]}>
-                            <View style={[styles.quoteBadge, { backgroundColor: '#10b981' + '15' }]}>
-                                <CheckCircle size={20} color="#10b981" />
+                            <View style={[styles.quoteBadge, { backgroundColor: theme.successLight }]}>
+                                <CheckCircle size={20} color={theme.success} />
                             </View>
                             <Text style={[styles.quoteTitle, { color: theme.text }]}>Tu Cotización</Text>
                         </View>
@@ -222,14 +221,14 @@ export default function CotizarScreen() {
                                 <Text style={[styles.quoteLabel, { color: theme.text, fontWeight: '700' }]}>
                                     Cobertura máxima
                                 </Text>
-                                <Text style={[styles.quotePremium, { color: '#10b981' }]}>
+                                <Text style={[styles.quotePremium, { color: theme.success }]}>
                                     ${quote.coverage_limit.toLocaleString()}
                                 </Text>
                             </View>
                         </View>
 
                         <TouchableOpacity
-                            style={[styles.subscribeBtn, { backgroundColor: '#10b981' }]}
+                            style={[styles.subscribeBtn, { backgroundColor: theme.success }]}
                             disabled={isSubscribing}
                             onPress={handleSubscribe}
                         >

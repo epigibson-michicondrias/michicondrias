@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 
 class ReviewBase(BaseModel):
-    rating: int # 1-5
+    rating: int = Field(..., ge=1, le=5)  # 1-5
     comment: Optional[str] = None
 
 class ReviewCreate(ReviewBase):
@@ -71,21 +71,81 @@ class ProductBase(BaseModel):
     seller_id: Optional[str] = None
     specifications: Optional[str] = None
 
+def _clean_optional_id(v):
+    """El formulario móvil manda '' cuando no se eligió categoría; la FK exige None."""
+    if isinstance(v, str) and not v.strip():
+        return None
+    return v
+
+
 class ProductCreate(ProductBase):
-    pass
+    @field_validator("name")
+    @classmethod
+    def _name_not_blank(cls, v):
+        if not v or not v.strip():
+            raise ValueError("El nombre del producto es obligatorio")
+        return v.strip()
+
+    @field_validator("price")
+    @classmethod
+    def _price_positive(cls, v):
+        if v is None or v <= 0:
+            raise ValueError("El precio debe ser mayor a 0")
+        return round(v, 2)
+
+    @field_validator("stock")
+    @classmethod
+    def _stock_not_negative(cls, v):
+        if v is not None and v < 0:
+            raise ValueError("El stock no puede ser negativo")
+        return v
+
+    @field_validator("category_id", "subcategory_id", "image_url", mode="before")
+    @classmethod
+    def _blank_to_none(cls, v):
+        return _clean_optional_id(v)
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
     stock: Optional[int] = None
-    category: Optional[str] = None
+    category: Optional[str] = None  # legado: se ignora (la relación se cambia con category_id)
+    category_id: Optional[str] = None
+    subcategory_id: Optional[str] = None
     image_url: Optional[str] = None
     is_active: Optional[bool] = None
     specifications: Optional[str] = None
 
+    @field_validator("name")
+    @classmethod
+    def _name_not_blank(cls, v):
+        if v is not None and not v.strip():
+            raise ValueError("El nombre del producto es obligatorio")
+        return v.strip() if v else v
+
+    @field_validator("price")
+    @classmethod
+    def _price_positive(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("El precio debe ser mayor a 0")
+        return round(v, 2) if v is not None else v
+
+    @field_validator("stock")
+    @classmethod
+    def _stock_not_negative(cls, v):
+        if v is not None and v < 0:
+            raise ValueError("El stock no puede ser negativo")
+        return v
+
+    @field_validator("category_id", "subcategory_id", "image_url", mode="before")
+    @classmethod
+    def _blank_to_none(cls, v):
+        return _clean_optional_id(v)
+
 class ProductResponse(ProductBase):
     id: str
+    is_approved: Optional[bool] = None
     average_rating: Optional[float] = 0.0
     review_count: Optional[int] = 0
     category: Optional[CategoryResponse] = None

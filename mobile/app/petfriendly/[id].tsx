@@ -11,7 +11,7 @@ import { shareContent } from '@/src/utils/share';
 const { width } = Dimensions.get('window');
 
 export default function PetfriendlyDetalleScreen() {
-    const { theme, isDark } = useTheme();
+    const { theme } = useTheme();
     const { 
         place, 
         isLoading, 
@@ -28,6 +28,20 @@ export default function PetfriendlyDetalleScreen() {
     const [formRating, setFormRating] = React.useState(5);
     const [formComment, setFormComment] = React.useState('');
 
+    if (!isLoading && !place) {
+        return (
+            <ScreenContainer>
+                <View style={styles.center}>
+                    <Text style={{ color: theme.text, fontWeight: '700', marginBottom: 6 }}>No pudimos cargar el lugar</Text>
+                    <Text style={{ color: theme.textMuted, marginBottom: 16, textAlign: 'center' }}>Puede que ya no exista o que no tengas conexión.</Text>
+                    <TouchableOpacity onPress={goBack} accessibilityRole="button" style={{ backgroundColor: theme.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 }}>
+                        <Text style={{ color: '#fff', fontWeight: '700' }}>Volver</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScreenContainer>
+        );
+    }
+
     if (isLoading || !place) {
         return (
             <ScreenContainer>
@@ -42,10 +56,13 @@ export default function PetfriendlyDetalleScreen() {
         <ScreenContainer noPadding>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
                 <View style={styles.imageContainer}>
-                    <Image
-                        source={{ uri: place.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800' }}
-                        style={styles.image}
-                    />
+                    {place.image_url ? (
+                        <Image source={{ uri: place.image_url }} style={styles.image} accessibilityLabel={`Foto de ${place.name}`} />
+                    ) : (
+                        <View style={[styles.image, { backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }]}>
+                            <Bone size={64} color={theme.textMuted} />
+                        </View>
+                    )}
                     <View style={styles.topOverlay}>
                         <BackButton onPress={goBack} color="#fff" style={styles.circleBtn} />
                         <Text style={styles.headerTitle}>Detalles del Lugar</Text>
@@ -62,8 +79,8 @@ export default function PetfriendlyDetalleScreen() {
                             <Text style={[styles.category, { color: theme.primary }]}>{place.category}</Text>
                         </View>
                         <View style={[styles.ratingCard, { backgroundColor: theme.surface }]}>
-                            <Star size={20} color="#facc15" fill="#facc15" />
-                            <Text style={[styles.ratingValue, { color: theme.text }]}>{place.rating?.toFixed(1) || '4.8'}</Text>
+                            <Star size={20} color={theme.warning} fill={theme.warning} />
+                            <Text style={[styles.ratingValue, { color: theme.text }]}>{place.rating ? place.rating.toFixed(1) : 'Nuevo'}</Text>
                         </View>
                     </View>
 
@@ -79,7 +96,7 @@ export default function PetfriendlyDetalleScreen() {
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Información</Text>
                         </View>
                         <Text style={[styles.description, { color: theme.textMuted }]}>
-                            {place.description || "Un lugar increíble para disfrutar con tu mejor amigo. Cuentan con áreas designadas y un ambiente totalmente acogedor para mascotas."}
+                            {place.description?.trim() || 'Este lugar aún no tiene descripción.'}
                         </Text>
                     </View>
 
@@ -89,21 +106,9 @@ export default function PetfriendlyDetalleScreen() {
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios para Michis</Text>
                         </View>
                         <View style={styles.servicesGrid}>
-                            <ServiceItem label="Agua disponible" active={place.has_water_bowls === 'yes'} theme={theme} />
-                            <ServiceItem label="Menú para mascotas" active={place.has_pet_menu === 'yes'} theme={theme} />
+                            <ServiceItem label="Agua disponible" active={isYes(place.has_water_bowls)} theme={theme} />
+                            <ServiceItem label="Menú para mascotas" active={isYes(place.has_pet_menu)} theme={theme} />
                             <ServiceItem label={`Tamaño: ${place.pet_sizes_allowed || 'Todos'}`} active theme={theme} />
-                        </View>
-                    </View>
-
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <Clock size={18} color={theme.primary} />
-                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Horarios de Atención</Text>
-                        </View>
-                        <View style={[styles.hoursCard, { backgroundColor: theme.surface }]}>
-                            <HourRow day="Lunes - Viernes" hours="09:00 - 22:00" theme={theme} />
-                            <HourRow day="Sábado" hours="10:00 - 23:00" theme={theme} />
-                            <HourRow day="Domingo" hours="10:00 - 20:00" theme={theme} isLast />
                         </View>
                     </View>
 
@@ -112,7 +117,7 @@ export default function PetfriendlyDetalleScreen() {
                             <MapPin size={20} color={theme.primary} />
                             <View style={{ flex: 1 }}>
                                 <Text style={[styles.addressTitle, { color: theme.text }]}>Ubicación</Text>
-                                <Text style={[styles.addressText, { color: theme.textMuted }]}>{place.address}, {place.city}</Text>
+                                <Text style={[styles.addressText, { color: theme.textMuted }]}>{[place.address, place.city].filter(Boolean).join(', ') || 'Sin dirección'}</Text>
                             </View>
                         </View>
                     </View>
@@ -135,8 +140,8 @@ export default function PetfriendlyDetalleScreen() {
                                         <Star
                                             key={star}
                                             size={14}
-                                            color="#facc15"
-                                            fill={star <= Math.round(place.rating || 0) ? '#facc15' : 'transparent'}
+                                            color={theme.warning}
+                                            fill={star <= Math.round(place.rating || 0) ? theme.warning : 'transparent'}
                                         />
                                     ))}
                                 </View>
@@ -166,8 +171,8 @@ export default function PetfriendlyDetalleScreen() {
                                     >
                                         <Star
                                             size={28}
-                                            color="#facc15"
-                                            fill={star <= formRating ? '#facc15' : 'transparent'}
+                                            color={theme.warning}
+                                            fill={star <= formRating ? theme.warning : 'transparent'}
                                         />
                                     </TouchableOpacity>
                                 ))}
@@ -230,8 +235,8 @@ export default function PetfriendlyDetalleScreen() {
                                                         <Star
                                                             key={star}
                                                             size={12}
-                                                            color="#facc15"
-                                                            fill={star <= rev.rating ? '#facc15' : 'transparent'}
+                                                            color={theme.warning}
+                                                            fill={star <= rev.rating ? theme.warning : 'transparent'}
                                                         />
                                                     ))}
                                                 </View>
@@ -255,6 +260,8 @@ export default function PetfriendlyDetalleScreen() {
         </ScreenContainer>
     );
 }
+
+const isYes = (v?: string | null) => ['si', 'sí', 'yes', 'true'].includes((v || '').trim().toLowerCase());
 
 function HourRow({ day, hours, theme, isLast }: any) {
     return (

@@ -57,7 +57,7 @@ export default function MyEnrollmentsScreen() {
                 <View style={styles.progressSection}>
                     <View style={styles.progressHeader}>
                         <TrendingUp size={14} color={theme.textMuted} />
-                        <Text style={[styles.progressLabel, { color: theme.textMuted }]}>Progreso</Text>
+                        <Text style={[styles.progressLabel, { color: theme.textMuted }]}>{item.goals_total ? `${item.goals_done || 0} de ${item.goals_total} metas` : 'Sin metas aún'}</Text>
                     </View>
                     <View style={[styles.progressBarBg, { backgroundColor: theme.overlay }]}>
                         <View
@@ -65,7 +65,7 @@ export default function MyEnrollmentsScreen() {
                                 styles.progressBarFill,
                                 {
                                     backgroundColor: statusInfo.color,
-                                    width: item.status === 'completed' ? '100%' : item.status === 'active' ? '50%' : '0%',
+                                    width: item.status === 'completed' ? '100%' : item.goals_total ? `${Math.round(((item.goals_done || 0) / item.goals_total) * 100)}%` : '0%',
                                 },
                             ]}
                         />

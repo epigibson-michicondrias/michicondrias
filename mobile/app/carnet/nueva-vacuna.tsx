@@ -16,6 +16,7 @@ export default function NuevaVacunaScreen() {
         notes, setNotes,
         handleSave,
         isSaving,
+        isVet,
     } = useVaccineForm();
 
     return (
@@ -31,6 +32,8 @@ export default function NuevaVacunaScreen() {
                             style={[styles.saveBtn, { backgroundColor: '#0891b2' }]}
                             onPress={handleSave}
                             disabled={isSaving}
+                            accessibilityRole="button"
+                            accessibilityLabel="Guardar vacuna"
                         >
                             {isSaving ? <ActivityIndicator color="#fff" size="small" /> : <Save size={20} color="#fff" />}
                         </TouchableOpacity>
@@ -95,7 +98,9 @@ export default function NuevaVacunaScreen() {
                     <View style={[styles.infoBox, { backgroundColor: '#0891b215' }]}>
                         <Info size={16} color="#0891b2" />
                         <Text style={[styles.infoText, { color: theme.text }]}>
-                            Como veterinario, asegúrate de verificar la vigencia de la vacuna antes de registrarla. El sistema notificará al dueño sobre su próximo refuerzo.
+                            {isVet
+                                ? 'Como veterinario, asegúrate de verificar la vigencia de la vacuna antes de registrarla. El sistema notificará al dueño sobre su próximo refuerzo.'
+                                : 'Registra las vacunas que ya le aplicaron a tu mascota y la fecha de su próximo refuerzo para tenerlas siempre a la mano.'}
                         </Text>
                     </View>
                 </ScrollView>

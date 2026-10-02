@@ -15,6 +15,8 @@ from app.crud.crud_lost_pets import (
 )
 from app.schemas.lost_pet import LostPetReportCreate, LostPetReportUpdate, LostPetReportOut, TrackerLocationUpdate
 from app.api.tracker_auth import authorize_tracker_update
+from app.schemas.sighting import SightingCreate, SightingOut
+from app.crud import crud_sightings
 
 router = APIRouter()
 
@@ -113,6 +115,10 @@ def create_new_report(
     """
     Create a new lost or found pet report.
     """
+    if report_in.report_type not in ("lost", "found"):
+        raise HTTPException(status_code=400, detail="El tipo de reporte debe ser 'lost' o 'found'")
+    if not report_in.pet_name.strip():
+        raise HTTPException(status_code=400, detail="El nombre de la mascota es obligatorio")
     return create_report(db, report_in=report_in, reporter_id=user_id)
 
 
@@ -151,7 +157,7 @@ def patch_report_location(
     existing = get_report_by_id(db, report_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    authorize_tracker_update(existing.user_id, authorization, x_internal_token)
+    authorize_tracker_update(existing.reporter_id, authorization, x_internal_token)
     if not existing.has_tracker:
         raise HTTPException(status_code=400, detail="Este reporte no tiene un Michi-Tracker asociado")
         
@@ -241,43 +247,91 @@ def read_matching_reports(
     return find_matching_reports(db, report=report, max_distance_km=max_distance_km)
 
 
+async def _notify_user(user_id: str, title: str, message: str) -> bool:
+    """Crea una notificación real (con push por WebSocket) vía el servicio core. Devuelve True si se entregó."""
+    try:
+        from app.core.config import settings
+        payload = {"user_id": user_id, "title": title, "message": message, "type": "alert"}
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{settings.CORE_SERVICE_URL}/api/v1/notifications/broadcast", json=payload,
+                headers={"X-Internal-Token": os.getenv("INTERNAL_SERVICE_TOKEN", "")}, timeout=5.0,
+            )
+            return resp.status_code == 200
+    except Exception as e:
+        print(f"Error enviando notificación: {e}")
+        return False
+
+
 @router.post("/{report_id}/broadcast")
 async def broadcast_lost_pet_alert(
     report_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
-    """Detona el envío geolocalizado de la alerta a usuarios cercanos (Simulación de difusión masiva)."""
+    """Envía una notificación de alerta al dueño del reporte.
+
+    No existe aún difusión a usuarios cercanos (no se guarda la ubicación de los usuarios), por eso
+    se informa con honestidad cuántas notificaciones se entregaron realmente.
+    """
     report = get_report_by_id(db, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    if report.user_id != user_id:
+    if report.reporter_id != user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos para difundir este reporte")
 
-    broadcast_count = 0
-    try:
-        from app.core.config import settings
-        payload = {
-            "user_id": user_id,
-            "title": f"¡ALERTA MASCOTA PERDIDA: {report.pet_name}!",
-            "message": f"Se ha reportado la pérdida de {report.pet_name} ({report.species}) cerca de {report.last_seen_location}. Por favor, mantente atento si estás en el área.",
-            "type": "alert"
-        }
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                f"{settings.CORE_SERVICE_URL}/api/v1/notifications/broadcast", json=payload,
-                headers={"X-Internal-Token": os.getenv("INTERNAL_SERVICE_TOKEN", "")}, timeout=5.0,
-            )
-            if resp.status_code == 200:
-                broadcast_count += 12
-    except Exception as e:
-        print(f"Error broadcasting alert: {e}")
-
+    delivered = await _notify_user(
+        user_id,
+        f"Alerta activa: {report.pet_name}",
+        f"Tu reporte de {report.pet_name} ({report.species}) sigue activo. Última ubicación: {report.last_seen_location or 'sin especificar'}.",
+    )
     return {
-        "status": "success",
-        "message": f"Alerta regional transmitida exitosamente para {report.pet_name}.",
-        "simulated_users_notified_count": broadcast_count + 15,
-        "radius_meters": 5000
+        "status": "success" if delivered else "error",
+        "message": "Notificación enviada a tu cuenta." if delivered else "No se pudo enviar la notificación.",
+        "notified_count": 1 if delivered else 0,
     }
 
 
+# ========================================
+# Avistamientos
+# ========================================
+
+@router.post("/{report_id}/sightings", response_model=SightingOut)
+async def create_sighting(
+    report_id: str,
+    sighting_in: SightingCreate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Otro usuario avisa que vio a la mascota: se guarda y se notifica al dueño."""
+    report = get_report_by_id(db, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    if report.reporter_id == user_id:
+        raise HTTPException(status_code=400, detail="No puedes reportar un avistamiento de tu propio reporte")
+    if report.is_resolved or report.status != "active":
+        raise HTTPException(status_code=400, detail="Este reporte ya no está activo")
+    sighting = crud_sightings.create_sighting(db, report_id=report_id, reporter_id=user_id, data=sighting_in)
+    where = sighting.location_text or "una ubicación registrada en el mapa"
+    await _notify_user(
+        report.reporter_id,
+        f"¡Alguien vio a {report.pet_name}!",
+        f"Nuevo avistamiento en {where}." + (f" Nota: {sighting.note}" if sighting.note else ""),
+    )
+    return sighting
+
+
+@router.get("/{report_id}/sightings", response_model=List[SightingOut])
+def list_sightings(
+    report_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """Avistamientos de un reporte. Solo el dueño del reporte (o un admin)."""
+    report = get_report_by_id(db, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    if report.reporter_id != user_id and role != "admin":
+        raise HTTPException(status_code=403, detail="Solo el dueño del reporte puede ver los avistamientos")
+    return crud_sightings.list_sightings(db, report_id)

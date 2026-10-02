@@ -76,9 +76,9 @@ export default function AseguradorasScreen() {
                     </View>
                 ))}
                 {item.is_active && (
-                    <View style={[styles.activeTag, { backgroundColor: '#10b98115' }]}>
-                        <CheckCircle size={12} color="#10b981" />
-                        <Text style={[styles.activeText, { color: '#10b981' }]}>Activo</Text>
+                    <View style={[styles.activeTag, { backgroundColor: theme.successLight }]}>
+                        <CheckCircle size={12} color={theme.success} />
+                        <Text style={[styles.activeText, { color: theme.success }]}>Activo</Text>
                     </View>
                 )}
             </View>

@@ -1,3 +1,4 @@
+import logging
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -5,9 +6,24 @@ from sqlalchemy.orm import Session
 from app import crud
 from app.api import deps
 from app.db.session import get_db
+from app.models.ecommerce import OrderItem, Product
 from app.schemas.ecommerce import OrderCreate, OrderResponse
 
 router = APIRouter()
+
+VALID_STATUSES = ("pending", "paid", "confirmed", "shipped", "delivered", "cancelled")
+# Transiciones que puede hacer el vendedor sobre un pedido ya pagado
+SELLER_TRANSITIONS = {
+    "paid": ("confirmed", "shipped", "cancelled"),
+    "confirmed": ("shipped", "cancelled"),
+    "shipped": ("delivered",),
+}
+
+def _is_seller_of(db: Session, order_id: str, user_id: str) -> bool:
+    return db.query(OrderItem.id).join(Product, Product.id == OrderItem.product_id).filter(
+        OrderItem.order_id == order_id, Product.seller_id == user_id
+    ).first() is not None
+
 
 @router.post("/", response_model=OrderResponse)
 def create_order(
@@ -21,8 +37,13 @@ def create_order(
     """
     try:
         return crud.crud_ecommerce.create_order(db, order_in=order_in, user_id=user_id)
-    except Exception as e:
+    except ValueError as e:
+        db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        db.rollback()
+        logging.getLogger(__name__).exception("Error creating order")
+        raise HTTPException(status_code=500, detail="No se pudo crear el pedido. Intenta de nuevo.")
 
 @router.get("/me", response_model=List[OrderResponse])
 def read_my_orders(
@@ -60,7 +81,7 @@ def read_order(
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if order.user_id != user_id:
+    if order.user_id != user_id and not _is_seller_of(db, order_id, user_id):
         raise HTTPException(status_code=403, detail="Not authorized to view this order")
     return order
 
@@ -78,35 +99,24 @@ def update_order_status_seller(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     
-    # Check if user is the seller of any product in this order
-    from app.models.ecommerce import OrderItem, Product
-    has_seller_product = db.query(OrderItem).join(Product).filter(
-        OrderItem.order_id == order_id,
-        Product.seller_id == user_id
-    ).first()
-    
-    is_seller = has_seller_product is not None
+    is_seller = _is_seller_of(db, order_id, user_id)
     is_buyer = order.user_id == user_id
     if not is_seller and not is_buyer:
         raise HTTPException(status_code=403, detail="Not authorized to update this order")
 
     # El estado "paid" solo lo pone el webhook de Stripe (o un admin). Antes cualquiera podía enviar status=paid.
     if is_seller:
-        if status not in ("confirmed", "shipped", "delivered", "cancelled"):
-            raise HTTPException(status_code=400, detail="Estado no permitido")
+        allowed = SELLER_TRANSITIONS.get(order.status, ())
         if order.status == "pending":
             raise HTTPException(status_code=400, detail="El pedido aún no está pagado")
+        if status not in allowed:
+            raise HTTPException(status_code=400, detail=f"No se puede pasar un pedido '{order.status}' a '{status}'")
     else:
-        # El comprador solo puede cancelar un pedido que todavía no pagó
+        # El comprador solo puede cancelar un pedido que todavía no pagó (el stock apartado se devuelve en update_order_status)
         if status != "cancelled" or order.status != "pending":
             raise HTTPException(status_code=403, detail="Solo puedes cancelar un pedido pendiente de pago")
-        for item in order.items:  # devolver el stock apartado al crear el pedido
-            product = db.query(Product).filter(Product.id == item.product_id).first()
-            if product:
-                product.stock += item.quantity
-    
-    updated_order = crud.crud_ecommerce.update_order_status(db, order_id=order_id, status=status)
-    return updated_order
+
+    return crud.crud_ecommerce.update_order_status(db, order_id=order_id, status=status)
 
 # --- ADMIN ENDPOINTS ---
 
@@ -135,6 +145,8 @@ def update_order_status(
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    
+    if status not in VALID_STATUSES:
+        raise HTTPException(status_code=400, detail="Estado no permitido")
+
     updated_order = crud.crud_ecommerce.update_order_status(db, order_id=order_id, status=status)
     return updated_order

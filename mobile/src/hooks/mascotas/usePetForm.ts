@@ -88,8 +88,11 @@ export function usePetForm() {
                 photo_url = await uploadImage(image);
             }
 
+            const { microchip_id, ...petFields } = form;
+            const microchip = microchip_id.trim();
             await createPet({
-                ...form,
+                ...petFields,
+                microchip_number: microchip || undefined,
                 name: trimmedName,
                 breed: trimmedBreed,
                 description: trimmedDescription,
@@ -101,6 +104,7 @@ export function usePetForm() {
 
             // Invalidate pets list so it refreshes
             queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+            queryClient.invalidateQueries({ queryKey: ['my-pets-carnet'] });
 
             showAlert({
                 type: 'success',

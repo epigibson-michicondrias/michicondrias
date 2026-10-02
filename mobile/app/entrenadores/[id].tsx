@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProgramDetail } from '@/src/hooks/training';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -10,6 +11,7 @@ import { Dumbbell, Clock, DollarSign, Info, Calendar } from 'lucide-react-native
 export default function ProgramDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const { user } = useAuth();
     const { program, isLoading, error, handleEnroll } = useProgramDetail();
 
     if (isLoading) {
@@ -79,13 +81,8 @@ export default function ProgramDetailScreen() {
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Información del Programa</Text>
                     <View style={styles.detailRow}>
                         <Info size={16} color={theme.textMuted} />
-                        <Text style={[styles.detailLabel, { color: theme.textMuted }]}>ID del Programa:</Text>
-                        <Text style={[styles.detailValue, { color: theme.text }]}>{program.id.substring(0, 12)}...</Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                        <Info size={16} color={theme.textMuted} />
                         <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Entrenador:</Text>
-                        <Text style={[styles.detailValue, { color: theme.text }]}>{program.trainer_id.substring(0, 12)}...</Text>
+                        <Text style={[styles.detailValue, { color: theme.text }]}>{program.trainer_name || 'Sin nombre'}</Text>
                     </View>
                     <View style={styles.detailRow}>
                         <Calendar size={16} color={theme.textMuted} />
@@ -96,36 +93,21 @@ export default function ProgramDetailScreen() {
                     </View>
                 </View>
 
-                {/* Benefits */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Beneficios</Text>
-                    <View style={styles.benefitItem}>
-                        <View style={[styles.benefitDot, { backgroundColor: theme.secondary }]} />
-                        <Text style={[styles.benefitText, { color: theme.textMuted }]}>Entrenamiento personalizado</Text>
-                    </View>
-                    <View style={styles.benefitItem}>
-                        <View style={[styles.benefitDot, { backgroundColor: theme.secondary }]} />
-                        <Text style={[styles.benefitText, { color: theme.textMuted }]}>Seguimiento de progreso semanal</Text>
-                    </View>
-                    <View style={styles.benefitItem}>
-                        <View style={[styles.benefitDot, { backgroundColor: theme.secondary }]} />
-                        <Text style={[styles.benefitText, { color: theme.textMuted }]}>Videos de evidencia de avance</Text>
-                    </View>
-                    <View style={styles.benefitItem}>
-                        <View style={[styles.benefitDot, { backgroundColor: theme.secondary }]} />
-                        <Text style={[styles.benefitText, { color: theme.textMuted }]}>Soporte continuo del entrenador</Text>
-                    </View>
-                </View>
-
                 {/* Enroll Button */}
                 <View style={styles.actionContainer}>
+                    {program.trainer_id === user?.id ? (
+                        <Text style={{ color: theme.textMuted, textAlign: 'center' }}>Este es tu programa. Gestiona a tus alumnos desde el Panel Entrenador.</Text>
+                    ) : (
                     <TouchableOpacity
                         style={[styles.enrollButton, { backgroundColor: theme.primary }]}
                         onPress={handleEnroll}
+                        accessibilityRole="button"
+                        accessibilityLabel="Inscribir mascota"
                     >
                         <Dumbbell size={20} color="#fff" />
                         <Text style={styles.enrollButtonText}>Inscribir Mascota</Text>
                     </TouchableOpacity>
+                    )}
                 </View>
 
                 <View style={styles.footer} />
@@ -205,7 +187,7 @@ const styles = StyleSheet.create({
     },
     statDivider: {
         width: 1,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(128,128,128,0.25)',
     },
     statNumber: {
         fontSize: 22,
@@ -233,7 +215,7 @@ const styles = StyleSheet.create({
         gap: 10,
         paddingVertical: 10,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
+        borderBottomColor: 'rgba(128,128,128,0.2)',
     },
     detailLabel: {
         fontSize: 14,

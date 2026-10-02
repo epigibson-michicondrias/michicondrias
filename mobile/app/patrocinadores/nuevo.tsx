@@ -23,8 +23,8 @@ export default function NuevoPatrocinadorScreen() {
     });
 
     const handleSubmit = async () => {
-        if (!form.title || !form.budget_limit) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
+        if (!form.title.trim() || !form.banner_url.trim() || !(parseFloat(form.budget_limit) > 0)) {
+            showAlert({ type: 'error', title: 'Error', message: 'Completa título, URL del banner (https://...) y un presupuesto mayor a 0' });
             return;
         }
 
@@ -32,7 +32,7 @@ export default function NuevoPatrocinadorScreen() {
         try {
             await createCampaign({
                 title: form.title,
-                banner_url: form.banner_url || 'https://placehold.co/600x200',
+                banner_url: form.banner_url.trim(),
                 target_link: form.target_link || undefined,
                 budget_limit: parseFloat(form.budget_limit),
             });
@@ -43,7 +43,7 @@ export default function NuevoPatrocinadorScreen() {
                 onButtonPress: () => router.back(),
             });
         } catch (error) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear la campaña.' });
+            showAlert({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'No se pudo crear la campaña.' });
         } finally {
             setLoading(false);
         }

@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from app.api.deps import RoleChecker, get_current_user_id
+from app.api.deps import RoleChecker, get_current_user_id, _decode_token, oauth2_scheme
 from app.db.session import get_db
 from app.models.funerary import PetDeath, PetMemorialPost, FuneraryBooking, FuneraryService
-from sqlalchemy import text
+from sqlalchemy import text, bindparam
+import uuid
 from app.schemas.funerary import (
     PetDeathCreate,
     PetDeathResponse,
@@ -15,18 +16,63 @@ from app.schemas.funerary import (
     FuneraryServiceResponse,
     FuneraryBookingCreate,
     FuneraryBookingResponse,
+    FuneraryBookingStatusUpdate,
+    FuneraryServiceActiveUpdate,
 )
 from app.crud import crud_funerary
 from app.core.config import settings
 from app.core.certificate import build_certificate_pdf
 import httpx
+from datetime import date
 
 router = APIRouter()
+
+
+def get_current_user_payload(token: str = Depends(oauth2_scheme)) -> dict:
+    return _decode_token(token)
 
 
 def _pet_owner_id(db: Session, pet_id: str):
     row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
     return row[0] if row else None
+
+
+def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "funeraria") -> None:
+    """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
+    try:
+        db.execute(text(
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
+            "VALUES (:id, :uid, :title, :msg, :type, false)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+        db.commit()
+    except Exception:
+        db.rollback()
+
+
+def _enrich_bookings(db: Session, bookings: list) -> list:
+    """Agrega nombre de mascota y de servicio para que la app no muestre solo IDs."""
+    if not bookings:
+        return []
+    pet_ids = list({b.pet_id for b in bookings if b.pet_id})
+    svc_ids = list({b.service_id for b in bookings if b.service_id})
+    pets = {}
+    if pet_ids:
+        try:
+            rows = db.execute(text("SELECT id, name FROM pets WHERE id IN :ids").bindparams(bindparam("ids", expanding=True)), {"ids": pet_ids}).fetchall()
+            pets = {r[0]: r[1] for r in rows}
+        except Exception:
+            db.rollback()
+    svcs = {s.id: s for s in db.query(FuneraryService).filter(FuneraryService.id.in_(svc_ids)).all()} if svc_ids else {}
+    out = []
+    for b in bookings:
+        svc = svcs.get(b.service_id)
+        out.append({
+            "id": b.id, "client_id": b.client_id, "pet_id": b.pet_id, "service_id": b.service_id,
+            "scheduled_date": b.scheduled_date, "status": b.status, "notes": b.notes, "created_at": b.created_at,
+            "pet_name": pets.get(b.pet_id), "service_name": svc.name if svc else None,
+            "service_price": svc.price if svc else None,
+        })
+    return out
 
 
 def _can_report_death(db: Session, pet_id: str, user_id: str, role: str) -> bool:
@@ -134,6 +180,34 @@ def read_active_services(
     services = crud_funerary.get_active_funerary_services(db)
     return services
 
+@router.get("/services/mine", response_model=List[FuneraryServiceResponse])
+def read_my_services(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(RoleChecker(["funeraria", "admin"])),
+):
+    """Todos los servicios (activos o no) de la funeraria autenticada."""
+    return db.query(FuneraryService).filter(FuneraryService.funerary_id == current_user.get("sub")).order_by(FuneraryService.created_at.desc()).all()
+
+
+@router.patch("/services/{service_id}/active", response_model=FuneraryServiceResponse)
+def set_service_active(
+    service_id: str,
+    body: FuneraryServiceActiveUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(RoleChecker(["funeraria", "admin"])),
+):
+    """Publica u oculta un servicio propio del catálogo."""
+    service = db.query(FuneraryService).filter(FuneraryService.id == service_id).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Servicio no encontrado.")
+    if service.funerary_id != current_user.get("sub") and current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Este servicio no es tuyo.")
+    service.is_active = body.is_active
+    db.commit()
+    db.refresh(service)
+    return service
+
+
 @router.post("/bookings", response_model=FuneraryBookingResponse, status_code=status.HTTP_201_CREATED)
 def add_booking(
     *,
@@ -157,8 +231,15 @@ def add_booking(
             detail="Solo el dueño de la mascota puede reservar este servicio."
         )
 
+    service = db.query(FuneraryService).filter(FuneraryService.id == booking_in.service_id).first()
+    if not service or not service.is_active:
+        raise HTTPException(status_code=404, detail="El servicio funerario no existe o ya no está disponible.")
+    if booking_in.scheduled_date < date.today():
+        raise HTTPException(status_code=422, detail="La fecha de la reserva no puede estar en el pasado.")
+
     booking = crud_funerary.create_funerary_booking(db, booking_in=booking_in, client_id=current_user_id)
-    return booking
+    _notify(db, service.funerary_id, "Nueva reserva funeraria", f"Tienes una nueva solicitud para {service.name}.")
+    return _enrich_bookings(db, [booking])[0]
 
 @router.get("/bookings/client", response_model=List[FuneraryBookingResponse])
 def read_client_bookings(
@@ -169,7 +250,7 @@ def read_client_bookings(
     Get all bookings for the logged-in client.
     """
     bookings = crud_funerary.get_bookings_for_client(db, client_id=current_user_id)
-    return bookings
+    return _enrich_bookings(db, bookings)
 
 @router.get("/bookings/provider", response_model=List[FuneraryBookingResponse])
 def read_provider_bookings(
@@ -181,7 +262,46 @@ def read_provider_bookings(
     """
     funerary_id = current_user.get("sub")
     bookings = crud_funerary.get_bookings_for_provider(db, provider_id=funerary_id)
-    return bookings
+    return _enrich_bookings(db, bookings)
+
+_STATUS_FLOW = {
+    "pending": {"confirmed", "cancelled"},
+    "confirmed": {"completed", "cancelled"},
+}
+_STATUS_LABEL = {"confirmed": "confirmada", "completed": "completada", "cancelled": "cancelada"}
+
+
+@router.patch("/bookings/{booking_id}/status", response_model=FuneraryBookingResponse)
+def update_booking_status(
+    booking_id: str,
+    body: FuneraryBookingStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user_payload),
+):
+    """La funeraria dueña del servicio confirma/completa/cancela; el cliente solo puede cancelar su reserva."""
+    booking = db.query(FuneraryBooking).filter(FuneraryBooking.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Reserva no encontrada.")
+    user_id = current_user.get("sub")
+    service = db.query(FuneraryService).filter(FuneraryService.id == booking.service_id).first()
+    is_provider = bool(service and service.funerary_id == user_id)
+    is_client = booking.client_id == user_id
+    if not (is_provider or is_client):
+        raise HTTPException(status_code=403, detail="No tienes permisos sobre esta reserva.")
+    if is_client and not is_provider and body.status != "cancelled":
+        raise HTTPException(status_code=403, detail="Solo puedes cancelar tu reserva.")
+    if body.status not in _STATUS_FLOW.get(booking.status or "pending", set()):
+        raise HTTPException(status_code=409, detail="La reserva ya no puede cambiar a ese estado.")
+    booking.status = body.status
+    db.commit()
+    db.refresh(booking)
+    label = _STATUS_LABEL[body.status]
+    if is_provider:
+        _notify(db, booking.client_id, "Reserva funeraria " + label, f"Tu reserva para {service.name if service else 'el servicio'} fue {label}.")
+    elif service:
+        _notify(db, service.funerary_id, "Reserva cancelada", f"El cliente canceló la reserva de {service.name}.")
+    return _enrich_bookings(db, [booking])[0]
+
 
 @router.get("/certificate/{death_id}/pdf", response_model=dict)
 def download_death_certificate(
@@ -198,9 +318,13 @@ def download_death_certificate(
             detail="Reporte de defunción no encontrado."
         )
     
+    pet_row = db.execute(text("SELECT name FROM pets WHERE id = :pet_id"), {"pet_id": death_report.pet_id}).first()
     return {
         "death_id": death_id,
         "pet_id": death_report.pet_id,
+        "pet_name": pet_row[0] if pet_row else None,
+        "cause_of_death": death_report.cause_of_death,
+        "urn_model": death_report.urn_model,
         "funerary_id": death_report.funerary_id,
         "date_of_death": death_report.date_of_death.isoformat(),
         "cremation_type": death_report.cremation_type,

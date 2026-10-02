@@ -6,6 +6,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Save } from 'lucide-react-native';
+import FormImagePicker from '@/src/components/forms/FormImagePicker';
 
 export default function VendedorProductoFormScreen() {
     const { theme } = useTheme();
@@ -17,6 +18,8 @@ export default function VendedorProductoFormScreen() {
         categories,
         loadingProduct,
         handleSave,
+        localImage,
+        setLocalImage,
     } = useProductForm();
 
     if (isEditing && loadingProduct) {
@@ -42,6 +45,8 @@ export default function VendedorProductoFormScreen() {
                                 style={[styles.saveBtn, { backgroundColor: theme.primary }]}
                                 onPress={handleSave}
                                 disabled={saving}
+                                accessibilityRole="button"
+                                accessibilityLabel="Guardar producto"
                             >
                                 {saving ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
                             </TouchableOpacity>
@@ -49,7 +54,7 @@ export default function VendedorProductoFormScreen() {
                     />
 
                     <View style={styles.content}>
-                        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                             <View style={styles.inputGroup}>
                                 <Text style={[styles.label, { color: theme.textMuted }]}>Nombre del producto *</Text>
                                 <TextInput
@@ -68,18 +73,18 @@ export default function VendedorProductoFormScreen() {
                                         style={[styles.input, { color: theme.text, borderColor: theme.border }]}
                                         value={formData.price}
                                         onChangeText={(val) => updateField('price', val)}
-                                        keyboardType="numeric"
+                                        keyboardType="decimal-pad"
                                         placeholder="0.00"
                                         placeholderTextColor={theme.textMuted}
                                     />
                                 </View>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={[styles.label, { color: theme.textMuted }]}>Stock inicial *</Text>
+                                    <Text style={[styles.label, { color: theme.textMuted }]}>{isEditing ? 'Stock disponible *' : 'Stock inicial *'}</Text>
                                     <TextInput
                                         style={[styles.input, { color: theme.text, borderColor: theme.border }]}
                                         value={formData.stock}
                                         onChangeText={(val) => updateField('stock', val)}
-                                        keyboardType="numeric"
+                                        keyboardType="number-pad"
                                         placeholder="10"
                                         placeholderTextColor={theme.textMuted}
                                     />
@@ -88,17 +93,16 @@ export default function VendedorProductoFormScreen() {
                         </View>
 
                         <Text style={[styles.groupTitle, { color: theme.textMuted }]}>CATEGORÍA Y FOTOS</Text>
-                        <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                            <View style={styles.inputGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>URL de la Imagen</Text>
-                                <TextInput
-                                    style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                    value={formData.image_url}
-                                    onChangeText={(val) => updateField('image_url', val)}
-                                    placeholder="https://..."
-                                    placeholderTextColor={theme.textMuted}
-                                />
-                            </View>
+                        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+                            <FormImagePicker
+                                label="Foto del producto *"
+                                imageUri={localImage || formData.image_url || null}
+                                onImageSelected={setLocalImage}
+                                onImageRemoved={() => { setLocalImage(null); updateField('image_url', ''); }}
+                                aspect={[1, 1]}
+                                previewHeight={220}
+                                placeholder="Toca para elegir una foto"
+                            />
 
                             <View style={styles.inputGroup}>
                                 <Text style={[styles.label, { color: theme.textMuted }]}>Categoría</Text>
@@ -110,7 +114,7 @@ export default function VendedorProductoFormScreen() {
                                             style={[
                                                 styles.catBadge,
                                                 { backgroundColor: theme.background, borderColor: theme.border },
-                                                formData.category_id === cat.id && { backgroundColor: theme.primary + '20', borderColor: theme.primary }
+                                                formData.category_id === cat.id && { backgroundColor: theme.primaryLight, borderColor: theme.primary }
                                             ]}
                                         >
                                             <Text style={[
@@ -125,7 +129,7 @@ export default function VendedorProductoFormScreen() {
                         </View>
 
                         <Text style={[styles.groupTitle, { color: theme.textMuted }]}>DESCRIPCIÓN DETALLADA</Text>
-                        <View style={[styles.section, { backgroundColor: theme.surface }]}>
+                        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                             <View style={styles.inputGroup}>
                                 <Text style={[styles.label, { color: theme.textMuted }]}>Descripción corta</Text>
                                 <TextInput
@@ -161,7 +165,7 @@ export default function VendedorProductoFormScreen() {
 const styles = StyleSheet.create({
     saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     content: { padding: 24, paddingBottom: 100 },
-    section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
+    section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1 },
     groupTitle: { fontSize: 12, fontWeight: '800', marginBottom: 12, marginLeft: 12, letterSpacing: 1 },
     inputGroup: { marginBottom: 16 },
     label: { fontSize: 12, fontWeight: '700', marginBottom: 8 },

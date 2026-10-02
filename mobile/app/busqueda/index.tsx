@@ -9,7 +9,7 @@ import { Search, X, PawPrint, Building2, ShoppingBag } from 'lucide-react-native
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const TABS: { key: SearchTab; label: string; icon: typeof PawPrint }[] = [
-    { key: 'mascotas', label: 'Mascotas', icon: PawPrint },
+    { key: 'mascotas', label: 'Mis mascotas', icon: PawPrint },
     { key: 'clinicas', label: 'Clínicas', icon: Building2 },
     { key: 'productos', label: 'Productos', icon: ShoppingBag },
 ];
@@ -25,6 +25,7 @@ export default function BusquedaScreen() {
         activeResults,
         tabCounts,
         isLoading,
+        isError,
         hasSearched,
         clearSearch,
     } = useGlobalSearch();
@@ -102,7 +103,7 @@ export default function BusquedaScreen() {
                         returnKeyType="search"
                     />
                     {query.length > 0 && (
-                        <TouchableOpacity onPress={clearSearch}>
+                        <TouchableOpacity onPress={clearSearch} accessibilityRole="button" accessibilityLabel="Borrar búsqueda">
                             <X size={20} color={theme.textMuted} />
                         </TouchableOpacity>
                     )}
@@ -129,6 +130,12 @@ export default function BusquedaScreen() {
                         Escribe al menos 2 caracteres para buscar
                     </Text>
                 </View>
+            ) : isError ? (
+                <View style={styles.centerContainer}>
+                    <Text style={[styles.centerText, { color: theme.textMuted }]}>
+                        No pudimos buscar en este momento. Revisa tu conexión e inténtalo de nuevo.
+                    </Text>
+                </View>
             ) : activeResults.length === 0 ? (
                 <View style={styles.centerContainer}>
                     <Text style={[styles.centerText, { color: theme.textMuted }]}>
@@ -137,7 +144,7 @@ export default function BusquedaScreen() {
                 </View>
             ) : (
                 <FlatList
-            refreshControl={<AppRefreshControl />}
+                    refreshControl={<AppRefreshControl />}
                     data={activeResults}
                     renderItem={renderResultItem}
                     keyExtractor={(item, index) => item.id || String(index)}

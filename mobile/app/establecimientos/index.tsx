@@ -58,9 +58,9 @@ export default function EstablecimientosScreen() {
             )}
 
             {item.discount_coupon && (
-                <View style={[styles.discountBanner, { backgroundColor: '#f59e0b15' }]}>
-                    <Tag size={14} color="#f59e0b" />
-                    <Text style={[styles.discountText, { color: '#f59e0b' }]}>
+                <View style={[styles.discountBanner, { backgroundColor: theme.warningLight }]}>
+                    <Tag size={14} color={theme.warning} />
+                    <Text style={[styles.discountText, { color: theme.warning }]}>
                         Cupón: {item.discount_coupon}
                     </Text>
                     {item.discount_description && (

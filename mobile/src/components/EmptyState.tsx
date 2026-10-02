@@ -26,7 +26,7 @@ export default function EmptyState({ icon, title, subtitle, actionLabel, onActio
             )}
             {actionLabel && onAction && (
                 <TouchableOpacity
-                    style={[styles.action, { backgroundColor: theme.primary }]}
+                    style={[styles.action, { backgroundColor: theme.primary, minHeight: 48 }]}
                     onPress={onAction}
                     activeOpacity={0.8}
                     accessibilityRole="button"
@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
         paddingHorizontal: 28,
         borderRadius: 14,
+        justifyContent: 'center',
     },
     actionText: {
         color: '#fff',

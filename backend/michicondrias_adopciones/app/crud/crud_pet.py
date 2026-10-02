@@ -94,7 +94,7 @@ def calculate_compatibility_score(req: AdoptionRequest, listing: AdoptionListing
         notes.append("Compromiso financiero confirmado.")
 
     # 2. Landlord Permission (if renting)
-    if req.own_or_rent == "rent":
+    if (req.own_or_rent or "").strip().lower() in ("rent", "renta", "rentada", "rentado", "alquiler", "alquilada"):
         if not req.landlord_permission:
             score -= 30
             notes.append("Renta sin autorización de arrendador.")
@@ -173,6 +173,18 @@ def create_adoption_request(db: Session, listing_id: str, user_id: str, req: Ado
     db.refresh(db_req)
     return enrich_adoption_request_with_vetting(db, db_req)
 
+def get_active_request_for(db: Session, listing_id: str, user_id: str):
+    """Solicitud vigente (no rechazada) del usuario para esa publicación, si existe."""
+    return (
+        db.query(AdoptionRequest)
+        .filter(
+            AdoptionRequest.listing_id == listing_id,
+            AdoptionRequest.user_id == user_id,
+            AdoptionRequest.status.notin_(["REJECTED", "rechazado"]),
+        )
+        .first()
+    )
+
 def get_requests_for_listing(db: Session, listing_id: str):
     reqs = db.query(AdoptionRequest).filter(AdoptionRequest.listing_id == listing_id).all()
     return [enrich_adoption_request_with_vetting(db, r) for r in reqs]
@@ -228,7 +240,7 @@ def approve_adoption(db: Session, request_id: str):
     # Update listing
     listing = get_listing(db, req.listing_id)
     if listing:
-        listing.status = "ADOPTED"
+        listing.status = "adoptado"
         listing.adopted_by = req.user_id
 
     # Reject all other requests for this listing
@@ -301,6 +313,13 @@ def create_adoption_form(db: Session, form_in: AdoptionFormCreate, applicant_id:
     db.commit()
     db.refresh(db_form)
     return db_form
+
+def get_active_form_for(db: Session, pet_id: str, applicant_id: str):
+    return (
+        db.query(AdoptionForm)
+        .filter(AdoptionForm.pet_id == pet_id, AdoptionForm.applicant_id == applicant_id, AdoptionForm.status != "rejected")
+        .first()
+    )
 
 def get_adoption_form(db: Session, form_id: str):
     return db.query(AdoptionForm).filter(AdoptionForm.id == form_id).first()

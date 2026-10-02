@@ -1,11 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useInsuranceAdmin } from '@/src/hooks/insurance/useInsuranceAdmin';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
-import type { InsuranceClaim } from '@/src/services/insurance';
+import type { InsuranceClaimDetail } from '@/src/services/insurance';
+import { statusTone } from '@/src/features/salud/format';
+import { useQueryClient } from '@tanstack/react-query';
 import {
     FileText,
     DollarSign,
@@ -19,49 +21,43 @@ import {
 export default function ReclamosScreen() {
     const { theme } = useTheme();
     const {
-        plans,
-        isLoadingPlans,
-        refetchPlans,
-        isRefetchingPlans,
+        allClaims,
+        isLoadingClaims,
         handleUpdateClaimStatus,
         isUpdatingClaim,
     } = useInsuranceAdmin();
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = React.useState(false);
+    const refetchClaims = async () => {
+        setRefreshing(true);
+        try { await queryClient.refetchQueries({ queryKey: ['insuranceClaims'] }); } finally { setRefreshing(false); }
+    };
 
-    // Collect all claims from plans -> policies -> claims
-    const allClaims: (InsuranceClaim & { planName: string; policyNumber: string })[] = [];
-    // Plans don't directly contain policies with claims in the current API shape,
-    // but we aggregate from policies' claims if available via an extended query.
-    // For the current service, we display claims from a dedicated endpoint.
-    // We'll build the list from the plans' data if it evolves, or show static.
+    const openReceipt = (url?: string) => {
+        if (!url || !/^https?:\/\//i.test(url)) return;
+        Linking.openURL(url).catch(() => undefined);
+    };
 
-    // For now, use a dedicated claims query approach:
-    // We iterate over plans and for any future expansion
-    // In the current implementation, allClaims may be empty.
-    // The provider can view claims once the API supports listing them.
-
-    const renderClaimItem = ({ item }: { item: InsuranceClaim & { planName?: string; policyNumber?: string } }) => {
+    const renderClaimItem = ({ item }: { item: InsuranceClaimDetail }) => {
         const isPending = !item.status || item.status === 'pending';
         const isApproved = item.status === 'approved';
-        const isRejected = item.status === 'rejected';
+        const tone = statusTone(theme, item.status);
 
         return (
             <View style={[styles.claimCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                 <View style={styles.claimHeader}>
-                    <View style={[styles.claimIcon, {
-                        backgroundColor: isPending ? '#f59e0b' + '20' :
-                            isApproved ? '#10b981' + '20' : '#ef4444' + '20',
-                    }]}>
+                    <View style={[styles.claimIcon, { backgroundColor: tone.bg }]}>
                         {isPending ? (
-                            <AlertTriangle size={20} color="#f59e0b" />
+                            <AlertTriangle size={20} color={tone.color} />
                         ) : isApproved ? (
-                            <CheckCircle size={20} color="#10b981" />
+                            <CheckCircle size={20} color={tone.color} />
                         ) : (
-                            <XCircle size={20} color="#ef4444" />
+                            <XCircle size={20} color={tone.color} />
                         )}
                     </View>
                     <View style={styles.claimInfo}>
-                        <Text style={[styles.claimId, { color: theme.text }]}>
-                            Reclamo #{item.id.substring(0, 8)}
+                        <Text style={[styles.claimId, { color: theme.text }]} numberOfLines={1}>
+                            {item.pet_name ? `Reclamo de ${item.pet_name}` : `Reclamo #${item.id.substring(0, 8)}`}
                         </Text>
                         {item.reason && (
                             <Text style={[styles.claimReason, { color: theme.textMuted }]} numberOfLines={2}>
@@ -69,26 +65,8 @@ export default function ReclamosScreen() {
                             </Text>
                         )}
                     </View>
-                    <View
-                        style={[
-                            styles.statusBadge,
-                            {
-                                backgroundColor: isPending ? '#f59e0b' + '15' :
-                                    isApproved ? '#10b981' + '15' : '#ef4444' + '15',
-                            },
-                        ]}
-                    >
-                        <Text
-                            style={[
-                                styles.statusText,
-                                {
-                                    color: isPending ? '#f59e0b' :
-                                        isApproved ? '#10b981' : '#ef4444',
-                                },
-                            ]}
-                        >
-                            {isPending ? 'Pendiente' : isApproved ? 'Aprobado' : 'Rechazado'}
-                        </Text>
+                    <View style={[styles.statusBadge, { backgroundColor: tone.bg }]}>
+                        <Text style={[styles.statusText, { color: tone.color }]}>{tone.label}</Text>
                     </View>
                 </View>
 
@@ -105,39 +83,41 @@ export default function ReclamosScreen() {
                         <FileText size={14} color={theme.textMuted} />
                         <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Póliza</Text>
                         <Text style={[styles.detailValue, { color: theme.text }]}>
-                            {item.policy_id.substring(0, 12)}...
+                            {item.policy_number || `${item.policy_id.substring(0, 12)}...`}
                         </Text>
                     </View>
-                    {item.medical_receipt_url && (
-                        <View style={styles.detailRow}>
-                            <Sparkles size={14} color={theme.primary} />
-                            <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Recibo</Text>
-                            <Text style={[styles.receiptLink, { color: theme.primary }]} numberOfLines={1}>
-                                Adjunto ✓
-                            </Text>
-                        </View>
-                    )}
+                    <View style={styles.detailRow}>
+                        <Sparkles size={14} color={theme.primary} />
+                        <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Recibo</Text>
+                        {item.medical_receipt_url ? (
+                            <TouchableOpacity accessibilityRole="link" accessibilityLabel="Ver comprobante" onPress={() => openReceipt(item.medical_receipt_url)} style={{ flex: 1 }}>
+                                <Text style={[styles.receiptLink, { color: theme.primary }]} numberOfLines={1}>Ver comprobante</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <Text style={[styles.receiptLink, { color: theme.warning }]}>Sin comprobante</Text>
+                        )}
+                    </View>
                 </View>
 
                 {/* Action Buttons (only for pending) */}
                 {isPending && (
                     <View style={styles.actionRow}>
                         <TouchableOpacity
-                            style={[styles.rejectBtn, { borderColor: '#ef4444' }]}
+                            style={[styles.rejectBtn, { borderColor: theme.error }]}
                             disabled={isUpdatingClaim}
                             onPress={() => handleUpdateClaimStatus(item.id, 'rejected')}
                         >
                             {isUpdatingClaim ? (
-                                <ActivityIndicator size="small" color="#ef4444" />
+                                <ActivityIndicator size="small" color={theme.error} />
                             ) : (
                                 <>
-                                    <XCircle size={16} color="#ef4444" />
-                                    <Text style={[styles.rejectBtnText, { color: '#ef4444' }]}>Rechazar</Text>
+                                    <XCircle size={16} color={theme.error} />
+                                    <Text style={[styles.rejectBtnText, { color: theme.error }]}>Rechazar</Text>
                                 </>
                             )}
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.approveBtn, { backgroundColor: '#10b981' }]}
+                            style={[styles.approveBtn, { backgroundColor: theme.success }]}
                             disabled={isUpdatingClaim}
                             onPress={() => handleUpdateClaimStatus(item.id, 'approved')}
                         >
@@ -161,17 +141,16 @@ export default function ReclamosScreen() {
             <ScreenHeader
                 title="📋 Reclamos"
                 subtitle="Gestión de reclamos de seguros"
-                gradient={['#f59e0b', '#d97706']}
             />
 
-            <DataList<InsuranceClaim & { planName?: string; policyNumber?: string }>
+            <DataList<InsuranceClaimDetail>
                 data={allClaims}
                 renderItem={renderClaimItem}
                 keyExtractor={(item) => item.id}
-                isLoading={isLoadingPlans}
+                isLoading={isLoadingClaims}
                 loadingMessage="Cargando reclamos..."
-                onRefresh={refetchPlans}
-                isRefreshing={isRefetchingPlans}
+                onRefresh={refetchClaims}
+                isRefreshing={refreshing}
                 emptyIcon={<Shield size={32} color={theme.textMuted} />}
                 emptyTitle="No hay reclamos pendientes"
                 emptySubtitle="Los reclamos de tus asegurados aparecerán aquí"

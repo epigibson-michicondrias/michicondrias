@@ -58,6 +58,8 @@ export interface AdoptionRequest {
     created_at: string;
     pet_name?: string | null;
     pet_photo_url?: string | null;
+    compatibility_score?: number | null;
+    vetting_notes?: string | null;
 }
 
 export interface AdoptionRequestCreate {
@@ -137,8 +139,13 @@ export async function getListingRequests(listingId: string): Promise<AdoptionReq
     return apiFetch<AdoptionRequest[]>("adopciones", `/pets/admin/${listingId}/requests`);
 }
 
-export async function updateRequestStatus(requestId: string, status: string): Promise<AdoptionRequest> {
-    return apiFetch<AdoptionRequest>("adopciones", `/pets/admin/requests/${requestId}/status?status=${status}`, {
+export async function getRequest(requestId: string): Promise<AdoptionRequest> {
+    return apiFetch<AdoptionRequest>("adopciones", `/pets/requests/${requestId}`);
+}
+
+export async function updateRequestStatus(requestId: string, status: string, note?: string): Promise<AdoptionRequest> {
+    const noteQs = note ? `&note=${encodeURIComponent(note)}` : "";
+    return apiFetch<AdoptionRequest>("adopciones", `/pets/admin/requests/${requestId}/status?status=${status}${noteQs}`, {
         method: "PUT",
     });
 }

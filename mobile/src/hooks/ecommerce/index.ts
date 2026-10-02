@@ -5,7 +5,7 @@ export { useProduct } from './useProduct';
 export { useSellerDashboard } from './useSellerDashboard';
 export { usePurchases, STATUS_MAP } from './usePurchases';
 export { useSellerAnalytics } from './useSellerAnalytics';
-export { useSellerOrders, ORDER_STATUS_MAP } from './useSellerOrders';
+export { useSellerOrders, ORDER_STATUS_MAP, SELLER_NEXT_STATUS, REVENUE_STATUSES, sellerSubtotal } from './useSellerOrders';
 export { useSellerProducts } from './useSellerProducts';
 export { useProductForm } from './useProductForm';
 export { useSubcategories } from './useSubcategories';

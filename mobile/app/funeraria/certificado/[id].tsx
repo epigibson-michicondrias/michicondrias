@@ -6,6 +6,8 @@ import { useDeathReport } from '@/src/hooks/funerary/useDeathReport';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { formatDateMx } from '@/src/features/salud/format';
+import { cremationLabel } from '@/src/services/funerary';
 import { FileText, Download, Calendar, Heart, Shield } from 'lucide-react-native';
 
 export default function CertificadoScreen() {
@@ -21,15 +23,7 @@ export default function CertificadoScreen() {
         }
     };
 
-    const formatDate = (dateStr?: string) => {
-        if (!dateStr) return '—';
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('es-MX', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
+    const formatDate = (dateStr?: string) => (dateStr ? formatDateMx(dateStr) : '—');
 
     if (isLoadingCertificate) {
         return (
@@ -73,7 +67,7 @@ export default function CertificadoScreen() {
                                 <View style={styles.detailContent}>
                                     <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Mascota</Text>
                                     <Text style={[styles.detailValue, { color: theme.text }]}>
-                                        {certificate.pet_id}
+                                        {certificate.pet_name || certificate.pet_id}
                                     </Text>
                                 </View>
                             </View>
@@ -109,19 +103,19 @@ export default function CertificadoScreen() {
                                 <View style={styles.detailContent}>
                                     <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Tipo de Cremación</Text>
                                     <Text style={[styles.detailValue, { color: theme.text }]}>
-                                        {certificate.cremation_type}
+                                        {cremationLabel(certificate.cremation_type)}
                                     </Text>
                                 </View>
                             </View>
                         )}
 
-                        {certificate?.id && (
+                        {certificate?.death_id && (
                             <View style={styles.detailRow}>
                                 <Shield size={16} color={theme.secondary} />
                                 <View style={styles.detailContent}>
                                     <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Folio</Text>
                                     <Text style={[styles.detailValue, { color: theme.text }]}>
-                                        {certificate.id}
+                                        {certificate.death_id}
                                     </Text>
                                 </View>
                             </View>
@@ -131,7 +125,10 @@ export default function CertificadoScreen() {
 
                 {/* Download button */}
                 <TouchableOpacity
-                    style={[styles.downloadBtn, { backgroundColor: theme.primary }]}
+                    style={[styles.downloadBtn, { backgroundColor: theme.primary }, !certificate && { opacity: 0.5 }]}
+                    disabled={!certificate}
+                    accessibilityRole="button"
+                    accessibilityLabel="Descargar certificado en PDF"
                     onPress={handleDownload}
                 >
                     <Download size={22} color="#fff" />

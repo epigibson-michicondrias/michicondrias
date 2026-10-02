@@ -16,7 +16,7 @@ export function usePetRecords() {
 
     const isVetOrAdmin = user?.role_name === 'veterinario' || user?.role_name === 'admin';
 
-    const { data: pets = [], isLoading } = useQuery({
+    const { data: pets = [], isLoading, isRefetching, refetch } = useQuery({
         queryKey: ['my-pets-carnet', user?.id],
         queryFn: () => (user?.id ? getUserPets(user.id) : Promise.resolve([])),
         enabled: !!user?.id,
@@ -32,6 +32,8 @@ export function usePetRecords() {
         // Data
         pets,
         isLoading,
+        isRefetching,
+        refetch,
 
         // Search
         searchId,

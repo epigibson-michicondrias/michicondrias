@@ -3,17 +3,32 @@
  * Fetches upcoming appointments and per-pet grooming history
  */
 import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { showAlert } from '@/src/components/AppAlert';
+import { errorMessage } from '@/src/hooks/servicios-pro/requestStatus';
 import {
     getClientAppointments,
     getGroomingHistory,
+    updateAppointmentStatus,
 } from '@/src/services/grooming';
 import type { GroomingAppointment, GroomingHistory } from '@/src/services/grooming';
 
 export type AppointmentTab = 'upcoming' | 'history';
 
 export function useGroomingClient(petId?: string) {
+    const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState<AppointmentTab>('upcoming');
+
+    const cancelMutation = useMutation({
+        mutationFn: (id: string) => updateAppointmentStatus(id, 'cancelled'),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['grooming-client-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['grooming-provider-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['grooming-slots'] });
+            showAlert({ type: 'success', title: 'Cita cancelada', message: 'Tu cita fue cancelada y el horario quedó libre.' });
+        },
+        onError: (e) => showAlert({ type: 'error', title: 'No se pudo cancelar', message: errorMessage(e, 'Inténtalo de nuevo.') }),
+    });
 
     // ── All client appointments ──────────────────────────────────
     const {
@@ -29,7 +44,7 @@ export function useGroomingClient(petId?: string) {
     // ── Filter by tab ────────────────────────────────────────────
     const upcomingAppointments = useMemo(
         () => allAppointments.filter(a =>
-            a.status === 'scheduled' || a.status === 'confirmed' || a.status === 'in_progress',
+            a.status === 'scheduled' || a.status === 'pending' || a.status === 'confirmed' || a.status === 'in_progress',
         ),
         [allAppointments],
     );
@@ -56,6 +71,8 @@ export function useGroomingClient(petId?: string) {
     });
 
     return {
+        cancelAppointment: (id: string) => cancelMutation.mutate(id),
+        cancellingId: cancelMutation.isPending ? cancelMutation.variables ?? null : null,
         // Tab
         activeTab,
         setActiveTab,

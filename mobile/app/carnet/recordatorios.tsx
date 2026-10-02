@@ -62,6 +62,8 @@ export default function PetRemindersScreen() {
                         onPress={() => handleCheck(item.id)}
                         disabled={isCheckPending}
                         activeOpacity={0.8}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Marcar ${item.medication_name} como tomado`}
                     >
                         <Check size={18} color="#fff" />
                     </TouchableOpacity>

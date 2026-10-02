@@ -14,7 +14,7 @@ const { width } = Dimensions.get('window');
 export default function PetProfileScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { pet, isLoading, error, goBack, goToCarnet, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
+    const { pet, isLoading, error, refetch, goBack, goToCarnet, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
 
     if (isLoading) return (
         <ScreenContainer style={styles.center}>
@@ -24,7 +24,10 @@ export default function PetProfileScreen() {
 
     if (error || !pet) return (
         <ScreenContainer style={styles.center}>
-            <Text style={{ color: theme.error }}>Error al cargar la mascota</Text>
+            <Text style={{ color: theme.error }}>No pudimos cargar a tu mascota. Revisa tu conexión.</Text>
+            <TouchableOpacity onPress={() => refetch()} style={[styles.backBtn, { backgroundColor: theme.primary }]} accessibilityRole="button">
+                <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={goBack} style={[styles.backBtn, { backgroundColor: theme.surface }]}>
                 <Text style={{ color: theme.text }}>Regresar</Text>
             </TouchableOpacity>
@@ -36,10 +39,21 @@ export default function PetProfileScreen() {
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Hero Image */}
                 <View style={styles.imageContainer}>
-                    <Image source={{ uri: pet.photo_url || 'https://via.placeholder.com/800' }} style={styles.mainImage} />
+                    {pet.photo_url ? (
+                        <Image source={{ uri: pet.photo_url }} style={styles.mainImage} />
+                    ) : (
+                        <View style={[styles.mainImage, styles.center, { backgroundColor: theme.backgroundSecondary }]}>
+                            <Text style={{ fontSize: 96 }}>{pet.species === 'gato' ? '🐱' : '🐶'}</Text>
+                        </View>
+                    )}
                     <View style={styles.headerButtons}>
                         <BackButton onPress={goBack} color="#fff" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)' }} />
-                        <TouchableOpacity style={styles.iconBtn} onPress={() => router.push(`/mascotas/editar/${pet.id}`)}>
+                        <TouchableOpacity
+                            style={styles.iconBtn}
+                            onPress={() => router.push(`/mascotas/editar/${pet.id}`)}
+                            accessibilityRole="button"
+                            accessibilityLabel="Editar mascota"
+                        >
                             <Settings size={22} color="#fff" />
                         </TouchableOpacity>
                     </View>
@@ -51,7 +65,7 @@ export default function PetProfileScreen() {
                         <View>
                             <Text style={[styles.name, { color: theme.text }]}>{pet.name}</Text>
                             <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                                {pet.breed || pet.species} • {pet.gender === 'macho' ? 'Niño ♂️' : 'Niña ♀️'}
+                                {pet.breed || pet.species} • {pet.gender === 'macho' ? 'Macho ♂️' : pet.gender === 'hembra' ? 'Hembra ♀️' : 'Sin género'}
                             </Text>
                         </View>
                         <View style={styles.verifiedBadge}>
@@ -63,13 +77,18 @@ export default function PetProfileScreen() {
                     <View style={styles.grid}>
                         <PetStat icon={<Calendar size={20} color="#6366f1" />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
                         <PetStat icon={<Activity size={20} color="#ec4899" />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} />
-                        <PetStat icon={<Award size={20} color="#facc15" />} label="Salud" value="Al Día" theme={theme} />
+                        <PetStat
+                            icon={<Award size={20} color="#facc15" />}
+                            label="Vacunas"
+                            value={pet.is_vaccinated ? 'Al día' : 'Pendiente'}
+                            theme={theme}
+                        />
                     </View>
 
                     {/* Carnet Digital */}
                     <View style={styles.section}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Carnet Digital</Text>
-                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]} onPress={goToCarnet}>
+                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]} onPress={goToCarnet} accessibilityRole="button">
                             <View style={styles.actionIcon}>
                                 <Text style={{ fontSize: 24 }}>💉</Text>
                             </View>
@@ -83,7 +102,8 @@ export default function PetProfileScreen() {
                         <TouchableOpacity
                             style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                             onPress={handleSubscribeMichiTracker}
-                            disabled={isSubscribing}
+                            disabled={isSubscribing || !!pet.has_active_subscription}
+                            accessibilityRole="button"
                         >
                             <View style={[styles.actionIcon, { backgroundColor: 'rgba(34, 197, 94, 0.1)' }]}>
                                 <Text style={{ fontSize: 24 }}>🛰️</Text>
@@ -91,7 +111,7 @@ export default function PetProfileScreen() {
                             <View style={{ flex: 1 }}>
                                 <Text style={[styles.actionTitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
                                 <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
-                                    {isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
+                                    {pet.has_active_subscription ? 'Seguimiento GPS activo' : isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
                                 </Text>
                             </View>
                             <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />

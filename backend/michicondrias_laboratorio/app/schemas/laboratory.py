@@ -44,6 +44,7 @@ class LabOrderOut(LabOrderBase):
     status: str
     created_at: datetime
     results: List[LabResultOut] = []
+    pet_name: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -90,6 +91,17 @@ class LabAppointmentOut(BaseModel):
     status: str
     notes: Optional[str] = None
     created_at: datetime
+    pet_name: Optional[str] = None
+    test_name: Optional[str] = None
+    test_price: Optional[float] = None
 
     class Config:
         from_attributes = True
+
+
+class LabAppointmentStatusUpdate(BaseModel):
+    status: str
+
+
+class LabTestActiveUpdate(BaseModel):
+    is_active: bool

@@ -5,6 +5,7 @@ import stripe
 import json
 import httpx
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +36,9 @@ async def create_checkout_session(
         raise HTTPException(status_code=404, detail="Order not found")
     if order.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
-    if order.status == "paid":
-        raise HTTPException(status_code=400, detail="Order is already paid")
+    if order.status != "pending":
+        detail = "El pedido fue cancelado. Crea uno nuevo desde tu bolsa." if order.status == "cancelled" else "Order is already paid"
+        raise HTTPException(status_code=400, detail=detail)
 
     try:
         # Build line items
@@ -67,6 +69,8 @@ async def create_checkout_session(
             success_url=f"{settings.FRONTEND_URL}/dashboard/tienda/pago-exitoso?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{settings.FRONTEND_URL}/dashboard/tienda/pago-cancelado",
             client_reference_id=order.id, # Link back to our DB order
+            # La sesión caduca justo antes de que el pedido pendiente libere su stock (mínimo permitido por Stripe: 30 min)
+            expires_at=int(time.time()) + 31 * 60,
             metadata={"order_id": order.id, "user_id": user_id}
         )
         return {"sessionId": checkout_session.id, "url": checkout_session.url}
@@ -154,7 +158,16 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             order_id = session.get('client_reference_id')
             if order_id:
                 db_order = crud.crud_ecommerce.get_order(db, order_id=order_id)
-                if db_order and db_order.status != 'paid':
+                # Solo pendientes (o cancelados por tiempo con pago tardío) pasan a pagado; un evento repetido no
+                # debe regresar a "paid" un pedido que ya fue enviado o entregado.
+                if db_order and db_order.status in ('pending', 'cancelled'):
+                    if db_order.status == 'cancelled':
+                        # El stock ya se había devuelto: se vuelve a apartar (sin bajar de 0)
+                        for item in db_order.items:
+                            product = crud.crud_ecommerce.get_product(db, item.product_id)
+                            if product:
+                                product.stock = max(0, (product.stock or 0) - item.quantity)
+                        logger.warning(f"Order {order_id} was cancelled but paid; reactivating.")
                     db_order.status = 'paid'
                     db.commit()
                     logger.info(f"Order {order_id} marked as paid.")

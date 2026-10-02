@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, 
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useSurgeries } from '@/src/hooks/clinica';
+import PatientPicker from '@/src/features/salud/PatientPicker';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { SurgeryItem } from '@/src/services/directorio';
@@ -208,14 +209,7 @@ export default function CirugiasScreen() {
                             </View>
 
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.text }]}>ID del Paciente</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej: pet_abc123"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={selectedPatientId}
-                                    onChangeText={setSelectedPatientId}
-                                />
+                                <PatientPicker value={selectedPatientId} onChange={setSelectedPatientId} label="Paciente" />
                             </View>
 
                             <View style={styles.formGroup}>

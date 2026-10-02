@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useMemorial } from '@/src/hooks/funerary/useMemorial';
@@ -8,12 +8,13 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Heart, Feather, Plus, Calendar } from 'lucide-react-native';
 
 export default function MemorialScreen() {
     const { theme } = useTheme();
     const { petId } = useLocalSearchParams<{ petId: string }>();
-    const { posts, isLoadingPosts, refetchPosts, router } = useMemorial(petId);
+    const { posts, isLoadingPosts, router } = useMemorial(petId);
 
     const formatDate = (dateStr?: string) => {
         if (!dateStr) return '';
@@ -33,7 +34,7 @@ export default function MemorialScreen() {
                 </View>
                 <View style={styles.postMeta}>
                     <Text style={[styles.postAuthor, { color: theme.text }]}>
-                        {item.user_id.slice(0, 8)}...
+                        Mensaje de cariño
                     </Text>
                     <View style={styles.dateRow}>
                         <Calendar size={12} color={theme.textMuted} />
@@ -49,6 +50,15 @@ export default function MemorialScreen() {
             <Text style={[styles.postMessage, { color: theme.text }]}>
                 {item.message}
             </Text>
+
+            {!!item.photo_url && /^https?:\/\//i.test(item.photo_url) && (
+                <Image
+                    source={{ uri: item.photo_url }}
+                    accessibilityLabel="Foto del recuerdo"
+                    style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 14, backgroundColor: theme.border }}
+                    resizeMode="cover"
+                />
+            )}
 
             <View style={styles.postFooter}>
                 <Heart size={14} color={theme.secondary} />
@@ -78,8 +88,7 @@ export default function MemorialScreen() {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
-                    onRefresh={refetchPosts}
-                    refreshing={isLoadingPosts}
+                    refreshControl={<AppRefreshControl />}
                     ListEmptyComponent={
                         <EmptyState
                             icon={<Heart size={32} color={theme.textMuted} />}

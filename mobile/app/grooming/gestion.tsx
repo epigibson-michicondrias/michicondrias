@@ -25,6 +25,7 @@ import {
     X,
 } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useGroomingProvider } from '@/src/hooks/grooming/useGroomingProvider';
 import type { ProviderFilter } from '@/src/hooks/grooming/useGroomingProvider';
@@ -34,16 +35,21 @@ import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
 
 const FILTERS: { key: ProviderFilter; label: string; icon: string }[] = [
-    { key: 'all',         label: 'Todas',       icon: '📋' },
-    { key: 'scheduled',   label: 'Agendadas',   icon: '📅' },
-    { key: 'in_progress', label: 'En Progreso', icon: '✂️' },
-    { key: 'completed',   label: 'Completadas', icon: '✅' },
+    { key: 'all',         label: 'Todas',       icon: '' },
+    { key: 'scheduled',   label: 'Agendadas',   icon: '' },
+    { key: 'confirmed',   label: 'Confirmadas', icon: '' },
+    { key: 'in_progress', label: 'En progreso', icon: '' },
+    { key: 'completed',   label: 'Completadas', icon: '' },
+    { key: 'cancelled',   label: 'Canceladas',  icon: '' },
 ];
 
 const STATUS_ACTIONS: Record<string, { next: string; label: string }> = {
-    scheduled:   { next: 'in_progress', label: 'Iniciar Sesión' },
-    in_progress: { next: 'completed',   label: 'Marcar Completada' },
+    scheduled:   { next: 'confirmed',   label: 'Confirmar' },
+    pending:     { next: 'confirmed',   label: 'Confirmar' },
+    confirmed:   { next: 'in_progress', label: 'Iniciar sesión' },
+    in_progress: { next: 'completed',   label: 'Marcar completada' },
 };
+const CANCELLABLE = ['scheduled', 'pending', 'confirmed', 'in_progress'];
 
 export default function GestionGroomingScreen() {
     const { theme } = useTheme();
@@ -117,7 +123,6 @@ export default function GestionGroomingScreen() {
                 onPress={() => setFilter(f.key)}
                 activeOpacity={0.7}
             >
-                <Text style={styles.filterEmoji}>{f.icon}</Text>
                 <Text style={[styles.filterLabel, { color: isActive ? '#fff' : theme.textMuted }]}>
                     {f.label}
                 </Text>
@@ -139,6 +144,9 @@ export default function GestionGroomingScreen() {
                     <View style={styles.cardInfo}>
                         <Text style={[styles.cardService, { color: theme.text }]}>
                             {item.service_type || 'Grooming'}
+                        </Text>
+                        <Text style={[styles.cardMeta, { color: theme.textMuted }]} numberOfLines={1}>
+                            {item.pet_name || 'Mascota'} · {item.client_name || 'Cliente'}
                         </Text>
                         <View style={styles.cardDateRow}>
                             <Calendar size={12} color={theme.textMuted} />
@@ -198,6 +206,27 @@ export default function GestionGroomingScreen() {
                             </Text>
                         </TouchableOpacity>
                     )}
+
+                    {CANCELLABLE.includes(item.status || '') && (
+                        <TouchableOpacity
+                            style={[styles.actionBtn, { backgroundColor: theme.errorLight }]}
+                            onPress={() => showAlert({
+                                type: 'warning',
+                                title: 'Cancelar cita',
+                                message: `¿Cancelar la cita de ${item.pet_name || 'la mascota'}? El horario quedará libre.`,
+                                showCancel: true,
+                                cancelText: 'Volver',
+                                buttonText: 'Cancelar cita',
+                                onButtonPress: () => updateStatus(item.id, 'cancelled'),
+                            })}
+                            disabled={isUpdating}
+                            accessibilityRole="button"
+                            accessibilityLabel="Cancelar cita"
+                        >
+                            <X size={16} color={theme.error} />
+                            <Text style={[styles.actionLabel, { color: theme.error }]}>Cancelar</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         );
@@ -242,7 +271,7 @@ export default function GestionGroomingScreen() {
                 <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
                     <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                         <View style={styles.modalHeader}>
-                            <Text style={[styles.modalTitle, { color: theme.text }]}>📸 Fotos & Reporte</Text>
+                            <Text style={[styles.modalTitle, { color: theme.text }]}>Fotos y reporte</Text>
                             <TouchableOpacity onPress={closePhotoModal}>
                                 <X size={24} color={theme.textMuted} />
                             </TouchableOpacity>

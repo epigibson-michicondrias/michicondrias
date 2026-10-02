@@ -111,8 +111,8 @@ export function useEnrollment() {
         const pet = pets.find(p => p.id === enrollment.pet_id);
         return {
             ...enrollment,
-            programTitle: prog?.title || 'Programa desconocido',
-            petName: pet?.name || 'Mascota',
+            programTitle: enrollment.program_title || prog?.title || 'Programa',
+            petName: enrollment.pet_name || pet?.name || 'Mascota',
         };
     });
 

@@ -7,6 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getRemindersWithDetails, checkReminder, ReminderWithDetails } from '@/src/services/reminders';
 import { getPetById } from '@/src/services/mascotas';
+import { showAlert } from '@/src/components/AppAlert';
 import { useAuth } from '@/src/contexts/AuthContext';
 
 export function useReminders() {
@@ -33,6 +34,9 @@ export function useReminders() {
         mutationFn: checkReminder,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['pet-reminders', pet_id] });
+        },
+        onError: (error: any) => {
+            showAlert({ type: 'error', title: 'No se pudo marcar', message: error?.message || 'Inténtalo de nuevo.' });
         },
     });
 

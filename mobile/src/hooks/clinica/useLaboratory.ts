@@ -32,7 +32,7 @@ export function useLaboratory() {
 
     const handleSaveTest = async () => {
         if (!newTest.patientId || !newTest.testName || !newTest.testType) {
-            showAlert({ type: 'error', title: 'Error', message: 'ID de Paciente, Tipo y Nombre son obligatorios' });
+            showAlert({ type: 'error', title: 'Error', message: 'Paciente, tipo y nombre del examen son obligatorios' });
             return;
         }
         setLoadingAction(true);

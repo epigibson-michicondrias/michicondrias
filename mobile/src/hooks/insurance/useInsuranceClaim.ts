@@ -3,12 +3,14 @@
  * Manages claim form state, pet/policy data, and submission
  */
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { createClaim, verifyClaimReceipt, getActivePolicyByPet } from '@/src/services/insurance';
 import type { InsuranceClaimCreate, InsuranceClaim, PetInsurancePolicy } from '@/src/services/insurance';
-import { getUserPets } from '@/src/services/mascotas';
+import { getUserPets, getMascotasPresignedUrl } from '@/src/services/mascotas';
+import { getFileExtension, getS3Url } from '@/src/utils/helpers';
+import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 import type { Pet } from '@/src/types/mascotas';
 import { showAlert } from '@/src/components/AppAlert';
 
@@ -30,7 +32,10 @@ export function useInsuranceClaim() {
     const queryClient = useQueryClient();
 
     const [form, setForm] = useState<ClaimFormData>({ ...CLAIM_FORM_DEFAULTS });
-    const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
+    const { pet_id } = useLocalSearchParams<{ pet_id?: string }>();
+    const [selectedPetId, setSelectedPetId] = useState<string | null>(pet_id || null);
+    const [receiptUri, setReceiptUri] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
     const [verificationResult, setVerificationResult] = useState<any>(null);
 
     const updateField = <K extends keyof ClaimFormData>(field: K, value: ClaimFormData[K]) => {
@@ -75,13 +80,14 @@ export function useInsuranceClaim() {
             showAlert({
                 type: 'success',
                 title: '¡Reclamo enviado!',
-                message: 'Tu reclamo ha sido registrado y será revisado pronto.',
-                onButtonPress: () => router.back(),
+                message: 'La aseguradora revisará tu reclamo y te avisaremos cuando lo resuelva. Puedes seguirlo en Mis Pólizas.',
+                onButtonPress: () => router.replace('/aseguradoras/mis-polizas' as any),
             });
             setForm({ ...CLAIM_FORM_DEFAULTS });
+            setReceiptUri(null);
         },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No pudimos enviar el reclamo.' });
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No pudimos enviar el reclamo', message: e.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -101,25 +107,42 @@ export function useInsuranceClaim() {
         },
     });
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!activePolicy) {
-            showAlert({ type: 'error', title: 'Error', message: 'La mascota seleccionada no tiene una póliza activa.' });
+            showAlert({ type: 'error', title: 'Sin póliza', message: 'La mascota seleccionada no tiene una póliza activa.' });
             return;
         }
-        if (!form.reason) {
-            showAlert({ type: 'error', title: 'Error', message: 'Describe el motivo del reclamo.' });
+        if (!form.reason.trim()) {
+            showAlert({ type: 'error', title: 'Falta el motivo', message: 'Describe el motivo del reclamo.' });
             return;
         }
-        if (!form.amount_claimed) {
-            showAlert({ type: 'error', title: 'Error', message: 'Ingresa el monto reclamado.' });
+        const amount = parseFloat(form.amount_claimed.replace(',', '.'));
+        if (!form.amount_claimed || isNaN(amount) || amount <= 0) {
+            showAlert({ type: 'error', title: 'Monto inválido', message: 'Ingresa un monto reclamado mayor a cero.' });
             return;
+        }
+
+        let receiptUrl: string | undefined = form.medical_receipt_url.trim() || undefined;
+        if (receiptUri) {
+            setIsUploading(true);
+            try {
+                const ext = getFileExtension(receiptUri);
+                const { url, object_key } = await getMascotasPresignedUrl(ext);
+                await uploadImageToPresignedUrl(receiptUri, url, ext);
+                receiptUrl = getS3Url(object_key);
+            } catch {
+                showAlert({ type: 'error', title: 'No se pudo subir el comprobante', message: 'Revisa tu conexión e inténtalo de nuevo.' });
+                return;
+            } finally {
+                setIsUploading(false);
+            }
         }
 
         claimMutation.mutate({
             policy_id: activePolicy.id,
-            amount_claimed: parseFloat(form.amount_claimed),
-            reason: form.reason,
-            medical_receipt_url: form.medical_receipt_url || undefined,
+            amount_claimed: amount,
+            reason: form.reason.trim(),
+            medical_receipt_url: receiptUrl,
         });
     };
 
@@ -138,7 +161,9 @@ export function useInsuranceClaim() {
         // Loading states
         isLoading: isLoadingPets,
         isLoadingPolicy,
-        isSubmitting: claimMutation.isPending,
+        isSubmitting: claimMutation.isPending || isUploading,
+        receiptUri,
+        setReceiptUri,
         isVerifying: verifyMutation.isPending,
 
         // Actions

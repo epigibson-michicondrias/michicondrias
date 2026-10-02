@@ -52,10 +52,10 @@ export default function TrainerDashboardScreen() {
                     </View>
                     <View style={styles.enrollmentInfo}>
                         <Text style={[styles.enrollmentPet, { color: theme.text }]}>
-                            Mascota: {item.pet_id.substring(0, 8)}...
+                            {item.pet_name || 'Mascota'}{item.client_name ? ` · ${item.client_name}` : ''}
                         </Text>
                         <Text style={[styles.enrollmentProgram, { color: theme.textMuted }]}>
-                            Programa: {item.program_id.substring(0, 8)}...
+                            {item.program_title || 'Programa'}
                         </Text>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>

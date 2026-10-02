@@ -9,6 +9,9 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 import { getUserPets } from '@/src/services/mascotas';
 import { getUserAppointments } from '@/src/services/citas';
+import { normalizeRole, isProRole } from '@/src/constants/roles';
+import { getHomeTools, ROLE_PANEL_TITLE } from '@/src/constants/roleTools';
+import { useSessionSync } from '@/src/hooks/home/useSessionSync';
 import {
   Stethoscope, ShoppingBag, AlertTriangle, Activity,
   Settings, Calendar, UserCheck, ShieldCheck,
@@ -145,14 +148,25 @@ export function useHome() {
     [appointments],
   );
 
-  const rawRole = user?.role_name || '';
-  const roleName = rawRole === 'walker' ? 'paseador' :
-                   rawRole === 'sitter' ? 'cuidador' :
-                   rawRole === 'sponsor' ? 'patrocinador' :
-                   rawRole === 'driver' ? 'transportista' :
-                   rawRole || 'consumidor';
+  const roleName = normalizeRole(user?.role_name);
+  const isPro = isProRole(roleName);
+  const isUserAdmin = roleName === 'admin';
 
-  const actions = QUICK_ACTIONS[roleName] || QUICK_ACTIONS.consumidor;
+  // Sincroniza rol/token con el backend (aprobaciones de rol sin reinstalar ni re-login)
+  useSessionSync();
+
+  // Panel propio del rol (atajos a sus herramientas) + atajos de dueño de mascota para todos
+  const roleTools = useMemo(() => getHomeTools(roleName), [roleName]);
+  const panelTitle = ROLE_PANEL_TITLE[roleName];
+  const actions = QUICK_ACTIONS.consumidor;
+
+  // Estado del alta profesional (solo para cuentas consumidor)
+  const proOnboarding: 'none' | 'pending' | 'approved' | 'rejected' =
+    roleName !== 'consumidor' ? 'none'
+    : user?.verification_status === 'PENDING' ? 'pending'
+    : user?.verification_status === 'VERIFIED' ? 'approved'
+    : user?.verification_status === 'REJECTED' ? 'rejected'
+    : 'none';
 
   // ── Handlers ──
   const handleAction = useCallback(
@@ -176,6 +190,12 @@ export function useHome() {
     upcomingAppointments,
     appointmentsLoading,
     actions,
+    roleName,
+    isPro,
+    isUserAdmin,
+    roleTools,
+    panelTitle,
+    proOnboarding,
 
     // Helpers
     handleAction,

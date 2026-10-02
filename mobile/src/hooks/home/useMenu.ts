@@ -1,21 +1,15 @@
 /**
- * useMenu — Hook for menu screen data and actions
- * Extracts section building, role logic, and sign-out from app/(tabs)/menu.tsx
+ * useMenu — datos de la pestaña "Más" (Herramientas).
+ * Más YA NO duplica Explorar: contiene solo (1) herramientas profesionales del rol, (2) administración,
+ * (3) alta profesional / verificación y (4) soporte. Todo sale de roleTools.ts.
  */
 import { useAuth } from '@/src/contexts/AuthContext';
-import { isAdmin } from '@/src/constants/roles';
+import { normalizeRole, isProRole } from '@/src/constants/roles';
+import { getRoleTools, getRouteRule } from '@/src/constants/roleTools';
 import { showAlert } from '@/src/components/AppAlert';
 import {
-    Heart, ShoppingBag,
-    Stethoscope, Activity,
-    HelpCircle, LogOut, ChevronRight,
-    Users, Calendar,
-    UserCheck, Crown,
-    Building, Package, Briefcase,
-    Shield, BarChart3, Settings2,
-    Video, ClipboardList, Eye, Handshake,
-    Dumbbell, Scissors, Car, Award,
-    FlaskConical, Zap, User, Clock, Plus
+    HelpCircle, Shield, Briefcase, Handshake, ShieldCheck, Bell, Lock, Palette, Stethoscope, ShoppingBag, Activity,
+    Building, Heart, Dumbbell, Scissors, FlaskConical, Award, Car, Store, ClipboardList,
 } from 'lucide-react-native';
 
 export interface MenuItem {
@@ -25,6 +19,7 @@ export interface MenuItem {
     route: string;
     color: string;
     desc: string;
+    badge?: string;
 }
 
 export interface MenuSection {
@@ -41,9 +36,30 @@ export interface BannerProps {
     icon: React.ComponentType<any>;
 }
 
+const BANNERS: Record<string, BannerProps> = {
+    admin: { title: 'Panel Admin', sub: 'Administración global', route: '/admin', colors: ['#7c3aed', '#6d28d9'], icon: Shield },
+    veterinario: { title: 'Consultorio', sub: 'Operaciones clínicas', route: '/mi-clinica', colors: ['#06b6d4', '#0891b2'], icon: Stethoscope },
+    hospital: { title: 'Mi clínica', sub: 'Sedes, médicos y agenda', route: '/mi-clinica', colors: ['#0ea5e9', '#0369a1'], icon: Building },
+    paseador: { title: 'Mis tareas', sub: 'Solicitudes y servicios', route: '/servicios-pro/gestion', colors: ['#6366f1', '#4338ca'], icon: Activity },
+    cuidador: { title: 'Mis tareas', sub: 'Solicitudes y servicios', route: '/servicios-pro/gestion', colors: ['#6366f1', '#4338ca'], icon: Activity },
+    vendedor: { title: 'Mi tienda', sub: 'Catálogo, pedidos y ventas', route: '/tienda/vendedor', colors: ['#10b981', '#059669'], icon: ShoppingBag },
+    refugio: { title: 'Mis publicaciones', sub: 'Adopciones y solicitudes', route: '/adopciones/mis-publicaciones', colors: ['#ec4899', '#be185d'], icon: Heart },
+    hogar_temporal: { title: 'Mis publicaciones', sub: 'Adopciones y solicitudes', route: '/adopciones/mis-publicaciones', colors: ['#ec4899', '#be185d'], icon: Heart },
+    aseguradora: { title: 'Mis planes', sub: 'Planes y reclamos', route: '/aseguradoras/gestion', colors: ['#0ea5e9', '#0369a1'], icon: Shield },
+    funeraria: { title: 'Gestión funeraria', sub: 'Servicios y memoriales', route: '/funeraria/gestion', colors: ['#64748b', '#334155'], icon: Heart },
+    entrenador: { title: 'Mis cursos', sub: 'Programas y alumnos', route: '/entrenadores/gestion', colors: ['#8b5cf6', '#6d28d9'], icon: Dumbbell },
+    estilista: { title: 'Mi agenda', sub: 'Citas de estética', route: '/grooming/gestion', colors: ['#ec4899', '#be185d'], icon: Scissors },
+    laboratorio: { title: 'Órdenes', sub: 'Resultados y análisis', route: '/laboratorio/gestion', colors: ['#10b981', '#047857'], icon: FlaskConical },
+    patrocinador: { title: 'Mis campañas', sub: 'Impacto y estadísticas', route: '/patrocinadores/estadisticas', colors: ['#f59e0b', '#b45309'], icon: Award },
+    transportista: { title: 'Mis viajes', sub: 'Historial y conductor', route: '/transportistas/historial', colors: ['#6366f1', '#4338ca'], icon: Car },
+    establecimiento: { title: 'Mi establecimiento', sub: 'Locales pet-friendly', route: '/establecimientos', colors: ['#f59e0b', '#b45309'], icon: Store },
+};
+
 export function useMenu() {
     const { user, signOut } = useAuth();
-    const isUserAdmin = isAdmin(user?.role_id, user?.role_name);
+    const roleName = normalizeRole(user?.role_name);
+    const isUserAdmin = roleName === 'admin';
+    const isProfessional = isProRole(roleName);
 
     const handleSignOut = () => {
         showAlert({
@@ -57,177 +73,56 @@ export function useMenu() {
         });
     };
 
-    // Normalize roles to handle API/DB role names properly
-    const rawRole = user?.role_name || '';
-    const roleName = rawRole === 'walker' ? 'paseador' :
-                     rawRole === 'sitter' ? 'cuidador' :
-                     rawRole === 'sponsor' ? 'patrocinador' :
-                     rawRole === 'driver' ? 'transportista' :
-                     rawRole;
+    const tools = getRoleTools(roleName);
+    // Defensa: nunca mostrar una herramienta que el rol no puede abrir
+    const toItems = (): MenuItem[] =>
+        tools
+            .filter((t) => { const r = getRouteRule(t.route); return !r || r.roles.map(normalizeRole).includes(roleName) || isUserAdmin; })
+            .map((t) => ({ id: t.id, icon: t.icon, label: t.label, route: t.route, color: t.color, desc: t.desc }));
 
-    // ── PRO TOOLS (only for professional roles) ──────────────────────
-    const isProfessional = roleName !== 'consumidor' && roleName !== 'admin' && !!roleName;
+    const sections: MenuSection[] = [];
 
-    const PRO_SECTIONS: MenuSection[] = isProfessional
-        ? [
-              {
-                  title: 'Herramientas Pro',
-                  icon: Briefcase,
-                  data: [
-                      ...(roleName === 'veterinario'
-                          ? [
-                                { id: 'directorio-v', icon: Stethoscope, label: 'Mi Directorio', route: '/directorio/nuevo', color: '#06b6d4', desc: 'Gestionar lugares' },
-                                { id: 'citas-v', icon: Calendar, label: 'Agenda Citas', route: '/directorio/citas', color: '#10b981', desc: 'Pacientes y horarios' },
-                                { id: 'telemedicina-v', icon: Video, label: 'Videoconsultas', route: '/mi-clinica/consultas-video', color: '#6366f1', desc: 'Pacientes virtuales' },
-                            ]
-                          : []),
-                      ...(roleName === 'hospital'
-                          ? [
-                                { id: 'h-clinicas', icon: Building, label: 'Mis Clínicas', route: '/mi-clinica/sucursales', color: '#06b6d4', desc: 'Sucursales y sedes' },
-                                { id: 'h-vets', icon: Users, label: 'Asociar Médicos', route: '/mi-clinica/veterinarios', color: '#10b981', desc: 'Gestionar veterinarios' },
-                            ]
-                          : []),
-                      ...(roleName === 'refugio'
-                          ? [
-                                { id: 'ref-publicaciones', icon: Heart, label: 'Mis Mascotas', route: '/adopciones/mis-publicaciones', color: '#ec4899', desc: 'Gestionar publicaciones' },
-                                { id: 'ref-solicitudes', icon: ClipboardList, label: 'Solicitudes Recibidas', route: '/adopciones/solicitudes', color: '#10b981', desc: 'Ver solicitudes' },
-                                { id: 'ref-aplicaciones', icon: ClipboardList, label: 'Postulaciones de Adopción', route: '/adopciones/refugio/aplicaciones', color: '#8b5cf6', desc: 'Revisar postulaciones' },
-                            ]
-                          : []),
-                      ...(roleName === 'vendedor'
-                          ? [
-                                { id: 'v-pedidos', icon: Package, label: 'Pedidos Recibidos', route: '/tienda/vendedor/ordenes', color: '#10b981', desc: 'Gestión de ventas' },
-                            ]
-                          : []),
-                      ...(roleName === 'paseador' || roleName === 'cuidador'
-                          ? [
-                                { id: 'p-servicios', icon: Activity, label: 'Mis Servicios', route: '/servicios-pro', color: '#6366f1', desc: 'Perfil profesional' },
-                                { id: 'p-tareas', icon: Activity, label: 'Mis Tareas', route: '/servicios-pro/gestion', color: '#10b981', desc: 'Servicios activos' },
-                                { id: 'p-solicitudes', icon: ClipboardList, label: 'Solicitudes', route: roleName === 'paseador' ? '/paseadores/solicitudes' : '/cuidadores/solicitudes', color: '#f59e0b', desc: 'Solicitudes entrantes' },
-                                { id: 'p-calendario', icon: Calendar, label: 'Calendario', route: roleName === 'paseador' ? '/paseadores/calendario' : '/cuidadores/calendario', color: '#8b5cf6', desc: 'Mi agenda' },
-                            ]
-                          : []),
-                      ...(roleName === 'aseguradora'
-                          ? [
-                                { id: 'aseg-gestion', icon: Shield, label: 'Gestión de Planes', route: '/aseguradoras/gestion', color: '#0ea5e9', desc: 'Ver y crear planes' },
-                                { id: 'aseg-reclamos', icon: ClipboardList, label: 'Reclamos Recibidos', route: '/aseguradoras/reclamos', color: '#f59e0b', desc: 'Ver reclamos de pólizas' },
-                            ]
-                          : []),
-                      ...(roleName === 'funeraria'
-                          ? [
-                                { id: 'fun-gestion', icon: Heart, label: 'Gestión Funeraria', route: '/funeraria/gestion', color: '#64748b', desc: 'Gestionar servicios y memoriales' },
-                                { id: 'fun-nuevo', icon: Plus, label: 'Nuevo Servicio', route: '/funeraria/nuevo-servicio', color: '#10b981', desc: 'Crear paquete funerario' },
-                                { id: 'fun-reporte', icon: ClipboardList, label: 'Reportar Defunción', route: '/funeraria/reporte-defuncion', color: '#ef4444', desc: 'Registrar un fallecimiento' },
-                            ]
-                          : []),
-                      ...(roleName === 'entrenador'
-                          ? [
-                                { id: 'ent-gestion', icon: Dumbbell, label: 'Gestión de Cursos', route: '/entrenadores/gestion', color: '#8b5cf6', desc: 'Mis cursos y alumnos' },
-                                { id: 'ent-nuevo', icon: Plus, label: 'Nuevo Programa', route: '/entrenadores/nuevo-programa', color: '#10b981', desc: 'Crear curso de adiestramiento' },
-                            ]
-                          : []),
-                      ...(roleName === 'estilista'
-                          ? [
-                                { id: 'groom-gestion', icon: Scissors, label: 'Gestión Estilista', route: '/grooming/gestion', color: '#ec4899', desc: 'Agenda y citas de estética' },
-                                { id: 'groom-nuevo', icon: Plus, label: 'Ofrecer Servicio', route: '/estilistas/nuevo', color: '#10b981', desc: 'Registrar nuevo tipo de grooming' },
-                            ]
-                          : []),
-                      ...(roleName === 'laboratorio'
-                          ? [
-                                { id: 'lab-gestion', icon: Activity, label: 'Gestión de Órdenes', route: '/laboratorio/gestion', color: '#10b981', desc: 'Registrar resultados y análisis' },
-                            ]
-                          : []),
-                      ...(roleName === 'patrocinador'
-                          ? [
-                                { id: 'spons-campana', icon: Award, label: 'Nueva Campaña', route: '/patrocinadores/nueva-campana', color: '#10b981', desc: 'Crear campaña publicitaria' },
-                                { id: 'spons-boost', icon: Zap, label: 'Boost de Alerta', route: '/patrocinadores/boost-alerta', color: '#f59e0b', desc: 'Promocionar reportes perdidos' },
-                                { id: 'spons-stats', icon: BarChart3, label: 'Estadísticas', route: '/patrocinadores/estadisticas', color: '#0ea5e9', desc: 'Impacto de publicidad' },
-                            ]
-                          : []),
-                      ...(roleName === 'transportista'
-                          ? [
-                                { id: 'trans-conductor', icon: User, label: 'Perfil de Conductor', route: '/transportistas/perfil-conductor', color: '#6366f1', desc: 'Ajustes del conductor' },
-                                { id: 'trans-historial', icon: Clock, label: 'Historial de Viajes', route: '/transportistas/historial', color: '#64748b', desc: 'Viajes realizados y activos' },
-                            ]
-                          : []),
-                  ],
-              },
-          ]
-        : [];
+    if (isUserAdmin) {
+        sections.push({ title: 'Administración', icon: Shield, data: toItems() });
+    } else if (isProfessional) {
+        sections.push({ title: 'Herramientas Pro', icon: Briefcase, data: toItems() });
+    }
 
-    // ── ADMIN TOOLS (only for admin) ─────────────────────────────────
-    const ADMIN_SECTIONS: MenuSection[] = isUserAdmin
-        ? [
-              {
-                  title: 'Administración',
-                  icon: Shield,
-                  data: [
-                      { id: 'admin-stats', icon: BarChart3, label: 'Analíticas', route: '/admin/stats', color: '#10b981', desc: 'Rendimiento global' },
-                      { id: 'admin-config', icon: Settings2, label: 'Configuración', route: '/admin/config', color: '#64748b', desc: 'Ajustes del sistema' },
-                      { id: 'admin-users', icon: Users, label: 'Usuarios', route: '/admin/usuarios', color: '#3b82f6', desc: 'Gestión de cuentas' },
-                      { id: 'admin-roles', icon: UserCheck, label: 'Roles', route: '/admin/roles', color: '#8b5cf6', desc: 'Permisos y accesos' },
-                      { id: 'admin-mod', icon: Eye, label: 'Moderación', route: '/admin/moderacion', color: '#ef4444', desc: 'Contenido reportado' },
-                      { id: 'admin-kyc', icon: Shield, label: 'Verificaciones KYC', route: '/admin/verificaciones', color: '#f59e0b', desc: 'Identidad profesional' },
-                  ],
-              },
-          ]
-        : [];
+    // Cuenta profesional / verificación
+    const vs = user?.verification_status;
+    const accountItems: MenuItem[] = [];
+    if (!isUserAdmin && !isProfessional) {
+        accountItems.push({
+            id: 'partner', icon: Handshake, label: 'Ser Profesional', route: '/perfil/partner', color: '#7c3aed',
+            desc: vs === 'VERIFIED' ? 'Identidad aprobada: activa tu cuenta' : vs === 'PENDING' ? 'Documentos en revisión' : 'Ofrece tus servicios en Michicondrias',
+            badge: vs === 'VERIFIED' ? 'Listo' : vs === 'PENDING' ? 'En revisión' : undefined,
+        });
+    }
+    accountItems.push({
+        id: 'verificacion', icon: ShieldCheck, label: 'Verificación de identidad', route: '/perfil/verificacion', color: '#16a34a',
+        desc: vs === 'VERIFIED' ? 'Identidad verificada' : vs === 'PENDING' ? 'En revisión por un administrador' : vs === 'REJECTED' ? 'Rechazada: vuelve a subir tus documentos' : 'Sube tus documentos (KYC)',
+        badge: vs === 'REJECTED' ? 'Revisar' : undefined,
+    });
+    accountItems.push({ id: '2fa', icon: Lock, label: 'Seguridad (2FA)', route: '/perfil/seguridad-2fa', color: '#0ea5e9', desc: 'Protege tu cuenta' });
+    accountItems.push({ id: 'notif', icon: Bell, label: 'Notificaciones', route: '/notificaciones', color: '#f59e0b', desc: 'Avisos y novedades' });
+    sections.push({ title: 'Cuenta', icon: ClipboardList, data: accountItems });
 
-    // ── SOPORTE (visible for all) ────────────────────────────────────
-    const SUPPORT_SECTIONS: MenuSection[] = [
-        {
-            title: 'Soporte',
-            icon: HelpCircle,
-            data: [
-                { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: '#64748b', desc: 'Soporte y FAQ' },
-                { id: 'partner', icon: Handshake, label: 'Ser Profesional', route: '/perfil/partner', color: '#7c3aed', desc: 'Únete como partner' },
-            ],
-        },
-    ];
-
-    // ── SERVICES (visible for all) ──────────────────────────────────
-    const SERVICES_SECTIONS: MenuSection[] = [
-        {
-            title: 'Servicios',
-            icon: Briefcase,
-            data: [
-                { id: 'aseguradoras', icon: Shield, label: 'Aseguradoras', route: '/aseguradoras', color: '#0ea5e9', desc: 'Seguros para mascotas' },
-                { id: 'entrenadores', icon: Dumbbell, label: 'Entrenadores', route: '/entrenadores', color: '#8b5cf6', desc: 'Adiestramiento canino' },
-                { id: 'establecimientos', icon: Building, label: 'Establecimientos', route: '/establecimientos', color: '#f59e0b', desc: 'Lugares y comercios' },
-                { id: 'estilistas', icon: Scissors, label: 'Estilistas', route: '/estilistas', color: '#ec4899', desc: 'Peluquería canina' },
-                { id: 'funeraria', icon: Heart, label: 'Funeraria', route: '/funeraria', color: '#64748b', desc: 'Servicios funerarios' },
-                { id: 'laboratorio', icon: FlaskConical, label: 'Laboratorios', route: '/laboratorio', color: '#10b981', desc: 'Análisis clínicos y resultados' },
-                { id: 'patrocinadores', icon: Award, label: 'Patrocinadores', route: '/patrocinadores', color: '#10b981', desc: 'Aliados comerciales' },
-                { id: 'transportistas', icon: Car, label: 'Transportistas', route: '/transportistas', color: '#6366f1', desc: 'Transporte de mascotas' },
-            ],
-        },
-    ];
-
-    // ── All sections combined ────────────────────────────────────────
-    const allSections = [...SERVICES_SECTIONS, ...PRO_SECTIONS, ...ADMIN_SECTIONS, ...SUPPORT_SECTIONS];
-
-    // ── Role-based quick-access banner ───────────────────────────────
-    const getBannerProps = (): BannerProps | null => {
-        if (isUserAdmin) {
-            return { title: 'Panel Admin', sub: 'Administración global', route: '/admin', colors: ['#7c3aed', '#6d28d9'], icon: Shield };
-        } else if (roleName === 'veterinario') {
-            return { title: 'Consultorio', sub: 'Operaciones clínicas', route: '/mi-clinica', colors: ['#06b6d4', '#0891b2'], icon: Stethoscope };
-        } else if (roleName === 'paseador' || roleName === 'cuidador') {
-            return { title: 'Mis Tareas', sub: 'Solicitudes y servicios', route: '/servicios-pro/gestion', colors: ['#6366f1', '#4338ca'], icon: Activity };
-        } else if (roleName === 'vendedor') {
-            return { title: 'Mi Tienda', sub: 'Gestión de catálogo', route: '/tienda/vendedor', colors: ['#10b981', '#059669'], icon: ShoppingBag };
-        }
-        return null;
-    };
+    sections.push({
+        title: 'Soporte',
+        icon: HelpCircle,
+        data: [
+            { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: '#64748b', desc: 'Soporte y preguntas frecuentes' },
+            { id: 'paleta', icon: Palette, label: 'Apariencia', route: '/perfil/paleta', color: '#8b5cf6', desc: 'Tema y colores' },
+        ],
+    });
 
     return {
-        // Data
         user,
+        roleName,
         isUserAdmin,
-        allSections,
-        bannerProps: getBannerProps(),
-
-        // Actions
+        isProfessional,
+        allSections: sections,
+        bannerProps: BANNERS[roleName] || null,
         handleSignOut,
     };
 }

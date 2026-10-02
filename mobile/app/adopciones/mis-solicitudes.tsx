@@ -33,16 +33,19 @@ export default function MisSolicitudesScreen() {
 
     const renderItem = ({ item }: { item: AdoptionRequest }) => {
         const currentIdx = getProgressIndex(item.status);
-        const isRejected = item.status === "REJECTED";
+        const isRejected = ["REJECTED", "RECHAZADO"].includes((item.status || "").toUpperCase());
 
         return (
             <View style={[styles.card, { backgroundColor: theme.surface }]}>
                 {/* Header info */}
                 <View style={styles.cardHeader}>
-                    <Image
-                        source={{ uri: item.pet_photo_url || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=400' }}
-                        style={styles.petImage}
-                    />
+                    {item.pet_photo_url ? (
+                        <Image source={{ uri: item.pet_photo_url }} style={styles.petImage} />
+                    ) : (
+                        <View style={[styles.petImage, { backgroundColor: theme.overlay, alignItems: 'center', justifyContent: 'center' }]}>
+                            <Text style={{ fontSize: 28 }}>🐾</Text>
+                        </View>
+                    )}
                     <View style={styles.headerText}>
                         <Text style={[styles.petName, { color: theme.text }]}>Adopción de {item.pet_name || 'Mascota'}</Text>
                         <View style={styles.idRow}>
@@ -58,7 +61,7 @@ export default function MisSolicitudesScreen() {
                     <View style={[styles.rejectedBanner, { backgroundColor: '#ef444415' }]}>
                         <XCircle size={18} color="#ef4444" />
                         <Text style={[styles.bannerText, { color: '#ef4444' }]}>
-                            Esta solicitud fue rechazada debido a que no se cumplieron los criterios de seguridad.
+                            El refugio no continuó con esta solicitud. Puedes explorar otras mascotas en adopción.
                         </Text>
                     </View>
                 ) : (

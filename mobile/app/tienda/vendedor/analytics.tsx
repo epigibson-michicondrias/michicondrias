@@ -4,8 +4,9 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useSellerAnalytics } from '@/src/hooks/ecommerce';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { formatCurrency } from '@/src/utils/formatters';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { Package, ShoppingBag, Clock, TrendingUp } from 'lucide-react-native';
+import { Package, ShoppingBag, Clock, TrendingUp, AlertTriangle } from 'lucide-react-native';
 
 export default function VendedorAnalyticsScreen() {
   const { theme } = useTheme();
@@ -15,7 +16,12 @@ export default function VendedorAnalyticsScreen() {
     isLoading,
     totalRevenue,
     activeProducts,
-    pendingOrders,
+    soldOrders,
+    toShipOrders,
+    awaitingPayment,
+    unitsSold,
+    lowStockProducts,
+    outOfStockProducts,
     deliveredOrders,
     shippedOrders,
     cancelledOrders,
@@ -38,16 +44,21 @@ export default function VendedorAnalyticsScreen() {
         {/* Revenue Card */}
         <View style={[styles.revenueCard, { backgroundColor: theme.primary }]}>
           <Text style={styles.revenueLabel}>INGRESOS TOTALES</Text>
-          <Text style={styles.revenueValue}>${totalRevenue.toLocaleString()}</Text>
+          <Text style={styles.revenueValue}>{formatCurrency(totalRevenue)}</Text>
           <View style={styles.revenueRow}>
             <View style={styles.revenueStat}>
-              <Text style={styles.revenueStatLabel}>Pedidos</Text>
-              <Text style={styles.revenueStatValue}>{orders.length}</Text>
+              <Text style={styles.revenueStatLabel}>Ventas</Text>
+              <Text style={styles.revenueStatValue}>{soldOrders.length}</Text>
             </View>
             <View style={styles.revenueDivider} />
             <View style={styles.revenueStat}>
-              <Text style={styles.revenueStatLabel}>Promedio</Text>
-              <Text style={styles.revenueStatValue}>${avgOrderValue.toFixed(0)}</Text>
+              <Text style={styles.revenueStatLabel}>Piezas</Text>
+              <Text style={styles.revenueStatValue}>{unitsSold}</Text>
+            </View>
+            <View style={styles.revenueDivider} />
+            <View style={styles.revenueStat}>
+              <Text style={styles.revenueStatLabel}>Ticket prom.</Text>
+              <Text style={styles.revenueStatValue}>{formatCurrency(avgOrderValue)}</Text>
             </View>
           </View>
         </View>
@@ -75,8 +86,8 @@ export default function VendedorAnalyticsScreen() {
             <View style={[styles.statIconBox, { backgroundColor: '#f59e0b15' }]}>
               <Clock size={22} color="#f59e0b" />
             </View>
-            <Text style={[styles.statValue, { color: theme.text }]}>{pendingOrders}</Text>
-            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Pendientes</Text>
+            <Text style={[styles.statValue, { color: theme.text }]}>{toShipOrders}</Text>
+            <Text style={[styles.statLabel, { color: theme.textMuted }]}>Por enviar</Text>
           </View>
           <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={[styles.statIconBox, { backgroundColor: '#6366f115' }]}>
@@ -91,7 +102,8 @@ export default function VendedorAnalyticsScreen() {
         <Text style={[styles.sectionTitle, { color: theme.text }]}>Desglose de Pedidos</Text>
         <View style={[styles.breakdownCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           {[
-            { label: 'Pendientes', count: pendingOrders, color: '#f59e0b' },
+            { label: 'Esperan pago', count: awaitingPayment, color: '#f59e0b' },
+            { label: 'Por enviar', count: toShipOrders, color: '#6366f1' },
             { label: 'Enviados', count: shippedOrders, color: '#3b82f6' },
             { label: 'Entregados', count: deliveredOrders, color: '#10b981' },
             { label: 'Cancelados', count: cancelledOrders, color: '#ef4444' },
@@ -111,6 +123,17 @@ export default function VendedorAnalyticsScreen() {
             );
           })}
         </View>
+
+        {lowStockProducts + outOfStockProducts > 0 ? (
+          <View style={[styles.breakdownCard, { backgroundColor: theme.warningLight, borderColor: theme.warning, marginTop: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
+            <AlertTriangle size={20} color={theme.warning} />
+            <Text style={{ flex: 1, color: theme.text, fontSize: 13, fontWeight: '600' }}>
+              {outOfStockProducts > 0 ? `${outOfStockProducts} producto(s) agotado(s). ` : ''}
+              {lowStockProducts > 0 ? `${lowStockProducts} con pocas unidades (5 o menos). ` : ''}
+              Actualiza tu inventario desde el catálogo.
+            </Text>
+          </View>
+        ) : null}
       </ScrollView>
     </ScreenContainer>
   );
@@ -208,7 +231,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    width: 100,
+    width: 110,
   },
   breakdownDot: { width: 8, height: 8, borderRadius: 4 },
   breakdownText: { fontSize: 13, fontWeight: '600' },

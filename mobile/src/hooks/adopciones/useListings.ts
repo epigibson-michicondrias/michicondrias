@@ -35,9 +35,9 @@ export function useListings() {
                 if (!matchesSearch) return false;
             }
             // Species filter
-            if (speciesFilter !== 'all' && listing.species !== speciesFilter) return false;
+            if (speciesFilter !== 'all' && listing.species?.toLowerCase() !== speciesFilter) return false;
             // Size filter
-            if (sizeFilter !== 'all' && listing.size !== sizeFilter) return false;
+            if (sizeFilter !== 'all' && listing.size?.toLowerCase() !== sizeFilter) return false;
             return true;
         });
     }, [listings, search, speciesFilter, sizeFilter]);
