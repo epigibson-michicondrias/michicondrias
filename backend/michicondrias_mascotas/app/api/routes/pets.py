@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import httpx
 import time
 from jose import jwt, JWTError
@@ -10,6 +10,7 @@ from app.db.session import get_db
 from app.models.mascotas import Pet
 from app.api import deps
 from app.core.config import settings
+from app.core.ai_triage import assess_symptoms, _norm
 
 router = APIRouter()
 
@@ -222,8 +223,8 @@ def revoke_pet_subscription(
 # ========================================
 
 class SymptomCheckRequest(BaseModel):
-    symptom_description: str
-    duration_hours: int
+    symptom_description: str = Field(..., min_length=3, max_length=2000)
+    duration_hours: int = Field(..., ge=0, le=24 * 365)
 
 class DietPlanRequest(BaseModel):
     activity_level: str  # bajo, medio, alto
@@ -313,30 +314,8 @@ def ai_symptom_check(
     req: SymptomCheckRequest,
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
-    """AI symptom checker (Simulated Gemini AI analysis)."""
-    symptom = req.symptom_description.lower()
-    
-    if any(w in symptom for w in ["sangre", "vomito constante", "convulsion", "no respira", "ahogo", "envenenamiento"]):
-        triage = "ROJO (Emergencia Veterinaria Inmediata)"
-        recommendation = "Lleve a su mascota inmediatamente a una clínica de urgencias 24h. No intente inducir el vómito sin supervisión médica."
-        urgency = "alta"
-    elif any(w in symptom for w in ["diarrea", "vomito", "decaimiento", "no quiere comer", "tos"]):
-        triage = "AMARILLO (Cita Veterinaria Prioritaria)"
-        recommendation = "Monitoree la hidratación. Agende una cita prioritaria dentro de las próximas 12-24 horas."
-        urgency = "media"
-    else:
-        triage = "VERDE (Cuidado en Casa)"
-        recommendation = "Los síntomas parecen leves. Mantenga a su mascota descansada y observe evolución. Si persisten por más de 48h, consulte a su veterinario."
-        urgency = "baja"
-        
-    return {
-        "analysis_source": "Gemini AI Triaje",
-        "triage_level": triage,
-        "urgency": urgency,
-        "summary": f"Se analizaron los síntomas '{req.symptom_description}' con duración de {req.duration_hours} horas.",
-        "action_plan": recommendation,
-        "disclaimer": "Este es un análisis pre-clínico automatizado por IA y no sustituye la consulta con un profesional calificado."
-    }
+    """Orientación de urgencia (modelo de Claude si hay clave; siempre con reglas de alarma como piso)."""
+    return assess_symptoms(user_id, req.symptom_description, req.duration_hours)
 
 
 @router.post("/{pet_id}/ai/diet-plan")
@@ -346,33 +325,50 @@ def ai_diet_plan(
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
-    """AI customized nutritional planner (Simulated Gemini AI)."""
+    """Plan energético con la fórmula RER/MER. Es un cálculo, no una consulta a un modelo."""
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
     if pet.owner_id != user_id:
         raise HTTPException(status_code=403, detail="No tienes permisos")
-        
-    weight = pet.weight_kg or 10.0
-    rer = round(70 * (weight ** 0.75), 1)
-    
-    activity_factors = {"bajo": 1.2, "medio": 1.6, "alto": 2.0}
-    factor = activity_factors.get(req.activity_level.lower(), 1.6)
+    if not pet.weight_kg or pet.weight_kg <= 0:
+        raise HTTPException(status_code=400, detail="Registra el peso de tu mascota para calcular su plan de nutrición")
+
+    current_weight = float(pet.weight_kg)
+    target_weight = req.target_weight_kg if req.target_weight_kg and req.target_weight_kg > 0 else current_weight
+    species = _norm(pet.species or "")
+    is_cat = any(k in species for k in ("gat", "cat", "felin"))
+    factors = {"bajo": 1.0, "medio": 1.2, "alto": 1.4} if is_cat else {"bajo": 1.2, "medio": 1.6, "alto": 2.0}
+    factor = factors.get(req.activity_level.lower(), factors["medio"])
+
+    # Se calcula con el peso objetivo: para bajar de peso se alimenta según el peso al que se quiere llegar
+    rer = round(70 * (target_weight ** 0.75), 1)
     daily_calories = round(rer * factor, 1)
-    
-    diet_guidelines = (
-        f"Dieta balanceada recomendada para {pet.name} ({pet.species}, {weight}kg):\n"
-        f"- Porción diaria sugerida: {round(daily_calories / 3.5, 1)}g de alimento premium (dividido en 2 porciones).\n"
-        f"- Ingrediente principal aconsejado: Proteína magra (pollo o salmón).\n"
-        f"- Restricciones por Alergias: {req.allergies if req.allergies else 'Ninguna detectada'}."
-    )
-    
+    grams_per_day = round(daily_calories / 3.5)  # alimento seco típico: ~3.5 kcal/g (ver etiqueta)
+
+    lines = [
+        f"Plan para {pet.name} ({pet.species}, {current_weight:g} kg).",
+        f"- Energía diaria estimada: {daily_calories:g} kcal (RER {rer:g} kcal × factor de actividad {factor:g}).",
+        f"- Con un alimento de unas 3.5 kcal/g, son cerca de {grams_per_day} g al día repartidos en 2 comidas. Ajusta con la etiqueta del alimento.",
+    ]
+    if target_weight < current_weight:
+        lines.append(
+            f"- Objetivo de peso {target_weight:g} kg: baja de forma gradual (alrededor de 1 a 2 % del peso por semana) y confírmalo con tu veterinario."
+        )
+    elif target_weight > current_weight:
+        lines.append(f"- Objetivo de peso {target_weight:g} kg: sube de forma gradual y con seguimiento veterinario.")
+    if req.allergies and req.allergies.strip():
+        lines.append(f"- Evita alimentos con: {req.allergies.strip()}. Revisa los ingredientes de cada alimento y premio.")
+    else:
+        lines.append("- No indicaste alergias. Si notas picazón, diarrea o vómito tras un alimento nuevo, consúltalo con tu veterinario.")
+    lines.append("- Elige un alimento completo y balanceado para su especie y etapa de vida.")
+
     return {
-        "analysis_source": "Gemini AI Nutrición",
+        "analysis_source": "Cálculo energético (fórmula RER/MER)",
         "pet_name": pet.name,
         "resting_energy_requirement_kcal": rer,
         "daily_energy_needs_kcal": daily_calories,
-        "recommended_diet": diet_guidelines,
-        "hydration_target_ml": round(weight * 50, 1)
+        "recommended_diet": "\n".join(lines),
+        "hydration_target_ml": round(current_weight * 50, 1),
+        "disclaimer": "Es una estimación general y no sustituye el plan de un veterinario o nutriólogo veterinario.",
     }
-

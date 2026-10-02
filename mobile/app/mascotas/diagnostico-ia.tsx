@@ -77,7 +77,7 @@ export default function DiagnosticoIAScreen() {
                             Analizador Clínico Pre-Diagnóstico
                         </Text>
                         <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                            Nuestra IA simula una evaluación de triaje basada en los síntomas descritos.
+                            Te orientamos sobre qué tan urgente es atender a tu mascota según los síntomas. No es un diagnóstico ni sustituye a un veterinario.
                         </Text>
 
                         <View style={styles.formGroup}>
