@@ -6,3 +6,4 @@ export const SUPPORT_EMAIL = process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'soporte@m
 export const SUPPORT_PHONE = process.env.EXPO_PUBLIC_SUPPORT_PHONE || '';
 export const SUPPORT_WHATSAPP = process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '';
 export const TERMS_URL = process.env.EXPO_PUBLIC_TERMS_URL || '';
+export const PRIVACY_URL = process.env.EXPO_PUBLIC_PRIVACY_URL || '';

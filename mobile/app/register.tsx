@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Dimensions } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Dimensions, Linking } from 'react-native';
 import { register } from '../src/lib/auth';
 import Colors from '../constants/Colors';
 import { useTheme } from '../src/contexts/ThemeContext';
@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { showAlert } from '@/src/components/AppAlert';
+import { TERMS_URL, PRIVACY_URL } from '@/src/constants/support';
 
 export default function RegisterScreen() {
     const [fullName, setFullName] = useState('');
@@ -180,9 +181,17 @@ export default function RegisterScreen() {
                             </View>
                             <Text style={[styles.termsText, { color: isDark ? 'rgba(255,255,255,0.45)' : '#94a3b8' }]}>
                                 Al registrarte aceptas nuestros{' '}
-                                <Text style={{ color: theme.primary, fontWeight: '700' }}>Términos</Text>
+                                <Text
+                                    accessibilityRole={TERMS_URL ? 'link' : undefined}
+                                    onPress={TERMS_URL ? () => Linking.openURL(TERMS_URL).catch(() => {}) : undefined}
+                                    style={{ color: TERMS_URL ? theme.primary : theme.text, fontWeight: '700', textDecorationLine: TERMS_URL ? 'underline' : 'none' }}
+                                >Términos</Text>
                                 {' '}y{' '}
-                                <Text style={{ color: theme.primary, fontWeight: '700' }}>Privacidad</Text>
+                                <Text
+                                    accessibilityRole={PRIVACY_URL ? 'link' : undefined}
+                                    onPress={PRIVACY_URL ? () => Linking.openURL(PRIVACY_URL).catch(() => {}) : undefined}
+                                    style={{ color: PRIVACY_URL ? theme.primary : theme.text, fontWeight: '700', textDecorationLine: PRIVACY_URL ? 'underline' : 'none' }}
+                                >Privacidad</Text>
                             </Text>
                         </View>
 
