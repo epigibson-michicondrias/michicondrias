@@ -80,7 +80,7 @@ export default function PacientesScreen() {
                         </View>
                     ) : (
                         filteredPatients.map(patient => (
-                            <TouchableOpacity key={patient.id} style={[styles.patientCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                            <TouchableOpacity key={patient.id} disabled activeOpacity={1} style={[styles.patientCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                                 <View style={styles.patientHeader}>
                                     <View style={[styles.patientIcon, { backgroundColor: patient.alertLevel === 'red' ? '#f43f5e15' : '#f59e0b15' }]}>
                                         <AlertTriangle size={24} color={patient.alertLevel === 'red' ? '#f43f5e' : '#f59e0b'} />

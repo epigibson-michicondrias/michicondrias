@@ -286,7 +286,7 @@ export default function DashboardScreen() {
 
         {/* ─── Banner Promocional ─── */}
         <View style={styles.bannerSection}>
-          <TouchableOpacity style={styles.banner} activeOpacity={0.9}>
+          <TouchableOpacity style={styles.banner} activeOpacity={0.9} onPress={() => router.push('/(tabs)/tienda-tab' as any)}>
             <LinearGradient
               colors={['#ec4899', '#f43f5e']}
               style={styles.bannerGradient}

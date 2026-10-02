@@ -65,6 +65,14 @@ export function useNotifications() {
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
+  const handleMarkAllAsRead = async () => {
+    const unread = notifications.filter((n) => !n.is_read);
+    if (unread.length === 0) return;
+    queryClient.setQueryData<Notification[]>(['notifications'], (old) => old?.map((n) => ({ ...n, is_read: true })) ?? []);
+    await Promise.allSettled(unread.map((n) => markNotificationAsRead(n.id)));
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+  };
+
   return {
     // Data
     notifications,
@@ -73,6 +81,7 @@ export function useNotifications() {
 
     // Actions
     handleMarkAsRead,
+    handleMarkAllAsRead,
 
     // Navigation
     router,

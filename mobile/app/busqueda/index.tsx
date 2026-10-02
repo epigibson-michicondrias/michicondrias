@@ -67,6 +67,7 @@ export default function BusquedaScreen() {
     const renderResultItem = ({ item }: { item: any }) => (
         <TouchableOpacity
             style={[styles.resultCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
+            onPress={() => router.push((activeTab === 'mascotas' ? `/mascotas/${item.id}` : activeTab === 'clinicas' ? `/directorio/clinica/${item.id}` : `/tienda/producto/${item.id}`) as any)}
         >
             <View style={styles.resultContent}>
                 <Text style={[styles.resultTitle, { color: theme.text }]} numberOfLines={1}>

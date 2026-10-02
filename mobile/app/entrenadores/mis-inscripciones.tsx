@@ -30,6 +30,7 @@ export default function MyEnrollmentsScreen() {
         return (
             <TouchableOpacity
                 style={[styles.enrollmentCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                onPress={() => router.push(`/entrenadores/metas/${item.id}` as any)}
                 activeOpacity={0.7}
             >
                 {/* Header */}

@@ -2,7 +2,7 @@
  * useSchedule — Hook for clinic schedule (horarios) screen
  * Manages weekly schedule, holidays, time picker, and save logic
  */
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import {
@@ -11,6 +11,7 @@ import {
     setClinicSchedule,
     getScheduleExceptions,
     addScheduleException,
+    deleteScheduleException,
 } from '@/src/services/directorio';
 import type { ClinicScheduleItem, ScheduleException } from '@/src/services/directorio';
 import { showAlert } from '@/src/components/AppAlert';
@@ -58,13 +59,6 @@ export function useSchedule() {
         { day: 'Domingo', isOpen: false, openTime: '09:00', closeTime: '14:00', breaks: [] },
     ]);
 
-    // Holidays State
-    const [holidays, setHolidays] = useState<Holiday[]>([
-        { id: '1', name: 'Año Nuevo', date: '2024-01-01', isClosed: true, reason: 'Festivo nacional' },
-        { id: '2', name: 'Día de la Independencia', date: '2024-09-16', isClosed: true, reason: 'Festivo nacional' },
-        { id: '3', name: 'Navidad', date: '2024-12-25', isClosed: true, reason: 'Festivo nacional' },
-    ]);
-
     // Holiday Form State
     const [holidayName, setHolidayName] = useState('');
     const [holidayDate, setHolidayDate] = useState('');
@@ -90,6 +84,26 @@ export function useSchedule() {
         queryFn: () => getScheduleExceptions(clinic!.id),
         enabled: !!clinic?.id,
     });
+
+    // El horario guardado en el servidor reemplaza los valores por defecto (0 = Lunes, igual que al guardar)
+    useEffect(() => {
+        if (!apiSchedule.length) return;
+        setSchedule(prev => prev.map((day, index) => {
+            const saved = apiSchedule.find(s => s.day_of_week === index && s.is_active);
+            return saved
+                ? { ...day, isOpen: true, openTime: saved.start_time.slice(0, 5), closeTime: saved.end_time.slice(0, 5) }
+                : { ...day, isOpen: false };
+        }));
+    }, [apiSchedule]);
+
+    // Días festivos = excepciones de cierre guardadas en el servidor
+    const holidays: Holiday[] = useMemo(
+        () => scheduleExceptions
+            .filter(e => e.is_closed)
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(e => ({ id: e.id, name: e.reason || 'Día festivo', date: e.date, isClosed: true })),
+        [scheduleExceptions],
+    );
 
     // Save schedule mutation
     const saveScheduleMutation = useMutation({
@@ -118,6 +132,17 @@ export function useSchedule() {
         },
     });
 
+    const deleteExceptionMutation = useMutation({
+        mutationFn: (exceptionId: string) => deleteScheduleException(clinic!.id, exceptionId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['schedule-exceptions', clinic?.id] });
+            showAlert({ type: 'success', title: 'Eliminado', message: 'Día festivo eliminado correctamente' });
+        },
+        onError: () => {
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el día festivo' });
+        },
+    });
+
     const updateDaySchedule = (index: number, field: keyof ScheduleDay, value: any) => {
         const newSchedule = [...schedule];
         newSchedule[index] = { ...newSchedule[index], [field]: value };
@@ -143,20 +168,26 @@ export function useSchedule() {
             return;
         }
 
-        const newHoliday: Holiday = {
-            id: Date.now().toString(),
-            name: holidayName,
-            date: holidayDate,
-            isClosed: true,
-            reason: holidayReason || 'Día festivo',
-        };
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(holidayDate.trim()) || Number.isNaN(Date.parse(holidayDate.trim()))) {
+            showAlert({ type: 'error', title: 'Fecha inválida', message: 'Usa el formato AAAA-MM-DD, por ejemplo 2026-12-25' });
+            return;
+        }
 
-        setHolidays([...holidays, newHoliday]);
-        setHolidayName('');
-        setHolidayDate('');
-        setHolidayReason('');
-        setHolidayModalVisible(false);
-        showAlert({ type: 'success', title: 'Éxito', message: 'Día festivo agregado correctamente' });
+        addExceptionMutation.mutate(
+            {
+                date: holidayDate.trim(),
+                is_closed: true,
+                reason: holidayReason.trim() ? `${holidayName.trim()} — ${holidayReason.trim()}` : holidayName.trim(),
+            },
+            {
+                onSuccess: () => {
+                    setHolidayName('');
+                    setHolidayDate('');
+                    setHolidayReason('');
+                    setHolidayModalVisible(false);
+                },
+            },
+        );
     };
 
     const handleDeleteHoliday = (id: string) => {
@@ -167,10 +198,7 @@ export function useSchedule() {
             showCancel: true,
             cancelText: 'Cancelar',
             buttonText: 'Eliminar',
-            onButtonPress: () => {
-                setHolidays(holidays.filter(h => h.id !== id));
-                showAlert({ type: 'success', title: 'Eliminado', message: 'Día festivo eliminado correctamente' });
-            },
+            onButtonPress: () => deleteExceptionMutation.mutate(id),
         });
     };
 

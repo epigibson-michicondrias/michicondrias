@@ -36,9 +36,9 @@ export default function AseguradorasScreen() {
                         </Text>
                     )}
                 </View>
-                <TouchableOpacity style={[styles.arrowButton, { backgroundColor: theme.border + '40' }]}>
+                <View style={[styles.arrowButton, { backgroundColor: theme.border + '40' }]}>
                     <ChevronRight size={16} color={theme.textMuted} />
-                </TouchableOpacity>
+                </View>
             </View>
 
             <View style={styles.planStats}>

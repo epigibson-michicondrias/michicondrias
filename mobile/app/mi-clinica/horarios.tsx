@@ -89,13 +89,6 @@ export default function HorariosClinicaScreen() {
                         </View>
                     </View>
 
-                    <TouchableOpacity
-                        style={[styles.addBreakBtn, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => showAlert({ type: 'info', title: 'Próximamente', message: 'La gestión de descansos múltiples se habilitará pronto' })}
-                    >
-                        <Plus size={16} color={theme.primary} />
-                        <Text style={[styles.addBreakText, { color: theme.primary }]}>Agregar Pausa</Text>
-                    </TouchableOpacity>
                 </View>
             )}
         </View>

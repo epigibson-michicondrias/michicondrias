@@ -100,15 +100,6 @@ export default function TrainerDashboardScreen() {
                     <Text style={[styles.actionLabel, { color: theme.primary }]}>Nuevo Programa</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.actionCard, { backgroundColor: theme.secondaryLight }]}
-                    activeOpacity={0.7}
-                >
-                    <View style={[styles.actionIconBg, { backgroundColor: theme.secondary }]}>
-                        <Target size={20} color="#fff" />
-                    </View>
-                    <Text style={[styles.actionLabel, { color: theme.secondary }]}>Metas</Text>
-                </TouchableOpacity>
             </View>
 
             {/* Stats */}

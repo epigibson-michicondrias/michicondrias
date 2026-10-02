@@ -49,11 +49,7 @@ export default function ConfigClinicaScreen() {
                                     source={{ uri: form.logo_url || 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?q=80&w=400' }}
                                     style={styles.logoImage}
                                 />
-                                <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.primary }]}>
-                                    <Camera size={16} color="#fff" />
-                                </TouchableOpacity>
                             </View>
-                            <Text style={[styles.logoHint, { color: theme.textMuted }]}>Toca la cámara para cambiar el logo</Text>
                         </View>
 
                         {/* Basic Info */}

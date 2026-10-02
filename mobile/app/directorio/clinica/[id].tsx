@@ -307,7 +307,10 @@ export default function ClinicDetailScreen() {
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: theme.border }]}>
-                <TouchableOpacity style={[styles.bookBtn, { backgroundColor: theme.primary }]}>
+                <TouchableOpacity
+                    style={[styles.bookBtn, { backgroundColor: theme.primary }]}
+                    onPress={() => router.push({ pathname: '/directorio/citas/agendar/[clinic_id]', params: { clinic_id: clinic.id } } as any)}
+                >
                     <Text style={styles.bookBtnText}>Agendar Cita General</Text>
                 </TouchableOpacity>
             </View>

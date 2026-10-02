@@ -74,9 +74,6 @@ export default function PerfilScreen() {
                             <UserIcon size={40} color={theme.primary} />
                         )}
                     </View>
-                    <TouchableOpacity style={[styles.cameraButton, { backgroundColor: theme.primary }]}>
-                        <Camera size={16} color="#fff" />
-                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.profileInfo}>

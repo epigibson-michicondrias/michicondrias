@@ -7,7 +7,8 @@ desplegados en `https://michicondrias.duckdns.org`. **No** se ejecutó la app en
 
 - **P0: corregido** (commits `76b1565` backend y `fbb8786` app). Verificado: 287/288 llamadas con endpoint válido, 0 enlaces rotos, `tsc` sin errores.
   Pendiente de desplegar el backend (`git push`) para que las respuestas incluyan `created_at`, `updated_at` e `is_approved`.
-- **P1, P2, P3: pendientes.**
+- **P1: corregido** (ver «P1» abajo). Verificado con `tsc` sin errores; pendiente de probar en dispositivo.
+- **P2, P3: pendientes.**
 
 Hallazgos extra al corregir el P0: la duración de las cirugías no se guardaba ni se mostraba (`estimated_duration_minutes`
 vs. `estimated_duration`), y se podía reseñar varias veces el mismo paseo/cuidado (`request_id` vs. `walk_request_id`).
@@ -73,22 +74,32 @@ no «sesión caducada»: un usuario sin rol suficiente es expulsado de la app. D
 - Opcionales: `User.role_id/document_type/created_at`, `SurgeryItem.estimated_duration_minutes/notes`,
   `ScheduleException.custom_start_time/custom_end_time`.
 
-## P1 — Botones muertos y funciones a medias
+## P1 — Botones muertos y funciones a medias (corregido)
 
-Botones sin `onPress` (30). Revisar cada uno y decidir: implementar o quitar.
+**Pantallas que eran datos inventados, ahora conectadas al servidor**
+- `entrenadores/metas/[id]`: las metas eran una lista fija y «Nueva meta» se creaba con `placeholder-pet-id`.
+  Ahora lee las metas de la inscripción (endpoint nuevo `GET /training/enrollments/{id}/goals`) y crea con la mascota y programa reales.
+  Solo el entrenador puede agregar metas o revisar videos. Las tarjetas de `mis-inscripciones` ahora abren las metas.
+- `mi-clinica/horarios`: el horario semanal arrancaba siempre con valores fijos y los feriados eran 3 datos de 2024 solo en memoria.
+  Ahora carga el horario guardado y los feriados salen de las excepciones del servidor; agregar y eliminar llaman a la API
+  (endpoint nuevo `DELETE /schedule/clinics/{id}/schedule/exceptions/{id}`). Se quitó «Agregar pausa»: el backend guarda un solo tramo por día.
 
-`(tabs)/index.tsx:289` (banner), `(tabs)/tienda-tab.tsx:73` (filtro), `admin/clinicas/index.tsx:30`,
-`admin/mascotas/index.tsx:28,68`, `admin/productos/index.tsx:63`, `admin/servicios/index.tsx:47`,
-`adopciones/[id].tsx:49,122` (contactar), `aseguradoras/index.tsx:39`, `ayuda.tsx:41,61,73` (FAQ y contacto),
-`busqueda/index.tsx:68` (tarjeta de resultado), `cuidadores/[id].tsx:134` y `paseadores/[id].tsx:123` (compartir),
-`directorio/clinica/[id].tsx:310` (agendar), `entrenadores/gestion.tsx:103`, `entrenadores/index.tsx:40`,
-`entrenadores/mis-inscripciones.tsx:31`, `entrenadores/nuevo-programa.tsx:113`, `establecimientos/index.tsx:42`,
-`mi-clinica/config/[id].tsx:52` (cámara), `mi-clinica/pacientes.tsx:83`, `notificaciones.tsx:69` (borrar),
-`patrocinadores/index.tsx:20` (`onPress={() => {}}`), `perdidas/[id].tsx:197,200`, `perfil/index.tsx:77` (cámara),
-`petfriendly/[id].tsx:51`.
+**Botones con acción nueva:** compartir (adopciones, cuidadores, paseadores, perdidas, petfriendly), «Agendar cita» de la clínica,
+resultados de búsqueda, tarjeta de mascotas en admin, campañas de patrocinadores (abre su enlace), banner y filtro de la tienda,
+«marcar todas como leídas» en notificaciones, Centro de Ayuda (preguntas desplegables, buscador, email; teléfono, WhatsApp y
+términos solo si se configuran en `.env`).
 
-Textos «en desarrollo»: `paseadores/solicitudes.tsx:46` y `cuidadores/solicitudes.tsx:54` (detalles de solicitud),
-`admin/clinicas/index.tsx:56` (edición de clínica), `mi-clinica/horarios.tsx:94` (descansos múltiples).
+**Quitados por no tener función real:** corazón de «seguir reporte», botón de mensaje en adopciones (el anuncio no trae contacto),
+cámara de logo y de foto de perfil (no hay endpoint de subida), selector de dificultad del programa (el backend no lo guarda),
+tarjeta «Metas» de gestión de entrenadores, «Gestionar» y «⋮» de admin, filtros de admin sin lógica, «⋮» de servicios,
+segundo paso «en desarrollo» de las solicitudes de paseadores y cuidadores. Las flechas decorativas dentro de tarjetas tocables
+dejaron de ser botones (se comían el toque).
+
+**Cosas que descubrí y quedan anotadas:**
+- `perfil/index` usa `id_front_url` (la foto del documento de identidad del KYC) como avatar del perfil.
+- `PATCH /training/goals/{id}` y `review-video` no comprueban que el entrenador sea dueño del programa.
+- `usePatientHistory` depende de una caché que otra pantalla debería haber llenado (no tiene `queryFn`).
+- La tarjeta de paciente crítico no tiene pantalla de detalle (su `id` es el del registro extendido, no el de la mascota).
 
 ## P2 — Mocks en el backend (decisión de producto)
 

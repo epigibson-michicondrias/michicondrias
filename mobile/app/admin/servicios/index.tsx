@@ -44,9 +44,6 @@ export default function AdminServiciosScreen() {
                 <View style={[styles.statusBadge, { backgroundColor: item.is_active ? '#10b98120' : '#f43f5e20' }]}>
                     <Text style={[styles.statusText, { color: item.is_active ? '#10b981' : '#f43f5e' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
                 </View>
-                <TouchableOpacity style={styles.moreBtn}>
-                    <MoreVertical size={20} color={theme.textMuted} />
-                </TouchableOpacity>
             </View>
         );
     };

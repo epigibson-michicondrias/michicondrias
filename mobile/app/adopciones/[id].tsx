@@ -8,6 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Share2, Heart, Bone, User, Info, MessageCircle } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
+import { shareContent } from '@/src/utils/share';
 
 const { width, height } = Dimensions.get('window');
 
@@ -46,7 +47,7 @@ export default function AdopcionDetalleScreen() {
                             style={styles.glassBtn}
                         />
                         <View style={{ flexDirection: 'row', gap: 12 }}>
-                            <TouchableOpacity style={styles.glassBtn}>
+                            <TouchableOpacity style={styles.glassBtn} onPress={() => shareContent('Adopción', `Conoce a ${listing.name}, está en adopción en Michicondrias 🐾`)}>
                                 <Share2 size={20} color="#fff" />
                             </TouchableOpacity>
                         </View>
@@ -119,9 +120,6 @@ export default function AdopcionDetalleScreen() {
                                 <Text style={[styles.rescatistaName, { color: theme.text }]}>Resguardo Michicondrias</Text>
                                 <Text style={[styles.rescatistaMeta, { color: theme.textMuted }]}>Protección animal verificada</Text>
                             </View>
-                            <TouchableOpacity style={[styles.contactBtn, { backgroundColor: theme.primary + '20' }]}>
-                                <MessageCircle size={20} color={theme.primary} />
-                            </TouchableOpacity>
                         </View>
                     </View>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Linking } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useSponsors } from '@/src/hooks/sponsors/useSponsors';
 import { SponsorCampaign } from '@/src/services/sponsors';
@@ -17,7 +17,8 @@ export default function PatrocinadoresScreen() {
     const renderCampaignItem = ({ item }: { item: SponsorCampaign }) => (
         <TouchableOpacity
             style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => {}}
+            disabled={!item.target_link}
+            onPress={() => item.target_link && Linking.openURL(item.target_link)}
         >
             <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, { backgroundColor: '#f59e0b20' }]}>

@@ -405,6 +405,12 @@ export async function getScheduleExceptions(clinicId: string): Promise<ScheduleE
     return apiFetch<ScheduleException[]>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions`);
 }
 
+export async function deleteScheduleException(clinicId: string, exceptionId: string): Promise<{ ok: boolean }> {
+    return apiFetch<{ ok: boolean }>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions/${exceptionId}`, {
+        method: "DELETE",
+    });
+}
+
 export async function addScheduleException(clinicId: string, data: Partial<ScheduleException>): Promise<ScheduleException> {
     return apiFetch<ScheduleException>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions`, {
         method: "POST",

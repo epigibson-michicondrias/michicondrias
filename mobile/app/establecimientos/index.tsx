@@ -39,9 +39,9 @@ export default function EstablecimientosScreen() {
                         </Text>
                     </View>
                 </View>
-                <TouchableOpacity style={[styles.arrowButton, { backgroundColor: theme.border + '40' }]}>
+                <View style={[styles.arrowButton, { backgroundColor: theme.border + '40' }]}>
                     <ChevronRight size={16} color={theme.textMuted} />
-                </TouchableOpacity>
+                </View>
             </View>
 
             {item.amenities && Object.keys(item.amenities).length > 0 && (

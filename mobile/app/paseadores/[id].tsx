@@ -11,6 +11,7 @@ import {
 } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
+import { shareContent } from '@/src/utils/share';
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
@@ -120,7 +121,7 @@ export default function WalkerDetailScreen() {
                         )}
                     </View>
 
-                    <TouchableOpacity style={styles.shareButton}>
+                    <TouchableOpacity style={styles.shareButton} onPress={() => shareContent('Paseador', `${walker.display_name} es paseador en Michicondrias 🐾`)}>
                         <Share2 size={20} color={theme.textMuted} />
                     </TouchableOpacity>
                 </View>

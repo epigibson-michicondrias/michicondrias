@@ -70,7 +70,7 @@ export default function TiendaTabScreen() {
               onChangeText={setSearchQuery}
               onSubmitEditing={handleSearch}
             />
-            <TouchableOpacity style={styles.filterBtn}>
+            <TouchableOpacity style={styles.filterBtn} onPress={() => router.push('/tienda/categorias' as any)}>
               <Filter size={16} color="#fff" />
             </TouchableOpacity>
           </View>

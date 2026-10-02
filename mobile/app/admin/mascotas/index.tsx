@@ -25,7 +25,10 @@ export default function AdminMascotasScreen() {
     const renderPetCard = ({ item }: { item: Pet }) => {
         const color = SPECIES_COLORS[item.species] || '#6b7280';
         return (
-            <TouchableOpacity style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <TouchableOpacity
+                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                onPress={() => router.push(`/mascotas/${item.id}` as any)}
+            >
                 <View style={[styles.avatarBox, { backgroundColor: color + '20' }]}>
                     <Bone size={24} color={color} />
                 </View>
@@ -65,9 +68,6 @@ export default function AdminMascotasScreen() {
                         placeholder="Buscar por nombre o dueño..."
                     />
                 </View>
-                <TouchableOpacity style={[styles.filterBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <Filter size={20} color={theme.primary} />
-                </TouchableOpacity>
             </View>
         </View>
     );

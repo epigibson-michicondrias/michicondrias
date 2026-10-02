@@ -48,10 +48,6 @@ export default function SitterRequestsScreen() {
                         type: 'info',
                         title: 'Detalles de la Solicitud',
                         message: `Mascota: ${item.pet_id}\nFechas: ${dateDisplay}\nServicio: ${serviceConfig.label}\nEstado: ${statusConfig.label}`,
-                        showCancel: true,
-                        cancelText: 'Cancelar',
-                        buttonText: 'Ver Detalles',
-                        onButtonPress: () => showAlert({ type: 'info', title: 'Detalles', message: 'Función de detalles en desarrollo...' }),
                     });
                 }}
             >

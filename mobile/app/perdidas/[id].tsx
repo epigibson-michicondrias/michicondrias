@@ -8,6 +8,7 @@ import BackButton from '@/src/components/BackButton';
 import { MapPin, Phone, Clock, AlertTriangle, Wifi, Battery, Navigation, Share2, Heart, CheckCircle2, Info, Scale, Fingerprint, Calendar } from 'lucide-react-native';
 // @ts-ignore
 import { LinearGradient } from 'expo-linear-gradient';
+import { shareContent } from '@/src/utils/share';
 
 const { width } = Dimensions.get('window');
 
@@ -194,10 +195,10 @@ export default function PerdidasDetailScreen() {
 
             <View style={[styles.footer, { backgroundColor: theme.background, borderTopColor: theme.border }]}>
                 <View style={styles.footerActions}>
-                    <TouchableOpacity style={[styles.iconBtn, { backgroundColor: theme.surface }]}>
-                        <Heart size={24} color={theme.error} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.iconBtn, { backgroundColor: theme.surface }]}>
+                    <TouchableOpacity
+                        style={[styles.iconBtn, { backgroundColor: theme.surface }]}
+                        onPress={() => shareContent(report.report_type === 'lost' ? 'Mascota perdida' : 'Mascota encontrada', `${report.report_type === 'lost' ? 'Se perdió' : 'Se encontró'} ${report.pet_name || 'una mascota'}. Ayúdanos a difundir en Michicondrias 🐾`)}
+                    >
                         <Share2 size={24} color={theme.text} />
                     </TouchableOpacity>
                     <TouchableOpacity

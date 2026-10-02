@@ -6,6 +6,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import BackButton from '@/src/components/BackButton';
 import { showAlert } from '@/src/components/AppAlert';
 import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2, Clock } from 'lucide-react-native';
+import { shareContent } from '@/src/utils/share';
 
 const { width } = Dimensions.get('window');
 
@@ -48,7 +49,7 @@ export default function PetfriendlyDetalleScreen() {
                     <View style={styles.topOverlay}>
                         <BackButton onPress={goBack} color="#fff" style={styles.circleBtn} />
                         <Text style={styles.headerTitle}>Detalles del Lugar</Text>
-                        <TouchableOpacity style={styles.circleBtn}>
+                        <TouchableOpacity style={styles.circleBtn} onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)}>
                             <Share2 size={20} color="#fff" />
                         </TouchableOpacity>
                     </View>

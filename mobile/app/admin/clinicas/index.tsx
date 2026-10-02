@@ -27,9 +27,6 @@ export default function AdminClinicasScreen() {
                         <Text style={[styles.clinicLocation, { color: theme.textMuted }]}>{item.city}, {item.state}</Text>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.moreBtn}>
-                    <MoreVertical size={20} color={theme.textMuted} />
-                </TouchableOpacity>
             </View>
 
             <View style={styles.cardStats}>
@@ -50,12 +47,6 @@ export default function AdminClinicasScreen() {
                     onPress={() => router.push(`/admin/clinicas/${item.id}` as any)}
                 >
                     <Text style={[styles.actionBtnText, { color: theme.text }]}>Detalles</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                    style={[styles.actionBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => showAlert({ type: 'info', title: 'Gestión', message: 'Módulo de edición de clínica en desarrollo.' })}
-                >
-                    <Text style={[styles.actionBtnText, { color: '#fff' }]}>Gestionar</Text>
                 </TouchableOpacity>
             </View>
         </View>

@@ -6,7 +6,6 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, FileText, DollarSign, Clock, Sparkles } from 'lucide-react-native';
 
-const DIFFICULTY_LEVELS = ['Básico', 'Intermedio', 'Avanzado'];
 
 export default function CreateProgramScreen() {
     const { theme } = useTheme();
@@ -102,28 +101,6 @@ export default function CreateProgramScreen() {
                                 onChangeText={(v) => updateProgramField('duration_weeks', v)}
                                 keyboardType="number-pad"
                             />
-                        </View>
-                    </View>
-
-                    {/* Difficulty Level */}
-                    <View style={styles.fieldGroup}>
-                        <Text style={[styles.labelText, { color: theme.text, marginBottom: 10 }]}>Nivel de dificultad</Text>
-                        <View style={styles.difficultyRow}>
-                            {DIFFICULTY_LEVELS.map((level) => (
-                                <TouchableOpacity
-                                    key={level}
-                                    style={[
-                                        styles.difficultyChip,
-                                        {
-                                            backgroundColor: theme.overlay,
-                                            borderColor: theme.cardBorder,
-                                        },
-                                    ]}
-                                    activeOpacity={0.7}
-                                >
-                                    <Text style={[styles.difficultyText, { color: theme.text }]}>{level}</Text>
-                                </TouchableOpacity>
-                            ))}
                         </View>
                     </View>
                 </View>

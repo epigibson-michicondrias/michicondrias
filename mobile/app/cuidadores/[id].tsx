@@ -11,6 +11,7 @@ import {
     MapPin, Star, Clock, Home, Users, Phone, MessageCircle, Calendar, 
     Shield, Heart, Share2, Dog, Cat, CheckCircle, Sun, Moon
 } from 'lucide-react-native';
+import { shareContent } from '@/src/utils/share';
 
 export default function SitterDetailScreen() {
     const router = useRouter();
@@ -131,7 +132,7 @@ export default function SitterDetailScreen() {
                         )}
                     </View>
 
-                    <TouchableOpacity style={styles.shareButton}>
+                    <TouchableOpacity style={styles.shareButton} onPress={() => shareContent('Cuidador', `${sitter.display_name} es cuidador en Michicondrias 🐾`)}>
                         <Share2 size={20} color={theme.textMuted} />
                     </TouchableOpacity>
                 </View>

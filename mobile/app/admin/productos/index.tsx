@@ -60,9 +60,6 @@ export default function AdminProductosScreen() {
                     placeholder="Buscar producto..."
                 />
             </View>
-            <TouchableOpacity style={[styles.filterBtn, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Filter size={20} color={theme.primary} />
-            </TouchableOpacity>
         </View>
     );
 

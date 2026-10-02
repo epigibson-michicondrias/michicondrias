@@ -76,6 +76,10 @@ export async function createGoal(data: PetTrainingGoalCreate): Promise<PetTraini
     });
 }
 
+export async function getEnrollmentGoals(enrollmentId: string): Promise<PetTrainingGoal[]> {
+    return apiFetch<PetTrainingGoal[]>("entrenadores", `/enrollments/${enrollmentId}/goals`);
+}
+
 export async function updateGoal(goalId: string, data: PetTrainingGoalUpdate): Promise<PetTrainingGoal> {
     return apiFetch<PetTrainingGoal>("entrenadores", `/goals/${goalId}`, {
         method: "PATCH",

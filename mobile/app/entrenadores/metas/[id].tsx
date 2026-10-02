@@ -9,8 +9,11 @@ import {
     ActivityIndicator,
     Modal,
 } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useTrainerDashboard } from '@/src/hooks/training';
+import { getEnrollmentGoals, type PetTrainingGoal } from '@/src/services/training';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import {
@@ -24,17 +27,9 @@ import {
     X,
 } from 'lucide-react-native';
 
-/** Placeholder goals for demonstration (in a real app these would come from an API query) */
-interface LocalGoal {
-    id: string;
-    goal_name: string;
-    status: string;
-    progress_notes?: string;
-    video_proof_url?: string;
-}
-
-const MOCK_STATUSES: Record<string, { label: string; color: string; icon: any }> = {
+const STATUS_INFO: Record<string, { label: string; color: string; icon: any }> = {
     pending: { label: 'Pendiente', color: '#f59e0b', icon: ClipboardList },
+    not_started: { label: 'Pendiente', color: '#f59e0b', icon: ClipboardList },
     in_progress: { label: 'En progreso', color: '#3b82f6', icon: Target },
     video_submitted: { label: 'Video enviado', color: '#8b5cf6', icon: Video },
     completed: { label: 'Completado', color: '#22c55e', icon: Trophy },
@@ -43,7 +38,9 @@ const MOCK_STATUSES: Record<string, { label: string; color: string; icon: any }>
 
 export default function GoalManagementScreen() {
     const { theme } = useTheme();
+    const { id: enrollmentId } = useLocalSearchParams<{ id: string }>();
     const {
+        enrollments,
         goalForm,
         setGoalForm,
         reviewNotes,
@@ -56,20 +53,22 @@ export default function GoalManagementScreen() {
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
-    const [selectedGoal, setSelectedGoal] = useState<LocalGoal | null>(null);
+    const [selectedGoal, setSelectedGoal] = useState<PetTrainingGoal | null>(null);
 
-    // Placeholder goals for the UI (real data would come from a query)
-    const [goals] = useState<LocalGoal[]>([
-        { id: '1', goal_name: 'Sentarse al comando', status: 'completed', progress_notes: 'Excelente progreso' },
-        { id: '2', goal_name: 'Caminar con correa', status: 'in_progress', progress_notes: 'Mejorando cada día' },
-        { id: '3', goal_name: 'Venir al llamado', status: 'video_submitted', video_proof_url: 'https://example.com/video.mp4' },
-        { id: '4', goal_name: 'Quedarse quieto', status: 'pending' },
-    ]);
+    const { data: goals = [], isLoading: isGoalsLoading } = useQuery<PetTrainingGoal[]>({
+        queryKey: ['trainingGoals', enrollmentId],
+        queryFn: () => getEnrollmentGoals(enrollmentId),
+        enabled: !!enrollmentId,
+    });
+
+    // La lista del entrenador solo trae sus inscripciones: si esta está ahí, quien mira es el entrenador
+    const enrollment = enrollments.find(e => e.id === enrollmentId);
+    const isTrainer = !!enrollment;
 
     const completedCount = goals.filter(g => g.status === 'completed').length;
     const progressPercent = goals.length > 0 ? Math.round((completedCount / goals.length) * 100) : 0;
 
-    const openReview = (goal: LocalGoal) => {
+    const openReview = (goal: PetTrainingGoal) => {
         setSelectedGoal(goal);
         setReviewNotes('');
         setShowReviewModal(true);
@@ -110,19 +109,28 @@ export default function GoalManagementScreen() {
                 <View style={styles.goalsSection}>
                     <View style={styles.goalsSectionHeader}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Lista de Metas</Text>
-                        <TouchableOpacity
-                            style={[styles.addGoalBtn, { backgroundColor: theme.primary }]}
-                            onPress={() => setShowCreateModal(true)}
-                            activeOpacity={0.8}
-                        >
-                            <Plus size={18} color="#fff" />
-                        </TouchableOpacity>
+                        {isTrainer && (
+                            <TouchableOpacity
+                                style={[styles.addGoalBtn, { backgroundColor: theme.primary }]}
+                                onPress={() => setShowCreateModal(true)}
+                                activeOpacity={0.8}
+                            >
+                                <Plus size={18} color="#fff" />
+                            </TouchableOpacity>
+                        )}
                     </View>
 
+                    {isGoalsLoading && <ActivityIndicator style={{ marginVertical: 24 }} color={theme.primary} />}
+                    {!isGoalsLoading && goals.length === 0 && (
+                        <Text style={{ color: theme.textMuted, textAlign: 'center', marginVertical: 24 }}>
+                            {isTrainer ? 'Aún no hay metas. Agrega la primera con el botón +.' : 'El entrenador aún no ha definido metas.'}
+                        </Text>
+                    )}
+
                     {goals.map((goal) => {
-                        const statusInfo = MOCK_STATUSES[goal.status] || MOCK_STATUSES.pending;
+                        const statusInfo = STATUS_INFO[goal.status ?? 'pending'] || STATUS_INFO.pending;
                         const StatusIcon = statusInfo.icon;
-                        const hasVideo = goal.status === 'video_submitted';
+                        const hasVideo = isTrainer && goal.status === 'video_submitted';
 
                         return (
                             <View
@@ -210,7 +218,8 @@ export default function GoalManagementScreen() {
                         <TouchableOpacity
                             style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
                             onPress={() => {
-                                handleCreateGoal('placeholder-pet-id');
+                                if (!enrollment) return;
+                                handleCreateGoal(enrollment.pet_id, enrollment.program_id);
                                 setShowCreateModal(false);
                             }}
                             disabled={isCreatingGoal}

@@ -4,7 +4,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useNotifications, formatTimeAgo } from '@/src/hooks/notifications/useNotifications';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Bell, Heart, Package, ShieldCheck, MapPin, Bone } from 'lucide-react-native';
+import { Bell, CheckCheck, Heart, Package, ShieldCheck, MapPin, Bone } from 'lucide-react-native';
 import { Notification } from '@/src/services/notifications';
 
 const { width } = Dimensions.get('window');
@@ -19,7 +19,7 @@ const TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
 
 export default function NotificationsScreen() {
     const { theme } = useTheme();
-    const { notifications, isLoading, handleMarkAsRead, router } = useNotifications();
+    const { notifications, isLoading, handleMarkAsRead, handleMarkAllAsRead, unreadCount, router } = useNotifications();
 
     const renderItem = ({ item }: { item: Notification }) => {
         const config = TYPE_CONFIG[item.type] || TYPE_CONFIG.general;
@@ -66,9 +66,13 @@ export default function NotificationsScreen() {
             <ScreenHeader
                 title="Notificaciones"
                 rightElement={
-                    <TouchableOpacity style={styles.clearBtn}>
-                        <Bell size={20} color={theme.textMuted} />
-                    </TouchableOpacity>
+                    unreadCount > 0 ? (
+                        <TouchableOpacity style={styles.clearBtn} onPress={handleMarkAllAsRead}>
+                            <CheckCheck size={20} color={theme.primary} />
+                        </TouchableOpacity>
+                    ) : (
+                        <View style={styles.clearBtn} />
+                    )
                 }
             />
 
