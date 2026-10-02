@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -16,6 +16,9 @@ from app.schemas.funerary import (
     FuneraryBookingResponse,
 )
 from app.crud import crud_funerary
+from app.core.config import settings
+from app.core.certificate import build_certificate_pdf
+import httpx
 
 router = APIRouter()
 
@@ -159,16 +162,39 @@ def download_death_certificate(
             detail="Reporte de defunción no encontrado."
         )
     
-    # Return mock certificate details and dummy URL
     return {
         "death_id": death_id,
         "pet_id": death_report.pet_id,
         "funerary_id": death_report.funerary_id,
         "date_of_death": death_report.date_of_death.isoformat(),
         "cremation_type": death_report.cremation_type,
-        "certificate_url": f"https://michicondrias-storage-1.s3.amazonaws.com/certificates/cert-{death_id}.pdf",
-        "qr_code_link": f"https://michicondrias.app/funerary/memorial/{death_report.pet_id}"
+        "certificate_url": f"{settings.API_GATEWAY_URL}/funeraria/api/v1/funerary/certificate/{death_id}/file",
     }
+
+
+@router.get("/certificate/{death_id}/file")
+def certificate_file(death_id: str, db: Session = Depends(get_db)):
+    """PDF del certificado conmemorativo, generado al momento."""
+    death_report = db.query(PetDeath).filter(PetDeath.id == death_id).first()
+    if not death_report:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reporte de defunción no encontrado.")
+
+    # El nombre y la especie viven en el servicio de mascotas; si no responde, el certificado sale con un nombre genérico
+    pet_name, species = "Un michi querido", None
+    try:
+        resp = httpx.get(f"{settings.API_GATEWAY_URL}/mascotas/api/v1/pets/{death_report.pet_id}", timeout=5.0)
+        if resp.status_code == 200:
+            data = resp.json()
+            pet_name, species = data.get("name") or pet_name, data.get("species")
+    except httpx.HTTPError:
+        pass
+
+    pdf = build_certificate_pdf(
+        death_id=death_id, pet_name=pet_name, species=species, date_of_death=death_report.date_of_death,
+        cremation_type=death_report.cremation_type, urn_model=death_report.urn_model,
+    )
+    return Response(content=pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f'inline; filename="certificado-{death_id}.pdf"'})
 
 @router.get("/memorial/{pet_id}/feed", response_model=List[PetMemorialPostResponse])
 def read_memorial_feed(

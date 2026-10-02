@@ -91,9 +91,9 @@ export function useInsuranceClaim() {
         onSuccess: (data) => {
             setVerificationResult(data);
             showAlert({
-                type: 'success',
-                title: 'Verificación completada',
-                message: 'El recibo ha sido verificado con IA.',
+                type: data?.is_valid ? 'info' : 'warning',
+                title: 'Revisión del comprobante',
+                message: data?.message || 'No se pudo revisar el comprobante.',
             });
         },
         onError: () => {

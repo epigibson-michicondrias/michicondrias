@@ -2,13 +2,35 @@ from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import date, timedelta
-import random
+import logging
+import secrets
+
+import httpx
 
 from app.api import deps
 from app.db.session import get_db
+from app.core.config import settings
 from app import crud, models, schemas
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
+
+
+def _assert_pet_belongs_to_user(pet_id: str, user_id: str) -> None:
+    """Solo el dueño puede contratar el seguro de una mascota (se consulta al servicio de mascotas)."""
+    url = f"{settings.API_GATEWAY_URL}/mascotas/api/v1/pets/{pet_id}"
+    try:
+        resp = httpx.get(url, timeout=8.0)
+    except httpx.HTTPError as e:
+        logger.warning("No se pudo consultar la mascota %s: %s", pet_id, e)
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No se pudo verificar la mascota en este momento. Intenta de nuevo.")
+    if resp.status_code == 404:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La mascota no existe")
+    if resp.status_code >= 400:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No se pudo verificar la mascota en este momento. Intenta de nuevo.")
+    if resp.json().get("owner_id") != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede contratar su seguro")
 
 @router.post("/policies", response_model=schemas.PetInsurancePolicy)
 def create_new_policy(
@@ -198,6 +220,7 @@ def subscribe_to_plan(
     """
     Subscribe a pet to an insurance plan. Creates a PetInsurancePolicy.
     """
+    _assert_pet_belongs_to_user(sub_req.pet_id, current_user_id)
     plan = crud.get_plan_by_id(db, plan_id=sub_req.plan_id)
     if not plan:
         raise HTTPException(
@@ -221,7 +244,7 @@ def subscribe_to_plan(
         has_preexisting_conditions=sub_req.has_preexisting_conditions
     ))
 
-    policy_number = f"POL-{random.randint(100000, 999999)}-{sub_req.pet_id[:4].upper()}"
+    policy_number = f"POL-{date.today():%Y%m%d}-{secrets.token_hex(4).upper()}"  # unico: el numero antiguo (6 digitos al azar) podia chocar
     start_date = date.today()
     end_date = start_date + timedelta(days=365) # 1 year validity
 
@@ -246,7 +269,8 @@ def verify_claim_receipt(
     current_insurer_id: str = Depends(deps.require_aseguradora)
 ):
     """
-    Verify claim receipts against clinic records. Mock validation.
+    Revisa que el reclamo incluya un comprobante. NO lo compara contra los registros de la clínica:
+    la aprobación sigue siendo una revisión manual de la aseguradora.
     """
     claim = crud.get_claim_by_id(db, claim_id=claim_id)
     if not claim:
@@ -261,14 +285,16 @@ def verify_claim_receipt(
             detail="No tiene permisos para modificar una reclamación de esta póliza"
         )
         
-    # Perform mock validation: check if medical_receipt_url is present
-    is_valid = True if claim.medical_receipt_url else False
-    
+    has_receipt = bool(claim.medical_receipt_url)
+
     return {
         "claim_id": claim_id,
-        "is_valid": is_valid,
+        "is_valid": has_receipt,
         "receipt_url": claim.medical_receipt_url,
         "amount_claimed": claim.amount_claimed,
-        "status": "verified" if is_valid else "invalid_receipt",
-        "message": "Recibo verificado exitosamente" if is_valid else "Falta el recibo médico"
+        "status": "receipt_attached" if has_receipt else "missing_receipt",
+        "message": (
+            "El reclamo incluye un comprobante. Revísalo antes de aprobar: aún no se compara con los registros de la clínica."
+            if has_receipt else "Falta el recibo médico"
+        ),
     }
