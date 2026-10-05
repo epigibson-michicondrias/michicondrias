@@ -15,3 +15,6 @@ while read -r name port _; do
   echo "    }"
 done < "$CONF"
 echo "}"
+echo
+# Otros proyectos en la misma VM (p. ej. Nexus) dejan sus sitios aquí
+echo "import /etc/caddy/sites/*.caddy"
