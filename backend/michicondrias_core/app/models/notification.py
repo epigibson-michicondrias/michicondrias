@@ -9,3 +9,5 @@ class Notification(BaseModel):
     message = Column(Text, nullable=False)
     type = Column(String(50), default="general")
     is_read = Column(Boolean, default=False)
+    # Ruta de la app a la que lleva la notificación (p. ej. "/tienda/pedido/123"). Opcional: sin ella, la app decide por tipo.
+    link = Column(String(255), nullable=True)

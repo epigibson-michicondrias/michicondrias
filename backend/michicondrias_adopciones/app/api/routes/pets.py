@@ -43,10 +43,11 @@ def _normalize_status(raw: str) -> str:
     return value
 
 
-async def _notify(user_id: str, title: str, message: str) -> None:
-    """Notificación real vía el servicio core (con push por WebSocket). Un fallo no rompe el flujo."""
+async def _notify(user_id: str, title: str, message: str, link: str | None = None) -> None:
+    """Notificación real vía el servicio core (con push por WebSocket). Un fallo no rompe el flujo.
+    `link` es la pantalla de la app a la que lleva (quien publica y quien postula reciben el mismo tipo)."""
     try:
-        payload = {"user_id": user_id, "title": title, "message": message, "type": "general"}
+        payload = {"user_id": user_id, "title": title, "message": message, "type": "general", "link": link}
         async with httpx.AsyncClient() as client:
             await client.post(
                 f"{settings.CORE_SERVICE_URL}/api/v1/notifications/broadcast", json=payload,
@@ -197,6 +198,7 @@ async def request_adoption(
         listing.published_by,
         f"Nueva solicitud de adopción: {listing.name}",
         f"{req_in.applicant_name or 'Una persona'} quiere adoptar a {listing.name}. Revísala en Solicitudes recibidas.",
+        link="/adopciones/solicitudes",
     )
     return created
 
@@ -329,6 +331,7 @@ async def update_adoption_request_status(
         existing.user_id,
         f"Tu solicitud por {listing.name}",
         f"Tu solicitud para adoptar a {listing.name} {STATUS_LABELS_ES.get(new_status, 'cambió de estado')}." + (f" Mensaje del refugio: {note.strip()[:300]}" if note and note.strip() else ""),
+        link="/adopciones/mis-solicitudes",
     )
     return req
 
@@ -428,6 +431,7 @@ async def approve_adoption(
         req.user_id,
         f"¡Adopción aprobada: {listing.name}!",
         f"Tu solicitud para adoptar a {listing.name} fue aprobada. La mascota ya aparece en tu cuenta.",
+        link="/mascotas",
     )
     return result
 
@@ -464,6 +468,7 @@ async def submit_adoption_form(
         listing.published_by,
         f"Nuevo formulario de compatibilidad: {listing.name}",
         f"Una persona completó el formulario para adoptar a {listing.name} (compatibilidad {created.compatibility_score}%). Revísalo en Postulaciones.",
+        link="/adopciones/refugio/aplicaciones",
     )
     created.pet_name = listing.name
     return created
@@ -533,6 +538,7 @@ async def sign_adoption_contract(
         form.applicant_id,
         f"Contrato de adopción: {listing.name}",
         f"El refugio firmó el contrato de adopción de {listing.name}. Tu postulación fue aprobada.",
+        link="/adopciones/mis-solicitudes",
     )
     return contract
 
@@ -564,6 +570,7 @@ async def update_adoption_form_status_route(
         form.applicant_id,
         f"Tu formulario por {listing.name}",
         f"Tu formulario para adoptar a {listing.name} " + ("está en revisión." if status == "under_review" else "no fue aceptado."),
+        link="/adopciones/mis-solicitudes",
     )
     updated.pet_name = listing.name
     return updated

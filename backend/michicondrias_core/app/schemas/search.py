@@ -17,6 +17,8 @@ class SearchProductResult(BaseModel):
     id: str
     name: str
     price: float
+    category: Optional[str] = None
+    image_url: Optional[str] = None
 
 class GlobalSearchResponse(BaseModel):
     pets: List[SearchPetResult]

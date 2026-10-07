@@ -642,10 +642,10 @@ def verify_user_kyc(
         from app.schemas.notification import NotificationCreate
         from app.crud import crud_notification
         if status == "VERIFIED":
-            title, message = "Identidad verificada", "Aprobamos tu identidad. Ya puedes activar tu cuenta profesional desde Más > Ser Profesional."
+            title, message, link = "Identidad verificada", "Aprobamos tu identidad. Ya puedes activar tu cuenta profesional desde Perfil > Ser profesional.", "/perfil/partner"
         else:
-            title, message = "Verificación rechazada", "No pudimos aprobar tus documentos. Súbelos de nuevo con fotos claras desde Perfil > Seguridad y KYC."
-        crud_notification.create_notification(db, NotificationCreate(user_id=user.id, title=title, message=message, type="kyc"))
+            title, message, link = "Verificación rechazada", "No pudimos aprobar tus documentos. Súbelos de nuevo con fotos claras desde Perfil > Verificación de identidad.", "/perfil/verificacion"
+        crud_notification.create_notification(db, NotificationCreate(user_id=user.id, title=title, message=message, type="kyc", link=link))
     except Exception:  # la notificación nunca debe impedir la decisión del admin
         db.rollback()
     return _add_kyc_presigned_urls(user)

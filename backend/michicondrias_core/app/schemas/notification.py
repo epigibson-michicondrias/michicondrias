@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
@@ -7,6 +7,7 @@ class NotificationBase(BaseModel):
     title: str
     message: str
     type: Optional[str] = "general"
+    link: Optional[str] = Field(None, max_length=255)
 
 class NotificationCreate(NotificationBase):
     pass
@@ -18,3 +19,11 @@ class NotificationResponse(NotificationBase):
 
     class Config:
         from_attributes = True
+
+
+class UnreadCountResponse(BaseModel):
+    count: int
+
+
+class MarkAllReadResponse(BaseModel):
+    updated: int

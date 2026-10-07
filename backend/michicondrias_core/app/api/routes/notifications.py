@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.crud import crud_notification
 from app.api import deps
 from app.db.session import get_db
-from app.schemas.notification import NotificationCreate, NotificationResponse
+from app.schemas.notification import NotificationCreate, NotificationResponse, UnreadCountResponse, MarkAllReadResponse
 from app.api.internal import require_internal_token
 from jose import jwt, JWTError
 from app.core.config import settings
@@ -50,6 +50,24 @@ def read_my_notifications(
     return crud_notification.get_notifications_by_user(db, user_id=current_user_id, skip=skip, limit=limit)
 
 
+@router.get("/me/unread-count", response_model=UnreadCountResponse)
+def read_my_unread_count(
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Cantidad de notificaciones sin leer del usuario (badge de la campana)."""
+    return {"count": crud_notification.count_unread(db, user_id=current_user_id)}
+
+
+@router.patch("/me/read-all", response_model=MarkAllReadResponse)
+def mark_all_my_notifications_as_read(
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Marca como leídas todas las notificaciones del usuario en una sola operación."""
+    return {"updated": crud_notification.mark_all_as_read(db, user_id=current_user_id)}
+
+
 @router.patch("/{notification_id}/read", response_model=NotificationResponse)
 def mark_as_read(
     notification_id: str,
@@ -80,6 +98,7 @@ async def broadcast_notification(
             "title": notif.title,
             "message": notif.message,
             "type": notif.type,
+            "link": notif.link,
             "created_at": notif.created_at.isoformat() if notif.created_at else ""
         },
         user_id=notif.user_id

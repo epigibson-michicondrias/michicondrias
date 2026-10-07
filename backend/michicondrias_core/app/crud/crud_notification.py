@@ -23,6 +23,7 @@ def create_notification(db: Session, notification: NotificationCreate):
         title=notification.title,
         message=notification.message,
         type=notification.type,
+        link=notification.link,
         is_read=False
     )
     db.add(db_obj)
@@ -37,3 +38,21 @@ def mark_notification_as_read(db: Session, notification_id: str):
         db.commit()
         db.refresh(db_obj)
     return db_obj
+
+
+def count_unread(db: Session, user_id: str) -> int:
+    return (
+        db.query(Notification)
+        .filter(Notification.user_id == user_id, Notification.is_read == False)  # noqa: E712 (igual que el índice parcial "is_read = false")
+        .count()
+    )
+
+
+def mark_all_as_read(db: Session, user_id: str) -> int:
+    updated = (
+        db.query(Notification)
+        .filter(Notification.user_id == user_id, Notification.is_read == False)  # noqa: E712 (igual que el índice parcial "is_read = false")
+        .update({Notification.is_read: True}, synchronize_session=False)
+    )
+    db.commit()
+    return updated
