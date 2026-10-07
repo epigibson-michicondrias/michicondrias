@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { Home, Compass, ShoppingBag, User, Briefcase, ShieldCheck } from 'lucide-react-native';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { useCart } from '../../src/contexts/CartContext';
 import { normalizeRole, isProRole } from '../../src/constants/roles';
 
 import { useTheme } from '../../src/contexts/ThemeContext';
@@ -12,6 +13,7 @@ export default function TabLayout() {
   const { colorScheme } = useTheme();
   const theme = Colors[colorScheme];
   const { user } = useAuth();
+  const { cartCount } = useCart();
   const role = normalizeRole(user?.role_name);
   // La 5.ª pestaña solo existe para quien tiene herramientas (profesionales y admin). Los dueños de mascota ven 4 pestañas;
   // su cuenta/ayuda/alta profesional viven en Perfil.
@@ -72,6 +74,9 @@ export default function TabLayout() {
         name="tienda-tab"
         options={{
           title: 'Michi-Shop',
+          // Lo que hay en la bolsa, visible desde cualquier pestaña
+          tabBarBadge: cartCount > 0 ? (cartCount > 99 ? '99+' : cartCount) : undefined,
+          tabBarBadgeStyle: { backgroundColor: theme.error, color: theme.background, fontSize: 10, fontWeight: '800' },
           tabBarIcon: ({ color, focused }) => (
             <ShoppingBag size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
           ),

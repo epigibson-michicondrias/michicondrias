@@ -3,6 +3,7 @@ import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import { showAlert } from '@/src/components/AppAlert';
 import { useOrderDetail } from '@/src/hooks/ecommerce/useOrderDetail';
 import { STATUS_MAP } from '@/src/hooks/ecommerce/usePurchases';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -221,17 +222,6 @@ export default function PedidoDetailScreen() {
         </ScreenContainer>
     );
 }
-
-// Custom simple alerts fallback
-const showAlert = ({ type, title, message }: { type: string; title: string; message: string }) => {
-    // Attempt standard import fallback or simple console warning
-    try {
-        const { showAlert: appShowAlert } = require('@/src/components/AppAlert');
-        appShowAlert({ type, title, message });
-    } catch {
-        alert(`${title}: ${message}`);
-    }
-};
 
 const styles = StyleSheet.create({
     center: {

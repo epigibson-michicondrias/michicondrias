@@ -124,7 +124,7 @@ export default function CarritoScreen() {
                     emptyTitle="Tu bolsa está vacía"
                     emptySubtitle="Explora el Michi-Shop y agrega productos para tu mejor amigo."
                     emptyActionLabel="Explorar Tienda"
-                    onEmptyAction={() => router.replace('/tienda')}
+                    onEmptyAction={() => router.replace('/(tabs)/tienda-tab' as any)}
                     keyExtractor={() => 'empty'}
                 />
             ) : (

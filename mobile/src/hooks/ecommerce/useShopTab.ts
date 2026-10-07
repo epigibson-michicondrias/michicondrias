@@ -5,7 +5,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useAuth } from '@/src/contexts/AuthContext';
 import { getProducts, getCategories } from '@/src/services/ecommerce';
 import { useCart } from '@/src/contexts/CartContext';
 import {
@@ -22,7 +21,6 @@ export interface ShopCategory {
 
 export function useShopTab() {
   const router = useRouter();
-  const { user } = useAuth();
   const { category } = useLocalSearchParams<{ category?: string }>();
 
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -98,7 +96,6 @@ export function useShopTab() {
     );
   }, [allProducts, searchQuery]);
 
-  const isVendedor = user?.role_name === 'vendedor';
 
   // La búsqueda filtra en vivo; al enviar solo se muestran todos los resultados
   const handleSearch = () => setShowAll(true);
@@ -119,7 +116,6 @@ export function useShopTab() {
     refetch,
     isRefetching,
     isLoading: isLoading || categoriesLoading,
-    isVendedor,
     categories,
 
     // Actions

@@ -9,7 +9,7 @@ import { useShopTab } from '@/src/hooks/ecommerce/useShopTab';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ShoppingBag, Search, ShoppingCart, Package, CreditCard, ChevronRight, Star, TrendingUp, Filter, ArrowRight, X } from 'lucide-react-native';
+import { ShoppingBag, Search, ShoppingCart, Package, Star, ArrowRight, X } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.floor((width - 61) / 2);
@@ -24,7 +24,6 @@ export default function TiendaTabScreen() {
     setSearchQuery,
     products,
     isLoading,
-    isVendedor,
     categories,
     handleSearch,
     totalProducts,
@@ -52,6 +51,14 @@ export default function TiendaTabScreen() {
               <Text style={styles.headerTitle}>Michi-Shop</Text>
             </View>
             <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.headerBtn}
+                onPress={() => router.push('/tienda/compras' as any)}
+                accessibilityRole="button"
+                accessibilityLabel="Mis pedidos"
+              >
+                <Package size={22} color="#fff" />
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.headerBtn}
                 onPress={() => router.push('/tienda/carrito' as any)}
@@ -90,56 +97,9 @@ export default function TiendaTabScreen() {
               >
                 <X size={16} color="#fff" />
               </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.filterBtn}
-                onPress={() => router.push('/tienda/categorias' as any)}
-                accessibilityRole="button"
-                accessibilityLabel="Ver categorías"
-              >
-                <Filter size={16} color="#fff" />
-              </TouchableOpacity>
-            )}
+            ) : null}
           </View>
         </LinearGradient>
-
-        {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          <TouchableOpacity
-            style={[styles.quickAction, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => router.push('/tienda/categorias' as any)}
-          >
-            <View style={[styles.quickIconBox, { backgroundColor: theme.secondaryLight }]}>
-              <ShoppingBag size={20} color={theme.secondary} />
-            </View>
-            <Text style={[styles.quickLabel, { color: theme.text }]}>Categor{'\u00ed'}as</Text>
-            <ChevronRight size={14} color={theme.textMuted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.quickAction, { backgroundColor: theme.surface, borderColor: theme.border }]}
-            onPress={() => router.push('/tienda/compras' as any)}
-          >
-            <View style={[styles.quickIconBox, { backgroundColor: theme.accentLight }]}>
-              <CreditCard size={20} color={theme.accent} />
-            </View>
-            <Text style={[styles.quickLabel, { color: theme.text }]}>Mis Compras</Text>
-            <ChevronRight size={14} color={theme.textMuted} />
-          </TouchableOpacity>
-
-          {isVendedor && (
-            <TouchableOpacity
-              style={[styles.quickAction, { backgroundColor: theme.surface, borderColor: theme.border }]}
-              onPress={() => router.push('/tienda/vendedor' as any)}
-            >
-              <View style={[styles.quickIconBox, { backgroundColor: theme.successLight }]}>
-                <TrendingUp size={20} color={theme.success} />
-              </View>
-              <Text style={[styles.quickLabel, { color: theme.text }]}>Mi Tienda</Text>
-              <ChevronRight size={14} color={theme.textMuted} />
-            </TouchableOpacity>
-          )}
-        </View>
 
         {/* Categories */}
         <View style={styles.section}>

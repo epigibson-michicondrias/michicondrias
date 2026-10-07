@@ -1,12 +1,6 @@
-import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { Redirect } from 'expo-router';
 
+/** Alias de /tienda (enlaces viejos): la tienda vive en su pestaña. */
 export default function TiendaRedirect() {
-    const router = useRouter();
-
-    useEffect(() => {
-        router.replace('/(tabs)/tienda-tab');
-    }, []);
-
-    return null;
+    return <Redirect href="/(tabs)/tienda-tab" />;
 }
