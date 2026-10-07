@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ⬜ |
 | 3 | Navegación y esqueleto | ⬜ propuesta aprobada 2026-10-07 |
-| 4 | Funcionalidad faltante | ⬜ |
+| 4 | Funcionalidad faltante | 🟡 F1–F3 adelantadas ✅ 2026-10-07 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -211,11 +211,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [ ] N8 Renombrar `(tabs)/two` → `(tabs)/perfil` (y opcionalmente `menu` → `herramientas`, actualizando `/(tabs)/menu`).
 
 **Fase 4 — Funcionalidad**
-- [ ] 🚨 F1 Sesión robusta: no borrar el token por error de red; `onUnauthorized` de `apiFetch` → AuthContext; `signOut`
+- [x] 🚨 F1 Sesión robusta: no borrar el token por error de red; `onUnauthorized` de `apiFetch` → AuthContext; `signOut`
       limpia React Query, carrito, dirección y `user_role`; renovación deslizante del token.
-- [ ] 🚨 F2 Caché GET de 30 s: opción `noCache` (o quitarla y dejar a React Query) para pedidos, compras, notificaciones
+- [x] 🚨 F2 Caché GET de 30 s: opción `noCache` (o quitarla y dejar a React Query) para pedidos, compras, notificaciones
       y cualquier refresh/polling.
-- [ ] 🚨 F3 Login en web (`setUserRole`) + email con `trim`/minúsculas en login y forgot.
+- [x] 🚨 F3 Login en web (`setUserRole`) + email con `trim` en login y forgot (minúsculas → F11).
 - [ ] 🚨🛠️ F4 Búsqueda: corregir `search.py:43` (columna `category`) y filtrar `is_approved`; precio en productos.
 - [ ] 🚨🛠️ F5 Notificaciones: `read-all`, `unread-count`, migración `notifications.link`; badge real; navegar por `link`
       con mapeo de tipos reales de respaldo.
@@ -240,6 +240,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `can_review`, paginación de `/orders/me`.
 - [ ] F20 Stripe con `expo-web-browser` (`openAuthSessionAsync`; verificar que ya está en el APK actual).
 - [ ] F21 Ayuda: FAQ verídicas, aviso si falla `Linking`, configurar soporte, términos y privacidad.
+- [ ] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext).
 - [ ] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
 
 **Fase 5 — UI premium + APK**
@@ -290,3 +291,12 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   (más consultas de lectura a Supabase). Hallazgos en `AUDITORIA_MOBILE.md` (sección Transversales + 7 módulos +
   consolidado de botones). Propuesta de navegación antes/después y backlog por fase en este archivo. Siguiente: visto
   bueno de la propuesta y adelantar los 🚨 de la Fase 4, o seguir con la auditoría P2.
+- **2026-10-07** — Fase 4 adelantada, F1–F3 (solo app, sale por OTA, sin backend ni APK). `api.ts`: sin caché GET propia,
+  `ApiError` (status, `sessionExpired`) y aviso a AuthContext solo si el token rechazado sigue siendo el vigente.
+  `AuthContext`: copia local del usuario (`lib/auth.ts`) para abrir sin red; 401/403/400/404 cierran la sesión;
+  `signOut` borra token, copia, `user_role` viejo, React Query y el carrito de esa cuenta. `CartContext` + nuevo
+  `lib/cartStorage.ts`: carrito y dirección por usuario (se conservan si solo vence la sesión). `useSessionSync` montado
+  en `_layout`, renueva siempre el token. Login/forgot con `trim`; adiós `user_role`. Verificado: tsc limpio, 0 errores
+  ESLint nuevos, en web con sesión real (Inicio carga, refresh-token 1 vez, sin 401) y con token inválido (limpia y
+  queda en /login). Revisión con `code-reviewer`: corregidos los 3 hallazgos importantes. Nota: quien actualice y abra
+  sin red por primera vez cae en /login (aún no tiene copia local); se arregla solo al reconectar.

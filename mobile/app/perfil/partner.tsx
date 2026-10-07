@@ -4,8 +4,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
-import { apiFetch, setToken, clearApiCache } from '../../src/lib/api';
-import * as SecureStore from 'expo-secure-store';
+import { apiFetch, setToken } from '../../src/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { getCurrentUser } from '../../src/lib/auth';
@@ -49,7 +48,6 @@ export default function PartnerOnboardingScreen() {
         setLoading(true);
         try {
             // Un rol profesional requiere identidad aprobada por un administrador
-            clearApiCache();
             const me: any = await getCurrentUser();
             if (me?.verification_status !== 'VERIFIED') {
                 showAlert({
@@ -72,9 +70,7 @@ export default function PartnerOnboardingScreen() {
             });
             if (res?.access_token) {
                 await setToken(res.access_token);
-                try { await SecureStore.setItemAsync('user_role', selectedRole); } catch { /* web */ }
             }
-            clearApiCache();
             await reloadUser();
             queryClient.invalidateQueries();
             showAlert({

@@ -64,13 +64,16 @@ export default function LoginScreen() {
     };
 
     const handleLogin = async () => {
-        if (!email || !password) {
+        // Sin espacios accidentales del teclado. Las mayúsculas se respetan hasta que el backend compare sin distinguirlas
+        // (cuentas antiguas pueden tenerlas).
+        const cleanEmail = email.trim();
+        if (!cleanEmail || !password) {
             showAlert({ type: 'warning', title: 'Campos vacíos', message: 'Por favor ingresa tu email y contraseña' });
             return;
         }
         setLoading(true);
         try {
-            const data = await login(email, password);
+            const data = await login(cleanEmail, password);
             
             if (data.require_2fa && data.temp_token) {
                 // 2FA required — show verification UI
@@ -79,7 +82,7 @@ export default function LoginScreen() {
                 animateTo2FA();
             } else if (data.access_token) {
                 // Normal login — sign in immediately
-                await signIn(data.access_token);
+                await signIn();
             }
         } catch (error: any) {
             showAlert({ type: 'error', title: 'Error al iniciar sesión', message: error.message || 'Credenciales incorrectas' });
@@ -95,8 +98,8 @@ export default function LoginScreen() {
         }
         setVerifying2FA(true);
         try {
-            const data = await verify2FALogin(tempToken, otpCode);
-            await signIn(data.access_token);
+            await verify2FALogin(tempToken, otpCode);
+            await signIn();
         } catch (error: any) {
             showAlert({ type: 'error', title: 'Código inválido', message: error.message || 'El código de verificación es incorrecto o ha expirado' });
             setOtpCode('');

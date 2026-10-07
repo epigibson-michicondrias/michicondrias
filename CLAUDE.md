@@ -28,7 +28,7 @@ están en el código.
 | `mobile/app/<modulo>/` | Pantallas por módulo (adopciones, carnet, mascotas, tienda, mi-clinica, admin, …) |
 | `mobile/app/login.tsx`, `register.tsx`, … | Autenticación (hoy sueltas en la raíz, sin grupo `(auth)`) |
 | `mobile/src/hooks/<modulo>/` | Lógica de pantalla con React Query |
-| `mobile/src/services/*.ts` | Llamadas HTTP por microservicio. Base en `src/lib/api.ts` (`API_URLS`, caché de GET de 30 s) |
+| `mobile/src/services/*.ts` | Llamadas HTTP por microservicio. Base en `src/lib/api.ts` (`API_URLS`, `ApiError`; sin caché propia: la caché es React Query) |
 | `mobile/src/types/` | Tipos por dominio (espejo de los schemas del backend) |
 | `mobile/src/components/` | Componentes base (ver §4) |
 | `mobile/src/features/<modulo>/` | Piezas grandes de pantalla extraídas |

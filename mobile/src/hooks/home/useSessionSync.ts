@@ -1,15 +1,14 @@
 /**
  * useSessionSync — mantiene sesión y rol al día sin reinstalar ni volver a iniciar sesión.
- * El JWT lleva el rol; si un admin aprueba/cambia tu rol, el token guardado queda desactualizado
- * y los servicios profesionales responderían 403. Este hook pide un token nuevo
- * (POST /users/me/refresh-token) al abrir la app y al volver a primer plano, y si el rol cambió
- * guarda el token, vacía la caché y recarga el usuario.
+ * Pide un token nuevo (POST /users/me/refresh-token) al abrir la app y al volver a primer plano y siempre lo guarda:
+ * así la sesión se renueva mientras se use (el JWT dura 7 días). El JWT lleva el rol; si un admin aprobó o cambió tu
+ * rol, además recarga el usuario y las queries para que las herramientas profesionales funcionen al instante.
+ * Se monta una sola vez en app/_layout.tsx.
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import { useQueryClient } from '@tanstack/react-query';
-import { apiFetch, clearApiCache, getToken, setToken } from '@/src/lib/api';
+import { apiFetch, getToken, setToken } from '@/src/lib/api';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 import { getRoleLabelFor, normalizeRole } from '@/src/constants/roles';
@@ -31,9 +30,13 @@ export function useSessionSync() {
     const qc = useQueryClient();
     const last = useRef(0);
     const busy = useRef(false);
+    // Usuario leído desde un ref: así recargarlo no recrea `sync` ni dispara otra renovación
+    const userRef = useRef(user);
+    userRef.current = user;
 
     const sync = useCallback(async (force = false) => {
-        if (!user?.id || busy.current) return;
+        const current = userRef.current;
+        if (!current?.id || busy.current) return;
         if (!force && Date.now() - last.current < MIN_INTERVAL_MS) return;
         busy.current = true;
         last.current = Date.now();
@@ -43,15 +46,12 @@ export function useSessionSync() {
             );
             const tokenRole = normalizeRole(jwtRole(await getToken()));
             const dbRole = normalizeRole(res.role_name);
-            const roleChanged = tokenRole !== dbRole || normalizeRole(user.role_name) !== dbRole;
-            const verifChanged = (user.verification_status || 'UNVERIFIED') !== res.verification_status;
-            if (tokenRole !== dbRole) {
-                await setToken(res.access_token);
-                try { await SecureStore.setItemAsync('user_role', res.role_name); } catch { /* web */ }
-            }
+            const roleChanged = tokenRole !== dbRole || normalizeRole(current.role_name) !== dbRole;
+            const verifChanged = (current.verification_status || 'UNVERIFIED') !== res.verification_status;
+            if (res.access_token) await setToken(res.access_token);
+            // Siempre se recarga el usuario: si la app abrió sin red con la copia local, aquí se completa.
+            await reloadUser();
             if (roleChanged || verifChanged) {
-                clearApiCache();
-                await reloadUser();
                 qc.invalidateQueries();
                 if (roleChanged && dbRole !== 'consumidor') {
                     showAlert({
@@ -66,13 +66,15 @@ export function useSessionSync() {
         } finally {
             busy.current = false;
         }
-    }, [user?.id, user?.role_name, user?.verification_status, reloadUser, qc]);
+    }, [reloadUser, qc]);
 
+    const userId = user?.id;
     useEffect(() => {
+        if (!userId) return;
         sync(true);
         const sub = AppState.addEventListener('change', (s) => { if (s === 'active') sync(); });
         return () => sub.remove();
-    }, [sync]);
+    }, [sync, userId]);
 
     return { sync };
 }

@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Product, createOrder, createCheckoutSession, updateOrderStatus } from '../services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { cartKey, addressKey, removeLegacyCartKeys } from '@/src/lib/cartStorage';
 
 export interface CartItem {
     product: Product;
@@ -21,35 +23,60 @@ interface CartContextType {
     cartCount: number;
     checkout: (shippingAddress?: string) => Promise<void>;
     isCheckingOut: boolean;
+    /** Última dirección de envío usada por este usuario (se guarda al pagar). */
+    savedAddress: string;
+    rememberAddress: (address: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = '@michicondrias_cart';
+// Carrito y dirección se guardan por usuario (src/lib/cartStorage): nunca se muestran a otra cuenta en el mismo
+// teléfono. Si la sesión vence se conservan; solo se borran al cerrar sesión a propósito (AuthContext.signOut).
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+    const { user } = useAuth();
+    const userId = user?.id ?? null;
     const [items, setItems] = useState<CartItem[]>([]);
+    const [savedAddress, setSavedAddress] = useState('');
     const [isCheckingOut, setIsCheckingOut] = useState(false);
+    // Usuario cuyo carrito ya se cargó; evita guardar el carrito vacío encima del guardado antes de leerlo.
+    const loadedFor = useRef<string | null>(null);
 
-    // Load initial cart
+    // Cambio de sesión: se vacía lo visible y se carga lo del usuario nuevo.
     useEffect(() => {
-        const loadCart = async () => {
+        loadedFor.current = null;
+        setItems([]);
+        setSavedAddress('');
+        if (!userId) return;
+
+        let cancelled = false;
+        (async () => {
+            await removeLegacyCartKeys();
             try {
-                const storedCart = await AsyncStorage.getItem(CART_STORAGE_KEY);
-                if (storedCart) {
-                    setItems(JSON.parse(storedCart));
-                }
-            } catch (err) {
-                console.error("Failed to load cart", err);
+                const [[, storedCart], [, storedAddress]] = await AsyncStorage.multiGet([cartKey(userId), addressKey(userId)]);
+                if (cancelled) return;
+                const stored: CartItem[] = storedCart ? JSON.parse(storedCart) : [];
+                // Si el usuario agregó algo mientras se leía, se conserva junto a lo guardado
+                setItems((current) => [...stored.filter((s) => !current.some((c) => c.product.id === s.product.id)), ...current]);
+                if (storedAddress) setSavedAddress(storedAddress);
+                loadedFor.current = userId;
+            } catch {
+                // Lectura fallida: no se marca como cargado para no sobrescribir lo guardado con un carrito parcial
             }
-        };
-        loadCart();
-    }, []);
+        })();
+        return () => { cancelled = true; };
+    }, [userId]);
 
-    // Save cart whenever it changes
+    // Guardar el carrito del usuario actual cada vez que cambia
     useEffect(() => {
-        AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items)).catch(console.error);
-    }, [items]);
+        if (!userId || loadedFor.current !== userId) return;
+        AsyncStorage.setItem(cartKey(userId), JSON.stringify(items)).catch(() => {});
+    }, [items, userId]);
+
+    const rememberAddress = (address: string) => {
+        setSavedAddress(address);
+        if (userId) AsyncStorage.setItem(addressKey(userId), address).catch(() => {});
+    };
 
     const addToCart = (product: Product, quantity: number = 1): boolean => {
         const stock = product.stock ?? 0;
@@ -161,7 +188,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             cartTotal,
             cartCount,
             checkout,
-            isCheckingOut
+            isCheckingOut,
+            savedAddress,
+            rememberAddress,
         }}>
             {children}
         </CartContext.Provider>

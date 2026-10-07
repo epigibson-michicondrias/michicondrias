@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Trash2, Plus, Minus, ShoppingBag, ShieldCheck, Package, MapPin } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '../../src/contexts/CartContext';
@@ -11,20 +10,19 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 
-const ADDRESS_KEY = '@michicondrias_shipping_address';
 const MIN_ADDRESS_LENGTH = 10;
 
 export default function CarritoScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { items, cartTotal, cartCount, removeFromCart, updateQuantity, checkout, isCheckingOut } = useCart();
+    const { items, cartTotal, cartCount, removeFromCart, updateQuantity, checkout, isCheckingOut, savedAddress, rememberAddress } = useCart();
     const [address, setAddress] = useState('');
     const [addressError, setAddressError] = useState(false);
 
     // Recuerda la última dirección usada para no pedirla en cada compra
     useEffect(() => {
-        AsyncStorage.getItem(ADDRESS_KEY).then(v => { if (v) setAddress(v); }).catch(() => {});
-    }, []);
+        if (savedAddress) setAddress((current) => current || savedAddress);
+    }, [savedAddress]);
 
     const handleCheckout = () => {
         const trimmed = address.trim();
@@ -38,7 +36,7 @@ export default function CarritoScreen() {
             return;
         }
         setAddressError(false);
-        AsyncStorage.setItem(ADDRESS_KEY, trimmed).catch(() => {});
+        rememberAddress(trimmed);
         checkout(trimmed);
     };
 

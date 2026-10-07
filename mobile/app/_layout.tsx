@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 import { ThemeProvider as MichiThemeProvider, useTheme } from '../src/contexts/ThemeContext';
 import { CartProvider } from '../src/contexts/CartContext';
 import { AppAlertProvider } from '@/src/components/AppAlert';
+import { useSessionSync } from '@/src/hooks/home/useSessionSync';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +40,8 @@ function RootLayoutNav() {
   const { user, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  // Renueva el token y sincroniza el rol mientras haya sesión (al abrir y al volver a primer plano)
+  useSessionSync();
 
   useEffect(() => {
     if (isLoading) return;

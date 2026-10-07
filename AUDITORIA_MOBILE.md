@@ -91,14 +91,16 @@ Problemas que no son de un módulo y afectan a toda la app.
 
 | Tema | Hallazgo | Prioridad |
 |---|---|---|
-| Caché GET de 30 s (`src/lib/api.ts:84-90`) | Se pone encima de React Query y deja sin efecto el polling (pedido pendiente cada 5 s), el pull-to-refresh y las relecturas después de mutar (por ejemplo, el pedido pagado tarda hasta 30 s en verse). Se pide una opción `noCache` o quitar la caché manual y dejarle el trabajo a React Query | P0 |
-| Sesión (`AuthContext.tsx:30-32,50-58`, `api.ts:124-130`) | (1) Sin red al arrancar, la app borra el token. (2) Un 401 borra el token, pero `user` sigue lleno: la sesión queda zombi. (3) `signOut` no limpia la caché de React Query, el carrito, la dirección ni `user_role`: el siguiente usuario ve datos del anterior. (4) El token no se renueva (`useSessionSync.ts:48`) y caduca a los 7 días | P0 |
+| ✅ 2026-10-07 Caché GET de 30 s (`src/lib/api.ts:84-90`) — eliminada | Se pone encima de React Query y deja sin efecto el polling (pedido pendiente cada 5 s), el pull-to-refresh y las relecturas después de mutar (por ejemplo, el pedido pagado tarda hasta 30 s en verse). Se pide una opción `noCache` o quitar la caché manual y dejarle el trabajo a React Query | P0 |
+| ✅ 2026-10-07 Sesión (`AuthContext.tsx:30-32,50-58`, `api.ts:124-130`) — resuelto (ver Bitácora) | (1) Sin red al arrancar, la app borra el token. (2) Un 401 borra el token, pero `user` sigue lleno: la sesión queda zombi. (3) `signOut` no limpia la caché de React Query, el carrito, la dirección ni `user_role`: el siguiente usuario ve datos del anterior. (4) El token no se renueva (`useSessionSync.ts:48`) y caduca a los 7 días | P0 |
 | Tema: dos formas de leerlo | `useTheme()` (`src/hooks/useTheme`) convive con `constants/Colors` + `ThemeContext` directo (20 archivos: auth, `two`, `partner`, `paleta`, `(tabs)/_layout`) | P2 |
 | Tema: paleta | En *Midnight & Gold*, `warning` es igual a `accent` (dorado) en los dos modos, así que un aviso no se distingue de un acento de marca. En oscuro compiten 3 colores de marca (dorado, azul `primary`, violeta `secondary`). Los colores de dominio (`#8b5cf6`, `#ec4899`, `#0ea5e9`… en `useExplore`, `useHome`, `roleTools`) son el arcoíris de Tailwind y chocan con la paleta. Los tokens `accents` y `motion` de `design.ts` no se usan. Las 5 paletas extra de `palettes.ts` no se pueden elegir (`ACTIVE_PALETTE` es una constante) | P1 |
 | Tema: degradados fijos | Inicio, Explorar, Herramientas, Perfil y Tienda pintan el hero con `#1c2f6b → #101c3d` en los dos modos y fuerzan `StatusBar light-content`. En claro, la pantalla arranca azul marino y se funde con el crema: falta un token `heroGradient` por modo. Las pantallas de auth usan cada una un degradado distinto (celeste, verde, ámbar) que no sale de la paleta | P1 |
 | Tema: persistencia | El modo se guarda en SecureStore (en web falla y queda atrapado en el catch) y parpadea al arrancar porque empieza en `system` | P2 |
 | Notificaciones | No existen push (`expo-notifications` no está instalado). El modelo no tiene `link`. El backend emite tipos (`citas`, `seguros`, …) que la app no mapea | P0 (ver módulo) |
 | ESLint `rules-of-hooks` | `src/hooks/rides/useRideTracking.ts:50` llama `useMutation` dentro de una función `make` (posible bug real; es del módulo Transportistas, P2) | P1 |
+| Errores tras sesión vencida | Si el token vence durante una mutación, el aviso «Tu sesión expiró» queda tapado por el `showAlert` de error de la pantalla (AppAlert tiene un solo espacio). Que los `onError` ignoren `ApiError.sessionExpired` | P2 |
+| Tráfico de polling | Sin la caché manual, los intervalos de 15–30 s ya consultan la red de verdad (`useMyClinic`, `useReportDetail`, `usePatients`, `useMyApplications`) y `usePetDetail` hace refetch en cada foco. Es lo correcto, pero hay que vigilar la carga del backend | P2 |
 | Redirección de arranque | `initialRouteName '(tabs)'` + `useEffect` de redirección: sin sesión se ven las pestañas un instante antes del login | P2 |
 
 ---
@@ -163,9 +165,9 @@ Propuesta de rediseño (requiere visto bueno):
 Backend: email sin distinguir mayúsculas (revisar antes si hay duplicados), mensajes en español, contraseña mínima,
 recuperación por código o token de un solo uso (`password_changed_at`, migración aditiva) y códigos de respaldo de 2FA.
 Arreglos:
-- [ ] P0 Sesión: no borrar el token por error de red; 401 → cerrar sesión de verdad; `signOut` completo; renovación (ver Transversales)
-- [ ] P0 Login en web roto (`lib/auth.ts:44-46,75,101`): try/catch o eliminar `user_role`
-- [ ] P1 Email normalizado en el cliente (login.tsx:73, forgot-password.tsx:31) y en el backend
+- [x] P0 Sesión: no borrar el token por error de red; 401 → cerrar sesión de verdad; `signOut` completo; renovación (ver Transversales)
+- [x] P0 Login en web roto (`lib/auth.ts:44-46,75,101`): se eliminó `user_role`
+- [ ] P1 Email normalizado en el cliente (login.tsx:73, forgot-password.tsx:31) y en el backend — ✅ `trim` en el cliente; minúsculas pendientes de F11 (cuentas viejas con mayúsculas)
 - [ ] P1 Reset sin deep link inutilizable (reset-password.tsx:111-130) → propuesta 3
 - [ ] P1 Mensajes del backend en inglés (login.tsx:85); registro sin auto-login (register.tsx:48-54)
 - [ ] P1 Capas: `src/services/auth.ts` + `src/hooks/auth/*`; quitar `apiFetch`/SecureStore de `perfil/partner.tsx:70-75`
@@ -300,8 +302,8 @@ Propuesta de rediseño (requiere visto bueno): los chips como único filtro (se 
 tarjetas de acciones en la pestaña, «Mis compras» con un solo hogar (Perfil), badge del carrito en la tab bar,
 `PagoResultado` común conservando las 2 rutas, Stripe con `expo-web-browser`.
 Arreglos:
-- [ ] P0 Caché de 30 s contra el polling y el refresh de pedidos (ver Transversales)
-- [ ] P0 El carrito y la dirección pasan al siguiente usuario (`CartContext.tsx:28`, `carrito.tsx:14`)
+- [x] P0 Caché de 30 s contra el polling y el refresh de pedidos (ver Transversales)
+- [x] P0 El carrito y la dirección pasan al siguiente usuario (`CartContext.tsx:28`, `carrito.tsx:14`) — ahora se guardan por usuario
 - [ ] P1 `checkout` sin invalidar; precio y stock viejos; reseña visible para quien no puede reseñar; texto «se avisará al vendedor»
 - [ ] P1 Pedidos abandonados que no expiran (backend); `showAlert` con `require()` (`pedido/[id].tsx:225`)
 - [ ] P2 tienda-tab: refresh, EmptyState, SkeletonList, tokens. producto: Skeleton, safe area, extraer. carrito: KeyboardScreen, Button, 44 px
@@ -343,7 +345,7 @@ Arreglos:
 | busqueda/index.tsx | Buscar (cualquier texto) | El backend da 500 (`search.py:43`) |
 | notificaciones.tsx:39 | Tocar una notificación | No navega: los tipos no coinciden |
 | (tabs)/index.tsx:75 | Punto rojo de la campana | Siempre encendido |
-| login.tsx:222 | «Entrar» en web | TypeError tras guardar el token (`lib/auth.ts:75`) |
+| ~~login.tsx:222~~ | ~~«Entrar» en web~~ | ✅ resuelto |
 | login.tsx:222 | «Entrar» con mayúsculas o espacios en el email | Falla (no normaliza) |
 | perfil/paleta.tsx:20 | «Aplicar paleta» | No hace nada; muestra instrucciones de código |
 | perfil/index.tsx:374 · useMenu.ts:115 | «Paleta de colores» / «Apariencia» | Llevan a la pantalla falsa |
@@ -356,7 +358,7 @@ Arreglos:
 | carnet/nueva-vacuna.tsx:102 | «Se notificará el refuerzo» | Promesa sin backend |
 | carnet/index.tsx:119 | Buscar paciente por UUID | Inutilizable |
 | tienda/producto/[id].tsx:255 | «Publicar reseña» | 403/409 para quien no compró o es el dueño |
-| tienda/pedido/[id].tsx:99 | «Pagar ahora» → estado | Tarda hasta 30 s (caché) |
+| ~~tienda/pedido/[id].tsx:99~~ | ~~«Pagar ahora» → estado~~ | ✅ resuelto (sin caché) |
 | register.tsx:178 | Check de términos | Decorativo |
 | register.tsx:184,191 · ayuda.tsx:91 | Términos / Privacidad | Sin URL configurada → no hacen nada |
 | forgot-password.tsx:183 · reset-password.tsx:111 | «¿Ya tienes el token?» / campo token | El correo no muestra el token |

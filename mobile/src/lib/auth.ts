@@ -1,8 +1,11 @@
 import { apiFetch, setToken, removeToken, getToken } from "./api";
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://michicondrias.duckdns.org";
-const ROLE_KEY = 'user_role';
+const USER_KEY = 'cached_user';
+// Clave que usaban versiones anteriores para el rol; ya nadie la lee y se borra al cerrar sesión.
+const LEGACY_ROLE_KEY = 'user_role';
 
 export interface LoginResponse {
     require_2fa: boolean;
@@ -25,24 +28,6 @@ export interface User {
     document_type?: string;
     created_at?: string;
     is_two_factor_enabled?: boolean;
-}
-
-function parseJwtRole(token: string): string {
-    try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        return payload.role || "consumidor";
-    } catch {
-        return "consumidor";
-    }
-}
-
-export async function getUserRole(): Promise<string> {
-    const role = await SecureStore.getItemAsync(ROLE_KEY);
-    return role || "consumidor";
-}
-
-async function setUserRole(role: string) {
-    await SecureStore.setItemAsync(ROLE_KEY, role);
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
@@ -68,11 +53,8 @@ export async function login(email: string, password: string): Promise<LoginRespo
         return data;
     }
 
-    // Normal login — store token and role
     if (data.access_token) {
         await setToken(data.access_token);
-        const role = parseJwtRole(data.access_token);
-        await setUserRole(role);
     }
 
     return data;
@@ -95,10 +77,7 @@ export async function verify2FALogin(
 
     const data = await res.json();
     
-    // Store the final token and role
     await setToken(data.access_token);
-    const role = parseJwtRole(data.access_token);
-    await setUserRole(role);
 
     return data;
 }
@@ -152,11 +131,6 @@ export async function register(
     return res.json();
 }
 
-export async function logout() {
-    await removeToken();
-    await SecureStore.deleteItemAsync(ROLE_KEY);
-}
-
 export async function isAuthenticated(): Promise<boolean> {
     const token = await getToken();
     return !!token;
@@ -164,6 +138,47 @@ export async function isAuthenticated(): Promise<boolean> {
 
 export async function getCurrentUser(): Promise<User> {
     return await apiFetch<User>("core", "/users/me");
+}
+
+// ── Copia local del usuario ─────────────────────────────────────────
+// Permite abrir la app sin conexión con la sesión guardada. Solo datos básicos (SecureStore admite ~2 KB por valor).
+
+async function storageSet(key: string, value: string) {
+    if (Platform.OS === 'web') localStorage.setItem(key, value);
+    else await SecureStore.setItemAsync(key, value);
+}
+
+async function storageGet(key: string): Promise<string | null> {
+    if (Platform.OS === 'web') return localStorage.getItem(key);
+    return await SecureStore.getItemAsync(key);
+}
+
+async function storageDelete(key: string) {
+    if (Platform.OS === 'web') localStorage.removeItem(key);
+    else await SecureStore.deleteItemAsync(key);
+}
+
+export async function saveCachedUser(user: User) {
+    const { id, email, full_name, is_active, role_id, role_name, verification_status, created_at, is_two_factor_enabled } = user;
+    try {
+        await storageSet(USER_KEY, JSON.stringify({ id, email, full_name, is_active, role_id, role_name, verification_status, created_at, is_two_factor_enabled }));
+    } catch { /* sin almacenamiento: solo se pierde el arranque sin conexión */ }
+}
+
+export async function getCachedUser(): Promise<User | null> {
+    try {
+        const raw = await storageGet(USER_KEY);
+        return raw ? (JSON.parse(raw) as User) : null;
+    } catch {
+        return null;
+    }
+}
+
+/** Borra todo lo que identifica la sesión en el dispositivo (token, copia del usuario y claves viejas). */
+export async function clearStoredSession() {
+    await removeToken();
+    try { await storageDelete(USER_KEY); } catch { /* nada que borrar */ }
+    try { await storageDelete(LEGACY_ROLE_KEY); } catch { /* nada que borrar */ }
 }
 
 // Admin Methods

@@ -11,7 +11,6 @@ import { getUserPets } from '@/src/services/mascotas';
 import { getUserAppointments } from '@/src/services/citas';
 import { normalizeRole, isProRole } from '@/src/constants/roles';
 import { getHomeTools, ROLE_PANEL_TITLE } from '@/src/constants/roleTools';
-import { useSessionSync } from '@/src/hooks/home/useSessionSync';
 import {
   Stethoscope, ShoppingBag, AlertTriangle, Activity,
   Settings, Calendar, UserCheck, ShieldCheck,
@@ -152,9 +151,6 @@ export function useHome() {
   const roleName = normalizeRole(user?.role_name);
   const isPro = isProRole(roleName);
   const isUserAdmin = roleName === 'admin';
-
-  // Sincroniza rol/token con el backend (aprobaciones de rol sin reinstalar ni re-login)
-  useSessionSync();
 
   // Panel propio del rol (atajos a sus herramientas) + atajos de dueño de mascota para todos
   const roleTools = useMemo(() => getHomeTools(roleName), [roleName]);

@@ -22,13 +22,14 @@ export default function ForgotPasswordScreen() {
     const isDark = colorScheme === 'dark';
 
     const handleSend = async () => {
-        if (!email) {
+        const cleanEmail = email.trim();
+        if (!cleanEmail) {
             showAlert({ type: 'warning', title: 'Campo requerido', message: 'Ingresa tu correo electrónico' });
             return;
         }
         setLoading(true);
         try {
-            await requestPasswordReset(email);
+            await requestPasswordReset(cleanEmail);
             setSent(true);
         } catch (error: any) {
             showAlert({

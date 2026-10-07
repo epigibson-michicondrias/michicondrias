@@ -28,26 +28,19 @@ import { Platform } from 'react-native';
 
 const TOKEN_KEY = 'access_token';
 
-// Simple in-memory cache
-const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 30_000; // 30 seconds
-
-function getCached(key: string): any | null {
-    const entry = cache.get(key);
-    if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
-        return entry.data;
+/** Error HTTP del backend. `sessionExpired` indica que el token ya no sirve y hay que volver a iniciar sesión. */
+export class ApiError extends Error {
+    constructor(message: string, public status: number, public sessionExpired = false) {
+        super(message);
+        this.name = 'ApiError';
     }
-    cache.delete(key);
-    return null;
 }
 
-function setCache(key: string, data: any) {
-    cache.set(key, { data, timestamp: Date.now() });
-}
+// AuthContext se registra aquí para enterarse cuando el backend rechaza el token (sesión vencida o inválida).
+let unauthorizedHandler: (() => void) | null = null;
 
-/** Vacía la caché de GET en memoria (p. ej. tras cambiar de rol o cerrar sesión). */
-export function clearApiCache() {
-    cache.clear();
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+    unauthorizedHandler = handler;
 }
 
 export async function getToken(): Promise<string | null> {
@@ -58,7 +51,6 @@ export async function getToken(): Promise<string | null> {
 }
 
 export async function setToken(token: string) {
-    cache.clear();
     if (Platform.OS === 'web') {
         localStorage.setItem(TOKEN_KEY, token);
         return;
@@ -67,7 +59,6 @@ export async function setToken(token: string) {
 }
 
 export async function removeToken() {
-    cache.clear();
     if (Platform.OS === 'web') {
         localStorage.removeItem(TOKEN_KEY);
         return;
@@ -80,14 +71,8 @@ export async function apiFetch<T>(
     endpoint: string,
     options: RequestInit = {}
 ): Promise<T> {
+    // Sin caché propia: React Query ya cachea por query y decide cuándo volver a pedir (refresh, polling, invalidación).
     const url = `${API_URLS[service]}${endpoint}`;
-    const isGet = !options.method || options.method === 'GET';
-
-    // Use cache for GET requests
-    if (isGet) {
-        const cached = getCached(url);
-        if (cached) return cached;
-    }
 
     const token = await getToken();
 
@@ -125,29 +110,23 @@ export async function apiFetch<T>(
                 res.status === 401 ||
                 (res.status === 403 && /could not validate credentials|not authenticated|2fa|dos factores/i.test(detail));
             if (sessionExpired) {
-                await removeToken();
-                throw new Error("No autorizado");
+                // Una respuesta tardía con un token viejo no debe cerrar la sesión que se abrió después
+                if (token && (await getToken()) === token) {
+                    await removeToken();
+                    unauthorizedHandler?.();
+                }
+                throw new ApiError("Tu sesión expiró. Inicia sesión de nuevo.", res.status, true);
             }
             if (res.status === 403) {
-                throw new Error(detail || "No tienes permiso para realizar esta acción");
+                throw new ApiError(detail || "No tienes permiso para realizar esta acción", res.status);
             }
             const message = Array.isArray(errorData.detail)
                 ? errorData.detail.map((d: any) => d?.msg).filter(Boolean).join('. ')
                 : detail;
-            throw new Error(message || `Error ${res.status}`);
+            throw new ApiError(message || `Error ${res.status}`, res.status);
         }
 
-        const data = await res.json();
-
-        // Cache GET responses; cualquier escritura exitosa invalida el caché para que
-        // el refetch posterior (invalidateQueries) no devuelva datos viejos
-        if (isGet) {
-            setCache(url, data);
-        } else {
-            cache.clear();
-        }
-
-        return data;
+        return await res.json();
     } catch (error: any) {
         clearTimeout(timeout);
         if (error.name === 'AbortError') {
