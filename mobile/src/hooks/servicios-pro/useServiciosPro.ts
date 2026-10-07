@@ -4,8 +4,8 @@
  */
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { listWalkers, Walker } from '@/src/services/paseadores';
-import { listSitters, Sitter } from '@/src/services/cuidadores';
+import { listWalkers } from '@/src/services/paseadores';
+import { listSitters } from '@/src/services/cuidadores';
 
 export function useServiciosPro() {
     const [activeTab, setActiveTab] = useState<'walkers' | 'sitters'>('walkers');

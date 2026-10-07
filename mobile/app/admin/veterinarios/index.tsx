@@ -1,6 +1,6 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminVets } from '@/src/hooks/admin/useAdminVets';
 import { AdminUser } from '@/src/services/adminUsers';

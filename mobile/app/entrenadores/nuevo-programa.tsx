@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useTrainerDashboard } from '@/src/hooks/training';
+import { useTrainerDashboard } from '@/src/hooks/training/useTrainerDashboard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, FileText, DollarSign, Clock, Sparkles } from 'lucide-react-native';

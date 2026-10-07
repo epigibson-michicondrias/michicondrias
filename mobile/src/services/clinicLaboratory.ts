@@ -1,3 +1,4 @@
+/** Laboratorio interno de una clínica (servicio directorio: /clinics/{id}/laboratory). El servicio de laboratorios externos es laboratorio.ts. */
 import { apiFetch } from "../lib/api";
 
 export interface LabTest {

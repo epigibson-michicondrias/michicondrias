@@ -5,20 +5,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-    getProviderEnrollments,
-    createProgram,
-    createGoal,
-    updateGoal,
-    reviewGoalVideo,
-    updateEnrollmentStatus,
-    TrainingEnrollment,
-    TrainingProgram,
-    TrainingProgramCreate,
-    PetTrainingGoal,
-    PetTrainingGoalCreate,
-    PetTrainingGoalUpdate,
-} from '@/src/services/training';
+import { getProviderEnrollments, createProgram, createGoal, updateGoal, reviewGoalVideo, updateEnrollmentStatus, TrainingEnrollment, TrainingProgramCreate, PetTrainingGoalCreate, PetTrainingGoalUpdate } from '@/src/services/training';
 import { showAlert } from '@/src/components/AppAlert';
 
 export interface ProgramFormData {

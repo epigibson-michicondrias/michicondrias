@@ -5,7 +5,7 @@ import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { Heart, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
+import { Heart, Info, CheckCircle2 } from 'lucide-react-native';
 
 import { CREMATION_OPTIONS } from '@/src/services/funerary';
 

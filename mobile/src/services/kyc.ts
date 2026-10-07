@@ -1,6 +1,6 @@
 import { apiFetch } from "../lib/api";
 
-export interface KYCPresignedUrl {
+interface KYCPresignedUrl {
     key: "id_front" | "id_back" | "proof_of_address";
     url: string;
     object_key: string;

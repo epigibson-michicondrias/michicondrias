@@ -2,7 +2,7 @@
  * usePurchases — Data fetching for buyer's order history
  */
 import { useQuery } from '@tanstack/react-query';
-import { getMyOrders, Order } from '@/src/services/ecommerce';
+import { getMyOrders } from '@/src/services/ecommerce';
 
 export const STATUS_MAP: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pendiente', color: '#f59e0b' },

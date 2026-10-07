@@ -5,7 +5,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { getPlaces, PetfriendlyPlace } from '@/src/services/petfriendly';
+import { getPlaces } from '@/src/services/petfriendly';
 
 export function usePlaces() {
     const router = useRouter();

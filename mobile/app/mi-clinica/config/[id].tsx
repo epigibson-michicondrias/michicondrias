@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicConfig } from '@/src/hooks/clinica/useClinicConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
-import { Save, MapPin, Phone, Mail, Clock, ShieldCheck, Camera } from 'lucide-react-native';
+import { Save, MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react-native';
 
 export default function ConfigClinicaScreen() {
     const { id } = useLocalSearchParams();

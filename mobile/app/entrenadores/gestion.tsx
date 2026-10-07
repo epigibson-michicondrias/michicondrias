@@ -1,13 +1,13 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useTrainerDashboard } from '@/src/hooks/training';
+import { useTrainerDashboard } from '@/src/hooks/training/useTrainerDashboard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
-import { Plus, Users, Dumbbell, Target, Calendar, ChevronRight } from 'lucide-react-native';
+import { Plus, Users, Dumbbell, Calendar, ChevronRight } from 'lucide-react-native';
 import type { TrainingEnrollment } from '@/src/services/training';
 
 const statusColorOf = (status: string, theme: any): string =>

@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-nativ
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Check, FlaskConical } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useLabOrders } from '@/src/hooks/laboratorio';
+import { useLabOrders } from '@/src/hooks/laboratorio/useLabOrders';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';

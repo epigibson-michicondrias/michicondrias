@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useWalkerDetail } from '@/src/hooks/paseadores';
+import { useWalkerDetail } from '@/src/hooks/paseadores/useWalkerDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { 
@@ -10,7 +10,7 @@ import {
     Shield, Share2, Dog, Cat, CheckCircle 
 } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { showAlert } from '@/src/components/AppAlert';
+
 import { shareContent } from '@/src/utils/share';
 import DatePicker from '@/src/components/DatePicker';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';

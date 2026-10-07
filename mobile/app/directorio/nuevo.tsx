@@ -6,7 +6,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import { createClinic } from '../../src/services/directorio';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Hospital, MapPin, Phone, Globe, Info, CheckCircle2 } from 'lucide-react-native';
+import { Info, CheckCircle2 } from 'lucide-react-native';
 
 export default function NuevoRegistroProfesionalScreen() {
     const router = useRouter();

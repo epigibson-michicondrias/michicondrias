@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useGroomingForm } from '@/src/hooks/grooming/useGroomingForm';
-import ScreenContainer from '@/src/components/layout/ScreenContainer';
+
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSection from '@/src/components/forms/FormSection';
 import KeyboardScreen from '@/src/components/KeyboardScreen';

@@ -33,11 +33,3 @@ export async function disable2FA(code: string, secret: string): Promise<TwoFAAct
         body: JSON.stringify({ code, secret }),
     });
 }
-
-// --- Role Upgrade ---
-
-export async function upgradeToPartner(): Promise<any> {
-    return apiFetch<any>("core", "/users/me/upgrade-role", {
-        method: "POST",
-    });
-}

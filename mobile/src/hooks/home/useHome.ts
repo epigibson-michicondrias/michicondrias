@@ -12,12 +12,7 @@ import { getUserAppointments } from '@/src/services/citas';
 import { normalizeRole, isProRole } from '@/src/constants/roles';
 import { getHomeTools, ROLE_PANEL_TITLE } from '@/src/constants/roleTools';
 import { useUnreadNotificationCount } from '@/src/hooks/notifications/useNotifications';
-import {
-  Stethoscope, ShoppingBag, AlertTriangle, Activity,
-  Settings, Calendar, UserCheck, ShieldCheck,
-  Building, Package, BarChart3, CreditCard, ClipboardList,
-  Plus, Clock, Zap, Heart, Shield, Dumbbell, Scissors, Car, FlaskConical
-} from 'lucide-react-native';
+import { Stethoscope, ShoppingBag, AlertTriangle, Calendar } from 'lucide-react-native';
 
 // ── Types ──
 export interface QuickAction {
@@ -29,74 +24,13 @@ export interface QuickAction {
 }
 
 // ── Constants ──
-export const QUICK_ACTIONS: Record<string, QuickAction[]> = {
-  consumidor: [
-    { title: 'Buscar Vet', icon: Stethoscope, color: '#0ea5e9', route: '/directorio' },
-    { title: 'Mis Citas', icon: Calendar, color: '#8b5cf6', route: '/directorio/citas' },
-    { title: 'Michi-Shop', icon: ShoppingBag, color: '#ec4899', route: '/tienda' },
-    { title: 'Perdidos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas' },
-  ],
-  veterinario: [
-    { title: 'Mi Clínica', icon: Building, color: '#06b6d4', route: '/mi-clinica' },
-    { title: 'Agenda', icon: Calendar, color: '#8b5cf6', route: '/mi-clinica/agenda' },
-    { title: 'Laboratorio', icon: Activity, color: '#10b981', route: '/mi-clinica/laboratorio' },
-    { title: 'Pacientes', icon: ClipboardList, color: '#f59e0b', route: '/mi-clinica/pacientes' },
-  ],
-  paseador: [
-    { title: 'Mis Tareas', icon: Activity, color: '#6366f1', route: '/servicios-pro/gestion' },
-    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/paseadores/solicitudes' },
-    { title: 'Calendario', icon: Calendar, color: '#f59e0b', route: '/paseadores/calendario' },
-    { title: 'Perfil Pro', icon: UserCheck, color: '#ec4899', route: '/servicios-pro/perfil' },
-  ],
-  cuidador: [
-    { title: 'Mis Tareas', icon: Activity, color: '#6366f1', route: '/servicios-pro/gestion' },
-    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/cuidadores/solicitudes' },
-    { title: 'Calendario', icon: Calendar, color: '#f59e0b', route: '/cuidadores/calendario' },
-    { title: 'Perfil Pro', icon: UserCheck, color: '#ec4899', route: '/servicios-pro/perfil' },
-  ],
-  admin: [
-    { title: 'Panel', icon: ShieldCheck, color: '#7c3aed', route: '/admin' },
-    { title: 'Verificaciones', icon: UserCheck, color: '#8b5cf6', route: '/admin/verificaciones' },
-    { title: 'Analíticas', icon: BarChart3, color: '#0ea5e9', route: '/admin/stats' },
-    { title: 'Config', icon: Settings, color: '#64748b', route: '/admin/config' },
-  ],
-  vendedor: [
-    { title: 'Mi Tienda', icon: ShoppingBag, color: '#10b981', route: '/tienda/vendedor' },
-    { title: 'Pedidos', icon: Package, color: '#f59e0b', route: '/tienda/vendedor/ordenes' },
-    { title: 'Productos', icon: CreditCard, color: '#8b5cf6', route: '/tienda/vendedor/productos' },
-    { title: 'Analíticas', icon: BarChart3, color: '#0ea5e9', route: '/tienda/vendedor/analytics' },
-  ],
-  aseguradora: [
-    { title: 'Planes', icon: Shield, color: '#0ea5e9', route: '/aseguradoras/gestion' },
-    { title: 'Reclamos', icon: ClipboardList, color: '#f59e0b', route: '/aseguradoras/reclamos' },
-  ],
-  funeraria: [
-    { title: 'Gestión', icon: Heart, color: '#64748b', route: '/funeraria/gestion' },
-    { title: 'Nuevo Servicio', icon: Plus, color: '#10b981', route: '/funeraria/nuevo-servicio' },
-    { title: 'Reportar', icon: ClipboardList, color: '#ef4444', route: '/funeraria/reporte-defuncion' },
-  ],
-  entrenador: [
-    { title: 'Cursos', icon: Dumbbell, color: '#8b5cf6', route: '/entrenadores/gestion' },
-    { title: 'Nuevo Curso', icon: Plus, color: '#10b981', route: '/entrenadores/nuevo-programa' },
-  ],
-  estilista: [
-    { title: 'Citas', icon: Scissors, color: '#ec4899', route: '/grooming/gestion' },
-    { title: 'Nuevo Servicio', icon: Plus, color: '#10b981', route: '/estilistas/nuevo' },
-  ],
-  laboratorio: [
-    { title: 'Órdenes', icon: FlaskConical, color: '#10b981', route: '/laboratorio/gestion' },
-  ],
-  patrocinador: [
-    { title: 'Nueva Campaña', icon: Plus, color: '#10b981', route: '/patrocinadores/nueva-campana' },
-    { title: 'Boost Alerta', icon: Zap, color: '#f59e0b', route: '/patrocinadores/boost-alerta' },
-    { title: 'Estadísticas', icon: BarChart3, color: '#0ea5e9', route: '/patrocinadores/estadisticas' },
-  ],
-  transportista: [
-    { title: 'Solicitudes', icon: ClipboardList, color: '#10b981', route: '/transportistas/solicitudes' },
-    { title: 'Conductor', icon: UserCheck, color: '#6366f1', route: '/transportistas/perfil-conductor' },
-    { title: 'Historial', icon: Clock, color: '#64748b', route: '/transportistas/historial' },
-  ],
-};
+/** Atajos de dueño de mascota en Inicio (las herramientas de cada rol salen de ROLE_TOOLS en roleTools.ts). */
+const OWNER_ACTIONS: QuickAction[] = [
+  { title: 'Buscar Vet', icon: Stethoscope, color: '#0ea5e9', route: '/directorio' },
+  { title: 'Mis Citas', icon: Calendar, color: '#8b5cf6', route: '/directorio/citas' },
+  { title: 'Michi-Shop', icon: ShoppingBag, color: '#ec4899', route: '/tienda' },
+  { title: 'Perdidos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas' },
+];
 
 export const STATUS_COLORS: Record<string, string> = {
   scheduled: '#f59e0b',
@@ -158,7 +92,7 @@ export function useHome() {
   // Panel propio del rol (atajos a sus herramientas) + atajos de dueño de mascota para todos
   const roleTools = useMemo(() => getHomeTools(roleName), [roleName]);
   const panelTitle = ROLE_PANEL_TITLE[roleName];
-  const actions = QUICK_ACTIONS.consumidor;
+  const actions = OWNER_ACTIONS;
 
   // Estado del alta profesional (solo para cuentas consumidor)
   const proOnboarding: 'none' | 'pending' | 'approved' | 'rejected' =

@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { showAlert } from '@/src/components/AppAlert';
-import { getMyProducts, deleteProduct, updateProduct, Product } from '@/src/services/ecommerce';
+import { getMyProducts, deleteProduct, updateProduct } from '@/src/services/ecommerce';
 
 export function useSellerProducts() {
     const queryClient = useQueryClient();

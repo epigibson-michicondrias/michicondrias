@@ -1,4 +1,4 @@
-import { apiFetch, getToken } from '../lib/api';
+import { apiFetch } from '../lib/api';
 
 export interface AdminUser {
     id: string;

@@ -5,7 +5,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlan } from '../../src/services/insurance';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { Shield, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
+import { Shield, Info, CheckCircle2 } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 
 export default function NuevoPlanScreen() {

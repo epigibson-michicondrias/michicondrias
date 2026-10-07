@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useLabOrders } from '@/src/hooks/laboratorio';
+import { useLabOrders } from '@/src/hooks/laboratorio/useLabOrders';
 import { useQuery } from '@tanstack/react-query';
 import { getPetLabHistory } from '@/src/services/laboratorio';
 import FilterChip from '@/src/components/FilterChip';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
-import { usePets } from '@/src/hooks/mascotas';
+import { usePets } from '@/src/hooks/mascotas/usePets';
 import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';

@@ -3,16 +3,14 @@ import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-nativ
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { createCampaign } from '../../src/services/sponsors';
-import Colors from '../../constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { Megaphone, DollarSign, Link, Info } from 'lucide-react-native';
+import { Megaphone, Link, Info } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 
 export default function NuevoPatrocinadorScreen() {
     const router = useRouter();
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'dark'];
+    const { theme } = useTheme();
 
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({

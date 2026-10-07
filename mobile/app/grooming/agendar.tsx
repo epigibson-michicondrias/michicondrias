@@ -3,17 +3,9 @@
  * Service → Pet → Date → Time slot → Confirm
  */
 import React from 'react';
-import {
-    StyleSheet,
-    View,
-    Text,
-    TouchableOpacity,
-    ScrollView,
-    ActivityIndicator,
-    Platform,
-} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import DatePicker from '@/src/components/DatePicker';
-import { Scissors, Calendar, Clock, PawPrint, Sparkles, Check } from 'lucide-react-native';
+import { Scissors, Clock, PawPrint, Sparkles, Check } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useGroomingBooking } from '@/src/hooks/grooming/useGroomingBooking';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';

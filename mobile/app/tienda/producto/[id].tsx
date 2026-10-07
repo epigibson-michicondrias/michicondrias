@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, TextInput,
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useProduct } from '@/src/hooks/ecommerce';
+import { useProduct } from '@/src/hooks/ecommerce/useProduct';
 import { formatCurrency } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';

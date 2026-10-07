@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native
 import { useRouter } from 'expo-router';
 import { Venue } from '../../src/services/venues';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useVenues } from '@/src/hooks/venues';
+import { useVenues } from '@/src/hooks/venues/useVenues';
 import { Building2, MapPin, Tag, ChevronRight } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';

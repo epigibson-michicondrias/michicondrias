@@ -21,10 +21,10 @@ export interface ScheduleDay {
     isOpen: boolean;
     openTime: string;
     closeTime: string;
-    breaks: Array<{
+    breaks: {
         start: string;
         end: string;
-    }>;
+    }[];
 }
 
 export interface Holiday {

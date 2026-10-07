@@ -2,10 +2,10 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useSchedule, ScheduleDay, Holiday } from '@/src/hooks/clinica';
+import { useSchedule, type ScheduleDay, type Holiday } from '@/src/hooks/clinica/useSchedule';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { showAlert } from '@/src/components/AppAlert';
+
 import { Clock, Calendar, Plus, X, Save, Info, Globe } from 'lucide-react-native';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import DatePicker from '@/src/components/DatePicker';

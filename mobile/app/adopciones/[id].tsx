@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';
+
 import { useTheme } from '@/src/hooks/useTheme';
-import { useListingDetail } from '@/src/hooks/adopciones';
+import { useListingDetail } from '@/src/hooks/adopciones/useListingDetail';
 import { formatAge, formatWeight } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
@@ -161,7 +161,7 @@ export default function AdopcionDetalleScreen() {
             {/* Fixed Footer CTA */}
             <View style={[styles.footer, { borderTopColor: theme.border, backgroundColor: theme.background }]}>
                 {isOwner ? (
-                    <Text style={{ color: theme.textMuted, textAlign: 'center', fontWeight: '600' }}>Esta es tu publicación. Gestiona las solicitudes desde "Solicitudes recibidas".</Text>
+                    <Text style={{ color: theme.textMuted, textAlign: 'center', fontWeight: '600' }}>Esta es tu publicación. Gestiona las solicitudes desde «Solicitudes recibidas».</Text>
                 ) : listing.status?.toLowerCase() !== 'abierto' ? (
                     <Text style={{ color: theme.textMuted, textAlign: 'center', fontWeight: '600' }}>Esta mascota ya no está disponible para adopción.</Text>
                 ) : myRequest ? (

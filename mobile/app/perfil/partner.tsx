@@ -10,7 +10,7 @@ import { useAuth } from '../../src/contexts/AuthContext';
 import { getCurrentUser } from '../../src/lib/auth';
 import Colors from '../../constants/Colors';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { ShieldCheck, ShoppingBag, Users, Home, ArrowRight, CheckCircle } from 'lucide-react-native';
+import { ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react-native';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();

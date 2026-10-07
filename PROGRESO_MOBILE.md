@@ -11,7 +11,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 |---|---|---|
 | 0 | Cimientos (tooling, `.claude/`, documentos) | ✅ 2026-10-07 |
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
-| 2 | Limpieza | ⬜ |
+| 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ⬜ propuesta aprobada 2026-10-07 |
 | 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 · F4/F5/F7/F8 esperan deploy del backend |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
@@ -21,20 +21,21 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 
 ---
 
-## Línea base (2026-10-07)
+## Línea base (inicial 2026-10-07 → tras Fase 2)
 
-| Métrica | Valor | Meta |
-|---|---|---|
-| Pantallas (`app/**/*.tsx`, sin layouts) | 164 | — |
-| Pantallas que importan tokens de `constants/design.ts` | 5 | todas |
-| Pantallas que usan el componente `Button` | 5 | todas las que tengan botones |
-| Pantallas con colores hex sueltos | 141 | 0 |
-| Pantallas con `ActivityIndicator` / con `Skeleton` | 83 / 30 | 0 / todas las de datos |
-| Pantallas con `EmptyState` | 40 | todas las listas |
-| ESLint errores / advertencias | 12 / 219 | 0 / 0 |
-| knip: archivos / deps / exports sin uso | 29 / 6 / 147 | 0 / 0 / 0 |
-| expo-doctor | 18/20 | 20/20 |
-| `tsc` | limpio | limpio |
+| Métrica | Inicial | Tras Fase 2 | Meta |
+|---|---|---|---|
+| Pantallas (`app/**/*.tsx`, sin layouts) | 164 | 157 | — |
+| Pantallas que importan tokens de `constants/design.ts` | 5 | 9 | todas |
+| Pantallas que usan el componente `Button` | 5 | 6 | todas las que tengan botones |
+| Pantallas con colores hex sueltos | 141 | 135 | 0 |
+| Pantallas con `ActivityIndicator` / con `Skeleton` | 83 / 30 | 62 / 29 | 0 / todas las de datos |
+| Pantallas con `EmptyState` | 40 | 41 | todas las listas |
+| ESLint errores / advertencias | 12 / 219 | **0** / 83 | 0 / 0 |
+| knip: archivos / deps / exports sin uso | 29 / 6 / 147 | 23 / 6 / 65 | 0 / 0 / 0 |
+| expo-doctor | 18/20 | 18/20 | 20/20 |
+| `tsc` | limpio | limpio | limpio |
+| `npm run check` | falla | **pasa** | pasa |
 
 Remedir las métricas de pantallas (desde `mobile/`):
 ```bash
@@ -157,10 +158,10 @@ fusionan (igual Grooming/Estilistas).
 | Pantalla | Destino | Referencias a actualizar |
 |---|---|---|
 | `perfil/index` | → `perfil/editar` (solo formulario) | `(tabs)/two.tsx:65,81` |
-| `perfil/kyc` | borrar → `perfil/verificacion` | `perfil/index.tsx:299` |
-| `perfil/paleta` | borrar (el tema se elige en Perfil) | `perfil/index.tsx:374`, `useMenu.ts:115` |
+| ~~`perfil/kyc`~~ | ✅ borrada en Fase 2 (2026-10-07) | — |
+| ~~`perfil/paleta`~~ | ✅ borrada en Fase 2 (2026-10-07) | — |
 | `carnet/index` | borrar → `mascotas/index` | `(tabs)/two.tsx:165`, `useExplore.ts:61` |
-| `carnet/recordatorios` | borrar (pestaña Salud) | ninguna (huérfana) |
+| ~~`carnet/recordatorios`~~ | ✅ borrada en Fase 2 (2026-10-07) | — |
 | `carnet/[id]` | redirect → `mascotas/[id]?tab=salud` | `usePetDetail.ts:48`, `mi-clinica/pacientes.tsx:46`, `useAgenda.ts:120`, `usePetRecords.ts:27` |
 | `tienda/categorias` | borrar (chips) | `tienda-tab.tsx:100,114` |
 | `tienda/index` | se queda como alias; las referencias van directo al tab | `useHome.ts:36`, `useExplore.ts:77`, `carrito.tsx:129` |
@@ -182,32 +183,36 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [ ] A5 Revisión visual con capturas (skill `review-ux`) de las pestañas y del flujo de compra, en claro y oscuro.
 
 **Fase 2 — Limpieza** (aprobación del usuario por bloque)
-- [ ] L1 Auth/Perfil muerto: `lib/auth.ts` (`getUserRole`, `logout`, `isAuthenticated`, `getPendingVerifications`,
+- [x] L1 Auth/Perfil muerto: `lib/auth.ts` (`getUserRole`, `logout`, `isAuthenticated`, `getPendingVerifications`,
       `verifyUser`, re-exports), `upgradeToPartner` + `upgradeMutation`/`handleUpgradeToPartner`, `getRoleIcon`,
       `getRoleLabel` → `getRoleLabelFor`, `KYCPresignedUrl`.
-- [ ] L2 Notificaciones/búsqueda muerto: barrels `notifications`/`search`, `useSearch.ts`, `types/notifications.ts`,
+- [x] L2 Notificaciones/búsqueda muerto: barrels `notifications`/`search`, `useSearch.ts`, `types/notifications.ts`,
       `TYPE_CONFIG` del hook, `filterBySearch`, `useAlerts` + 4 funciones de `alerts.ts`.
-- [ ] L3 Tienda/carnet muerto: `types/ecommerce.ts`, `types/carnet.ts`, estilos `promo*`, `ShopCategory`, `OrderItem`,
+- [x] L3 Tienda/carnet muerto: `types/ecommerce.ts`, `types/carnet.ts`, estilos `promo*`, `ShopCategory`, `OrderItem`,
       `getRemindersByPet`; `showAlert` con `require()` → import de `AppAlert` (`pedido/[id].tsx:225`).
-- [ ] L4 `useHome.QUICK_ACTIONS` de roles y `useMenu.BANNERS` → derivar de `ROLE_TOOLS` (una sola fuente).
-- [ ] L5 Los 12 errores de ESLint de la línea base + imports sin uso en los archivos P1.
-- [ ] L6 Pendientes previos: borrar `src/components/ScreenHeader.tsx`; decidir barrels; unificar
+- [x] L4 `useHome.QUICK_ACTIONS` por rol eliminado (solo atajos de dueño). `useMenu.BANNERS` se resuelve en N3.
+- [x] L5 Los 12 errores de ESLint de la línea base + imports sin uso en los archivos P1.
+- [x] L6 Pendientes previos (barrels eliminados; `laboratory.ts` → `clinicLaboratory.ts`: NO era duplicado, es el
+      laboratorio interno de la clínica): borrar `src/components/ScreenHeader.tsx`; decidir barrels; unificar
       `laboratorio.ts`/`laboratory.ts`; exports duplicados de `roles.ts` y `Skeleton`.
+- [ ] L9 Hooks sin importador en módulos P2/P3 (decidir en la auditoría de cada módulo si la pantalla debe usarlos o se
+      borran): `admin/useAdminOrders`, `clinica/useAlerts` (+ 4 funciones de `services/alerts.ts`), `clinica/usePatients`,
+      `ecommerce/useSubcategories`, `perdidas/useReportActions`, `perdidas/useReportForm`. Deps sin uso → APK de Fase 5.
 - [ ] L7 Fuente única de tipos = `src/types/`: migrar las interfaces de cada servicio al tocar el módulo (no borrar
       `src/types/*` aunque knip los marque).
-- [ ] L8 Borrar las 5 paletas alternativas de `constants/palettes.ts` (dejar solo `premium`).
+- [x] L8 Borrar las 5 paletas alternativas de `constants/palettes.ts` (dejar solo `premium`).
 
 **Fase 3 — Navegación** (tras aprobar la propuesta; un bloque por sesión)
 - [ ] N1 Grupo `(auth)` + `_layout` con guard (`Stack.Protected`, consultar context7 SDK 55) y sin destello.
-- [ ] N2 Perfil único: secciones nuevas en la pestaña; `perfil/index` → `perfil/editar`; borrar `perfil/kyc` y
-      `perfil/paleta`; un solo Cerrar sesión.
+- [ ] N2 Perfil único: secciones nuevas en la pestaña; `perfil/index` → `perfil/editar` (kyc y paleta ya borradas);
+      un solo Cerrar sesión.
 - [ ] N3 Herramientas: solo herramientas del rol; quitar Cuenta, Soporte, Cerrar sesión y el banner duplicado.
 - [ ] N4 Inicio: quitar lupa y accesos a la tienda; atajos de dueño nuevos; tarjeta de estado solo si es accionable.
 - [ ] N5 Explorar: catálogo depurado (sin tienda, compras ni carnet; una sola entrada de IA; Veterinarios y clínicas).
 - [ ] N6 Tienda: borrar `/tienda/categorias` y las tarjetas; referencias `/tienda` → tab; badge del carrito;
       `PagoResultado` común.
 - [ ] N7 Ficha de mascota con pestañas (Resumen/Salud/Historial) absorbiendo `carnet/[id]`; redirect; borrar
-      `carnet/index` y `carnet/recordatorios`.
+      `carnet/index` (`carnet/recordatorios` ya borrada).
 - [ ] N8 Renombrar `(tabs)/two` → `(tabs)/perfil` (y opcionalmente `menu` → `herramientas`, actualizando `/(tabs)/menu`).
 
 **Fase 4 — Funcionalidad**
@@ -332,4 +337,16 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   SQL en Postgres (solo lectura), tsc/eslint y revisión visual (ficha y formulario, sin guardar en producción).
   `code-reviewer`: corregido el corrimiento de fecha; resto al backlog (F26, F27). Deploy: push a `main` sube carnet y
   mascotas; **sin migraciones**.
+- **2026-10-07** — **Fase 2 completa** (solo app, OTA). Borrados: 18 barrels `src/hooks/*/index.ts` (55 imports pasados a
+  directos), `components/useColorScheme(.web).ts` (patrocinadores/nuevo ignoraba el tema elegido → ahora `useTheme`),
+  `src/components/ScreenHeader.tsx`, `useSearch`, `styles/common`, `utils/index`; pantallas `perfil/paleta` (falsa),
+  `perfil/kyc` (duplicada) y `carnet/recordatorios` (huérfana) + `useReminders`; 5 paletas alternativas (queda solo
+  Midnight & Gold). Código muerto de `lib/auth`, `auth2fa`, `use2FA`, `useProfile` (la etiqueta de rol ahora usa
+  `getRoleLabelFor`: el consumidor ve «Dueño de mascota» y los roles que salían como «Usuario» muestran su nombre),
+  `roles.ts`, `useHome.QUICK_ACTIONS`. Lint: 134 imports sin uso fuera, 12 errores base corregidos (comillas «»,
+  `+not-found` en español con EmptyState, `useRideAction`, texto de pago-exitoso) → **`npm run check` pasa** por primera
+  vez (0 errores, 83 avisos). `index.js`: el polyfill de MessageQueue ahora sí corre antes de expo-router (`require`).
+  `services/laboratory.ts` → `clinicLaboratory.ts`. Verificado: tsc, check, web (arranque y ruta borrada → not-found),
+  `code-reviewer` sin bloqueantes. Despliegue de backend (F4/F5/F7/F8) **pendiente del usuario**: el clasificador de
+  permisos bloqueó leer credenciales de producción para correr la migración.
 

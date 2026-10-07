@@ -24,7 +24,7 @@ export default function PagoExitosoScreen() {
                     <CheckCircle size={72} color={theme.success} />
                 </View>
                 <Text style={[styles.title, { color: theme.text }]}>¡Gracias por tu compra!</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>Estamos confirmando tu pago con Stripe. Verás tu pedido como "Pagado" en unos segundos y el vendedor recibirá el aviso para enviarlo.</Text>
+                <Text style={[styles.subtitle, { color: theme.textMuted }]}>Estamos confirmando tu pago con Stripe. En unos segundos verás tu pedido como «Pagado».</Text>
 
                 <View style={styles.buttons}>
                     <TouchableOpacity

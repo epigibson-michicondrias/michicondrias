@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Walker } from '../../src/services/paseadores';
 import { Star, MapPin, Clock, Users, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useWalkers } from '@/src/hooks/paseadores';
+import { useWalkers } from '@/src/hooks/paseadores/useWalkers';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import SearchBar from '@/src/components/SearchBar';

@@ -4,7 +4,7 @@ import { login, verify2FALogin } from '../src/lib/auth';
 import { useAuth } from '../src/contexts/AuthContext';
 import Colors from '../constants/Colors';
 import { useTheme } from '../src/contexts/ThemeContext';
-import { Mail, Lock, LogIn, UserPlus, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck, ArrowLeft } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck, ArrowLeft } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

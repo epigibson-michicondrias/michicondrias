@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Sitter } from '../../src/services/cuidadores';
-import { useSitters } from '@/src/hooks/cuidadores';
+import { useSitters } from '@/src/hooks/cuidadores/useSitters';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Star, MapPin, Clock, Home, ChevronRight, Shield } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';

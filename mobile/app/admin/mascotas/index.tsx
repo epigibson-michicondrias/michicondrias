@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useAdminPets, Pet } from '@/src/hooks/admin';
+import { useAdminPets, type Pet } from '@/src/hooks/admin/useAdminPets';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
-import { ChevronLeft, Bone, Filter, Plus, Shield } from 'lucide-react-native';
+import { ChevronLeft, Bone, Plus, Shield } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 
 const SPECIES_COLORS: Record<string, string> = {

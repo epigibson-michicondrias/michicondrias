@@ -3,7 +3,7 @@ import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useOrderDetail } from '@/src/hooks/ecommerce';
+import { useOrderDetail } from '@/src/hooks/ecommerce/useOrderDetail';
 import { STATUS_MAP } from '@/src/hooks/ecommerce/usePurchases';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';

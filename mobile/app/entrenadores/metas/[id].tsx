@@ -12,7 +12,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useTrainerDashboard, useEnrollment } from '@/src/hooks/training';
+import { useTrainerDashboard } from '@/src/hooks/training/useTrainerDashboard';
+import { useEnrollment } from '@/src/hooks/training/useEnrollment';
 import { showAlert } from '@/src/components/AppAlert';
 import { getEnrollmentGoals, type PetTrainingGoal } from '@/src/services/training';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';

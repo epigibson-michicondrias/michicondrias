@@ -5,7 +5,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import { createFuneraryService, CREMATION_OPTIONS } from '../../src/services/funerary';
 import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { Heart, DollarSign, Info, CheckCircle2 } from 'lucide-react-native';
+import { Heart, Info, CheckCircle2 } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 
 export default function NuevaFunerariaScreen() {

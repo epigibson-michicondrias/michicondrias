@@ -2,13 +2,12 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useProfile } from '@/src/hooks/perfil';
-import { BIO_MAX } from '@/src/hooks/perfil/useProfile';
+import { useProfile , BIO_MAX } from '@/src/hooks/perfil/useProfile';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { Mail, Phone, MapPin, FileText, Trash2, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, ChevronLeft, Palette, CreditCard, Lock } from 'lucide-react-native';
+import { Mail, Phone, MapPin, FileText, Trash2, Edit2, Camera, ShieldCheck, Settings, LogOut, Heart, ShoppingBag, Stethoscope, User as UserIcon, ChevronLeft, CreditCard, Lock } from 'lucide-react-native';
 
 export default function PerfilScreen() {
     const router = useRouter();
@@ -296,7 +295,7 @@ export default function PerfilScreen() {
                 
                 <TouchableOpacity
                     style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
-                    onPress={() => router.push('/perfil/kyc' as any)}
+                    onPress={() => router.push('/perfil/verificacion' as any)}
                 >
                     <ShieldCheck size={20} color={theme.primary} />
                     <View style={styles.actionContent}>
@@ -364,22 +363,6 @@ export default function PerfilScreen() {
                         </Text>
                         <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
                             Preferencias y ajustes de la app
-                        </Text>
-                    </View>
-                    <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[styles.actionRow, { borderBottomColor: theme.borderLight }]}
-                    onPress={() => router.push('/perfil/paleta')}
-                >
-                    <Palette size={20} color={theme.primary} />
-                    <View style={styles.actionContent}>
-                        <Text style={[styles.actionTitle, { color: theme.text }]}>
-                            Paleta de Colores
-                        </Text>
-                        <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
-                            Cambia la apariencia de la app
                         </Text>
                     </View>
                     <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />

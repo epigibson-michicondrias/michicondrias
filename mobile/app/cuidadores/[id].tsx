@@ -1,16 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useSitterDetail } from '@/src/hooks/cuidadores';
+import { useSitterDetail } from '@/src/hooks/cuidadores/useSitterDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { showAlert } from '@/src/components/AppAlert';
-import { 
-    MapPin, Star, Clock, Home, Users, Phone, Calendar, 
-    Shield, Share2, Dog, Cat, CheckCircle, Sun, Moon
-} from 'lucide-react-native';
+
+import { MapPin, Star, Clock, Home, Users, Calendar, Shield, Share2, Dog, Cat, CheckCircle, Sun, Moon } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
 import DatePicker from '@/src/components/DatePicker';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';

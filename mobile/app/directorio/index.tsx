@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ActivityIndicator, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useClinicsAndVets } from '@/src/hooks/directorio';
+import { useClinicsAndVets } from '@/src/hooks/directorio/useClinicsAndVets';
 import type { Clinic, Vet } from '@/src/types/directorio';
 import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building, Clock, Navigation, Star } from 'lucide-react-native';
 import DataList from '@/src/components/data/DataList';

@@ -3,7 +3,8 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Image
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useSellerDashboard, REVENUE_STATUSES, sellerSubtotal } from '@/src/hooks/ecommerce';
+import { useSellerDashboard } from '@/src/hooks/ecommerce/useSellerDashboard';
+import { REVENUE_STATUSES, sellerSubtotal } from '@/src/hooks/ecommerce/useSellerOrders';
 import { formatCurrency } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';

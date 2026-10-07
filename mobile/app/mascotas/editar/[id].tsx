@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Check, User, Tag, Calendar, Weight, Cpu, FileText, Trash2 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useEditPet } from '@/src/hooks/mascotas';
+import { useEditPet } from '@/src/hooks/mascotas/useEditPet';
 import { SPECIES_OPTIONS, GENDER_OPTIONS } from '@/src/types/mascotas';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';

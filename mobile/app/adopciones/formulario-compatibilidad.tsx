@@ -6,7 +6,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSelect from '@/src/components/forms/FormSelect';
 import FormSwitch from '@/src/components/forms/FormSwitch';
-import { Check, ChevronRight, ChevronLeft, Home, Clock, PawPrint, Award } from 'lucide-react-native';
+import { Check, ChevronRight, Home, Clock, PawPrint, Award } from 'lucide-react-native';
 import {
     useCompatibilityForm,
     EXPERIENCE_OPTIONS,

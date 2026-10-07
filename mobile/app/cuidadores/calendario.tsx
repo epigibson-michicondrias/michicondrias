@@ -1,6 +1,6 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useSitterCalendar, MONTHS_ES, DAYS_ES, STATUS_COLORS } from '@/src/hooks/cuidadores/useSitterCalendar';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';

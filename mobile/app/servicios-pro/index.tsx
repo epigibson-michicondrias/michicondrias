@@ -1,9 +1,9 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useServiciosPro } from '@/src/hooks/servicios-pro';
+import { useServiciosPro } from '@/src/hooks/servicios-pro/useServiciosPro';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User } from 'lucide-react-native';

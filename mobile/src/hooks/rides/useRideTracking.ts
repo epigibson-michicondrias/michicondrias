@@ -46,7 +46,8 @@ export function useRideTracking(rideId: string) {
     queryClient.invalidateQueries({ queryKey: ['driver-ride-history'] });
   };
 
-  const make = (fn: () => Promise<PetRide>, ok?: { title: string; message: string; goBack?: boolean }, failTitle = 'No se pudo completar') =>
+  // Hook interno: cada acción del viaje es una mutación con el mismo manejo de éxito/error
+  const useRideAction = (fn: () => Promise<PetRide>, ok?: { title: string; message: string; goBack?: boolean }, failTitle = 'No se pudo completar') =>
     useMutation({
       mutationFn: fn,
       onSuccess: (data) => {
@@ -67,10 +68,10 @@ export function useRideTracking(rideId: string) {
       },
     });
 
-  const acceptMutation = make(() => acceptRide(rideId), { title: 'Viaje aceptado', message: 'Dirígete al punto de recogida.' }, 'No se pudo aceptar');
-  const rejectMutation = make(() => rejectRide(rideId), { title: 'Solicitud rechazada', message: 'Avisamos al cliente.', goBack: true }, 'No se pudo rechazar');
-  const startMutation = make(() => startRide(rideId), { title: 'Viaje iniciado', message: 'Conduce con cuidado.' }, 'No se pudo iniciar');
-  const finishMutation = make(() => finishRide(rideId), { title: 'Viaje finalizado', message: 'Completaste el viaje.' }, 'No se pudo finalizar');
+  const acceptMutation = useRideAction(() => acceptRide(rideId), { title: 'Viaje aceptado', message: 'Dirígete al punto de recogida.' }, 'No se pudo aceptar');
+  const rejectMutation = useRideAction(() => rejectRide(rideId), { title: 'Solicitud rechazada', message: 'Avisamos al cliente.', goBack: true }, 'No se pudo rechazar');
+  const startMutation = useRideAction(() => startRide(rideId), { title: 'Viaje iniciado', message: 'Conduce con cuidado.' }, 'No se pudo iniciar');
+  const finishMutation = useRideAction(() => finishRide(rideId), { title: 'Viaje finalizado', message: 'Completaste el viaje.' }, 'No se pudo finalizar');
   const cancelMutation = useMutation({
     mutationFn: (reason?: string) => cancelRide(rideId, reason),
     onSuccess: (data) => {

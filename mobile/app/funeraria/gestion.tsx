@@ -2,14 +2,13 @@ import React from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Switch } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
-import { FuneraryBooking } from '@/src/services/funerary';
+import { FuneraryBooking , cremationLabel } from '@/src/services/funerary';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
-import { cremationLabel } from '@/src/services/funerary';
 import { showAlert } from '@/src/components/AppAlert';
 import { Calendar, Clock, Inbox, PawPrint, Plus } from 'lucide-react-native';
 

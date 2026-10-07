@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getToken, User, getCurrentUser, saveCachedUser, getCachedUser, clearStoredSession } from '../lib/auth';
-import { ApiError, setUnauthorizedHandler } from '../lib/api';
+import { User, getCurrentUser, saveCachedUser, getCachedUser, clearStoredSession } from '../lib/auth';
+import { ApiError, getToken, setUnauthorizedHandler } from '../lib/api';
 import { clearStoredCart } from '../lib/cartStorage';
 import { showAlert } from '@/src/components/AppAlert';
 

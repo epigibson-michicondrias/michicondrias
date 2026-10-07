@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { TrainingProgram } from '../../src/services/training';
-import { usePrograms } from '@/src/hooks/training';
+import { usePrograms } from '@/src/hooks/training/usePrograms';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Dumbbell, Clock, DollarSign, ChevronRight, Plus } from 'lucide-react-native';

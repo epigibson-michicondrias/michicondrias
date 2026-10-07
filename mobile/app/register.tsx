@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Dimensions, Linking } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Linking } from 'react-native';
 import { register } from '../src/lib/auth';
 import Colors from '../constants/Colors';
 import { useTheme } from '../src/contexts/ThemeContext';
-import { Mail, Lock, User, UserPlus, ArrowRight, Eye, EyeOff, Sparkles, Check } from 'lucide-react-native';
+import { Mail, Lock, User, UserPlus, ArrowRight, Eye, EyeOff, Check } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';

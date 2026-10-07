@@ -1,5 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
+import { Platform } from 'react-native';
+
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://michicondrias.duckdns.org";
 
 const API_URLS = {
@@ -23,8 +25,6 @@ const API_URLS = {
 };
 
 export type ServiceName = keyof typeof API_URLS;
-
-import { Platform } from 'react-native';
 
 const TOKEN_KEY = 'access_token';
 

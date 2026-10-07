@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useSellerAnalytics } from '@/src/hooks/ecommerce';
+import { useSellerAnalytics } from '@/src/hooks/ecommerce/useSellerAnalytics';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { formatCurrency } from '@/src/utils/formatters';

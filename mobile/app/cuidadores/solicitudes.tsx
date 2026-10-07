@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, FlatList, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useSitRequests } from '@/src/hooks/cuidadores';
+import { useSitRequests } from '@/src/hooks/cuidadores/useSitRequests';
 import { STATUS_FILTERS } from '@/src/hooks/servicios-pro/requestStatus';
 import ServiceRequestCard from '@/src/features/servicios-pro/ServiceRequestCard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';

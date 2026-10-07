@@ -1,6 +1,6 @@
 import React from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import { AlertCircle, Car } from 'lucide-react-native';
+import { AlertCircle, Car , Plus } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useMyRides } from '@/src/hooks/rides/useMyRides';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -9,7 +9,6 @@ import FilterChip from '@/src/components/FilterChip';
 import EmptyState from '@/src/components/EmptyState';
 import { SkeletonList } from '@/src/components/Skeleton';
 import RideCard from '@/src/components/rides/RideCard';
-import { Plus } from 'lucide-react-native';
 import { spacing } from '@/constants/design';
 
 export default function MisViajesScreen() {

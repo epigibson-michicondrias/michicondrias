@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, ScrollView, Switch } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Modal, TextInput, ScrollView, Switch } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useLabProvider } from '@/src/hooks/laboratorio';
+import { useLabProvider } from '@/src/hooks/laboratorio/useLabProvider';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import AppRefreshControl from '@/src/components/AppRefreshControl';

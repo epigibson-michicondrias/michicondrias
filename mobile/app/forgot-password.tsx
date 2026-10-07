@@ -7,7 +7,7 @@ import BackButton from '@/src/components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { apiFetch } from '../src/lib/api';
+
 import { requestPasswordReset } from '../src/lib/auth';
 import { showAlert } from '@/src/components/AppAlert';
 

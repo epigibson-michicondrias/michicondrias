@@ -1,4 +1,5 @@
-// Polyfill to resolve 'ReferenceError: Property MessageQueue doesn't exist' in Bridgeless/New Architecture mode
+// Polyfill to resolve 'ReferenceError: Property MessageQueue doesn't exist' in Bridgeless/New Architecture mode.
+// Va antes que expo-router: con `import` el polyfill correría después (los imports se evalúan primero), por eso `require`.
 if (typeof global.MessageQueue === 'undefined') {
   global.MessageQueue = {
     spy: () => {},
@@ -7,5 +8,5 @@ if (typeof global.MessageQueue === 'undefined') {
   };
 }
 
-// Import the actual Expo Router entry point
-import 'expo-router/entry';
+// Entry point real de Expo Router
+require('expo-router/entry');

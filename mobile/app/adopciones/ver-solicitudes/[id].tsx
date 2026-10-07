@@ -35,7 +35,7 @@ export default function VerSolicitudesScreen() {
                 </View>
             </View>
             <Text style={[styles.reasonPreview, { color: theme.text }]} numberOfLines={2}>
-                "{item.reason}"
+                «{item.reason}»
             </Text>
             <View style={styles.viewMoreRow}>
                 <Text style={{ color: theme.primary, fontSize: 12, fontWeight: '700' }}>Ver detalles completos</Text>
@@ -97,7 +97,7 @@ export default function VerSolicitudesScreen() {
                                     </View>
                                     <Text style={[styles.detailText, { color: theme.text }]}>
                                         Razones para adoptar:{"\n"}
-                                        <Text style={{ fontWeight: '400', fontStyle: 'italic' }}>"{selectedRequest.reason}"</Text>
+                                        <Text style={{ fontWeight: '400', fontStyle: 'italic' }}>«{selectedRequest.reason}»</Text>
                                     </Text>
                                 </View>
 

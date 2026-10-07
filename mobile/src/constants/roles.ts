@@ -11,84 +11,19 @@ export const ROLE_IDS = {
     PASEADOR: "ef24d39d-50b6-44f4-8388-e72bf8a949a4",
 } as const;
 
-// Nombres de roles (usados actualmente por la API)
-export const ROLE_NAMES = {
+// Nombres de roles por id (solo para getRoleName)
+const ROLE_NAMES = {
     [ROLE_IDS.VETERINARIO]: "veterinario",
     [ROLE_IDS.ADMIN]: "admin",
     [ROLE_IDS.CONSUMIDOR]: "consumidor", 
     [ROLE_IDS.PASEADOR]: "paseador",
 } as const;
 
-// Descripciones de roles
-export const ROLE_DESCRIPTIONS = {
-    veterinario: "Profesional veterinario. Puede registrar clínicas, crear historiales y publicar adopciones.",
-    admin: "Administrador. Acceso completo al sistema.",
-    consumidor: "Usuario final. Puede buscar, adoptar, donar, comprar y reportar.",
-    paseador: "Paseador o cuidador. Puede crear anuncios de sus servicio y aceptar solicitudes de oportunidades de oferta o trabajo.",
-} as const;
-
-// Emojis para roles
-export const ROLE_EMOJIS = {
-    admin: "👑",
-    veterinario: "👨‍⚕️",
-    consumidor: "👤", 
-    paseador: "🚶",
-} as const;
-
-// Colores para roles
-export const ROLE_COLORS = {
-    admin: "#ef4444",
-    veterinario: "#3b82f6", 
-    consumidor: "#6b7280",
-    paseador: "#10b981",
-} as const;
-
-// Funciones helper
 export const getRoleName = (roleId?: string, roleName?: string): string => {
-    // Priorizar role_name (viene de la API)
+    // Priorizar role_name (viene de la API); si no, traducir el role_id
     if (roleName) return roleName;
-    // Fallback a role_id si está disponible
     if (roleId) return ROLE_NAMES[roleId as keyof typeof ROLE_NAMES] || "desconocido";
     return "desconocido";
-};
-
-export const getRoleDescription = (roleId?: string, roleName?: string): string => {
-    const name = getRoleName(roleId, roleName);
-    return ROLE_DESCRIPTIONS[name as keyof typeof ROLE_DESCRIPTIONS] || "Rol no definido";
-};
-
-export const getRoleEmoji = (roleId?: string, roleName?: string): string => {
-    const name = getRoleName(roleId, roleName);
-    return ROLE_EMOJIS[name as keyof typeof ROLE_EMOJIS] || "❓";
-};
-
-export const getRoleColor = (roleId?: string, roleName?: string): string => {
-    const name = getRoleName(roleId, roleName);
-    return ROLE_COLORS[name as keyof typeof ROLE_COLORS] || "#6b7280";
-};
-
-export const isAdmin = (roleId?: string, roleName?: string): boolean => {
-    const name = getRoleName(roleId, roleName);
-    return name === "admin";
-};
-
-export const isVeterinario = (roleId?: string, roleName?: string): boolean => {
-    const name = getRoleName(roleId, roleName);
-    return name === "veterinario";
-};
-
-export const isConsumidor = (roleId?: string, roleName?: string): boolean => {
-    const name = getRoleName(roleId, roleName);
-    return name === "consumidor";
-};
-
-export const isPaseador = (roleId?: string, roleName?: string): boolean => {
-    const name = getRoleName(roleId, roleName);
-    return name === "paseador";
-};
-
-export const isProfesional = (roleId?: string, roleName?: string): boolean => {
-    return isVeterinario(roleId, roleName) || isPaseador(roleId, roleName);
 };
 
 // Tipo para role_id
@@ -100,7 +35,7 @@ export type RoleId = typeof ROLE_IDS[keyof typeof ROLE_IDS];
 // ═══════════════════════════════════════════════════════════════════
 
 /** Alias heredados que algunas pantallas/APIs antiguas usan → nombre canónico. */
-export const ROLE_ALIASES: Record<string, string> = {
+const ROLE_ALIASES: Record<string, string> = {
     walker: 'paseador',
     sitter: 'cuidador',
     sponsor: 'patrocinador',
@@ -110,7 +45,7 @@ export const ROLE_ALIASES: Record<string, string> = {
 };
 
 /** Roles profesionales (todos los que se obtienen con "Ser Profesional" + KYC aprobado). */
-export const PRO_ROLES = [
+const PRO_ROLES = [
     'veterinario', 'hospital', 'refugio', 'hogar_temporal', 'vendedor', 'paseador', 'cuidador',
     'aseguradora', 'funeraria', 'entrenador', 'estilista', 'laboratorio', 'patrocinador',
     'transportista', 'establecimiento',
@@ -122,7 +57,7 @@ export const ALL_ROLES = ['consumidor', ...PRO_ROLES, 'admin'] as const;
 
 export interface RoleMeta { label: string; color: string; }
 
-export const ROLE_META: Record<string, RoleMeta> = {
+const ROLE_META: Record<string, RoleMeta> = {
     consumidor: { label: 'Dueño de mascota', color: '#6b7280' },
     admin: { label: 'Administrador', color: '#ef4444' },
     veterinario: { label: 'Veterinario', color: '#06b6d4' },

@@ -8,6 +8,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { getMyProfile, updateMyProfile } from '@/src/services/profile';
 import { createBillingPortalSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
+import { getRoleLabelFor } from '@/src/constants/roles';
 import { Linking } from 'react-native';
 
 export interface ProfileFormData {
@@ -117,31 +118,6 @@ export function useProfile() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const getRoleIcon = (role: string) => {
-        switch (role) {
-            case 'veterinario': return 'stethoscope' as const;
-            case 'admin': return 'shield' as const;
-            default: return 'user' as const;
-        }
-    };
-
-    const getRoleLabel = (role: string) => {
-        switch (role) {
-            case 'veterinario': return 'Veterinario';
-            case 'admin': return 'Administrador';
-            case 'paseador': return 'Paseador';
-            case 'vendedor': return 'Vendedor';
-            case 'refugio': return 'Refugio';
-            case 'cuidador': return 'Cuidador';
-            case 'patrocinador': return 'Patrocinador';
-            case 'establecimiento': return 'Establecimiento';
-            case 'clinica': return 'Clínica';
-            case 'hogar_temporal': return 'Hogar temporal';
-            case 'funeraria': return 'Funeraria';
-            default: return 'Usuario';
-        }
-    };
-
     const billingPortalMutation = useMutation({
         mutationFn: () => createBillingPortalSession(),
         onSuccess: (data) => {
@@ -178,7 +154,6 @@ export function useProfile() {
         isOpeningBillingPortal: billingPortalMutation.isPending,
 
         // Helpers
-        getRoleIcon,
-        getRoleLabel,
+        getRoleLabel: getRoleLabelFor,
     };
 }

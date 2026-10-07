@@ -5,14 +5,7 @@
 import { useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-    getListing,
-    getRequest,
-    updateRequestStatus,
-    approveAdoption,
-    AdoptionRequest,
-    Listing,
-} from '@/src/services/adopciones';
+import { getListing, getRequest, updateRequestStatus, approveAdoption } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 

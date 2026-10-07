@@ -2,13 +2,13 @@ import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useVenueDetail } from '@/src/hooks/venues';
+import { useVenueDetail } from '@/src/hooks/venues/useVenueDetail';
 import { useVenueReviews } from '@/src/hooks/venues/useVenueReviews';
 import { VenueReview } from '@/src/services/venues';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { Building2, MapPin, Tag, Info, Star, MessageSquare, Gift, Send, X, Edit3 } from 'lucide-react-native';
+import { Building2, MapPin, Tag, Star, MessageSquare, Gift, Send, X, Edit3 } from 'lucide-react-native';
 
 export default function VenueDetailScreen() {
     const router = useRouter();

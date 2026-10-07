@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import WebMapView from '../../src/components/WebMapView';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -7,7 +7,7 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Camera, MapPin, Check, Plus, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed, Info } from 'lucide-react-native';
+import { Camera, Check, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petfriendly';

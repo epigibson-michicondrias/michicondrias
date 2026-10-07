@@ -7,10 +7,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { normalizeRole, isProRole } from '@/src/constants/roles';
 import { getRoleTools, getRouteRule } from '@/src/constants/roleTools';
 import { showAlert } from '@/src/components/AppAlert';
-import {
-    HelpCircle, Shield, Briefcase, Handshake, ShieldCheck, Bell, Lock, Palette, Stethoscope, ShoppingBag, Activity,
-    Building, Heart, Dumbbell, Scissors, FlaskConical, Award, Car, Store, ClipboardList,
-} from 'lucide-react-native';
+import { HelpCircle, Shield, Briefcase, Handshake, ShieldCheck, Bell, Lock, Stethoscope, ShoppingBag, Activity, Building, Heart, Dumbbell, Scissors, FlaskConical, Award, Car, Store, ClipboardList } from 'lucide-react-native';
 
 export interface MenuItem {
     id: string;
@@ -112,7 +109,6 @@ export function useMenu() {
         icon: HelpCircle,
         data: [
             { id: 'ayuda', icon: HelpCircle, label: 'Centro de Ayuda', route: '/ayuda', color: '#64748b', desc: 'Soporte y preguntas frecuentes' },
-            { id: 'paleta', icon: Palette, label: 'Apariencia', route: '/perfil/paleta', color: '#8b5cf6', desc: 'Tema y colores' },
         ],
     });
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useInsurancePlans } from '@/src/hooks/insurance';
+import { useInsurancePlans } from '@/src/hooks/insurance/useInsurancePlans';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import BackButton from '@/src/components/BackButton';
-import { Shield, Clock, DollarSign, Info, CheckCircle, ArrowRight, PawPrint, Award, HeartHandshake } from 'lucide-react-native';
+import { Shield, Clock, DollarSign, CheckCircle, ArrowRight, PawPrint, Award, HeartHandshake } from 'lucide-react-native';
 
 export default function PlanDetailScreen() {
     const router = useRouter();

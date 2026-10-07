@@ -1,40 +1,24 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { Compass } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import EmptyState from '@/src/components/EmptyState';
+import { useTheme } from '@/src/hooks/useTheme';
+import { layout } from '@/constants/design';
 
-import { Text, View } from '@/components/Themed';
-
+/** Destino de enlaces viejos o mal formados (p. ej. una notificación que apunta a una pantalla que ya no existe). */
 export default function NotFoundScreen() {
+  const router = useRouter();
+  const { theme } = useTheme();
   return (
-    <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
-
-        <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
-        </Link>
-      </View>
-    </>
+    <ScreenContainer>
+      <Stack.Screen options={{ headerShown: false }} />
+      <EmptyState
+        icon={<Compass size={layout.icon.xl} color={theme.textMuted} />}
+        title="Esta pantalla ya no existe"
+        subtitle="Es posible que el enlace sea viejo o que la sección se haya movido."
+        actionLabel="Ir al inicio"
+        onAction={() => router.replace('/(tabs)')}
+      />
+    </ScreenContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-  linkText: {
-    fontSize: 14,
-    color: '#2e78b7',
-  },
-});

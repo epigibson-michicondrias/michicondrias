@@ -64,7 +64,7 @@ export default function QueryErrorBanner() {
             alive = false;
             unsubscribe();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [queryClient]);
 
     const retry = useCallback(async () => {
@@ -74,7 +74,7 @@ export default function QueryErrorBanner() {
         } finally {
             setRetrying(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [queryClient]);
 
     if (!focused || failed.count === 0) return null;

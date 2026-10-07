@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Plus, Settings, ChevronRight } from 'lucide-react-native';
-import { usePets } from '@/src/hooks/mascotas';
+import { usePets } from '@/src/hooks/mascotas/usePets';
 import { getSpeciesLabel, getGenderLabel } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';

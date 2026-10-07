@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput , ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useDeathReport } from '@/src/hooks/funerary/useDeathReport';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -13,7 +13,6 @@ import { CREMATION_OPTIONS } from '@/src/services/funerary';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
 import { FileText, Info, AlertTriangle, PawPrint } from 'lucide-react-native';
-import { ActivityIndicator } from 'react-native';
 
 
 /** La funeraria solo puede reportar mascotas con una reserva suya vigente (lo exige el backend). */

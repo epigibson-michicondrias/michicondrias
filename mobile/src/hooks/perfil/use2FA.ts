@@ -4,7 +4,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { setup2FA, enable2FA, disable2FA, upgradeToPartner } from '@/src/services/auth2fa';
+import { setup2FA, enable2FA, disable2FA } from '@/src/services/auth2fa';
 import { showAlert } from '@/src/components/AppAlert';
 import { useAuth } from '@/src/contexts/AuthContext';
 
@@ -107,29 +107,6 @@ export function use2FA() {
         });
     };
 
-    // --- Role Upgrade ---
-    const upgradeMutation = useMutation({
-        mutationFn: upgradeToPartner,
-        onSuccess: () => {
-            showAlert({ type: 'success', title: '¡Felicidades!', message: 'Tu cuenta ha sido actualizada a Partner. Cierra sesión y vuelve a entrar para ver los cambios.' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar tu rol. Inténtalo de nuevo.' });
-        },
-    });
-
-    const handleUpgradeToPartner = () => {
-        showAlert({
-            type: 'info',
-            title: 'Upgrade a Partner',
-            message: '¿Deseas actualizar tu cuenta a Partner? Esto te dará acceso a funciones avanzadas.',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Actualizar',
-            onButtonPress: () => upgradeMutation.mutate(),
-        });
-    };
-
     return {
         // Data
         qrUri,
@@ -148,7 +125,5 @@ export function use2FA() {
         handleEnable,
         handleDisable,
         // Upgrade
-        handleUpgradeToPartner,
-        isUpgrading: upgradeMutation.isPending,
     };
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search, HelpCircle, MessageCircle, Mail, Phone, ExternalLink, ChevronRight } from 'lucide-react-native';
+import { Search, MessageCircle, Mail, Phone, ExternalLink, ChevronRight } from 'lucide-react-native';
 import BackButton from '../src/components/BackButton';
 import { useTheme } from '@/src/hooks/useTheme';
 import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_WHATSAPP, TERMS_URL } from '@/src/constants/support';

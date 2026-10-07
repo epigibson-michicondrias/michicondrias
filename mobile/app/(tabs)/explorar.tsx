@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { useExplore } from '@/src/hooks/home';
+import { useExplore } from '@/src/hooks/home/useExplore';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { Search, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';

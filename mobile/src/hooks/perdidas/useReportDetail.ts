@@ -2,7 +2,7 @@
  * useReportDetail — Hook for lost/found pet report detail screen
  * Manages report fetching, resolve mutation, owner checks, sightings and matches
  */
-import { useState } from 'react';
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';

@@ -9,11 +9,7 @@ import { useShopTab } from '@/src/hooks/ecommerce/useShopTab';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  ShoppingBag, Search, ShoppingCart, Package, CreditCard,
-  ChevronRight, Star, Heart, Tag, Sparkles, TrendingUp,
-  Filter, ArrowRight, X
-} from 'lucide-react-native';
+import { ShoppingBag, Search, ShoppingCart, Package, CreditCard, ChevronRight, Star, TrendingUp, Filter, ArrowRight, X } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.floor((width - 61) / 2);

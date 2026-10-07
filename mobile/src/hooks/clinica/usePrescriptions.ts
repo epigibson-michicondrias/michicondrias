@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyClinics } from '@/src/services/directorio';
 import { getClinicPatients } from '@/src/services/patients';

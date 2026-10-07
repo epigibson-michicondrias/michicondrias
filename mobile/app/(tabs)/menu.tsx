@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, View, Text, StatusBar, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useMenu } from '@/src/hooks/home';
+import { useMenu } from '@/src/hooks/home/useMenu';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

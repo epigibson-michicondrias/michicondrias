@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Dimensions, Linking, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Dimensions, TextInput } from 'react-native';
 import { usePlaceDetail } from '@/src/hooks/petfriendly/usePlaceDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import BackButton from '@/src/components/BackButton';
 import { showAlert } from '@/src/components/AppAlert';
-import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2, Clock } from 'lucide-react-native';
+import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2 } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
 
 const { width } = Dimensions.get('window');

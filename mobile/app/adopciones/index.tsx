@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions, ScrollView
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Heart, MapPin, Plus } from 'lucide-react-native';
-import { useListings } from '@/src/hooks/adopciones';
+import { useListings } from '@/src/hooks/adopciones/useListings';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';

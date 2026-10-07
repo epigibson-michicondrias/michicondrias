@@ -2,12 +2,12 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useAdminProducts, Product } from '@/src/hooks/admin';
+import { useAdminProducts, type Product } from '@/src/hooks/admin/useAdminProducts';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
-import { Plus, ShoppingCart, Filter, Box } from 'lucide-react-native';
+import { Plus, ShoppingCart, Box } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminProductosScreen() {

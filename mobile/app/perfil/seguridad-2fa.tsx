@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { use2FA } from '@/src/hooks/perfil';
+import { use2FA } from '@/src/hooks/perfil/use2FA';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Shield, ShieldCheck, ShieldOff, Copy, Eye, EyeOff } from 'lucide-react-native';
+import { Shield, ShieldCheck, ShieldOff, Eye, EyeOff } from 'lucide-react-native';
 
 export default function Seguridad2FAScreen() {
     const { theme } = useTheme();

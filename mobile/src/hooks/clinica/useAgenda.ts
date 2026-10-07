@@ -3,16 +3,9 @@
  * Manages clinic appointments, filtering, search, and status actions
  */
 import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import {
-    getMyClinics,
-    getClinicAppointments,
-    confirmAppointment,
-    cancelAppointment,
-    completeAppointment,
-    AppointmentItem,
-} from '@/src/services/directorio';
+import { getMyClinics, getClinicAppointments, confirmAppointment, cancelAppointment, completeAppointment } from '@/src/services/directorio';
 import { showAlert } from '@/src/components/AppAlert';
 
 export function useAgenda() {

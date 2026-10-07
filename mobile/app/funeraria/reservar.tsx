@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useFuneraryBooking } from '@/src/hooks/funerary/useFuneraryBooking';
 import { FuneraryService, cremationLabel } from '@/src/services/funerary';
@@ -11,7 +11,7 @@ import EmptyState from '@/src/components/EmptyState';
 import DatePicker from '@/src/components/DatePicker';
 import PetPicker from '@/src/features/salud/PetPicker';
 import { toISODate } from '@/src/features/salud/format';
-import { Calendar, DollarSign, Check, Heart, Info, Send } from 'lucide-react-native';
+import { DollarSign, Check, Heart, Info } from 'lucide-react-native';
 
 export default function ReservarScreen() {
     const { theme } = useTheme();

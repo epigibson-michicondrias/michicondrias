@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform, Dimensions, ActivityIndicator } from 'react-native';
-import WebMapView, { MapMarker } from '../../src/components/WebMapView';
+import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform, Dimensions, ActivityIndicator } from 'react-native';
+import WebMapView from '../../src/components/WebMapView';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 
@@ -8,8 +8,8 @@ import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Camera, MapPin, AlertCircle, Check, Search, Phone, Mail, Info, Fingerprint, Scale, Calendar, ChevronDown } from 'lucide-react-native';
-import BackButton from '@/src/components/BackButton';
+import { Camera, MapPin, AlertCircle, Check, Search } from 'lucide-react-native';
+
 import { showAlert } from '@/src/components/AppAlert';
 import { createReport, getPerdidasPresignedUrl } from '../../src/services/perdidas';
 import { useAuth } from '../../src/contexts/AuthContext';
@@ -61,7 +61,7 @@ export default function NuevoReporteScreen() {
 
     useEffect(() => {
         fetchLocation();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, []);
 
     const pickImage = async () => {

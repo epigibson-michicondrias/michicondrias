@@ -2,11 +2,11 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useAdminClinics, Clinic } from '@/src/hooks/admin';
+import { useAdminClinics, type Clinic } from '@/src/hooks/admin/useAdminClinics';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
-import { Plus, MapPin, Phone, Hospital, MoreVertical } from 'lucide-react-native';
+import { Plus, MapPin, Phone, Hospital } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminClinicasScreen() {

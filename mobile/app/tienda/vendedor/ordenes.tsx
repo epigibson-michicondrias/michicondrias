@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { useSellerOrders, ORDER_STATUS_MAP, SELLER_NEXT_STATUS } from '@/src/hooks/ecommerce';
+import { useSellerOrders, ORDER_STATUS_MAP, SELLER_NEXT_STATUS } from '@/src/hooks/ecommerce/useSellerOrders';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';

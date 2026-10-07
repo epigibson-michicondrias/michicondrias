@@ -7,7 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import SearchBar from '@/src/components/SearchBar';
-import { Briefcase, Plus, MoreVertical } from 'lucide-react-native';
+import { Briefcase, Plus } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Modal, KeyboardAvoidingView, TextInput, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useAdminUsers } from '@/src/hooks/admin';
+import { useAdminUsers } from '@/src/hooks/admin/useAdminUsers';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
@@ -22,7 +22,6 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getRoleName, ALL_ROLES } from '@/src/constants/roles';
-import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminUsersScreen() {
     const router = useRouter();

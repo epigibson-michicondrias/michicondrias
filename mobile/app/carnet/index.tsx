@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { usePetRecords } from '@/src/hooks/carnet';
+import { usePetRecords } from '@/src/hooks/carnet/usePetRecords';
 import type { Pet } from '@/src/types/mascotas';
 import { ChevronLeft, Plus, ClipboardList, Syringe, Scissors, Search, Activity, Stethoscope } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';

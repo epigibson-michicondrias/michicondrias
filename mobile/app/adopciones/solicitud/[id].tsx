@@ -7,7 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { User, Home, Calendar, Clock, CheckCircle, XCircle, Heart, Mail, Phone, FileText, Send, AlertCircle } from 'lucide-react-native';
+import { User, Home, Calendar, Clock, CheckCircle, XCircle, Heart, Mail, FileText, AlertCircle } from 'lucide-react-native';
 
 export default function ProcesarSolicitudScreen() {
     const { theme } = useTheme();

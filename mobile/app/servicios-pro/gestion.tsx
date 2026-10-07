@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useServiceManagement } from '@/src/hooks/servicios-pro';
+import { useServiceManagement } from '@/src/hooks/servicios-pro/useServiceManagement';
 import { normalizeStatus, STATUS_FILTERS } from '@/src/hooks/servicios-pro/requestStatus';
 import ServiceRequestCard from '@/src/features/servicios-pro/ServiceRequestCard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';

@@ -199,7 +199,7 @@ export default function AdminModerationScreen() {
                 </View>
                 <Text style={[styles.cardTitle, { color: theme.text, marginTop: 8 }]}>{item.applicant_name}</Text>
                 <View style={[styles.notesBox, { backgroundColor: theme.background }]}>
-                    <Text style={[styles.notesText, { color: theme.textMuted }]}>"{item.reason}"</Text>
+                    <Text style={[styles.notesText, { color: theme.textMuted }]}>«{item.reason}»</Text>
                 </View>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"

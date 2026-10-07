@@ -1,4 +1,4 @@
-import { apiFetch, setToken, removeToken, getToken } from "./api";
+import { apiFetch, setToken, removeToken } from "./api";
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
@@ -131,11 +131,6 @@ export async function register(
     return res.json();
 }
 
-export async function isAuthenticated(): Promise<boolean> {
-    const token = await getToken();
-    return !!token;
-}
-
 export async function getCurrentUser(): Promise<User> {
     return await apiFetch<User>("core", "/users/me");
 }
@@ -180,21 +175,3 @@ export async function clearStoredSession() {
     try { await storageDelete(USER_KEY); } catch { /* nada que borrar */ }
     try { await storageDelete(LEGACY_ROLE_KEY); } catch { /* nada que borrar */ }
 }
-
-// Admin Methods
-export async function getPendingVerifications(): Promise<User[]> {
-    return await apiFetch<User[]>("core", "/users/pending-verifications");
-}
-
-export async function verifyUser(userId: string, status: "VERIFIED" | "REJECTED"): Promise<void> {
-    await apiFetch("core", `/users/${userId}/verify?status=${status}`, {
-        method: "POST",
-    });
-}
-
-export {
-    apiFetch,
-    setToken,
-    removeToken,
-    getToken
-};

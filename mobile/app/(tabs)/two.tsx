@@ -3,13 +3,12 @@ import { StyleSheet, TouchableOpacity, ScrollView, View, Linking } from 'react-n
 import { showAlert } from '../../src/components/AppAlert';
 import { PRIVACY_URL, TERMS_URL } from '../../src/constants/support';
 import { getRoleLabelFor, isProRole, normalizeRole } from '../../src/constants/roles';
-import { Handshake } from 'lucide-react-native';
+import { Handshake , LogOut, User, Shield, Bell, HelpCircle, Sun, Moon, Monitor, PawPrint, ChevronRight, Edit3, Calendar, CreditCard, ClipboardList } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Text } from '@/components/Themed';
 import { useAuth } from '../../src/contexts/AuthContext';
 import Colors from '../../constants/Colors';
 import { useTheme } from '../../src/contexts/ThemeContext';
-import { LogOut, User, Shield, Bell, HelpCircle, Sun, Moon, Monitor, PawPrint, ChevronRight, Edit3, Calendar, CreditCard, ClipboardList } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getMyClinics } from '@/src/services/directorio';
-import { getClinicLabTests, requestLabTest, updateLabTestResults, LabTestCreatePayload } from '@/src/services/laboratory';
+import { getClinicLabTests, requestLabTest, updateLabTestResults, LabTestCreatePayload } from '@/src/services/clinicLaboratory';
 import { showAlert } from '@/src/components/AppAlert';
 
 export function useLaboratory() {

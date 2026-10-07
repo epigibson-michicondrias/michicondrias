@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GroomingService } from '../../src/services/grooming';
-import { useGroomingServices } from '@/src/hooks/grooming';
+import { useGroomingServices } from '@/src/hooks/grooming/useGroomingServices';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Scissors, Clock, DollarSign, Plus } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';

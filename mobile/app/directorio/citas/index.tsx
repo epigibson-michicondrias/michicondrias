@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppointments, STATUS_CONFIG, FILTER_TABS, formatDateTime } from '@/src/hooks/directorio/useAppointments';
 import type { Appointment } from '@/src/services/citas';

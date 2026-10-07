@@ -1,11 +1,11 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useProgramDetail } from '@/src/hooks/training';
+import { useProgramDetail } from '@/src/hooks/training/useProgramDetail';
 import { getProgramReviews, createProgramReview } from '@/src/services/training';
 import { showAlert } from '@/src/components/AppAlert';
 import ReviewsSection from '@/src/components/reviews/ReviewsSection';

@@ -3,12 +3,7 @@ import { StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar, View, Text 
 import { useTheme } from '@/src/hooks/useTheme';
 import { useHome, STATUS_COLORS, STATUS_LABELS, formatDate } from '@/src/hooks/home/useHome';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import {
-  Plus, Bell, Bone, Stethoscope, ShoppingBag, AlertTriangle, Activity,
-  Settings, Home, Sparkles, ChevronRight, Calendar, UserCheck, ShieldCheck,
-  MapPin, Heart, CreditCard, ClipboardList, Building, Package, BarChart3,
-  Search, Zap, Handshake, Clock, XCircle,
-} from 'lucide-react-native';
+import { Plus, Bell, Bone, ShoppingBag, Activity, Sparkles, ChevronRight, Calendar, ShieldCheck, Search, Zap, Handshake, Clock, XCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GettingStartedCard from '@/src/components/GettingStartedCard';

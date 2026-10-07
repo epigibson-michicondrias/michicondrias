@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { getReportById, updateReport, getPerdidasPresignedUrl } from '@/src/services/perdidas';
 import { showAlert } from '@/src/components/AppAlert';
-import type { LostPetReport } from '@/src/types/perdidas';
+
 import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 

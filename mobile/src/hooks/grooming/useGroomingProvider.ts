@@ -12,8 +12,7 @@ import {
 } from '@/src/services/grooming';
 import { errorMessage } from '@/src/hooks/servicios-pro/requestStatus';
 import { getMascotasPresignedUrl } from '@/src/services/mascotas';
-import { getS3Url } from '@/src/utils/helpers';
-import { getFileExtension } from '@/src/utils/helpers';
+import { getS3Url , getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 import type { GroomingAppointment, GroomingAppointmentUpdatePhotos } from '@/src/services/grooming';
 

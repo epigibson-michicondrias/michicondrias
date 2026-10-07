@@ -13,34 +13,18 @@ Prioridad de hallazgos: **P0** roto/bloquea · **P1** confunde o se ve mal · **
 Regenerar con `cd mobile && npm run deadcode`, `npx eslint .` y `npm run doctor`.
 
 ### knip — código muerto
-Resumen: 29 archivos sin uso · 6 dependencias sin uso · 147 exports sin uso · 71 tipos exportados sin uso ·
-1 export duplicado. **Verificar cada uno antes de borrar** (Fase 2): knip no ve imports dinámicos ni rutas que se
-abren por string desde notificaciones del backend.
-
-**Archivos sin uso (29)**
-- Componentes: `src/components/ScreenHeader.tsx` (todas usan `layout/ScreenHeader`), `src/components/FormField.tsx`
-  (⚠️ CLAUDE.md lo lista como base: decidir si se adopta o se borra), `components/useColorScheme.web.ts`.
-- Hooks: `src/hooks/useSearch.ts`; barrels `index.ts` de `funerary`, `notifications`, `petfriendly`, `rides`,
-  `search`, `sponsors`.
-- Estilos/utilidades: `src/styles/common.ts`, `src/utils/index.ts`, `src/utils/validators.ts` (⚠️ útil para la
-  validación de formularios de la Fase 5; valorar adoptarlo en vez de borrarlo).
-- Tipos: `src/types/index.ts` y 17 archivos de `src/types/` (`admin`, `carnet`, `citas`, `common`, `cuidadores`,
-  `ecommerce`, `funerary`, `grooming`, `insurance`, `notifications`, `paseadores`, `petfriendly`, `sponsors`,
-  `training`, `venues`). Indica que **los servicios definen sus propios tipos** en lugar de usar `src/types/`:
-  hay que decidir una sola fuente (ver Decisiones pendientes).
-
-**Dependencias sin uso (6)**: `@expo/cli`, `@teovilla/react-native-web-maps`, `axios`, `expo-symbols`,
-`expo-web-browser`, `react-native-get-location`. Varias son nativas → quitarlas cambia el APK (agrupar con Fase 5).
-`@teovilla/react-native-web-maps` además trae un `expo-location@15` duplicado (ver expo-doctor).
-
-**Exports sin uso (147)**: la mayoría son re-exports de los barrels `src/hooks/<modulo>/index.ts` (las pantallas
-importan el hook directo, no del barrel) y helpers de `src/constants/roles.ts` (`isAdmin`, `isVeterinario`,
-`ROLE_EMOJIS`, …). También: `accents` y `motion` en `constants/design.ts` (tokens definidos y no usados),
-`SkeletonCard`, `useAdminOrders`, `useSubcategories`, `useAlerts`, `usePatients`.
-Export duplicado: `Skeleton` se exporta como nombrado y como `default`.
+**Tras la Fase 2 (2026-10-07):** 23 archivos · 6 dependencias · 65 exports · 65 tipos exportados sin uso.
+Lo que queda es intencional o espera la auditoría de su módulo:
+- `src/types/*` (decisión: fuente única de tipos; los servicios migran a ellos al tocar cada módulo, tarea L7).
+- `src/components/FormField.tsx` y `src/utils/validators.ts`: se adoptan en la Fase 5 (formularios premium).
+- Hooks de módulos P2/P3 sin importador (tarea L9): `admin/useAdminOrders`, `clinica/useAlerts`, `clinica/usePatients`,
+  `ecommerce/useSubcategories`, `perdidas/useReportActions`, `perdidas/useReportForm`.
+- Dependencias sin uso (`@expo/cli`, `@teovilla/react-native-web-maps`, `axios`, `expo-symbols`, `expo-web-browser`,
+  `react-native-get-location`): varias nativas → APK de la Fase 5 (`expo-web-browser` se va a usar en F20).
+- Exports: funciones de servicios de módulos no auditados y constantes `*_OPTIONS`/`*_DEFAULTS` de `src/types/`.
 
 ### ESLint (`eslint-config-expo`)
-12 errores · 219 advertencias. Por regla:
+**Tras la Fase 2: 0 errores · 83 advertencias** (`npm run check` pasa). Línea base inicial: 12 errores · 219 advertencias. Por regla:
 
 | Regla | Cantidad |
 |---|---|

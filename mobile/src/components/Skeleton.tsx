@@ -59,7 +59,6 @@ export function SkeletonList({ count = 4 }: { count?: number }) {
     );
 }
 
-export default Skeleton;
 
 const styles = StyleSheet.create({
     card: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1 },

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions, ScrollView, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useReports } from '@/src/hooks/perdidas';
+import { useReports } from '@/src/hooks/perdidas/useReports';
 import { getTimeAgo } from '@/src/utils/formatters';
 import type { LostPetReport } from '@/src/types/perdidas';
 import { PawPrint, Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, MapPin, Clock } from 'lucide-react-native';

@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, FlatList, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, FlatList, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePetCarnet } from '@/src/hooks/carnet/usePetCarnet';
 import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
 import type { ReminderWithDetails } from '@/src/services/reminders';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Syringe, ClipboardList, Weight, Thermometer, Calendar, User, ShoppingBag, Plus, Activity, Clock, ShieldCheck, AlertCircle, Bell, Pill, Check, ChevronDown, ChevronUp, FlaskConical, Info } from 'lucide-react-native';
+import { Syringe, ClipboardList, Weight, Thermometer, Calendar, ShoppingBag, Plus, Activity, Clock, ShieldCheck, AlertCircle, Bell, Pill, Check, ChevronDown, ChevronUp, FlaskConical, Info } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import WeightSparkline from '../../src/components/WeightSparkline';
 import AppRefreshControl from '@/src/components/AppRefreshControl';

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { usePetDetail } from '@/src/hooks/mascotas';
+import { usePetDetail } from '@/src/hooks/mascotas/usePetDetail';
 import { formatAge, formatWeight } from '@/src/utils/formatters';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import BackButton from '@/src/components/BackButton';

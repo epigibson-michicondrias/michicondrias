@@ -3,7 +3,7 @@ import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useServiceProfile } from '@/src/hooks/servicios-pro';
+import { useServiceProfile } from '@/src/hooks/servicios-pro/useServiceProfile';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Save } from 'lucide-react-native';

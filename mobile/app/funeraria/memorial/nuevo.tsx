@@ -8,7 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import PetPicker from '@/src/features/salud/PetPicker';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { Heart, Send, Info } from 'lucide-react-native';
+import { Send, Info } from 'lucide-react-native';
 
 export default function NuevoMemorialScreen() {
     const { theme } = useTheme();

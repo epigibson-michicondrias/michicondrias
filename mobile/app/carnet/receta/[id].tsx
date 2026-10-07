@@ -1,6 +1,6 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Dimensions, Share } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePrescriptionDetail } from '@/src/hooks/carnet/usePrescriptionDetail';
 import { useTheme } from '@/src/hooks/useTheme';

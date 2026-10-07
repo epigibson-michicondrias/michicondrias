@@ -1,6 +1,6 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Dimensions } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminStats } from '@/src/hooks/admin/useAdminStats';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
