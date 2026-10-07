@@ -4,21 +4,31 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePetDetail } from '@/src/hooks/mascotas/usePetDetail';
 import { formatAge, formatWeight } from '@/src/utils/formatters';
-import LoadingOverlay from '@/src/components/LoadingOverlay';
 import BackButton from '@/src/components/BackButton';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Settings, Award, Activity, Calendar, ChevronLeft } from 'lucide-react-native';
+import { Settings, Award, Activity, Calendar, ChevronLeft, LayoutGrid, HeartPulse, ClipboardList } from 'lucide-react-native';
+import SegmentedControl from '@/src/components/SegmentedControl';
+import { Skeleton } from '@/src/components/Skeleton';
+import { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
+import { PetHealthTab, PetHistoryTab } from '@/src/features/mascotas/PetHealthTabs';
+import { spacing, radius } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
 export default function PetProfileScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { pet, isOwner, isLoading, error, refetch, goBack, goToCarnet, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
+    const { pet, isOwner, isLoading, error, refetch, goBack, tab, setTab, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
+    const health = usePetHealth(pet?.id, pet, tab === 'resumen' ? null : tab);
 
     if (isLoading) return (
-        <ScreenContainer style={styles.center}>
-            <LoadingOverlay message="Sincronizando con el chip..." />
+        <ScreenContainer>
+            <Skeleton height={300} borderRadius={0} />
+            <View style={styles.loadingBody}>
+                <Skeleton width="50%" height={28} />
+                <Skeleton height={48} borderRadius={radius.lg} />
+                <Skeleton height={96} borderRadius={radius.lg} />
+            </View>
         </ScreenContainer>
     );
 
@@ -72,6 +82,21 @@ export default function PetProfileScreen() {
                         </View>
                     </View>
 
+                    <SegmentedControl
+                        accessibilityLabel={`Secciones de ${pet.name}`}
+                        value={tab}
+                        onChange={setTab}
+                        options={[
+                            { value: 'resumen', label: 'Resumen', icon: LayoutGrid },
+                            { value: 'salud', label: 'Salud', icon: HeartPulse },
+                            { value: 'historial', label: 'Historial', icon: ClipboardList },
+                        ]}
+                    />
+
+                    {tab === 'salud' && <View style={styles.tabBody}><PetHealthTab health={health} petName={pet.name} /></View>}
+                    {tab === 'historial' && <View style={styles.tabBody}><PetHistoryTab health={health} petId={pet.id} /></View>}
+
+                    {tab === 'resumen' && (<>
                     {/* Stats Grid */}
                     <View style={styles.grid}>
                         <PetStat icon={<Calendar size={20} color="#6366f1" />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
@@ -84,20 +109,8 @@ export default function PetProfileScreen() {
                         />
                     </View>
 
-                    {/* Carnet Digital */}
+                    {/* Seguimiento GPS (solo el dueño) */}
                     <View style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Carnet Digital</Text>
-                        <TouchableOpacity style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]} onPress={goToCarnet} accessibilityRole="button">
-                            <View style={styles.actionIcon}>
-                                <Text style={{ fontSize: 24 }}>💉</Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.actionTitle, { color: theme.text }]}>Vacunas y Desparasitaciones</Text>
-                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Consulta el historial y próximas vacunas</Text>
-                            </View>
-                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
-                        </TouchableOpacity>
-
                         {isOwner && (
                             <TouchableOpacity
                                 style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
@@ -162,6 +175,7 @@ export default function PetProfileScreen() {
                             </View>
                         </View>
                     )}
+                    </>)}
                 </View>
                 <View style={{ height: 100 }} />
             </ScrollView>
@@ -180,6 +194,8 @@ function PetStat({ icon, label, value, theme }: { icon: any; label: string; valu
 }
 
 const styles = StyleSheet.create({
+    loadingBody: { padding: spacing.xl, gap: spacing.lg },
+    tabBody: { marginTop: spacing.xl },
     center: {
         justifyContent: 'center',
         alignItems: 'center',

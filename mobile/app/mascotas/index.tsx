@@ -56,7 +56,7 @@ export default function MascotasListScreen() {
                         <Text style={styles.trackerText}>Michi-Tracker Activo</Text>
                     </View>
                 ) : (
-                    <Text style={[styles.statLabel, { color: theme.textMuted }]}>Ver carnet y detalles</Text>
+                    <Text style={[styles.statLabel, { color: theme.textMuted }]}>Ver ficha y salud</Text>
                 )}
                 <ChevronRight size={20} color={theme.textMuted} />
             </View>

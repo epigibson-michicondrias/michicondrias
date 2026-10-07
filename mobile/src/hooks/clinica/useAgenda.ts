@@ -107,10 +107,10 @@ export function useAgenda() {
         setShowSearch(!showSearch);
     };
 
-    // La ficha de una cita completada vive en el carnet de la mascota
+    // La ficha de una cita completada vive en el historial de la mascota (pestaña Historial)
     const goToRecord = (id: string) => {
         const appt = appointments.find(a => a.id === id);
-        if (appt?.pet_id) router.push(`/carnet/${appt.pet_id}` as any);
+        if (appt?.pet_id) router.push(`/mascotas/${appt.pet_id}?tab=historial` as any);
     };
 
     return {

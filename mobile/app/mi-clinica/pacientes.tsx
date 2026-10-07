@@ -42,8 +42,8 @@ export default function PacientesScreen() {
         return (
             <TouchableOpacity
                 accessibilityRole="button"
-                accessibilityLabel={`Abrir carnet de ${item.name}`}
-                onPress={() => router.push(`/carnet/${item.id}` as any)}
+                accessibilityLabel={`Abrir ficha de ${item.name}`}
+                onPress={() => router.push(`/mascotas/${item.id}?tab=historial` as any)}
                 style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
             >
                 <View style={styles.head}>
