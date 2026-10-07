@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mobile-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--prefix", "mobile", "expo", "start", "--web", "--port", "3000"],
+      "cwd": "mobile",
+      "port": 3000
+    }
+  ]
+}
