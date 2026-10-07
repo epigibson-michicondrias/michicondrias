@@ -119,7 +119,8 @@ cd mobile && npx eas-cli update --channel production --environment production --
 - **OTA vs APK:** JS/estilos salen por OTA. Dependencias nativas, permisos o `app.config.js` piden APK nuevo: van
   todas juntas en U10.
 - **Commits:** chicos, en español, convencionales (`feat(mobile): …`, `fix(backend): …`, `refactor(mobile): …`).
-  Uno por bloque. **No hagas push**: un push a `main` con `backend/**` despliega a producción.
+  Uno por bloque. Un push a `main` con `backend/**` **despliega a producción**: hazlo solo con el bloque verificado y
+  siguiendo el orden de despliegue de §3.
 - **Cierre de cada bloque:** actualiza `PROGRESO_MOBILE.md` (checkbox del backlog + entrada en Bitácora) y marca `[x]`
   en `AUDITORIA_MOBILE.md`.
 
@@ -183,7 +184,8 @@ ReminderItem, LabItem), `mascotas/PetHealthTabs` (PetHealthTab, PetHistoryTab).
 - Borrar una **pantalla o ruta** que no esté en el mapa aprobado. Primero busca referencias en `router.push`, `href`,
   `roleTools.ts` y `backend/`, porque pueden ser deep links.
 - Cambios de backend que **no sean aditivos** (renombrar o borrar columnas, cambiar contratos usados por la web).
-- Cualquier cosa con **producción**: migraciones, push o datos reales.
+- Tocar **datos reales** de producción (borrar, corregir o sembrar registros) o cualquier migración que no sea aditiva.
+  El despliegue normal (push, migración aditiva y OTA) sí lo puedes hacer tú, según §3.
 
 **No renombres ni borres** estas rutas, que son deep links del backend: `tienda/pago-exitoso`, `tienda/pago-cancelado`,
 `mascotas/[id]`, `reset-password`.
@@ -273,6 +275,7 @@ el visto bueno al usuario antes**.
    archivos clave, cómo se verificó y qué quedó pendiente.
 4. `AUDITORIA_MOBILE.md`: marcar `[x]` en los hallazgos resueltos.
 5. Commit convencional en español. Si tocaste backend, en el mensaje di si hay migración y que se corre antes del deploy.
-6. Si el cambio necesita deploy o APK, anótalo para el usuario; no lo hagas tú.
+6. Si el cambio necesita deploy, despliégalo con el orden de §3 y avisa qué salió. Si necesita APK nuevo, anótalo y
+   pregúntale al usuario (U10).
 
 ¡Éxito, compa! 🐾
