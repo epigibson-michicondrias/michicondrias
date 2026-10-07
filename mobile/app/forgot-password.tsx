@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { apiFetch } from '../src/lib/api';
+import { requestPasswordReset } from '../src/lib/auth';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function ForgotPasswordScreen() {
@@ -27,10 +28,7 @@ export default function ForgotPasswordScreen() {
         }
         setLoading(true);
         try {
-            await apiFetch('core', '/forgot-password', {
-                method: 'POST',
-                body: JSON.stringify({ email }),
-            });
+            await requestPasswordReset(email);
             setSent(true);
         } catch (error: any) {
             showAlert({
@@ -44,11 +42,11 @@ export default function ForgotPasswordScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar style={isDark ? 'light' : 'dark'} />
             <LinearGradient
                 colors={isDark
-                    ? ['#f59e0b', '#081a2e', '#0a1628']
+                    ? ['#1c2f6b', '#101c3d', '#0b0e17']
                     : ['#fef3c7', '#fffbeb', '#fffdf5']
                 }
                 style={StyleSheet.absoluteFillObject}
@@ -158,7 +156,7 @@ export default function ForgotPasswordScreen() {
                                     <View style={styles.tipItem}>
                                         <View style={[styles.tipDot, { backgroundColor: '#f59e0b' }]} />
                                         <Text style={[styles.tipText, { color: isDark ? 'rgba(255,255,255,0.6)' : '#475569' }]}>
-                                            El enlace expira en 24 horas
+                                            El enlace expira en 30 minutos
                                         </Text>
                                     </View>
                                     <View style={styles.tipItem}>
@@ -176,6 +174,16 @@ export default function ForgotPasswordScreen() {
                                 >
                                     <Text style={styles.sendBtnText}>Volver al Login</Text>
                                     <ArrowRight size={18} color="#fff" />
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[styles.secondaryBtn, {
+                                        borderColor: isDark ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.2)',
+                                    }]}
+                                    onPress={() => router.push('/reset-password')}
+                                    activeOpacity={0.85}
+                                >
+                                    <Text style={[styles.secondaryBtnText, { color: theme.accent }]}>¿Ya tienes el token? Restablecer aquí</Text>
                                 </TouchableOpacity>
                             </View>
                         </>
@@ -250,4 +258,9 @@ const styles = StyleSheet.create({
     },
     footerLabel: { fontSize: 14, fontWeight: '500' },
     footerLink: { fontSize: 14, fontWeight: '800' },
+    secondaryBtn: {
+        height: 48, borderRadius: 16, borderWidth: 1.5,
+        alignItems: 'center', justifyContent: 'center', marginTop: 12,
+    },
+    secondaryBtnText: { fontSize: 14, fontWeight: '700' },
 });

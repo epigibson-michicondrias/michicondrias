@@ -8,10 +8,14 @@ from pydantic import BaseModel, EmailStr
 
 from app.core import security
 from app.core.config import settings
+from app.core.email import send_password_reset_email
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import Token, LoginResponse, TwoFactorVerifyLoginRequest, TokenPayload
 import pyotp
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -48,7 +52,8 @@ def login_access_token(
         # Generate short-lived temp token (5 minutes) containing subject and role
         temp_token_expires = timedelta(minutes=5)
         temp_token = security.create_access_token(
-            user.id, role=role_name, expires_delta=temp_token_expires, is_temp=True
+            user.id, role=role_name, expires_delta=temp_token_expires, 
+            is_temp=True, purpose="2fa_temp"
         )
         return {
             "require_2fa": True,
@@ -59,7 +64,8 @@ def login_access_token(
     return {
         "require_2fa": False,
         "access_token": security.create_access_token(
-            user.id, role=role_name, expires_delta=access_token_expires
+            user.id, role=role_name, expires_delta=access_token_expires,
+            purpose="auth"
         ),
         "token_type": "bearer",
     }
@@ -88,6 +94,14 @@ def verify_login_2fa(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="El token proporcionado no es un token temporal de 2FA",
         )
+    
+    # Validate token purpose
+    purpose = payload.get("purpose", "")
+    if purpose != "2fa_temp":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token no válido para verificación 2FA",
+        )
 
     user = db.query(User).filter(User.id == token_data.sub).first()
     if not user or not user.is_active:
@@ -103,7 +117,8 @@ def verify_login_2fa(
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
         "access_token": security.create_access_token(
-            user.id, role=role_name, expires_delta=access_token_expires
+            user.id, role=role_name, expires_delta=access_token_expires,
+            purpose="auth"
         ),
         "token_type": "bearer",
     }
@@ -124,12 +139,16 @@ def forgot_password(
             user.id, 
             role=user.role.name if user.role else "consumidor",
             expires_delta=timedelta(minutes=30),
-            is_temp=True
+            is_temp=True,
+            purpose="password_reset"
         )
         
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.info(f"[PASSWORD RESET] Token for {body.email}: {reset_token}")
+        # Send the actual email (falls back to logging if Resend is not configured)
+        send_password_reset_email(
+            email=user.email,
+            token=reset_token,
+            user_name=user.full_name
+        )
     
     return {"message": "Si el correo existe, recibirás un enlace para restablecer tu contraseña"}
 
@@ -159,6 +178,21 @@ def reset_password(
             detail="Token no válido para reset de contraseña",
         )
     
+    # Validate token purpose
+    purpose = payload.get("purpose", "")
+    if purpose != "password_reset":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Token no válido para reset de contraseña",
+        )
+    
+    # Validate password strength
+    if len(body.new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La contraseña debe tener al menos 8 caracteres",
+        )
+    
     user = db.query(User).filter(User.id == token_data.sub).first()
     if not user or not user.is_active:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -167,5 +201,6 @@ def reset_password(
     db.add(user)
     db.commit()
     
+    logger.info(f"[PASSWORD RESET] Password successfully reset for user {user.email}")
+    
     return {"message": "Contraseña actualizada correctamente"}
-

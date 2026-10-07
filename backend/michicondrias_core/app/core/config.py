@@ -17,6 +17,14 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "super_secreto_cambiar_en_produccion" 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
 
+    # Email Configuration (Resend)
+    RESEND_API_KEY: str | None = None
+    EMAIL_FROM: str = "Michicondrias <noreply@michicondrias.com>"
+    
+    # Deep Link Configuration
+    APP_DEEP_LINK_SCHEME: str = "michicondrias"
+    FRONTEND_URL: str = "https://michicondrias.com"
+
     # API Gateway Configuration
     # Defaults to localhost for local dev. 
     # IN PRODUCTION (AWS), this MUST be set via environment variable: API_GATEWAY_URL

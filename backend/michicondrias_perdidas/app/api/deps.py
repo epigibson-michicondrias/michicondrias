@@ -8,6 +8,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.CORE_SERVICE_URL}/api/
 ALGORITHM = "HS256"
 
 def _decode_token(token: str) -> dict:
+    """Decode and validate JWT token. Rejects temporary tokens (2FA/reset)."""
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -19,6 +20,12 @@ def _decode_token(token: str) -> dict:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="No se pudieron validar las credenciales",
+            )
+        # Reject temporary tokens (2FA pending or password reset)
+        if payload.get("is_temp", False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Se requiere completar la verificación 2FA",
             )
         return payload
     except JWTError:
@@ -52,6 +59,9 @@ def get_optional_user_id(token: str = Depends(oauth2_scheme)) -> str:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[ALGORITHM]
         )
+        # Don't reject temp tokens for optional auth — just return None
+        if payload.get("is_temp", False):
+            return None
         user_id: str = payload.get("sub")
         return user_id
     except JWTError:

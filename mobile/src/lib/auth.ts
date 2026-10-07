@@ -5,8 +5,10 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_URL || "https://michicondrias.duckd
 const ROLE_KEY = 'user_role';
 
 export interface LoginResponse {
-    access_token: string;
-    token_type: string;
+    require_2fa: boolean;
+    temp_token?: string;
+    access_token?: string;
+    token_type?: string;
 }
 
 export interface User {
@@ -22,6 +24,7 @@ export interface User {
     proof_of_address_url?: string;
     document_type?: string;
     created_at?: string;
+    is_two_factor_enabled?: boolean;
 }
 
 function parseJwtRole(token: string): string {
@@ -59,12 +62,71 @@ export async function login(email: string, password: string): Promise<LoginRespo
     }
 
     const data: LoginResponse = await res.json();
-    await setToken(data.access_token);
 
+    // If 2FA is required, don't store token yet — return for UI to handle
+    if (data.require_2fa) {
+        return data;
+    }
+
+    // Normal login — store token and role
+    if (data.access_token) {
+        await setToken(data.access_token);
+        const role = parseJwtRole(data.access_token);
+        await setUserRole(role);
+    }
+
+    return data;
+}
+
+export async function verify2FALogin(
+    tempToken: string, 
+    code: string
+): Promise<{ access_token: string; token_type: string }> {
+    const res = await fetch(`${BASE_URL}/core/api/v1/login/verify-2fa`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ temp_token: tempToken, code }),
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Código de verificación inválido");
+    }
+
+    const data = await res.json();
+    
+    // Store the final token and role
+    await setToken(data.access_token);
     const role = parseJwtRole(data.access_token);
     await setUserRole(role);
 
     return data;
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/core/api/v1/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "No se pudo enviar el correo de recuperación");
+    }
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+    const res = await fetch(`${BASE_URL}/core/api/v1/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, new_password: newPassword }),
+    });
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "No se pudo restablecer la contraseña");
+    }
 }
 
 export async function register(

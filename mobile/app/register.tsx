@@ -60,11 +60,11 @@ export default function RegisterScreen() {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: isDark ? '#081a2e' : '#f0f9ff' }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <StatusBar style={isDark ? 'light' : 'dark'} />
             <LinearGradient
                 colors={isDark
-                    ? ['#059669', '#081a2e', '#0a1628']
+                    ? ['#1c2f6b', '#101c3d', '#0b0e17']
                     : ['#d1fae5', '#ecfdf5', '#f0fdf4']
                 }
                 style={StyleSheet.absoluteFillObject}

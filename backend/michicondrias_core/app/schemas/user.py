@@ -15,6 +15,7 @@ class TokenPayload(BaseModel):
     sub: Optional[str] = None
     role: Optional[str] = "consumidor"
     is_temp: Optional[bool] = False
+    purpose: Optional[str] = "auth"
 
 class UserBase(BaseModel):
     email: EmailStr

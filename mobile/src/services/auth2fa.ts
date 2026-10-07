@@ -4,11 +4,14 @@ import { apiFetch } from "../lib/api";
 
 export interface Setup2FAResponse {
     secret: string;
-    qr_uri: string;
+    otpauth_url: string;
 }
 
 export interface TwoFAActionResponse {
-    success: boolean;
+    // UserResponse from backend
+    id: string;
+    email: string;
+    is_two_factor_enabled?: boolean;
 }
 
 export async function setup2FA(): Promise<Setup2FAResponse> {
@@ -17,17 +20,17 @@ export async function setup2FA(): Promise<Setup2FAResponse> {
     });
 }
 
-export async function enable2FA(code: string): Promise<TwoFAActionResponse> {
+export async function enable2FA(code: string, secret: string): Promise<TwoFAActionResponse> {
     return apiFetch<TwoFAActionResponse>("core", "/users/me/2fa/enable", {
         method: "POST",
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, secret }),
     });
 }
 
-export async function disable2FA(code: string): Promise<TwoFAActionResponse> {
+export async function disable2FA(code: string, secret: string): Promise<TwoFAActionResponse> {
     return apiFetch<TwoFAActionResponse>("core", "/users/me/2fa/disable", {
         method: "POST",
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, secret }),
     });
 }
 
