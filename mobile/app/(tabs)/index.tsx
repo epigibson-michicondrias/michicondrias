@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar, View, Text 
 import { useTheme } from '@/src/hooks/useTheme';
 import { useHome, STATUS_COLORS, STATUS_LABELS, formatDate } from '@/src/hooks/home/useHome';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Plus, Bell, Bone, ShoppingBag, Activity, Sparkles, ChevronRight, Calendar, ShieldCheck, Search, Zap, Handshake, Clock, XCircle } from 'lucide-react-native';
+import { Plus, Bell, Bone, Activity, Sparkles, ChevronRight, Calendar, ShieldCheck, Zap, Handshake, XCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GettingStartedCard from '@/src/components/GettingStartedCard';
@@ -60,9 +60,6 @@ export default function DashboardScreen() {
 
         {/* ─── Top Bar ─── */}
         <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
-          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/busqueda' as any)} accessibilityRole="button" accessibilityLabel="Buscar">
-            <Search size={24} color="#fff" />
-          </TouchableOpacity>
           <View style={styles.topLogo}>
             <Sparkles size={16} color="#e9c883" />
             <Text style={styles.logoText}>MICHICONDRIAS</Text>
@@ -97,7 +94,12 @@ export default function DashboardScreen() {
                   {user?.full_name?.split(' ')[0] || 'Michilover'}
                 </Text>
               </View>
-              <View style={styles.avatarBox}>
+              <TouchableOpacity
+                style={styles.avatarBox}
+                onPress={() => router.push('/(tabs)/perfil' as any)}
+                accessibilityRole="button"
+                accessibilityLabel="Ir a tu perfil"
+              >
                 <LinearGradient colors={['#f3dca0', '#c9a257']} style={styles.avatarBorder}>
                   <View style={[styles.avatarInner, { overflow: 'hidden' }]}>
                     {avatarUrl ? (
@@ -109,25 +111,21 @@ export default function DashboardScreen() {
                     )}
                   </View>
                 </LinearGradient>
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* Stats strip */}
             <View style={styles.statsStrip}>
-              <View style={styles.statItem}>
+              <TouchableOpacity style={styles.statItem} onPress={() => router.push('/mascotas')} accessibilityRole="button" accessibilityLabel={`${pets.length} mascotas`}>
                 <Text style={styles.statVal}>{pets.length}</Text>
                 <Text style={styles.statLab}>Mascotas</Text>
-              </View>
+              </TouchableOpacity>
               <View style={styles.statDivider} />
-              <TouchableOpacity style={styles.statItem} onPress={() => router.push('/directorio/citas' as any)}>
+              <TouchableOpacity style={styles.statItem} onPress={() => router.push('/directorio/citas' as any)} accessibilityRole="button" accessibilityLabel="Próximas citas">
                 <Text style={styles.statVal}>{appointmentsLoading ? '–' : upcomingAppointments.length}</Text>
                 <Text style={styles.statLab}>Citas</Text>
               </TouchableOpacity>
-              <View style={styles.statDivider} />
-              <TouchableOpacity style={styles.statItem} onPress={() => router.push('/(tabs)/tienda-tab' as any)}>
-                <Text style={styles.statVal}>Ver</Text>
-                <Text style={styles.statLab}>Tienda</Text>
-              </TouchableOpacity>
+
             </View>
           </View>
         </View>
@@ -145,16 +143,14 @@ export default function DashboardScreen() {
               style={[styles.actionCard, { width: 'auto', alignSelf: 'stretch', flexBasis: 'auto', marginHorizontal: 24, flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: theme.surface, borderColor: theme.accent }]}
             >
               <View style={[styles.actionIconBox, { backgroundColor: theme.accentLight, marginBottom: 0 }]}>
-                {proOnboarding === 'approved' ? <Handshake size={24} color={theme.accent} />
-                  : proOnboarding === 'pending' ? <Clock size={24} color={theme.accent} />
-                  : <XCircle size={24} color={theme.error} />}
+                {proOnboarding === 'approved' ? <Handshake size={24} color={theme.accent} /> : <XCircle size={24} color={theme.error} />}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.actionTitle, { color: theme.text, textAlign: 'left' }]}>
-                  {proOnboarding === 'approved' ? 'Identidad aprobada' : proOnboarding === 'pending' ? 'Verificación en revisión' : 'Verificación rechazada'}
+                  {proOnboarding === 'approved' ? 'Identidad aprobada' : 'Verificación rechazada'}
                 </Text>
                 <Text style={{ color: theme.textMuted, fontSize: 12, fontWeight: '500', marginTop: 2 }}>
-                  {proOnboarding === 'approved' ? 'Activa tu cuenta profesional ahora' : proOnboarding === 'pending' ? 'Un administrador revisa tus documentos' : 'Vuelve a subir tus documentos'}
+                  {proOnboarding === 'approved' ? 'Activa tu cuenta profesional ahora' : 'Vuelve a subir tus documentos'}
                 </Text>
               </View>
               <ChevronRight size={18} color={theme.textMuted} />
@@ -266,7 +262,7 @@ export default function DashboardScreen() {
           <View style={styles.sectionHeader}>
             <View style={styles.titleRow}>
               <Zap size={20} color={theme.accent} />
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>{roleTools.length > 0 ? 'Para tu mascota' : 'Acciones Rápidas'}</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>{roleTools.length > 0 ? 'Para tu mascota' : 'Atajos'}</Text>
             </View>
           </View>
 
@@ -366,25 +362,6 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        {/* ─── Banner Promocional ─── */}
-        <View style={styles.bannerSection}>
-          <TouchableOpacity style={styles.banner} activeOpacity={0.9} onPress={() => router.push('/(tabs)/tienda-tab' as any)}>
-            <LinearGradient
-              colors={['#243b85', '#101c3d']}
-              style={styles.bannerGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            />
-            <View style={styles.bannerContent}>
-              <View style={styles.bannerTextCol}>
-                <Text style={styles.bannerTag}>TIENDA</Text>
-                <Text style={styles.bannerTitle}>Todo para tu michi</Text>
-                <Text style={styles.bannerDesc}>Alimento, accesorios y cuidado para tu mascota</Text>
-              </View>
-              <ShoppingBag size={48} color="rgba(255,255,255,0.3)" />
-            </View>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </ScreenContainer>
   );
@@ -624,29 +601,4 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   emptyCitasBtnText: { fontSize: 13, fontWeight: '800', color: '#fff' },
-
-  /* banner */
-  bannerSection: { paddingHorizontal: 24, marginTop: 32 },
-  banner: {
-    height: 120,
-    borderRadius: 32,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#ec4899',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-  },
-  bannerGradient: { ...StyleSheet.absoluteFillObject },
-  bannerContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 24,
-    justifyContent: 'space-between',
-  },
-  bannerTextCol: { flex: 1 },
-  bannerTag: { fontSize: 9, fontWeight: '900', color: 'rgba(255,255,255,0.9)', letterSpacing: 1 },
-  bannerTitle: { fontSize: 20, fontWeight: '900', color: '#fff', marginTop: 2 },
-  bannerDesc: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.95)', marginTop: 4 },
 });

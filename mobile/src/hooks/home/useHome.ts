@@ -12,7 +12,7 @@ import { getUserAppointments } from '@/src/services/citas';
 import { normalizeRole, isProRole } from '@/src/constants/roles';
 import { getHomeTools, ROLE_PANEL_TITLE } from '@/src/constants/roleTools';
 import { useUnreadNotificationCount } from '@/src/hooks/notifications/useNotifications';
-import { Stethoscope, ShoppingBag, AlertTriangle, Calendar } from 'lucide-react-native';
+import { Stethoscope, Sparkles, AlertTriangle, Heart } from 'lucide-react-native';
 
 // ── Types ──
 export interface QuickAction {
@@ -26,10 +26,10 @@ export interface QuickAction {
 // ── Constants ──
 /** Atajos de dueño de mascota en Inicio (las herramientas de cada rol salen de ROLE_TOOLS en roleTools.ts). */
 const OWNER_ACTIONS: QuickAction[] = [
-  { title: 'Buscar Vet', icon: Stethoscope, color: '#0ea5e9', route: '/directorio' },
-  { title: 'Mis Citas', icon: Calendar, color: '#8b5cf6', route: '/directorio/citas' },
-  { title: 'Michi-Shop', icon: ShoppingBag, color: '#ec4899', route: '/tienda' },
-  { title: 'Perdidos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas' },
+  { title: 'Veterinarios', icon: Stethoscope, color: '#0ea5e9', route: '/directorio' },
+  { title: 'Diagnóstico IA', icon: Sparkles, color: '#8b5cf6', route: '/mascotas/diagnostico-ia' },
+  { title: 'Perdidas', icon: AlertTriangle, color: '#ef4444', route: '/perdidas' },
+  { title: 'Adopciones', icon: Heart, color: '#ec4899', route: '/adopciones' },
 ];
 
 export const STATUS_COLORS: Record<string, string> = {
@@ -95,9 +95,9 @@ export function useHome() {
   const actions = OWNER_ACTIONS;
 
   // Estado del alta profesional (solo para cuentas consumidor)
-  const proOnboarding: 'none' | 'pending' | 'approved' | 'rejected' =
+  // Solo si hay algo que hacer (activar la cuenta pro o reenviar documentos); "en revisión" se ve en Perfil
+  const proOnboarding: 'none' | 'approved' | 'rejected' =
     roleName !== 'consumidor' ? 'none'
-    : user?.verification_status === 'PENDING' ? 'pending'
     : user?.verification_status === 'VERIFIED' ? 'approved'
     : user?.verification_status === 'REJECTED' ? 'rejected'
     : 'none';
