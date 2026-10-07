@@ -5,14 +5,14 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 
 **Leyenda:** ⬜ pendiente · 🔍 auditado · 🟡 en progreso · ✅ hecho · ⏸️ bloqueado · — no aplica
 
-## Fase actual: **1 — Auditoría** (P1 completa · faltan P2 y P3)
+## Fase actual: **4 — Funcionalidad** (Fases 0, 2 y 3 ✅ · Fase 1 con P2/P3 pendientes) · ver `HANDOFF.md`
 
 | # | Fase | Estado |
 |---|---|---|
 | 0 | Cimientos (tooling, `.claude/`, documentos) | ✅ 2026-10-07 |
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
-| 3 | Navegación y esqueleto | ⬜ propuesta aprobada 2026-10-07 |
+| 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
 | 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 · F4/F5/F7/F8 esperan deploy del backend |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
@@ -23,19 +23,19 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 
 ## Línea base (inicial 2026-10-07 → tras Fase 2)
 
-| Métrica | Inicial | Tras Fase 2 | Meta |
-|---|---|---|---|
-| Pantallas (`app/**/*.tsx`, sin layouts) | 164 | 157 | — |
-| Pantallas que importan tokens de `constants/design.ts` | 5 | 9 | todas |
-| Pantallas que usan el componente `Button` | 5 | 6 | todas las que tengan botones |
-| Pantallas con colores hex sueltos | 141 | 135 | 0 |
-| Pantallas con `ActivityIndicator` / con `Skeleton` | 83 / 30 | 62 / 29 | 0 / todas las de datos |
-| Pantallas con `EmptyState` | 40 | 41 | todas las listas |
-| ESLint errores / advertencias | 12 / 219 | **0** / 83 | 0 / 0 |
-| knip: archivos / deps / exports sin uso | 29 / 6 / 147 | 23 / 6 / 65 | 0 / 0 / 0 |
-| expo-doctor | 18/20 | 18/20 | 20/20 |
-| `tsc` | limpio | limpio | limpio |
-| `npm run check` | falla | **pasa** | pasa |
+| Métrica | Inicial | Tras Fase 2 | Tras Fase 3 | Meta |
+|---|---|---|---|---|
+| Pantallas (`app/**/*.tsx`, sin layouts) | 164 | 157 | 155 | — |
+| Pantallas que importan tokens de `constants/design.ts` | 5 | 9 | 13 | todas |
+| Pantallas que usan el componente `Button` | 5 | 6 | 7 | todas las que tengan botones |
+| Pantallas con colores hex sueltos | 141 | 135 | 127 | 0 |
+| Pantallas con `ActivityIndicator` / con `Skeleton` | 83 / 30 | 62 / 29 | 62 / 29 | 0 / todas las de datos |
+| Pantallas con `EmptyState` | 40 | 41 | 42 | todas las listas |
+| ESLint errores / advertencias | 12 / 219 | **0** / 83 | **0** / 73 | 0 / 0 |
+| knip: archivos / deps / exports sin uso | 29 / 6 / 147 | 23 / 6 / 65 | — | 0 / 0 / 0 |
+| expo-doctor | 18/20 | 18/20 | 18/20 | 20/20 |
+| `tsc` | limpio | limpio | limpio | limpio |
+| `npm run check` | falla | **pasa** | **pasa** | pasa |
 
 Remedir las métricas de pantallas (desde `mobile/`):
 ```bash
@@ -203,17 +203,18 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] L8 Borrar las 5 paletas alternativas de `constants/palettes.ts` (dejar solo `premium`).
 
 **Fase 3 — Navegación** (tras aprobar la propuesta; un bloque por sesión)
-- [ ] N1 Grupo `(auth)` + `_layout` con guard (`Stack.Protected`, consultar context7 SDK 55) y sin destello.
-- [ ] N2 Perfil único: secciones nuevas en la pestaña; `perfil/index` → `perfil/editar` (kyc y paleta ya borradas);
+- [x] N1 Grupo `(auth)` + `_layout` con guard (`Stack.Protected`, consultar context7 SDK 55) y sin destello.
+- [x] N2 Perfil único: secciones nuevas en la pestaña; `perfil/index` → `perfil/editar` (kyc y paleta ya borradas);
       un solo Cerrar sesión.
-- [ ] N3 Herramientas: solo herramientas del rol; quitar Cuenta, Soporte, Cerrar sesión y el banner duplicado.
-- [ ] N4 Inicio: quitar lupa y accesos a la tienda; atajos de dueño nuevos; tarjeta de estado solo si es accionable.
-- [ ] N5 Explorar: catálogo depurado (sin tienda, compras ni carnet; una sola entrada de IA; Veterinarios y clínicas).
-- [ ] N6 Tienda: borrar `/tienda/categorias` y las tarjetas; referencias `/tienda` → tab; badge del carrito;
+- [x] N3 Herramientas: solo herramientas del rol; quitar Cuenta, Soporte, Cerrar sesión y el banner duplicado.
+- [x] N4 Inicio: quitar lupa y accesos a la tienda; atajos de dueño nuevos; tarjeta de estado solo si es accionable.
+- [x] N5 Explorar: catálogo depurado (sin tienda, compras ni carnet; una sola entrada de IA; Veterinarios y clínicas).
+- [x] N6 Tienda: borrar `/tienda/categorias` y las tarjetas; referencias `/tienda` → tab; badge del carrito;
       `PagoResultado` común.
-- [ ] N7 Ficha de mascota con pestañas (Resumen/Salud/Historial) absorbiendo `carnet/[id]`; redirect; borrar
+- [x] N7 Ficha de mascota con pestañas (Resumen/Salud/Historial) absorbiendo `carnet/[id]`; redirect; borrar
       `carnet/index` (`carnet/recordatorios` ya borrada).
-- [ ] N8 Renombrar `(tabs)/two` → `(tabs)/perfil` (y opcionalmente `menu` → `herramientas`, actualizando `/(tabs)/menu`).
+- [x] N8 `(tabs)/two` → `(tabs)/perfil` (hecho en N2). `menu.tsx` conserva el nombre de archivo (su título ya es
+      «Herramientas»/«Administración»; renombrarlo solo movería la URL `/(tabs)/menu` sin beneficio).
 
 **Fase 4 — Funcionalidad**
 - [x] 🚨 F1 Sesión robusta: no borrar el token por error de red; `onUnauthorized` de `apiFetch` → AuthContext; `signOut`
@@ -349,4 +350,14 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `services/laboratory.ts` → `clinicLaboratory.ts`. Verificado: tsc, check, web (arranque y ruta borrada → not-found),
   `code-reviewer` sin bloqueantes. Despliegue de backend (F4/F5/F7/F8) **pendiente del usuario**: el clasificador de
   permisos bloqueó leer credenciales de producción para correr la migración.
+- **2026-10-07** — **Fase 3 completa** (solo app, OTA). N1 grupo `(auth)` + guarda sin destello (deja abrir
+  reset-password con sesión). N2 Perfil único `(tabs)/perfil` (+ `perfil/editar`, `useAccount`, `FormField` con error
+  inline, `SegmentedControl`). N3 Herramientas solo con `ROLE_TOOLS`. N4 Inicio sin lupa ni accesos a la tienda, atajos
+  nuevos. N5 Explorar con 14 servicios (fuera tienda, compras, carnet, clínicas duplicadas y Patrocinadores, que era el
+  panel interno de campañas con presupuestos). N6 Tienda: chips como único filtro, Mis pedidos + bolsa en el header,
+  contador en la tab bar, `PagoResultado` común, `/tienda/categorias` borrada. N7 ficha de mascota con pestañas
+  Resumen · Salud · Historial (`usePetHealth`, `features/carnet/CarnetItems`, `features/mascotas/PetHealthTabs`);
+  `carnet/[id]` redirige; `carnet/index` borrada; Mi clínica abre Historial. Verificado: `npm run check` (0 errores,
+  73 avisos), revisión en web con sesión real (claro/oscuro) de cada bloque. Un commit por bloque.
+  Siguiente: el trabajo continúa con otro agente según `HANDOFF.md`.
 
