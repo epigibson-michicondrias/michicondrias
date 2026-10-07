@@ -7,14 +7,14 @@ import { formatAge, formatWeight } from '@/src/utils/formatters';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import BackButton from '@/src/components/BackButton';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Settings, Award, ShieldCheck, Activity, Calendar, ChevronLeft } from 'lucide-react-native';
+import { Settings, Award, Activity, Calendar, ChevronLeft } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function PetProfileScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { pet, isLoading, error, refetch, goBack, goToCarnet, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
+    const { pet, isOwner, isLoading, error, refetch, goBack, goToCarnet, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
 
     if (isLoading) return (
         <ScreenContainer style={styles.center}>
@@ -48,14 +48,16 @@ export default function PetProfileScreen() {
                     )}
                     <View style={styles.headerButtons}>
                         <BackButton onPress={goBack} color="#fff" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)' }} />
-                        <TouchableOpacity
-                            style={styles.iconBtn}
-                            onPress={() => router.push(`/mascotas/editar/${pet.id}`)}
-                            accessibilityRole="button"
-                            accessibilityLabel="Editar mascota"
-                        >
-                            <Settings size={22} color="#fff" />
-                        </TouchableOpacity>
+                        {isOwner && (
+                            <TouchableOpacity
+                                style={styles.iconBtn}
+                                onPress={() => router.push(`/mascotas/editar/${pet.id}`)}
+                                accessibilityRole="button"
+                                accessibilityLabel="Editar mascota"
+                            >
+                                <Settings size={22} color="#fff" />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </View>
 
@@ -67,9 +69,6 @@ export default function PetProfileScreen() {
                             <Text style={[styles.subtitle, { color: theme.textMuted }]}>
                                 {pet.breed || pet.species} • {pet.gender === 'macho' ? 'Macho ♂️' : pet.gender === 'hembra' ? 'Hembra ♀️' : 'Sin género'}
                             </Text>
-                        </View>
-                        <View style={styles.verifiedBadge}>
-                            <ShieldCheck size={20} color="#22c55e" />
                         </View>
                     </View>
 
@@ -99,66 +98,70 @@ export default function PetProfileScreen() {
                             <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
                         </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                            onPress={handleSubscribeMichiTracker}
-                            disabled={isSubscribing || !!pet.has_active_subscription}
-                            accessibilityRole="button"
-                        >
-                            <View style={[styles.actionIcon, { backgroundColor: 'rgba(34, 197, 94, 0.1)' }]}>
-                                <Text style={{ fontSize: 24 }}>🛰️</Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.actionTitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
-                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
-                                    {pet.has_active_subscription ? 'Seguimiento GPS activo' : isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
-                                </Text>
-                            </View>
-                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
-                        </TouchableOpacity>
+                        {isOwner && (
+                            <TouchableOpacity
+                                style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                                onPress={handleSubscribeMichiTracker}
+                                disabled={isSubscribing || !!pet.has_active_subscription}
+                                accessibilityRole="button"
+                            >
+                                <View style={[styles.actionIcon, { backgroundColor: 'rgba(34, 197, 94, 0.1)' }]}>
+                                    <Text style={{ fontSize: 24 }}>🛰️</Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.actionTitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
+                                    <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
+                                        {pet.has_active_subscription ? 'Seguimiento GPS activo' : isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
+                                    </Text>
+                                </View>
+                                <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                            </TouchableOpacity>
+                        )}
                     </View>
 
-                    {/* Servicios y Recuerdo */}
-                    <View style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Adicionales</Text>
-                        <TouchableOpacity
-                            style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                            onPress={() => router.push({ pathname: '/funeraria/memorial/[petId]', params: { petId: pet.id } } as any)}
-                        >
-                            <View style={[styles.actionIcon, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-                                <Text style={{ fontSize: 24 }}>🕯️</Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.actionTitle, { color: theme.text }]}>Memorial y Recuerdo</Text>
-                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Crear o ver el espacio de homenaje</Text>
-                            </View>
-                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
-                        </TouchableOpacity>
+                    {/* Servicios y recuerdo (solo el dueño) */}
+                    {isOwner && (
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Adicionales</Text>
+                            <TouchableOpacity
+                                style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                                onPress={() => router.push({ pathname: '/funeraria/memorial/[petId]', params: { petId: pet.id } } as any)}
+                            >
+                                <View style={[styles.actionIcon, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+                                    <Text style={{ fontSize: 24 }}>🕯️</Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.actionTitle, { color: theme.text }]}>Memorial y Recuerdo</Text>
+                                    <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Crear o ver el espacio de homenaje</Text>
+                                </View>
+                                <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                            </TouchableOpacity>
 
-                        <TouchableOpacity
-                            style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                            onPress={() => router.push({ pathname: '/grooming/historial/[petId]', params: { petId: pet.id } } as any)}
-                        >
-                            <View style={[styles.actionIcon, { backgroundColor: 'rgba(99, 102, 241, 0.1)' }]}>
-                                <Text style={{ fontSize: 24 }}>✂️</Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.actionTitle, { color: theme.text }]}>Historial de Estética</Text>
-                                <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Consultar visitas y fotos de grooming</Text>
-                            </View>
-                            <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Notas Médicas */}
-                    <View style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Notas Médicas</Text>
-                        <View style={[styles.notesBox, { borderColor: theme.cardBorder }]}>
-                            <Text style={[styles.notesText, { color: theme.textMuted }]}>
-                                {pet.description || "No hay notas clínicas recientes. Asegúrate de mantener el carnet actualizado para prevenir enfermedades."}
-                            </Text>
+                            <TouchableOpacity
+                                style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                                onPress={() => router.push({ pathname: '/grooming/historial/[petId]', params: { petId: pet.id } } as any)}
+                            >
+                                <View style={[styles.actionIcon, { backgroundColor: 'rgba(99, 102, 241, 0.1)' }]}>
+                                    <Text style={{ fontSize: 24 }}>✂️</Text>
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={[styles.actionTitle, { color: theme.text }]}>Historial de Estética</Text>
+                                    <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Consultar visitas y fotos de grooming</Text>
+                                </View>
+                                <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                            </TouchableOpacity>
                         </View>
-                    </View>
+                    )}
+
+                    {/* Descripción libre del dueño (las notas clínicas viven en el carnet) */}
+                    {!!pet.description && (
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Sobre {pet.name}</Text>
+                            <View style={[styles.notesBox, { borderColor: theme.cardBorder }]}>
+                                <Text style={[styles.notesText, { color: theme.textMuted }]}>{pet.description}</Text>
+                            </View>
+                        </View>
+                    )}
                 </View>
                 <View style={{ height: 100 }} />
             </ScrollView>
@@ -225,14 +228,6 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 16,
         marginTop: 4,
-    },
-    verifiedBadge: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     grid: {
         flexDirection: 'row',

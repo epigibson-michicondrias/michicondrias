@@ -121,7 +121,8 @@ export async function apiFetch<T>(
                 throw new ApiError(detail || "No tienes permiso para realizar esta acción", res.status);
             }
             const message = Array.isArray(errorData.detail)
-                ? errorData.detail.map((d: any) => d?.msg).filter(Boolean).join('. ')
+                // Pydantic antepone "Value error, " a los mensajes de los validadores propios
+                ? errorData.detail.map((d: any) => String(d?.msg ?? '').replace(/^Value error, /, '')).filter(Boolean).join('. ')
                 : detail;
             throw new ApiError(message || `Error ${res.status}`, res.status);
         }

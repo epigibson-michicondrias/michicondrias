@@ -1,173 +1,200 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Syringe, Hash, Info, Plus, X } from 'lucide-react-native';
 import { useVaccineForm } from '@/src/hooks/carnet/useVaccineForm';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Save, Syringe, Calendar, Hash, Info } from 'lucide-react-native';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
+import Button from '@/src/components/Button';
 import DatePicker from '@/src/components/DatePicker';
+import { spacing, radius, type, layout } from '@/constants/design';
 
 export default function NuevaVacunaScreen() {
     const { theme } = useTheme();
     const {
-        name, setName,
+        name, setName, nameError,
         batch, setBatch,
-        nextDue, setNextDue,
+        appliedOn, setAppliedOn,
+        nextDue, setNextDue, addNextDue, clearNextDue,
         notes, setNotes,
+        today,
         handleSave,
         isSaving,
         isVet,
     } = useVaccineForm();
 
+    const fieldStyle = [styles.inputGroup, { borderColor: theme.border, backgroundColor: theme.surface }];
+
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-        >
-            <ScreenContainer>
-                <ScreenHeader
-                    title="Registrar Vacuna"
-                    rightElement={
-                        <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: '#0891b2' }]}
-                            onPress={handleSave}
-                            disabled={isSaving}
-                            accessibilityRole="button"
-                            accessibilityLabel="Guardar vacuna"
-                        >
-                            {isSaving ? <ActivityIndicator color="#fff" size="small" /> : <Save size={20} color="#fff" />}
-                        </TouchableOpacity>
-                    }
-                />
+        <ScreenContainer>
+            <ScreenHeader title="Registrar vacuna" />
 
-                <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                    <View style={styles.section}>
-                        <View style={styles.sectionHeader}>
-                            <Syringe size={18} color={theme.info} />
-                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Información de la Vacuna</Text>
-                        </View>
+            <KeyboardScreen contentContainerStyle={styles.scrollContent}>
+                <View style={styles.sectionHeader}>
+                    <Syringe size={layout.icon.sm} color={theme.info} />
+                    <Text style={[type.title, { color: theme.text }]}>Información de la vacuna</Text>
+                </View>
 
-                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>NOMBRE DE LA VACUNA *</Text>
-                            <TextInput
-                                style={[styles.input, { color: theme.text }]}
-                                placeholder="Ej. Quíntuple Canina, Rabia..."
-                                placeholderTextColor={theme.textMuted}
-                                value={name}
-                                onChangeText={setName}
-                            />
-                        </View>
+                <View style={[fieldStyle, nameError && { borderColor: theme.error }]}>
+                    <Text style={[type.label, styles.label, { color: theme.textMuted }]}>Nombre de la vacuna *</Text>
+                    <TextInput
+                        style={[type.subtitle, styles.input, { color: theme.text }]}
+                        placeholder="Ej. Quíntuple canina, Rabia..."
+                        placeholderTextColor={theme.textMuted}
+                        value={name}
+                        onChangeText={setName}
+                        returnKeyType="next"
+                        accessibilityLabel="Nombre de la vacuna"
+                    />
+                </View>
+                {nameError && <Text style={[type.caption, styles.fieldError, { color: theme.error }]}>{nameError}</Text>}
 
-                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                            <View style={styles.labelRow}>
-                                <Hash size={14} color={theme.textMuted} />
-                                <Text style={[styles.label, { color: theme.textMuted }]}>NÚMERO DE LOTE</Text>
-                            </View>
-                            <TextInput
-                                style={[styles.input, { color: theme.text }]}
-                                placeholder="Ej. BTX-90210"
-                                placeholderTextColor={theme.textMuted}
-                                value={batch}
-                                onChangeText={setBatch}
-                            />
-                        </View>
+                <View style={fieldStyle}>
+                    <DatePicker
+                        value={appliedOn}
+                        onChange={setAppliedOn}
+                        mode="date"
+                        label="Fecha de aplicación"
+                        maximumDate={today}
+                    />
+                </View>
 
-                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
+                <View style={fieldStyle}>
+                    {nextDue ? (
+                        <>
                             <DatePicker
-                                value={nextDue || new Date()}
+                                value={nextDue}
                                 onChange={setNextDue}
                                 mode="date"
-                                label="PRÓXIMO REFUERZO"
-                                placeholder="Seleccionar fecha"
+                                label="Próximo refuerzo"
+                                minimumDate={appliedOn}
                             />
-                        </View>
+                            <TouchableOpacity
+                                style={styles.inlineAction}
+                                onPress={clearNextDue}
+                                accessibilityRole="button"
+                                accessibilityLabel="Quitar próximo refuerzo"
+                            >
+                                <X size={layout.icon.xs} color={theme.textMuted} />
+                                <Text style={[type.caption, { color: theme.textMuted }]}>Sin refuerzo</Text>
+                            </TouchableOpacity>
+                        </>
+                    ) : (
+                        <TouchableOpacity
+                            style={styles.inlineAction}
+                            onPress={addNextDue}
+                            accessibilityRole="button"
+                            accessibilityLabel="Agregar fecha del próximo refuerzo"
+                        >
+                            <Plus size={layout.icon.sm} color={theme.primary} />
+                            <Text style={[type.bodyStrong, { color: theme.primary }]}>Agregar próximo refuerzo</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
 
-                        <View style={[styles.inputGroup, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>NOTAS ADICIONALES</Text>
-                            <TextInput
-                                style={[styles.input, { color: theme.text }]}
-                                placeholder="Observaciones de la aplicación..."
-                                placeholderTextColor={theme.textMuted}
-                                value={notes}
-                                onChangeText={setNotes}
-                                multiline
-                            />
-                        </View>
+                <View style={fieldStyle}>
+                    <View style={styles.labelRow}>
+                        <Hash size={layout.icon.xs} color={theme.textMuted} />
+                        <Text style={[type.label, { color: theme.textMuted }]}>Número de lote</Text>
                     </View>
+                    <TextInput
+                        style={[type.subtitle, styles.input, { color: theme.text }]}
+                        placeholder="Ej. BTX-90210"
+                        placeholderTextColor={theme.textMuted}
+                        value={batch}
+                        onChangeText={setBatch}
+                        autoCapitalize="characters"
+                        accessibilityLabel="Número de lote"
+                    />
+                </View>
 
-                    <View style={[styles.infoBox, { backgroundColor: '#0891b215' }]}>
-                        <Info size={16} color={theme.info} />
-                        <Text style={[styles.infoText, { color: theme.text }]}>
-                            {isVet
-                                ? 'Como veterinario, asegúrate de verificar la vigencia de la vacuna antes de registrarla. El sistema notificará al dueño sobre su próximo refuerzo.'
-                                : 'Registra las vacunas que ya le aplicaron a tu mascota y la fecha de su próximo refuerzo para tenerlas siempre a la mano.'}
-                        </Text>
-                    </View>
-                </ScrollView>
-            </ScreenContainer>
-        </KeyboardAvoidingView>
+                <View style={fieldStyle}>
+                    <Text style={[type.label, styles.label, { color: theme.textMuted }]}>Notas</Text>
+                    <TextInput
+                        style={[type.body, styles.input, { color: theme.text }]}
+                        placeholder="Observaciones de la aplicación..."
+                        placeholderTextColor={theme.textMuted}
+                        value={notes}
+                        onChangeText={setNotes}
+                        multiline
+                        accessibilityLabel="Notas"
+                    />
+                </View>
+
+                <View style={[styles.infoBox, { backgroundColor: theme.infoLight }]}>
+                    <Info size={layout.icon.sm} color={theme.info} />
+                    <Text style={[type.caption, styles.infoText, { color: theme.text }]}>
+                        {isVet
+                            ? 'Verifica la vigencia y el lote de la vacuna antes de registrarla.'
+                            : 'Registra las vacunas que ya le aplicaron a tu mascota, con su fecha real, para tener su historial siempre a la mano.'}
+                    </Text>
+                </View>
+
+                <Button
+                    label="Guardar vacuna"
+                    onPress={handleSave}
+                    loading={isSaving}
+                    size="lg"
+                    fullWidth
+                    style={styles.saveButton}
+                />
+            </KeyboardScreen>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    saveBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     scrollContent: {
-        padding: 24,
-        paddingBottom: 40,
-    },
-    section: {
-        marginBottom: 32,
+        padding: layout.screenPadding,
+        paddingBottom: spacing.huge,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: '800',
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     inputGroup: {
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
+        borderRadius: radius.lg,
+        padding: spacing.lg,
+        marginBottom: spacing.md,
         borderWidth: 1,
     },
     label: {
-        fontSize: 10,
-        fontWeight: '800',
-        marginBottom: 8,
-        letterSpacing: 0.5,
+        marginBottom: spacing.sm,
     },
     labelRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginBottom: 8,
+        gap: spacing.xs,
+        marginBottom: spacing.sm,
     },
     input: {
-        fontSize: 16,
-        fontWeight: '600',
+        minHeight: spacing.xxl,
+    },
+    fieldError: {
+        marginTop: -spacing.sm,
+        marginBottom: spacing.md,
+        marginLeft: spacing.xs,
+    },
+    inlineAction: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        minHeight: layout.minTouch,
     },
     infoBox: {
         flexDirection: 'row',
-        gap: 12,
-        padding: 20,
-        borderRadius: 20,
-        marginTop: 10,
+        gap: spacing.md,
+        padding: spacing.lg,
+        borderRadius: radius.lg,
+        marginTop: spacing.sm,
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
-        lineHeight: 18,
-        fontWeight: '500',
-        opacity: 0.8,
-    }
+    },
+    saveButton: {
+        marginTop: spacing.xxl,
+    },
 });

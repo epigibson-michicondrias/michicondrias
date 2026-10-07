@@ -8,12 +8,14 @@ import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { getPetById, sharePetPassport } from '@/src/services/mascotas';
 import { createSubscriptionSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { Linking } from 'react-native';
 import type { Pet } from '@/src/types/mascotas';
 
 export function usePetDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
+    const { user } = useAuth();
 
     const {
         data: pet,
@@ -67,8 +69,12 @@ export function usePetDetail() {
         subscriptionMutation.mutate(id);
     };
 
+    // La ficha también la abren admin (panel de mascotas) y veterinarios: solo el dueño edita o contrata servicios
+    const isOwner = !!pet && !!user && pet.owner_id === user.id;
+
     return {
         pet,
+        isOwner,
         isLoading,
         error,
         refetch,

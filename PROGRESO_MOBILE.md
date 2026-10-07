@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ⬜ |
 | 3 | Navegación y esqueleto | ⬜ propuesta aprobada 2026-10-07 |
-| 4 | Funcionalidad faltante | 🟡 F1–F5 adelantadas 2026-10-07 (F4/F5 esperan deploy del backend) |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 · F4/F5/F7/F8 esperan deploy del backend |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -219,9 +219,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] 🚨🛠️ F4 Búsqueda: corregir `search.py:43` (columna `category`) y filtrar `is_approved`; precio en productos.
 - [x] 🚨🛠️ F5 Notificaciones: `read-all`, `unread-count`, migración `notifications.link`; badge real; navegar por `link`
       con mapeo de tipos reales de respaldo.
-- [ ] 🚨 F6 Mascotas: editar solo el dueño (modo solo lectura); quitar la insignia falsa.
-- [ ] 🚨🛠️ F7 Carnet: `date_administered` opcional + campo en la app; quitar la promesa de aviso (o F14).
-- [ ] 🚨🛠️ F8 Pasaporte: llamada interna con token mascotas → carnet (`pets.py:331`).
+- [x] 🚨 F6 Mascotas: editar solo el dueño (modo solo lectura); quitar la insignia falsa.
+- [x] 🚨🛠️ F7 Carnet: `date_administered` opcional + campo en la app; quitar la promesa de aviso (o F14).
+- [x] 🚨🛠️ F8 Pasaporte: llamada interna con token mascotas → carnet (`pets.py:331`).
 - [ ] F9 Auth en capas: `src/services/auth.ts` (con `API_URLS`) + `src/hooks/auth/*`; hook `usePartnerUpgrade` y
       helper "guardar token + recargar" común.
 - [ ] F10 Registro con login automático + línea a la cuenta profesional.
@@ -245,6 +245,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       transportistas (hoy el mapeo por tipo + rol los cubre, salvo esos casos). Insertan con SQL crudo: agregar la
       columna `link` al INSERT solo **después** de aplicar la migración `d3e9a7b4c215` de core.
 - [ ] F25 Búsqueda: "ver todos" por pestaña hacia el listado del módulo y más dominios (adopciones, perdidas, servicios).
+- [ ] F26 Pasaporte público: enmascarar `policy_number` (últimos 4) y página legible en vez del JSON crudo (va con F16).
+- [ ] F27 `DatePicker` con `useTheme`/tokens y etiqueta en tipo oración (hoy usa `constants/Colors`); fechas del carnet
+      con locale `es-MX`.
 - [ ] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext).
 - [ ] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
 
@@ -318,4 +321,15 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `alembic heads` único y SQL generado, tsc/eslint limpios, web con sesión real en claro/oscuro. Revisión
   `code-reviewer`: corregidos tipos faltantes (`cirugias`, `kyc`), links de adopciones y 7 menores.
   **Deploy pendiente (lo hace el usuario):** `alembic upgrade head` de core en producción **antes** del push.
+- **2026-10-07** — F6–F8. **F6** (app): ficha de mascota con `isOwner`; editar, Michi-Tracker y servicios solo para el
+  dueño (admin y veterinarios la ven en lectura); fuera la insignia "verificado" falsa; "Notas médicas" (era la
+  descripción) → "Sobre {nombre}" solo si existe. **F7** (carnet + app): `VaccineCreate.date_administered` opcional con
+  validadores (no futura, refuerzo ≥ aplicación), sin migración (la columna ya existía); `nueva-vacuna` reescrita con
+  tokens, `KeyboardScreen`, botón primario abajo, fecha de aplicación, refuerzo opcional (+1 año sugerido) y sin la
+  promesa de aviso; fechas enviadas a mediodía local (evita "un día antes" en UTC-6); `api.ts` limpia "Value error, ".
+  **F8** (mascotas): el pasaporte público lee vacunas y póliza directo de la base compartida (antes HTTP sin token →
+  siempre vacío) y expone menos (sin prima, reclamos, notas ni id del veterinario). Verificado con TestClient + SQLite,
+  SQL en Postgres (solo lectura), tsc/eslint y revisión visual (ficha y formulario, sin guardar en producción).
+  `code-reviewer`: corregido el corrimiento de fecha; resto al backlog (F26, F27). Deploy: push a `main` sube carnet y
+  mascotas; **sin migraciones**.
 

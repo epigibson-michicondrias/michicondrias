@@ -1,4 +1,5 @@
 import { apiFetch } from "../lib/api";
+import type { VaccineCreate } from "../types/carnet";
 
 export interface Prescription {
     id: string;
@@ -70,7 +71,7 @@ export async function getVaccinesByPet(petId: string): Promise<Vaccine[]> {
     return apiFetch<Vaccine[]>("carnet", `/vaccines/pet/${petId}`);
 }
 
-export async function createVaccine(vaccine: Omit<Vaccine, "id" | "date_administered">): Promise<Vaccine> {
+export async function createVaccine(vaccine: VaccineCreate): Promise<Vaccine> {
     return apiFetch<Vaccine>("carnet", "/vaccines/", {
         method: "POST",
         body: JSON.stringify(vaccine),

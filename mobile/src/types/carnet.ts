@@ -65,6 +65,18 @@ export interface Vaccine {
     notes: string | null;
 }
 
+/** Alta de vacuna (espejo de `VaccineCreate` en backend/michicondrias_carnet/app/schemas/carnet.py). Fechas en ISO 8601. */
+export interface VaccineCreate {
+    pet_id: string;
+    name: string;
+    /** Fecha real en que se aplicó; si se omite, el backend usa hoy. No puede ser futura. */
+    date_administered?: string;
+    next_due_date?: string;
+    batch_number?: string;
+    notes?: string;
+    administered_by_vet_id?: string | null;
+}
+
 // ─── Constants & Defaults ───────────────────────────────────────────────────────
 
 /** Default values for creating a new medical record */

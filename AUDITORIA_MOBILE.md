@@ -238,8 +238,8 @@ dueño, y un `PetForm` único para alta y edición.
 Backend: llamada interna con token mascotas→carnet, página pública legible del pasaporte, revisar la privacidad de
 `GET /pets/{id}`, `pet_id` opcional en symptom-check.
 Arreglos:
-- [ ] P0 El pasaporte compartido nunca trae vacunas (`backend/michicondrias_mascotas/.../pets.py:331`)
-- [ ] P0 Editar visible en mascotas ajenas → 403 (`app/mascotas/[id].tsx:51`)
+- [x] P0 El pasaporte compartido nunca trae vacunas (`backend/michicondrias_mascotas/.../pets.py:331`)
+- [x] P0 Editar visible en mascotas ajenas → 403 (`app/mascotas/[id].tsx:51`)
 - [ ] P1 «Vacunas al día» manual; insignia falsa; «Notas médicas» con la descripción; Tracker sin salida; compartir sin botón
 - [ ] P1 Diagnóstico IA: vacío sin acción y error de peso sin CTA a editar
 - [ ] P2 `PetForm` común, Skeleton, `FormSelect`, `SegmentedTabs`, tokens, query keys unificadas
@@ -269,8 +269,8 @@ Propuesta de rediseño: fusionar con Mascotas (ver arriba), partir `carnet/[id]`
 Backend: PUT/DELETE de vacunas y consultas, `date_administered` opcional, `GET /records/{id}`, recalcular
 `is_vaccinated`, emisor de recordatorios (o quitar la promesa), alinear la lectura con `VET_ROLES`.
 Arreglos:
-- [ ] P0 Promesa de un aviso del refuerzo que no existe (`nueva-vacuna.tsx:102`)
-- [ ] P0 Sin fecha de aplicación de la vacuna (`nueva-vacuna.tsx`, `schemas/carnet.py:64`)
+- [x] P0 Promesa de un aviso del refuerzo que no existe (`nueva-vacuna.tsx:102`) — se quitó el texto (el emisor real es F14)
+- [x] P0 Sin fecha de aplicación de la vacuna (`nueva-vacuna.tsx`, `schemas/carnet.py:64`)
 - [ ] P1 `recordatorios.tsx` huérfana; «Modo médico» por UUID; botón anidado; sin editar ni borrar; guardar solo como ícono
 - [ ] P1 Jerga PATIENT_ID / DIGITAL ID; botón de IA sin texto; invalidación tras vacuna y consulta
 - [ ] P2 Partir `carnet/[id]` (987 l.), `EmptyState` con acción por pestaña, tokens, `ScreenHeader` en receta, fechas `es-MX`
@@ -352,10 +352,10 @@ Arreglos:
 | perfil/index.tsx:358 | «Configuración» | Lleva a `/menu` (pestaña oculta para el consumidor) |
 | perfil/kyc.tsx:175 | «Enviar documentos» | No refresca el estado; deja reenviar estando PENDING o VERIFIED |
 | perfil/seguridad-2fa.tsx:87 | «Escanea el código QR» | No hay QR |
-| mascotas/[id].tsx:51 | Editar (mascota ajena) | 403 |
+| ~~mascotas/[id].tsx:51~~ | ~~Editar (mascota ajena)~~ | ✅ resuelto 2026-10-07 |
 | mascotas/[id].tsx:102 | Michi-Tracker activo | Deshabilitado, sin destino |
-| mascotas/[id].tsx:71 | Insignia «verificado» | Decorativa y falsa |
-| carnet/nueva-vacuna.tsx:102 | «Se notificará el refuerzo» | Promesa sin backend |
+| ~~mascotas/[id].tsx:71~~ | ~~Insignia «verificado»~~ | ✅ resuelto 2026-10-07 |
+| ~~carnet/nueva-vacuna.tsx:102~~ | ~~«Se notificará el refuerzo»~~ | ✅ resuelto 2026-10-07 |
 | carnet/index.tsx:119 | Buscar paciente por UUID | Inutilizable |
 | tienda/producto/[id].tsx:255 | «Publicar reseña» | 403/409 para quien no compró o es el dueño |
 | ~~tienda/pedido/[id].tsx:99~~ | ~~«Pagar ahora» → estado~~ | ✅ resuelto (sin caché) |
