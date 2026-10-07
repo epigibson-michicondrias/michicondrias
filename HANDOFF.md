@@ -63,17 +63,22 @@ app/
 
 ---
 
-## 3. ⚠️ Despliegue pendiente (lo hace el usuario, no tú)
+## 3. Despliegue (estado al 2026-10-07)
 
-Hay commits de backend sin desplegar (F4, F5, F7, F8). El orden **importa**:
+✅ **Todo lo de esta etapa ya está en producción:** migración de core `d3e9a7b4c215` aplicada en la VM (producción en
+`d3e9a7b4c215 (head)`), push a `main` con deploy de `deploy-oracle.yml` exitoso, y OTA publicado en el canal
+`production` (runtime 1.0.0, update group `fbb8e04e-5fdf-41a7-939e-29103309fbfd`).
 
-1. `cd backend/michicondrias_core && alembic upgrade head` contra producción (migración `d3e9a7b4c215`: agrega
-   `notifications.link`). **Si el código sale antes, las notificaciones de core fallan.**
-2. `git push origin main` → el workflow `deploy-oracle.yml` despliega core, adopciones, carnet y mascotas.
-3. Publicar el OTA de la app.
+**Para tus próximos cambios, el orden es siempre este:**
+1. Si hay migración nueva: push (el deploy copia el archivo a la VM) y luego `alembic upgrade head` en la VM:
+   `ssh michicondrias-oracle` → `sudo -u michicondrias bash -c 'set -a; . /etc/michicondrias/common.env; set +a;
+   cd /opt/michicondrias/services/michicondrias_<svc> && /opt/michicondrias/venvs/<svc>/bin/alembic upgrade head'`.
+   Mientras tanto el código nuevo puede fallar en lo que use la columna nueva: hazlo seguido.
+2. Revisa el workflow: `gh run list --workflow deploy-oracle.yml --limit 1`.
+3. OTA solo de JS: `cd mobile && npx eas-cli update --channel production --environment production --platform android
+   --message "…"`. El `.env` local debe apuntar a producción.
 
-No intentes leer credenciales de producción ni correr migraciones contra producción: no tienes permiso.
-Si tus cambios necesitan migración, créala (aditiva, idempotente) y **déjale al usuario** el paso 1.
+**Pídele permiso al usuario antes de cada uno de estos pasos.** Afectan producción.
 
 ---
 

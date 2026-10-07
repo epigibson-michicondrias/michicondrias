@@ -360,4 +360,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `carnet/[id]` redirige; `carnet/index` borrada; Mi clínica abre Historial. Verificado: `npm run check` (0 errores,
   73 avisos), revisión en web con sesión real (claro/oscuro) de cada bloque. Un commit por bloque.
   Siguiente: el trabajo continúa con otro agente según `HANDOFF.md`.
+- **2026-10-07** — **Despliegue**: push a `main` (deploy-oracle ✅), migración de core `d3e9a7b4c215` aplicada en la VM
+  (`ssh michicondrias-oracle`, `alembic upgrade head` → head) y OTA en `production` (update group
+  `fbb8e04e-5fdf-41a7-939e-29103309fbfd`). Verificado en vivo con sesión real: búsqueda 200 (antes 500),
+  `/notifications/me` y `/me/unread-count` 200. F4, F5, F7 y F8 ya están en producción.
 
