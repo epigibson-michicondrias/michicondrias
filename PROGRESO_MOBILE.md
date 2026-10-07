@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ⬜ |
 | 3 | Navegación y esqueleto | ⬜ propuesta aprobada 2026-10-07 |
-| 4 | Funcionalidad faltante | 🟡 F1–F3 adelantadas ✅ 2026-10-07 |
+| 4 | Funcionalidad faltante | 🟡 F1–F5 adelantadas 2026-10-07 (F4/F5 esperan deploy del backend) |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -216,8 +216,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] 🚨 F2 Caché GET de 30 s: opción `noCache` (o quitarla y dejar a React Query) para pedidos, compras, notificaciones
       y cualquier refresh/polling.
 - [x] 🚨 F3 Login en web (`setUserRole`) + email con `trim` en login y forgot (minúsculas → F11).
-- [ ] 🚨🛠️ F4 Búsqueda: corregir `search.py:43` (columna `category`) y filtrar `is_approved`; precio en productos.
-- [ ] 🚨🛠️ F5 Notificaciones: `read-all`, `unread-count`, migración `notifications.link`; badge real; navegar por `link`
+- [x] 🚨🛠️ F4 Búsqueda: corregir `search.py:43` (columna `category`) y filtrar `is_approved`; precio en productos.
+- [x] 🚨🛠️ F5 Notificaciones: `read-all`, `unread-count`, migración `notifications.link`; badge real; navegar por `link`
       con mapeo de tipos reales de respaldo.
 - [ ] 🚨 F6 Mascotas: editar solo el dueño (modo solo lectura); quitar la insignia falsa.
 - [ ] 🚨🛠️ F7 Carnet: `date_administered` opcional + campo en la app; quitar la promesa de aviso (o F14).
@@ -240,6 +240,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `can_review`, paginación de `/orders/me`.
 - [ ] F20 Stripe con `expo-web-browser` (`openAuthSessionAsync`; verificar que ya está en el APK actual).
 - [ ] F21 Ayuda: FAQ verídicas, aviso si falla `Linking`, configurar soporte, términos y privacidad.
+- [ ] 🛠️ F24 `link` en los emisores que faltan: directorio (`crud_services.notify_user`: citas, videoconsultas →
+      `/mi-clinica/consultas-video`, laboratorio de clínica → la mascota), laboratorio, aseguradoras, funeraria y
+      transportistas (hoy el mapeo por tipo + rol los cubre, salvo esos casos). Insertan con SQL crudo: agregar la
+      columna `link` al INSERT solo **después** de aplicar la migración `d3e9a7b4c215` de core.
+- [ ] F25 Búsqueda: "ver todos" por pestaña hacia el listado del módulo y más dominios (adopciones, perdidas, servicios).
 - [ ] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext).
 - [ ] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
 
@@ -300,3 +305,17 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   ESLint nuevos, en web con sesión real (Inicio carga, refresh-token 1 vez, sin 401) y con token inválido (limpia y
   queda en /login). Revisión con `code-reviewer`: corregidos los 3 hallazgos importantes. Nota: quien actualice y abra
   sin red por primera vez cae en /login (aún no tiene copia local); se arregla solo al reconectar.
+- **2026-10-07** — F4 y F5 (backend + app). **Core**: búsqueda sin la columna inexistente `products.category` (JOIN con
+  `categories`), solo clínicas/productos aprobados, comodines LIKE escapados, 5 por tipo, precio y categoría;
+  notificaciones con columna `link` (migración `d3e9a7b4c215`, aditiva, + índice parcial de no leídas),
+  `GET /notifications/me/unread-count` y `PATCH /notifications/me/read-all`; aviso de KYC con `link`.
+  **Adopciones**: cada aviso manda `link` (quien publica vs quien postula). **App**: tipos en `src/types/`
+  (`notifications.ts`, `search.ts`); `resolveNotificationRoute` (link permitido por rol → si no, tipo + rol, con los
+  11 tipos reales); badge real en la campana de Inicio; `notificaciones.tsx` reescrita con tokens, `EmptyState` y
+  header siempre; búsqueda con subtítulo (precio · categoría) y salto a la pestaña con resultados;
+  `QueryErrorBanner` ignora `ApiError.sessionExpired` (regresión de F1: buscaba el texto "No autorizado") y queries con
+  `meta.silentError`. Verificado: TestClient + SQLite (búsqueda, permisos, contador, leer todas, link > 255 → 422),
+  `alembic heads` único y SQL generado, tsc/eslint limpios, web con sesión real en claro/oscuro. Revisión
+  `code-reviewer`: corregidos tipos faltantes (`cirugias`, `kyc`), links de adopciones y 7 menores.
+  **Deploy pendiente (lo hace el usuario):** `alembic upgrade head` de core en producción **antes** del push.
+

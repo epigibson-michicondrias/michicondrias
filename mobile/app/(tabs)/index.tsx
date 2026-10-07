@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GettingStartedCard from '@/src/components/GettingStartedCard';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
+import { spacing, radius, type } from '@/constants/design';
 
 // Helper to get beautiful, high-quality placeholders by species
 const getPetPlaceholder = (species: string) => {
@@ -36,6 +37,7 @@ export default function DashboardScreen() {
     petsLoading,
     upcomingAppointments,
     appointmentsLoading,
+    unreadNotifications,
     actions,
     roleTools,
     panelTitle,
@@ -70,9 +72,18 @@ export default function DashboardScreen() {
             <Sparkles size={16} color="#e9c883" />
             <Text style={styles.logoText}>MICHICONDRIAS</Text>
           </View>
-          <TouchableOpacity style={styles.topBarBtn} onPress={() => router.push('/notificaciones' as any)} accessibilityRole="button" accessibilityLabel="Notificaciones">
+          <TouchableOpacity
+            style={styles.topBarBtn}
+            onPress={() => router.push('/notificaciones' as any)}
+            accessibilityRole="button"
+            accessibilityLabel={unreadNotifications > 0 ? `Notificaciones, ${unreadNotifications} sin leer` : 'Notificaciones'}
+          >
             <Bell size={24} color="#fff" />
-            <View style={styles.notifDot} />
+            {unreadNotifications > 0 && (
+              <View style={[styles.notifBadge, { backgroundColor: theme.error }]}>
+                <Text style={styles.notifBadgeText}>{unreadNotifications > 9 ? '9+' : unreadNotifications}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -417,17 +428,18 @@ const styles = StyleSheet.create({
   },
   topLogo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   logoText: { fontSize: 13, fontWeight: '800', color: '#f5f1e8', letterSpacing: 3 },
-  notifDot: {
+  notifBadge: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 8,
-    height: 8,
-    borderWidth: 1.5,
-    borderColor: '#101c3d',
-    borderRadius: 4,
-    backgroundColor: '#fb7185',
+    top: -spacing.xs,
+    right: -spacing.xs,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radius.pill,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+  notifBadgeText: { ...type.label, letterSpacing: 0, color: '#fff' }, // blanco como el resto del hero (siempre oscuro)
 
   /* hero welcome */
   heroContainer: { paddingHorizontal: 24, marginTop: 30 },

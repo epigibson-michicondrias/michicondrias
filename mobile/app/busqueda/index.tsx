@@ -1,13 +1,12 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useGlobalSearch, type SearchTab } from '@/src/hooks/search/useGlobalSearch';
+import { useGlobalSearch, type SearchTab, type SearchResultItem } from '@/src/hooks/search/useGlobalSearch';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Search, X, PawPrint, Building2, ShoppingBag } from 'lucide-react-native';
-import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 const TABS: { key: SearchTab; label: string; icon: typeof PawPrint }[] = [
     { key: 'mascotas', label: 'Mis mascotas', icon: PawPrint },
@@ -67,18 +66,21 @@ export default function BusquedaScreen() {
         );
     };
 
-    const renderResultItem = ({ item }: { item: any }) => (
+    const renderResultItem = ({ item }: { item: SearchResultItem }) => (
         <TouchableOpacity accessibilityRole="button"
+            accessibilityLabel={item.subtitle ? `${item.title}. ${item.subtitle}` : item.title}
             style={[styles.resultCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
-            onPress={() => router.push((activeTab === 'mascotas' ? `/mascotas/${item.id}` : activeTab === 'clinicas' ? `/directorio/clinica/${item.id}` : `/tienda/producto/${item.id}`) as any)}
+            onPress={() => router.push(item.route as any)}
         >
             <View style={styles.resultContent}>
                 <Text style={[styles.resultTitle, { color: theme.text }]} numberOfLines={1}>
-                    {item.name || item.pet_name || item.display_name || 'Sin nombre'}
+                    {item.title}
                 </Text>
-                <Text style={[styles.resultSubtitle, { color: theme.textMuted }]} numberOfLines={2}>
-                    {item.description || item.breed || item.address || item.specialty || ''}
-                </Text>
+                {!!item.subtitle && (
+                    <Text style={[styles.resultSubtitle, { color: theme.textMuted }]} numberOfLines={2}>
+                        {item.subtitle}
+                    </Text>
+                )}
             </View>
         </TouchableOpacity>
     );
@@ -140,10 +142,10 @@ export default function BusquedaScreen() {
                 </View>
             ) : (
                 <FlatList
-                    refreshControl={<AppRefreshControl />}
                     data={activeResults}
                     renderItem={renderResultItem}
-                    keyExtractor={(item, index) => item.id || String(index)}
+                    keyExtractor={(item) => item.id}
+                    keyboardShouldPersistTaps="handled"
                     contentContainerStyle={styles.resultsList}
                     showsVerticalScrollIndicator={false}
                 />

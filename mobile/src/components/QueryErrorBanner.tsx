@@ -9,9 +9,9 @@ import { useQueryClient, type Query } from '@tanstack/react-query';
 import { NavigationContext } from '@react-navigation/native';
 import { WifiOff, AlertCircle, RefreshCw } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { ApiError } from '@/src/lib/api';
 
 const NETWORK_ERROR = /network request failed|failed to fetch|tiempo de espera|timeout|conexi[oó]n/i;
-const SESSION_ERROR = /no autorizado/i;
 
 /** Verdadero mientras la pantalla está enfocada (las pantallas anteriores de la pila siguen montadas). */
 function useScreenFocused(): boolean {
@@ -36,11 +36,14 @@ export default function QueryErrorBanner() {
     const [failed, setFailed] = useState<{ count: number; offline: boolean }>({ count: 0, offline: false });
     const [retrying, setRetrying] = useState(false);
 
+    // No cuentan: sesión vencida (ya avisa AuthContext y se va a /login) ni consultas secundarias marcadas con
+    // `meta: { silentError: true }` (p. ej. el badge de notificaciones), cuya falla no debe tapar la pantalla.
     const isFailed = (q: Query) =>
         q.state.status === 'error' &&
         q.state.data === undefined &&
         q.state.fetchStatus !== 'fetching' &&
-        !SESSION_ERROR.test(String((q.state.error as Error | null)?.message ?? ''));
+        !q.meta?.silentError &&
+        !(q.state.error instanceof ApiError && q.state.error.sessionExpired);
 
     useEffect(() => {
         const cache = queryClient.getQueryCache();

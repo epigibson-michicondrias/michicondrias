@@ -1,10 +1,7 @@
 import { apiFetch } from "../lib/api";
+import type { GlobalSearchResult } from "../types/search";
 
-export interface GlobalSearchResult {
-    pets: any[];
-    clinics: any[];
-    products: any[];
-}
+export type { GlobalSearchResult };
 
 export async function globalSearch(query: string): Promise<GlobalSearchResult> {
     return apiFetch<GlobalSearchResult>(

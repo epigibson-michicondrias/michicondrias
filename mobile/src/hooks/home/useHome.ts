@@ -11,6 +11,7 @@ import { getUserPets } from '@/src/services/mascotas';
 import { getUserAppointments } from '@/src/services/citas';
 import { normalizeRole, isProRole } from '@/src/constants/roles';
 import { getHomeTools, ROLE_PANEL_TITLE } from '@/src/constants/roleTools';
+import { useUnreadNotificationCount } from '@/src/hooks/notifications/useNotifications';
 import {
   Stethoscope, ShoppingBag, AlertTriangle, Activity,
   Settings, Calendar, UserCheck, ShieldCheck,
@@ -148,6 +149,8 @@ export function useHome() {
     [appointments],
   );
 
+  const unreadNotifications = useUnreadNotificationCount();
+
   const roleName = normalizeRole(user?.role_name);
   const isPro = isProRole(roleName);
   const isUserAdmin = roleName === 'admin';
@@ -186,6 +189,7 @@ export function useHome() {
     petsLoading,
     upcomingAppointments,
     appointmentsLoading,
+    unreadNotifications,
     actions,
     roleName,
     isPro,

@@ -124,7 +124,7 @@ Explorar, cuenta y soporte en Herramientas y en Perfil, banner de Herramientas y
 `BANNERS` frente a `ROLE_TOOLS`.
 Propuesta de rediseño: ver «Propuesta de navegación» en `PROGRESO_MOBILE.md`.
 Arreglos:
-- [ ] P0 Punto de la campana falso → badge real de no leídas (`(tabs)/index.tsx:75`)
+- [x] P0 Punto de la campana falso → badge real de no leídas (`(tabs)/index.tsx:75`)
 - [ ] P1 Quitar los accesos duplicados a la tienda en Inicio (stat, acción rápida, banner) y en Explorar (Michi-Shop, Mis Compras)
 - [ ] P1 Explorar: una sola entrada a Diagnóstico IA; fusionar Clínicas y Veterinarios (o implementar `?type=`); sacar Carnet
 - [ ] P1 Herramientas: solo herramientas del rol; quitar Cuenta, Soporte y Cerrar sesión; banner o lista, no los dos
@@ -328,10 +328,10 @@ Propuesta de rediseño (requiere visto bueno): Notificaciones solo con la campan
 en el modelo y que la app navegue a `link`; Búsqueda solo en Explorar y ampliada a adopciones, perdidas, petfriendly y
 servicios; Ayuda solo desde Perfil. Push en la Fase 5 (APK).
 Arreglos:
-- [ ] P0 La búsqueda da 500 (`backend/michicondrias_core/app/api/routes/search.py:43`)
-- [ ] P0 Las notificaciones no navegan (`src/hooks/notifications/useNotifications.ts:31-37`)
-- [ ] P0 El punto de la campana es falso (`(tabs)/index.tsx:75`)
-- [ ] P1 La búsqueda expone contenido no aprobado (`search.py:31-46`); FAQ falsas (`ayuda.tsx:12-13`); sin header durante la carga
+- [x] P0 La búsqueda da 500 (`backend/michicondrias_core/app/api/routes/search.py:43`)
+- [x] P0 Las notificaciones no navegan (`src/hooks/notifications/useNotifications.ts:31-37`)
+- [x] P0 El punto de la campana es falso (`(tabs)/index.tsx:75`)
+- [ ] P1 ~~La búsqueda expone contenido no aprobado~~ ✅; FAQ falsas (`ayuda.tsx:12-13`); ~~sin header durante la carga~~ ✅
 - [ ] P1 Entradas duplicadas; tarjetas sin destino que parecen tocables; `Linking` silencioso; productos sin precio
 - [ ] P2 EmptyState, tokens, quitar el refresh de búsqueda, tipar `services/search.ts`, Ayuda con componentes base
 
@@ -342,9 +342,9 @@ Arreglos:
 **Rotos o sin efecto**
 | Pantalla:línea | Botón/acción | Problema |
 |---|---|---|
-| busqueda/index.tsx | Buscar (cualquier texto) | El backend da 500 (`search.py:43`) |
-| notificaciones.tsx:39 | Tocar una notificación | No navega: los tipos no coinciden |
-| (tabs)/index.tsx:75 | Punto rojo de la campana | Siempre encendido |
+| ~~busqueda/index.tsx~~ | ~~Buscar (cualquier texto)~~ | ✅ resuelto 2026-10-07 (falta deploy de core) |
+| ~~notificaciones.tsx:39~~ | ~~Tocar una notificación~~ | ✅ resuelto 2026-10-07 (falta deploy de core) |
+| ~~(tabs)/index.tsx:75~~ | ~~Punto rojo de la campana~~ | ✅ resuelto 2026-10-07 (falta deploy de core) |
 | ~~login.tsx:222~~ | ~~«Entrar» en web~~ | ✅ resuelto |
 | login.tsx:222 | «Entrar» con mayúsculas o espacios en el email | Falla (no normaliza) |
 | perfil/paleta.tsx:20 | «Aplicar paleta» | No hace nada; muestra instrucciones de código |
