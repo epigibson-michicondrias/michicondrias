@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator, model_validator
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 class PrescriptionBase(BaseModel):
     medication_name: str
@@ -70,7 +70,28 @@ class VaccineBase(BaseModel):
     notes: Optional[str] = None
 
 class VaccineCreate(VaccineBase):
-    pass
+    # Fecha real de aplicación: permite registrar vacunas pasadas. Si no viene, se usa la fecha de hoy (server default).
+    date_administered: Optional[datetime] = None
+
+    @field_validator("date_administered")
+    @classmethod
+    def not_in_future(cls, value: Optional[datetime]) -> Optional[datetime]:
+        if value is None:
+            return value
+        aware = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+        # Un día de holgura por zonas horarias del teléfono
+        if aware > datetime.now(timezone.utc) + timedelta(days=1):
+            raise ValueError("La fecha de aplicación no puede ser futura")
+        return value
+
+    @model_validator(mode="after")
+    def due_after_applied(self):
+        if self.date_administered and self.next_due_date:
+            applied = self.date_administered if self.date_administered.tzinfo else self.date_administered.replace(tzinfo=timezone.utc)
+            due = self.next_due_date if self.next_due_date.tzinfo else self.next_due_date.replace(tzinfo=timezone.utc)
+            if due < applied:
+                raise ValueError("El próximo refuerzo debe ser posterior a la fecha de aplicación")
+        return self
 
 class VaccineUpdate(BaseModel):
     name: Optional[str] = None

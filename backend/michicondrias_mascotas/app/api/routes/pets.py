@@ -1,8 +1,8 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
-import httpx
 import time
 from jose import jwt, JWTError
 
@@ -303,8 +303,15 @@ def share_pet_passport(
     return {"token": token, "share_url": share_url}
 
 
+def _iso(value: Any) -> Optional[str]:
+    """Fecha de una consulta SQL cruda como texto ISO (el driver puede devolver date/datetime o str)."""
+    if value is None:
+        return None
+    return value.isoformat() if hasattr(value, "isoformat") else str(value)
+
+
 @router.get("/passport/view/{signed_token}")
-async def view_public_passport(
+def view_public_passport(
     signed_token: str,
     db: Session = Depends(get_db)
 ) -> Any:
@@ -319,25 +326,43 @@ async def view_public_passport(
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
 
-    # Fetch vaccines from carnet service
-    vaccines = []
-    try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{settings.API_GATEWAY_URL}/carnet/api/v1/vaccines/pet/{pet_id}", timeout=5.0)
-            if resp.status_code == 200:
-                vaccines = resp.json()
-    except Exception as e:
-        print(f"Error fetching vaccines: {e}")
+    # Vacunas y póliza se leen directo de la base compartida: las rutas de carnet y aseguradoras exigen la sesión del
+    # dueño, que quien abre un enlace público no tiene (antes se llamaban por HTTP sin token y siempre volvían vacías).
+    vaccines = [
+        {
+            "name": v.name,
+            "date_administered": _iso(v.date_administered),
+            "next_due_date": _iso(v.next_due_date),
+            "batch_number": v.batch_number,
+        }
+        for v in db.execute(
+            text(
+                "SELECT name, date_administered, next_due_date, batch_number FROM vaccines "
+                "WHERE pet_id = :pet_id ORDER BY date_administered DESC LIMIT 50"
+            ),
+            {"pet_id": pet_id},
+        ).fetchall()
+    ]
 
-    # Fetch active insurance policy from insurance service
-    insurance = {}
-    try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{settings.API_GATEWAY_URL}/aseguradoras/api/v1/insurance/policies/pet/{pet_id}", timeout=5.0)
-            if resp.status_code == 200:
-                insurance = resp.json()
-    except Exception as e:
-        print(f"Error fetching insurance: {e}")
+    # Solo lo necesario para acreditar cobertura vigente (sin prima ni reclamos)
+    policy = db.execute(
+        text(
+            "SELECT policy_number, status, start_date, end_date FROM pet_insurance_policies "
+            "WHERE pet_id = :pet_id AND status = 'active' AND start_date <= CURRENT_DATE AND end_date >= CURRENT_DATE "
+            "ORDER BY end_date DESC LIMIT 1"
+        ),
+        {"pet_id": pet_id},
+    ).first()
+    insurance = (
+        {
+            "policy_number": policy.policy_number,
+            "status": policy.status,
+            "start_date": _iso(policy.start_date),
+            "end_date": _iso(policy.end_date),
+        }
+        if policy
+        else {}
+    )
 
     return {
         "pet": {

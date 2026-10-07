@@ -72,7 +72,10 @@ def get_vaccines_by_pet(db: Session, pet_id: str, skip: int = 0, limit: int = 10
     return db.query(Vaccine).filter(Vaccine.pet_id == pet_id).order_by(Vaccine.date_administered.desc()).offset(skip).limit(limit).all()
 
 def create_vaccine(db: Session, vaccine: VaccineCreate, vet_id: str = None):
-    db_vaccine = Vaccine(**vaccine.model_dump())
+    data = vaccine.model_dump()
+    if data.get("date_administered") is None:
+        data.pop("date_administered", None)  # deja actuar el server_default (ahora)
+    db_vaccine = Vaccine(**data)
     db_vaccine.administered_by_vet_id = vet_id
     db.add(db_vaccine)
     db.commit()
