@@ -69,16 +69,35 @@ app/
 `d3e9a7b4c215 (head)`), push a `main` con deploy de `deploy-oracle.yml` exitoso, y OTA publicado en el canal
 `production` (runtime 1.0.0, update group `fbb8e04e-5fdf-41a7-939e-29103309fbfd`).
 
-**Para tus próximos cambios, el orden es siempre este:**
-1. Si hay migración nueva: push (el deploy copia el archivo a la VM) y luego `alembic upgrade head` en la VM:
-   `ssh michicondrias-oracle` → `sudo -u michicondrias bash -c 'set -a; . /etc/michicondrias/common.env; set +a;
-   cd /opt/michicondrias/services/michicondrias_<svc> && /opt/michicondrias/venvs/<svc>/bin/alembic upgrade head'`.
-   Mientras tanto el código nuevo puede fallar en lo que use la columna nueva: hazlo seguido.
-2. Revisa el workflow: `gh run list --workflow deploy-oracle.yml --limit 1`.
-3. OTA solo de JS: `cd mobile && npx eas-cli update --channel production --environment production --platform android
-   --message "…"`. El `.env` local debe apuntar a producción.
+### Acceso a producción (ya configurado en esta máquina)
 
-**Pídele permiso al usuario antes de cada uno de estos pasos.** Afectan producción.
+| Qué | Cómo |
+|---|---|
+| VM de Oracle | alias SSH **`michicondrias-oracle`** en `~/.ssh/config` (usuario `opc`, llave en `~/.ssh`; **nunca** copies la llave al repo ni la pegues en chats) |
+| Operar la VM | **`scripts/vm.sh`** (probado): `status`, `current <svc>`, `migrate <svc>`, `logs <svc> [n]`, `restart <svc>`, `shell` |
+| En la VM | código en `/opt/michicondrias/services/michicondrias_<svc>`, venvs en `/opt/michicondrias/venvs/<svc>`, variables en `/etc/michicondrias/common.env` (+ `<svc>.env`), servicios systemd `michicondrias@<svc>` (usuario `michicondrias`) |
+| Deploy del backend | push a `main` que toque `backend/**` o `deploy/**` → workflow `deploy-oracle.yml`; revisar con `gh run list --workflow deploy-oracle.yml --limit 1` y `gh run watch <id> --exit-status` |
+| OTA de la app | `eas-cli` con sesión iniciada (cuenta `michicondrias`) |
+| Base de datos | Supabase de producción **solo lectura** vía MCP (si lo tienes); las escrituras solo por migraciones de alembic |
+
+**Autorización del usuario (2026-10-07):** puedes desplegar tú mismo (push, migración en la VM, OTA) **cuando el bloque
+esté verificado** (`npm run check` limpio, pruebas locales del backend y revisión en web). Al terminar, avisa qué
+desplegaste. Sigue preguntando antes de hacer algo destructivo con datos, cambios de backend que no sean aditivos y el
+APK (§6).
+
+### Orden de despliegue (siempre)
+```bash
+git push origin main                                   # 1. si hay backend/**: dispara deploy-oracle.yml
+gh run watch "$(gh run list --workflow deploy-oracle.yml --limit 1 --json databaseId -q '.[0].databaseId')" --exit-status
+scripts/vm.sh migrate <svc>                            # 2. solo si agregaste migración (justo después del deploy)
+scripts/vm.sh status                                   # 3. los 17 servicios: active + http 200
+cd mobile && npx eas-cli update --channel production --environment production --platform android --message "…"   # 4. OTA (solo JS)
+```
+- La migración va **después** del deploy (el deploy es quien copia el archivo a la VM) y **enseguida**: mientras tanto,
+  el código nuevo que lea la columna nueva falla. Las migraciones del repo son aditivas, así que no rompen el código viejo.
+- Antes del OTA confirma que `mobile/.env` apunta a `https://michicondrias.duckdns.org` (el bundle usa el `.env` local).
+- Si algo falla: `scripts/vm.sh logs <svc> 80`, corrige, vuelve a hacer push. No edites archivos a mano en la VM (el
+  siguiente deploy los pisa con `rsync --delete`).
 
 ---
 

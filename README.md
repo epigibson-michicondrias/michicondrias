@@ -125,6 +125,8 @@ Un `git push` a `main` que toque `backend/**` o `deploy/**` ejecuta `deploy-orac
 
 **Las migraciones no corren solas.** Antes de desplegar código que cambie el esquema, aplica `alembic upgrade head` del
 servicio contra la base de producción (las migraciones del repositorio son aditivas e idempotentes).
+Desde la máquina de desarrollo (con el alias SSH `michicondrias-oracle`): `scripts/vm.sh migrate <servicio>`;
+`scripts/vm.sh status` revisa los 17 servicios y `scripts/vm.sh logs <servicio>` muestra sus logs.
 
 La guía completa (puesta en marcha de la VM, Caddy, almacenamiento y cómo volver a AWS) está en
 [`deploy/README.md`](deploy/README.md). Secrets de CI: `ORACLE_HOST`, `ORACLE_SSH_KEY` y, opcional, `ORACLE_USER`.
