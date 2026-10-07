@@ -139,4 +139,4 @@ La guía completa (puesta en marcha de la VM, Caddy, almacenamiento y cómo volv
 ## Documentación
 
 - [`deploy/README.md`](deploy/README.md): despliegue y operación.
-- [`docs/AUDITORIA_APP.md`](docs/AUDITORIA_APP.md): auditoría de pantallas y flujos de la app.
+- [`archivo/`](archivo/README.md): auditorías, planes y reportes anteriores (solo historial).
