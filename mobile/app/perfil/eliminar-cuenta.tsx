@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Trash2, AlertTriangle } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAuth } from '@/src/contexts/AuthContext';
@@ -17,7 +17,6 @@ export default function EliminarCuentaScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const { signOut } = useAuth();
-    const queryClient = useQueryClient();
     const { data: profile } = useQuery({ queryKey: ['user-profile'], queryFn: getMyProfile });
 
     const [password, setPassword] = useState('');
@@ -30,10 +29,9 @@ export default function EliminarCuentaScreen() {
         setBusy(true);
         try {
             await deleteMyAccount(password, needsCode ? code.trim() : undefined);
-            queryClient.clear();
+            // signOut limpia token, caché y carrito; la guarda de app/_layout.tsx lleva a /login
             await signOut();
             showAlert({ type: 'success', title: 'Cuenta eliminada', message: 'Tu cuenta y tus datos personales fueron eliminados. Gracias por haber sido parte de Michicondrias.' });
-            router.replace('/login' as any);
         } catch (error: any) {
             showAlert({ type: 'error', title: 'No se pudo eliminar la cuenta', message: error?.message || 'Inténtalo de nuevo en unos minutos.' });
         } finally {

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, View, Text } from 'react-native';
-import Colors from '../constants/Colors';
-import { useTheme } from '../src/contexts/ThemeContext';
+import Colors from '@/constants/Colors';
+import { useTheme } from '@/src/contexts/ThemeContext';
 import { Mail, ArrowRight, Send, KeyRound, CheckCircle } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
-import { requestPasswordReset } from '../src/lib/auth';
+import { requestPasswordReset } from '@/src/lib/auth';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function ForgotPasswordScreen() {

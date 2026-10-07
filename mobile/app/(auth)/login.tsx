@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Dimensions, Animated } from 'react-native';
-import { login, verify2FALogin } from '../src/lib/auth';
-import { useAuth } from '../src/contexts/AuthContext';
-import Colors from '../constants/Colors';
-import { useTheme } from '../src/contexts/ThemeContext';
+import { login, verify2FALogin } from '@/src/lib/auth';
+import { useAuth } from '@/src/contexts/AuthContext';
+import Colors from '@/constants/Colors';
+import { useTheme } from '@/src/contexts/ThemeContext';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck, ArrowLeft } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -145,7 +145,7 @@ export default function LoginScreen() {
                     <View style={styles.logoSection}>
                         <View style={[styles.logoRing, { borderColor: isDark ? 'rgba(14,165,233,0.3)' : 'rgba(14,165,233,0.2)' }]}>
                             <Image
-                                source={require('../assets/images/logo.jpg')}
+                                source={require('@/assets/images/logo.jpg')}
                                 style={styles.logoImage}
                                 resizeMode="contain"
                             />

@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -43,30 +43,37 @@ function RootLayoutNav() {
   // Renueva el token y sincroniza el rol mientras haya sesión (al abrir y al volver a primer plano)
   useSessionSync();
 
+  // La primera carga de la sesión decide a dónde ir; mientras tanto no se pinta nada (sigue el splash) para que no
+  // destellen las pestañas. Después, isLoading también cambia al entrar/salir, pero eso ya no oculta la app.
+  const [booted, setBooted] = useState(false);
   useEffect(() => {
-    if (isLoading) return;
+    if (!isLoading && !booted) {
+      setBooted(true);
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading, booted]);
 
-    const inAuthGroup = segments[0] === 'login' || segments[0] === 'register' || segments[0] === 'forgot-password' || segments[0] === 'reset-password';
-    const inTabsGroup = segments[0] === '(tabs)';
+  useEffect(() => {
+    if (!booted || isLoading) return;
+    const inAuthGroup = segments[0] === '(auth)';
+    // El enlace del correo para cambiar contraseña debe abrirse aunque haya sesión
+    const isPasswordReset = inAuthGroup && segments[1] === 'reset-password';
 
     if (!user && !inAuthGroup) {
-      // Redirect to login if not authenticated
       router.replace('/login');
-    } else if (user && inAuthGroup) {
-      // Redirect to tabs if authenticated
+    } else if (user && inAuthGroup && !isPasswordReset) {
       router.replace('/(tabs)');
     }
-  }, [user, isLoading, segments]);
+  }, [user, isLoading, booted, segments, router]);
+
+  if (!booted) return null;
 
   return (
     <AppAlertProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="login" />
-          <Stack.Screen name="register" />
-          <Stack.Screen name="forgot-password" />
-          <Stack.Screen name="reset-password" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(auth)" />
         </Stack>
       </ThemeProvider>
     </AppAlertProvider>
@@ -81,12 +88,6 @@ export default function RootLayout() {
   useEffect(() => {
     if (error) throw error;
   }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
 
   if (!loaded) {
     return null;
