@@ -1,15 +1,13 @@
 /**
- * useProfile — Hook for user profile data, edit state, and mutations
- * Extracts data fetching and form logic from app/perfil/index.tsx
+ * useProfile — formulario de datos personales (pantalla perfil/editar): carga, validación por campo y guardado.
+ * Lo demás de la cuenta (sesión, verificación, facturación, tema) vive en useAccount (pestaña Perfil).
  */
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { getMyProfile, updateMyProfile } from '@/src/services/profile';
-import { createBillingPortalSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
-import { getRoleLabelFor } from '@/src/constants/roles';
-import { Linking } from 'react-native';
 
 export interface ProfileFormData {
     full_name: string;
@@ -19,21 +17,29 @@ export interface ProfileFormData {
     bio: string;
 }
 
+type ProfileErrors = Partial<Record<keyof ProfileFormData, string>>;
+
 export const BIO_MAX = 500;
 
-export function useProfile() {
-    const { user, signOut, reloadUser } = useAuth();
-    const queryClient = useQueryClient();
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState<ProfileFormData>({
-        full_name: '',
-        email: '',
-        phone: '',
-        location: '',
-        bio: '',
-    });
+const EMPTY_FORM: ProfileFormData = { full_name: '', email: '', phone: '', location: '', bio: '' };
 
-    const { data: profile, isLoading, isError, refetch } = useQuery({
+function validate(data: ProfileFormData): ProfileErrors {
+    const errors: ProfileErrors = {};
+    if (data.full_name.trim().length < 2) errors.full_name = 'Escribe tu nombre completo.';
+    const digits = data.phone.replace(/\D/g, '');
+    if (data.phone.trim() && (digits.length < 7 || digits.length > 15)) errors.phone = 'Usa de 7 a 15 dígitos, o déjalo vacío.';
+    if (data.bio.trim().length > BIO_MAX) errors.bio = `Máximo ${BIO_MAX} caracteres.`;
+    return errors;
+}
+
+export function useProfile() {
+    const { reloadUser } = useAuth();
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const [formData, setFormData] = useState<ProfileFormData>(EMPTY_FORM);
+    const [errors, setErrors] = useState<ProfileErrors>({});
+
+    const { data: profile, isLoading } = useQuery({
         queryKey: ['user-profile'],
         queryFn: getMyProfile,
     });
@@ -59,101 +65,34 @@ export function useProfile() {
         }),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['user-profile'] });
-            // El nombre también se muestra en inicio y menú (contexto de sesión)
+            // El nombre también se muestra en Inicio y en la pestaña Perfil (contexto de sesión)
             await reloadUser();
-            setIsEditing(false);
-            showAlert({ type: 'success', title: 'Perfil actualizado', message: 'Tus datos se guardaron correctamente.' });
+            showAlert({ type: 'success', title: 'Datos guardados', message: 'Tu perfil quedó actualizado.' });
+            router.back();
         },
         onError: (error: any) => {
-            showAlert({ type: 'error', title: 'No se pudo guardar', message: error?.message || 'No se pudo actualizar el perfil' });
+            showAlert({ type: 'error', title: 'No se pudo guardar', message: error?.message || 'Inténtalo de nuevo en un momento.' });
         },
     });
-
-    const handleSave = () => {
-        const name = formData.full_name.trim();
-        if (name.length < 2) {
-            showAlert({ type: 'error', title: 'Nombre requerido', message: 'Escribe tu nombre completo (mínimo 2 caracteres).' });
-            return;
-        }
-        const digits = formData.phone.replace(/\D/g, '');
-        if (formData.phone.trim() && (digits.length < 7 || digits.length > 15)) {
-            showAlert({ type: 'error', title: 'Teléfono inválido', message: 'Ingresa un teléfono de 7 a 15 dígitos o déjalo vacío.' });
-            return;
-        }
-        if (formData.bio.trim().length > BIO_MAX) {
-            showAlert({ type: 'error', title: 'Bio demasiado larga', message: `La bio puede tener hasta ${BIO_MAX} caracteres.` });
-            return;
-        }
-        updateMutation.mutate(formData);
-    };
-
-    const handleCancel = () => {
-        setIsEditing(false);
-        if (profile) {
-            setFormData({
-                full_name: profile.full_name || '',
-                email: profile.email || '',
-                phone: profile.phone || '',
-                location: profile.location || '',
-                bio: profile.bio || '',
-            });
-        }
-    };
-
-    const handleLogout = () => {
-        showAlert({
-            type: 'warning',
-            title: 'Cerrar Sesión',
-            message: '¿Estás seguro de que deseas cerrar sesión?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Cerrar Sesión',
-            onButtonPress: signOut,
-        });
-    };
-
-    const toggleEditing = () => setIsEditing(!isEditing);
 
     const updateField = (field: keyof ProfileFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) setErrors(prev => ({ ...prev, [field]: undefined }));
     };
 
-    const billingPortalMutation = useMutation({
-        mutationFn: () => createBillingPortalSession(),
-        onSuccess: (data) => {
-            if (data.url) {
-                Linking.openURL(data.url);
-            }
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo abrir el portal de facturación' });
-        },
-    });
-
-    const handleOpenBillingPortal = () => {
-        billingPortalMutation.mutate();
+    const handleSave = () => {
+        const found = validate(formData);
+        setErrors(found);
+        if (Object.keys(found).length === 0) updateMutation.mutate(formData);
     };
 
     return {
-        // Data
         profile,
         isLoading,
-        isError,
-        refetch,
         formData,
-        isEditing,
-        isSaving: updateMutation.isPending,
-
-        // Actions
-        handleSave,
-        handleCancel,
-        handleLogout,
-        toggleEditing,
+        errors,
         updateField,
-        handleOpenBillingPortal,
-        isOpeningBillingPortal: billingPortalMutation.isPending,
-
-        // Helpers
-        getRoleLabel: getRoleLabelFor,
+        handleSave,
+        isSaving: updateMutation.isPending,
     };
 }
