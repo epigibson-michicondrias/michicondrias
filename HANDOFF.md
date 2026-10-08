@@ -1,6 +1,6 @@
 # HANDOFF — Michicondrias app móvil (para el siguiente agente)
 
-Hola, MIMO 👋. Este documento te pasa el proyecto tal como quedó el **2026-10-07**. Está pensado para que trabajes solo,
+Hola, MIMO 👋. Este documento te pasa el proyecto tal como quedó el **2026-10-08**. Está pensado para que trabajes solo,
 sin repetir trabajo ni errores ya resueltos. Léelo completo una vez; después úsalo como checklist.
 
 **Idioma:** todo en español (UI, commits, docs). Nombres de variables y funciones en inglés.
@@ -38,10 +38,10 @@ sin repetir trabajo ni errores ya resueltos. Léelo completo una vez; después �
 | 1 Auditoría | ✅ módulos P1 · ⬜ P2 y P3 (tareas A1–A4) |
 | 2 Limpieza | ✅ (código muerto, barrels, pantallas falsas, lint en 0 errores) |
 | 3 Navegación | ✅ (grupo `(auth)`, Perfil único, Herramientas, Inicio, Explorar, Tienda, ficha de mascota con pestañas) |
-| 4 Funcionalidad | 🟡 hechas las 8 urgentes (F1–F8); faltan F9–F27 |
+| 4 Funcionalidad | 🟡 F1–F13, F15–F18, F20–F24 y F27 ✅ (en producción); faltan F14, F19, F25 y F26 |
 | 5 UI premium + APK | ⬜ (U1–U11) |
 
-`npm run check` **pasa** (tsc limpio, ESLint 0 errores / 73 avisos). Todo está en commits locales en `main`.
+`npm run check` **pasa** (tsc limpio, ESLint 0 errores / 72 avisos). Repo sincronizado con `origin/main` y desplegado (ver §3).
 
 ### Navegación actual (ya implementada)
 ```
@@ -63,11 +63,12 @@ app/
 
 ---
 
-## 3. Despliegue (estado al 2026-10-07)
+## 3. Despliegue (estado al 2026-10-08)
 
-✅ **Todo lo de esta etapa ya está en producción:** migración de core `d3e9a7b4c215` aplicada en la VM (producción en
-`d3e9a7b4c215 (head)`), push a `main` con deploy de `deploy-oracle.yml` exitoso, y OTA publicado en el canal
-`production` (runtime 1.0.0, update group `fbb8e04e-5fdf-41a7-939e-29103309fbfd`).
+✅ **Todo lo hecho hasta hoy está en producción** (3 despliegues el 2026-10-08): F17+F15 (mascotas/carnet), F11+F12+F22
+(core) y F24+F27 (notificaciones/DatePicker). Migraciones de core aplicadas en la VM: `d3e9a7b4c215` y
+`f12a8b3c4d5e` (**head**). Último OTA del canal `production` (runtime 1.0.0): update group
+`f60b79a3-41bc-4332-9fe9-0b7297ab6555`. `scripts/vm.sh status`: 17/17 servicios activos en http 200.
 
 ### Acceso a producción (ya configurado en esta máquina)
 

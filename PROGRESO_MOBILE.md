@@ -16,8 +16,8 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20–F24 y F27 ✅ · faltan F14, F19, F25 y F26 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
-> **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
-> conviene adelantarlas: hoy rompen flujos completos o filtran datos entre usuarios.
+> **Siguiente:** F14 y F19 (backend 🛠️) y F25/F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
+> A1–A5) y Fase 5 (U1 Tema primero). El detalle y el orden están en `HANDOFF.md` §8.
 
 ---
 
