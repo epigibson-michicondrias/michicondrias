@@ -79,7 +79,7 @@ export default function ForgotPasswordScreen() {
                                 </View>
                                 <Text style={[styles.title, { color: isDark ? '#fff' : '#78350f' }]}>¿Olvidaste tu contraseña?</Text>
                                 <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.55)' : '#92400e' }]}>
-                                    No te preocupes, te enviaremos un enlace para restablecerla
+                                    No te preocupes, te enviaremos un código de 6 dígitos para restablecerla
                                 </Text>
                             </View>
 
@@ -91,7 +91,7 @@ export default function ForgotPasswordScreen() {
                             }]}>
                                 <Text style={[styles.cardTitle, { color: isDark ? '#fff' : '#78350f' }]}>Restablecer contraseña</Text>
                                 <Text style={[styles.cardSubtitle, { color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }]}>
-                                    Ingresa el email asociado a tu cuenta y te enviaremos las instrucciones
+                                    Ingresa el email asociado a tu cuenta y te enviaremos el código de verificación
                                 </Text>
 
                                 {/* Email */}
@@ -122,7 +122,7 @@ export default function ForgotPasswordScreen() {
                                     disabled={isRequesting}
                                     activeOpacity={0.85}
                                 >
-                                    <Text style={styles.sendBtnText}>Enviar enlace</Text>
+                                    <Text style={styles.sendBtnText}>Enviar código</Text>
                                     <Send size={18} color="#fff" />
                                 </TouchableOpacity>
                             </View>
@@ -136,7 +136,7 @@ export default function ForgotPasswordScreen() {
                                 </View>
                                 <Text style={[styles.title, { color: isDark ? '#fff' : '#064e3b' }]}>¡Revisa tu correo!</Text>
                                 <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.55)' : '#059669' }]}>
-                                    Si existe una cuenta con <Text style={{ fontWeight: '700', color: isDark ? '#fff' : '#064e3b' }}>{email}</Text>, recibirás un enlace para restablecer tu contraseña.
+                                    Si existe una cuenta con <Text style={{ fontWeight: '700', color: isDark ? '#fff' : '#064e3b' }}>{email}</Text>, recibirás un código de 6 dígitos (y un enlace) para restablecer tu contraseña.
                                 </Text>
                             </View>
 
@@ -154,13 +154,13 @@ export default function ForgotPasswordScreen() {
                                     <View style={styles.tipItem}>
                                         <View style={[styles.tipDot, { backgroundColor: '#f59e0b' }]} />
                                         <Text style={[styles.tipText, { color: isDark ? 'rgba(255,255,255,0.6)' : '#475569' }]}>
-                                            El enlace expira en 30 minutos
+                                            El código expira en 30 minutos
                                         </Text>
                                     </View>
                                     <View style={styles.tipItem}>
                                         <View style={[styles.tipDot, { backgroundColor: '#0ea5e9' }]} />
                                         <Text style={[styles.tipText, { color: isDark ? 'rgba(255,255,255,0.6)' : '#475569' }]}>
-                                            Puedes reintentar si no lo recibes
+                                            El código es de un solo uso; si lo pierdes, pide otro aquí
                                         </Text>
                                     </View>
                                 </View>
@@ -181,7 +181,7 @@ export default function ForgotPasswordScreen() {
                                     onPress={() => router.push('/reset-password')}
                                     activeOpacity={0.85}
                                 >
-                                    <Text style={[styles.secondaryBtnText, { color: theme.accent }]}>¿Ya tienes el token? Restablecer aquí</Text>
+                                    <Text style={[styles.secondaryBtnText, { color: theme.accent }]}>¿Ya tienes el código? Restablecer aquí</Text>
                                 </TouchableOpacity>
                             </View>
                         </>

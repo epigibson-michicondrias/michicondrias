@@ -55,6 +55,14 @@ export async function resetPassword(token: string, newPassword: string): Promise
     });
 }
 
+/** Restablece la contraseña con el código de 6 dígitos del correo (de un solo uso, expira a los 30 min). */
+export async function resetPasswordWithCode(email: string, code: string, newPassword: string): Promise<void> {
+    await apiFetch('core', '/reset-password/code', {
+        method: 'POST',
+        body: JSON.stringify({ email, code, new_password: newPassword }),
+    });
+}
+
 export async function getCurrentUser(): Promise<User> {
     return apiFetch<User>('core', '/users/me');
 }

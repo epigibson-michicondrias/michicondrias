@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/src/contexts/ThemeContext';
-import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, KeyRound, ShieldCheck } from 'lucide-react-native';
+import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, KeyRound, ShieldCheck, Mail } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -13,21 +13,32 @@ import { showAlert } from '@/src/components/AppAlert';
 export default function ResetPasswordScreen() {
     const { token: tokenParam } = useLocalSearchParams<{ token?: string }>();
 
-    const [token, setToken] = useState(tokenParam || '');
+    // Pantalla única de reset: con `?token=` viene del deep link del correo; sin él se usa el código de 6 dígitos
+    const withToken = !!tokenParam;
+    const token = tokenParam || '';
+    const [email, setEmail] = useState('');
+    const [code, setCode] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [success, setSuccess] = useState(false);
 
-    const { resetPassword, isResetting } = usePasswordReset();
+    const { resetPassword, isResetting, resetWithCode, isResettingWithCode } = usePasswordReset();
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const isDark = colorScheme === 'dark';
+    const isWorking = isResetting || isResettingWithCode;
 
     const handleReset = () => {
-        if (!token) {
+        const cleanEmail = email.trim().toLowerCase();
+        const cleanCode = code.trim();
+        if (withToken && !token) {
             showAlert({ type: 'warning', title: 'Token requerido', message: 'Pega el token de recuperación que recibiste por correo' });
+            return;
+        }
+        if (!withToken && (!cleanEmail || cleanCode.length !== 6)) {
+            showAlert({ type: 'warning', title: 'Datos requeridos', message: 'Escribe tu correo y el código de 6 dígitos que te enviamos' });
             return;
         }
         if (!newPassword || !confirmPassword) {
@@ -43,16 +54,20 @@ export default function ResetPasswordScreen() {
             return;
         }
 
-        resetPassword({ token, newPassword }, {
-            onSuccess: () => setSuccess(true),
-            onError: (error) => {
-                showAlert({
-                    type: 'error',
-                    title: 'Error',
-                    message: error.message || 'No se pudo restablecer la contraseña. El token puede haber expirado.',
-                });
-            },
-        });
+        const onSuccess = () => setSuccess(true);
+        const onError = (error: Error) => {
+            showAlert({
+                type: 'error',
+                title: 'Error',
+                message: error.message || 'No se pudo restablecer la contraseña. El código puede haber expirado.',
+            });
+        };
+
+        if (withToken) {
+            resetPassword({ token, newPassword }, { onSuccess, onError });
+        } else {
+            resetWithCode({ email: cleanEmail, code: cleanCode, newPassword }, { onSuccess, onError });
+        }
     };
 
     return (
@@ -94,7 +109,9 @@ export default function ResetPasswordScreen() {
                                 </View>
                                 <Text style={[styles.title, { color: isDark ? '#fff' : '#064e3b' }]}>Nueva contraseña</Text>
                                 <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.55)' : '#059669' }]}>
-                                    Ingresa el token que recibiste por correo y tu nueva contraseña
+                                    {withToken
+                                        ? 'Escribe tu nueva contraseña para recuperar el acceso'
+                                        : 'Escribe el código de 6 dígitos que te enviamos por correo y tu nueva contraseña'}
                                 </Text>
                             </View>
 
@@ -104,26 +121,49 @@ export default function ResetPasswordScreen() {
                                 borderColor: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.12)',
                                 shadowColor: isDark ? '#10b981' : '#10b981',
                             }]}>
-                                {/* Token input (if not from deep link) */}
-                                {!tokenParam && (
-                                    <View style={styles.field}>
-                                        <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Token de recuperación</Text>
-                                        <View style={[styles.inputRow, {
-                                            backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f0fdf4',
-                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#d1fae5',
-                                        }]}>
-                                            <ShieldCheck size={18} color="#10b981" />
-                                            <TextInput
-                                                style={[styles.input, { color: isDark ? '#fff' : '#0f172a' }]}
-                                                placeholder="Pega tu token aquí"
-                                                placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
-                                                value={token}
-                                                onChangeText={setToken}
-                                                autoCapitalize="none"
-                                                autoCorrect={false}
-                                            />
+                                {/* Correo + código (si no se viene del deep link del enlace) */}
+                                {!withToken && (
+                                    <>
+                                        <View style={styles.field}>
+                                            <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Email</Text>
+                                            <View style={[styles.inputRow, {
+                                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f0fdf4',
+                                                borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#d1fae5',
+                                            }]}>
+                                                <Mail size={18} color="#10b981" />
+                                                <TextInput
+                                                    style={[styles.input, { color: isDark ? '#fff' : '#0f172a' }]}
+                                                    placeholder="tu@email.com"
+                                                    placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
+                                                    value={email}
+                                                    onChangeText={setEmail}
+                                                    autoCapitalize="none"
+                                                    keyboardType="email-address"
+                                                    textContentType="emailAddress"
+                                                />
+                                            </View>
                                         </View>
-                                    </View>
+
+                                        <View style={styles.field}>
+                                            <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Código de verificación</Text>
+                                            <View style={[styles.inputRow, {
+                                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f0fdf4',
+                                                borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#d1fae5',
+                                            }]}>
+                                                <ShieldCheck size={18} color="#10b981" />
+                                                <TextInput
+                                                    style={[styles.input, { color: isDark ? '#fff' : '#0f172a' }]}
+                                                    placeholder="000000"
+                                                    placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
+                                                    value={code}
+                                                    onChangeText={(t) => setCode(t.replace(/[^0-9]/g, '').slice(0, 6))}
+                                                    keyboardType="number-pad"
+                                                    maxLength={6}
+                                                    textContentType="oneTimeCode"
+                                                />
+                                            </View>
+                                        </View>
+                                    </>
                                 )}
 
                                 {/* New Password */}
@@ -173,12 +213,12 @@ export default function ResetPasswordScreen() {
 
                                 {/* Submit button */}
                                 <TouchableOpacity
-                                    style={[styles.submitBtn, { backgroundColor: '#10b981' }, isResetting && { opacity: 0.7 }]}
+                                    style={[styles.submitBtn, { backgroundColor: '#10b981' }, isWorking && { opacity: 0.7 }]}
                                     onPress={handleReset}
-                                    disabled={isResetting}
+                                    disabled={isWorking}
                                     activeOpacity={0.85}
                                 >
-                                    {isResetting ? (
+                                    {isWorking ? (
                                         <ActivityIndicator color="#fff" size="small" />
                                     ) : (
                                         <>
