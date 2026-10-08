@@ -12,8 +12,10 @@ export interface ThemeColors {
   error: string;
   errorLight: string;
   primary: string;
-  /** Texto e íconos sobre fondo `primary` (chips activos, botones). */
+  /** Texto e íconos sobre fondo `primary`/`error` (chips activos, botones). En oscuro es casi negro: contraste AA. */
   onPrimary: string;
+  /** Texto sobre fondo `accent` (dorado). */
+  onAccent: string;
   primaryLight: string;
   secondary: string;
   secondaryLight: string;
@@ -74,7 +76,8 @@ const midnightGold: Palette = {
     error: '#f0716f',
     errorLight: 'rgba(240, 113, 111, 0.14)',
     primary: '#4f8cff',
-    onPrimary: '#ffffff',
+    onPrimary: '#08101f',
+    onAccent: '#101c3d',
     primaryLight: 'rgba(79, 140, 255, 0.14)',
     secondary: '#8b7cf6',
     secondaryLight: 'rgba(139, 124, 246, 0.14)',
@@ -119,6 +122,7 @@ const midnightGold: Palette = {
     errorLight: '#fde8e8',
     primary: '#2f5fd0',
     onPrimary: '#ffffff',
+    onAccent: '#101c3d',
     primaryLight: '#e8eefc',
     secondary: '#6a5ae0',
     secondaryLight: '#eeebfd',

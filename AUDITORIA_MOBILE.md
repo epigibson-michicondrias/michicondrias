@@ -378,3 +378,282 @@ Arreglos:
 | Reintentar | Botón propio + `QueryErrorBanner` (notificaciones) | `QueryErrorBanner` |
 | Volver al login | 2 enlaces en el éxito de forgot-password | 1 |
 | Resultado de pago | pago-exitoso + pago-cancelado (copias) | Un componente, 2 rutas |
+
+## Directorio y citas — auditado 2026-10-08
+Flujo cliente: Inicio / Explorar / Búsqueda → `/directorio` (pestañas Clínicas · Especialistas) → `clinica/[id]` o `especialista/[id]` → `citas/agendar/[clinic_id]` → `/directorio/citas` (cancelar o reagendar, que vuelve a `agendar?reschedule_id=`). Profesional: `roleTools` «Mi directorio» y `useMyClinic.goToRegister` → `/directorio/nuevo`. Notificaciones `citas` → `/directorio/citas` (`crud_services.py:339`).
+En producción hay **0 citas** (consulta de solo lectura en Supabase), así que se puede rehacer sin migrar datos.
+
+| Pieza | Tipo | Estado | Hallazgo |
+|---|---|---|---|
+| app/directorio/index.tsx | pantalla | funciona | 587 líneas, 8 hex, sin `ScreenContainer` (sin banner de error) y sin pull-to-refresh. Carga doble: `ActivityIndicator` (:312) + `DataList isLoading`. **Dos botones que hacen lo mismo**: la tarjeta entera y «Ver Perfil» (:134) van a la misma ruta. Las tarjetas de profesional «Mi Clínica» (:282) y «Registrar mi Clínica» (:301) aparecen en el directorio del cliente. Los especialistas muestran el escudo verde aunque digan «Cédula sin registrar» (:193-197). `listEmptyComponent` (:329) está muerto. Pestañas y chips hechos a mano (no `FilterChip`/`SegmentedTabs`). `TextInput` en vez de `SearchBar` |
+| app/directorio/clinica/[id].tsx | pantalla | funciona | 631 líneas, 8 hex. La carga es un texto (:20) y «Clínica no encontrada» (:21) no tiene botón para volver. **El formulario de reseña se ve para todos**, dueño incluido, y el backend le responde 403 (`reviews.py:36`). Las reseñas dicen «Usuario» con la inicial «U». «Agendar Cita General» (:317) aparece aunque la clínica no tenga servicios ni horario, y la pantalla de agendar no permite continuar. No lista a los veterinarios de la clínica |
+| app/directorio/especialista/[id].tsx | pantalla | rota/incompleta | **809 líneas**. **Manda `vet_id` a agendar (:55), pero `useBookAppointment` no lo lee**, así que la cita no queda con el especialista aunque el backend acepta `vet_id` (`schemas/services.py:86`). El enlace a la clínica aparece 2 veces (:130 y :159). El mismo formulario de reseña que la clínica, visible también en el propio perfil (403). Muestra el teléfono y el correo del veterinario |
+| app/directorio/citas/index.tsx | pantalla | funciona con huecos | 244 líneas, 7 hex (`#ef4444` en vez de `theme.error`). Usa `ScreenContainer`, `ScreenHeader` y `DataList` con refresh y vacío con acción ✅. **Las citas canceladas no aparecen en ningún filtro** («Todas» las excluye en `useAppointments.ts:104`), así que **una cita que cancela la clínica desaparece y su `cancellation_reason` nunca se ve**. Citas pasadas pendientes o confirmadas siguen mostrando «Reagendar/Cancelar». No separa próximas de pasadas. Las pestañas no son `FilterChip` |
+| app/directorio/citas/agendar/[clinic_id].tsx | pantalla | funciona | 561 líneas, **14 hex**, emojis 🕒🚨. La carga es un texto. **Promete que las emergencias «tienen prioridad y pueden ser atendidas fuera del horario normal» (:322), pero el backend solo agrega `[EMERGENCIA]` a las notas**: igual exige un horario normal y el aviso a la clínica no dice que es urgente (`crud_services.py:306`). Validación por alerta, no por campo. Usa `KeyboardScreen` ✅ y slots reales del backend con manejo de 409 ✅ |
+| app/directorio/nuevo.tsx | pantalla | funciona / capas rotas | **Llama a `createClinic` y a `queryClient` desde la pantalla** (:6, :44). `KeyboardAvoidingView` en vez de `KeyboardScreen`. No pide estado ni correo. **No está en `ROUTE_ACCESS` ni tiene `RoleGuard`, y el backend `POST /clinics/` no revisa el rol** (`clinics.py:56`): cualquier consumidor puede registrar una clínica (la mitiga la moderación) |
+| hooks/directorio/useAppointments.ts | hook | funciona / duplicado | **Pide `/appointments/me` 2 veces** con dos query keys (`user-appointments` de `citas.ts` y `my-directorio-appointments` de `directorio.ts`). La segunda no la usa ninguna pantalla. Colores hex en `STATUS_CONFIG` |
+| hooks/directorio/useBookAppointment.ts | hook | funciona | Ignora `vet_id`. `toLocalYMD` exportado sin uso (knip) |
+| hooks/directorio/useClinicDetail · useVetDetail · useVetReviews · useClinicsAndVets | hook | funciona | Sin `isError` en clínica. `canRegister` calculado a mano (:35) en lugar de `roleTools`. `isMounted` innecesario |
+| src/services/citas.ts vs directorio.ts | servicio | **duplicado / roto** | Dos clientes para `/appointments`. **`directorio.cancelAppointment` manda el motivo como `?reason=` y sin cuerpo (`directorio.ts:~287`), pero el backend exige el cuerpo `AppointmentCancel` (`appointments_routes.py:189`) → 422**: **la clínica no puede cancelar citas desde `mi-clinica/agenda` (`useAgenda.ts:86`)**. `citas.ts` sí manda el cuerpo. `MOCK_SERVICES` (:188) son datos falsos sin uso. `createAppointment`, `getUnreadAlertCount` y `deleteAlert` sin uso (knip). `src/types/citas.ts` muerto (knip) |
+| backend directorio | backend | funciona con huecos | `GET /clinics/{id}` devuelve clínicas **no aprobadas** a cualquiera, y `ClinicResponse`/`VeterinarianResponse` públicos exponen `owner_user_id`/`user_id`. `cancel_appointment` revienta si la clínica es `None` (:198). `POST /clinics/` sin rol. No hay endpoint de «¿puedo reseñar?» |
+
+Redundancias: 2 servicios de citas y 2 queries a `/appointments/me`. Tarjeta + «Ver Perfil». Enlace a la clínica ×2 en el especialista. «Mi Clínica» y «Registrar» en el directorio del cliente, cuando ya existen en `roleTools`/Herramientas. 3 botones «Agendar» en la clínica (cada servicio, el pie y, desde el especialista, otro más). `?type=clinic` ya no aplica: Explorar tiene una sola entrada «Veterinarios» (`useExplore.ts:34`).
+Propuesta de rediseño (requiere visto bueno):
+- `/directorio` con `SearchBar`, `FilterChip` (Todas · 24 h · Urgencias) y `SegmentedTabs` (Clínicas · Especialistas). Sin tarjetas de profesional.
+- Ficha de clínica: info, servicios (cada uno abre agendar), médicos, reseñas, y un solo CTA «Agendar» que solo aparece si hay servicios.
+- Especialista partido en `src/features/directorio/` (`ReviewSection` común con la clínica). Al agendar desde el especialista se manda y se guarda `vet_id`.
+- Mis citas con pestañas «Próximas · Historial»: las canceladas van al historial con el motivo, y las pasadas sin acciones.
+- `citas.ts` como único cliente de `/appointments`.
+- `directorio/nuevo` en `ROUTE_ACCESS` (`veterinario`, `hospital`) con hook.
+
+Backend: rol en `POST /clinics/` (veterinario/hospital/admin). `GET /clinics/{id}` solo aprobadas (salvo dueño o admin). Quitar `owner_user_id`/`user_id` del schema público. Guard de `clinic None` en cancel. Emergencia: marcar `is_emergency` en el aviso a la clínica (o quitar la promesa).
+Arreglos:
+- [ ] P0 La clínica no puede cancelar citas: `directorio.cancelAppointment` sin cuerpo → 422 (`services/directorio.ts` cancel, `useAgenda.ts:86`). Usar el cuerpo `{cancellation_reason}`
+- [ ] P0 La cita agendada desde el especialista no queda asignada a él: `vet_id` ignorado (`especialista/[id].tsx:55`, `useBookAppointment.ts:102`)
+- [ ] P1 Citas canceladas invisibles y motivo de cancelación nunca mostrado (`useAppointments.ts:104`). Acciones en citas pasadas
+- [ ] P1 Promesa de emergencias sin respaldo (`agendar/[clinic_id].tsx:322`)
+- [ ] P1 Formulario de reseña visible para el dueño o el propio veterinario (403) en clínica y especialista. Reseñas sin autor
+- [ ] P1 `/directorio/nuevo`: sin rol en app ni en backend. Service y `queryClient` en la pantalla
+- [ ] P1 Quitar «Mi Clínica»/«Registrar» del directorio. Una sola acción por tarjeta. Escudo verde con «Cédula sin registrar»
+- [ ] P2 Unificar `citas.ts`/`directorio.ts` (borrar `MOCK_SERVICES`, `types/citas.ts` y la query duplicada). Skeleton, `ScreenContainer`, `SearchBar`/`FilterChip`, tokens (0 imports de `constants/design`), partir `especialista/[id]` (809 l.), `clinica/[id]` (631 l.) y `agendar` (561 l.)
+
+---
+
+## Adopciones — auditado 2026-10-08
+Flujo adoptante: Inicio / Explorar / Búsqueda → `/adopciones` → `[id]` → «¡Quiero Adoptar!» → `solicitar/[id]` (exige KYC) → `mis-solicitudes` (desde Perfil).
+Flujo de quien publica (refugio/hogar temporal, desde `roleTools`): `mis-publicaciones` · `nuevo` · `solicitudes` → `solicitud/[id]` (aprobar crea la mascota en mascotas) · `ver-solicitudes/[id]`.
+Flujo B paralelo (solo refugio): `refugio/aplicaciones` → `contrato/[id]`.
+En producción hay **0 solicitudes, 0 formularios y 0 contratos**.
+
+| Pieza | Tipo | Estado | Hallazgo |
+|---|---|---|---|
+| app/adopciones/index.tsx | pantalla | funciona | 238 líneas, 2 hex. `SearchBar`, `FilterChip`, `DataList` con refresh ✅. El «+» del header deja publicar a cualquiera, pero **el consumidor no tiene entrada a «Mis publicaciones»** (solo existe en `roleTools` del refugio) y el éxito le dice «Puedes ver su estado en Mis publicaciones» (`useListingForm.ts:146`): callejón sin salida. Chip «Grandes» suelto |
+| app/adopciones/[id].tsx | pantalla | funciona | 448 líneas, 7 hex. `LoadingOverlay` a pantalla completa. Compartir sin enlace (solo texto). Para el dueño, el pie dice «Gestiona las solicitudes desde Solicitudes recibidas» sin botón que lleve allí (:163) |
+| app/adopciones/solicitar/[id].tsx | pantalla | funciona / incompleta | 376 líneas, 9 hex, `LoadingOverlay` + `ActivityIndicator`. **El KYC se exige solo en la app** (:52); `POST /pets/{id}/request` no lo revisa (`pets.py:175`). **Bloquea a veterinarios** como «equipo» (:32), aunque un veterinario es un adoptante válido. Jerga «Centro de Seguridad», «Validando perfil de seguridad» |
+| app/adopciones/mis-solicitudes.tsx | pantalla | funciona | 215 líneas, 5 hex. **Indicador «En Vivo» falso** (es un `refetchInterval` de 30 s, verde hex :188). Botón de refrescar con ícono de reloj, redundante con el pull-to-refresh. No muestra los formularios del flujo B, aunque esas notificaciones enlazan aquí (`pets.py:541,573`) |
+| app/adopciones/mis-publicaciones.tsx | pantalla | funciona | 182 líneas. «Eliminar» se ve en publicaciones adoptadas (el backend responde 400). El spinner de borrado (`isDeleting`) sale en todas las filas. No avisa que editar una publicación aprobada **la vuelve a moderación** (`crud_pet.py:66`) |
+| app/adopciones/nuevo.tsx | pantalla | funciona | 434 líneas, **12 hex**. Alta y edición (`?editId`) en una sola ✅. Sin `FormField`/`KeyboardScreen` |
+| app/adopciones/solicitudes.tsx | pantalla | funciona / redundante | 412 líneas, `LoadingOverlay`. **N+1**: `getMyListings` + 1 petición por publicación (`useApplications.ts:45`). `AppRefreshControl` en `FlatList` con `scrollEnabled={false}` (:226) no hace nada. Botones de estado en la tarjeta (Rechazar · Revisión · Entrevista sin fecha) que repiten los del detalle. **Ignora `?id=`**: el admin llega desde `admin/moderacion/index.tsx:221` y solo ve *sus propias* publicaciones |
+| app/adopciones/ver-solicitudes/[id].tsx | pantalla | redundante / confunde | 356 líneas. Modal con el mismo detalle que `solicitud/[id]`. **«Aprobar» pone `APPROVED` («Pre-aprobada»), no concreta la adopción** (:152), y después ya no ofrece la aprobación final: hay que buscarla en otra pantalla |
+| app/adopciones/solicitud/[id].tsx | pantalla | funciona | 460 líneas, 8 hex, `LoadingOverlay`. Es la única con la aprobación real (crea la mascota). «Aprobar Adopción» está duplicado en el código (:264 y :274). Fecha de entrevista en texto libre. 3-4 botones de color al mismo nivel (ninguna acción domina) |
+| app/adopciones/formulario-compatibilidad.tsx | pantalla | **muerta** | **Nadie navega a ella** (grep de `formulario-compatibilidad` y `petId`: 0 resultados). Sin ella, el flujo B no tiene entrada |
+| app/adopciones/refugio/aplicaciones.tsx | pantalla | rota (flujo B) | Siempre vacía (nadie puede enviar formularios). En `ROUTE_ACCESS` pero **sin `RoleGuard`**: un no-refugio ve el error 403. La tarjeta lleva directo a firmar el contrato, sin ver el formulario |
+| app/adopciones/contrato/[id].tsx | pantalla | rota (flujo B) | **Firma el refugio, pero el texto dice «te comprometes a cumplir…» como si fuera el adoptante** (`useAdoptionContract.ts:101`). Firmar marca el formulario como aprobado y avisa «Tu postulación fue aprobada», pero **no cierra la publicación ni crea la mascota** (`pets.py:500-545`): promesa sin efecto. Términos fijos en el cliente. `refuge_id: ''` |
+| hooks/adopciones | hook | funciona / duplicado | `['my-requests']` y `['my-adoption-requests']` son la misma consulta. `useMyListings.updateMutation` muerto. `STATUS_LABELS` duplicado en `useApplications` y `useApplicationDetail` (export sin uso, knip). `useApplyForm` muta con `useState` y no con `useMutation` |
+| backend adopciones | backend | funciona / riesgo | **Privacidad**: `GET /pets/{id}` es público y devuelve publicaciones **sin aprobar o adoptadas**, con `microchip_number`, `published_by` y **`adopted_by`** (`schemas/pet.py:44-49`). KYC no exigido en `request`. `approve` no es idempotente: si `crud.approve_adoption` falla después del POST a mascotas, un reintento duplica la mascota. `GET /adoptions/refuge/applications` excluye a `hogar_temporal` |
+
+Redundancias:
+- **2 sistemas de adopción paralelos**: solicitudes (`/request`) y formularios + contratos (`/adoptions/forms`), con estados y pantallas distintos. Solo funciona el primero.
+- **3 pantallas para gestionar las mismas solicitudes** (`solicitudes`, `ver-solicitudes/[id]`, `solicitud/[id]`) con acciones distintas en cada una.
+- La consulta de mis solicitudes ×2. Refresh ×2 en `mis-solicitudes`.
+
+Propuesta de rediseño (requiere visto bueno):
+- **Un solo flujo**: quitar el flujo B (`formulario-compatibilidad`, `refugio/aplicaciones`, `contrato/[id]` y sus endpoints) o integrar la compatibilidad y el contrato **dentro** de la solicitud. Sin datos en producción, quitarlo es barato.
+- Gestión en 2 pantallas: `solicitudes` (lista con filtro por mascota vía `?listing=`, que también sirve al admin) → `solicitud/[id]` como único detalle. Una acción primaria según el estado: Revisar → Entrevista (`DatePicker`) → «Aprobar adopción». Rechazar como secundaria. Se borra `ver-solicitudes/[id]`.
+- «Mis publicaciones» y «Mis solicitudes» accesibles desde Perfil para cualquier usuario que publique o postule.
+- `adopciones/[id]` del dueño con CTA «Ver solicitudes (n)».
+
+Backend: esquema público sin `adopted_by`/`microchip_number`. `GET /pets/{id}` solo aprobadas y abiertas (salvo dueño o admin). Exigir `verification_status == VERIFIED` en `POST /{id}/request`. `GET /admin/{listing_id}/requests` ya permite al admin. Idempotencia en `approve` (no crear la mascota si ya existe `adopted_from_listing_id`).
+Arreglos:
+- [ ] P0 Flujo B roto de punta a punta: formulario inalcanzable; el contrato promete «aprobada» sin cerrar la publicación ni transferir la mascota (`pets.py:500`); `mis-solicitudes` no lo muestra. Decidir: quitarlo o integrarlo
+- [ ] P0 `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba y deja sin salida la aprobación real (:152)
+- [ ] P1 Privacidad: `GET /pets/{id}` público con `adopted_by`, microchip y publicaciones sin aprobar
+- [ ] P1 KYC solo en el cliente; veterinarios bloqueados para adoptar (`solicitar/[id].tsx:32,52`)
+- [ ] P1 Consumidor que publica sin acceso a «Mis publicaciones»; el dueño sin CTA a sus solicitudes (`[id].tsx:163`)
+- [ ] P1 Admin → `/adopciones/solicitudes?id=` ignora el parámetro (`admin/moderacion/index.tsx:221`)
+- [ ] P1 «En Vivo» falso y refresh duplicado (`mis-solicitudes.tsx`). Eliminar en adoptadas. Aviso de remoderación al editar
+- [ ] P2 Fusionar las 3 pantallas de solicitudes. N+1 de `useApplications`. Query keys unificadas. `RoleGuard` en `refugio/*`. Skeleton en lugar de `LoadingOverlay` (5 pantallas), tokens, `FormField`/`KeyboardScreen` en `nuevo`
+
+---
+
+## Perdidas — auditado 2026-10-08
+Flujo: Inicio / Explorar / Búsqueda → `/perdidas` (lista o mapa, chips lost/found y especie, stats) → `[id]` (contactar, «Avisar que lo vi», compartir) · dueño: coincidencias, avistamientos, «Marcar como encontrado», `editar/[id]`. Alta en `/perdidas/nuevo` (GPS obligatorio). Notificaciones `alert` → `/perdidas`.
+
+| Pieza | Tipo | Estado | Hallazgo |
+|---|---|---|---|
+| app/perdidas/index.tsx | pantalla | funciona | 372 líneas, 4 hex, `LoadingOverlay` en vista lista (:222). Refresh ✅, vacío con acción ✅. **Las estadísticas mienten**: «Reunidos» cuenta solo hasta 50 (límite por defecto de `GET /reports/`) y «Perdidos/Encontrados» salen de la lista filtrada (con el filtro «lost», encontrados = 0). Sin paginación (50 máx.) |
+| app/perdidas/[id].tsx | pantalla | funciona | 665 líneas, **17 hex**. Avistamientos reales con aviso al dueño ✅, coincidencias ✅, tracker con polling de 15 s ✅. Compartir manda solo texto, sin enlace al reporte (:361). Coordenadas crudas del tracker (:207). **El dueño no puede borrar el reporte** (el endpoint existe). Sin datos de contacto de quien avistó |
+| app/perdidas/nuevo.tsx | pantalla | funciona / capas rotas | 510 líneas, **26 hex**, 3 `ActivityIndicator`. **Lógica, service y `queryClient` en la pantalla** (:14, :93, :99), mientras `hooks/perdidas/useReportForm.ts` hace lo mismo y está muerto (knip). `KeyboardAvoidingView`, sin `ScreenContainer`. Validación por alerta |
+| app/perdidas/editar/[id].tsx | pantalla | funciona | 272 líneas, `LoadingOverlay` + `ActivityIndicator`. **No permite mover el punto del mapa** y permite borrar los dos contactos (sin la validación del alta). Solo se llega desde el pie del detalle |
+| hooks/perdidas/useReports · useReportDetail · useEditReport | hook | funciona | Invalidaciones correctas (`lost-pet-reports`, `lost-pet-resolved`, `perdidas-report`). `useReportDetail` usa `Linking`/`Location` (aceptable en hook) |
+| hooks/perdidas/useReportActions · useReportForm | hook | **muerta** | Sin importador (knip) |
+| src/services/perdidas.ts | servicio | funciona | `updateTrackerLocation` y `broadcastReport` sin uso (knip). No usa `GET /reports/mine` ni `DELETE /reports/{id}` |
+| backend perdidas | backend | funciona / riesgo | **Privacidad**: `GET /reports/` y `/{id}` son públicos sin sesión y devuelven `contact_phone`, `contact_email`, `reporter_id`, **`tracker_device_id` y la ubicación en vivo del collar** (`current_lat/lng`) (`schemas/lost_pet.py:55-66`): permite raspar teléfonos y rastrear el collar. **La notificación de avistamiento no lleva `link`** (`lost_pets.py:250-258`, F24 no cubrió perdidas): abre la lista y no el reporte. La moderación (`/admin/{id}/approve`) no filtra nada: los reportes son públicos desde el alta. `matches` no exige ser dueño |
+
+Redundancias: alta duplicada (pantalla vs `useReportForm` muerto). «Marcar como encontrado» en el cuerpo y «Editar» en el pie (dos zonas de acciones del dueño). Contactar por teléfono y por correo en un solo botón que adivina (aceptable).
+Propuesta de rediseño (requiere visto bueno):
+- `nuevo` y `editar` con un `ReportForm` común (hook `useReportForm` revivido), con mapa editable en los dos.
+- «Mis reportes» (con `GET /reports/mine`) en Perfil, con resolver y eliminar con confirmación.
+- Detalle del dueño con una sola barra de acciones: Encontrado (primaria) · Editar · Eliminar.
+- Compartir con enlace al reporte.
+- Stats desde un endpoint de conteos (o quitarlos).
+
+Backend: `link` `/perdidas/{id}` en `_notify_user` (avistamiento y difusión). Esquema público sin `tracker_device_id`, `reporter_id` ni `current_lat/lng` (solo para el dueño). Contacto solo con sesión. Endpoint de conteos. Decidir si la moderación oculta reportes.
+Arreglos:
+- [ ] P1 Privacidad: tracker en vivo, `tracker_device_id` y contactos expuestos sin sesión en `GET /reports/`
+- [ ] P1 Aviso de avistamiento sin `link` → abre la lista y no el reporte (`lost_pets.py:254`)
+- [ ] P1 Sin «Mis reportes» ni eliminar. Editar no permite mover el punto ni valida el contacto
+- [ ] P1 Estadísticas incorrectas (tope de 50 y dependen del filtro) (`useReports.ts:39-43`)
+- [ ] P2 `nuevo.tsx`: sacar la lógica a `useReportForm` y borrar `useReportActions`. Compartir con enlace. Skeleton, `ScreenContainer`, `KeyboardScreen`, tokens (26 + 17 hex). Partir `[id]` (665 l.) y `nuevo` (510 l.)
+
+---
+
+**Medición transversal de los 3 módulos (22 pantallas):** ninguna importa `constants/design` (0 tokens), hay 264 `fontSize` numéricos, ninguna usa `RoleGuard` y `directorio/index`, `directorio/nuevo` y `perdidas/nuevo` no usan `ScreenContainer`. Hex por pantalla: directorio 1–14, adopciones 0–12, perdidas 4–26.
+
+## Paseadores y Cuidadores — auditado 2026-10-08
+Flujo cliente: Explorar → `/paseadores` o `/cuidadores` → `[id]` → «Reservar» (modal) → `POST /walkers|sitters/{id}/request` →
+«Mis solicitudes» (`/…/solicitudes`, vista de cliente) → cancelar o reseñar desde el perfil. Búsqueda global → `[id]`.
+Flujo profesional (roleTools `servicioPro`): Herramientas → `/…/solicitudes` (vista de proveedor: aceptar, iniciar, completar) ·
+`/…/calendario` · `/servicios-pro/gestion|perfil`. **Producción: 0 paseadores, 0 cuidadores, 0 solicitudes.**
+Medidas: 3 039 líneas en 8 pantallas, 33 hex (más 12 en `STATUS_COLORS` de los 2 hooks de calendario), 0 imports de
+`constants/design`, ~79 `fontSize` sueltos en los detalles, `LoadingOverlay` a pantalla completa en index, detalle y solicitudes.
+
+| Pieza | Tipo | Estado | Hallazgo |
+|---|---|---|---|
+| app/paseadores/index.tsx | pantalla | funciona | `LoadingOverlay` (:134). 2 botones sobre la lista (:110-123). «Quiero ser paseador» se ve también a quien ya es paseador o tiene otro rol pro. El botón «Ver perfil» (:92) repite el toque de la tarjeta. 4 hex |
+| app/cuidadores/index.tsx | pantalla | **rota** | **Los tipos de servicio no existen**: usa `daycare`/`boarding` (:76-77, chips :150-151), pero el backend usa `hosting`/`visiting`/`both` (`sitters.py:68`, `models/sitter.py:23`). La etiqueta siempre dice «Guardería y hospedaje», y los chips «Guardería» y «Hospedaje» solo muestran a los cuidadores `both`. Pone «/día» aunque el precio sea por visita (:109-111). 5 hex |
+| app/paseadores/[id].tsx (844 l.) | pantalla | **rota** | **El DatePicker abre con «Invalid Date»**: `walkDate` empieza en `''` (`useWalkerDetail.ts:23`) y la pantalla hace `new Date('' + 'T12:00:00')` (:409). En Android el picker nativo puede fallar con ese valor. **La solicitud no lleva hora ni dirección de recogida** (`useWalkerDetail.ts:132-137`), aunque el schema las acepta (`walkers.py:121-123`) y el calendario las muestra («Sin hora»). Las reseñas siempre dicen «C / Cliente» (:325-329). El formulario reseña la *primera* solicitud sin reseña, no la que el usuario tocó (:282). Sin mascotas: «No tienes mascotas registradas» sin acción (:382). Error hecho a mano (:63-80). 10 hex, 4 `ActivityIndicator` |
+| app/cuidadores/[id].tsx (935 l.) | pantalla | funciona / incompleta | ~90 % igual al de paseadores (diff: tipo de servicio, rango de fechas, hogar). **No manda `address`** para «Visitas a domicilio» (`useSitterDetail.ts:141-147`), así que el cuidador no sabe adónde ir. `ScreenHeader` dentro del `ScrollView` (:92-95), distinto del de paseadores. 10 hex |
+| app/paseadores/solicitudes.tsx · cuidadores/solicitudes.tsx | pantalla | funciona / rol mal declarado | Son idénticas salvo `kind` (80 l. cada una). Ya usan `ServiceRequestCard`. `LoadingOverlay` a pantalla completa (:27). **Sirven a 2 perspectivas, pero `ROUTE_ACCESS` las limita a `paseador`/`cuidador`** (`roleTools.ts:178,180`). El cliente entra igual («Mis solicitudes», `index.tsx:113/:129`) solo porque no hay `RoleGuard`, y `canAccessRoute` descartaría una notificación al cliente con ese link (`useNotifications.ts:42`) |
+| app/paseadores/calendario.tsx · cuidadores/calendario.tsx | pantalla | funciona (duplicada) | Gemelas (238/242 l.) y sus hooks también. El skeleton de carga no tiene header, así que no hay salida (:28-34). Tocar una cita solo abre una alerta, sin acciones. Muestra las canceladas. Sin pull-to-refresh. En cuidadores, la alerta muestra `hosting` en crudo (:124). Sin `RoleGuard` |
+| hooks useWalkerDetail · useSitterDetail | hook | funciona / con muerto | Código muerto: `isFavorite/toggleFavorite`, `handleContact` (chat **simulado**: «Abriendro chat…», :118), `registerMutation`/`registerAsWalker|Sitter`, `registerModalVisible`. `handleBook(_serviceType)` ignora su argumento. Las invalidaciones son correctas |
+| hooks useWalkers · useSitters · useWalkRequests · useSitRequests · useProRequests | hook | funciona | `useProRequests` ya unifica las 2 cosas. **Promesas sin emisor**: «El cliente verá el cambio de inmediato», «El cliente ya puede dejar su reseña» (`useProRequests.ts:33-35`) y «enviada al paseador» (`useWalkerDetail.ts:63`), pero ningún backend notifica |
+| hooks useWalkerCalendar · useSitterCalendar | hook | funciona (duplicado) | Lo único que cambia es la agrupación por fecha o por rango. `STATUS_COLORS` con 6 hex cada uno, duplicando `StatusBadge` |
+| services paseadores.ts · cuidadores.ts | servicio | funciona | Las 10 rutas existen. `registerAs*` solo lo usa el hook muerto. `src/types/paseadores.ts` y `cuidadores.ts` están **muertos** (knip): los tipos viven en el servicio |
+| backend walkers.py · sitters.py | backend | funciona con huecos | Las transiciones de estado ya están bien controladas. **Ningún endpoint notifica** (ni solicitud nueva, ni aceptada, ni completada). **`is_verified` no lo pone nadie** (no hay endpoint y hay 0 filas), así que la insignia «Verificado» es inalcanzable. `GET /walkers/` sin paginación |
+
+Redundancias: **2 detalles casi idénticos** (1 779 l.), 2 calendarios + 2 hooks gemelos, 2 pantallas de solicitudes
+gemelas, 4 implementaciones de reseñas a mano (paseador, cuidador, pet-friendly y establecimiento) aunque ya existe
+`components/reviews/ReviewsSection` (la usa entrenadores), selector de mascota hecho a mano aunque existe
+`features/salud/PetPicker`, «Ver perfil» = tocar la tarjeta.
+
+Propuesta de rediseño (requiere visto bueno): **componente compartido «perfil de proveedor»**
+```
+src/features/servicios-pro/
+  ProviderProfile.tsx    pantalla completa: <ProviderProfile kind="walk" | "sit" />
+  ProviderHero.tsx       foto/inicial, nombre, rating, insignia verificado, compartir
+  ProviderFacts.tsx      stats [{icon, value, label}] + Sobre mí + Ubicación/radio + especies (+ hogar si sit)
+  ProviderPricing.tsx    filas [{label, amount}] («Por hora»/«Por paseo» · «Por día»/«Por visita»)
+  BookingSheet.tsx       PetPicker (con «Agregar mascota» si no hay) + children por tipo + Notas + Button loading
+  providerConfig.ts      WALK/SIT: textos, stats, precios, campos de reserva (fecha+hora+duración+recogida |
+                         tipo+inicio+fin+dirección si visiting), payload
+src/hooks/servicios-pro/useProviderDetail.ts(kind)   fusiona useWalkerDetail/useSitterDetail sin el código muerto
+```
+Las reseñas van con `ReviewsSection` (con `canReview` e `requestId` elegible), `PetPicker` se mueve a `src/components/` y
+`app/paseadores/[id].tsx` y `app/cuidadores/[id].tsx` quedan como envoltorios de ~10 líneas (de 1 779 a ~450 líneas). Igual con
+`ProRequestsScreen kind` (solicitudes) y `ProCalendar kind` + `useProCalendar(kind)`. Más adelante el mismo perfil sirve
+para estilistas y entrenadores. En las listas: un solo CTA por tarjeta (la tarjeta entera), «Mis solicitudes» como ícono del
+header y «Quiero ser…» solo para consumidores.
+Backend: notificación a core al crear o cambiar de estado una solicitud (paseo, cuidado), endpoint admin para
+`is_verified` (o derivarlo del KYC verificado de core), paginación en `GET /walkers/` y `/sitters/`.
+Arreglos:
+- [ ] P0 Fecha inicial vacía → «Invalid Date» en el modal de paseo (`useWalkerDetail.ts:23`, `paseadores/[id].tsx:409`)
+- [ ] P0 Tipos de servicio inexistentes `daycare`/`boarding` en la lista de cuidadores (`cuidadores/index.tsx:76,150-151`)
+- [ ] P1 La solicitud de paseo no lleva hora ni dirección, y la de visitas no lleva dirección (`useWalkerDetail.ts:132`, `useSitterDetail.ts:141`)
+- [ ] P1 Promesas de aviso sin emisor (`useProRequests.ts:33-35`, `useWalkerDetail.ts:63`): emitir notificaciones o quitar los textos
+- [ ] P1 `ROUTE_ACCESS` de `/paseadores/solicitudes` y `/cuidadores/solicitudes` contradice el uso de cliente (`roleTools.ts:178,180`). Sacarlas de `ROUTE_ACCESS` o separar las rutas. `RoleGuard` en los calendarios
+- [ ] P1 Reseñar la solicitud tocada, no la primera. Autor real en las reseñas. «Agregar mascota» cuando no hay
+- [ ] P1 Insignia «Verificado» inalcanzable (backend sin setter)
+- [ ] P2 Componente compartido (arriba), borrar el código muerto de los hooks (favorito, chat falso, registro) y `src/types/{paseadores,cuidadores}.ts`, Skeleton, tokens, calendario con header en carga y sin canceladas, `service_type` legible
+
+---
+
+## Lugares pet-friendly + Establecimientos — auditado 2026-10-08
+Flujos: Explorar «Pet-friendly» → `/petfriendly` (lista o mapa, chips de categoría) → `[id]` (llamar, mapa, web, reseñas,
+eliminar si es mío) · «+» → `/petfriendly/nuevo` (cualquier usuario, ubicación por GPS). Explorar «Establecimientos» →
+`/establecimientos` → `[id]` (amenidades, cupón «reclamar», reseñas, canjear si soy el dueño) → `editar/[id]`. Rol
+`establecimiento` (roleTools :124-125) → `/establecimientos/nuevo` · `/establecimientos`.
+Backend: lugares en **perdidas** (`/places`, tabla `petfriendly_places`), establecimientos en su propio servicio (`/venues`,
+`pet_friendly_venues`). **Producción: 0 lugares y 0 establecimientos.**
+Medidas: 2 474 líneas en 7 pantallas, 30 hex, 0 tokens, `ActivityIndicator` a pantalla completa en `petfriendly/[id]:52`,
+`establecimientos/[id]:45` y `editar/[id]:27`.
+
+| Pieza | Tipo | Estado | Hallazgo |
+|---|---|---|---|
+| app/petfriendly/index.tsx | pantalla | funciona | Lista y mapa, chips de categoría, error con «Reintentar». `LoadingOverlay` dentro del vacío (:108-111). 1 hex |
+| app/petfriendly/[id].tsx (613 l.) | pantalla | funciona / incompleta | **El formulario de reseña se ve al autor del lugar**, y el backend le responde 403 (`places.py` create_place_review). **El formulario se limpia aunque falle**: `handleCreateReview` se traga el error (`usePlaceDetail.ts:47-51`) y la pantalla borra el texto (:215-217). Autor fijo «V / Visitante». Jerga «Puntos Michi». **No hay editar**, aunque existe `PUT /places/{id}` (`places.py:91`). 6 hex, 4 `ActivityIndicator` |
+| app/petfriendly/nuevo.tsx (481 l.) | pantalla | funciona / capas | **Importa servicios y sube la imagen desde la pantalla** (:13, :85-128) sin `useMutation`. `KeyboardAvoidingView` sin `ScreenContainer` ni `FormField` ni `KeyboardScreen`. **Solo acepta la posición GPS actual** (:51-70, :177): hay que estar en el lugar. `Dimensions` estático. 8 hex |
+| app/establecimientos/index.tsx | pantalla | funciona | **Muestra el código del cupón en la lista** (:71-75). Amenidades como «WiFi: true» (:64). «Solo míos» se filtra en el cliente sobre los primeros 50 (:32). Vacío con acción solo para dueños |
+| app/establecimientos/[id].tsx (563 l.) | pantalla | **rota (cupones)** | Muestra el cupón en claro (:166-172), así que «Reclamar» no aporta nada. **El canje está roto en el backend**: el código es el mismo para todos los clientes y `redeem` marca *cualquier* reclamo activo con ese código (`venues.py:215-250`). Spinner a pantalla completa (:45). 9 hex, 5 `ActivityIndicator` |
+| app/establecimientos/nuevo.tsx · editar/[id].tsx | pantalla | funciona / rol sin declarar | Funcionan contra `require_establecimiento` (`venues.py:24,77,100`), pero **no están en `ROUTE_ACCESS` ni tienen `RoleGuard`**: un consumidor llega al formulario y recibe 403 al guardar. El modelo no tiene foto, coordenadas, categoría ni teléfono |
+| hooks usePlaces · usePlaceDetail | hook | funciona | Las invalidaciones son correctas |
+| hooks useVenues · useVenueDetail · useVenueForm · useVenueReviews | hook | funciona | `searchVenues()` sin paginación (`limit` 50 en el backend). `useVenueForm` expone `router` |
+| services petfriendly.ts · venues.ts | servicio | funciona | Todas las rutas existen. `src/types/petfriendly.ts` y `venues.ts` están **muertos** (knip) |
+| backend perdidas/places.py · establecimientos/venues.py | backend | funciona / cupón roto | Los 2 recalculan su propia calificación con reglas distintas (lugares: guardada; venues: `/score` al vuelo). Ninguno aparece en la búsqueda global (`core/search.py`) |
+
+Redundancias: **los 2 módulos son lo mismo** («lugar que acepta mascotas»). Están lado a lado en Explorar
+(`useExplore.ts:45-46`), los 2 tienen detalle con dirección → mapa y reseñas a mano, y la ficha de establecimiento es un
+subconjunto pobre de la de lugar (sin foto, mapa, categoría ni contacto). Solo agrega *dueño oficial*, amenidades y
+cupón, y el cupón está roto.
+
+Propuesta de rediseño (requiere visto bueno) — **fusionar en un solo módulo «Lugares pet-friendly» (`/petfriendly`)**:
+- Base: `petfriendly_places`. Es la más rica (mapa, foto, categoría, contacto, aporte de la comunidad) y las 2 tablas están
+  vacías, así que no hay migración de datos.
+- Lo que aporta Establecimientos pasa a ser atributos del lugar: `is_official` (lo registró o reclamó un usuario con rol
+  `establecimiento`), `amenities` JSONB y `discount_description`. Insignia «Oficial» y promoción en la ficha.
+- Cupón rehecho: «Obtener cupón» genera un **código único por cliente** (tabla nueva `place_coupons` en perdidas) y el
+  dueño lo canjea con ese código. El código general deja de ser público.
+- App: un `PlaceForm` común (alta y edición; ubicación por GPS **o** mover el pin o escribir la dirección), detalle con
+  `ReviewsSection` (sin formulario para el autor), «Editar»/«Eliminar» en el header si es mío. Rol `establecimiento` en
+  roleTools: «Registrar mi establecimiento» → `/petfriendly/nuevo?oficial=1`, «Mis lugares» → `/petfriendly?mios=1`,
+  «Canjear cupón».
+- Borrar `app/establecimientos/**`, `hooks/venues/*` y `services/venues.ts`, y quitar la tarjeta «Establecimientos» de Explorar.
+  El servicio backend `establecimientos` se retira después (toca `deploy/services.conf` → producción, con aprobación).
+- Alternativa mínima mientras tanto: ocultar «Establecimientos» de Explorar y no mostrar el código del cupón.
+Backend: migración aditiva en perdidas (columnas + `place_coupons`), `GET /places?mine=1` y paginación, lugares en la
+búsqueda global, y no permitir reseñar al autor desde la UI.
+Arreglos:
+- [ ] P1 Cupón público y canje que marca el reclamo de otro cliente (`venues.py:121-161,215-250`, `establecimientos/[id].tsx:166-172`)
+- [ ] P1 Formulario de reseña visible al autor (403) y que se limpia aunque falle (`petfriendly/[id].tsx:174-226`, `usePlaceDetail.ts:47-51`)
+- [ ] P1 `/establecimientos/nuevo|editar` fuera de `ROUTE_ACCESS` y sin `RoleGuard`
+- [ ] P1 Alta solo con el GPS del momento (`petfriendly/nuevo.tsx:51-70`). Sin editar lugar (existe el PUT)
+- [ ] P2 Fusión (arriba). `nuevo.tsx`: hook + `useMutation` + `FormField`/`KeyboardScreen`. Skeletons, tokens, amenidades legibles, borrar `src/types/{petfriendly,venues}.ts`
+
+---
+
+## Estética (Grooming + Estilistas) — auditado 2026-10-08
+Flujo cliente: Explorar «Estética» → `/estilistas` (catálogo de servicios) → tarjeta → `/grooming/agendar?service_id`
+(servicio → mascota → fecha → horario) → `/grooming/mis-citas` (próximas e historial, cancelar, reseñar) →
+`/grooming/historial/[petId]` (también desde `mascotas/[id].tsx:178`).
+Flujo estilista (roleTools :103-104): `/grooming/gestion` (citas, estados, fotos antes/después, reporte de piel) ·
+`/estilistas/nuevo` (alta de servicio). **Backend único**: servicio `estilistas`, prefijo `/grooming`
+(`API_URLS.estilistas`). **Producción: 0 servicios, 0 citas, 1 ficha.**
+Medidas: 2 013 líneas en 6 pantallas, 24 hex, 0 tokens, 7 `ActivityIndicator` (agendar ×5, gestion ×2). Las listas usan `DataList`.
+
+| Pieza | Tipo | Estado | Hallazgo |
+|---|---|---|---|
+| app/estilistas/index.tsx | pantalla | funciona | **La tarjeta no dice quién es el estilista** (`groomer_name` llega y no se muestra), y no hay perfil del estilista. El estilista ve «Ofrecer Servicios» (repite roleTools) y no ve sus citas. Título «Estilistas» cuando Explorar dice «Estética». Rol calculado en la pantalla (:21-22). 4 hex |
+| app/estilistas/nuevo.tsx | pantalla | funciona / incompleta | `KeyboardScreen` sí, `FormField` no. **Al crear no invalida `['grooming-services']`**: el servicio nuevo no aparece en el catálogo (`useGroomingForm.ts:31-56`, sin `useMutation`). `parseFloat` sin validar (:42) y error genérico. Sin `RoleGuard` |
+| app/grooming/agendar.tsx (433 l.) | pantalla | funciona | 5 `ActivityIndicator`. «Registra una mascota primero.» sin acción (:153-155). **Hoy ofrece horarios que ya pasaron**: el backend da 09–17 fijo, sin ver la hora actual ni la duración (`grooming.py:329-354`). Texto «Spa & Grooming». 7 hex |
+| app/grooming/mis-citas.tsx | pantalla | funciona / capas | **`useMutation` + servicio dentro de la pantalla** para la reseña (:18, :47-58). Cancelar y reseñar funcionan e invalidan bien. 8 hex |
+| app/grooming/gestion.tsx (566 l.) | pantalla | funciona / incompleta | Estados y fotos reales (las sube a S3 con el presigned de mascotas). **Sin «Mis servicios»**: `getMyGroomingServices` y `updateGroomingService` existen y están muertos (knip, `grooming.ts:122,126`), así que no se puede ver, editar ni pausar un servicio. Guardar fotos no invalida `grooming-client-appointments` ni `grooming-history` (`useGroomingProvider.ts:45-46`). Sin `RoleGuard`. Supera 400 líneas |
+| app/grooming/historial/[petId].tsx | pantalla | funciona / parte muerta | **La «ficha» (tipo de pelo, champú, conducta, alergias) nunca se puede llenar**: no hay endpoint que la escriba (`crud_grooming.py:48-52` la crea en nulos), así que el bloque :30-60 nunca aparece |
+| hooks grooming (5) | hook | funciona | `useGroomingBooking` guarda `service_type = nombre` (:119), sin `service_id` ni precio en la cita. `getGroomerReviews` muerto (knip): las reseñas del estilista no se ven en ningún lado (solo el promedio en la tarjeta) |
+| services/grooming.ts | servicio | funciona | 3 funciones y 2 interfaces muertas (knip). `src/types/grooming.ts` está **muerto** |
+| backend estilistas/grooming.py | backend | funciona con huecos | Ningún endpoint notifica (cita nueva, cambio de estado). `GET /files/{pet_id}` **crea** la ficha al leer (:205). Un estilista que atendió una vez a la mascota ve **todas** sus citas, incluidos los reportes de piel de otros estilistas (:198-210). Las reseñas exponen `full_name` completo. No sale en la búsqueda global |
+
+Redundancias: **un solo dominio con 2 nombres de carpeta y 4 nombres en la UI**: «Estética» (Explorar), «Estilistas»
+(catálogo), «grooming» (agendar, alertas, roleTools «Nuevo tipo de grooming») y «Spa & Grooming». La entrada del estilista
+está en 2 sitios (botón del catálogo + roleTools). Hay reseñas a mano en mis-citas y en el catálogo, aparte del perfil de
+proveedor de paseadores y cuidadores.
+
+Propuesta de rediseño (requiere visto bueno) — **un solo módulo: carpeta `app/grooming/` (código), nombre «Estética» en
+toda la UI**:
+- `grooming/index` (ex `estilistas/index`): catálogo con el nombre del estilista y rating. Tocar el estilista abre
+  `grooming/estilista/[id]`, que es el mismo `ProviderProfile` de paseadores y cuidadores (servicios, reseñas con
+  `getGroomerReviews`, CTA «Agendar»). Tocar el servicio va directo a «Agendar».
+- `grooming/gestion` con pestañas **Citas · Mis servicios** (lista, editar o pausar con los endpoints que ya existen, y
+  «Nuevo servicio» → `grooming/servicio/nuevo`, ex `estilistas/nuevo`). Fuera el botón «Ofrecer Servicios» del catálogo del cliente.
+- «Mis citas» se queda solo en Perfil › Mis citas (y en el estado vacío de Agendar).
+- Referencias a actualizar: `useExplore.ts:41`, `roleTools.ts:103-104,190-191`, `useGroomingForm.ts:3`. No hay deep links
+  del backend a `/estilistas`; se puede dejar `estilistas/index` como `Redirect` durante un release.
+Backend: `PATCH /files/{pet_id}` (dueño o estilista con cita) para la ficha, o quitarla de la UI. GET de la ficha sin
+crearla. Historial filtrado por estilista cuando no es el dueño. `service_id` y `price` en la cita (migración aditiva).
+Horarios que respeten la hora actual y la duración. Notificaciones de cita nueva y de cambio de estado. Estilistas en la búsqueda global.
+Arreglos:
+- [ ] P1 El servicio nuevo no aparece en el catálogo (`useGroomingForm.ts`: `useMutation` + invalidar `grooming-services`)
+- [ ] P1 El estilista no puede ver, editar ni pausar sus servicios (endpoints listos, sin UI). Catálogo sin nombre del estilista
+- [ ] P1 Horarios pasados ofrecidos hoy (`grooming.py:329-354`). Ficha de estética imposible de llenar (`historial/[petId].tsx:30-60`)
+- [ ] P1 Privacidad: un estilista ve los reportes de otros estilistas en el historial de la mascota (`grooming.py:198-210`)
+- [ ] P1 `RoleGuard` en `grooming/gestion` y `estilistas/nuevo`. Invalidar cliente e historial al guardar fotos
+- [ ] P2 Fusión de carpetas y nombre único «Estética». Reseña de mis-citas a un hook. Skeleton en agendar. `FormField`. Tokens. Borrar `src/types/grooming.ts` y los exports muertos

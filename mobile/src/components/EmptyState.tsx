@@ -1,80 +1,53 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
+import { spacing, type, layout } from '@/constants/design';
 
 interface EmptyStateProps {
     icon: React.ReactNode;
     title: string;
     subtitle?: string;
+    /** Una sola acción clara (CLAUDE.md §4). */
     actionLabel?: string;
     onAction?: () => void;
 }
 
 export default function EmptyState({ icon, title, subtitle, actionLabel, onAction }: EmptyStateProps) {
-    const { theme, colorScheme } = useTheme();
+    const { theme } = useTheme();
 
     return (
         <View style={styles.container}>
-            <View style={[styles.iconContainer, { backgroundColor: theme.overlay, borderWidth: 1, borderColor: theme.border }]}>
+            <View style={[styles.iconContainer, { backgroundColor: theme.overlay, borderColor: theme.border }]}>
                 {icon}
             </View>
-            <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
-            {subtitle && (
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>{subtitle}</Text>
-            )}
-            {actionLabel && onAction && (
-                <TouchableOpacity
-                    style={[styles.action, { backgroundColor: theme.primary, minHeight: 48 }]}
-                    onPress={onAction}
-                    activeOpacity={0.8}
-                    accessibilityRole="button"
-                    accessibilityLabel={actionLabel}
-                >
-                    <Text style={styles.actionText}>{actionLabel}</Text>
-                </TouchableOpacity>
-            )}
+            <Text style={[type.title, styles.center, { color: theme.text }]}>{title}</Text>
+            {subtitle ? <Text style={[type.body, styles.center, styles.subtitle, { color: theme.textMuted }]}>{subtitle}</Text> : null}
+            {actionLabel && onAction ? <Button label={actionLabel} onPress={onAction} fullWidth={false} /> : null}
         </View>
     );
 }
+
+const ICON_BOX = layout.iconBox.lg + spacing.xl;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 32,
-        paddingVertical: 48,
+        paddingHorizontal: spacing.xxxl,
+        paddingVertical: spacing.huge,
+        gap: spacing.sm,
     },
     iconContainer: {
-        width: 72,
-        height: 72,
-        borderRadius: 36,
+        width: ICON_BOX,
+        height: ICON_BOX,
+        borderRadius: ICON_BOX / 2,
+        borderWidth: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: spacing.md,
     },
-    title: {
-        fontSize: 17,
-        fontWeight: '800',
-        textAlign: 'center',
-        marginBottom: 8,
-    },
-    subtitle: {
-        fontSize: 14,
-        fontWeight: '500',
-        textAlign: 'center',
-        lineHeight: 20,
-        marginBottom: 24,
-    },
-    action: {
-        paddingVertical: 14,
-        paddingHorizontal: 28,
-        borderRadius: 14,
-        justifyContent: 'center',
-    },
-    actionText: {
-        color: '#fff',
-        fontSize: 15,
-        fontWeight: '700',
-    },
+    center: { textAlign: 'center' },
+    subtitle: { marginBottom: spacing.lg },
 });

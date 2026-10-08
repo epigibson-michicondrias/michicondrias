@@ -176,8 +176,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 · 📱 = requiere APK nuevo. Detalle de cada una en `AUDITORIA_MOBILE.md`.
 
 **Fase 1 — Auditoría (resto)**
-- [ ] A1 Auditar P2: Directorio/citas, Adopciones, Perdidas.
-- [ ] A2 Auditar P2: Paseadores/Cuidadores, Pet-friendly/Establecimientos, Grooming/Estilistas (decidir fusiones).
+- [x] A1 Auditar P2: Directorio/citas, Adopciones, Perdidas.
+- [x] A2 Auditar P2: Paseadores/Cuidadores, Pet-friendly/Establecimientos, Grooming/Estilistas (decidir fusiones).
 - [ ] A3 Auditar P2: Entrenadores, Transportistas, Aseguradoras, Laboratorio, Funeraria, Donaciones.
 - [ ] A4 Auditar P3: Mi clínica, Servicios pro, Tienda vendedor, Patrocinadores, Admin.
 - [ ] A5 Revisión visual con capturas (skill `review-ux`) de las pestañas y del flujo de compra, en claro y oscuro.
@@ -609,3 +609,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `theme.heroGradient` (Inicio, Explorar, Tienda, Perdidas, 3 de admin) y `ScreenHeader` con `onHero`. Borrado
   `components/Themed.tsx` (plantilla sin uso). Paletas alternas: decisión ya tomada (solo Midnight & Gold).
   Verificado: tsc + ESLint, Inicio en web claro/oscuro.
+- **2026-10-08** — **A1 y A2 auditados** (Directorio/citas, Adopciones, Perdidas, Paseadores/Cuidadores, Pet-friendly +
+  Establecimientos, Estética): secciones nuevas al final de `AUDITORIA_MOBILE.md` con P0 (cancelar cita desde la clínica
+  → 422, `vet_id` ignorado, flujo B de adopción roto, «Invalid Date» en paseos, tipos `daycare`/`boarding` inexistentes)
+  y propuestas de fusión. **A3 y A4 quedaron pendientes** (se detuvieron por límite de uso).
+  **U2 en curso**: `EmptyState` (usa `Button`), `FilterChip`, `Badge`, `BackButton` (44 px), `LoadingOverlay`,
+  `SearchBar` (botón borrar también en Android) pasados a tokens; `Button` y chips usan el token `onPrimary` (casi negro
+  en oscuro, contraste AA) y `onAccent`. Falta en U2: `AppAlert`, `ScreenHeader`, `forms/*`, `QueryErrorBanner`,
+  `AuthShell`, `PetForm`, README de componentes.

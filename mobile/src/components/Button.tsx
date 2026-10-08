@@ -30,15 +30,14 @@ export default function Button({
     label, onPress, variant = 'primary', size = 'md', loading, disabled, icon, iconRight,
     fullWidth = true, style, accessibilityLabel,
 }: ButtonProps) {
-    const { theme, isDark } = useTheme();
+    const { theme } = useTheme();
     const inactive = disabled || loading;
 
-    // En oscuro los rellenos son claros (primary/error): texto casi negro para cumplir contraste AA (≥4.5:1).
-    const onFill = isDark ? '#08101f' : '#fff';
+    // `onPrimary` ya resuelve el contraste AA en cada modo (casi negro sobre los rellenos claros del modo oscuro)
     const palette = {
-        primary: { bg: theme.primary, fg: onFill, border: 'transparent' },
-        gold: { bg: theme.accent, fg: '#101c3d', border: 'transparent' },
-        danger: { bg: theme.error, fg: onFill, border: 'transparent' },
+        primary: { bg: theme.primary, fg: theme.onPrimary, border: 'transparent' },
+        gold: { bg: theme.accent, fg: theme.onAccent, border: 'transparent' },
+        danger: { bg: theme.error, fg: theme.onPrimary, border: 'transparent' },
         secondary: { bg: 'transparent', fg: theme.text, border: theme.border },
         ghost: { bg: 'transparent', fg: theme.primary, border: 'transparent' },
     }[variant];
@@ -70,7 +69,7 @@ export default function Button({
             ) : (
                 <View style={styles.row}>
                     {icon}
-                    <Text style={[type.button, { color: palette.fg, fontSize: size === 'sm' ? 13 : 15 }]} numberOfLines={1}>
+                    <Text style={[type.button, { color: palette.fg, ...(size === 'sm' ? type.labelSentence : null) }]} numberOfLines={1}>
                         {label}
                     </Text>
                     {iconRight}

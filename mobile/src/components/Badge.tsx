@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { spacing, radius, type, tint } from '@/constants/design';
 
 interface BadgeProps {
     label: string;
@@ -11,9 +12,8 @@ interface BadgeProps {
 }
 
 export default function Badge({ label, color, icon, variant = 'filled', size = 'md' }: BadgeProps) {
-    const { theme, colorScheme } = useTheme();
+    const { theme } = useTheme();
     const badgeColor = color || theme.primary;
-
     const isFilled = variant === 'filled';
 
     return (
@@ -22,19 +22,12 @@ export default function Badge({ label, color, icon, variant = 'filled', size = '
                 styles.badge,
                 size === 'sm' && styles.badgeSm,
                 isFilled
-                    ? { backgroundColor: badgeColor + '20' }
-                    : { backgroundColor: 'transparent', borderColor: badgeColor, borderWidth: 1 },
+                    ? { backgroundColor: badgeColor + tint.medium }
+                    : { borderColor: badgeColor, borderWidth: 1 },
             ]}
         >
-            {icon && <View style={styles.icon}>{icon}</View>}
-            <Text
-                style={[
-                    styles.label,
-                    { color: badgeColor },
-                ]}
-            >
-                {label}
-            </Text>
+            {icon ? <View style={styles.icon}>{icon}</View> : null}
+            <Text style={[type.caption, styles.label, { color: badgeColor }]}>{label}</Text>
         </View>
     );
 }
@@ -43,22 +36,17 @@ const styles = StyleSheet.create({
     badge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderRadius: 999,
+        paddingVertical: spacing.xs + spacing.xxs,
+        paddingHorizontal: spacing.md,
+        borderRadius: radius.pill,
         alignSelf: 'flex-start',
-        gap: 6,
+        gap: spacing.xs + spacing.xxs,
     },
     badgeSm: {
-        paddingVertical: 3,
-        paddingHorizontal: 8,
-        borderRadius: 6,
+        paddingVertical: spacing.xxs,
+        paddingHorizontal: spacing.sm,
+        borderRadius: radius.xs,
     },
-    icon: {
-        marginLeft: -2,
-    },
-    label: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
+    icon: { marginLeft: -spacing.xxs },
+    label: { fontWeight: '700' },
 });
