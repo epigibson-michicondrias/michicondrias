@@ -273,6 +273,8 @@ def revoke_pet_subscription(
 class SymptomCheckRequest(BaseModel):
     symptom_description: str = Field(..., min_length=3, max_length=2000)
     duration_hours: int = Field(..., ge=0, le=24 * 365)
+    # Aditivo: contexto de la mascota (especie, peso, edad) para orientar mejor la urgencia
+    pet_id: Optional[str] = None
 
 class DietPlanRequest(BaseModel):
     activity_level: str  # bajo, medio, alto
@@ -385,10 +387,24 @@ def view_public_passport(
 @router.post("/ai/symptom-check")
 def ai_symptom_check(
     req: SymptomCheckRequest,
+    db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     """Orientación de urgencia (modelo de Claude si hay clave; siempre con reglas de alarma como piso)."""
-    return assess_symptoms(user_id, req.symptom_description, req.duration_hours)
+    pet_context = None
+    if req.pet_id:
+        # Solo se usa como contexto la mascota del propio dueño: nada de datos ajenos en el análisis
+        pet = db.query(Pet).filter(Pet.id == req.pet_id, Pet.is_active.isnot(False)).first()
+        if pet and pet.owner_id == user_id:
+            bits = [pet.species or "mascota"]
+            if pet.breed:
+                bits.append(pet.breed)
+            if pet.weight_kg:
+                bits.append(f"{float(pet.weight_kg):g} kg")
+            if pet.age_months:
+                bits.append(f"{int(pet.age_months)} meses")
+            pet_context = f"{pet.name} ({', '.join(bits)})"
+    return assess_symptoms(user_id, req.symptom_description, req.duration_hours, pet_context)
 
 
 @router.post("/{pet_id}/ai/diet-plan")

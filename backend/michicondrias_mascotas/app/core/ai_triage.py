@@ -138,7 +138,7 @@ RESPONSE_SCHEMA = {
 }
 
 
-def _ai_assessment(symptoms: str, duration_hours: int) -> dict[str, Any] | None:
+def _ai_assessment(symptoms: str, duration_hours: int, pet_context: str | None = None) -> dict[str, Any] | None:
     """Evaluación del modelo, o None si no está disponible (sin clave, error de red, rechazo o respuesta inválida)."""
     if not settings.ANTHROPIC_API_KEY:
         return None
@@ -152,7 +152,8 @@ def _ai_assessment(symptoms: str, duration_hours: int) -> dict[str, Any] | None:
                 "role": "user",
                 "content": (
                     f"Duración de los síntomas: {duration_hours} horas.\n"
-                    f"<descripcion_del_dueno>\n{symptoms}\n</descripcion_del_dueno>"
+                    + (f"Mascota: {pet_context}.\n" if pet_context else "")
+                    + f"<descripcion_del_dueno>\n{symptoms}\n</descripcion_del_dueno>"
                 ),
             }],
             output_config={"format": {"type": "json_schema", "schema": RESPONSE_SCHEMA}},
@@ -179,14 +180,14 @@ def _ai_assessment(symptoms: str, duration_hours: int) -> dict[str, Any] | None:
     return data
 
 
-def assess_symptoms(user_id: str, symptoms: str, duration_hours: int) -> dict[str, Any]:
+def assess_symptoms(user_id: str, symptoms: str, duration_hours: int, pet_context: str | None = None) -> dict[str, Any]:
     rules_level = rule_based_level(symptoms, duration_hours)
 
     ai = None
     limited = False
     if settings.ANTHROPIC_API_KEY:
         if _allow_ai_call(user_id):
-            ai = _ai_assessment(symptoms, duration_hours)
+            ai = _ai_assessment(symptoms, duration_hours, pet_context)
         else:
             limited = True
 
@@ -203,7 +204,8 @@ def assess_symptoms(user_id: str, symptoms: str, duration_hours: int) -> dict[st
         level = rules_level
         plan = DEFAULT_PLAN[level]
         summary = (
-            f"Se recibió la descripción «{symptoms.strip()}» ({duration_hours} h de evolución). "
+            f"Se recibió la descripción «{symptoms.strip()}» "
+            f"({duration_hours} h de evolución{f' de {pet_context}' if pet_context else ''}). "
             "La evaluación se basa en señales de alarma comunes."
         )
         source = (
