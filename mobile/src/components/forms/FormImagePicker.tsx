@@ -78,7 +78,7 @@ export default function FormImagePicker({
                         ]}
                         onPress={pickImage}
                     >
-                        <Camera size={14} color={circular ? '#fff' : theme.primary} />
+                        <Camera size={14} color={circular ? theme.onPrimary : theme.primary} />
                         {!circular && <Text style={[styles.changeBtnText, { color: theme.primary }]}>Cambiar</Text>}
                     </TouchableOpacity>
                     {onImageRemoved ? (
@@ -90,7 +90,7 @@ export default function FormImagePicker({
                             ]}
                             onPress={onImageRemoved}
                         >
-                            <X size={14} color="#fff" />
+                            <X size={14} color={theme.onPrimary} />
                         </TouchableOpacity>
                     ) : null}
                 </View>

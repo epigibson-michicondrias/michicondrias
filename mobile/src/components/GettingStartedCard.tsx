@@ -2,6 +2,7 @@
  * GettingStartedCard — guía de "primeros pasos" para quien entra con la cuenta vacía.
  */
 import React from 'react';
+import { spacing, radius, type } from '@/constants/design';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { PawPrint, Stethoscope, Search, Heart, ChevronRight } from 'lucide-react-native';
@@ -49,12 +50,12 @@ export default function GettingStartedCard() {
 }
 
 const styles = StyleSheet.create({
-    card: { marginHorizontal: 20, marginTop: 16, borderRadius: 20, borderWidth: 1, padding: 16 },
-    title: { fontSize: 17, fontWeight: '800' },
-    subtitle: { fontSize: 13, marginTop: 4, marginBottom: 8 },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
-    iconBox: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+    card: { marginHorizontal: spacing.xl, marginTop: spacing.lg, borderRadius: radius.lg, borderWidth: 1, padding: spacing.lg },
+    title: { ...type.title },
+    subtitle: { ...type.labelSentence, fontWeight: '500', marginTop: spacing.xs, marginBottom: spacing.sm },
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+    iconBox: { width: 40, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
     rowText: { flex: 1 },
-    rowTitle: { fontSize: 14, fontWeight: '700' },
-    rowDesc: { fontSize: 12, marginTop: 2 },
+    rowTitle: { ...type.bodyStrong },
+    rowDesc: { ...type.caption, marginTop: spacing.xxs },
 });

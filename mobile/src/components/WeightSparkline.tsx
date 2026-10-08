@@ -1,4 +1,5 @@
 import React from 'react';
+import { spacing, radius, type } from '@/constants/design';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -65,8 +66,8 @@ const styles = StyleSheet.create({
     container: {
         marginTop: 20,
         marginBottom: 10,
-        padding: 20,
-        borderRadius: 24,
+        padding: spacing.xl,
+        borderRadius: radius.xl,
         borderWidth: 1,
     },
     header: {

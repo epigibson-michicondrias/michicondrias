@@ -64,7 +64,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
     const scale = useRef(new Animated.Value(0.8)).current;
     const opacity = useRef(new Animated.Value(0)).current;
     const backdrop = useRef(new Animated.Value(0)).current;
-    const { theme, colorScheme } = useTheme();
+    const { theme } = useTheme();
 
     useEffect(() => {
         globalSetAlert = setAlert;
@@ -85,7 +85,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                 Animated.timing(backdrop, { toValue: 0, duration: 150, useNativeDriver: true }),
             ]).start();
         }
-    }, [alert.visible]);
+    }, [alert.visible, scale, opacity, backdrop]);
 
     const dismiss = () => {
         setAlert(prev => ({ ...prev, visible: false }));
@@ -140,7 +140,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                             activeOpacity={0.85}
                             accessibilityRole="button"
                         >
-                            <Text style={[styles.buttonText, alert.type === 'warning' && { color: '#101c3d' }]}>{alert.buttonText || 'Entendido'}</Text>
+                            <Text style={[styles.buttonText, { color: alert.type === 'warning' ? theme.onAccent : theme.onPrimary }]}>{alert.buttonText || 'Entendido'}</Text>
                         </TouchableOpacity>
                     </Animated.View>
                 </Animated.View>
@@ -220,7 +220,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonText: {
-        color: '#fff',
         fontSize: 16,
         fontWeight: '800',
     },

@@ -49,8 +49,6 @@ const ACTION_ICON_LABELS: Record<string, string> = {
     ShoppingCart: 'Carrito',
 };
 
-const PREMIUM_HEADER = ['#1c2f6b', '#101c3d'];
-
 export default function ScreenHeader({
     title,
     subtitle,
@@ -76,12 +74,12 @@ export default function ScreenHeader({
     };
 
     const textColor = gradient ? theme.onHero : theme.text;
-    const subtitleColor = gradient ? 'rgba(255,255,255,0.8)' : theme.textMuted;
+    const subtitleColor = gradient ? theme.onHeroMuted : theme.textMuted;
     const backBtnStyle = gradient
-        ? { backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(233,200,131,0.3)' }
+        ? { backgroundColor: theme.heroGlass, borderColor: theme.heroGlassBorder }
         : { backgroundColor: theme.surface, borderColor: theme.cardBorder, borderWidth: 1 };
     const actionBtnStyle = gradient
-        ? { backgroundColor: 'rgba(233,200,131,0.18)', borderWidth: 1, borderColor: 'rgba(233,200,131,0.3)' }
+        ? { backgroundColor: theme.heroGlass, borderWidth: 1, borderColor: theme.heroGlassBorder }
         : { backgroundColor: theme.primary };
 
     const headerContent = (
@@ -125,7 +123,7 @@ export default function ScreenHeader({
                         accessibilityLabel={actionLabel || ACTION_ICON_LABELS[(ActionIcon as any).displayName] || 'Acción principal'}
                         style={[styles.actionBtn, actionBtnStyle]}
                     >
-                        <ActionIcon size={24} color="#fff" />
+                        <ActionIcon size={24} color={theme.onHero} />
                     </TouchableOpacity>
                 ) : null}
             </View>
@@ -134,10 +132,9 @@ export default function ScreenHeader({
 
     if (gradient) {
         return (
-            // Todas las cabeceras con degradado comparten el mismo azul medianoche con filo dorado,
-            // sin importar el color que pida cada pantalla (identidad homogénea).
+            // Todas las cabeceras con degradado comparten el heroGradient del tema (identidad homogénea).
             <LinearGradient
-                colors={PREMIUM_HEADER as any}
+                colors={theme.heroGradient as any}
                 style={styles.gradientWrapper}
             >
                 {headerContent}

@@ -57,7 +57,7 @@ export default function FormSwitch({
                     },
                 ]}
             >
-                {value ? <Check size={14} color="#fff" strokeWidth={3} /> : null}
+                {value ? <Check size={14} color={theme.onPrimary} strokeWidth={3} /> : null}
             </View>
         </TouchableOpacity>
     );

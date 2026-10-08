@@ -2,6 +2,7 @@
  * FormSection — Groups form fields with an optional title
  */
 import React from 'react';
+import { spacing, radius, type } from '@/constants/design';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 
@@ -25,11 +26,10 @@ export default function FormSection({ title, children }: FormSectionProps) {
 
 const styles = StyleSheet.create({
     section: {
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     title: {
-        fontSize: 16,
-        fontWeight: '800',
-        marginBottom: 16,
+        ...type.title,
+        marginBottom: spacing.lg,
     },
 });

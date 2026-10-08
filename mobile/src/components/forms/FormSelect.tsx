@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { spacing, radius, type } from '@/constants/design';
 
 interface SelectOption {
     label: string;
@@ -78,37 +79,35 @@ export default function FormSelect({ label, options, value, onChange, horizontal
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 18,
+        marginBottom: spacing.xl,
     },
     label: {
-        fontSize: 13,
-        fontWeight: '700',
-        marginBottom: 8,
-        marginLeft: 4,
+        ...type.labelSentence,
+        marginBottom: spacing.sm,
+        marginLeft: spacing.xs,
     },
     row: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10,
+        gap: spacing.md,
     },
     scrollRow: {
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.md,
     },
     option: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 18,
-        paddingVertical: 12,
-        borderRadius: 14,
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
+        borderRadius: radius.md,
         borderWidth: 1.5,
-        gap: 8,
+        gap: spacing.sm,
     },
     optionIcon: {
         fontSize: 18,
     },
     optionLabel: {
-        fontSize: 14,
-        fontWeight: '700',
+        ...type.bodyStrong,
     },
 });
