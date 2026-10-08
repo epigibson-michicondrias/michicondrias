@@ -131,14 +131,14 @@ Flujos:
 | app/forgot-password.tsx | pantalla | funciona | Email sin `trim` (:31). «Enviar enlace» no muestra spinner. En el estado de éxito hay 3 salidas, 2 de ellas iguales (:172 y :197). Jerga «token». 26 hex |
 | app/reset-password.tsx | pantalla | rota/incompleta | Sin el deep link pide «pegar el token», pero **el correo nunca muestra el token** (solo un JWT dentro de la URL). La web alterna `michicondrias.com/reset-password` no existe (`frontend/` vacío). El ojo mide 18 px. Con una sesión abierta, `_layout` saca al usuario de la pantalla. 35 hex |
 | app/_layout.tsx | layout | funciona | Lista de pantallas de auth escrita a mano (:46). Destello de las pestañas antes de la redirección. `inTabsGroup` sin uso. Advertencia `exhaustive-deps` |
-| src/contexts/AuthContext.tsx | contexto | rota/incompleta | Ver Transversales (sesión). `signIn(token)` ignora su parámetro |
-| src/lib/auth.ts | servicio | rota/incompleta | Arma la URL con `fetch` directo en vez de `API_URLS`. Código muerto: `getUserRole`, `logout`, `isAuthenticated`, `getPendingVerifications`, `verifyUser`. `user_role` se escribe en 4 sitios y nadie lo lee |
+| src/contexts/AuthContext.tsx | contexto | rota/incompleta | Ver Transversales (sesión). ~~`signIn(token)` ignora su parámetro~~ ✅ `signIn(token)` guarda el token y `refreshSession(token)` es el helper común (F9) |
+| ~~src/lib/auth.ts~~ | servicio | ✅ resuelto 2026-10-07 (F9) | Arma la URL con `fetch` directo en vez de `API_URLS`. **Borrado**: hoy es `src/services/auth.ts` sobre `apiFetch`/`API_URLS` + `src/lib/sessionStorage.ts` (copia local del usuario). Código muerto ya eliminado en Fase 2 |
 | src/hooks/home/useSessionSync.ts | hook | rota/incompleta | Solo guarda el token nuevo si cambió el rol (:48): la sesión no se renueva nunca |
 | src/services/auth2fa.ts | servicio | funciona / parte muerta | `upgradeToPartner()` no manda `role_name` → 422. Solo lo usa `use2FA.upgradeMutation`, que está muerto |
 | backend core login.py / users.py | backend | funciona con huecos | El email distingue mayúsculas (login.py:39,135; crud_user.py:10). Mensajes en inglés. El registro no exige longitud mínima de contraseña y acepta `is_active` del cliente. El token de reset se puede reutilizar durante 30 min y no invalida las sesiones abiertas. 2FA sin códigos de respaldo |
 
-Redundancias: las 4 pantallas copian el mismo esqueleto (unas 1300 líneas) con 4 acentos distintos. «Guardar token + rol +
-recargar» está copiado en `useSessionSync` y `perfil/partner`. Auth está repartido entre `lib/auth.ts` y
+Redundancias: las 4 pantallas copian el mismo esqueleto (unas 1300 líneas) con 4 acentos distintos. ~~«Guardar token + rol +
+recargar» está copiado en `useSessionSync` y `perfil/partner`~~ ✅ unificado en `AuthContext.refreshSession` (F9). Auth está repartido entre ~~`lib/auth.ts`~~ (F9) y
 `services/auth2fa.ts`. Cerrar sesión aparece en 3 lugares.
 Propuesta de rediseño (requiere visto bueno):
 1. Grupo `(auth)` con `AuthShell` común. Las URL no cambian; solo se tocan `_layout.tsx:46,62-65`.
@@ -154,7 +154,7 @@ Arreglos:
 - [ ] P1 Email normalizado en el cliente (login.tsx:73, forgot-password.tsx:31) y en el backend — ✅ `trim` en el cliente; minúsculas pendientes de F11 (cuentas viejas con mayúsculas)
 - [ ] P1 Reset sin deep link inutilizable (reset-password.tsx:111-130) → propuesta 3
 - [ ] P1 Mensajes del backend en inglés (login.tsx:85); registro sin auto-login (register.tsx:48-54)
-- [ ] P1 Capas: `src/services/auth.ts` + `src/hooks/auth/*`; quitar `apiFetch`/SecureStore de `perfil/partner.tsx:70-75`
+- [x] P1 Capas: `src/services/auth.ts` + `src/hooks/auth/*`; quitar `apiFetch`/SecureStore de `perfil/partner.tsx:70-75` (F9: `useLogin`, `useRegister`, `usePasswordReset`, `usePartnerUpgrade`)
 - [ ] P2 `AuthShell` + FormField/Button/KeyboardScreen, tokens, validación inline, autoComplete, objetivos ≥ 44 px, spinner en forgot
 - [ ] P2 Destello de pestañas al arrancar; imports sin uso; URL de Términos y Privacidad
 

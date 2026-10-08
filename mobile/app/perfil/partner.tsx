@@ -4,22 +4,17 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
-import { apiFetch, setToken } from '../../src/lib/api';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../src/contexts/AuthContext';
-import { getCurrentUser } from '../../src/lib/auth';
+import { usePartnerUpgrade } from '@/src/hooks/perfil/usePartnerUpgrade';
 import Colors from '../../constants/Colors';
 import { useTheme } from '../../src/contexts/ThemeContext';
 import { ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react-native';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
-    const { reloadUser } = useAuth();
-    const queryClient = useQueryClient();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
-    const [loading, setLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
+    const { upgrade, isUpgrading } = usePartnerUpgrade();
 
     const roles = [
         { id: "veterinario", icon: "🩺", title: "Veterinario", desc: "Atiende pacientes, agenda citas y emite recetas.", benefits: ["🏥 Gestión de pacientes", "📅 Sistema de citas", "🎥 Videoconsultas"] },
@@ -39,56 +34,44 @@ export default function PartnerOnboardingScreen() {
         { id: "establecimiento", icon: "☕", title: "Establecimiento pet-friendly", desc: "Registra tu local y atrae clientes con mascotas.", benefits: ["📍 Perfil del local", "🎟️ Cupones"] },
     ];
 
-    async function handleUpgrade() {
+    function handleUpgrade() {
         if (!selectedRole) {
             showAlert({ type: 'warning', title: 'Selecciona un rol', message: 'Por favor selecciona el tipo de cuenta profesional que deseas.' });
             return;
         }
-
-        setLoading(true);
-        try {
-            // Un rol profesional requiere identidad aprobada por un administrador
-            const me: any = await getCurrentUser();
-            if (me?.verification_status !== 'VERIFIED') {
+        const roleTitle = roles.find(r => r.id === selectedRole)?.title;
+        upgrade(selectedRole, {
+            onSuccess: (result) => {
+                if (!result.ok) {
+                    // Sin identidad aprobada no se puede elegir rol profesional
+                    showAlert({
+                        type: 'info',
+                        title: 'Verifica tu identidad',
+                        message: result.verification === 'PENDING'
+                            ? 'Tus documentos están en revisión. Cuando un administrador los apruebe podrás elegir tu cuenta profesional.'
+                            : 'Para tener una cuenta profesional primero debes verificar tu identidad. Un administrador revisará tus documentos.',
+                        showCancel: true,
+                        cancelText: 'Después',
+                        buttonText: 'Ir a verificación',
+                        onButtonPress: () => router.push('/perfil/verificacion' as any),
+                    });
+                    return;
+                }
                 showAlert({
-                    type: 'info',
-                    title: 'Verifica tu identidad',
-                    message: me?.verification_status === 'PENDING'
-                        ? 'Tus documentos están en revisión. Cuando un administrador los apruebe podrás elegir tu cuenta profesional.'
-                        : 'Para tener una cuenta profesional primero debes verificar tu identidad. Un administrador revisará tus documentos.',
-                    showCancel: true,
-                    cancelText: 'Después',
-                    buttonText: 'Ir a verificación',
-                    onButtonPress: () => router.push('/perfil/verificacion' as any),
+                    type: 'success',
+                    title: '¡Cuenta profesional activada!',
+                    message: `Ahora eres ${roleTitle}. Encontrarás tus herramientas en Inicio y en la pestaña Herramientas.`,
+                    onButtonPress: () => router.replace('/(tabs)'),
                 });
-                return;
-            }
-
-            // El JWT lleva el rol: el backend devuelve un token nuevo para que las herramientas funcionen sin volver a entrar.
-            const res: any = await apiFetch("core", `/users/me/upgrade-role?role_name=${selectedRole}`, {
-                method: "POST"
-            });
-            if (res?.access_token) {
-                await setToken(res.access_token);
-            }
-            await reloadUser();
-            queryClient.invalidateQueries();
-            showAlert({
-                type: 'success',
-                title: '¡Cuenta profesional activada!',
-                message: `Ahora eres ${roles.find(r => r.id === selectedRole)?.title}. Encontrarás tus herramientas en Inicio y en la pestaña Herramientas.`,
-                onButtonPress: () => router.replace('/(tabs)'),
-            });
-        } catch (error: any) {
-            console.error("Error upgrading role:", error);
-            showAlert({
-                type: 'error',
-                title: 'Error al actualizar rol',
-                message: error.message || 'No pudimos actualizar tu rol. Por favor intenta más tarde.',
-            });
-        } finally {
-            setLoading(false);
-        }
+            },
+            onError: (error) => {
+                showAlert({
+                    type: 'error',
+                    title: 'Error al actualizar rol',
+                    message: error.message || 'No pudimos actualizar tu rol. Por favor intenta más tarde.',
+                });
+            },
+        });
     }
 
     const renderRoleCard = (role: typeof roles[0]) => (
@@ -153,9 +136,9 @@ export default function PartnerOnboardingScreen() {
                         }
                     ]}
                     onPress={handleUpgrade}
-                    disabled={!selectedRole || loading}
+                    disabled={!selectedRole || isUpgrading}
                 >
-                    {loading ? (
+                    {isUpgrading ? (
                         <ActivityIndicator color="#fff" size="small" />
                     ) : (
                         <>

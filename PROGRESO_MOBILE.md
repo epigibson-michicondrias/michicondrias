@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 · F4/F5/F7/F8 esperan deploy del backend |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9 ✅ · faltan F10–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -51,7 +51,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 
 | Prio | Módulo | Pant. | Audit. | Func. | UI | Notas |
 |---|---|---|---|---|---|---|
-| P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | ⬜ | ⬜ | Login roto en web; reset sin deep link inutilizable; sesión frágil (ver Transversales) |
+| P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | 🟡 | ⬜ | F9 ✅ (en capas); faltan F10–F12. Reset sin deep link inutilizable (F12) |
 | P1 | Pestañas (`(tabs)/`) | 5 | 🔍 | ⬜ | ⬜ | Campana falsa; tienda ×5; Herramientas duplica Perfil |
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | ⬜ | ⬜ | 2 perfiles, 2 KYC, paleta falsa, 2FA sin QR |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | ⬜ | ⬜ | Ficha y carnet duplicados; editar visible en ajenas; triage IA real |
@@ -228,8 +228,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] 🚨 F6 Mascotas: editar solo el dueño (modo solo lectura); quitar la insignia falsa.
 - [x] 🚨🛠️ F7 Carnet: `date_administered` opcional + campo en la app; quitar la promesa de aviso (o F14).
 - [x] 🚨🛠️ F8 Pasaporte: llamada interna con token mascotas → carnet (`pets.py:331`).
-- [ ] F9 Auth en capas: `src/services/auth.ts` (con `API_URLS`) + `src/hooks/auth/*`; hook `usePartnerUpgrade` y
-      helper "guardar token + recargar" común.
+- [x] F9 Auth en capas: `src/services/auth.ts` (con `API_URLS`) + `src/hooks/auth/*`; hook `usePartnerUpgrade` y
+      helper "guardar token + recargar" común (`AuthContext.refreshSession`).
 - [ ] F10 Registro con login automático + línea a la cuenta profesional.
 - [ ] 🛠️ F11 Backend auth: email sin distinguir mayúsculas (revisar duplicados antes), mensajes en español, contraseña
       mínima, `created_at` en `/users/me`.
@@ -364,4 +364,20 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   (`ssh michicondrias-oracle`, `alembic upgrade head` → head) y OTA en `production` (update group
   `fbb8e04e-5fdf-41a7-939e-29103309fbfd`). Verificado en vivo con sesión real: búsqueda 200 (antes 500),
   `/notifications/me` y `/me/unread-count` 200. F4, F5, F7 y F8 ya están en producción.
+- **2026-10-07** — **F9 Auth en capas** (solo app, sale por OTA). `src/lib/auth.ts` **borrado** → `src/services/auth.ts`
+  sobre `apiFetch`/`API_URLS` (login form-urlencoded, verify-2FA, registro, forgot/reset, `/users/me`, refresh-token,
+  upgrade-role y `getStoredTokenRole`), `src/types/auth.ts` (User, LoginResponse, TokenResponse, RefreshTokenResponse,
+  RoleUpgradeResponse, VerificationStatus → L7 del módulo) y `src/lib/sessionStorage.ts` (copia local del usuario y
+  `clearStoredSession`). `AuthContext`: `signIn(token)` guarda el token, limpia la caché de la cuenta anterior y carga
+  el usuario; `refreshSession(token)` es el helper común «guardar token + recargar usuario» que antes estaba duplicado
+  en `useSessionSync` y `perfil/partner`. Hooks nuevos: `hooks/auth/useLogin` (login + verify2FA), `useRegister`,
+  `usePasswordReset` y `hooks/perfil/usePartnerUpgrade` (exige KYC VERIFIED y devuelve `{ok:false, verification}` para
+  que la pantalla guíe a `/perfil/verificacion`). Las 4 pantallas `(auth)` y `perfil/partner` delegan en los hooks:
+  **ninguna importa `lib/auth`, `apiFetch` ni SecureStore** (criterio de F9). `useSessionSync` usa el servicio y el
+  helper común. Verificado: `npm run check` (0 errores, 73 avisos = línea base), knip sin novedades y smoke headless
+  en web a 375×812 (9/9): login renderiza, validación de campos vacíos, credenciales falsas → error del backend
+  «Incorrect email or password», register/forgot/reset renderizan, forgot con correo inexistente confirma el envío,
+  reset con token falso → «Token inválido o expirado», sin errores de runtime. **Sin escrituras en producción.**
+  Pendiente en Auth: F10 (auto-login tras registro + línea pro) y F13 (2FA con QR); mensajes del backend en inglés van
+  en F11. Commit local; el OTA se agrupa con el siguiente bloque.
 

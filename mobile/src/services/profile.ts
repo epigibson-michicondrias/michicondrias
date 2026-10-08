@@ -1,5 +1,5 @@
 import { apiFetch } from "../lib/api";
-import type { User } from "../lib/auth";
+import type { User } from "../types/auth";
 
 /** Perfil propio (GET /users/me) con los campos opcionales de perfil. */
 export type MyProfile = User & {

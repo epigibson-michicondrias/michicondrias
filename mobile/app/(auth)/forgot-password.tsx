@@ -8,38 +8,35 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
-import { requestPasswordReset } from '@/src/lib/auth';
+import { usePasswordReset } from '@/src/hooks/auth/usePasswordReset';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
     const [sent, setSent] = useState(false);
-    const [loading, setLoading] = useState(false);
 
+    const { requestReset, isRequesting } = usePasswordReset();
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const isDark = colorScheme === 'dark';
 
-    const handleSend = async () => {
+    const handleSend = () => {
         const cleanEmail = email.trim();
         if (!cleanEmail) {
             showAlert({ type: 'warning', title: 'Campo requerido', message: 'Ingresa tu correo electrónico' });
             return;
         }
-        setLoading(true);
-        try {
-            await requestPasswordReset(cleanEmail);
-            setSent(true);
-        } catch (error: any) {
-            showAlert({
-                type: 'error',
-                title: 'Error de envío',
-                message: error.message || 'No se pudo enviar el correo de recuperación. Inténtalo de nuevo.'
-            });
-        } finally {
-            setLoading(false);
-        }
+        requestReset(cleanEmail, {
+            onSuccess: () => setSent(true),
+            onError: (error) => {
+                showAlert({
+                    type: 'error',
+                    title: 'Error de envío',
+                    message: error.message || 'No se pudo enviar el correo de recuperación. Inténtalo de nuevo.'
+                });
+            },
+        });
     };
 
     return (
@@ -120,9 +117,9 @@ export default function ForgotPasswordScreen() {
 
                                 {/* Send button */}
                                 <TouchableOpacity
-                                    style={[styles.sendBtn, { backgroundColor: theme.accent }, loading && { opacity: 0.7 }]}
+                                    style={[styles.sendBtn, { backgroundColor: theme.accent }, isRequesting && { opacity: 0.7 }]}
                                     onPress={handleSend}
-                                    disabled={loading}
+                                    disabled={isRequesting}
                                     activeOpacity={0.85}
                                 >
                                     <Text style={styles.sendBtnText}>Enviar enlace</Text>

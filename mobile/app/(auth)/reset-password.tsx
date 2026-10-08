@@ -7,25 +7,25 @@ import BackButton from '@/src/components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { resetPassword } from '@/src/lib/auth';
+import { usePasswordReset } from '@/src/hooks/auth/usePasswordReset';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function ResetPasswordScreen() {
     const { token: tokenParam } = useLocalSearchParams<{ token?: string }>();
-    
+
     const [token, setToken] = useState(tokenParam || '');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
+    const { resetPassword, isResetting } = usePasswordReset();
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const isDark = colorScheme === 'dark';
 
-    const handleReset = async () => {
+    const handleReset = () => {
         if (!token) {
             showAlert({ type: 'warning', title: 'Token requerido', message: 'Pega el token de recuperación que recibiste por correo' });
             return;
@@ -43,19 +43,16 @@ export default function ResetPasswordScreen() {
             return;
         }
 
-        setLoading(true);
-        try {
-            await resetPassword(token, newPassword);
-            setSuccess(true);
-        } catch (error: any) {
-            showAlert({
-                type: 'error',
-                title: 'Error',
-                message: error.message || 'No se pudo restablecer la contraseña. El token puede haber expirado.',
-            });
-        } finally {
-            setLoading(false);
-        }
+        resetPassword({ token, newPassword }, {
+            onSuccess: () => setSuccess(true),
+            onError: (error) => {
+                showAlert({
+                    type: 'error',
+                    title: 'Error',
+                    message: error.message || 'No se pudo restablecer la contraseña. El token puede haber expirado.',
+                });
+            },
+        });
     };
 
     return (
@@ -176,12 +173,12 @@ export default function ResetPasswordScreen() {
 
                                 {/* Submit button */}
                                 <TouchableOpacity
-                                    style={[styles.submitBtn, { backgroundColor: '#10b981' }, loading && { opacity: 0.7 }]}
+                                    style={[styles.submitBtn, { backgroundColor: '#10b981' }, isResetting && { opacity: 0.7 }]}
                                     onPress={handleReset}
-                                    disabled={loading}
+                                    disabled={isResetting}
                                     activeOpacity={0.85}
                                 >
-                                    {loading ? (
+                                    {isResetting ? (
                                         <ActivityIndicator color="#fff" size="small" />
                                     ) : (
                                         <>

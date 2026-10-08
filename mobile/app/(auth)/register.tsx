@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Linking } from 'react-native';
-import { register } from '@/src/lib/auth';
+import { useRegister } from '@/src/hooks/auth/useRegister';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/src/contexts/ThemeContext';
 import { Mail, Lock, User, UserPlus, ArrowRight, Eye, EyeOff, Check } from 'lucide-react-native';
@@ -16,14 +16,14 @@ export default function RegisterScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
 
+    const { register, isRegistering } = useRegister();
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
     const isDark = colorScheme === 'dark';
 
-    const handleRegister = async () => {
+    const handleRegister = () => {
         const cleanName = fullName.trim();
         const cleanEmail = email.trim().toLowerCase();
         if (!cleanEmail || !password || !cleanName) {
@@ -42,21 +42,20 @@ export default function RegisterScreen() {
             showAlert({ type: 'warning', title: 'Contraseña muy corta', message: 'Tu contraseña debe tener al menos 8 caracteres.' });
             return;
         }
-        setLoading(true);
-        try {
-            await register(cleanEmail, password, cleanName);
-            showAlert({
-                type: 'success',
-                title: '¡Cuenta creada!',
-                message: 'Ahora puedes iniciar sesión con tu nueva cuenta',
-                buttonText: 'Ir a Login',
-                onButtonPress: () => router.replace('/login'),
-            });
-        } catch (error: any) {
-            showAlert({ type: 'error', title: 'Error de registro', message: error.message || 'No se pudo crear la cuenta' });
-        } finally {
-            setLoading(false);
-        }
+        register({ email: cleanEmail, password, fullName: cleanName }, {
+            onSuccess: () => {
+                showAlert({
+                    type: 'success',
+                    title: '¡Cuenta creada!',
+                    message: 'Ahora puedes iniciar sesión con tu nueva cuenta',
+                    buttonText: 'Ir a Login',
+                    onButtonPress: () => router.replace('/login'),
+                });
+            },
+            onError: (error) => {
+                showAlert({ type: 'error', title: 'Error de registro', message: error.message || 'No se pudo crear la cuenta' });
+            },
+        });
     };
 
     return (
@@ -197,12 +196,12 @@ export default function RegisterScreen() {
 
                         {/* Register button */}
                         <TouchableOpacity
-                            style={[styles.registerBtn, { backgroundColor: theme.primary }, loading && { opacity: 0.7 }]}
+                            style={[styles.registerBtn, { backgroundColor: theme.primary }, isRegistering && { opacity: 0.7 }]}
                             onPress={handleRegister}
-                            disabled={loading}
+                            disabled={isRegistering}
                             activeOpacity={0.85}
                         >
-                            {loading ? (
+                            {isRegistering ? (
                                 <ActivityIndicator color="#fff" size="small" />
                             ) : (
                                 <>

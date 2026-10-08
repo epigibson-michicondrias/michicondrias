@@ -11,8 +11,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import { createBillingPortalSession } from '@/src/services/ecommerce';
 import { getRoleLabelFor, isProRole, normalizeRole } from '@/src/constants/roles';
 import { PRIVACY_URL, TERMS_URL, SUPPORT_EMAIL } from '@/src/constants/support';
-
-export type VerificationStatus = 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED';
+import type { VerificationStatus } from '@/src/types/auth';
 
 const VERIFICATION_COPY: Record<VerificationStatus, { badge?: string; desc: string }> = {
     UNVERIFIED: { desc: 'Sube tu identificación para ofrecer servicios' },

@@ -8,25 +8,15 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
-import { apiFetch, getToken, setToken } from '@/src/lib/api';
+import { getStoredTokenRole, refreshToken } from '@/src/services/auth';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 import { getRoleLabelFor, normalizeRole } from '@/src/constants/roles';
 
 const MIN_INTERVAL_MS = 60_000;
 
-function jwtRole(token: string | null): string | null {
-    try {
-        if (!token) return null;
-        const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(atob(b64)).role ?? null;
-    } catch {
-        return null;
-    }
-}
-
 export function useSessionSync() {
-    const { user, reloadUser } = useAuth();
+    const { user, refreshSession } = useAuth();
     const qc = useQueryClient();
     const last = useRef(0);
     const busy = useRef(false);
@@ -41,16 +31,15 @@ export function useSessionSync() {
         busy.current = true;
         last.current = Date.now();
         try {
-            const res = await apiFetch<{ access_token: string; role_name: string; verification_status: string }>(
-                'core', '/users/me/refresh-token', { method: 'POST' },
-            );
-            const tokenRole = normalizeRole(jwtRole(await getToken()));
+            // El rol del JWT guardado se lee ANTES de renovar: se compara con el que trae el token nuevo
+            const tokenRole = normalizeRole(await getStoredTokenRole());
+            const res = await refreshToken();
             const dbRole = normalizeRole(res.role_name);
             const roleChanged = tokenRole !== dbRole || normalizeRole(current.role_name) !== dbRole;
             const verifChanged = (current.verification_status || 'UNVERIFIED') !== res.verification_status;
-            if (res.access_token) await setToken(res.access_token);
-            // Siempre se recarga el usuario: si la app abrió sin red con la copia local, aquí se completa.
-            await reloadUser();
+            // Guardar token + recargar usuario (helper común de AuthContext): si la app abrió sin red con la copia
+            // local, aquí se completa con el usuario del servidor.
+            if (res.access_token) await refreshSession(res.access_token);
             if (roleChanged || verifChanged) {
                 qc.invalidateQueries();
                 if (roleChanged && dbRole !== 'consumidor') {
@@ -66,7 +55,7 @@ export function useSessionSync() {
         } finally {
             busy.current = false;
         }
-    }, [reloadUser, qc]);
+    }, [refreshSession, qc]);
 
     const userId = user?.id;
     useEffect(() => {

@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Dimensions, Animated } from 'react-native';
-import { login, verify2FALogin } from '@/src/lib/auth';
-import { useAuth } from '@/src/contexts/AuthContext';
+import { useLogin } from '@/src/hooks/auth/useLogin';
 import Colors from '@/constants/Colors';
 import { useTheme } from '@/src/contexts/ThemeContext';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck, ArrowLeft } from 'lucide-react-native';
@@ -16,18 +15,16 @@ export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    
+
     // 2FA state
     const [show2FA, setShow2FA] = useState(false);
     const [tempToken, setTempToken] = useState('');
     const [otpCode, setOtpCode] = useState('');
-    const [verifying2FA, setVerifying2FA] = useState(false);
-    
+
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const slideAnim = useRef(new Animated.Value(0)).current;
-    
-    const { signIn } = useAuth();
+
+    const { login, verify2FA, isLoggingIn, isVerifying2FA } = useLogin();
     const router = useRouter();
     const { colorScheme } = useTheme();
     const theme = Colors[colorScheme];
@@ -63,7 +60,7 @@ export default function LoginScreen() {
         ]).start();
     };
 
-    const handleLogin = async () => {
+    const handleLogin = () => {
         // Sin espacios accidentales del teclado. Las mayúsculas se respetan hasta que el backend compare sin distinguirlas
         // (cuentas antiguas pueden tenerlas).
         const cleanEmail = email.trim();
@@ -71,41 +68,33 @@ export default function LoginScreen() {
             showAlert({ type: 'warning', title: 'Campos vacíos', message: 'Por favor ingresa tu email y contraseña' });
             return;
         }
-        setLoading(true);
-        try {
-            const data = await login(cleanEmail, password);
-            
-            if (data.require_2fa && data.temp_token) {
-                // 2FA required — show verification UI
-                setTempToken(data.temp_token);
-                setShow2FA(true);
-                animateTo2FA();
-            } else if (data.access_token) {
-                // Normal login — sign in immediately
-                await signIn();
-            }
-        } catch (error: any) {
-            showAlert({ type: 'error', title: 'Error al iniciar sesión', message: error.message || 'Credenciales incorrectas' });
-        } finally {
-            setLoading(false);
-        }
+        login({ email: cleanEmail, password }, {
+            onSuccess: (data) => {
+                if (data.require_2fa && data.temp_token) {
+                    // 2FA required — show verification UI
+                    setTempToken(data.temp_token);
+                    setShow2FA(true);
+                    animateTo2FA();
+                }
+                // Sin 2FA: el hook ya guardó el token y cargó el usuario → la app abre sola
+            },
+            onError: (error) => {
+                showAlert({ type: 'error', title: 'Error al iniciar sesión', message: error.message || 'Credenciales incorrectas' });
+            },
+        });
     };
 
-    const handleVerify2FA = async () => {
+    const handleVerify2FA = () => {
         if (otpCode.length < 6) {
             showAlert({ type: 'warning', title: 'Código incompleto', message: 'Ingresa el código de 6 dígitos de tu app de autenticación' });
             return;
         }
-        setVerifying2FA(true);
-        try {
-            await verify2FALogin(tempToken, otpCode);
-            await signIn();
-        } catch (error: any) {
-            showAlert({ type: 'error', title: 'Código inválido', message: error.message || 'El código de verificación es incorrecto o ha expirado' });
-            setOtpCode('');
-        } finally {
-            setVerifying2FA(false);
-        }
+        verify2FA({ tempToken, code: otpCode }, {
+            onError: (error) => {
+                showAlert({ type: 'error', title: 'Código inválido', message: error.message || 'El código de verificación es incorrecto o ha expirado' });
+                setOtpCode('');
+            },
+        });
     };
 
     const handleBack2FA = () => {
@@ -223,12 +212,12 @@ export default function LoginScreen() {
 
                             {/* Login button */}
                             <TouchableOpacity
-                                style={[styles.loginBtn, { backgroundColor: theme.primary }, loading && { opacity: 0.7 }]}
+                                style={[styles.loginBtn, { backgroundColor: theme.primary }, isLoggingIn && { opacity: 0.7 }]}
                                 onPress={handleLogin}
-                                disabled={loading}
+                                disabled={isLoggingIn}
                                 activeOpacity={0.85}
                             >
-                                {loading ? (
+                                {isLoggingIn ? (
                                     <ActivityIndicator color="#fff" size="small" />
                                 ) : (
                                     <>
@@ -294,12 +283,12 @@ export default function LoginScreen() {
 
                             {/* Verify button */}
                             <TouchableOpacity
-                                style={[styles.loginBtn, { backgroundColor: '#10b981' }, verifying2FA && { opacity: 0.7 }]}
+                                style={[styles.loginBtn, { backgroundColor: '#10b981' }, isVerifying2FA && { opacity: 0.7 }]}
                                 onPress={handleVerify2FA}
-                                disabled={verifying2FA}
+                                disabled={isVerifying2FA}
                                 activeOpacity={0.85}
                             >
-                                {verifying2FA ? (
+                                {isVerifying2FA ? (
                                     <ActivityIndicator color="#fff" size="small" />
                                 ) : (
                                     <>

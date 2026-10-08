@@ -1,15 +1,20 @@
 import React, { createContext, useCallback, useContext, useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { User, getCurrentUser, saveCachedUser, getCachedUser, clearStoredSession } from '../lib/auth';
-import { ApiError, getToken, setUnauthorizedHandler } from '../lib/api';
+import type { User } from '../types/auth';
+import { getCurrentUser } from '../services/auth';
+import { saveCachedUser, getCachedUser, clearStoredSession } from '../lib/sessionStorage';
+import { ApiError, getToken, setToken, setUnauthorizedHandler } from '../lib/api';
 import { clearStoredCart } from '../lib/cartStorage';
 import { showAlert } from '@/src/components/AppAlert';
 
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
-    /** Carga el usuario después de que `login`/`verify2FALogin` guardaron el token. */
-    signIn: () => Promise<void>;
+    /** Inicia sesión con el token del backend: lo guarda, limpia la caché de la cuenta anterior y carga el usuario. */
+    signIn: (token: string) => Promise<void>;
+    /** Guarda el token renovado (o con el rol nuevo) de la MISMA cuenta y recarga el usuario. Es el helper común
+     *  "guardar token + recargar usuario" que usan el refresco de sesión y el cambio a cuenta profesional. */
+    refreshSession: (token: string) => Promise<void>;
     signOut: () => Promise<void>;
     reloadUser: () => Promise<void>;
 }
@@ -75,16 +80,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         restoreSession();
     }, [setUser, endSession]);
 
-    const signIn = useCallback(async () => {
+    const loadUser = useCallback(async () => {
+        setUser(await getCurrentUser());
+    }, [setUser]);
+
+    const signIn = useCallback(async (token: string) => {
         setIsLoading(true);
         try {
+            await setToken(token);
             // Nada de la sesión anterior debe verse con la nueva cuenta
             queryClient.clear();
-            setUser(await getCurrentUser());
+            await loadUser();
         } finally {
             setIsLoading(false);
         }
-    }, [queryClient, setUser]);
+    }, [queryClient, loadUser]);
+
+    const reloadUser = useCallback(async () => {
+        try {
+            await loadUser();
+        } catch (error) {
+            // Cuenta desactivada o eliminada mientras la sesión estaba abierta → fuera.
+            // Sin red se conserva el usuario actual; si el token venció, apiFetch ya avisó.
+            if (isInvalidSession(error) && userRef.current) await endSession();
+        }
+    }, [loadUser, endSession]);
+
+    /** Guardar token + recargar usuario sin tocar la caché: es la misma cuenta, solo cambió el token (o el rol). */
+    const refreshSession = useCallback(async (token: string) => {
+        await setToken(token);
+        await reloadUser();
+    }, [reloadUser]);
 
     const signOut = useCallback(async () => {
         setIsLoading(true);
@@ -97,18 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [endSession]);
 
-    const reloadUser = useCallback(async () => {
-        try {
-            setUser(await getCurrentUser());
-        } catch (error) {
-            // Cuenta desactivada o eliminada mientras la sesión estaba abierta → fuera.
-            // Sin red se conserva el usuario actual; si el token venció, apiFetch ya avisó.
-            if (isInvalidSession(error) && userRef.current) await endSession();
-        }
-    }, [setUser, endSession]);
-
     return (
-        <AuthContext.Provider value={{ user, isLoading, signIn, signOut, reloadUser }}>
+        <AuthContext.Provider value={{ user, isLoading, signIn, refreshSession, signOut, reloadUser }}>
             {children}
         </AuthContext.Provider>
     );
