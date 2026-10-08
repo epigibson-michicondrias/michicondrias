@@ -65,7 +65,7 @@ export function resolveNotificationRoute(notification: Notification, roleName?: 
     case 'transportistas':
       return role === 'transportista' ? '/transportistas/solicitudes' : '/transportistas/mis-viajes';
     case 'store':
-      return '/tienda/compras';
+      return role === 'vendedor' ? '/tienda/vendedor/ordenes' : '/tienda/compras';
     default:
       return null;
   }

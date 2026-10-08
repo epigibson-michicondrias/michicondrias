@@ -7,7 +7,7 @@ import uuid
 from app import crud
 from app.api import deps
 from app.db.session import get_db
-from app.schemas.ecommerce import ProductCreate, ProductUpdate, ProductResponse, ReviewCreate, ReviewResponse, PresignedUrlResponse
+from app.schemas.ecommerce import ProductCreate, ProductUpdate, ProductResponse, ReviewCreate, ReviewResponse, ReviewEligibility, PresignedUrlResponse
 from app.core.s3 import upload_file_to_s3, generate_presigned_url
 from app.core.config import settings
 
@@ -202,6 +202,22 @@ def create_product_review(
     if crud.crud_ecommerce.user_has_reviewed(db, user_id, product_id):
         raise HTTPException(status_code=409, detail="Ya calificaste este producto.")
     return crud.crud_ecommerce.create_review(db, review=review_in, product_id=product_id, user_id=user_id)
+
+@router.get("/{product_id}/review-eligibility", response_model=ReviewEligibility)
+def get_review_eligibility(
+    product_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """
+    ¿Puede el usuario opinar sobre este producto? (F19) La app solo muestra el formulario si `can_review`.
+    `reason`: "not_purchased" (no tiene un pedido pagado con él) o "already_reviewed".
+    """
+    if not crud.crud_ecommerce.user_has_purchased(db, user_id, product_id):
+        return {"can_review": False, "reason": "not_purchased"}
+    if crud.crud_ecommerce.user_has_reviewed(db, user_id, product_id):
+        return {"can_review": False, "reason": "already_reviewed"}
+    return {"can_review": True, "reason": None}
 
 @router.get("/{product_id}/reviews", response_model=List[ReviewResponse])
 def get_product_reviews(

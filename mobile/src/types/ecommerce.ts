@@ -4,16 +4,12 @@
  * reviews, orders, and donations.
  */
 
-// ─── Categories ─────────────────────────────────────────────────────────────────
-
 export interface Category {
     id: string;
     name: string;
     description: string | null;
     image_url: string | null;
 }
-
-// ─── Products ───────────────────────────────────────────────────────────────────
 
 export interface Product {
     id: string;
@@ -25,13 +21,14 @@ export interface Product {
     category?: Category;
     image_url: string | null;
     is_active: boolean;
+    /** Los productos nuevos esperan aprobación de un admin antes de verse en la tienda. */
+    is_approved?: boolean | null;
+    subcategory_id?: string | null;
     seller_id: string | null;
     specifications: string | null;
     average_rating: number;
     review_count: number;
 }
-
-// ─── Reviews ────────────────────────────────────────────────────────────────────
 
 export interface Review {
     id: string;
@@ -47,7 +44,13 @@ export interface ReviewCreate {
     comment?: string;
 }
 
-// ─── Orders ─────────────────────────────────────────────────────────────────────
+export interface OrderItem {
+    id: string;
+    product_id: string;
+    quantity: number;
+    price_at_purchase: number;
+    product?: Product;
+}
 
 export interface Order {
     id: string;
@@ -56,14 +59,13 @@ export interface Order {
     status: string;
     shipping_address?: string;
     created_at: string;
+    items?: OrderItem[];
 }
 
 export interface OrderCreate {
     items: { product_id: string; quantity: number }[];
     shipping_address?: string;
 }
-
-// ─── Donations ──────────────────────────────────────────────────────────────────
 
 export interface Donation {
     id: string;
@@ -72,7 +74,15 @@ export interface Donation {
     currency: string;
     message: string | null;
     date: string;
+    /** pending (esperando pago) | paid | expired | failed ("completed" = registros anteriores al cobro real) */
     status: string;
+    paid_at?: string | null;
+}
+
+/** ¿Puede el usuario opinar sobre el producto? (`GET /products/{id}/review-eligibility`) */
+export interface ReviewEligibility {
+    can_review: boolean;
+    reason: 'not_purchased' | 'already_reviewed' | null;
 }
 
 // ─── Constants & Defaults ───────────────────────────────────────────────────────

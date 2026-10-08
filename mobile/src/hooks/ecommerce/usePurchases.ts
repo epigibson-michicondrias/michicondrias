@@ -1,8 +1,8 @@
 /**
  * usePurchases — Data fetching for buyer's order history
  */
-import { useQuery } from '@tanstack/react-query';
-import { getMyOrders } from '@/src/services/ecommerce';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { getMyOrders, MY_ORDERS_PAGE_SIZE } from '@/src/services/ecommerce';
 
 export const STATUS_MAP: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pendiente', color: '#f59e0b' },
@@ -13,16 +13,27 @@ export const STATUS_MAP: Record<string, { label: string; color: string }> = {
     cancelled: { label: 'Cancelado', color: '#ef4444' },
 };
 
+/** Historial paginado: carga 20 pedidos y trae más al llegar al final de la lista (F19). */
 export function usePurchases() {
-    const { data: orders = [], isLoading, refetch, isRefetching } = useQuery({
+    const { data, isLoading, refetch, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
         queryKey: ['my-orders'],
-        queryFn: getMyOrders,
+        queryFn: ({ pageParam }) => getMyOrders(pageParam, MY_ORDERS_PAGE_SIZE),
+        initialPageParam: 0,
+        getNextPageParam: (lastPage, allPages) =>
+            lastPage.length < MY_ORDERS_PAGE_SIZE ? undefined : allPages.reduce((n, page) => n + page.length, 0),
     });
 
+    const loadMore = () => {
+        if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+    };
+
     return {
-        orders,
+        // Sin duplicados si entra un pedido nuevo entre páginas (la paginación es por offset)
+        orders: [...new Map((data?.pages.flat() ?? []).map((o) => [o.id, o])).values()],
         isLoading,
         refetch,
         isRefetching,
+        loadMore,
+        isLoadingMore: isFetchingNextPage,
     };
 }

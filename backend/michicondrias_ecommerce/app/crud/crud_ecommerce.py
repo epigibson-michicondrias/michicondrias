@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+import logging
+import uuid
+from sqlalchemy import func, text
 from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
 from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate, OrderCreate
 
@@ -178,9 +180,11 @@ STOCK_HOLDING_STATUSES = ("pending", "paid", "confirmed")
 def release_stale_pending_orders(db: Session) -> int:
     """Cancela pedidos pendientes de pago abandonados y devuelve el stock apartado."""
     cutoff = datetime.now(timezone.utc) - timedelta(minutes=PENDING_ORDER_TTL_MINUTES)
-    stale = db.query(Order).options(joinedload(Order.items)).filter(
+    # FOR UPDATE SKIP LOCKED: si otra petición (u el webhook de Stripe) ya tiene el pedido, se salta; así el stock
+    # no se devuelve dos veces. Sin joinedload: Postgres no permite FOR UPDATE del lado nulo de un OUTER JOIN.
+    stale = db.query(Order).filter(
         Order.status == "pending", Order.created_at < cutoff
-    ).all()
+    ).with_for_update(skip_locked=True).all()
     for order in stale:
         _restock_order(db, order)
         order.status = "cancelled"
@@ -190,7 +194,8 @@ def release_stale_pending_orders(db: Session) -> int:
 
 
 def _restock_order(db: Session, order: Order):
-    for item in order.items:
+    # Productos en orden estable, como en create_order, para no interbloquear con una compra simultánea
+    for item in sorted(order.items, key=lambda i: i.product_id):
         product = db.query(Product).filter(Product.id == item.product_id).with_for_update().first()
         if product:
             product.stock = (product.stock or 0) + item.quantity
@@ -257,7 +262,7 @@ def create_order(db: Session, order_in: OrderCreate, user_id: str):
 def get_user_orders(db: Session, user_id: str, skip: int = 0, limit: int = 20):
     return db.query(Order).options(
         joinedload(Order.items).joinedload(OrderItem.product)
-    ).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+    ).filter(Order.user_id == user_id).order_by(Order.created_at.desc(), Order.id.desc()).offset(skip).limit(limit).all()
 
 def get_seller_orders(db: Session, seller_id: str, skip: int = 0, limit: int = 50):
     """Get orders containing products from a specific seller."""
@@ -271,6 +276,10 @@ def get_seller_orders(db: Session, seller_id: str, skip: int = 0, limit: int = 5
     return db.query(Order).options(
         joinedload(Order.items).joinedload(OrderItem.product)
     ).filter(Order.id.in_(order_ids)).order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
+
+def get_order_for_update(db: Session, order_id: str):
+    """Pedido con la fila bloqueada hasta el commit (webhook de Stripe vs. liberación por tiempo)."""
+    return db.query(Order).filter(Order.id == order_id).with_for_update().first()
 
 def get_order(db: Session, order_id: str):
     return db.query(Order).options(
@@ -292,3 +301,34 @@ def update_order_status(db: Session, order_id: str, status: str):
         db.commit()
         db.refresh(db_order)
     return db_order
+
+
+# NOTIFICACIONES (F19): bandeja del usuario en la misma BD que core. Nunca deben romper el flujo del pago.
+def _notify(db: Session, user_id: str, title: str, message: str, link: str) -> None:
+    db.execute(text(
+        "INSERT INTO notifications (id, user_id, title, message, type, is_read, link) "
+        "VALUES (:id, :uid, :title, :msg, 'store', false, :link)"
+    ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "link": link})
+
+
+def notify_order_paid(db: Session, order: Order) -> None:
+    """Avisa al comprador y a cada vendedor con productos en el pedido. Se llama tras marcar el pedido como pagado."""
+    try:
+        code = order.id[:8].upper()
+        _notify(db, order.user_id, "¡Pago recibido!",
+                f"Tu pedido #{code} quedó pagado. Te avisaremos cuando el vendedor lo envíe.",
+                f"/tienda/pedido/{order.id}")
+        units_by_seller: dict = {}
+        for item in order.items:
+            seller_id = item.product.seller_id if item.product else None
+            if seller_id and seller_id != order.user_id:
+                units_by_seller[seller_id] = units_by_seller.get(seller_id, 0) + item.quantity
+        for seller_id, units in units_by_seller.items():
+            pieces = "1 pieza" if units == 1 else f"{units} piezas"
+            _notify(db, seller_id, "Nueva venta pagada",
+                    f"El pedido #{code} ({pieces}) ya está pagado. Prepáralo para enviarlo.",
+                    "/tienda/vendedor/ordenes")
+        db.commit()
+    except Exception:
+        db.rollback()
+        logging.getLogger(__name__).exception("No se pudo notificar el pago del pedido %s", order.id)

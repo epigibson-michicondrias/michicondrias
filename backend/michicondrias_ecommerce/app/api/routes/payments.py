@@ -34,11 +34,12 @@ async def create_checkout_session(
     if not settings.STRIPE_SECRET_KEY:
         raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
 
+    crud.crud_ecommerce.release_stale_pending_orders(db)  # un pedido vencido no se cobra (F19)
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if order.user_id != user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="No puedes pagar este pedido")
     if order.status != "pending":
         detail = "El pedido fue cancelado. Crea uno nuevo desde tu bolsa." if order.status == "cancelled" else "Order is already paid"
         raise HTTPException(status_code=400, detail=detail)
@@ -201,7 +202,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
             # Regular Store Order
             order_id = session.get('client_reference_id')
             if order_id:
-                db_order = crud.crud_ecommerce.get_order(db, order_id=order_id)
+                db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
                 # Solo pendientes (o cancelados por tiempo con pago tardío) pasan a pagado; un evento repetido no
                 # debe regresar a "paid" un pedido que ya fue enviado o entregado.
                 if db_order and db_order.status in ('pending', 'cancelled'):
@@ -215,6 +216,7 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                     db_order.status = 'paid'
                     db.commit()
                     logger.info(f"Order {order_id} marked as paid.")
+                    crud.crud_ecommerce.notify_order_paid(db, db_order)
         
         elif mode == 'subscription':
             # Michi-Tracker Pro Subscription Setup

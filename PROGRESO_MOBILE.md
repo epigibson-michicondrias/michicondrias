@@ -13,10 +13,10 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F18, F20–F24 y F27 ✅ · faltan F19, F25 y F26 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F24 y F27 ✅ · faltan F25 y F26 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
-> **Siguiente:** F19 (backend 🛠️) y F25/F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
+> **Siguiente:** F25/F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
 > A1–A5) y Fase 5 (U1 Tema primero). El detalle y el orden están en `HANDOFF.md` §8.
 
 ---
@@ -56,7 +56,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); F14 ✅ (avisos de dosis y refuerzos en la bandeja); falta la pasada U7 |
-| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | 🟡 | ⬜ | F18 ✅ (`useCheckout`, carrito con precio/stock frescos, bolsa se vacía al confirmar el pago); faltan F19 (backend) y F20 (Stripe) |
+| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | 🟡 | ⬜ | F18 ✅ (`useCheckout`, carrito con precio/stock frescos, bolsa se vacía al confirmar el pago); F19 ✅ (pedidos vencidos, aviso de pago, `can_review`, paginación); F20 ✅ |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
 | P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
 | P2 | Adopciones | 12 | ⬜ | ⬜ | ⬜ | Muchas pantallas de solicitudes: ¿fusionar? |
@@ -247,8 +247,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       (`pet_id` opcional en el backend, aditivo, con contexto de especie/peso/edad).
 - [x] F18 Tienda: hook `useCheckout` (useMutation + invalidaciones), refrescar precio y stock del carrito, no vaciar antes
       de pagar.
-- [ ] 🛠️ F19 Tienda backend: liberar pedidos vencidos en `/orders/*`, notificar el pago a comprador y vendedor,
-      `can_review`, paginación de `/orders/me`.
+- [x] 🛠️ F19 Tienda backend: liberar pedidos vencidos en `/orders/*`, notificar el pago a comprador y vendedor,
+      `can_review` (`GET /products/{id}/review-eligibility`), paginación de `/orders/me` (scroll infinito en Mis compras).
 - [x] F20 Stripe con `expo-web-browser` (`openAuthSessionAsync` en `utils/payments.openStripeUrl`: los 5 puntos que
       abren Stripe; en web sigue abriendo pestaña nueva).
 - [x] F21 Ayuda: FAQ verídicas (solo tarjeta y el botón real «¡Quiero Adoptar!»), aviso si falla `Linking`,
@@ -558,3 +558,18 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   Verificado: SQLite con 5 pasadas (aviso único, sin duplicados, dosis viejas silenciadas, refuerzo reprogramado se
   reavisa, editar sin cambiar fecha no reavisa) y arranque del servicio con el job vivo aunque la BD falle. Push
   todavía no (las notificaciones push van con `expo-notifications` en U10).
+- **2026-10-08** — **F19 Tienda backend + app** (ecommerce, sin migración). **Backend**: los pedidos pendientes vencidos
+  (TTL 40 min) se liberan —cancelados y con el stock devuelto— antes de **toda** lectura de `/orders/*` y antes de crear
+  el checkout de Stripe (antes solo al crear otro pedido); el webhook, al marcar el pedido pagado, **avisa al comprador**
+  («¡Pago recibido!» → `/tienda/pedido/{id}`) y **a cada vendedor** con sus piezas (→ `/tienda/vendedor/ordenes`),
+  tipo `store`, sin romper el webhook si la bandeja falla; la liberación usa `FOR UPDATE SKIP LOCKED` y el webhook
+  bloquea el pedido (`get_order_for_update`), para que el stock no se devuelva dos veces ni compitan pago y vencimiento
+  (hallazgo del `code-reviewer`); `/orders/me` ordena por fecha + id y la app quita duplicados entre páginas; nuevo `GET /products/{id}/review-eligibility`
+  (`can_review` + `reason`); `/orders/me` paginado con tope de 50. Mensajes de pedidos en español. **App**: tipos de
+  ecommerce migrados a `src/types/ecommerce.ts` (el service los reexporta); `usePurchases` con `useInfiniteQuery`
+  (20 por página, misma key `['my-orders']`) y «Mis compras» con scroll infinito y `SkeletonList` en vez de
+  `LoadingOverlay`; la ficha del producto muestra el formulario de reseña **solo** si `can_review` (antes lo veía todo
+  el mundo y el backend lo rechazaba), textos honestos y fechas `es-MX`; la notificación `store` lleva al vendedor a sus
+  órdenes. Verificado: TestClient+SQLite (pedido vencido → cancelado y stock devuelto al leer, páginas 20+6, tope 50,
+  `can_review` en sus 3 casos, avisos a comprador y 2 vendedores, bandeja caída no truena), tsc + ESLint limpios y
+  web: Mis compras pide `?skip=0&limit=20`.

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List
+from typing import Literal, Optional, List
 from datetime import datetime
 
 class ReviewBase(BaseModel):
@@ -215,6 +215,10 @@ class OrderResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ReviewEligibility(BaseModel):
+    can_review: bool
+    reason: Optional[Literal["not_purchased", "already_reviewed"]] = None
 
 class PresignedUrlResponse(BaseModel):
     url: str

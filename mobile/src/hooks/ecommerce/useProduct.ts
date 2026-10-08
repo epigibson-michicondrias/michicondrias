@@ -3,7 +3,8 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getProduct, getReviews, createProductReview } from '@/src/services/ecommerce';
+import { getProduct, getReviews, getReviewEligibility, createProductReview } from '@/src/services/ecommerce';
+import { useAuth } from '@/src/contexts/AuthContext';
 import type { Product, Review, ReviewCreate } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 
@@ -30,6 +31,15 @@ export function useProduct() {
         enabled: !!id,
     });
 
+    // F19: el formulario solo se muestra a quien compró (pedido pagado) y aún no opinó.
+    const { user } = useAuth();
+    const { data: eligibility } = useQuery({
+        queryKey: ['review-eligibility', id],
+        queryFn: () => getReviewEligibility(id!),
+        enabled: !!id && !!user?.id,
+        meta: { silentError: true },
+    });
+
     const goBack = () => router.back();
 
     const createReviewMutation = useMutation({
@@ -38,6 +48,7 @@ export function useProduct() {
             queryClient.invalidateQueries({ queryKey: ['store-products'] });
             queryClient.invalidateQueries({ queryKey: ['product-reviews', id] });
             queryClient.invalidateQueries({ queryKey: ['product', id] });
+            queryClient.invalidateQueries({ queryKey: ['review-eligibility', id] });
             showAlert({ type: 'success', title: '¡Reseña Enviada!', message: 'Tu reseña ha sido publicada.' });
         },
         onError: (error: any) => {
@@ -58,6 +69,8 @@ export function useProduct() {
         goBack,
         productId: id,
         // Review creation
+        canReview: eligibility?.can_review ?? false,
+        alreadyReviewed: eligibility?.reason === 'already_reviewed',
         handleCreateReview,
         isCreatingReview: createReviewMutation.isPending,
     };

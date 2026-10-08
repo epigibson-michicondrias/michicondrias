@@ -273,12 +273,12 @@ externo) → `/payments/return` → deep link `tienda/pago-exitoso|pago-cancelad
 | app/tienda/categorias.tsx | pantalla | redundante | Repite los chips; mapa de colores duplicado |
 | app/tienda/producto/[id].tsx | pantalla | funciona | 598 líneas. `LoadingOverlay`. `top: 52` fijo. **El formulario de reseña se ve para todos**, dueño incluido, y el backend responde 403/409. Las reseñas no muestran autor |
 | app/tienda/carrito.tsx | pantalla | funciona | `KeyboardAvoidingView`. El vacío es un truco con `DataList` vacío. Botones de cantidad de 28 px. «Envío gratis» fijo. El precio sale del snapshot guardado |
-| app/tienda/compras.tsx | pantalla | funciona | `LoadingOverlay`. Sin paginación (el backend da 20). El refresh queda anulado por la caché de 30 s |
+| app/tienda/compras.tsx | pantalla | funciona | ~~`LoadingOverlay`. Sin paginación (el backend da 20).~~ ✅ F19 (Skeleton + scroll infinito). El refresh queda anulado por la caché de 30 s |
 | app/tienda/pedido/[id].tsx | pantalla | funciona | Tiene un `showAlert` local con `require()` (error de lint). El polling de 5 s no sirve por la caché. «¿Necesitas ayuda?» solo muestra un correo |
 | app/tienda/pago-exitoso.tsx · pago-cancelado.tsx | pantalla | funciona | **No se pueden borrar**: son destino del deep link (`checkout_urls.py:43`). Son copias una de otra. Exitoso promete que se avisará al vendedor y nadie lo avisa |
 | src/contexts/CartContext.tsx | contexto | funciona | ~~`checkout` no invalida `my-orders` ni `store-products`~~ ✅ `hooks/ecommerce/useCheckout` con `useMutation` e invalidaciones (F18) · ~~Guarda el precio y el stock viejos~~ ✅ `useCartProducts` los refresca al abrir el carrito (F18) · ~~No se limpia al cerrar sesión~~ ✅ carrito por usuario (F1) · ~~Vacía la bolsa antes de pagar~~ ✅ se vacía al confirmar el pago en `PagoResultado` (F18) · ~~La lógica no usa `useMutation`~~ ✅ (F18). Hoy el contexto solo tiene estado: sin red |
 | src/services/ecommerce.ts | servicio | funciona | Todos los endpoints existen. Sus tipos duplican `src/types/ecommerce.ts`, que está muerto |
-| backend ecommerce | backend | funciona con huecos | Los pedidos pendientes solo se liberan de forma perezosa en `create_order` (TTL 40 min). El webhook no notifica a nadie. No hay `can_review`. `/orders/me` sin paginación. `/products/` sin `q` |
+| backend ecommerce | backend | funciona con huecos | ~~Los pedidos pendientes solo se liberan de forma perezosa en `create_order` (TTL 40 min). El webhook no notifica a nadie. No hay `can_review`. `/orders/me` sin paginación.~~ ✅ F19. `/products/` sin `q` |
 
 Redundancias: entrada a la tienda ×5, «Mis compras» ×5, categorías ×3, carrito ×3 (aceptable), «Mi tienda» del vendedor
 en la tienda del cliente, resultado de pago duplicado, mapa de categorías duplicado.

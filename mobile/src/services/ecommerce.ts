@@ -1,79 +1,9 @@
 import { apiFetch } from "../lib/api";
+import type {
+    Category, Product, Review, ReviewCreate, ReviewEligibility, OrderItem, Order, OrderCreate, Donation,
+} from "@/src/types/ecommerce";
 
-export interface Category {
-    id: string;
-    name: string;
-    description: string | null;
-    image_url: string | null;
-}
-
-export interface Product {
-    id: string;
-    name: string;
-    description: string | null;
-    price: number;
-    stock: number;
-    category_id: string | null;
-    category?: Category;
-    image_url: string | null;
-    is_active: boolean;
-    /** Los productos nuevos esperan aprobación de un admin antes de verse en la tienda. */
-    is_approved?: boolean | null;
-    subcategory_id?: string | null;
-    seller_id: string | null;
-    specifications: string | null;
-    average_rating: number;
-    review_count: number;
-}
-
-export interface Review {
-    id: string;
-    product_id: string;
-    user_id: string;
-    rating: number;
-    comment: string | null;
-    created_at: string;
-}
-
-export interface ReviewCreate {
-    rating: number;
-    comment?: string;
-}
-
-export interface OrderItem {
-    id: string;
-    product_id: string;
-    quantity: number;
-    price_at_purchase: number;
-    product?: Product;
-}
-
-export interface Order {
-    id: string;
-    user_id: string;
-    total_amount: number;
-    status: string;
-    shipping_address?: string;
-    created_at: string;
-    items?: OrderItem[];
-}
-
-export interface OrderCreate {
-    items: { product_id: string; quantity: number }[];
-    shipping_address?: string;
-}
-
-export interface Donation {
-    id: string;
-    user_id: string | null;
-    amount: number;
-    currency: string;
-    message: string | null;
-    date: string;
-    /** pending (esperando pago) | paid | expired | failed ("completed" = registros anteriores al cobro real) */
-    status: string;
-    paid_at?: string | null;
-}
+export type { Category, Product, Review, ReviewCreate, ReviewEligibility, OrderItem, Order, OrderCreate, Donation };
 
 // PRODUCTS
 export async function getProducts(category?: string, sellerId?: string): Promise<Product[]> {
@@ -122,6 +52,10 @@ export async function getReviews(productId: string): Promise<Review[]> {
     return apiFetch<Review[]>("ecommerce", `/products/${productId}/reviews`);
 }
 
+export async function getReviewEligibility(productId: string): Promise<ReviewEligibility> {
+    return apiFetch<ReviewEligibility>("ecommerce", `/products/${productId}/review-eligibility`);
+}
+
 // ORDERS
 export async function createOrder(data: OrderCreate): Promise<Order> {
     return apiFetch<Order>("ecommerce", "/orders/", {
@@ -130,8 +64,11 @@ export async function createOrder(data: OrderCreate): Promise<Order> {
     });
 }
 
-export async function getMyOrders(): Promise<Order[]> {
-    return apiFetch<Order[]>("ecommerce", "/orders/me");
+/** Página de "Mis compras" (el backend devuelve como máximo 50 por página). */
+export const MY_ORDERS_PAGE_SIZE = 20;
+
+export async function getMyOrders(skip = 0, limit = MY_ORDERS_PAGE_SIZE): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", `/orders/me?skip=${skip}&limit=${limit}`);
 }
 
 export async function getSellerOrders(): Promise<Order[]> {

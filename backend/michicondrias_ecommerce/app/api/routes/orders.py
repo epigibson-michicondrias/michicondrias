@@ -53,9 +53,10 @@ def read_my_orders(
     limit: int = 20,
 ) -> Any:
     """
-    Retrieve current user's order history.
+    Historial de pedidos del usuario, paginado (`skip`/`limit`, máx. 50 por página).
     """
-    return crud.crud_ecommerce.get_user_orders(db, user_id=user_id, skip=skip, limit=limit)
+    crud.crud_ecommerce.release_stale_pending_orders(db)
+    return crud.crud_ecommerce.get_user_orders(db, user_id=user_id, skip=max(skip, 0), limit=min(max(limit, 1), 50))
 
 @router.get("/seller/me", response_model=List[OrderResponse])
 def read_seller_orders(
@@ -67,6 +68,7 @@ def read_seller_orders(
     """
     Retrieve orders containing products from the current seller.
     """
+    crud.crud_ecommerce.release_stale_pending_orders(db)
     return crud.crud_ecommerce.get_seller_orders(db, seller_id=user_id, skip=skip, limit=limit)
 
 @router.get("/{order_id}", response_model=OrderResponse)
@@ -78,11 +80,12 @@ def read_order(
     """
     Get order details.
     """
+    crud.crud_ecommerce.release_stale_pending_orders(db)
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if order.user_id != user_id and not _is_seller_of(db, order_id, user_id):
-        raise HTTPException(status_code=403, detail="Not authorized to view this order")
+        raise HTTPException(status_code=403, detail="No puedes ver este pedido")
     return order
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
@@ -95,14 +98,15 @@ def update_order_status_seller(
     """
     Update order status (Seller can update status for their orders).
     """
+    crud.crud_ecommerce.release_stale_pending_orders(db)
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     
     is_seller = _is_seller_of(db, order_id, user_id)
     is_buyer = order.user_id == user_id
     if not is_seller and not is_buyer:
-        raise HTTPException(status_code=403, detail="Not authorized to update this order")
+        raise HTTPException(status_code=403, detail="No puedes modificar este pedido")
 
     # El estado "paid" solo lo pone el webhook de Stripe (o un admin). Antes cualquiera podía enviar status=paid.
     if is_seller:
@@ -130,6 +134,7 @@ def read_all_orders(
     """
     Retrieve all orders across the system (Admin only).
     """
+    crud.crud_ecommerce.release_stale_pending_orders(db)
     return crud.crud_ecommerce.get_all_orders(db, skip=skip, limit=limit)
 
 @router.patch("/admin/{order_id}/status", response_model=OrderResponse)
@@ -144,7 +149,7 @@ def update_order_status(
     """
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if status not in VALID_STATUSES:
         raise HTTPException(status_code=400, detail="Estado no permitido")
 

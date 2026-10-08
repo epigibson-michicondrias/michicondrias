@@ -16,7 +16,7 @@ import BackButton from '@/src/components/BackButton';
 export default function ProductDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { product, reviews, isLoading, goBack, handleCreateReview, isCreatingReview } = useProduct();
+    const { product, reviews, isLoading, goBack, canReview, handleCreateReview, isCreatingReview } = useProduct();
     const [quantity, setQuantity] = useState(1);
     const [formRating, setFormRating] = useState(5);
     const [formComment, setFormComment] = useState('');
@@ -189,7 +189,7 @@ export default function ProductDetailScreen() {
                             <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
                             <View style={styles.summaryRight}>
                                 <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
-                                    Opiniones de compradores que ya recibieron su pedido en Michi-Shop.
+                                    Opiniones de quienes compraron este producto en Michi-Shop.
                                 </Text>
                             </View>
                         </View>
@@ -204,7 +204,7 @@ export default function ProductDetailScreen() {
                                                 <Star key={s} size={12} color={theme.accent} fill={s <= review.rating ? theme.accent : "transparent"} />
                                             ))}
                                         </View>
-                                        <Text style={[styles.reviewDate, { color: theme.textMuted }]}>{new Date(review.created_at).toLocaleDateString()}</Text>
+                                        <Text style={[styles.reviewDate, { color: theme.textMuted }]}>{new Date(review.created_at).toLocaleDateString('es-MX')}</Text>
                                     </View>
                                     {review.comment ? (
                                         <Text style={[styles.reviewComment, { color: theme.text }]}>{review.comment}</Text>
@@ -213,14 +213,15 @@ export default function ProductDetailScreen() {
                             ))
                         ) : (
                             <Text style={[styles.emptyReviews, { color: theme.textMuted }]}>
-                                Aún no hay opiniones para este producto. ¡Sé el primero en calificarlo!
+                                Aún no hay opiniones de este producto.
                             </Text>
                         )}
 
-                        {/* Formulario de Calificación */}
+                        {/* Formulario de Calificación: solo quien compró y aún no opinó (F19) */}
+                        {canReview && (
                         <View style={[styles.writeReviewCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                             <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar este producto</Text>
-                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>Solo quienes compraron este producto pueden calificarlo</Text>
+                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>Ya lo compraste: cuéntanos qué te pareció</Text>
                             
                             <View style={styles.interactiveStars}>
                                 {[1, 2, 3, 4, 5].map((starVal) => (
@@ -265,6 +266,7 @@ export default function ProductDetailScreen() {
                                 {isCreatingReview ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitReviewBtnText}>Publicar reseña</Text>}
                             </TouchableOpacity>
                         </View>
+                        )}
                     </View>
                 </View>
             </ScrollView>

@@ -1,21 +1,22 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePurchases, STATUS_MAP } from '@/src/hooks/ecommerce/usePurchases';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { SkeletonList } from '@/src/components/Skeleton';
 import EmptyState from '@/src/components/EmptyState';
 import { Package, ShoppingBag } from 'lucide-react-native';
 import { Order } from '@/src/services/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { spacing } from '@/constants/design';
 
 export default function ComprasScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { orders, isLoading } = usePurchases();
+    const { orders, isLoading, loadMore, isLoadingMore } = usePurchases();
 
     const renderItem = ({ item }: { item: Order }) => {
         const statusInfo = STATUS_MAP[item.status] || { label: item.status, color: theme.textMuted };
@@ -64,7 +65,10 @@ export default function ComprasScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <LoadingOverlay message="Cargando pedidos..." />
+                <ScreenHeader title="Mis Compras" />
+                <View style={styles.list}>
+                    <SkeletonList count={5} />
+                </View>
             </ScreenContainer>
         );
     }
@@ -79,6 +83,9 @@ export default function ComprasScreen() {
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 contentContainerStyle={styles.list}
+                onEndReached={loadMore}
+                onEndReachedThreshold={0.4}
+                ListFooterComponent={isLoadingMore ? <ActivityIndicator color={theme.primary} style={styles.footerLoader} /> : null}
                 ListEmptyComponent={
                     <EmptyState
                         icon={<ShoppingBag size={40} color={theme.textMuted} strokeWidth={1} />}
@@ -94,6 +101,9 @@ export default function ComprasScreen() {
 }
 
 const styles = StyleSheet.create({
+    footerLoader: {
+        paddingVertical: spacing.lg,
+    },
     list: {
         paddingHorizontal: 20,
         paddingBottom: 40,
