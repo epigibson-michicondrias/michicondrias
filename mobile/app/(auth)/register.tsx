@@ -42,16 +42,8 @@ export default function RegisterScreen() {
             showAlert({ type: 'warning', title: 'Contraseña muy corta', message: 'Tu contraseña debe tener al menos 8 caracteres.' });
             return;
         }
+        // Login automático (F10): al crear la cuenta se abre la sesión y la app cae en Inicio
         register({ email: cleanEmail, password, fullName: cleanName }, {
-            onSuccess: () => {
-                showAlert({
-                    type: 'success',
-                    title: '¡Cuenta creada!',
-                    message: 'Ahora puedes iniciar sesión con tu nueva cuenta',
-                    buttonText: 'Ir a Login',
-                    onButtonPress: () => router.replace('/login'),
-                });
-            },
             onError: (error) => {
                 showAlert({ type: 'error', title: 'Error de registro', message: error.message || 'No se pudo crear la cuenta' });
             },
@@ -212,6 +204,12 @@ export default function RegisterScreen() {
                         </TouchableOpacity>
                     </View>
 
+                    {/* Una línea hacia la cuenta profesional (F10) */}
+                    <Text style={[styles.proLine, { color: isDark ? 'rgba(255,255,255,0.55)' : '#64748b' }]}>
+                        ¿Ofreces servicios para mascotas? Podrás activar tu{' '}
+                        <Text style={{ color: theme.primary, fontWeight: '700' }}>cuenta profesional</Text> desde Perfil.
+                    </Text>
+
                     {/* Footer */}
                     <View style={styles.footer}>
                         <Text style={[styles.footerLabel, { color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }]}>
@@ -278,6 +276,14 @@ const styles = StyleSheet.create({
         alignItems: 'center', justifyContent: 'center', gap: 10,
     },
     registerBtnText: { color: '#fff', fontSize: 17, fontWeight: '800' },
+    proLine: {
+        fontSize: 12,
+        fontWeight: '500',
+        textAlign: 'center',
+        marginTop: 18,
+        marginHorizontal: 12,
+        lineHeight: 18,
+    },
     footer: {
         flexDirection: 'row', justifyContent: 'center', marginTop: 28,
     },

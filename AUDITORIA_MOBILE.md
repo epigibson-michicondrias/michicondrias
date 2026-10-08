@@ -127,7 +127,7 @@ Flujos:
 | Pieza | Tipo | Estado | Hallazgo |
 |---|---|---|---|
 | app/login.tsx | pantalla | rota/incompleta | **En web, el login truena** después de guardar el token (`setUserRole` sin try/catch, `lib/auth.ts:45,75`). El email no pasa por `trim` ni minúsculas (:73) y el backend lo compara distinguiendo mayúsculas. Los errores del backend salen en inglés (:85). 504 líneas, 37 hex y 28 rgba, 0 tokens. Inputs, botón y tarjeta hechos a mano. Llama a `lib/auth` sin hook. Le faltan `autoComplete` y `returnKeyType` |
-| app/register.tsx | pantalla | funciona | No inicia sesión al terminar (:48-54). El «check» de términos es decorativo (:178). «Términos» y «Privacidad» no llevan a nada si las URL no están configuradas (por defecto vacías). Valida con alertas. 27 hex. No menciona la cuenta profesional |
+| app/register.tsx | pantalla | funciona | ~~No inicia sesión al terminar (:48-54)~~ ✅ login automático (F10) y ~~no menciona la cuenta profesional~~ ✅ línea hacia Perfil (F10). El «check» de términos es decorativo (:178). «Términos» y «Privacidad» no llevan a nada si las URL no están configuradas (por defecto vacías). Valida con alertas. 27 hex |
 | app/forgot-password.tsx | pantalla | funciona | Email sin `trim` (:31). «Enviar enlace» no muestra spinner. En el estado de éxito hay 3 salidas, 2 de ellas iguales (:172 y :197). Jerga «token». 26 hex |
 | app/reset-password.tsx | pantalla | rota/incompleta | Sin el deep link pide «pegar el token», pero **el correo nunca muestra el token** (solo un JWT dentro de la URL). La web alterna `michicondrias.com/reset-password` no existe (`frontend/` vacío). El ojo mide 18 px. Con una sesión abierta, `_layout` saca al usuario de la pantalla. 35 hex |
 | app/_layout.tsx | layout | funciona | Lista de pantallas de auth escrita a mano (:46). Destello de las pestañas antes de la redirección. `inTabsGroup` sin uso. Advertencia `exhaustive-deps` |
@@ -153,7 +153,7 @@ Arreglos:
 - [x] P0 Login en web roto (`lib/auth.ts:44-46,75,101`): se eliminó `user_role`
 - [ ] P1 Email normalizado en el cliente (login.tsx:73, forgot-password.tsx:31) y en el backend — ✅ `trim` en el cliente; minúsculas pendientes de F11 (cuentas viejas con mayúsculas)
 - [ ] P1 Reset sin deep link inutilizable (reset-password.tsx:111-130) → propuesta 3
-- [ ] P1 Mensajes del backend en inglés (login.tsx:85); registro sin auto-login (register.tsx:48-54)
+- [ ] P1 Mensajes del backend en inglés (login.tsx:85) — van en F11; ~~registro sin auto-login (register.tsx:48-54)~~ ✅ (F10)
 - [x] P1 Capas: `src/services/auth.ts` + `src/hooks/auth/*`; quitar `apiFetch`/SecureStore de `perfil/partner.tsx:70-75` (F9: `useLogin`, `useRegister`, `usePasswordReset`, `usePartnerUpgrade`)
 - [ ] P2 `AuthShell` + FormField/Button/KeyboardScreen, tokens, validación inline, autoComplete, objetivos ≥ 44 px, spinner en forgot
 - [ ] P2 Destello de pestañas al arrancar; imports sin uso; URL de Términos y Privacidad

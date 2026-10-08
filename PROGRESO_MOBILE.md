@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9 ✅ · faltan F10–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9 y F10 ✅ · faltan F11–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -51,7 +51,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 
 | Prio | Módulo | Pant. | Audit. | Func. | UI | Notas |
 |---|---|---|---|---|---|---|
-| P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | 🟡 | ⬜ | F9 ✅ (en capas); faltan F10–F12. Reset sin deep link inutilizable (F12) |
+| P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | 🟡 | ⬜ | F9 ✅ (en capas) y F10 ✅ (auto-login); faltan F11–F13. Reset sin deep link inutilizable (F12) |
 | P1 | Pestañas (`(tabs)/`) | 5 | 🔍 | ⬜ | ⬜ | Campana falsa; tienda ×5; Herramientas duplica Perfil |
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | ⬜ | ⬜ | 2 perfiles, 2 KYC, paleta falsa, 2FA sin QR |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | ⬜ | ⬜ | Ficha y carnet duplicados; editar visible en ajenas; triage IA real |
@@ -230,7 +230,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] 🚨🛠️ F8 Pasaporte: llamada interna con token mascotas → carnet (`pets.py:331`).
 - [x] F9 Auth en capas: `src/services/auth.ts` (con `API_URLS`) + `src/hooks/auth/*`; hook `usePartnerUpgrade` y
       helper "guardar token + recargar" común (`AuthContext.refreshSession`).
-- [ ] F10 Registro con login automático + línea a la cuenta profesional.
+- [x] F10 Registro con login automático + línea a la cuenta profesional.
 - [ ] 🛠️ F11 Backend auth: email sin distinguir mayúsculas (revisar duplicados antes), mensajes en español, contraseña
       mínima, `created_at` en `/users/me`.
 - [ ] 🛠️ F12 Recuperación con código de 6 dígitos (si se aprueba) o token de un solo uso.
@@ -380,4 +380,13 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   reset con token falso → «Token inválido o expirado», sin errores de runtime. **Sin escrituras en producción.**
   Pendiente en Auth: F10 (auto-login tras registro + línea pro) y F13 (2FA con QR); mensajes del backend en inglés van
   en F11. Commit local; el OTA se agrupa con el siguiente bloque.
+- **2026-10-07** — **F10 Registro con login automático** (solo app). `useRegister` encadena `register` → `login` →
+  `signIn`: tras crear la cuenta el usuario **cae en Inicio con sesión** (antes caía en `/login` y reescribía sus
+  credenciales). Si el login automático falla, aviso claro («Tu cuenta se creó… entra con tu correo y contraseña»).
+  `register.tsx` ya no muestra el alerta «Ir a Login» y suma la línea hacia la cuenta profesional («¿Ofreces servicios
+  para mascotas? Podrás activar tu cuenta profesional desde Perfil»). Verificado **sin tocar producción** con un core de
+  juguete (stub con CORS) y un Metro aparte con `EXPO_PUBLIC_API_URL` apuntando al stub (sonda de seguridad: aborta si
+  el tráfico no llega al stub antes de registrar): 7/7 — render, línea pro, validación local y, tras el registro,
+  sesión abierta en Inicio (smoke headless 375×812). `npm run check` 0 errores. El arnés del stub quedó en
+  `/tmp/opencode/f9-smoke/` (no se sube al repo). Commit local; el OTA sigue agrupado con el siguiente bloque.
 
