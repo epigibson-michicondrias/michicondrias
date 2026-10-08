@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10 y F13 ✅ · faltan F11, F12 y F14–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13 y F16 ✅ · faltan F11, F12 y F14, F15, F17–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -54,7 +54,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | 🟡 | ⬜ | F9 ✅ (en capas) y F10 ✅ (auto-login); faltan F11–F13. Reset sin deep link inutilizable (F12) |
 | P1 | Pestañas (`(tabs)/`) | 5 | 🔍 | ⬜ | ⬜ | Campana falsa; tienda ×5; Herramientas duplica Perfil |
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
-| P1 | Mascotas (`mascotas/`) | 5 | 🔍 | ⬜ | ⬜ | Ficha y carnet duplicados; editar visible en ajenas; triage IA real |
+| P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | ⬜ | ⬜ | 987 líneas; sin fecha de vacuna; recordatorios huérfana; promesa de aviso falsa |
 | P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ⬜ | ⬜ | Stripe real; carrito y dirección pasan entre usuarios; caché de 30 s |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
@@ -238,7 +238,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       cámara y CTA "Activar cuenta pro"; partner muestra el KYC antes de elegir.
 - [ ] 🛠️ F14 Recordatorios y refuerzos: job emisor de notificaciones (o confirmar que se quitan de la UI).
 - [ ] 🛠️ F15 Carnet: PUT/DELETE de vacunas y consultas + UI con confirmación; recalcular `is_vaccinated`; invalidaciones.
-- [ ] F16 Mascotas: "vacunas al día" calculado, Tracker activo con salida, compartir carnet con QR (QR 📱 si es lib nativa).
+- [x] F16 Mascotas: "vacunas al día" calculado, Tracker activo con salida, compartir carnet con QR (QR 📱 si es lib nativa).
 - [ ] F17 Diagnóstico IA: vacío con "Agregar mascota", error sin peso → editar, selector de mascota en triage.
 - [ ] F18 Tienda: hook `useCheckout` (useMutation + invalidaciones), refrescar precio y stock del carrito, no vaciar antes
       de pagar.
@@ -404,4 +404,15 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   con el estado del KYC y CTA pro solo con VERIFIED, sin errores de runtime. `npm run check` 0 errores (72 avisos, −1
   vs línea base). Nota: la cámara nativa puede necesitar el plugin `expo-image-picker` en `app.config.js` (va con el
   APK de U10); en web funciona con el selector de archivos.
+- **2026-10-07** — **F16 Mascotas: ficha sin datos falsos** (solo app). «Vacunas» del Resumen **calculado del carnet**
+  (`usePetHealth.vaccinesStatus`: sin vacunas / refuerzo (`next_due_date`) vencido / al día) en vez del booleano manual
+  `is_vaccinated`; las vacunas ahora se cargan también en el Resumen. **Michi-Tracker activo con salida**: con la
+  suscripción vigente la tarjeta abre la **facturación** (`createBillingPortalSession`) para ver, cambiar o cancelar;
+  sin suscripción sigue activando el alta. **Compartir carnet con QR** (solo el dueño): botón en el header de la ficha
+  → `usePetDetail.openShare` pide la URL pública del pasaporte y abre `features/mascotas/PetPassportShare` (QR del
+  enlace, URL copiable y «Compartir enlace» con fallback a copiar). El smoke cazó un bug real (el `QRCode` con valor
+  vacío revienta al cerrar el modal → pantalla blanca) y quedó corregido. Verificado sin tocar producción (stub con
+  mascota `is_vaccinated: true` + vacuna con refuerzo vencido): **10/10** — la ficha muestra «Vencido» pese al booleano,
+  el Tracker abre facturación (POST al portal), el modal con QR dibujado (SVG 180) se cierra sin romper. `npm run
+  check` 0 errores (72 avisos).
 

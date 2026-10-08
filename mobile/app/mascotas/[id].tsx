@@ -6,19 +6,30 @@ import { usePetDetail } from '@/src/hooks/mascotas/usePetDetail';
 import { formatAge, formatWeight } from '@/src/utils/formatters';
 import BackButton from '@/src/components/BackButton';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Settings, Award, Activity, Calendar, ChevronLeft, LayoutGrid, HeartPulse, ClipboardList } from 'lucide-react-native';
+import { Settings, Award, Activity, Calendar, ChevronLeft, LayoutGrid, HeartPulse, ClipboardList, Share2 } from 'lucide-react-native';
 import SegmentedControl from '@/src/components/SegmentedControl';
 import { Skeleton } from '@/src/components/Skeleton';
 import { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { PetHealthTab, PetHistoryTab } from '@/src/features/mascotas/PetHealthTabs';
+import { PetPassportShare } from '@/src/features/mascotas/PetPassportShare';
 import { spacing, radius } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
+const VACCINE_STATUS_LABEL = {
+    'al-dia': 'Al día',
+    'vencido': 'Vencido',
+    'sin-registro': 'Sin vacunas',
+} as const;
+
 export default function PetProfileScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { pet, isOwner, isLoading, error, refetch, goBack, tab, setTab, handleSubscribeMichiTracker, isSubscribing } = usePetDetail();
+    const {
+        pet, isOwner, isLoading, error, refetch, goBack, tab, setTab,
+        shareUrl, openShare, closeShare,
+        handleSubscribeMichiTracker, isSubscribing, openTrackerBilling, isOpeningBilling,
+    } = usePetDetail();
     const health = usePetHealth(pet?.id, pet, tab === 'resumen' ? null : tab);
 
     if (isLoading) return (
@@ -59,14 +70,24 @@ export default function PetProfileScreen() {
                     <View style={styles.headerButtons}>
                         <BackButton onPress={goBack} color="#fff" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)' }} />
                         {isOwner && (
-                            <TouchableOpacity
-                                style={styles.iconBtn}
-                                onPress={() => router.push(`/mascotas/editar/${pet.id}`)}
-                                accessibilityRole="button"
-                                accessibilityLabel="Editar mascota"
-                            >
-                                <Settings size={22} color="#fff" />
-                            </TouchableOpacity>
+                            <View style={styles.headerActions}>
+                                <TouchableOpacity
+                                    style={styles.iconBtn}
+                                    onPress={openShare}
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Compartir carnet"
+                                >
+                                    <Share2 size={22} color="#fff" />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.iconBtn}
+                                    onPress={() => router.push(`/mascotas/editar/${pet.id}`)}
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Editar mascota"
+                                >
+                                    <Settings size={22} color="#fff" />
+                                </TouchableOpacity>
+                            </View>
                         )}
                     </View>
                 </View>
@@ -104,18 +125,18 @@ export default function PetProfileScreen() {
                         <PetStat
                             icon={<Award size={20} color="#facc15" />}
                             label="Vacunas"
-                            value={pet.is_vaccinated ? 'Al día' : 'Pendiente'}
+                            value={VACCINE_STATUS_LABEL[health.vaccinesStatus]}
                             theme={theme}
                         />
                     </View>
 
-                    {/* Seguimiento GPS (solo el dueño) */}
+                    {/* Seguimiento GPS (solo el dueño). Con la suscripción activa hay salida: facturación */}
                     <View style={styles.section}>
                         {isOwner && (
                             <TouchableOpacity
                                 style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                                onPress={handleSubscribeMichiTracker}
-                                disabled={isSubscribing || !!pet.has_active_subscription}
+                                onPress={pet.has_active_subscription ? openTrackerBilling : handleSubscribeMichiTracker}
+                                disabled={isSubscribing || isOpeningBilling}
                                 accessibilityRole="button"
                             >
                                 <View style={[styles.actionIcon, { backgroundColor: 'rgba(34, 197, 94, 0.1)' }]}>
@@ -124,7 +145,9 @@ export default function PetProfileScreen() {
                                 <View style={{ flex: 1 }}>
                                     <Text style={[styles.actionTitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
                                     <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
-                                        {pet.has_active_subscription ? 'Seguimiento GPS activo' : isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
+                                        {pet.has_active_subscription
+                                            ? 'Seguimiento GPS activo · Gestionar suscripción'
+                                            : isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
                                     </Text>
                                 </View>
                                 <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
@@ -179,6 +202,9 @@ export default function PetProfileScreen() {
                 </View>
                 <View style={{ height: 100 }} />
             </ScrollView>
+
+            {/* Carnet compartible con QR (solo el dueño lo abre) */}
+            <PetPassportShare url={shareUrl} petName={pet.name} onClose={closeShare} />
         </ScreenContainer>
     );
 }
@@ -216,6 +242,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         backgroundColor: 'transparent',
+    },
+    headerActions: {
+        flexDirection: 'row',
+        gap: 10,
     },
     iconBtn: {
         width: 44,

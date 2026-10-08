@@ -6,7 +6,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { getPetById, sharePetPassport } from '@/src/services/mascotas';
-import { createSubscriptionSession } from '@/src/services/ecommerce';
+import { createSubscriptionSession, createBillingPortalSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Linking } from 'react-native';
@@ -37,16 +37,23 @@ export function usePetDetail() {
         }, [id, refetch])
     );
 
-    const handleShare = async () => {
+    /**
+     * Compartir carnet: pide la URL pública del pasaporte y abre la tarjeta con el QR
+     * (solo el dueño decide publicarla). `shareUrl !== null` mantiene abierto el modal.
+     */
+    const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+    const openShare = async () => {
         if (!id) return;
         try {
             const result = await sharePetPassport(id);
-            return result.share_url;
-        } catch (error) {
-            console.error('Error sharing passport:', error);
-            return null;
+            if (result.share_url) setShareUrl(result.share_url);
+        } catch {
+            showAlert({ type: 'error', title: 'No se pudo compartir', message: 'Inténtalo de nuevo en un momento.' });
         }
     };
+
+    const closeShare = () => setShareUrl(null);
 
     const goBack = () => router.back();
 
@@ -67,6 +74,23 @@ export function usePetDetail() {
         subscriptionMutation.mutate(id);
     };
 
+    // Con el Tracker activo la tarjeta abre la facturación: ahí se ve, cambia o cancela la suscripción
+    const billingMutation = useMutation({
+        mutationFn: createBillingPortalSession,
+        onSuccess: (data) => {
+            if (data.url) {
+                Linking.openURL(data.url).catch(() => {
+                    showAlert({ type: 'info', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });
+                });
+            }
+        },
+        onError: () => {
+            showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });
+        },
+    });
+
+    const openTrackerBilling = () => billingMutation.mutate();
+
     // Pestaña visible: ?tab=salud|historial (enlaces desde Mi clínica, notificaciones o el carnet viejo)
     const [tab, setTab] = useState<PetTab>(
         initialTab === 'salud' || initialTab === 'historial' ? initialTab : 'resumen',
@@ -81,12 +105,16 @@ export function usePetDetail() {
         isLoading,
         error,
         refetch,
-        handleShare,
+        shareUrl,
+        openShare,
+        closeShare,
         tab,
         setTab,
         goBack,
         handleSubscribeMichiTracker,
         isSubscribing: subscriptionMutation.isPending,
+        openTrackerBilling,
+        isOpeningBilling: billingMutation.isPending,
     };
 }
 

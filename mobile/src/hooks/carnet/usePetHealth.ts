@@ -33,10 +33,11 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         queryFn: () => getRecordsByPet(petId!),
         enabled: enabled && section === 'historial',
     });
+    // Las vacunas también alimentan el estado "Vacunas al día" del Resumen
     const vaccines = useQuery({
         queryKey: ['pet-vaccines', petId],
         queryFn: () => getVaccinesByPet(petId!),
-        enabled: enabled && section === 'salud',
+        enabled: enabled && section !== 'historial',
     });
     const reminders = useQuery({
         queryKey: ['pet-reminders', petId],
@@ -63,6 +64,19 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         [records.data],
     );
 
+    /**
+     * «Vacunas al día» calculado del carnet (no del booleano manual del perfil):
+     * sin vacunas registradas, con algún refuerzo (`next_due_date`) vencido, o al día.
+     */
+    const vaccinesStatus = useMemo(() => {
+        const list = vaccines.data ?? [];
+        if (!list.length) return 'sin-registro' as const;
+        const now = new Date();
+        const hoy = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const vencida = list.some((v) => v.next_due_date && v.next_due_date.slice(0, 10) < hoy);
+        return vencida ? 'vencido' as const : 'al-dia' as const;
+    }, [vaccines.data]);
+
     const checkMutation = useMutation({
         mutationFn: checkReminder,
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pet-reminders', petId] }),
@@ -79,6 +93,7 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         weightSeries,
         vaccines: vaccines.data ?? [],
         loadingVaccines: vaccines.isLoading,
+        vaccinesStatus,
         reminders: reminders.data ?? [],
         loadingReminders: reminders.isLoading,
         labResults: labs.data ?? [],
