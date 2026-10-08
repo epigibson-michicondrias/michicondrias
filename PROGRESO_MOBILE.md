@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20, F21 y F23 ✅ · faltan F14, F19, F22 y F24–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20–F23 ✅ · faltan F14, F19, F24 y F25–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -261,7 +261,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       con locale `es-MX`.
 - [x] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext) — corte central
       en `AppAlert.notifySessionExpired` (un solo aviso al vencer la sesión).
-- [ ] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
+- [x] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
 
 **Fase 5 — UI premium + APK**
 - [ ] U1 **Tema** (antes que nada): `warning` distinto de `accent`; token `heroGradient` por modo (adiós `#1c2f6b` fijo);
@@ -510,3 +510,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   verdad y el código no se puede reusar) y smoke con stub **9/9** (envío, rechazo del código malo, éxito con el bueno,
   y el deep link con token sigue pidiendo solo contraseña). `npm run check` 0 errores.
 
+- **2026-10-08** — **F22 Privacidad de la ficha de mascota** (backend). `GET /pets/{id}` ya **no es público para
+  cualquier sesión**: solo el dueño, el equipo clínico (`VET_ROLES`), un admin o un servicio interno (token interno de
+  carnet). La búsqueda no se afecta (solo lista mascotas propias) y el pasaporte compartido sigue siendo su propio
+  endpoint público. Además **`pet_access` quedó alineado con `VET_ROLES`** en la lectura: clínica y hospital podían
+  escribir el carnet pero no leerlo. Verificado con TestClient + SQLite: **4/4** (dueño 200, extraño 403, los cuatro
+  roles clínicos 200, servicio interno 200). **Pendiente de desplegar** (sin migración; junto a F11/F12).

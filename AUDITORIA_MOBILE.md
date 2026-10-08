@@ -212,15 +212,15 @@ Flujo: Inicio (carrusel) / Perfil → `/mascotas` → `/mascotas/[id]` → `/car
 | app/mascotas/nuevo.tsx · editar/[id].tsx | pantalla | funciona | Comparten ~95 % del JSX. Sin FormField ni KeyboardScreen. Validación por alerta. Raza y descripción obligatorias en la app aunque el backend no las pide |
 | app/mascotas/diagnostico-ia.tsx | pantalla | funciona | La IA es real (Claude con reglas de alarma como piso). 466 líneas. Usa `Picker` en vez de `FormSelect`. ~~El triage no manda mascota, especie ni peso~~ ✅ selector de mascota y `pet_id` (F17). ~~El vacío sin mascotas no tiene acción~~ ✅ «Agregar mascota» (F17). ~~Si falta el peso, la alerta no lleva a editar~~ ✅ CTA «Editar mascota» (F17). 9 hex y 4 `ActivityIndicator` |
 | hooks mascotas | hook | funciona | Query keys duplicadas para la misma mascota (`pet` y `pet-profile`; `user-pets` y `my-pets-carnet`). Mutaciones con `useState` |
-| backend pets.py | backend | funciona / riesgo | **El pasaporte compartido nunca trae vacunas**: llama a carnet sin token (:331). `share_url` apunta a JSON. `GET /pets/{id}` deja a cualquier usuario con sesión leer cualquier mascota, microchip incluido. `diet-plan` no filtra `is_active` |
+| backend pets.py | backend | funciona / riesgo | **El pasaporte compartido nunca trae vacunas**: llama a carnet sin token (:331). `share_url` apunta a JSON. ~~`GET /pets/{id}` deja a cualquier usuario con sesión leer cualquier mascota, microchip incluido~~ ✅ solo dueño, equipo clínico, admin o servicio interno (F22). `diet-plan` no filtra `is_active` |
 
 Redundancias: la **ficha de mascota y el carnet son 2 pantallas de detalle** de la misma mascota con el mismo hero. La
 lista de mascotas y la de carnets son la misma lista. Diagnóstico IA aparece 2 veces en Explorar.
 Propuesta de rediseño (requiere visto bueno): **una sola ficha `mascotas/[id]` con pestañas Resumen · Salud · Historial**
 (el carnet pasa a ser Salud/Historial), «Compartir carnet» con QR en el header, modo solo lectura para quien no es el
 dueño, y un `PetForm` único para alta y edición.
-Backend: llamada interna con token mascotas→carnet, página pública legible del pasaporte, revisar la privacidad de
-`GET /pets/{id}`, ~~`pet_id` opcional en symptom-check~~ ✅ (F17, con contexto de especie/peso/edad y sin datos de mascotas ajenas).
+Backend: llamada interna con token mascotas→carnet, página pública legible del pasaporte, ~~revisar la privacidad de
+`GET /pets/{id}`~~ ✅ (F22), ~~`pet_id` opcional en symptom-check~~ ✅ (F17, con contexto de especie/peso/edad y sin datos de mascotas ajenas).
 Arreglos:
 - [x] P0 El pasaporte compartido nunca trae vacunas (`backend/michicondrias_mascotas/.../pets.py:331`)
 - [x] P0 Editar visible en mascotas ajenas → 403 (`app/mascotas/[id].tsx:51`)
@@ -243,7 +243,7 @@ Flujo: Perfil / Explorar → `/carnet` → `/carnet/[id]` (Historial · Vacunas 
 | app/carnet/recordatorios.tsx | pantalla | **muerta** | Nadie navega a ella y repite la pestaña Recordatorios. Es, eso sí, la mejor maquetada (EmptyState, Badge, Skeleton) |
 | app/carnet/receta/[id].tsx | pantalla | funciona | Encabezado hecho a mano. Comparte texto plano. Usa un ícono de bolsa de compras para la receta |
 | hooks carnet | hook | funciona / parte muerta | `useReminders` solo lo usa la pantalla muerta. `canEdit` deja fuera a clínica y hospital. Rol calculado a mano en 4 hooks. `usePetCarnet` sin `enabled` |
-| backend carnet | backend | funciona | ~~Solo GET y POST; no hay PUT ni DELETE aunque los schemas existen~~ ✅ PUT/DELETE + GET por id y recálculo de `is_vaccinated` (F15). **Ningún emisor de recordatorios ni refuerzos**. Clínica y hospital pueden escribir pero no leer |
+| backend carnet | backend | funciona | ~~Solo GET y POST; no hay PUT ni DELETE aunque los schemas existen~~ ✅ PUT/DELETE + GET por id y recálculo de `is_vaccinated` (F15). **Ningún emisor de recordatorios ni refuerzos**. ~~Clínica y hospital pueden escribir pero no leer~~ ✅ lectura alineada con `VET_ROLES` (F22) |
 
 Redundancias: el detalle de la mascota en 2 pantallas, los recordatorios en 2 sitios, la lista de mascotas ×2, **2
 sistemas de recetas** (carnet y clínica, `services/prescriptions.ts`).
@@ -251,7 +251,7 @@ Propuesta de rediseño: fusionar con Mascotas (ver arriba), partir `carnet/[id]`
 `carnet/index` y `carnet/recordatorios`, quitar el «Modo médico» por UUID (el veterinario entra desde Mi clínica).
 `carnet/[id]` queda como redirect (lo usan `mi-clinica/pacientes.tsx:46` y `useAgenda.ts:120`).
 Backend: ~~PUT/DELETE de vacunas y consultas, `date_administered` opcional, `GET /records/{id}`, recalcular
-`is_vaccinated`~~ ✅ (F7 y F15), emisor de recordatorios (o quitar la promesa), alinear la lectura con `VET_ROLES`.
+`is_vaccinated`~~ ✅ (F7 y F15), emisor de recordatorios (o quitar la promesa), ~~alinear la lectura con `VET_ROLES`~~ ✅ (F22).
 Arreglos:
 - [x] P0 Promesa de un aviso del refuerzo que no existe (`nueva-vacuna.tsx:102`) — se quitó el texto (el emisor real es F14)
 - [x] P0 Sin fecha de aplicación de la vacuna (`nueva-vacuna.tsx`, `schemas/carnet.py:64`)

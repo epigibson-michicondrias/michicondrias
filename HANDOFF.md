@@ -238,7 +238,7 @@ El detalle de cada tarea está en `PROGRESO_MOBILE.md` → *Backlog por fase* y 
 | ~~F12~~ 🛠️ ✅ | Recuperación con código de 6 dígitos (decisión tomada): endpoint en core + pantalla única de reset — hecho 2026-10-08 (**migración `f12a8b3c4d5e`: correr `alembic upgrade head` de core tras el deploy**; código HMAC de un solo uso + enlace conservado) | |
 | F14 🛠️ | Emisor de recordatorios y refuerzos (job + notificación con `link`) | |
 | F19 🛠️ | Tienda: liberar pedidos vencidos en `/orders/*`, notificar pago (tipo `store` + `link`), `can_review`, paginación | |
-| F22 🛠️ | Privacidad: limitar `GET /pets/{id}` a dueño / veterinario / admin | |
+| ~~F22~~ 🛠️ ✅ | Privacidad: limitar `GET /pets/{id}` a dueño / veterinario / admin — hecho 2026-10-08 (+ servicios internos; `pet_access` alineado con `VET_ROLES` también en la lectura) | |
 | F24 🛠️ | `link` en los emisores que faltan (directorio, laboratorio, aseguradoras, funeraria, transportistas). Solo **después** de aplicar la migración `d3e9a7b4c215` | |
 | F25–F27 | Búsqueda "ver todos" y más dominios; pasaporte legible y número de póliza enmascarado; `DatePicker` con tokens | |
 

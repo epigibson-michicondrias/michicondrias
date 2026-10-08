@@ -38,7 +38,8 @@ def assert_can_read_pet_record(db: Session, pet_id: str, identity: dict) -> None
     row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mascota no encontrada")
-    if row[0] == identity["user_id"] or identity["role"] in ("admin", "veterinario"):
+    # Mismos roles que para escribir (VET_ROLES): clínica y hospital también pueden leer
+    if row[0] == identity["user_id"] or identity["role"] in VET_ROLES:
         return
     vet = db.execute(text("SELECT id FROM veterinarians WHERE id = :uid"), {"uid": identity["user_id"]}).first()
     if not vet:

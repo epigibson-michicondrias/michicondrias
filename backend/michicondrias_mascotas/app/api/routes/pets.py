@@ -15,6 +15,9 @@ from app.api.internal import require_internal_token, require_admin, identity_or_
 
 router = APIRouter()
 
+# Mismos roles clínicos que en carnet/app/api/pet_access.py (alineados): el dueño, el equipo clínico o un admin
+VET_ROLES = {"veterinario", "clinica", "hospital", "admin"}
+
 
 class PresignedUrlResponse(BaseModel):
     url: str
@@ -164,10 +167,15 @@ def get_all_pets_admin(
 
 @router.get("/{pet_id}", response_model=PetResponse)
 def get_pet_by_id(pet_id: str, db: Session = Depends(get_db), identity: dict = Depends(identity_or_internal)) -> Any:
-    """Get a specific permanent pet by its ID. Requiere sesión."""
+    """Get a specific permanent pet by its ID. Solo el dueño, el equipo clínico o un admin (o un servicio interno)."""
     pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
     if not pet:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    # Privacidad (F22): la ficha trae microchip y datos sensibles; no es pública para cualquier sesión
+    if not identity.get("internal"):
+        role = (identity.get("role") or "").lower()
+        if pet.owner_id != identity.get("user_id") and role not in VET_ROLES:
+            raise HTTPException(status_code=403, detail="Solo el dueño o el equipo clínico pueden ver esta mascota")
     return pet
 
 @router.put("/{pet_id}", response_model=PetResponse)
