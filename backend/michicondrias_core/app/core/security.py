@@ -42,3 +42,23 @@ def get_password_hash(password: str) -> str:
         password.encode("utf-8"),
         bcrypt.gensalt()
     ).decode("utf-8")
+
+
+# ── Código de 6 dígitos para recuperar la contraseña ────────────────────────────
+# El código viaja por correo y en la base solo queda su HMAC (nunca en claro).
+
+def generate_reset_code() -> str:
+    """Código de 6 dígitos con ceros a la izquierda si hace falta."""
+    import secrets
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def hash_reset_code(code: str) -> str:
+    import hashlib
+    import hmac as _hmac
+    return _hmac.new(settings.SECRET_KEY.encode(), code.strip().encode(), hashlib.sha256).hexdigest()
+
+
+def verify_reset_code(code: str, code_hash: str) -> bool:
+    import hmac as _hmac
+    return _hmac.compare_digest(hash_reset_code(code), code_hash or "")

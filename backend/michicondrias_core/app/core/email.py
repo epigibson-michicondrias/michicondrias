@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 def send_password_reset_email(
     email: str, 
     token: str, 
-    user_name: Optional[str] = None
+    user_name: Optional[str] = None,
+    code: Optional[str] = None,
 ) -> bool:
     """
     Send a password reset email with a deep link to the app.
@@ -25,7 +26,7 @@ def send_password_reset_email(
     deep_link = f"{settings.APP_DEEP_LINK_SCHEME}://reset-password?token={token}"
     web_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
     
-    html_content = _build_reset_email_html(display_name, deep_link, web_link)
+    html_content = _build_reset_email_html(display_name, deep_link, web_link, code)
     
     # If Resend API key is not configured, log the token (dev mode)
     if not settings.RESEND_API_KEY:
@@ -34,6 +35,8 @@ def send_password_reset_email(
             "Set RESEND_API_KEY environment variable to enable email delivery."
         )
         logger.info(f"[PASSWORD RESET] Token for {email}: {token}")
+        if code:
+            logger.info(f"[PASSWORD RESET] Code for {email}: {code}")
         logger.info(f"[PASSWORD RESET] Deep link: {deep_link}")
         logger.info(f"[PASSWORD RESET] Web link: {web_link}")
         return True
@@ -63,9 +66,23 @@ def send_password_reset_email(
 def _build_reset_email_html(
     user_name: str, 
     deep_link: str, 
-    web_link: str
+    web_link: str,
+    code: Optional[str] = None,
 ) -> str:
     """Build a premium HTML email template for password reset."""
+    code_block = f"""
+                    <!-- Código de 6 dígitos -->
+                    <tr>
+                        <td align="center" style="padding:8px 20px 24px;">
+                            <p style="color:#94a3b8;font-size:14px;margin:0 0 12px;">
+                                Tu código de verificación (expira en 30 minutos):
+                            </p>
+                            <div style="display:inline-block;background-color:#0c2742;border:2px solid #0ea5e9;border-radius:12px;padding:14px 28px;">
+                                <span style="color:#ffffff;font-size:32px;font-weight:800;letter-spacing:10px;">{code}</span>
+                            </div>
+                        </td>
+                    </tr>
+""" if code else ""
     return f"""
 <!DOCTYPE html>
 <html lang="es">
@@ -97,10 +114,11 @@ def _build_reset_email_html(
                             </h2>
                             
                             <p style="color:rgba(255,255,255,0.6);font-size:15px;line-height:24px;margin:0 0 28px;">
-                                Recibimos una solicitud para restablecer la contraseña de tu cuenta. 
-                                Haz clic en el botón de abajo para crear una nueva contraseña.
+                                Recibimos una solicitud para restablecer la contraseña de tu cuenta.
+                                Usa el código de abajo en la app o haz clic en el botón para crear una nueva contraseña.
                             </p>
-                            
+
+                            {code_block}
                             <!-- CTA Button -->
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>

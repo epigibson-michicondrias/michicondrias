@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.models.base import BaseModel
 
@@ -30,4 +30,7 @@ class User(BaseModel):
     # 2FA (Two-Factor Authentication)
     is_two_factor_enabled = Column(Boolean, default=False, nullable=False)
     two_factor_secret = Column(String(100), nullable=True)
+    # Código de 6 dígitos para recuperar la contraseña (se guarda HMAC, nunca en claro)
+    reset_code_hash = Column(String(128), nullable=True)
+    reset_code_expires_at = Column(DateTime(timezone=True), nullable=True)
 

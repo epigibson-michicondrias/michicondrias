@@ -1,10 +1,10 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from app.core import security
 from app.core.config import settings
@@ -28,6 +28,12 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+
+
+class ResetPasswordCodeRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(..., min_length=6, max_length=6)
+    new_password: str = Field(..., min_length=8)
 
 @router.post("/login/access-token", response_model=LoginResponse)
 def login_access_token(
@@ -143,15 +149,23 @@ def forgot_password(
             is_temp=True,
             purpose="password_reset"
         )
-        
+
+        # Código de 6 dígitos (F12): viaja por correo y en la base solo queda su HMAC, con vencimiento.
+        # El enlace con token se sigue enviando mientras tanto.
+        code = security.generate_reset_code()
+        user.reset_code_hash = security.hash_reset_code(code)
+        user.reset_code_expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
+        db.commit()
+
         # Send the actual email (falls back to logging if Resend is not configured)
         send_password_reset_email(
             email=user.email,
             token=reset_token,
-            user_name=user.full_name
+            user_name=user.full_name,
+            code=code,
         )
     
-    return {"message": "Si el correo existe, recibirás un enlace para restablecer tu contraseña"}
+    return {"message": "Si el correo existe, recibirás un código y un enlace para restablecer tu contraseña"}
 
 
 @router.post("/reset-password")
@@ -204,4 +218,37 @@ def reset_password(
     
     logger.info(f"[PASSWORD RESET] Password successfully reset for user {user.email}")
     
+    return {"message": "Contraseña actualizada correctamente"}
+
+
+@router.post("/reset-password/code")
+def reset_password_with_code(
+    body: ResetPasswordCodeRequest,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Restablece la contraseña con el código de 6 dígitos del correo. El código es de un solo uso
+    y vence a los 30 minutos. El flujo del enlace con token sigue disponible mientras tanto.
+    """
+    user = crud.crud_user.get_user_by_email(db, body.email)
+    if not user or not user.is_active:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if not user.reset_code_hash or not user.reset_code_expires_at:
+        raise HTTPException(status_code=400, detail="No hay un código de recuperación vigente. Solicita uno nuevo.")
+    # SQLite devuelve fechas sin zona y Postgres con zona: se normaliza antes de comparar
+    expires = user.reset_code_expires_at
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if expires < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="El código expiró. Solicita uno nuevo.")
+    if not security.verify_reset_code(body.code, user.reset_code_hash):
+        raise HTTPException(status_code=400, detail="El código no es correcto")
+
+    user.hashed_password = security.get_password_hash(body.new_password)
+    # Un solo uso: al quedar sin código no se puede repetir el mismo
+    user.reset_code_hash = None
+    user.reset_code_expires_at = None
+    db.commit()
+
+    logger.info(f"[PASSWORD RESET] Password successfully reset with code for user {user.email}")
     return {"message": "Contraseña actualizada correctamente"}
