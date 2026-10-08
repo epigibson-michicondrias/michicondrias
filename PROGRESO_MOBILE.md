@@ -13,10 +13,10 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F24 y F27 ✅ · faltan F25 y F26 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F25 y F27 ✅ · falta F26 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
-> **Siguiente:** F25/F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
+> **Siguiente:** F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
 > A1–A5) y Fase 5 (U1 Tema primero). El detalle y el orden están en `HANDOFF.md` §8.
 
 ---
@@ -257,7 +257,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `/mi-clinica/consultas-video`, laboratorio de clínica → la mascota), laboratorio, aseguradoras, funeraria y
       transportistas (hoy el mapeo por tipo + rol los cubre, salvo esos casos). Insertan con SQL crudo: agregar la
       columna `link` al INSERT solo **después** de aplicar la migración `d3e9a7b4c215` de core (✅ aplicada).
-- [ ] F25 Búsqueda: "ver todos" por pestaña hacia el listado del módulo y más dominios (adopciones, perdidas, servicios).
+- [x] F25 Búsqueda: "ver todos" por pestaña hacia el listado del módulo y más dominios (adopciones, perdidas, servicios).
 - [ ] F26 Pasaporte público: enmascarar `policy_number` (últimos 4) y página legible en vez del JSON crudo (va con F16).
 - [x] F27 `DatePicker` con `useTheme`/tokens y etiqueta en tipo oración (token nuevo `type.labelSentence`); fechas
       del carnet con locale `es-MX`.
@@ -573,3 +573,12 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   órdenes. Verificado: TestClient+SQLite (pedido vencido → cancelado y stock devuelto al leer, páginas 20+6, tope 50,
   `can_review` en sus 3 casos, avisos a comprador y 2 vendedores, bandeja caída no truena), tsc + ESLint limpios y
   web: Mis compras pide `?skip=0&limit=20`.
+- **2026-10-08** — **F25 Búsqueda** (core + app, sin migración). **Core**: `/search/` suma 3 dominios públicos (aditivo,
+  hasta 5 por dominio): `adoptions` (abiertas y aprobadas), `lost_pets` (reportes activos, **sin teléfono ni correo**)
+  y `services` (paseadores y cuidadores activos, por nombre o zona); consultas validadas contra el esquema real. **App**:
+  6 pestañas como `FilterChip` desplazables (Mis mascotas, Adopciones, Perdidas, Clínicas, Paseos y cuidado,
+  Productos), cada resultado con su ficha, «Ver todos» al pie de la lista y como acción del vacío hacia el listado del
+  módulo; pantalla pasada a tokens (`spacing`/`radius`/`type`/`layout`), `EmptyState` para inicio y vacío, el error
+  queda en el banner de `ScreenContainer`, botón de borrar de 44 px. Token nuevo **`onPrimary`** en la paleta (texto e
+  íconos sobre `primary`). Los tipos nuevos son opcionales para tolerar el backend anterior. Verificado: tsc + ESLint
+  limpios, web 375×812 claro/oscuro (inicio, vacío con «Ver todas mis mascotas»).

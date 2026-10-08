@@ -1,18 +1,24 @@
 import React from 'react';
-import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Search, X, PawPrint, Heart, MapPin, Building2, Footprints, ShoppingBag, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useGlobalSearch, type SearchTab, type SearchResultItem } from '@/src/hooks/search/useGlobalSearch';
+import { useGlobalSearch, SEARCH_TABS, type SearchTab, type SearchResultItem } from '@/src/hooks/search/useGlobalSearch';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Search, X, PawPrint, Building2, ShoppingBag } from 'lucide-react-native';
+import { SkeletonList } from '@/src/components/Skeleton';
+import EmptyState from '@/src/components/EmptyState';
+import FilterChip from '@/src/components/FilterChip';
+import { spacing, radius, type, layout } from '@/constants/design';
 
-const TABS: { key: SearchTab; label: string; icon: typeof PawPrint }[] = [
-    { key: 'mascotas', label: 'Mis mascotas', icon: PawPrint },
-    { key: 'clinicas', label: 'Clínicas', icon: Building2 },
-    { key: 'productos', label: 'Productos', icon: ShoppingBag },
-];
+const TAB_ICONS: Record<SearchTab, typeof PawPrint> = {
+    mascotas: PawPrint,
+    adopciones: Heart,
+    perdidas: MapPin,
+    clinicas: Building2,
+    servicios: Footprints,
+    productos: ShoppingBag,
+};
 
 export default function BusquedaScreen() {
     const router = useRouter();
@@ -21,6 +27,7 @@ export default function BusquedaScreen() {
         query,
         setQuery,
         activeTab,
+        activeTabInfo,
         setActiveTab,
         activeResults,
         tabCounts,
@@ -30,211 +37,197 @@ export default function BusquedaScreen() {
         clearSearch,
     } = useGlobalSearch();
 
-    const renderTab = (tab: typeof TABS[0]) => {
-        const isActive = activeTab === tab.key;
-        const count = tabCounts[tab.key];
-        const TabIcon = tab.icon;
-
-        return (
-            <TouchableOpacity accessibilityRole="button"
-                key={tab.key}
-                style={[
-                    styles.tab,
-                    {
-                        backgroundColor: isActive ? theme.primary : theme.surface,
-                        borderColor: isActive ? theme.primary : theme.borderLight,
-                    },
-                ]}
-                onPress={() => setActiveTab(tab.key)}
-            >
-                <TabIcon size={16} color={isActive ? '#fff' : theme.textMuted} />
-                <Text style={[styles.tabLabel, { color: isActive ? '#fff' : theme.text }]}>
-                    {tab.label}
-                </Text>
-                {hasSearched && (
-                    <View style={[styles.tabBadge, {
-                        backgroundColor: isActive ? 'rgba(255,255,255,0.25)' : theme.background,
-                    }]}>
-                        <Text style={[styles.tabBadgeText, {
-                            color: isActive ? '#fff' : theme.textMuted,
-                        }]}>
-                            {count}
-                        </Text>
-                    </View>
-                )}
-            </TouchableOpacity>
-        );
-    };
+    const goSeeAll = () => router.push(activeTabInfo.seeAllRoute as any);
 
     const renderResultItem = ({ item }: { item: SearchResultItem }) => (
-        <TouchableOpacity accessibilityRole="button"
+        <TouchableOpacity
+            accessibilityRole="button"
             accessibilityLabel={item.subtitle ? `${item.title}. ${item.subtitle}` : item.title}
             style={[styles.resultCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
             onPress={() => router.push(item.route as any)}
         >
             <View style={styles.resultContent}>
-                <Text style={[styles.resultTitle, { color: theme.text }]} numberOfLines={1}>
+                <Text style={[type.subtitle, { color: theme.text }]} numberOfLines={1}>
                     {item.title}
                 </Text>
                 {!!item.subtitle && (
-                    <Text style={[styles.resultSubtitle, { color: theme.textMuted }]} numberOfLines={2}>
+                    <Text style={[type.body, { color: theme.textMuted }]} numberOfLines={2}>
                         {item.subtitle}
                     </Text>
                 )}
             </View>
+            <ChevronRight size={layout.icon.md} color={theme.textMuted} />
         </TouchableOpacity>
     );
+
+    // «Ver todos»: el backend manda hasta 5 por dominio; el listado completo vive en el módulo (F25)
+    const seeAllFooter = (
+        <TouchableOpacity
+            style={styles.seeAll}
+            onPress={goSeeAll}
+            accessibilityRole="link"
+            accessibilityLabel={activeTabInfo.seeAllLabel}
+        >
+            <Text style={[type.bodyStrong, { color: theme.primary }]}>{activeTabInfo.seeAllLabel}</Text>
+            <ChevronRight size={layout.icon.sm} color={theme.primary} />
+        </TouchableOpacity>
+    );
+
+    const renderBody = () => {
+        if (!hasSearched) {
+            return (
+                <EmptyState
+                    icon={<Search size={layout.icon.xl} color={theme.textMuted} />}
+                    title="¿Qué estás buscando?"
+                    subtitle="Escribe al menos 2 letras: mascotas, adopciones, reportes de perdidas, clínicas, paseadores o productos."
+                />
+            );
+        }
+        if (isLoading) return <View style={styles.listPadding}><SkeletonList count={4} /></View>;
+        // El error ya lo muestra ScreenContainer con su banner y botón de reintentar
+        if (isError) return null;
+        if (activeResults.length === 0) {
+            return (
+                <EmptyState
+                    icon={<Search size={layout.icon.xl} color={theme.textMuted} />}
+                    title={`Sin resultados en ${activeTabInfo.label}`}
+                    subtitle="Prueba con otra palabra o revisa el listado completo."
+                    actionLabel={activeTabInfo.seeAllLabel}
+                    onAction={goSeeAll}
+                />
+            );
+        }
+        return (
+            <FlatList
+                data={activeResults}
+                renderItem={renderResultItem}
+                keyExtractor={(item) => item.id}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.listPadding}
+                showsVerticalScrollIndicator={false}
+                ListFooterComponent={seeAllFooter}
+            />
+        );
+    };
 
     return (
         <ScreenContainer>
             <ScreenHeader title="Buscar" showBack={true} />
 
-            {/* Search Input */}
             <View style={styles.searchContainer}>
-                <View style={[styles.searchInputRow, {
-                    backgroundColor: theme.surface,
-                    borderColor: theme.borderLight,
-                }]}>
-                    <Search size={20} color={theme.textMuted} />
+                <View style={[styles.searchInputRow, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                    <Search size={layout.icon.md} color={theme.textMuted} />
                     <TextInput
-                        style={[styles.searchInput, { color: theme.text }]}
+                        style={[type.body, styles.searchInput, { color: theme.text }]}
                         value={query}
                         onChangeText={setQuery}
-                        placeholder="Buscar mascotas, clínicas, productos..."
+                        placeholder="Buscar en Michicondrias…"
                         placeholderTextColor={theme.textMuted}
                         autoFocus
+                        autoCorrect={false}
                         returnKeyType="search"
+                        accessibilityLabel="Buscar"
                     />
                     {query.length > 0 && (
-                        <TouchableOpacity onPress={clearSearch} accessibilityRole="button" accessibilityLabel="Borrar búsqueda">
-                            <X size={20} color={theme.textMuted} />
+                        <TouchableOpacity
+                            onPress={clearSearch}
+                            style={styles.clearBtn}
+                            accessibilityRole="button"
+                            accessibilityLabel="Borrar búsqueda"
+                        >
+                            <X size={layout.icon.md} color={theme.textMuted} />
                         </TouchableOpacity>
                     )}
                 </View>
             </View>
 
-            {/* Tabs */}
-            <View style={styles.tabsRow}>
-                {TABS.map(renderTab)}
-            </View>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tabsRow}
+                style={styles.tabsScroll}
+                keyboardShouldPersistTaps="handled"
+            >
+                {SEARCH_TABS.map((tab) => {
+                    const Icon = TAB_ICONS[tab.key];
+                    const active = activeTab === tab.key;
+                    return (
+                        <FilterChip
+                            key={tab.key}
+                            label={tab.label}
+                            active={active}
+                            onPress={() => setActiveTab(tab.key)}
+                            icon={<Icon size={layout.icon.sm} color={active ? theme.onPrimary : theme.textMuted} />}
+                            count={hasSearched ? tabCounts[tab.key] : undefined}
+                        />
+                    );
+                })}
+            </ScrollView>
 
-            {/* Results */}
-            {isLoading ? (
-                <SkeletonList count={4} />
-            ) : !hasSearched ? (
-                <View style={styles.centerContainer}>
-                    <Search size={48} color={theme.textMuted} />
-                    <Text style={[styles.centerText, { color: theme.textMuted }]}>
-                        Escribe al menos 2 caracteres para buscar
-                    </Text>
-                </View>
-            ) : isError ? (
-                <View style={styles.centerContainer}>
-                    <Text style={[styles.centerText, { color: theme.textMuted }]}>
-                        No pudimos buscar en este momento. Revisa tu conexión e inténtalo de nuevo.
-                    </Text>
-                </View>
-            ) : activeResults.length === 0 ? (
-                <View style={styles.centerContainer}>
-                    <Text style={[styles.centerText, { color: theme.textMuted }]}>
-                        No se encontraron resultados en {TABS.find(t => t.key === activeTab)?.label}
-                    </Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={activeResults}
-                    renderItem={renderResultItem}
-                    keyExtractor={(item) => item.id}
-                    keyboardShouldPersistTaps="handled"
-                    contentContainerStyle={styles.resultsList}
-                    showsVerticalScrollIndicator={false}
-                />
-            )}
+            <View style={styles.body}>{renderBody()}</View>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
     searchContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 16,
+        paddingHorizontal: layout.screenPadding,
+        marginBottom: spacing.md,
     },
     searchInputRow: {
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        gap: 12,
+        borderRadius: radius.md,
+        paddingLeft: spacing.lg,
+        minHeight: layout.inputHeight,
+        gap: spacing.md,
     },
     searchInput: {
         flex: 1,
-        fontSize: 16,
+        paddingVertical: spacing.md,
+    },
+    clearBtn: {
+        width: layout.minTouch,
+        height: layout.minTouch,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    tabsScroll: {
+        flexGrow: 0,
+        marginBottom: spacing.lg,
     },
     tabsRow: {
-        flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 8,
-        marginBottom: 16,
+        paddingHorizontal: layout.screenPadding,
+        gap: spacing.sm,
     },
-    tab: {
+    body: {
         flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderRadius: 10,
-        borderWidth: 1,
-        gap: 6,
     },
-    tabLabel: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    tabBadge: {
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 8,
-        minWidth: 20,
-        alignItems: 'center',
-    },
-    tabBadgeText: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
-    centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 12,
-        paddingHorizontal: 40,
-    },
-    centerText: {
-        fontSize: 15,
-        textAlign: 'center',
-        lineHeight: 22,
-    },
-    resultsList: {
-        paddingHorizontal: 24,
-        paddingBottom: 40,
+    listPadding: {
+        paddingHorizontal: layout.screenPadding,
+        paddingBottom: spacing.huge,
     },
     resultCard: {
-        padding: 16,
-        borderRadius: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: spacing.lg,
+        borderRadius: radius.md,
         borderWidth: 1,
-        marginBottom: 10,
+        marginBottom: spacing.sm,
+        gap: spacing.md,
+        minHeight: layout.minTouch,
     },
     resultContent: {
-        gap: 4,
+        flex: 1,
+        gap: spacing.xs,
     },
-    resultTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-    },
-    resultSubtitle: {
-        fontSize: 14,
-        lineHeight: 20,
+    seeAll: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.xs,
+        minHeight: layout.minTouch,
+        marginTop: spacing.sm,
     },
 });

@@ -56,7 +56,54 @@ def global_search(
     """)
     products_result = db.execute(products_query, {"q": search_term, "lim": RESULTS_PER_TYPE}).fetchall()
     
+    # F25: adopciones abiertas y aprobadas (como el listado público)
+    adoptions_result = db.execute(text("""
+        SELECT id, name, species, breed, location
+        FROM adoption_listings
+        WHERE (LOWER(name) LIKE :q ESCAPE '\\' OR LOWER(species) LIKE :q ESCAPE '\\'
+               OR LOWER(COALESCE(breed, '')) LIKE :q ESCAPE '\\' OR LOWER(COALESCE(location, '')) LIKE :q ESCAPE '\\')
+        AND is_approved IS TRUE AND status = 'abierto'
+        ORDER BY created_at DESC
+        LIMIT :lim
+    """), {"q": search_term, "lim": RESULTS_PER_TYPE}).fetchall()
+
+    # Reportes de perdidas/encontradas activos (sin teléfono ni correo)
+    lost_result = db.execute(text("""
+        SELECT id, pet_name, species, report_type, last_seen_location
+        FROM lost_pet_reports
+        WHERE (LOWER(COALESCE(pet_name, '')) LIKE :q ESCAPE '\\' OR LOWER(species) LIKE :q ESCAPE '\\'
+               OR LOWER(COALESCE(breed, '')) LIKE :q ESCAPE '\\' OR LOWER(COALESCE(last_seen_location, '')) LIKE :q ESCAPE '\\')
+        AND status = 'active'
+        ORDER BY created_at DESC
+        LIMIT :lim
+    """), {"q": search_term, "lim": RESULTS_PER_TYPE}).fetchall()
+
+    # Servicios: paseadores y cuidadores activos (por nombre o zona)
+    services_result = db.execute(text("""
+        SELECT * FROM (
+            SELECT id, display_name AS name, 'walker' AS kind, location FROM walkers
+            WHERE is_active IS TRUE
+            AND (LOWER(display_name) LIKE :q ESCAPE '\\' OR LOWER(COALESCE(location, '')) LIKE :q ESCAPE '\\')
+            UNION ALL
+            SELECT id, display_name AS name, 'sitter' AS kind, location FROM sitters
+            WHERE is_active IS TRUE
+            AND (LOWER(display_name) LIKE :q ESCAPE '\\' OR LOWER(COALESCE(location, '')) LIKE :q ESCAPE '\\')
+        ) s
+        ORDER BY name
+        LIMIT :lim
+    """), {"q": search_term, "lim": RESULTS_PER_TYPE}).fetchall()
+
     return {
+        "adoptions": [
+            {"id": str(a.id), "name": a.name, "species": a.species, "breed": a.breed, "location": a.location}
+            for a in adoptions_result
+        ],
+        "lost_pets": [
+            {"id": str(l.id), "name": l.pet_name, "species": l.species, "report_type": l.report_type,
+             "last_seen_location": l.last_seen_location}
+            for l in lost_result
+        ],
+        "services": [{"id": str(sv.id), "name": sv.name, "kind": sv.kind, "location": sv.location} for sv in services_result],
         "pets": [{"id": str(p.id), "name": p.name, "species": p.species, "breed": p.breed} for p in pets_result],
         "clinics": [{"id": str(c.id), "name": c.name, "city": c.city, "address": c.address} for c in clinics_result],
         "products": [

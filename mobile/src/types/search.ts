@@ -25,8 +25,36 @@ export interface SearchProductResult {
     image_url?: string | null;
 }
 
+export interface SearchAdoptionResult {
+    id: string;
+    name: string;
+    species: string;
+    breed?: string | null;
+    location?: string | null;
+}
+
+/** Sin datos de contacto: esos solo se ven en la ficha del reporte. */
+export interface SearchLostPetResult {
+    id: string;
+    name?: string | null;
+    species: string;
+    report_type: 'lost' | 'found' | string;
+    last_seen_location?: string | null;
+}
+
+export interface SearchServiceResult {
+    id: string;
+    name: string;
+    kind: 'walker' | 'sitter' | string;
+    location?: string | null;
+}
+
 export interface GlobalSearchResult {
     pets: SearchPetResult[];
     clinics: SearchClinicResult[];
     products: SearchProductResult[];
+    /** F25: opcionales para tolerar un backend anterior. */
+    adoptions?: SearchAdoptionResult[];
+    lost_pets?: SearchLostPetResult[];
+    services?: SearchServiceResult[];
 }
