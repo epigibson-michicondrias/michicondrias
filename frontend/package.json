@@ -3,9 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3001",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "typecheck": "tsc --noEmit -p .",
+    "lint": "eslint .",
+    "check": "npm run typecheck && npm run lint",
+    "deadcode": "knip"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
@@ -23,6 +27,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.1.6",
+    "knip": "^6.40.0",
     "typescript": "^5"
   }
 }

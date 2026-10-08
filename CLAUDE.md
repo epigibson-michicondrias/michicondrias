@@ -17,6 +17,9 @@ están en el código.
 - Monorepo: `mobile/` (Expo SDK 55, RN 0.83, expo-router, React Query) + `backend/` (17 microservicios FastAPI sobre
   PostgreSQL en Supabase).
 - Arquitectura completa, roles, despliegue y APK: [`README.md`](README.md). No lo dupliques aquí.
+- **Web (`frontend/`, Next.js, publicada en Vercel):** espejo de la app contra la misma API. Tiene sus propias reglas
+  en [`frontend/CLAUDE.md`](frontend/CLAUDE.md) y su estado en [`PROGRESO_WEB.md`](PROGRESO_WEB.md) /
+  [`AUDITORIA_WEB.md`](AUDITORIA_WEB.md). Un push a `main` que toque `frontend/**` sale a producción en Vercel.
 - `archivo/` es **historial** y puede estar desactualizado: úsalo como pista, nunca como verdad.
 - `.agents/` y `.mimocode/` son de herramientas anteriores; ignóralos.
 
