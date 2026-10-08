@@ -270,8 +270,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       paleta de acentos de dominio armonizada con *Midnight & Gold* (reemplaza el arcoíris Tailwind de
       `useExplore`/`useHome`/`roleTools`); `StatusBar` según el tema; un solo acceso `useTheme()`; tema guardado en
       AsyncStorage; decidir paletas alternas.
-- [ ] U2 Componentes base: revisar los existentes y crear `AuthShell`, `SegmentedTabs`, `PetForm`; adoptar `FormField`
-      y `utils/validators.ts`; documentar en `mobile/src/components/README.md`.
+- [x] U2 Componentes base: revisar los existentes y crear `AuthShell`, `SegmentedTabs`, `PetForm`; adoptar `FormField`
+      y `utils/validators.ts`; documentar en `mobile/src/components/README.md` (`SegmentedControl` cubre
+      `SegmentedTabs`; `AuthShell` creado, U3 lo adopta en las 4 pantallas de `(auth)`).
 - [ ] U3 Auth (4 pantallas) con `AuthShell`, validación inline, autoComplete, ≥ 44 px.
 - [ ] U4 Inicio, Explorar y Herramientas: tokens, Skeleton, EmptyState, refresh.
 - [ ] U5 Perfil + `perfil/editar` + verificacion, 2FA, partner, eliminar-cuenta.
@@ -617,3 +618,13 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `SearchBar` (botón borrar también en Android) pasados a tokens; `Button` y chips usan el token `onPrimary` (casi negro
   en oscuro, contraste AA) y `onAccent`. Falta en U2: `AppAlert`, `ScreenHeader`, `forms/*`, `QueryErrorBanner`,
   `AuthShell`, `PetForm`, README de componentes.
+- **2026-10-08** — **U2 Componentes base** (solo app). **Barrido de colores y tokens**: `AppAlert`, `ScreenHeader`,
+  `QueryErrorBanner`, `FormImagePicker`, `FormSwitch` y `WebMapView` sin hex sueltos (`onPrimary`/`onAccent`/`onHero`);
+  `ScreenHeader` usa `heroGradient`/`heroGlass`/`onHeroMuted` de U1 (adiós el `#1c2f6b` fijo) y `QueryErrorBanner` la
+  sombra del design system. `FormSelect`, `FormSection`, `GettingStartedCard` y `WeightSparkline` con
+  `spacing`/`radius`/`type` (los tamaños de glifo de emoji y de gráfica se quedan como excepción documentada).
+  **`PetForm` común** (`features/mascotas/PetForm`) con **`FormField` + `utils/validators`** adoptados: `nuevo.tsx`
+  pasó de 334 a 26 líneas y `editar/[id].tsx` de 364 a 71 (la zona de peligro va como hijo del formulario).
+  **`AuthShell`** creado (esqueleto de `(auth)` con `heroGradient`) — U3 lo adopta en las 4 pantallas —.
+  **`components/README.md`** documentando el kit completo. Verificado: `npm run check` 0 errores (73 avisos, los
+  archivos tocados sin avisos nuevos).
