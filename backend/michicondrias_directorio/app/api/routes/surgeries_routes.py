@@ -110,7 +110,7 @@ def create_surgery(
     db.refresh(db_obj)
     if pet_row[0] and pet_row[0] != current_user_id:
         notify_user(db, pet_row[0], "Cirugía programada",
-                    f"Se programó {surgery_in.surgery_name} para {pet_row[1] or 'tu mascota'} el {surgery_in.scheduled_date.strftime('%Y-%m-%d %H:%M')}.", "cirugias")
+                    f"Se programó {surgery_in.surgery_name} para {pet_row[1] or 'tu mascota'} el {surgery_in.scheduled_date.strftime('%Y-%m-%d %H:%M')}.", "cirugias", link=f"/mascotas/{surgery_in.patient_id}")
     return db_obj
 
 
@@ -147,5 +147,5 @@ def update_surgery_status(
     pet_row = db.execute(text("SELECT owner_id, name FROM pets WHERE id = :pid"), {"pid": surgery.patient_id}).first()
     if pet_row and pet_row[0] and pet_row[0] != current_user_id:
         notify_user(db, pet_row[0], "Actualización de cirugía",
-                    f"La cirugía {surgery.surgery_name} de {pet_row[1] or 'tu mascota'} {_SURGERY_LABELS[body.status]}.", "cirugias")
+                    f"La cirugía {surgery.surgery_name} de {pet_row[1] or 'tu mascota'} {_SURGERY_LABELS[body.status]}.", "cirugias", link=f"/mascotas/{surgery.patient_id}")
     return surgery

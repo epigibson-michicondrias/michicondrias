@@ -40,9 +40,9 @@ def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "s
     """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
     try:
         db.execute(text(
-            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
-            "VALUES (:id, :uid, :title, :msg, :type, false)"
-        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read, link) "
+            "VALUES (:id, :uid, :title, :msg, :type, false, :link)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype, "link": link})
         db.commit()
     except Exception:
         db.rollback()
@@ -165,7 +165,7 @@ def create_new_claim(
     claim_in.status = "pending"
     claim = crud.create_claim(db, claim_in=claim_in)
     if role != "aseguradora":
-        _notify(db, policy.insurer_id, "Nuevo reclamo recibido", f"Reclamo por ${claim_in.amount_claimed:,.2f} sobre la póliza {policy.policy_number}.")
+        _notify(db, policy.insurer_id, "Nuevo reclamo recibido", f"Reclamo por ${claim_in.amount_claimed:,.2f} sobre la póliza {policy.policy_number}.", link="/aseguradoras/reclamos")
     return claim
 
 
@@ -205,7 +205,7 @@ def update_claim_status_endpoint(
     owner_id = _pet_owner_id(db, claim.policy.pet_id)
     if owner_id:
         label = "aprobado" if claim_update.status == "approved" else "rechazado"
-        _notify(db, owner_id, f"Reclamo {label}", f"Tu reclamo sobre la póliza {claim.policy.policy_number} fue {label}.")
+        _notify(db, owner_id, f"Reclamo {label}", f"Tu reclamo sobre la póliza {claim.policy.policy_number} fue {label}.", link="/aseguradoras/mis-polizas")
     return updated
 
 
@@ -422,7 +422,7 @@ def subscribe_to_plan(
     )
 
     policy = crud.create_policy(db, policy_in=policy_create)
-    _notify(db, plan.insurer_id, "Nueva póliza contratada", f"Se contrató el plan {plan.name} (póliza {policy_number}).")
+    _notify(db, plan.insurer_id, "Nueva póliza contratada", f"Se contrató el plan {plan.name} (póliza {policy_number}).", link="/aseguradoras/gestion")
     return policy
 
 

@@ -24,15 +24,15 @@ from app.schemas.laboratory import (
 router = APIRouter()
 
 
-def _notify(db: Session, user_id: Optional[str], title: str, message: str, ntype: str = "laboratorio") -> None:
+def _notify(db: Session, user_id: Optional[str], title: str, message: str, ntype: str = "laboratorio", link: str | None = None) -> None:
     """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
     if not user_id:
         return
     try:
         db.execute(text(
-            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
-            "VALUES (:id, :uid, :title, :msg, :type, false)"
-        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read, link) "
+            "VALUES (:id, :uid, :title, :msg, :type, false, :link)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype, "link": link})
         db.commit()
     except Exception:
         db.rollback()
@@ -94,7 +94,7 @@ def create_lab_order(
     if not order_in.test_names:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Indica al menos un estudio")
     order = crud_laboratory.create_order(db=db, order_in=order_in, requesting_vet_id=current_user_id)
-    _notify(db, order_in.lab_id, "Nueva orden de laboratorio", f"Recibiste una orden con {len(order_in.test_names)} estudio(s).")
+    _notify(db, order_in.lab_id, "Nueva orden de laboratorio", f"Recibiste una orden con {len(order_in.test_names)} estudio(s).", link="/laboratorio/gestion")
     return _orders_out(db, [order])[0]
 
 
@@ -167,9 +167,9 @@ def upload_lab_results(
     owner_id = _pet_owner(db, order.pet_id)
     anomalies = any(r.is_anomaly for r in results_in.results)
     msg = "Ya están disponibles los resultados de laboratorio." + (" Hay valores fuera de rango." if anomalies else "")
-    _notify(db, owner_id, "Resultados de laboratorio listos", msg)
+    _notify(db, owner_id, "Resultados de laboratorio listos", msg, link=f"/mascotas/{order.pet_id}?tab=salud")
     if order.requesting_vet_id and order.requesting_vet_id != owner_id:
-        _notify(db, order.requesting_vet_id, "Resultados de laboratorio listos", msg)
+        _notify(db, order.requesting_vet_id, "Resultados de laboratorio listos", msg, link="/mi-clinica/laboratorio")
     return _orders_out(db, [updated_order])[0]
 
 
@@ -275,7 +275,7 @@ def add_lab_appointment(
     # El laboratorio sale del estudio elegido: el cliente no puede mandar un lab distinto
     app_in.lab_id = test.lab_id
     appt = crud_laboratory.create_lab_appointment(db=db, app_in=app_in, client_id=current_user_id)
-    _notify(db, test.lab_id, "Nueva cita de laboratorio", f"Solicitud de {test.name} para el {app_in.scheduled_date.isoformat()}.")
+    _notify(db, test.lab_id, "Nueva cita de laboratorio", f"Solicitud de {test.name} para el {app_in.scheduled_date.isoformat()}.", link="/laboratorio/gestion")
     return _appointments_out(db, [appt])[0]
 
 
@@ -306,9 +306,9 @@ def update_lab_appointment_status(
     db.refresh(appt)
     label = {"confirmed": "confirmada", "completed": "completada", "cancelled": "cancelada"}[body.status]
     if is_lab:
-        _notify(db, appt.client_id, f"Cita de laboratorio {label}", f"Tu cita de laboratorio del {appt.scheduled_date.isoformat()} fue {label}.")
+        _notify(db, appt.client_id, f"Cita de laboratorio {label}", f"Tu cita de laboratorio del {appt.scheduled_date.isoformat()} fue {label}.", link="/laboratorio")
     else:
-        _notify(db, appt.lab_id, "Cita de laboratorio cancelada", f"El cliente canceló la cita del {appt.scheduled_date.isoformat()}.")
+        _notify(db, appt.lab_id, "Cita de laboratorio cancelada", f"El cliente canceló la cita del {appt.scheduled_date.isoformat()}.", link="/laboratorio/gestion")
     return _appointments_out(db, [appt])[0]
 
 
@@ -387,5 +387,5 @@ def update_lab_order_status(
     db.refresh(order)
     labels = {"sample_collected": "muestra recolectada", "processing": "en proceso", "cancelled": "cancelada", "pending": "pendiente"}
     if order.requesting_vet_id:
-        _notify(db, order.requesting_vet_id, "Orden de laboratorio actualizada", f"Tu orden ahora está: {labels.get(status_str, status_str)}.")
+        _notify(db, order.requesting_vet_id, "Orden de laboratorio actualizada", f"Tu orden ahora está: {labels.get(status_str, status_str)}.", link="/mi-clinica/laboratorio")
     return _orders_out(db, [order])[0]

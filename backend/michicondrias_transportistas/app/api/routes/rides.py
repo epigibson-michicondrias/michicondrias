@@ -73,9 +73,9 @@ def _notify(db: Session, user_id: Optional[str], title: str, message: str, ntype
         return
     try:
         db.execute(text(
-            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
-            "VALUES (:id, :uid, :title, :msg, :type, false)"
-        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read, link) "
+            "VALUES (:id, :uid, :title, :msg, :type, false, :link)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype, "link": link})
         db.commit()
     except Exception:
         db.rollback()
@@ -320,7 +320,7 @@ def request_ride(
         ]
     for t in targets:
         if t != user_id:
-            _notify(db, t, "Nueva solicitud de transporte", f"{_short(ride)}. Revisa las solicitudes disponibles.")
+            _notify(db, t, "Nueva solicitud de transporte", f"{_short(ride)}. Revisa las solicitudes disponibles.", link="/transportistas/solicitudes")
 
     return _rides_out(db, [ride], user_id, "consumidor")[0]
 
@@ -524,7 +524,7 @@ def accept_ride(
     db.commit()
     db.refresh(ride)
     out = _rides_out(db, [ride], user_id, role)[0]
-    _notify(db, out.client_id, "Tu viaje fue aceptado", f"{out.driver_name or 'Un conductor'} va por {out.pet_name or 'tu mascota'}. {_short(ride)}")
+    _notify(db, out.client_id, "Tu viaje fue aceptado", f"{out.driver_name or 'Un conductor'} va por {out.pet_name or 'tu mascota'}. {_short(ride)}", link="/transportistas/mis-viajes")
     return out
 
 
@@ -552,7 +552,7 @@ def reject_ride(
     db.commit()
     db.refresh(ride)
     out = _rides_out(db, [ride], user_id, role)[0]
-    _notify(db, out.client_id, "Solicitud rechazada", f"El conductor no pudo tomar tu viaje ({_short(ride)}). Puedes pedirlo de nuevo.")
+    _notify(db, out.client_id, "Solicitud rechazada", f"El conductor no pudo tomar tu viaje ({_short(ride)}). Puedes pedirlo de nuevo.", link="/transportistas/mis-viajes")
     return out
 
 
@@ -592,7 +592,7 @@ def cancel_ride(
         ride.current_lng = None
         db.commit()
         db.refresh(ride)
-        _notify(db, client_id, "El conductor canceló", f"Tu viaje ({short}) volvió a buscar conductor.")
+        _notify(db, client_id, "El conductor canceló", f"Tu viaje ({short}) volvió a buscar conductor.", link="/transportistas/mis-viajes")
         notify_msg = None
     else:
         allowed = S.ACTIVE if vr == "admin" else (S.PENDING, S.ACCEPTED)
@@ -612,7 +612,7 @@ def cancel_ride(
     out = _rides_out(db, [ride], user_id, role)[0]
     if notify_msg:
         counterpart = driver_id if user_id == client_id else client_id
-        _notify(db, counterpart, "Viaje cancelado", f"Se canceló el viaje ({short}).{(' Motivo: ' + reason) if reason else ''}")
+        _notify(db, counterpart, "Viaje cancelado", f"Se canceló el viaje ({short}).{(' Motivo: ' + reason) if reason else ''}", link="/transportistas/mis-viajes")
     return out
 
 
@@ -643,7 +643,7 @@ def start_ride(
     db.commit()
     db.refresh(ride)
     out = _rides_out(db, [ride], current_user_id, role)[0]
-    _notify(db, out.client_id, "Tu viaje comenzó", f"{out.pet_name or 'Tu mascota'} va en camino. Puedes seguirlo en tiempo real.")
+    _notify(db, out.client_id, "Tu viaje comenzó", f"{out.pet_name or 'Tu mascota'} va en camino. Puedes seguirlo en tiempo real.", link="/transportistas/mis-viajes")
     return out
 
 
@@ -668,7 +668,7 @@ def finish_ride(
     db.commit()
     db.refresh(ride)
     out = _rides_out(db, [ride], current_user_id, role)[0]
-    _notify(db, out.client_id, "Viaje completado", f"{out.pet_name or 'Tu mascota'} llegó a su destino. Califica al conductor.")
+    _notify(db, out.client_id, "Viaje completado", f"{out.pet_name or 'Tu mascota'} llegó a su destino. Califica al conductor.", link="/transportistas/mis-viajes")
     return out
 
 

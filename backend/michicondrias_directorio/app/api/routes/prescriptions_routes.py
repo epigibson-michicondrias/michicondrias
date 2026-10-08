@@ -89,7 +89,7 @@ def create_prescription(
     db.refresh(new_prescription)
     
     if pet_row[0] and pet_row[0] != user_id:
-        notify_user(db, pet_row[0], "Nueva receta médica", f"{clinic.name} emitió una receta para {pet_row[1] or 'tu mascota'}.", "recetas")
+        notify_user(db, pet_row[0], "Nueva receta médica", f"{clinic.name} emitió una receta para {pet_row[1] or 'tu mascota'}.", "recetas", link=f"/mascotas/{patient_id}?tab=historial")
 
     response_data = {
         "id": str(new_prescription.id), 

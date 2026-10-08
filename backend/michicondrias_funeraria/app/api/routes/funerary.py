@@ -41,9 +41,9 @@ def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "f
     """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
     try:
         db.execute(text(
-            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
-            "VALUES (:id, :uid, :title, :msg, :type, false)"
-        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read, link) "
+            "VALUES (:id, :uid, :title, :msg, :type, false, :link)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype, "link": link})
         db.commit()
     except Exception:
         db.rollback()
@@ -244,7 +244,7 @@ def add_booking(
         raise HTTPException(status_code=422, detail="La fecha de la reserva no puede estar en el pasado.")
 
     booking = crud_funerary.create_funerary_booking(db, booking_in=booking_in, client_id=current_user_id)
-    _notify(db, service.funerary_id, "Nueva reserva funeraria", f"Tienes una nueva solicitud para {service.name}.")
+    _notify(db, service.funerary_id, "Nueva reserva funeraria", f"Tienes una nueva solicitud para {service.name}.", link="/funeraria/gestion")
     return _enrich_bookings(db, [booking])[0]
 
 @router.get("/bookings/client", response_model=List[FuneraryBookingResponse])
@@ -303,9 +303,9 @@ def update_booking_status(
     db.refresh(booking)
     label = _STATUS_LABEL[body.status]
     if is_provider:
-        _notify(db, booking.client_id, "Reserva funeraria " + label, f"Tu reserva para {service.name if service else 'el servicio'} fue {label}.")
+        _notify(db, booking.client_id, "Reserva funeraria " + label, f"Tu reserva para {service.name if service else 'el servicio'} fue {label}.", link="/funeraria/mis-reservas")
     elif service:
-        _notify(db, service.funerary_id, "Reserva cancelada", f"El cliente canceló la reserva de {service.name}.")
+        _notify(db, service.funerary_id, "Reserva cancelada", f"El cliente canceló la reserva de {service.name}.", link="/funeraria/gestion")
     return _enrich_bookings(db, [booking])[0]
 
 

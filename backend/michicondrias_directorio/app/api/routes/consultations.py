@@ -72,7 +72,7 @@ def book_consultation(
         clinic = db.query(Clinic).filter(Clinic.id == consultation_in.clinic_id).first()
         target = clinic.owner_user_id if clinic else None
     if target and target != user_id:
-        notify_user(db, target, "Nueva videoconsulta", f"Tienes una videoconsulta solicitada para el {when.strftime('%Y-%m-%d %H:%M')}.")
+        notify_user(db, target, "Nueva videoconsulta", f"Tienes una videoconsulta solicitada para el {when.strftime('%Y-%m-%d %H:%M')}.", link="/mi-clinica/consultas-video")
     return db_obj
 
 

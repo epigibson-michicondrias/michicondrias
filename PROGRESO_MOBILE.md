@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20–F23 ✅ · faltan F14, F19, F24 y F25–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20–F24 ✅ · faltan F14, F19 y F25–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -251,10 +251,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       abren Stripe; en web sigue abriendo pestaña nueva).
 - [x] F21 Ayuda: FAQ verídicas (solo tarjeta y el botón real «¡Quiero Adoptar!»), aviso si falla `Linking`,
       `ScreenContainer`/`ScreenHeader`, Términos y Privacidad (filas que se ocultan sin URL configurada).
-- [ ] 🛠️ F24 `link` en los emisores que faltan: directorio (`crud_services.notify_user`: citas, videoconsultas →
+- [x] 🛠️ F24 `link` en los emisores que faltan: directorio (`crud_services.notify_user`: citas, videoconsultas →
       `/mi-clinica/consultas-video`, laboratorio de clínica → la mascota), laboratorio, aseguradoras, funeraria y
       transportistas (hoy el mapeo por tipo + rol los cubre, salvo esos casos). Insertan con SQL crudo: agregar la
-      columna `link` al INSERT solo **después** de aplicar la migración `d3e9a7b4c215` de core.
+      columna `link` al INSERT solo **después** de aplicar la migración `d3e9a7b4c215` de core (✅ aplicada).
 - [ ] F25 Búsqueda: "ver todos" por pestaña hacia el listado del módulo y más dominios (adopciones, perdidas, servicios).
 - [ ] F26 Pasaporte público: enmascarar `policy_number` (últimos 4) y página legible en vez del JSON crudo (va con F16).
 - [ ] F27 `DatePicker` con `useTheme`/tokens y etiqueta en tipo oración (hoy usa `constants/Colors`); fechas del carnet
@@ -521,3 +521,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `a16937de-d804-4085-9275-c429d26a4b86`, commit `b951380`). `scripts/vm.sh status`: **17/17 activos en http 200**.
   Ya en producción: correo sin mayúsculas, mensajes en español, contraseña mínima, `created_at`, recuperación con
   código de 6 dígitos (y su pantalla única) y la ficha de mascota solo para dueño/equipo clínico/admin.
+- **2026-10-08** — **F24 `link` en los emisores que faltaban** (backend). Los 5 emisores que insertan notificaciones
+  con SQL crudo (directorio, laboratorio, aseguradoras, funeraria y transportistas) ahora guardan también el **`link`**
+  interno de la app: citas → `/mi-clinica/agenda` (clínica) o `/directorio/citas` (cliente), videoconsultas →
+  `/mi-clinica/consultas-video`, cirugías y recetas → la ficha de la mascota (`/mascotas/{id}`), resultados de
+  laboratorio → la mascota o `/mi-clinica/laboratorio`, y cada emisor a su pantalla (reclamos, mis-pólizas, gestión
+  funeraria, solicitudes/mis-viajes). Si el rol no puede abrir el link, la app cae al mapeo por tipo+rol de siempre
+  (`resolveNotificationRoute` lo valida). Verificado: los 8 archivos compilan y `notify_user` con link inserta bien en
+  una tabla `notifications` de prueba. **Pendiente de desplegar** (sin migración; la `d3e9a7b4c215` ya está aplicada).

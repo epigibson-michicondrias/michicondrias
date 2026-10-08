@@ -12,15 +12,16 @@ from app.schemas.services import (
 )
 
 
-def notify_user(db: Session, user_id, title: str, message: str, ntype: str = "citas") -> None:
-    """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
+def notify_user(db: Session, user_id, title: str, message: str, ntype: str = "citas", link: str | None = None) -> None:
+    """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal.
+    `link` es la ruta interna de la app a la que lleva (F24): el cliente decide si su rol puede abrirla."""
     if not user_id:
         return
     try:
         db.execute(text(
-            "INSERT INTO notifications (id, user_id, title, message, type, is_read) "
-            "VALUES (:id, :uid, :title, :msg, :type, false)"
-        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype})
+            "INSERT INTO notifications (id, user_id, title, message, type, is_read, link) "
+            "VALUES (:id, :uid, :title, :msg, :type, false, :link)"
+        ), {"id": str(uuid.uuid4()), "uid": user_id, "title": title, "msg": message, "type": ntype, "link": link})
         db.commit()
     except Exception:
         db.rollback()
@@ -302,7 +303,7 @@ def create_appointment(db: Session, user_id: str, appt: AppointmentCreate):
 
     owner_id, clinic_name = _clinic_owner(db, db_appt.clinic_id)
     if owner_id and owner_id != user_id:
-        notify_user(db, owner_id, "Nueva cita solicitada", f"Tienes una cita pendiente el {d.isoformat()} a las {start.strftime('%H:%M')}.")
+        notify_user(db, owner_id, "Nueva cita solicitada", f"Tienes una cita pendiente el {d.isoformat()} a las {start.strftime('%H:%M')}.", link="/mi-clinica/agenda")
 
     return db_appt
 
@@ -333,9 +334,9 @@ def update_appointment_status(db: Session, appointment_id: str, status: str, rea
             owner_id, clinic_name = _clinic_owner(db, appt.clinic_id)
             suffix = f" Motivo: {reason}" if reason and status == "cancelled" else ""
             if actor_id and actor_id == appt.user_id and owner_id and owner_id != actor_id:
-                notify_user(db, owner_id, f"Cita {labels[status]}", f"El cliente {labels[status]} su cita del {when}." + suffix)
+                notify_user(db, owner_id, f"Cita {labels[status]}", f"El cliente {labels[status]} su cita del {when}." + suffix, link="/mi-clinica/agenda")
             elif actor_id != appt.user_id or not actor_id:
-                notify_user(db, appt.user_id, f"Cita {labels[status]}", f"Tu cita en {clinic_name or 'la clínica'} ({when}) fue {labels[status]}." + suffix)
+                notify_user(db, appt.user_id, f"Cita {labels[status]}", f"Tu cita en {clinic_name or 'la clínica'} ({when}) fue {labels[status]}." + suffix, link="/directorio/citas")
     return appt
 
 def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_start_time: str):
@@ -400,6 +401,6 @@ def reschedule_appointment(db: Session, appointment_id: str, new_date: str, new_
 
     owner_id, _ = _clinic_owner(db, new_appt.clinic_id)
     if owner_id and owner_id != appt.user_id:
-        notify_user(db, owner_id, "Cita reagendada", f"Un cliente reagendó su cita para el {d.isoformat()} a las {start.strftime('%H:%M')}.")
+        notify_user(db, owner_id, "Cita reagendada", f"Un cliente reagendó su cita para el {d.isoformat()} a las {start.strftime('%H:%M')}.", link="/mi-clinica/agenda")
 
     return new_appt
