@@ -591,3 +591,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   pinta si es `https://`. App: la tarjeta del QR explica qué verá quien lo escanee y que el enlace dura 24 h.
   Verificado: TestClient+SQLite (póliza `•••• 3456`, XSS escapado, `javascript:` descartado, JSON intacto, 403/404 en
   HTML y JSON) y la página a 375 px.
+- **2026-10-08** — **Despliegue F14+F19+F25+F26**: push (`0d9f61d..f7522d3`) → `deploy-oracle.yml` ✅, **migración de
+  carnet `c14a7e2b9d01` aplicada** (head), `vm.sh status` **17/17 en http 200** y **OTA en `production`** (runtime
+  1.0.0, update group `3704404d-82a9-447c-8dee-aef559b06db3`). La primera pasada del emisor de recordatorios falló
+  (corrió entre el deploy y la migración) sin afectar al resto del carnet, como se diseñó; las siguientes ya leen las
+  columnas nuevas. **Fase 4 completa en los módulos P1.** Siguiente: Bloque B (auditoría P2/P3) o Fase 5 (U1 Tema).

@@ -65,10 +65,10 @@ app/
 
 ## 3. Despliegue (estado al 2026-10-08)
 
-✅ **Todo lo hecho hasta hoy está en producción** (3 despliegues el 2026-10-08): F17+F15 (mascotas/carnet), F11+F12+F22
-(core) y F24+F27 (notificaciones/DatePicker). Migraciones de core aplicadas en la VM: `d3e9a7b4c215` y
+✅ **Todo lo hecho hasta hoy está en producción** (4 despliegues el 2026-10-08): F17+F15 (mascotas/carnet), F11+F12+F22
+(core), F24+F27 (notificaciones/DatePicker) y F14+F19+F25+F26 (carnet, tienda, búsqueda, pasaporte). Migraciones de core aplicadas en la VM: `d3e9a7b4c215` y
 `f12a8b3c4d5e` (**head**). Último OTA del canal `production` (runtime 1.0.0): update group
-`f60b79a3-41bc-4332-9fe9-0b7297ab6555`. `scripts/vm.sh status`: 17/17 servicios activos en http 200.
+`3704404d-82a9-447c-8dee-aef559b06db3` (F14, F19, F25, F26). Carnet en head `c14a7e2b9d01`. `scripts/vm.sh status`: 17/17 servicios activos en http 200.
 
 ### Acceso a producción (ya configurado en esta máquina)
 
