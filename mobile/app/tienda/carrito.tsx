@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { Trash2, Plus, Minus, ShoppingBag, ShieldCheck, Package, MapPin } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '../../src/contexts/CartContext';
+import { useCheckout } from '@/src/hooks/ecommerce/useCheckout';
+import { useCartProducts } from '@/src/hooks/ecommerce/useCartProducts';
 import { formatCurrency } from '@/src/utils/formatters';
 import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -15,7 +17,10 @@ const MIN_ADDRESS_LENGTH = 10;
 export default function CarritoScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { items, cartTotal, cartCount, removeFromCart, updateQuantity, checkout, isCheckingOut, savedAddress, rememberAddress } = useCart();
+    const { items, cartTotal, cartCount, removeFromCart, updateQuantity, savedAddress, rememberAddress } = useCart();
+    const { checkout, isCheckingOut } = useCheckout();
+    // Precio y stock frescos al abrir la bolsa (el snapshot guardado puede quedar viejo)
+    useCartProducts();
     const [address, setAddress] = useState('');
     const [addressError, setAddressError] = useState(false);
 

@@ -276,7 +276,7 @@ externo) → `/payments/return` → deep link `tienda/pago-exitoso|pago-cancelad
 | app/tienda/compras.tsx | pantalla | funciona | `LoadingOverlay`. Sin paginación (el backend da 20). El refresh queda anulado por la caché de 30 s |
 | app/tienda/pedido/[id].tsx | pantalla | funciona | Tiene un `showAlert` local con `require()` (error de lint). El polling de 5 s no sirve por la caché. «¿Necesitas ayuda?» solo muestra un correo |
 | app/tienda/pago-exitoso.tsx · pago-cancelado.tsx | pantalla | funciona | **No se pueden borrar**: son destino del deep link (`checkout_urls.py:43`). Son copias una de otra. Exitoso promete que se avisará al vendedor y nadie lo avisa |
-| src/contexts/CartContext.tsx | contexto | rota/incompleta | `checkout` no invalida `my-orders` ni `store-products`. Guarda el precio y el stock viejos. **No se limpia al cerrar sesión**. Vacía la bolsa antes de pagar. La lógica no usa `useMutation` |
+| src/contexts/CartContext.tsx | contexto | funciona | ~~`checkout` no invalida `my-orders` ni `store-products`~~ ✅ `hooks/ecommerce/useCheckout` con `useMutation` e invalidaciones (F18) · ~~Guarda el precio y el stock viejos~~ ✅ `useCartProducts` los refresca al abrir el carrito (F18) · ~~No se limpia al cerrar sesión~~ ✅ carrito por usuario (F1) · ~~Vacía la bolsa antes de pagar~~ ✅ se vacía al confirmar el pago en `PagoResultado` (F18) · ~~La lógica no usa `useMutation`~~ ✅ (F18). Hoy el contexto solo tiene estado: sin red |
 | src/services/ecommerce.ts | servicio | funciona | Todos los endpoints existen. Sus tipos duplican `src/types/ecommerce.ts`, que está muerto |
 | backend ecommerce | backend | funciona con huecos | Los pedidos pendientes solo se liberan de forma perezosa en `create_order` (TTL 40 min). El webhook no notifica a nadie. No hay `can_review`. `/orders/me` sin paginación. `/products/` sin `q` |
 
@@ -288,8 +288,8 @@ tarjetas de acciones en la pestaña, «Mis compras» con un solo hogar (Perfil),
 Arreglos:
 - [x] P0 Caché de 30 s contra el polling y el refresh de pedidos (ver Transversales)
 - [x] P0 El carrito y la dirección pasan al siguiente usuario (`CartContext.tsx:28`, `carrito.tsx:14`) — ahora se guardan por usuario
-- [ ] P1 `checkout` sin invalidar; precio y stock viejos; reseña visible para quien no puede reseñar; texto «se avisará al vendedor»
-- [ ] P1 Pedidos abandonados que no expiran (backend); `showAlert` con `require()` (`pedido/[id].tsx:225`)
+- [ ] P1 ~~`checkout` sin invalidar; precio y stock viejos~~ ✅ (F18); reseña visible para quien no puede reseñar; texto «se avisará al vendedor»
+- [ ] P1 Pedidos abandonados que no expiran (backend); ~~`showAlert` con `require()` (`pedido/[id].tsx:225`)~~ ✅ (Fase 2)
 - [ ] P2 tienda-tab: refresh, EmptyState, SkeletonList, tokens. producto: Skeleton, safe area, extraer. carrito: KeyboardScreen, Button, 44 px
 
 ---

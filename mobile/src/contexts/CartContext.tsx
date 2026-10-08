@@ -1,11 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Product, createOrder, createCheckoutSession, updateOrderStatus } from '../services/ecommerce';
+import { Product } from '../services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
-import * as Linking from 'expo-linking';
-import { router } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { cartKey, addressKey, removeLegacyCartKeys } from '@/src/lib/cartStorage';
+import { cartKey, addressKey, removeLegacyCartKeys } from '../lib/cartStorage';
 
 export interface CartItem {
     product: Product;
@@ -19,10 +17,10 @@ interface CartContextType {
     removeFromCart: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
+    /** Actualiza precio y stock de los productos en la bolsa (los que no lleguen se quedan como están). */
+    syncProducts: (products: Product[]) => void;
     cartTotal: number;
     cartCount: number;
-    checkout: (shippingAddress?: string) => Promise<void>;
-    isCheckingOut: boolean;
     /** Última dirección de envío usada por este usuario (se guarda al pagar). */
     savedAddress: string;
     rememberAddress: (address: string) => void;
@@ -32,13 +30,14 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // Carrito y dirección se guardan por usuario (src/lib/cartStorage): nunca se muestran a otra cuenta en el mismo
 // teléfono. Si la sesión vence se conservan; solo se borran al cerrar sesión a propósito (AuthContext.signOut).
+// Aquí NO hay red: el checkout vive en `hooks/ecommerce/useCheckout` y el refresco de precio/stock en
+// `hooks/ecommerce/useCartProducts`.
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
     const { user } = useAuth();
     const userId = user?.id ?? null;
     const [items, setItems] = useState<CartItem[]>([]);
     const [savedAddress, setSavedAddress] = useState('');
-    const [isCheckingOut, setIsCheckingOut] = useState(false);
     // Usuario cuyo carrito ya se cargó; evita guardar el carrito vacío encima del guardado antes de leerlo.
     const loadedFor = useRef<string | null>(null);
 
@@ -126,57 +125,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         );
     };
 
-    const clearCart = () => setItems([]);
+    const clearCart = useCallback(() => setItems([]), []);
+
+    /**
+     * Precio y stock frescos para lo que hay en la bolsa (el snapshot del carrito puede quedar viejo):
+     * se ajusta la cantidad al stock y se retiran los que ya no están disponibles.
+     */
+    const syncProducts = useCallback((products: Product[]) => {
+        const byId = new Map(products.map((p) => [p.id, p]));
+        let removed = 0;
+        let changed = false;
+        const next = items.flatMap((item) => {
+            const fresh = byId.get(item.product.id);
+            if (!fresh) return [item]; // sin actualización: se queda como estaba
+            const stock = fresh.stock ?? 0;
+            if (stock <= 0) {
+                removed += 1;
+                changed = true;
+                return [];
+            }
+            const quantity = Math.min(item.quantity, stock);
+            if (quantity !== item.quantity || fresh.price !== item.product.price) changed = true;
+            return [{ product: fresh, quantity }];
+        });
+        if (removed > 0) {
+            showAlert({
+                type: 'info',
+                title: 'Bolsa actualizada',
+                message: removed === 1
+                    ? 'Un producto ya no está disponible y se quitó de tu bolsa.'
+                    : `${removed} productos ya no están disponibles y se quitaron de tu bolsa.`,
+            });
+        }
+        if (changed) setItems(next);
+    }, [items]);
 
     const cartTotal = items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
     const cartCount = items.reduce((count, item) => count + item.quantity, 0);
-
-    const checkout = async (shippingAddress?: string) => {
-        if (items.length === 0) return;
-        setIsCheckingOut(true);
-        let orderId: string | null = null;
-        try {
-            // 1. Crear el pedido (aparta el stock mientras se paga)
-            const orderPayload = {
-                items: items.map(item => ({
-                    product_id: item.product.id,
-                    quantity: item.quantity
-                })),
-                shipping_address: shippingAddress?.trim() || undefined,
-            };
-            const order = await createOrder(orderPayload);
-            orderId = order.id;
-
-            // 2. Crear la sesión de pago en Stripe
-            const session = await createCheckoutSession(order.id);
-
-            // 3. Abrir la página de pago
-            const supported = await Linking.canOpenURL(session.url);
-            if (!supported) throw new Error('No se puede abrir el enlace de pago.');
-            await Linking.openURL(session.url);
-            // El pago se completa fuera de la app: se vacía el carrito al abrir la pasarela y se lleva al usuario
-            // al pedido, donde verá su estado (pendiente → pagado) y podrá reintentar el pago o cancelar.
-            clearCart();
-            router.push(`/tienda/pedido/${order.id}` as any);
-        } catch (error: any) {
-            // Si el pedido se creó pero el pago no pudo iniciar, se cancela para devolver el stock apartado.
-            // El carrito se conserva para que el usuario pueda reintentar.
-            if (orderId) {
-                try { await updateOrderStatus(orderId, 'cancelled'); } catch { /* si falla, el pedido pendiente se puede cancelar desde Mis compras */ }
-            }
-            const message = String(error?.message || '');
-            const unavailable = /no est[aá]n disponibles|no se pudo iniciar el pago/i.test(message);
-            showAlert({
-                type: 'error',
-                title: unavailable ? 'Pagos no disponibles' : 'No se pudo iniciar el pago',
-                message: unavailable
-                    ? 'Por el momento no podemos procesar pagos. Tu carrito se conservó; inténtalo más tarde.'
-                    : (message || 'Inténtalo de nuevo en unos minutos. Tu carrito se conservó.'),
-            });
-        } finally {
-            setIsCheckingOut(false);
-        }
-    };
 
     return (
         <CartContext.Provider value={{
@@ -185,10 +170,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             removeFromCart,
             updateQuantity,
             clearCart,
+            syncProducts,
             cartTotal,
             cartCount,
-            checkout,
-            isCheckingOut,
             savedAddress,
             rememberAddress,
         }}>

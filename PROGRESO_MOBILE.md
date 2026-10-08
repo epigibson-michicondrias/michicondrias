@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16 y F17 ✅ · faltan F11, F12, F14, F15 y F18–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16, F17 y F18 ✅ · faltan F11, F12, F14, F15 y F19–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -56,7 +56,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | ⬜ | ⬜ | 987 líneas; sin fecha de vacuna; recordatorios huérfana; promesa de aviso falsa |
-| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ⬜ | ⬜ | Stripe real; carrito y dirección pasan entre usuarios; caché de 30 s |
+| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | 🟡 | ⬜ | F18 ✅ (`useCheckout`, carrito con precio/stock frescos, bolsa se vacía al confirmar el pago); faltan F19 (backend) y F20 (Stripe) |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
 | P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
 | P2 | Adopciones | 12 | ⬜ | ⬜ | ⬜ | Muchas pantallas de solicitudes: ¿fusionar? |
@@ -241,7 +241,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] F16 Mascotas: "vacunas al día" calculado, Tracker activo con salida, compartir carnet con QR (QR 📱 si es lib nativa).
 - [x] F17 Diagnóstico IA: vacío con "Agregar mascota", error sin peso → editar, selector de mascota en triage
       (`pet_id` opcional en el backend, aditivo, con contexto de especie/peso/edad).
-- [ ] F18 Tienda: hook `useCheckout` (useMutation + invalidaciones), refrescar precio y stock del carrito, no vaciar antes
+- [x] F18 Tienda: hook `useCheckout` (useMutation + invalidaciones), refrescar precio y stock del carrito, no vaciar antes
       de pagar.
 - [ ] 🛠️ F19 Tienda backend: liberar pedidos vencidos en `/orders/*`, notificar el pago a comprador y vendedor,
       `can_review`, paginación de `/orders/me`.
@@ -426,4 +426,15 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   web con stub **11/11** (selector con las mascotas, `pet_id` presente/ausente en el body según corresponde, CTA de
   peso navega a `/mascotas/editar/[id]`, «Agregar mascota» navega al alta). `npm run check` 0 errores.
   **El backend queda listo para desplegar** (sin migración; se agrupa con el siguiente bloque 🛠️).
+- **2026-10-07** — **F18 Tienda: checkout en capas y bolsa honesta** (solo app). La red sale de `CartContext` (que
+  queda solo con estado) → **`hooks/ecommerce/useCheckout`** (`useMutation`: crear pedido → sesión de Stripe → abrir la
+  pasarela; si la apertura falla, cancela el pedido para devolver el stock; invalida `my-orders`, `store-products` y
+  `product` al iniciar el pago). **`hooks/ecommerce/useCartProducts`** refresca **precio y stock al abrir el carrito**
+  (`syncProducts` en el contexto: ajusta cantidades, retira agotados y avisa). **La bolsa ya NO se vacía antes de
+  pagar**: se limpia cuando el pago se confirma (`PagoResultado` en el deep link de éxito). `clearCart` quedó con
+  `useCallback` (si no, su efecto en `PagoResultado` entraba en loop). Verificado sin tocar producción (stub con
+  producto cuyo precio cambia entre pasos): **13/13** — el carrito se ve con el precio del snapshot ($100), al
+  reabrirlo se refresca al del servidor ($250) y se pide el producto al backend, el checkout crea pedido + sesión y
+  abre la pasarela (en web navega a Stripe), la bolsa sigue llena hasta que `pago-exitoso` la vacía. `npm run check`
+  0 errores.
 
