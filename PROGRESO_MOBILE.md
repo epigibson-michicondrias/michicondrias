@@ -535,3 +535,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   La receta (`carnet/receta/[id]`) muestra sus fechas con locale **`es-MX`** (compartir y ficha). Verificado en web:
   el formulario de vacuna renderiza con la etiqueta «Fecha de aplicación» en tipo oración y la fecha en es-MX.
   `npm run check` 0 errores (72 avisos = línea base).
+- **2026-10-08** — **Despliegue**: push (`b951380..126b982`, F24+F27) → `deploy-oracle.yml` ✅, `vm.sh status`
+  **17/17 en http 200** y **OTA en `production`** (update group `f60b79a3-41bc-4332-9fe9-0b7297ab6555`). Sin migraciones.
+  Ya en producción: las notificaciones de los 5 servicios llevan a su pantalla con `link` y el `DatePicker` usa el
+  sistema de diseño. **Cola restante: F25 (búsqueda), F26 (pasaporte), F19 (pedidos) y F14 (recordatorios).**
