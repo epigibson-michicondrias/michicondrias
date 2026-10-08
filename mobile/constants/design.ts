@@ -65,6 +65,8 @@ export const type = {
     bodyStrong: { fontSize: 14, fontWeight: '700', lineHeight: 20 } as TextStyle,
     caption: { fontSize: 12, fontWeight: '500', lineHeight: 16 } as TextStyle,
     label: { fontSize: 11, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' } as TextStyle,
+    /** Etiqueta de campo en tipo oración (sin versalitas): para formularios y controles. */
+    labelSentence: { fontSize: 13, fontWeight: '700' } as TextStyle,
     button: { fontSize: 15, fontWeight: '800' } as TextStyle,
 } as const;
 

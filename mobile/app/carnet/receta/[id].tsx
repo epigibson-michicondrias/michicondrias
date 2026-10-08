@@ -40,7 +40,7 @@ export default function PrescriptionDetailScreen() {
         const lines = [
             `Receta digital RX-${record.id.substring(0, 8).toUpperCase()}`,
             `Paciente: ${pet?.name ?? 'N/A'}`,
-            `Fecha: ${new Date(record.date).toLocaleDateString()}`,
+            `Fecha: ${new Date(record.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}`,
             `Motivo: ${record.reason_for_visit}`,
             ...(record.diagnosis ? [`Diagnóstico: ${record.diagnosis}`] : []),
             '',
@@ -86,7 +86,7 @@ export default function PrescriptionDetailScreen() {
                                 Folio: RX-{record.id.substring(0, 8).toUpperCase()}
                             </Text>
                             <Text style={[styles.ticketMetaLabel, { color: theme.textMuted }]}>
-                                Fecha: {new Date(record.date).toLocaleDateString()}
+                                Fecha: {new Date(record.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </Text>
                         </View>
                     </View>

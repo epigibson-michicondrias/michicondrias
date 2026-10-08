@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Calendar } from 'lucide-react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
+import { spacing, radius, type } from '@/constants/design';
 
 interface DatePickerProps {
     value: Date;
@@ -24,9 +24,7 @@ export default function DatePicker({
     maximumDate,
     placeholder = 'Seleccionar fecha',
 }: DatePickerProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
-    const isDark = colorScheme === 'dark';
+    const { theme, isDark } = useTheme();
     const [show, setShow] = useState(false);
 
     const handleChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
@@ -93,20 +91,20 @@ export default function DatePicker({
 }
 
 const styles = StyleSheet.create({
+    // Etiqueta en tipo oración (sin versalitas) y con la tipografía del sistema de diseño
     label: {
-        fontSize: 13,
-        fontWeight: '700',
-        marginBottom: 8,
-        marginLeft: 4,
+        ...type.labelSentence,
+        marginBottom: spacing.sm,
+        marginLeft: spacing.xs,
     },
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 16,
-        paddingHorizontal: 16,
+        borderRadius: radius.lg,
+        paddingHorizontal: spacing.lg,
         borderWidth: 1.5,
         height: 54,
-        gap: 12,
+        gap: spacing.md,
     },
     value: {
         flex: 1,

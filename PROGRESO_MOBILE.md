@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20–F24 ✅ · faltan F14, F19 y F25–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20–F24 y F27 ✅ · faltan F14, F19, F25 y F26 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -257,8 +257,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       columna `link` al INSERT solo **después** de aplicar la migración `d3e9a7b4c215` de core (✅ aplicada).
 - [ ] F25 Búsqueda: "ver todos" por pestaña hacia el listado del módulo y más dominios (adopciones, perdidas, servicios).
 - [ ] F26 Pasaporte público: enmascarar `policy_number` (últimos 4) y página legible en vez del JSON crudo (va con F16).
-- [ ] F27 `DatePicker` con `useTheme`/tokens y etiqueta en tipo oración (hoy usa `constants/Colors`); fechas del carnet
-      con locale `es-MX`.
+- [x] F27 `DatePicker` con `useTheme`/tokens y etiqueta en tipo oración (token nuevo `type.labelSentence`); fechas
+      del carnet con locale `es-MX`.
 - [x] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext) — corte central
       en `AppAlert.notifySessionExpired` (un solo aviso al vencer la sesión).
 - [x] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
@@ -529,3 +529,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   funeraria, solicitudes/mis-viajes). Si el rol no puede abrir el link, la app cae al mapeo por tipo+rol de siempre
   (`resolveNotificationRoute` lo valida). Verificado: los 8 archivos compilan y `notify_user` con link inserta bien en
   una tabla `notifications` de prueba. **Pendiente de desplegar** (sin migración; la `d3e9a7b4c215` ya está aplicada).
+- **2026-10-08** — **F27 DatePicker con el sistema de diseño** (solo app). `DatePicker` deja `constants/Colors` y el
+  `ThemeContext` directo por el `useTheme()` estándar, y sus estilos pasan a los tokens (`spacing`, `radius` y el
+  token nuevo **`type.labelSentence`** para etiquetas de campo en tipo oración — antes cada uno armaba su estilo).
+  La receta (`carnet/receta/[id]`) muestra sus fechas con locale **`es-MX`** (compartir y ficha). Verificado en web:
+  el formulario de vacuna renderiza con la etiqueta «Fecha de aplicación» en tipo oración y la fecha en es-MX.
+  `npm run check` 0 errores (72 avisos = línea base).
