@@ -19,8 +19,8 @@ Lo que queda es intencional o espera la auditoría de su módulo:
 - `src/components/FormField.tsx` y `src/utils/validators.ts`: se adoptan en la Fase 5 (formularios premium).
 - Hooks de módulos P2/P3 sin importador (tarea L9): `admin/useAdminOrders`, `clinica/useAlerts`, `clinica/usePatients`,
   `ecommerce/useSubcategories`, `perdidas/useReportActions`, `perdidas/useReportForm`.
-- Dependencias sin uso (`@expo/cli`, `@teovilla/react-native-web-maps`, `axios`, `expo-symbols`, `expo-web-browser`,
-  `react-native-get-location`): varias nativas → APK de la Fase 5 (`expo-web-browser` se va a usar en F20).
+- Dependencias sin uso (`@expo/cli`, `@teovilla/react-native-web-maps`, `axios`, `expo-symbols`,
+  `react-native-get-location`): varias nativas → APK de la Fase 5 (~~`expo-web-browser`~~ ✅ en uso desde F20).
 - Exports: funciones de servicios de módulos no auditados y constantes `*_OPTIONS`/`*_DEFAULTS` de `src/types/`.
 
 ### ESLint (`eslint-config-expo`)
@@ -284,7 +284,8 @@ Redundancias: entrada a la tienda ×5, «Mis compras» ×5, categorías ×3, car
 en la tienda del cliente, resultado de pago duplicado, mapa de categorías duplicado.
 Propuesta de rediseño (requiere visto bueno): los chips como único filtro (se borra `/tienda/categorias`), sin
 tarjetas de acciones en la pestaña, «Mis compras» con un solo hogar (Perfil), badge del carrito en la tab bar,
-`PagoResultado` común conservando las 2 rutas, Stripe con `expo-web-browser`.
+`PagoResultado` común conservando las 2 rutas, ~~Stripe con `expo-web-browser`~~ ✅ (F20: `utils/payments.openStripeUrl`
+con `openAuthSessionAsync` en nativo).
 Arreglos:
 - [x] P0 Caché de 30 s contra el polling y el refresh de pedidos (ver Transversales)
 - [x] P0 El carrito y la dirección pasan al siguiente usuario (`CartContext.tsx:28`, `carrito.tsx:14`) — ahora se guardan por usuario

@@ -3,9 +3,9 @@
  */
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as Linking from 'expo-linking';
 import { getOrder, createCheckoutSession, updateOrderStatus } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
+import { openStripeUrl } from '@/src/utils/payments';
 
 export function useOrderDetail(orderId: string) {
     const queryClient = useQueryClient();
@@ -53,7 +53,7 @@ export function useOrderDetail(orderId: string) {
         setIsPaying(true);
         try {
             const session = await createCheckoutSession(orderId);
-            await Linking.openURL(session.url);
+            await openStripeUrl(session.url);
         } catch (e: any) {
             showAlert({ type: 'error', title: 'No se pudo iniciar el pago', message: e?.message || 'Inténtalo de nuevo en unos minutos.' });
         } finally {

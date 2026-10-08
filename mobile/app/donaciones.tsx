@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Linking, AppState } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, AppState } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { createDonationCheckout, getDonation } from '../src/services/ecommerce';
+import { openStripeUrl } from '@/src/utils/payments';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Heart, DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
 import BackButton from '../src/components/BackButton';
@@ -67,7 +68,7 @@ export default function DonacionesScreen() {
             const session = await createDonationCheckout(numAmount, message);
             setDonationId(session.donation_id);
             setPayState('pending');
-            await Linking.openURL(session.url);
+            await openStripeUrl(session.url);
         } catch (error: any) {
             const detail = String(error?.message || '');
             const unavailable = /no est[aá]n disponibles/i.test(detail);

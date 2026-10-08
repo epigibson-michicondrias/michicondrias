@@ -9,6 +9,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { createBillingPortalSession } from '@/src/services/ecommerce';
+import { openStripeUrl } from '@/src/utils/payments';
 import { getRoleLabelFor, isProRole, normalizeRole } from '@/src/constants/roles';
 import { PRIVACY_URL, TERMS_URL, SUPPORT_EMAIL } from '@/src/constants/support';
 import type { VerificationStatus } from '@/src/types/auth';
@@ -41,7 +42,11 @@ export function useAccount() {
     const billingPortal = useMutation({
         mutationFn: createBillingPortalSession,
         onSuccess: (data) => {
-            if (data.url) Linking.openURL(data.url).catch(() => {});
+            if (data.url) {
+                openStripeUrl(data.url).catch(() => {
+                    showAlert({ type: 'info', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });
+                });
+            }
         },
         onError: () => {
             showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });

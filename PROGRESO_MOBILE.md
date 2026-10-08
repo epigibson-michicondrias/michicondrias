@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16, F17, F18 y F23 ✅ · faltan F11, F12, F14, F15 y F19–F22, F24–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16–F18, F20 y F23 ✅ · faltan F11, F12, F14, F15, F19, F21, F22 y F24–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -245,7 +245,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       de pagar.
 - [ ] 🛠️ F19 Tienda backend: liberar pedidos vencidos en `/orders/*`, notificar el pago a comprador y vendedor,
       `can_review`, paginación de `/orders/me`.
-- [ ] F20 Stripe con `expo-web-browser` (`openAuthSessionAsync`; verificar que ya está en el APK actual).
+- [x] F20 Stripe con `expo-web-browser` (`openAuthSessionAsync` en `utils/payments.openStripeUrl`: los 5 puntos que
+      abren Stripe; en web sigue abriendo pestaña nueva).
 - [ ] F21 Ayuda: FAQ verídicas, aviso si falla `Linking`, configurar soporte, términos y privacidad.
 - [ ] 🛠️ F24 `link` en los emisores que faltan: directorio (`crud_services.notify_user`: citas, videoconsultas →
       `/mi-clinica/consultas-video`, laboratorio de clínica → la mascota), laboratorio, aseguradoras, funeraria y
@@ -445,4 +446,15 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   modo «sesión vencida» que responde 401 con token): **7/7** — compartir el carnet con la sesión vencida muestra UN
   aviso («Tu sesión expiró»), NO aparece el «No se pudo compartir» de la acción en vuelo y la guarda lleva al login.
   `npm run check` 0 errores.
+- **2026-10-07** — **F20 Stripe con vuelta a la app** (solo app). Nuevo `utils/payments.openStripeUrl`: en nativo abre
+  la pasarela con **`WebBrowser.openAuthSessionAsync`** (redirect `michicondrias://` → la sesión se cierra sola cuando
+  el pago vuelve por deep link; si el usuario la cierra, carrito y pedido se conservan) y en web mantiene `Linking`
+  (que en el navegador abre la pasarela en pestaña nueva). Se usa en los **5 puntos que abren Stripe**: checkout del
+  carrito, reintento de pago del pedido (`useOrderDetail`), suscripción de Michi-Tracker y portal de facturación
+  (`usePetDetail`), portal de facturación de Perfil (`useAccount`) y donaciones. `useCheckout` además se reordenó:
+  primero queda el pedido en pantalla y **después** se abre la pasarela (sin bloquear la mutación en el navegador de
+  auth, que en nativo se cierra con el deep link). `expo-web-browser` era dependencia sin uso en la auditoría y ya está
+  en uso (knip: 6 → 5 deps sin uso). Verificado sin tocar producción: regresión del flujo de compra **13/13** con stub
+  (pedido + sesión de pago creados, la página de Stripe se carga, la bolsa se conserva hasta `pago-exitoso`).
+  `npm run check` 0 errores. La ruta nativa (`openAuthSessionAsync`) se confirma en el próximo APK/emulador.
 

@@ -5,17 +5,17 @@
  */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import * as Linking from 'expo-linking';
 import { createOrder, createCheckoutSession, updateOrderStatus } from '@/src/services/ecommerce';
 import { useCart } from '@/src/contexts/CartContext';
 import { showAlert } from '@/src/components/AppAlert';
+import { openStripeUrl } from '@/src/utils/payments';
 
 export function useCheckout() {
     const { items } = useCart();
     const queryClient = useQueryClient();
     const router = useRouter();
 
-    const checkoutMutation = useMutation<string, Error, string | undefined>({
+    const checkoutMutation = useMutation<{ orderId: string; url: string }, Error, string | undefined>({
         mutationFn: async (shippingAddress?: string) => {
             if (items.length === 0) throw new Error('Tu bolsa está vacía.');
 
@@ -26,25 +26,36 @@ export function useCheckout() {
             });
 
             try {
-                // 2. Crear la sesión de pago y abrir la pasarela
+                // 2. Crear la sesión de pago
                 const session = await createCheckoutSession(order.id);
-                const supported = await Linking.canOpenURL(session.url);
-                if (!supported) throw new Error('No se puede abrir el enlace de pago.');
-                await Linking.openURL(session.url);
+                return { orderId: order.id, url: session.url };
             } catch (error) {
-                // El pedido se creó pero el pago no pudo iniciar: se cancela para devolver el stock apartado.
+                // El pedido se creó pero no se pudo iniciar el pago: se cancela para devolver el stock apartado.
                 // El carrito se conserva para que el usuario pueda reintentar.
                 try { await updateOrderStatus(order.id, 'cancelled'); } catch { /* se puede cancelar desde Mis compras */ }
                 throw error;
             }
-            return order.id;
         },
-        onSuccess: (orderId) => {
+        onSuccess: ({ orderId, url }) => {
             // El stock y los pedidos cambiaron con la orden
             queryClient.invalidateQueries({ queryKey: ['my-orders'] });
             queryClient.invalidateQueries({ queryKey: ['store-products'] });
             queryClient.invalidateQueries({ queryKey: ['product'] });
+            // Primero el pedido a la vista y después la pasarela: en nativo se abre encima y vuelve sola
+            // con el deep link del pago; si se abre después del router, en web la navegación la cancela.
             router.push(`/tienda/pedido/${orderId}` as any);
+            openStripeUrl(url).catch(async (error) => {
+                try { await updateOrderStatus(orderId, 'cancelled'); } catch { /* se cancela desde Mis compras */ }
+                const message = String((error as Error)?.message || '');
+                const unavailable = /no est[aá]n disponibles|no se pudo iniciar el pago/i.test(message);
+                showAlert({
+                    type: 'error',
+                    title: unavailable ? 'Pagos no disponibles' : 'No se pudo iniciar el pago',
+                    message: unavailable
+                        ? 'Por el momento no podemos procesar pagos. Tu carrito se conservó; inténtalo más tarde.'
+                        : (message || 'Inténtalo de nuevo en unos minutos. Tu carrito se conservó.'),
+                });
+            });
         },
         onError: (error) => {
             const message = String(error?.message || '');

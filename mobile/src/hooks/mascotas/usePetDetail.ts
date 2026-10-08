@@ -9,7 +9,7 @@ import { getPetById, sharePetPassport } from '@/src/services/mascotas';
 import { createSubscriptionSession, createBillingPortalSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { Linking } from 'react-native';
+import { openStripeUrl } from '@/src/utils/payments';
 import type { Pet } from '@/src/types/mascotas';
 
 export type PetTab = 'resumen' | 'salud' | 'historial';
@@ -61,7 +61,9 @@ export function usePetDetail() {
         mutationFn: (petId: string) => createSubscriptionSession(petId),
         onSuccess: (data) => {
             if (data.url) {
-                Linking.openURL(data.url);
+                openStripeUrl(data.url).catch(() => {
+                    showAlert({ type: 'error', title: 'Error', message: 'No se pudo iniciar la suscripción de Michi-Tracker' });
+                });
             }
         },
         onError: () => {
@@ -79,7 +81,7 @@ export function usePetDetail() {
         mutationFn: createBillingPortalSession,
         onSuccess: (data) => {
             if (data.url) {
-                Linking.openURL(data.url).catch(() => {
+                openStripeUrl(data.url).catch(() => {
                     showAlert({ type: 'info', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });
                 });
             }
