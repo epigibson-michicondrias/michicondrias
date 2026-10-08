@@ -42,3 +42,49 @@ def create_medical_record(
     assert_can_write_pet_record(db, record_in.pet_id, identity)
     record = crud.crud_carnet.create_medical_record(db=db, record=record_in, vet_id=identity["user_id"])
     return record
+
+
+@router.get("/{record_id}", response_model=MedicalRecordResponse)
+def read_medical_record(
+    record_id: str,
+    db: Session = Depends(get_db),
+    identity: dict = Depends(get_identity),
+) -> Any:
+    """Una consulta del carnet (para editarla)."""
+    record = crud.crud_carnet.get_medical_record(db, record_id=record_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
+    assert_can_read_pet_record(db, record.pet_id, identity)
+    return record
+
+
+@router.put("/{record_id}", response_model=MedicalRecordResponse)
+def update_medical_record(
+    *,
+    db: Session = Depends(get_db),
+    record_id: str,
+    record_in: MedicalRecordUpdate,
+    identity: dict = Depends(get_identity),
+) -> Any:
+    """Edita una consulta del carnet (solo el dueño o un veterinario)."""
+    record = crud.crud_carnet.get_medical_record(db, record_id=record_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
+    assert_can_write_pet_record(db, record.pet_id, identity)
+    return crud.crud_carnet.update_medical_record(db, db_record=record, record_update=record_in)
+
+
+@router.delete("/{record_id}")
+def delete_medical_record(
+    *,
+    db: Session = Depends(get_db),
+    record_id: str,
+    identity: dict = Depends(get_identity),
+) -> Any:
+    """Elimina una consulta del carnet."""
+    record = crud.crud_carnet.get_medical_record(db, record_id=record_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
+    assert_can_write_pet_record(db, record.pet_id, identity)
+    crud.crud_carnet.delete_medical_record(db, db_record=record)
+    return {"deleted": True}

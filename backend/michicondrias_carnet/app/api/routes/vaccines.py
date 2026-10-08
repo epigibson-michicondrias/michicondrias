@@ -42,3 +42,49 @@ def create_vaccine(
     assert_can_write_pet_record(db, vaccine_in.pet_id, identity)
     vaccine = crud.crud_carnet.create_vaccine(db=db, vaccine=vaccine_in, vet_id=identity["user_id"])
     return vaccine
+
+
+@router.get("/{vaccine_id}", response_model=VaccineResponse)
+def read_vaccine(
+    vaccine_id: str,
+    db: Session = Depends(get_db),
+    identity: dict = Depends(get_identity),
+) -> Any:
+    """Una vacuna del carnet (para editarla)."""
+    vaccine = crud.crud_carnet.get_vaccine(db, vaccine_id=vaccine_id)
+    if not vaccine:
+        raise HTTPException(status_code=404, detail="Vacuna no encontrada")
+    assert_can_read_pet_record(db, vaccine.pet_id, identity)
+    return vaccine
+
+
+@router.put("/{vaccine_id}", response_model=VaccineResponse)
+def update_vaccine(
+    *,
+    db: Session = Depends(get_db),
+    vaccine_id: str,
+    vaccine_in: VaccineUpdate,
+    identity: dict = Depends(get_identity),
+) -> Any:
+    """Edita una vacuna del carnet (solo el dueño o un veterinario)."""
+    vaccine = crud.crud_carnet.get_vaccine(db, vaccine_id=vaccine_id)
+    if not vaccine:
+        raise HTTPException(status_code=404, detail="Vacuna no encontrada")
+    assert_can_write_pet_record(db, vaccine.pet_id, identity)
+    return crud.crud_carnet.update_vaccine(db, db_vaccine=vaccine, vaccine_update=vaccine_in)
+
+
+@router.delete("/{vaccine_id}")
+def delete_vaccine(
+    *,
+    db: Session = Depends(get_db),
+    vaccine_id: str,
+    identity: dict = Depends(get_identity),
+) -> Any:
+    """Elimina una vacuna del carnet y recalcula el estado de vacunación de la mascota."""
+    vaccine = crud.crud_carnet.get_vaccine(db, vaccine_id=vaccine_id)
+    if not vaccine:
+        raise HTTPException(status_code=404, detail="Vacuna no encontrada")
+    assert_can_write_pet_record(db, vaccine.pet_id, identity)
+    crud.crud_carnet.delete_vaccine(db, db_vaccine=vaccine)
+    return {"deleted": True}

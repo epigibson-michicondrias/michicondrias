@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.models.carnet import MedicalRecord, Vaccine, Prescription, MedicationReminder
 from app.schemas.carnet import MedicalRecordCreate, MedicalRecordUpdate, VaccineCreate, VaccineUpdate
@@ -64,6 +65,18 @@ def update_medical_record(db: Session, db_record: MedicalRecord, record_update: 
     db.refresh(db_record)
     return db_record
 
+def delete_medical_record(db: Session, db_record: MedicalRecord):
+    db.delete(db_record)
+    db.commit()
+
+def recalc_pet_vaccinated(db: Session, pet_id: str) -> None:
+    """El booleano `is_vaccinated` de la mascota se deriva de tener vacunas registradas (base compartida)."""
+    db.execute(
+        text("UPDATE pets SET is_vaccinated = EXISTS (SELECT 1 FROM vaccines WHERE pet_id = :pet_id) WHERE id = :pet_id"),
+        {"pet_id": pet_id},
+    )
+    db.commit()
+
 # CRUD VACCINES
 def get_vaccine(db: Session, vaccine_id: str):
     return db.query(Vaccine).filter(Vaccine.id == vaccine_id).first()
@@ -80,6 +93,7 @@ def create_vaccine(db: Session, vaccine: VaccineCreate, vet_id: str = None):
     db.add(db_vaccine)
     db.commit()
     db.refresh(db_vaccine)
+    recalc_pet_vaccinated(db, db_vaccine.pet_id)
     return db_vaccine
 
 def update_vaccine(db: Session, db_vaccine: Vaccine, vaccine_update: VaccineUpdate):
@@ -90,6 +104,12 @@ def update_vaccine(db: Session, db_vaccine: Vaccine, vaccine_update: VaccineUpda
     db.commit()
     db.refresh(db_vaccine)
     return db_vaccine
+
+def delete_vaccine(db: Session, db_vaccine: Vaccine):
+    pet_id = db_vaccine.pet_id
+    db.delete(db_vaccine)
+    db.commit()
+    recalc_pet_vaccinated(db, pet_id)
 
 # CRUD MEDICATION REMINDERS
 def get_reminders_by_pet(db: Session, pet_id: str, unread_only: bool = False, skip: int = 0, limit: int = 100):

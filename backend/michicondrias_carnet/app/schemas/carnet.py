@@ -51,6 +51,7 @@ class MedicalRecordUpdate(BaseModel):
     diagnosis: Optional[str] = None
     treatment: Optional[str] = None
     weight_kg: Optional[float] = None
+    temperature_c: Optional[float] = None
     notes: Optional[str] = None
 
 class MedicalRecordResponse(MedicalRecordBase):
