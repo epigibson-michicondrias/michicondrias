@@ -2,7 +2,7 @@
  * FormSection — Groups form fields with an optional title
  */
 import React from 'react';
-import { spacing, radius, type } from '@/constants/design';
+import { spacing, type } from '@/constants/design';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 

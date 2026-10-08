@@ -1,5 +1,5 @@
 import React from 'react';
-import { spacing, radius, type } from '@/constants/design';
+import { spacing, radius } from '@/constants/design';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useTheme } from '@/src/hooks/useTheme';
