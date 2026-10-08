@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F15–F18, F20, F21 y F23 ✅ · faltan F11, F12, F14, F19, F22 y F24–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F11, F13, F15–F18, F20, F21 y F23 ✅ · faltan F12, F14, F19, F22 y F24–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -51,7 +51,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 
 | Prio | Módulo | Pant. | Audit. | Func. | UI | Notas |
 |---|---|---|---|---|---|---|
-| P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | 🟡 | ⬜ | F9 ✅ (en capas) y F10 ✅ (auto-login); faltan F11–F13. Reset sin deep link inutilizable (F12) |
+| P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | 🟡 | ⬜ | F9 ✅ (en capas), F10 ✅ (auto-login) y F11 ✅ (core: correo sin mayúsculas, español, contraseña mínima); falta F12 (código de 6 dígitos) |
 | P1 | Pestañas (`(tabs)/`) | 5 | 🔍 | ⬜ | ⬜ | Campana falsa; tienda ×5; Herramientas duplica Perfil |
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
@@ -231,7 +231,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] F9 Auth en capas: `src/services/auth.ts` (con `API_URLS`) + `src/hooks/auth/*`; hook `usePartnerUpgrade` y
       helper "guardar token + recargar" común (`AuthContext.refreshSession`).
 - [x] F10 Registro con login automático + línea a la cuenta profesional.
-- [ ] 🛠️ F11 Backend auth: email sin distinguir mayúsculas (revisar duplicados antes), mensajes en español, contraseña
+- [x] 🛠️ F11 Backend auth: email sin distinguir mayúsculas (revisar duplicados antes), mensajes en español, contraseña
       mínima, `created_at` en `/users/me`.
 - [ ] 🛠️ F12 Recuperación con código de 6 dígitos (si se aprueba) o token de un solo uso.
 - [x] F13 Perfil: 2FA con QR / "abrir en app autenticadora" / copiar, invalidar `user-profile`; verificacion con hook,
@@ -481,4 +481,19 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   individual. Verificado sin tocar producción: smoke con stub **13/13** (confirmación con Cancelar que conserva, DELETE
   que borra y llega al backend, edición precargada con la fecha solo lectura, PUT con los cambios y vuelta al carnet).
   `npm run check` 0 errores. **El backend de carnet queda listo para desplegar** (sin migración; se agrupa con F14/F19/F22/F24).
+- **2026-10-07** — **Despliegue**: push a `main` (12 commits, `485780b..802734c`) → `deploy-oracle.yml` ✅ (sync + reinicio
+  + health-check), `scripts/vm.sh status` **17/17 activos en http 200** y **OTA en `production`** (runtime 1.0.0, update
+  group `830b5963-79ad-4b4f-a2ff-602f489237f3`, commit `802734c`). Sin migraciones (F17 y F15 son solo código). Ya en
+  producción: F9–F21 y F15 (app) + `pet_id` del triage y carnet PUT/DELETE (backend).
+- **2026-10-07** — **F11 Core: cuenta honesta** (backend de core). **Chequeo previo de duplicados** en producción (solo
+  lectura: 2 usuarios, 0 con mayúsculas, 0 duplicados case-insensitive) y luego el correo **dejó de distinguir
+  mayúsculas**: `get_user_by_email` compara en minúsculas (login, forgot y el chequeo de duplicados del registro) y
+  `create_user` guarda el correo normalizado. **Mensajes en español** («Correo o contraseña incorrectos», «La cuenta
+  está desactivada», duplicados de usuario/configuración: antes todo en inglés). **Contraseña mínima de 8** en
+  `UserCreate`/`UserUpdate` (mensaje en español vía 422, que la app ya muestra limpio). **`created_at` en `/users/me`**
+  (la columna existía en `public.users` y `BaseModel` ya la mapeaba: solo faltaba exponerla; ahora puede salir «Miembro
+  desde» en U5). Además el registro público **fuerza `is_active: true`** (antes el cliente podía mandar `false`).
+  Verificado con TestClient + SQLite: **6/6** (normalización, duplicado por mayúsculas, login con otra combinación y
+  mensaje en español, contraseña corta rechazada, `is_active` forzado, `created_at` presente). **Pendiente de
+  desplegar** (sin migración; se agrupa con F12/F14/F19/F22/F24).
 

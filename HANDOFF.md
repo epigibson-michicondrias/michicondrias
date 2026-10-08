@@ -234,7 +234,7 @@ El detalle de cada tarea está en `PROGRESO_MOBILE.md` → *Backlog por fase* y 
 | ~~F21~~ ✅ | Ayuda: FAQ verídicas (solo tarjeta, botón real "¡Quiero Adoptar!"), avisar si falla `Linking`, `ScreenContainer`/`ScreenHeader` — hecho 2026-10-07 | |
 | ~~F23~~ ✅ | Los `onError` de mutaciones no muestran error si `ApiError.sessionExpired` — hecho 2026-10-07 (corte central en `AppAlert.notifySessionExpired`) | un solo aviso al vencer la sesión |
 | ~~F15~~ 🛠️ ✅ | PUT/DELETE de vacunas y consultas (carnet) + UI con confirmación — hecho 2026-10-07 (GET por id, recálculo de `is_vaccinated`, editar desde los formularios y borrar con confirmación) | |
-| F11 🛠️ | Core: email sin distinguir mayúsculas (**antes** busca duplicados por mayúsculas en `users`), mensajes en español, contraseña mínima, `created_at` en `/users/me` | |
+| ~~F11~~ 🛠️ ✅ | Core: email sin distinguir mayúsculas (**antes** busca duplicados por mayúsculas en `users`), mensajes en español, contraseña mínima, `created_at` en `/users/me` — hecho 2026-10-07 (0 duplicados en producción; + `is_active` forzado en el registro) | |
 | F12 🛠️ | Recuperación con código de 6 dígitos (decisión tomada): endpoint en core + pantalla única de reset | |
 | F14 🛠️ | Emisor de recordatorios y refuerzos (job + notificación con `link`) | |
 | F19 🛠️ | Tienda: liberar pedidos vencidos en `/orders/*`, notificar pago (tipo `store` + `link`), `can_review`, paginación | |

@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, List
 
 class Token(BaseModel):
@@ -31,8 +32,28 @@ class UserCreate(UserBase):
     password: str
     role_id: Optional[str] = None
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: str) -> str:
+        # El correo se guarda en minúsculas: el login tampoco distingue mayúsculas
+        return value.strip().lower()
+
+    @field_validator("password")
+    @classmethod
+    def password_min_length(cls, value: str) -> str:
+        if len(value) < 8:
+            raise ValueError("La contraseña debe tener al menos 8 caracteres")
+        return value
+
 class UserUpdate(UserBase):
     password: Optional[str] = None
+
+    @field_validator("password")
+    @classmethod
+    def password_min_length(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and len(value) < 8:
+            raise ValueError("La contraseña debe tener al menos 8 caracteres")
+        return value
 
 class UserKYCUpdateBase(BaseModel):
     id_front_url: str
@@ -48,6 +69,8 @@ class UserResponse(UserBase):
     id_front_url: Optional[str] = None
     id_back_url: Optional[str] = None
     proof_of_address_url: Optional[str] = None
+    # "Miembro desde" en la app
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -55,6 +78,7 @@ class UserResponse(UserBase):
 class UserMeResponse(UserBase):
     id: str
     role_name: str
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

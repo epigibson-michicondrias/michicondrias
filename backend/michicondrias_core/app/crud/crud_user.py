@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserBase
@@ -7,7 +8,8 @@ def get_user(db: Session, user_id: str):
     return db.query(User).filter(User.id == user_id).first()
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+    # El correo no distingue mayúsculas: "Ana@correo.com" y "ana@correo.com" son la misma cuenta
+    return db.query(User).filter(func.lower(User.email) == (email or "").strip().lower()).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     from sqlalchemy.orm import joinedload
@@ -16,7 +18,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def create_user(db: Session, user: UserCreate):
     hashed_password = get_password_hash(user.password)
     db_user = User(
-        email=user.email,
+        email=(user.email or "").strip().lower(),
         hashed_password=hashed_password,
         full_name=user.full_name,
         role_id=user.role_id,

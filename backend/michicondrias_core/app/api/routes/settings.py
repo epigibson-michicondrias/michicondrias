@@ -50,7 +50,7 @@ def create_setting(
     if setting:
         raise HTTPException(
             status_code=400,
-            detail="The setting with this key already exists in the system.",
+            detail="Ya existe una configuración con esta clave.",
         )
     setting = crud.crud_setting.create_setting(db=db, setting=setting_in)
     return setting
@@ -68,7 +68,7 @@ def update_setting(
     """
     setting = crud.crud_setting.get_setting(db, setting_id=setting_id)
     if not setting:
-        raise HTTPException(status_code=404, detail="Setting not found")
+        raise HTTPException(status_code=404, detail="Configuración no encontrada")
     setting = crud.crud_setting.update_setting(db=db, db_setting=setting, setting_update=setting_in)
     return setting
 
@@ -84,6 +84,6 @@ def delete_setting(
     """
     setting = crud.crud_setting.get_setting(db, setting_id=setting_id)
     if not setting:
-        raise HTTPException(status_code=404, detail="Setting not found")
+        raise HTTPException(status_code=404, detail="Configuración no encontrada")
     setting = crud.crud_setting.remove_setting(db=db, setting_id=setting_id)
     return setting

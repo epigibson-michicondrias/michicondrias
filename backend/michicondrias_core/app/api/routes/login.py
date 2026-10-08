@@ -12,6 +12,7 @@ from app.core.email import send_password_reset_email
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.user import Token, LoginResponse, TwoFactorVerifyLoginRequest, TokenPayload
+from app import crud
 import pyotp
 import logging
 
@@ -36,11 +37,11 @@ def login_access_token(
     OAuth2 compatible token login. If 2FA is enabled, returns a temp token.
     Otherwise, returns the final JWT access token directly.
     """
-    user = db.query(User).filter(User.email == form_data.username).first()
+    user = crud.crud_user.get_user_by_email(db, form_data.username)
     if not user or not security.verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+        raise HTTPException(status_code=400, detail="Correo o contraseña incorrectos")
     elif not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail="La cuenta está desactivada")
 
     # Get role name
     role_name = "consumidor"
@@ -132,7 +133,7 @@ def forgot_password(
     """
     Send a password reset email. Always returns success to prevent email enumeration.
     """
-    user = db.query(User).filter(User.email == body.email).first()
+    user = crud.crud_user.get_user_by_email(db, body.email)
     
     if user and user.is_active:
         reset_token = security.create_access_token(

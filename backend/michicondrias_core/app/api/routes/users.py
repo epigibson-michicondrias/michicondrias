@@ -56,6 +56,7 @@ def read_user_me(
         "location": current_user.location,
         "bio": current_user.bio,
         "avatar_url": current_user.avatar_url,
+        "created_at": current_user.created_at,
     }
     # Transform URLs for viewing
     return _add_kyc_presigned_urls(user_data)
@@ -217,8 +218,9 @@ def register_user(
         )
     # Assign consumidor role by default
     consumidor_role = db.query(Role).filter(Role.name == "consumidor").first()
-    # Nunca se acepta el role_id que mande el cliente: el registro público siempre es "consumidor"
+    # Nunca se aceptan el role_id ni el estado que mande el cliente: el registro público siempre es "consumidor" activo
     user_in.role_id = consumidor_role.id if consumidor_role else None
+    user_in.is_active = True
     user = crud.crud_user.create_user(db=db, user=user_in)
     return user
 
@@ -251,7 +253,7 @@ def create_user(
     if user:
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system.",
+            detail="Ya existe un usuario con este correo electrónico.",
         )
     user = crud.crud_user.create_user(db=db, user=user_in)
     return user
