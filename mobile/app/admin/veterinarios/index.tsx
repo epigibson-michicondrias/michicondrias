@@ -24,7 +24,7 @@ export default function AdminVeterinariosScreen() {
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.cardHeader}>
                 <LinearGradient
-                    colors={['#1c2f6b', '#101c3d']}
+                    colors={theme.heroGradient}
                     style={styles.avatarPlaceholder}
                 >
                     <Text style={styles.avatarInitial}>{item.full_name?.charAt(0).toUpperCase() || 'V'}</Text>

@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar, View, Text } from 'react-native';
-import { useTheme } from '@/src/hooks/useTheme';
+import { StyleSheet, ScrollView, TouchableOpacity, Image, View, Text } from 'react-native';
+import { useTheme, useHeroStatusBar } from '@/src/hooks/useTheme';
 import { useHome, STATUS_COLORS, STATUS_LABELS, formatDate } from '@/src/hooks/home/useHome';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { Plus, Bell, Bone, Activity, Sparkles, ChevronRight, Calendar, ShieldCheck, Zap, Handshake, XCircle } from 'lucide-react-native';
@@ -25,6 +25,7 @@ const getPetPlaceholder = (species: string) => {
 // ── Component ─────────────────────────────────────────────────────
 export default function DashboardScreen() {
   const { theme } = useTheme();
+  useHeroStatusBar();
   const insets = useSafeAreaInsets();
   const {
     user,
@@ -45,7 +46,6 @@ export default function DashboardScreen() {
   // ── Render ──
   return (
     <ScreenContainer>
-      <StatusBar barStyle="light-content" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -53,7 +53,7 @@ export default function DashboardScreen() {
       >
         {/* Background Gradient */}
         <LinearGradient
-          colors={['#1c2f6b', '#101c3d', theme.background]}
+          colors={[...theme.heroGradient, theme.background]}
           locations={[0, 0.55, 1]}
           style={styles.headerGradient}
         />

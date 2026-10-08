@@ -8,7 +8,6 @@ import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck
 import DataList from '@/src/components/data/DataList';
 import BackButton from '@/src/components/BackButton';
 import { showAlert } from '@/src/components/AppAlert';
-import { StatusBar } from 'expo-status-bar';
 // @ts-ignore
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -338,7 +337,6 @@ export default function DirectorioIndexScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar style={isDark ? 'light' : 'dark'} />
             <LinearGradient
                 colors={[theme.primaryLight, theme.background]}
                 style={StyleSheet.absoluteFillObject}

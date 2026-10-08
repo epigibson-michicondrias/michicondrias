@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator } from 'react-native';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, KeyRound, ShieldCheck, Mail } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,8 +24,7 @@ export default function ResetPasswordScreen() {
 
     const { resetPassword, isResetting, resetWithCode, isResettingWithCode } = usePasswordReset();
     const router = useRouter();
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
     const isDark = colorScheme === 'dark';
     const isWorking = isResetting || isResettingWithCode;
 

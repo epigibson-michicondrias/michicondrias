@@ -104,7 +104,7 @@ export default function PerdidasScreen() {
                 <ScreenHeader
                     title="Mascotas perdidas"
                     subtitle="La comunidad te ayuda a reunirte con tu mejor amigo"
-                    gradient={['#1c2f6b', '#101c3d']}
+                    gradient={[...theme.heroGradient]}
                     actionIcon={Plus}
                     actionLabel="Reportar mascota"
                     onAction={() => router.push('/perdidas/nuevo')}

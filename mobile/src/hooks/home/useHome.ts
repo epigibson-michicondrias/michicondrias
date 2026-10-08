@@ -13,6 +13,7 @@ import { normalizeRole, isProRole } from '@/src/constants/roles';
 import { getHomeTools, ROLE_PANEL_TITLE } from '@/src/constants/roleTools';
 import { useUnreadNotificationCount } from '@/src/hooks/notifications/useNotifications';
 import { Stethoscope, Sparkles, AlertTriangle, Heart } from 'lucide-react-native';
+import { accents } from '@/constants/design';
 
 // ── Types ──
 export interface QuickAction {
@@ -26,17 +27,17 @@ export interface QuickAction {
 // ── Constants ──
 /** Atajos de dueño de mascota en Inicio (las herramientas de cada rol salen de ROLE_TOOLS en roleTools.ts). */
 const OWNER_ACTIONS: QuickAction[] = [
-  { title: 'Veterinarios', icon: Stethoscope, color: '#0ea5e9', route: '/directorio' },
-  { title: 'Diagnóstico IA', icon: Sparkles, color: '#8b5cf6', route: '/mascotas/diagnostico-ia' },
-  { title: 'Perdidas', icon: AlertTriangle, color: '#ef4444', route: '/perdidas' },
-  { title: 'Adopciones', icon: Heart, color: '#ec4899', route: '/adopciones' },
+  { title: 'Veterinarios', icon: Stethoscope, color: accents.info, route: '/directorio' },
+  { title: 'Diagnóstico IA', icon: Sparkles, color: accents.services, route: '/mascotas/diagnostico-ia' },
+  { title: 'Perdidas', icon: AlertTriangle, color: accents.danger, route: '/perdidas' },
+  { title: 'Adopciones', icon: Heart, color: accents.shop, route: '/adopciones' },
 ];
 
 export const STATUS_COLORS: Record<string, string> = {
-  scheduled: '#f59e0b',
-  confirmed: '#10b981',
-  completed: '#3b82f6',
-  cancelled: '#ef4444',
+  scheduled: accents.warning,
+  confirmed: accents.health,
+  completed: accents.info,
+  cancelled: accents.danger,
 };
 
 export const STATUS_LABELS: Record<string, string> = {

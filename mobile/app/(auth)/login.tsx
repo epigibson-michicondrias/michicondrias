@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Dimensions, Animated } from 'react-native';
 import { useLogin } from '@/src/hooks/auth/useLogin';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck, ArrowLeft } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -26,8 +25,7 @@ export default function LoginScreen() {
 
     const { login, verify2FA, isLoggingIn, isVerifying2FA } = useLogin();
     const router = useRouter();
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
     const isDark = colorScheme === 'dark';
 
     const animateTo2FA = () => {

@@ -86,18 +86,25 @@ export const layout = {
     iconBox: { sm: 36, md: 44, lg: 52 },
 } as const;
 
-/** Colores semánticos de dominio que no dependen del tema (categorías, estados). */
+/**
+ * Acentos de dominio (categorías de Explorar, atajos y herramientas por rol). Paleta corta y armonizada con
+ * *Midnight & Gold*: tonos medios que se leen sobre el fondo claro y el oscuro. Se usan como `color` de ícono y,
+ * con `tint`, como fondo suave (`accents.health + tint.soft`). No uses hex de Tailwind sueltos: elige uno de estos.
+ */
 export const accents = {
-    health: '#10b981',
-    services: '#8b5cf6',
-    shop: '#ec4899',
-    community: '#f43f5e',
-    info: '#0ea5e9',
-    warning: '#f59e0b',
-    danger: '#ef4444',
-    neutral: '#64748b',
-    gold: '#e9c883',
+    health: '#2fb886',
+    info: '#3d8ef0',
+    services: '#7d6ff0',
+    shop: '#d4609a',
+    community: '#e2605e',
+    warning: '#e0912f',
+    teal: '#25a3a0',
+    gold: '#c99a45',
+    neutral: '#7c8698',
+    danger: '#e2605e',
 } as const;
+
+export type AccentKey = keyof typeof accents;
 
 /** Duraciones de animación (ms). */
 export const motion = { fast: 150, base: 220, slow: 360 } as const;

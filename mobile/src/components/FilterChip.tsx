@@ -1,7 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface FilterChipProps {
     label: string;
@@ -15,8 +14,7 @@ interface FilterChipProps {
 }
 
 export default function FilterChip({ label, active, onPress, color, icon, count }: FilterChipProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
     const accentColor = color || theme.primary;
 
     return (

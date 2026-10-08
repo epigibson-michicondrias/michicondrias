@@ -4,6 +4,7 @@
  */
 import { useState, useMemo } from 'react';
 import { Stethoscope, UserCheck, Home, MapPin, Heart, AlertTriangle, Bone, HeartPulse, Briefcase, Store, Users, Shield, FlaskConical, Dumbbell, Scissors, Car, Flower2 } from 'lucide-react-native';
+import { accents } from '@/constants/design';
 
 export type CategoryKey = 'Salud' | 'Servicios' | 'Comunidad';
 
@@ -24,32 +25,32 @@ export interface CategoryDef {
 }
 
 export const CATEGORIES: CategoryDef[] = [
-    { key: 'Salud', label: 'Salud', icon: HeartPulse, color: '#10b981' },
-    { key: 'Servicios', label: 'Servicios', icon: Briefcase, color: '#8b5cf6' },
-    { key: 'Comunidad', label: 'Comunidad', icon: Users, color: '#f43f5e' },
+    { key: 'Salud', label: 'Salud', icon: HeartPulse, color: accents.health },
+    { key: 'Servicios', label: 'Servicios', icon: Briefcase, color: accents.services },
+    { key: 'Comunidad', label: 'Comunidad', icon: Users, color: accents.community },
 ];
 
 export const EXPLORE_ITEMS: ExploreItem[] = [
     // Salud
-    { title: 'Veterinarios', subtitle: 'Clínicas y especialistas', icon: Stethoscope, color: '#0ea5e9', route: '/directorio', category: 'Salud' },
-    { title: 'Laboratorios', subtitle: 'Análisis y resultados', icon: FlaskConical, color: '#10b981', route: '/laboratorio', category: 'Salud' },
-    { title: 'Seguros', subtitle: 'Planes para tu mascota', icon: Shield, color: '#0ea5e9', route: '/aseguradoras', category: 'Salud' },
+    { title: 'Veterinarios', subtitle: 'Clínicas y especialistas', icon: Stethoscope, color: accents.info, route: '/directorio', category: 'Salud' },
+    { title: 'Laboratorios', subtitle: 'Análisis y resultados', icon: FlaskConical, color: accents.health, route: '/laboratorio', category: 'Salud' },
+    { title: 'Seguros', subtitle: 'Planes para tu mascota', icon: Shield, color: accents.info, route: '/aseguradoras', category: 'Salud' },
 
     // Servicios
-    { title: 'Paseadores', subtitle: 'Paseos a tu medida', icon: UserCheck, color: '#8b5cf6', route: '/paseadores', category: 'Servicios' },
-    { title: 'Cuidadores', subtitle: 'Hospedaje y visitas', icon: Home, color: '#7c3aed', route: '/cuidadores', category: 'Servicios' },
-    { title: 'Estética', subtitle: 'Baño y corte', icon: Scissors, color: '#ec4899', route: '/estilistas', category: 'Servicios' },
-    { title: 'Entrenadores', subtitle: 'Adiestramiento', icon: Dumbbell, color: '#8b5cf6', route: '/entrenadores', category: 'Servicios' },
-    { title: 'Transporte', subtitle: 'Viajes para mascotas', icon: Car, color: '#6366f1', route: '/transportistas', category: 'Servicios' },
+    { title: 'Paseadores', subtitle: 'Paseos a tu medida', icon: UserCheck, color: accents.services, route: '/paseadores', category: 'Servicios' },
+    { title: 'Cuidadores', subtitle: 'Hospedaje y visitas', icon: Home, color: accents.services, route: '/cuidadores', category: 'Servicios' },
+    { title: 'Estética', subtitle: 'Baño y corte', icon: Scissors, color: accents.shop, route: '/estilistas', category: 'Servicios' },
+    { title: 'Entrenadores', subtitle: 'Adiestramiento', icon: Dumbbell, color: accents.services, route: '/entrenadores', category: 'Servicios' },
+    { title: 'Transporte', subtitle: 'Viajes para mascotas', icon: Car, color: accents.services, route: '/transportistas', category: 'Servicios' },
     // Pet-friendly y Establecimientos parecen el mismo tipo de lugar: se decide si se fusionan en la auditoría P2
-    { title: 'Pet-friendly', subtitle: 'Lugares que aceptan mascotas', icon: MapPin, color: '#14b8a6', route: '/petfriendly', category: 'Servicios' },
-    { title: 'Establecimientos', subtitle: 'Comercios y locales', icon: Store, color: '#f59e0b', route: '/establecimientos', category: 'Servicios' },
-    { title: 'Funeraria', subtitle: 'Despedida y memoriales', icon: Flower2, color: '#64748b', route: '/funeraria', category: 'Servicios' },
+    { title: 'Pet-friendly', subtitle: 'Lugares que aceptan mascotas', icon: MapPin, color: accents.teal, route: '/petfriendly', category: 'Servicios' },
+    { title: 'Establecimientos', subtitle: 'Comercios y locales', icon: Store, color: accents.warning, route: '/establecimientos', category: 'Servicios' },
+    { title: 'Funeraria', subtitle: 'Despedida y memoriales', icon: Flower2, color: accents.neutral, route: '/funeraria', category: 'Servicios' },
 
     // Comunidad
-    { title: 'Adopciones', subtitle: 'Busca un amigo', icon: Heart, color: '#f43f5e', route: '/adopciones', category: 'Comunidad' },
-    { title: 'Mascotas perdidas', subtitle: 'Reportes activos', icon: AlertTriangle, color: '#ef4444', route: '/perdidas', category: 'Comunidad' },
-    { title: 'Donaciones', subtitle: 'Apoya a los refugios', icon: Bone, color: '#f59e0b', route: '/donaciones', category: 'Comunidad' },
+    { title: 'Adopciones', subtitle: 'Busca un amigo', icon: Heart, color: accents.community, route: '/adopciones', category: 'Comunidad' },
+    { title: 'Mascotas perdidas', subtitle: 'Reportes activos', icon: AlertTriangle, color: accents.danger, route: '/perdidas', category: 'Comunidad' },
+    { title: 'Donaciones', subtitle: 'Apoya a los refugios', icon: Bone, color: accents.warning, route: '/donaciones', category: 'Comunidad' },
 ];
 
 export function useExplore() {

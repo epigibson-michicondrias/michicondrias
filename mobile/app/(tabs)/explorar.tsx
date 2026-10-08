@@ -3,13 +3,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  StatusBar,
   View,
   Text,
   TextInput,
   Dimensions,
 } from 'react-native';
-import { useTheme } from '@/src/hooks/useTheme';
+import { useTheme, useHeroStatusBar } from '@/src/hooks/useTheme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useExplore } from '@/src/hooks/home/useExplore';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -26,6 +25,7 @@ const CARD_WIDTH = (SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 export default function ExplorarScreen() {
   const router = useRouter();
   const { theme, isDark } = useTheme();
+  useHeroStatusBar();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
@@ -40,7 +40,6 @@ export default function ExplorarScreen() {
 
   return (
     <ScreenContainer>
-      <StatusBar barStyle="light-content" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -48,7 +47,7 @@ export default function ExplorarScreen() {
       >
         {/* Header Gradient */}
         <LinearGradient
-          colors={['#1c2f6b', '#101c3d', theme.background]}
+          colors={[...theme.heroGradient, theme.background]}
           style={styles.headerGradient}
         />
 
@@ -174,7 +173,7 @@ export default function ExplorarScreen() {
             onPress={() => router.push('/mascotas/diagnostico-ia' as any)}
           >
             <LinearGradient
-              colors={['#243b85', '#1c2f6b', '#101c3d']}
+              colors={theme.heroGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={StyleSheet.absoluteFillObject}

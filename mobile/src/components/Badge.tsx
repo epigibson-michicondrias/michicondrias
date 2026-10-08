@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface BadgeProps {
     label: string;
@@ -12,8 +11,7 @@ interface BadgeProps {
 }
 
 export default function Badge({ label, color, icon, variant = 'filled', size = 'md' }: BadgeProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
     const badgeColor = color || theme.primary;
 
     const isFilled = variant === 'filled';

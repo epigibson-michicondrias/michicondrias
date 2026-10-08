@@ -13,6 +13,7 @@ import {
     ShieldCheck, Settings, UserCheck, Eye, FileText, Boxes, Syringe, MapPin,
 } from 'lucide-react-native';
 import { normalizeRole } from '@/src/constants/roles';
+import { accents } from '@/constants/design';
 
 export interface RoleTool {
     id: string;
@@ -29,110 +30,110 @@ const t = (id: string, label: string, desc: string, route: string, color: string
     ({ id, label, desc, route, color, icon, home });
 
 const refugioTools = (withApps: boolean): RoleTool[] => [
-    t('ref-publicaciones', 'Mis publicaciones', 'Mascotas en adopción', '/adopciones/mis-publicaciones', '#ec4899', Heart, true),
-    t('ref-nuevo', 'Publicar mascota', 'Nueva mascota en adopción', '/adopciones/nuevo', '#10b981', Plus, true),
-    t('ref-solicitudes', 'Solicitudes recibidas', 'Interesados en adoptar', '/adopciones/solicitudes', '#f59e0b', ClipboardList, true),
-    ...(withApps ? [t('ref-aplicaciones', 'Postulaciones', 'Revisar formularios de adopción', '/adopciones/refugio/aplicaciones', '#8b5cf6', FileText, true)] : []),
+    t('ref-publicaciones', 'Mis publicaciones', 'Mascotas en adopción', '/adopciones/mis-publicaciones', accents.shop, Heart, true),
+    t('ref-nuevo', 'Publicar mascota', 'Nueva mascota en adopción', '/adopciones/nuevo', accents.health, Plus, true),
+    t('ref-solicitudes', 'Solicitudes recibidas', 'Interesados en adoptar', '/adopciones/solicitudes', accents.warning, ClipboardList, true),
+    ...(withApps ? [t('ref-aplicaciones', 'Postulaciones', 'Revisar formularios de adopción', '/adopciones/refugio/aplicaciones', accents.services, FileText, true)] : []),
 ];
 
 const servicioPro = (rolePath: 'paseadores' | 'cuidadores'): RoleTool[] => [
-    t('p-tareas', 'Mis tareas', 'Servicios activos', '/servicios-pro/gestion', '#6366f1', Activity, true),
-    t('p-solicitudes', 'Solicitudes', 'Solicitudes entrantes', `/${rolePath}/solicitudes`, '#10b981', ClipboardList, true),
-    t('p-calendario', 'Calendario', 'Tu agenda', `/${rolePath}/calendario`, '#f59e0b', Calendar, true),
-    t('p-perfil', 'Mi perfil profesional', 'Tarifas, zonas y descripción', '/servicios-pro/perfil', '#ec4899', UserCheck, true),
+    t('p-tareas', 'Mis tareas', 'Servicios activos', '/servicios-pro/gestion', accents.services, Activity, true),
+    t('p-solicitudes', 'Solicitudes', 'Solicitudes entrantes', `/${rolePath}/solicitudes`, accents.health, ClipboardList, true),
+    t('p-calendario', 'Calendario', 'Tu agenda', `/${rolePath}/calendario`, accents.warning, Calendar, true),
+    t('p-perfil', 'Mi perfil profesional', 'Tarifas, zonas y descripción', '/servicios-pro/perfil', accents.shop, UserCheck, true),
 ];
 
 export const ROLE_TOOLS: Record<string, RoleTool[]> = {
     consumidor: [],
 
     veterinario: [
-        t('v-clinica', 'Mi consultorio', 'Operación clínica', '/mi-clinica', '#06b6d4', Building, true),
-        t('v-agenda', 'Agenda', 'Citas y horarios', '/mi-clinica/agenda', '#8b5cf6', Calendar, true),
-        t('v-pacientes', 'Pacientes', 'Historial de pacientes', '/mi-clinica/pacientes', '#f59e0b', ClipboardList, true),
-        t('v-video', 'Videoconsultas', 'Pacientes virtuales', '/mi-clinica/consultas-video', '#6366f1', Video, true),
-        t('v-recetas', 'Recetas', 'Prescripciones emitidas', '/mi-clinica/recetas', '#10b981', FileText),
-        t('v-lab', 'Laboratorio', 'Órdenes y resultados', '/mi-clinica/laboratorio', '#0ea5e9', FlaskConical),
-        t('v-cirugias', 'Cirugías', 'Programación quirúrgica', '/mi-clinica/cirugias', '#ef4444', Syringe),
-        t('v-inventario', 'Inventario', 'Insumos y medicamentos', '/mi-clinica/inventario', '#64748b', Boxes),
-        t('v-servicios', 'Servicios', 'Catálogo y precios', '/mi-clinica/servicios', '#ec4899', CreditCard),
-        t('v-horarios', 'Horarios', 'Disponibilidad', '/mi-clinica/horarios', '#14b8a6', Clock),
-        t('v-directorio', 'Mi directorio', 'Registrar mis lugares', '/directorio/nuevo', '#06b6d4', Stethoscope),
+        t('v-clinica', 'Mi consultorio', 'Operación clínica', '/mi-clinica', accents.info, Building, true),
+        t('v-agenda', 'Agenda', 'Citas y horarios', '/mi-clinica/agenda', accents.services, Calendar, true),
+        t('v-pacientes', 'Pacientes', 'Historial de pacientes', '/mi-clinica/pacientes', accents.warning, ClipboardList, true),
+        t('v-video', 'Videoconsultas', 'Pacientes virtuales', '/mi-clinica/consultas-video', accents.services, Video, true),
+        t('v-recetas', 'Recetas', 'Prescripciones emitidas', '/mi-clinica/recetas', accents.health, FileText),
+        t('v-lab', 'Laboratorio', 'Órdenes y resultados', '/mi-clinica/laboratorio', accents.info, FlaskConical),
+        t('v-cirugias', 'Cirugías', 'Programación quirúrgica', '/mi-clinica/cirugias', accents.danger, Syringe),
+        t('v-inventario', 'Inventario', 'Insumos y medicamentos', '/mi-clinica/inventario', accents.neutral, Boxes),
+        t('v-servicios', 'Servicios', 'Catálogo y precios', '/mi-clinica/servicios', accents.shop, CreditCard),
+        t('v-horarios', 'Horarios', 'Disponibilidad', '/mi-clinica/horarios', accents.teal, Clock),
+        t('v-directorio', 'Mi directorio', 'Registrar mis lugares', '/directorio/nuevo', accents.info, Stethoscope),
     ],
 
     hospital: [
-        t('h-clinica', 'Mi clínica', 'Operación clínica', '/mi-clinica', '#06b6d4', Building, true),
-        t('h-sucursales', 'Sucursales', 'Sedes y datos', '/mi-clinica/sucursales', '#0ea5e9', MapPin, true),
-        t('h-vets', 'Médicos asociados', 'Gestionar veterinarios', '/mi-clinica/veterinarios', '#10b981', Users, true),
-        t('h-agenda', 'Agenda', 'Citas y horarios', '/mi-clinica/agenda', '#8b5cf6', Calendar, true),
-        t('h-pacientes', 'Pacientes', 'Historial de pacientes', '/mi-clinica/pacientes', '#f59e0b', ClipboardList),
-        t('h-inventario', 'Inventario', 'Insumos y medicamentos', '/mi-clinica/inventario', '#64748b', Boxes),
-        t('h-servicios', 'Servicios', 'Catálogo y precios', '/mi-clinica/servicios', '#ec4899', CreditCard),
+        t('h-clinica', 'Mi clínica', 'Operación clínica', '/mi-clinica', accents.info, Building, true),
+        t('h-sucursales', 'Sucursales', 'Sedes y datos', '/mi-clinica/sucursales', accents.info, MapPin, true),
+        t('h-vets', 'Médicos asociados', 'Gestionar veterinarios', '/mi-clinica/veterinarios', accents.health, Users, true),
+        t('h-agenda', 'Agenda', 'Citas y horarios', '/mi-clinica/agenda', accents.services, Calendar, true),
+        t('h-pacientes', 'Pacientes', 'Historial de pacientes', '/mi-clinica/pacientes', accents.warning, ClipboardList),
+        t('h-inventario', 'Inventario', 'Insumos y medicamentos', '/mi-clinica/inventario', accents.neutral, Boxes),
+        t('h-servicios', 'Servicios', 'Catálogo y precios', '/mi-clinica/servicios', accents.shop, CreditCard),
     ],
 
-    refugio: [...refugioTools(true), t('ref-donaciones', 'Donaciones', 'Apoyo a refugios', '/donaciones', '#f59e0b', Heart)],
+    refugio: [...refugioTools(true), t('ref-donaciones', 'Donaciones', 'Apoyo a refugios', '/donaciones', accents.warning, Heart)],
     hogar_temporal: refugioTools(false),
 
     vendedor: [
-        t('vend-tienda', 'Mi tienda', 'Catálogo y estado', '/tienda/vendedor', '#10b981', ShoppingBag, true),
-        t('vend-pedidos', 'Pedidos', 'Ventas recibidas', '/tienda/vendedor/ordenes', '#f59e0b', Package, true),
-        t('vend-productos', 'Productos', 'Gestión de inventario', '/tienda/vendedor/productos', '#8b5cf6', CreditCard, true),
-        t('vend-analytics', 'Analíticas', 'Rendimiento de ventas', '/tienda/vendedor/analytics', '#0ea5e9', BarChart3, true),
+        t('vend-tienda', 'Mi tienda', 'Catálogo y estado', '/tienda/vendedor', accents.health, ShoppingBag, true),
+        t('vend-pedidos', 'Pedidos', 'Ventas recibidas', '/tienda/vendedor/ordenes', accents.warning, Package, true),
+        t('vend-productos', 'Productos', 'Gestión de inventario', '/tienda/vendedor/productos', accents.services, CreditCard, true),
+        t('vend-analytics', 'Analíticas', 'Rendimiento de ventas', '/tienda/vendedor/analytics', accents.info, BarChart3, true),
     ],
 
     paseador: servicioPro('paseadores'),
     cuidador: servicioPro('cuidadores'),
 
     aseguradora: [
-        t('aseg-gestion', 'Gestión de planes', 'Ver y crear planes', '/aseguradoras/gestion', '#0ea5e9', Shield, true),
-        t('aseg-reclamos', 'Reclamos', 'Reclamos de pólizas', '/aseguradoras/reclamos', '#f59e0b', ClipboardList, true),
-        t('aseg-nuevo', 'Nuevo plan', 'Publicar un plan', '/aseguradoras/nuevo', '#10b981', Plus, true),
+        t('aseg-gestion', 'Gestión de planes', 'Ver y crear planes', '/aseguradoras/gestion', accents.info, Shield, true),
+        t('aseg-reclamos', 'Reclamos', 'Reclamos de pólizas', '/aseguradoras/reclamos', accents.warning, ClipboardList, true),
+        t('aseg-nuevo', 'Nuevo plan', 'Publicar un plan', '/aseguradoras/nuevo', accents.health, Plus, true),
     ],
 
     funeraria: [
-        t('fun-gestion', 'Gestión funeraria', 'Servicios y memoriales', '/funeraria/gestion', '#64748b', Heart, true),
-        t('fun-nuevo', 'Nuevo servicio', 'Crear paquete', '/funeraria/nuevo-servicio', '#10b981', Plus, true),
-        t('fun-reporte', 'Reportar defunción', 'Registrar un fallecimiento', '/funeraria/reporte-defuncion', '#ef4444', ClipboardList, true),
+        t('fun-gestion', 'Gestión funeraria', 'Servicios y memoriales', '/funeraria/gestion', accents.neutral, Heart, true),
+        t('fun-nuevo', 'Nuevo servicio', 'Crear paquete', '/funeraria/nuevo-servicio', accents.health, Plus, true),
+        t('fun-reporte', 'Reportar defunción', 'Registrar un fallecimiento', '/funeraria/reporte-defuncion', accents.danger, ClipboardList, true),
     ],
 
     entrenador: [
-        t('ent-gestion', 'Gestión de cursos', 'Cursos y alumnos', '/entrenadores/gestion', '#8b5cf6', Dumbbell, true),
-        t('ent-nuevo', 'Nuevo programa', 'Crear curso de adiestramiento', '/entrenadores/nuevo-programa', '#10b981', Plus, true),
+        t('ent-gestion', 'Gestión de cursos', 'Cursos y alumnos', '/entrenadores/gestion', accents.services, Dumbbell, true),
+        t('ent-nuevo', 'Nuevo programa', 'Crear curso de adiestramiento', '/entrenadores/nuevo-programa', accents.health, Plus, true),
     ],
 
     estilista: [
-        t('groom-gestion', 'Gestión estilista', 'Agenda y citas', '/grooming/gestion', '#ec4899', Scissors, true),
-        t('groom-nuevo', 'Ofrecer servicio', 'Nuevo tipo de grooming', '/estilistas/nuevo', '#10b981', Plus, true),
+        t('groom-gestion', 'Gestión estilista', 'Agenda y citas', '/grooming/gestion', accents.shop, Scissors, true),
+        t('groom-nuevo', 'Ofrecer servicio', 'Nuevo tipo de grooming', '/estilistas/nuevo', accents.health, Plus, true),
     ],
 
     laboratorio: [
-        t('lab-gestion', 'Órdenes', 'Registrar resultados', '/laboratorio/gestion', '#10b981', FlaskConical, true),
+        t('lab-gestion', 'Órdenes', 'Registrar resultados', '/laboratorio/gestion', accents.health, FlaskConical, true),
     ],
 
     patrocinador: [
-        t('spons-campana', 'Nueva campaña', 'Crear campaña', '/patrocinadores/nueva-campana', '#10b981', Award, true),
-        t('spons-boost', 'Boost de alerta', 'Promocionar reportes perdidos', '/patrocinadores/boost-alerta', '#f59e0b', Zap, true),
-        t('spons-stats', 'Estadísticas', 'Impacto de publicidad', '/patrocinadores/estadisticas', '#0ea5e9', BarChart3, true),
+        t('spons-campana', 'Nueva campaña', 'Crear campaña', '/patrocinadores/nueva-campana', accents.health, Award, true),
+        t('spons-boost', 'Boost de alerta', 'Promocionar reportes perdidos', '/patrocinadores/boost-alerta', accents.warning, Zap, true),
+        t('spons-stats', 'Estadísticas', 'Impacto de publicidad', '/patrocinadores/estadisticas', accents.info, BarChart3, true),
     ],
 
     transportista: [
-        t('trans-solicitudes', 'Solicitudes de viaje', 'Viajes por aceptar y en curso', '/transportistas/solicitudes', '#10b981', ClipboardList, true),
-        t('trans-conductor', 'Perfil de conductor', 'Datos del conductor', '/transportistas/perfil-conductor', '#6366f1', User, true),
-        t('trans-historial', 'Historial de viajes', 'Viajes realizados', '/transportistas/historial', '#64748b', Clock, true),
+        t('trans-solicitudes', 'Solicitudes de viaje', 'Viajes por aceptar y en curso', '/transportistas/solicitudes', accents.health, ClipboardList, true),
+        t('trans-conductor', 'Perfil de conductor', 'Datos del conductor', '/transportistas/perfil-conductor', accents.services, User, true),
+        t('trans-historial', 'Historial de viajes', 'Viajes realizados', '/transportistas/historial', accents.neutral, Clock, true),
     ],
 
     establecimiento: [
-        t('est-nuevo', 'Registrar establecimiento', 'Alta de tu local pet-friendly', '/establecimientos/nuevo', '#f59e0b', Store, true),
-        t('est-lista', 'Establecimientos', 'Ver y editar locales', '/establecimientos', '#10b981', MapPin, true),
+        t('est-nuevo', 'Registrar establecimiento', 'Alta de tu local pet-friendly', '/establecimientos/nuevo', accents.warning, Store, true),
+        t('est-lista', 'Establecimientos', 'Ver y editar locales', '/establecimientos', accents.health, MapPin, true),
     ],
 
     admin: [
-        t('admin-panel', 'Panel admin', 'Administración global', '/admin', '#7c3aed', ShieldCheck, true),
-        t('admin-kyc', 'Verificaciones', 'Identidad profesional', '/admin/verificaciones', '#f59e0b', UserCheck, true),
-        t('admin-mod', 'Moderación', 'Contenido pendiente', '/admin/moderacion', '#ef4444', Eye, true),
-        t('admin-stats', 'Analíticas', 'Rendimiento global', '/admin/stats', '#10b981', BarChart3, true),
-        t('admin-users', 'Usuarios', 'Gestión de cuentas', '/admin/usuarios', '#3b82f6', Users),
-        t('admin-roles', 'Roles', 'Permisos y accesos', '/admin/roles', '#8b5cf6', Shield),
-        t('admin-config', 'Configuración', 'Ajustes del sistema', '/admin/config', '#64748b', Settings),
+        t('admin-panel', 'Panel admin', 'Administración global', '/admin', accents.services, ShieldCheck, true),
+        t('admin-kyc', 'Verificaciones', 'Identidad profesional', '/admin/verificaciones', accents.warning, UserCheck, true),
+        t('admin-mod', 'Moderación', 'Contenido pendiente', '/admin/moderacion', accents.danger, Eye, true),
+        t('admin-stats', 'Analíticas', 'Rendimiento global', '/admin/stats', accents.health, BarChart3, true),
+        t('admin-users', 'Usuarios', 'Gestión de cuentas', '/admin/usuarios', accents.info, Users),
+        t('admin-roles', 'Roles', 'Permisos y accesos', '/admin/roles', accents.services, Shield),
+        t('admin-config', 'Configuración', 'Ajustes del sistema', '/admin/config', accents.neutral, Settings),
     ],
 };
 

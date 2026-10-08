@@ -1,83 +1,58 @@
+/** Colores de un modo (claro u oscuro). Se leen con `useTheme().theme`. */
+export interface ThemeColors {
+  text: string;
+  textMuted: string;
+  background: string;
+  tint: string;
+  tabIconDefault: string;
+  tabIconSelected: string;
+  surface: string;
+  border: string;
+  borderLight: string;
+  error: string;
+  errorLight: string;
+  primary: string;
+  /** Texto e íconos sobre fondo `primary` (chips activos, botones). */
+  onPrimary: string;
+  primaryLight: string;
+  secondary: string;
+  secondaryLight: string;
+  accent: string;
+  accentLight: string;
+  backgroundSecondary: string;
+  card: string;
+  cardBorder: string;
+  overlay: string;
+  overlayHover: string;
+  glassBg: string;
+  glassBorder: string;
+  divider: string;
+  inputBg: string;
+  inputBorder: string;
+  badgeBg: string;
+  badgeText: string;
+  success: string;
+  successLight: string;
+  warning: string;
+  warningLight: string;
+  info: string;
+  infoLight: string;
+  /** Texto sobre `heroGradient` (cabeceras azul medianoche de Inicio, Explorar y Tienda). */
+  onHero: string;
+  onHeroMuted: string;
+  /** Degradado del hero: siempre azul medianoche (identidad de marca), en ambos modos. */
+  heroGradient: readonly [string, string];
+  /** Superficie translúcida y su borde sobre el hero (botones, buscador, estadísticas). */
+  heroGlass: string;
+  heroGlassBorder: string;
+  /** Estado de la barra del sistema sobre `background`. */
+  statusBar: 'light' | 'dark';
+}
+
 export interface Palette {
   name: string;
-  dark: {
-    text: string;
-    textMuted: string;
-    background: string;
-    tint: string;
-    tabIconDefault: string;
-    tabIconSelected: string;
-    surface: string;
-    border: string;
-    borderLight: string;
-    error: string;
-    errorLight: string;
-    primary: string;
-    /** Texto e íconos sobre fondo `primary` (chips activos, botones). */
-    onPrimary: string;
-    primaryLight: string;
-    secondary: string;
-    secondaryLight: string;
-    accent: string;
-    accentLight: string;
-    backgroundSecondary: string;
-    card: string;
-    cardBorder: string;
-    overlay: string;
-    overlayHover: string;
-    glassBg: string;
-    glassBorder: string;
-    divider: string;
-    inputBg: string;
-    inputBorder: string;
-    badgeBg: string;
-    badgeText: string;
-    success: string;
-    successLight: string;
-    warning: string;
-    warningLight: string;
-    info: string;
-    infoLight: string;
-  };
-  light: {
-    text: string;
-    textMuted: string;
-    background: string;
-    tint: string;
-    tabIconDefault: string;
-    tabIconSelected: string;
-    surface: string;
-    border: string;
-    borderLight: string;
-    error: string;
-    errorLight: string;
-    primary: string;
-    /** Texto e íconos sobre fondo `primary` (chips activos, botones). */
-    onPrimary: string;
-    primaryLight: string;
-    secondary: string;
-    secondaryLight: string;
-    accent: string;
-    accentLight: string;
-    backgroundSecondary: string;
-    card: string;
-    cardBorder: string;
-    overlay: string;
-    overlayHover: string;
-    glassBg: string;
-    glassBorder: string;
-    divider: string;
-    inputBg: string;
-    inputBorder: string;
-    badgeBg: string;
-    badgeText: string;
-    success: string;
-    successLight: string;
-    warning: string;
-    warningLight: string;
-    info: string;
-    infoLight: string;
-  };
+  dark: ThemeColors;
+  light: ThemeColors;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -119,10 +94,16 @@ const midnightGold: Palette = {
     badgeText: '#e9c883',
     success: '#3ecf9a',
     successLight: 'rgba(62, 207, 154, 0.14)',
-    warning: '#e9c883',
-    warningLight: 'rgba(233, 200, 131, 0.14)',
+    warning: '#f2a541',
+    warningLight: 'rgba(242, 165, 65, 0.14)',
     info: '#5aa9ff',
     infoLight: 'rgba(90, 169, 255, 0.14)',
+    onHero: '#ffffff',
+    onHeroMuted: 'rgba(255, 255, 255, 0.7)',
+    heroGradient: ['#1c2f6b', '#101c3d'],
+    heroGlass: 'rgba(255, 255, 255, 0.14)',
+    heroGlassBorder: 'rgba(255, 255, 255, 0.2)',
+    statusBar: 'light',
   },
   light: {
     text: '#141824',
@@ -157,10 +138,16 @@ const midnightGold: Palette = {
     badgeText: '#7a5a1e',
     success: '#16a36e',
     successLight: '#dcf5ea',
-    warning: '#b8893a',
-    warningLight: '#f7edd6',
+    warning: '#c46a0c',
+    warningLight: '#fdf0e1',
     info: '#2f6fd0',
     infoLight: '#e8f0fc',
+    onHero: '#ffffff',
+    onHeroMuted: 'rgba(255, 255, 255, 0.75)',
+    heroGradient: ['#1f3a8a', '#14275e'],
+    heroGlass: 'rgba(255, 255, 255, 0.14)',
+    heroGlassBorder: 'rgba(255, 255, 255, 0.2)',
+    statusBar: 'dark',
   },
 };
 

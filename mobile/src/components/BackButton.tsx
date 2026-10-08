@@ -1,8 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface BackButtonProps {
     onPress?: () => void;
@@ -11,8 +10,7 @@ interface BackButtonProps {
 }
 
 export default function BackButton({ onPress, color, style }: BackButtonProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
 
     return (
         <TouchableOpacity

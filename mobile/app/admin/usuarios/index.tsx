@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Modal, KeyboardAvoidingView, TextInput, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Modal, KeyboardAvoidingView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminUsers } from '@/src/hooks/admin/useAdminUsers';
@@ -58,7 +58,7 @@ export default function AdminUsersScreen() {
         <View style={[styles.userCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.userHeader}>
                 <LinearGradient
-                    colors={['#1c2f6b', '#101c3d']}
+                    colors={theme.heroGradient}
                     style={styles.avatar}
                 >
                     <Text style={styles.avatarText}>{item.full_name.charAt(0).toUpperCase()}</Text>
@@ -110,7 +110,6 @@ export default function AdminUsersScreen() {
 
     return (
         <ScreenContainer>
-            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
             <ScreenHeader
                 title="Usuarios"

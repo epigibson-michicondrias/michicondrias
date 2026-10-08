@@ -266,7 +266,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
 
 **Fase 5 — UI premium + APK**
-- [ ] U1 **Tema** (antes que nada): `warning` distinto de `accent`; token `heroGradient` por modo (adiós `#1c2f6b` fijo);
+- [x] U1 **Tema** (antes que nada): `warning` distinto de `accent`; token `heroGradient` por modo (adiós `#1c2f6b` fijo);
       paleta de acentos de dominio armonizada con *Midnight & Gold* (reemplaza el arcoíris Tailwind de
       `useExplore`/`useHome`/`roleTools`); `StatusBar` según el tema; un solo acceso `useTheme()`; tema guardado en
       AsyncStorage; decidir paletas alternas.
@@ -596,3 +596,16 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   1.0.0, update group `3704404d-82a9-447c-8dee-aef559b06db3`). La primera pasada del emisor de recordatorios falló
   (corrió entre el deploy y la migración) sin afectar al resto del carnet, como se diseñó; las siguientes ya leen las
   columnas nuevas. **Fase 4 completa en los módulos P1.** Siguiente: Bloque B (auditoría P2/P3) o Fase 5 (U1 Tema).
+- **2026-10-08** — **U1 Tema** (solo app, OTA). Paleta con tipo único `ThemeColors`; **`warning` propio** (ámbar
+  `#f2a541`/`#c46a0c`, ya no igual a `accent`); tokens nuevos `onPrimary`, `onHero`, `onHeroMuted`, **`heroGradient`**
+  (azul medianoche en ambos modos, un poco más claro en modo claro), `heroGlass`/`heroGlassBorder` y `statusBar`.
+  **Acentos de dominio armonizados** en `design.ts` (`accents`: health, info, services, shop, community, warning, teal,
+  gold, neutral, danger + `AccentKey`) que reemplazan los 70+ hex Tailwind de `roleTools`, `useExplore` y `useHome`.
+  **Un solo acceso al tema**: `@/src/hooks/useTheme` (los 12 archivos que leían `ThemeContext` + `Colors` migrados;
+  `useThemeContext` queda interno). **Tema guardado en AsyncStorage** (migra el valor viejo de SecureStore una vez; en
+  web desaparece «Failed to load theme mode»). **StatusBar**: una global según el tema + `useHeroStatusBar()` (clara
+  solo mientras la pantalla con hero está enfocada; antes las pestañas la dejaban clara también sobre pantallas de
+  fondo claro). Tema de React Navigation con los colores de la paleta (sin destellos al navegar). Heroes con
+  `theme.heroGradient` (Inicio, Explorar, Tienda, Perdidas, 3 de admin) y `ScreenHeader` con `onHero`. Borrado
+  `components/Themed.tsx` (plantilla sin uso). Paletas alternas: decisión ya tomada (solo Midnight & Gold).
+  Verificado: tsc + ESLint, Inicio en web claro/oscuro.

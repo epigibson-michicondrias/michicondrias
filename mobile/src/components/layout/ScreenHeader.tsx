@@ -75,7 +75,7 @@ export default function ScreenHeader({
         }
     };
 
-    const textColor = gradient ? '#fff' : theme.text;
+    const textColor = gradient ? theme.onHero : theme.text;
     const subtitleColor = gradient ? 'rgba(255,255,255,0.8)' : theme.textMuted;
     const backBtnStyle = gradient
         ? { backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(233,200,131,0.3)' }

@@ -1,10 +1,10 @@
 import React from 'react';
 import {
   StyleSheet, ScrollView, TouchableOpacity, View, Text,
-  StatusBar, Image, TextInput, Dimensions
+  Image, TextInput, Dimensions
 } from 'react-native';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { useTheme } from '@/src/hooks/useTheme';
+import { useTheme, useHeroStatusBar } from '@/src/hooks/useTheme';
 import { useShopTab } from '@/src/hooks/ecommerce/useShopTab';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,6 +16,7 @@ const CARD_WIDTH = Math.floor((width - 61) / 2);
 
 export default function TiendaTabScreen() {
   const { theme } = useTheme();
+  useHeroStatusBar();
   const insets = useSafeAreaInsets();
   const {
     selectedCategory,
@@ -37,12 +38,11 @@ export default function TiendaTabScreen() {
 
   return (
     <ScreenContainer>
-      <StatusBar barStyle="light-content" />
 
       <KeyboardScreen contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <LinearGradient
-          colors={['#1c2f6b', '#101c3d', theme.background]}
+          colors={[...theme.heroGradient, theme.background]}
           style={[styles.header, { paddingTop: insets.top + 16 }]}
         >
           <View style={styles.headerTop}>

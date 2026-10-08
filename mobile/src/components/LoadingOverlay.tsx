@@ -1,15 +1,13 @@
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface LoadingOverlayProps {
     message?: string;
 }
 
 export default function LoadingOverlay({ message }: LoadingOverlayProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
 
     return (
         <View style={styles.container} accessibilityRole="progressbar" accessibilityLabel={message || 'Cargando'}>

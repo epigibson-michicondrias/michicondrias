@@ -2,12 +2,14 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
-import { ThemeProvider as MichiThemeProvider, useTheme } from '../src/contexts/ThemeContext';
+import { ThemeProvider as MichiThemeProvider } from '../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
+import { StatusBar } from 'expo-status-bar';
 import { CartProvider } from '../src/contexts/CartContext';
 import { AppAlertProvider } from '@/src/components/AppAlert';
 import { useSessionSync } from '@/src/hooks/home/useSessionSync';
@@ -36,8 +38,24 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const { colorScheme } = useTheme();
+  const { colorScheme, theme } = useTheme();
   const { user, isLoading } = useAuth();
+  // Tema de React Navigation con los colores de la paleta: sin destellos de otro fondo al navegar (U1)
+  const navTheme = useMemo(() => {
+    const base = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: theme.primary,
+        background: theme.background,
+        card: theme.surface,
+        text: theme.text,
+        border: theme.border,
+        notification: theme.error,
+      },
+    };
+  }, [colorScheme, theme]);
   const segments = useSegments();
   const router = useRouter();
   // Renueva el token y sincroniza el rol mientras haya sesión (al abrir y al volver a primer plano)
@@ -70,8 +88,9 @@ function RootLayoutNav() {
 
   return (
     <AppAlertProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
+      <ThemeProvider value={navTheme}>
+        <StatusBar style={theme.statusBar} />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.background } }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(auth)" />
         </Stack>

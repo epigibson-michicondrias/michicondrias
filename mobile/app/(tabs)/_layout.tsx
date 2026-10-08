@@ -6,12 +6,10 @@ import { useAuth } from '../../src/contexts/AuthContext';
 import { useCart } from '../../src/contexts/CartContext';
 import { normalizeRole, isProRole } from '../../src/constants/roles';
 
-import { useTheme } from '../../src/contexts/ThemeContext';
-import Colors from '../../constants/Colors';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export default function TabLayout() {
-  const { colorScheme } = useTheme();
-  const theme = Colors[colorScheme];
+  const { theme, colorScheme } = useTheme();
   const { user } = useAuth();
   const { cartCount } = useCart();
   const role = normalizeRole(user?.role_name);

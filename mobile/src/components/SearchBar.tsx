@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { Search } from 'lucide-react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface SearchBarProps {
     value: string;
@@ -11,8 +10,7 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ value, onChangeText, placeholder }: SearchBarProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
 
     return (
         <View style={[styles.container, { backgroundColor: theme.surface, borderColor: theme.border }]}>

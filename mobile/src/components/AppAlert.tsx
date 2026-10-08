@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View, Text, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import { CheckCircle, AlertTriangle, XCircle, Info, X } from 'lucide-react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 
 const { width } = Dimensions.get('window');
 
@@ -65,8 +64,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
     const scale = useRef(new Animated.Value(0.8)).current;
     const opacity = useRef(new Animated.Value(0)).current;
     const backdrop = useRef(new Animated.Value(0)).current;
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
 
     useEffect(() => {
         globalSetAlert = setAlert;

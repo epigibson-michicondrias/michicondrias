@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 
 interface EmptyStateProps {
     icon: React.ReactNode;
@@ -12,8 +11,7 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({ icon, title, subtitle, actionLabel, onAction }: EmptyStateProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme, colorScheme } = useTheme();
 
     return (
         <View style={styles.container}>
