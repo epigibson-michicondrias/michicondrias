@@ -38,7 +38,7 @@ sin repetir trabajo ni errores ya resueltos. Léelo completo una vez; después �
 | 1 Auditoría | ✅ módulos P1 · ⬜ P2 y P3 (tareas A1–A4) |
 | 2 Limpieza | ✅ (código muerto, barrels, pantallas falsas, lint en 0 errores) |
 | 3 Navegación | ✅ (grupo `(auth)`, Perfil único, Herramientas, Inicio, Explorar, Tienda, ficha de mascota con pestañas) |
-| 4 Funcionalidad | 🟡 F1–F25 y F27 ✅; falta F26 |
+| 4 Funcionalidad | 🟡 F1–F27 ✅ (completa en módulos P1) |
 | 5 UI premium + APK | ⬜ (U1–U11) |
 
 `npm run check` **pasa** (tsc limpio, ESLint 0 errores / 72 avisos). Repo sincronizado con `origin/main` y desplegado (ver §3).
@@ -241,7 +241,7 @@ El detalle de cada tarea está en `PROGRESO_MOBILE.md` → *Backlog por fase* y 
 | ~~F19~~ 🛠️ ✅ | Tienda: liberar pedidos vencidos en `/orders/*`, notificar pago (tipo `store` + `link`), `can_review`, paginación — hecho 2026-10-08 (sin migración) | |
 | ~~F22~~ 🛠️ ✅ | Privacidad: limitar `GET /pets/{id}` a dueño / veterinario / admin — hecho 2026-10-08 (+ servicios internos; `pet_access` alineado con `VET_ROLES` también en la lectura) | |
 | ~~F24~~ 🛠️ ✅ | `link` en los emisores que faltan (directorio, laboratorio, aseguradoras, funeraria, transportistas). Solo **después** de aplicar la migración `d3e9a7b4c215` | |
-| ~~F25~~ ✅ · F26 · ~~F27~~ ✅ | ~~Búsqueda "ver todos" y más dominios~~ (2026-10-08); pasaporte legible y número de póliza enmascarado; ~~`DatePicker` con tokens~~ | |
+| ~~F25–F27~~ ✅ | ~~Búsqueda "ver todos" y más dominios; pasaporte legible y número de póliza enmascarado; `DatePicker` con tokens~~ — hecho 2026-10-08 | |
 
 ### Bloque B — Auditoría P2/P3 (Fase 1 restante)
 Mismo formato de sección que ya usa `AUDITORIA_MOBILE.md` (tabla Pieza/Tipo/Estado/Hallazgo, redundancias, propuesta,

@@ -48,7 +48,7 @@ export function PetPassportShare({ url, petName, onClose }: Props) {
                     </View>
 
                     <Text style={[styles.hint, { color: theme.textMuted }]}>
-                        Quien escanee el QR podrá ver el carnet de salud de {petName}.
+                        Quien escanee el QR verá el pasaporte de {petName} (datos, vacunas y seguro vigente). El enlace dura 24 horas.
                     </Text>
 
                     {/* QR siempre negro sobre blanco: si no, no se escanea (y sin contenido no se dibuja) */}

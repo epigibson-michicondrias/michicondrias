@@ -13,10 +13,10 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F25 y F27 ✅ · falta F26 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · **F1–F27 ✅ (Fase 4 completa en P1)** |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
-> **Siguiente:** F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
+> **Siguiente:** ~~F26~~ ✅. Bloque B (auditoría P2/P3, A1–A5) o Fase 5 (U1 Tema). cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
 > A1–A5) y Fase 5 (U1 Tema primero). El detalle y el orden están en `HANDOFF.md` §8.
 
 ---
@@ -258,7 +258,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       transportistas (hoy el mapeo por tipo + rol los cubre, salvo esos casos). Insertan con SQL crudo: agregar la
       columna `link` al INSERT solo **después** de aplicar la migración `d3e9a7b4c215` de core (✅ aplicada).
 - [x] F25 Búsqueda: "ver todos" por pestaña hacia el listado del módulo y más dominios (adopciones, perdidas, servicios).
-- [ ] F26 Pasaporte público: enmascarar `policy_number` (últimos 4) y página legible en vez del JSON crudo (va con F16).
+- [x] F26 Pasaporte público: enmascarar `policy_number` (últimos 4) y página legible en vez del JSON crudo (va con F16).
 - [x] F27 `DatePicker` con `useTheme`/tokens y etiqueta en tipo oración (token nuevo `type.labelSentence`); fechas
       del carnet con locale `es-MX`.
 - [x] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext) — corte central
@@ -582,3 +582,12 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   queda en el banner de `ScreenContainer`, botón de borrar de 44 px. Token nuevo **`onPrimary`** en la paleta (texto e
   íconos sobre `primary`). Los tipos nuevos son opcionales para tolerar el backend anterior. Verificado: tsc + ESLint
   limpios, web 375×812 claro/oscuro (inicio, vacío con «Ver todas mis mascotas»).
+- **2026-10-08** — **F26 Pasaporte público** (mascotas + app, sin migración). El mismo enlace del QR
+  (`/pets/passport/view/{token}`) responde con una **página HTML legible** si lo abre un navegador (`Accept: text/html`)
+  y con JSON en otro caso (o con `?format=json`): foto, especie/raza, edad en años y meses, sexo, tamaño, peso,
+  microchip, vacunas con estado del refuerzo (vigente/vencido) y seguro vigente, con la paleta Midnight & Gold
+  (`app/core/passport_page.py`). **Número de póliza enmascarado** a los últimos 4 (también en el JSON). Enlace vencido
+  o mascota inexistente → página amable en vez de JSON de error. Todo el texto de la base se escapa y la foto solo se
+  pinta si es `https://`. App: la tarjeta del QR explica qué verá quien lo escanee y que el enlace dura 24 h.
+  Verificado: TestClient+SQLite (póliza `•••• 3456`, XSS escapado, `javascript:` descartado, JSON intacto, 403/404 en
+  HTML y JSON) y la página a 375 px.

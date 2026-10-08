@@ -1,5 +1,6 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
@@ -11,6 +12,7 @@ from app.models.mascotas import Pet
 from app.api import deps
 from app.core.config import settings
 from app.core.ai_triage import assess_symptoms, _norm
+from app.core.passport_page import render_passport_page, render_passport_error, mask_policy_number
 from app.api.internal import require_internal_token, require_admin, identity_or_internal
 
 router = APIRouter()
@@ -323,17 +325,26 @@ def _iso(value: Any) -> Optional[str]:
 @router.get("/passport/view/{signed_token}")
 def view_public_passport(
     signed_token: str,
+    request: Request,
+    format: Optional[str] = None,
     db: Session = Depends(get_db)
 ) -> Any:
-    """Public endpoint to view consolidated pet records using a temporary signed token."""
+    """Pasaporte público con un token firmado temporal (lo que abre el QR).
+    F26: un navegador (Accept: text/html) recibe una página legible; el resto, JSON (o `?format=json`)."""
+    wants_html = format != "json" and "text/html" in request.headers.get("accept", "")
     try:
         payload = jwt.decode(signed_token, settings.SECRET_KEY, algorithms=["HS256"])
         pet_id = payload.get("pet_id")
     except JWTError:
-        raise HTTPException(status_code=403, detail="El enlace para compartir ha expirado o es inválido")
-        
+        message = "El enlace para compartir ha expirado o es inválido"
+        if wants_html:
+            return HTMLResponse(render_passport_error(message), status_code=403)
+        raise HTTPException(status_code=403, detail=message)
+
     pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
     if not pet:
+        if wants_html:
+            return HTMLResponse(render_passport_error("Esta mascota ya no está disponible."), status_code=404)
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
 
     # Vacunas y póliza se leen directo de la base compartida: las rutas de carnet y aseguradoras exigen la sesión del
@@ -365,7 +376,7 @@ def view_public_passport(
     ).first()
     insurance = (
         {
-            "policy_number": policy.policy_number,
+            "policy_number": mask_policy_number(policy.policy_number),  # F26: solo los últimos 4
             "status": policy.status,
             "start_date": _iso(policy.start_date),
             "end_date": _iso(policy.end_date),
@@ -374,7 +385,7 @@ def view_public_passport(
         else {}
     )
 
-    return {
+    data = {
         "pet": {
             "name": pet.name,
             "species": pet.species,
@@ -390,6 +401,9 @@ def view_public_passport(
         "vaccines": vaccines,
         "insurance": insurance
     }
+    if wants_html:
+        return HTMLResponse(render_passport_page(data))
+    return data
 
 
 @router.post("/ai/symptom-check")
