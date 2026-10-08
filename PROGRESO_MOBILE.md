@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16–F18, F20 y F23 ✅ · faltan F11, F12, F14, F15, F19, F21, F22 y F24–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16–F18, F20, F21 y F23 ✅ · faltan F11, F12, F14, F15, F19, F22 y F24–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -247,7 +247,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `can_review`, paginación de `/orders/me`.
 - [x] F20 Stripe con `expo-web-browser` (`openAuthSessionAsync` en `utils/payments.openStripeUrl`: los 5 puntos que
       abren Stripe; en web sigue abriendo pestaña nueva).
-- [ ] F21 Ayuda: FAQ verídicas, aviso si falla `Linking`, configurar soporte, términos y privacidad.
+- [x] F21 Ayuda: FAQ verídicas (solo tarjeta y el botón real «¡Quiero Adoptar!»), aviso si falla `Linking`,
+      `ScreenContainer`/`ScreenHeader`, Términos y Privacidad (filas que se ocultan sin URL configurada).
 - [ ] 🛠️ F24 `link` en los emisores que faltan: directorio (`crud_services.notify_user`: citas, videoconsultas →
       `/mi-clinica/consultas-video`, laboratorio de clínica → la mascota), laboratorio, aseguradoras, funeraria y
       transportistas (hoy el mapeo por tipo + rol los cubre, salvo esos casos). Insertan con SQL crudo: agregar la
@@ -457,4 +458,14 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   en uso (knip: 6 → 5 deps sin uso). Verificado sin tocar producción: regresión del flujo de compra **13/13** con stub
   (pedido + sesión de pago creados, la página de Stripe se carga, la bolsa se conserva hasta `pago-exitoso`).
   `npm run check` 0 errores. La ruta nativa (`openAuthSessionAsync`) se confirma en el próximo APK/emulador.
+- **2026-10-07** — **F21 Ayuda verídica** (solo app). Las FAQ ya describen la app real: la adopción cita el botón que
+  existe (**«¡Quiero Adoptar!»**, antes decía «Solicitar Adopción») y los pagos son **solo tarjeta** (fuera las
+  transferencias y tiendas de conveniencia que Stripe no acepta). `Linking.openURL` ya no falla en silencio: avisa y
+  ofrece el correo de soporte. La pantalla usa `ScreenContainer`/`ScreenHeader` (adiós `paddingTop: 60` y el problema
+  de safe area) y suma la fila de **Aviso de Privacidad** junto a Términos (ambas se ocultan si su URL no está
+  configurada). Verificado sin tocar producción: **7/7** con stub — render, FAQ corregidas (sin «Solicitar
+  Adopción» ni «transferencias»), Email visible y los opcionales ocultos, el contacto no rompe la pantalla.
+  `npm run check` 0 errores. **Pendiente del usuario:** valores de `EXPO_PUBLIC_SUPPORT_PHONE`,
+  `EXPO_PUBLIC_SUPPORT_WHATSAPP`, `EXPO_PUBLIC_TERMS_URL` y `EXPO_PUBLIC_PRIVACY_URL` en `.env` para que se vean
+  WhatsApp, teléfono y las filas legales.
 

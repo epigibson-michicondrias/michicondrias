@@ -303,7 +303,7 @@ Perfil / Herramientas → `/ayuda`. **No hay push** (`expo-notifications` no est
 |---|---|---|---|
 | app/notificaciones.tsx | pantalla | rota/incompleta | Lista y «marcar leída» funcionan. **Tocar una notificación nunca navega**: `NOTIFICATION_ROUTES` usa tipos que el backend no emite (este emite `general`, `alert`, `citas`, `seguros`, `laboratorio`, `funeraria`, `transportistas`). Mientras carga no muestra el header (sin salida). Tiene un «Reintentar» que repite el banner de error. Vacío hecho a mano. 6 hex |
 | app/busqueda/index.tsx | pantalla | **rota** | **El backend responde siempre 500**: `search.py:43` usa `LOWER(category)` y `products` no tiene esa columna (verificado en Supabase). Los productos salen sin subtítulo ni precio. Pull-to-refresh sin sentido en resultados. 3 resultados por tipo y sin «ver más» |
-| app/ayuda.tsx | pantalla | funciona | No usa ScreenContainer ni ScreenHeader (`paddingTop: 60`, sin safe area). **FAQ falsas**: el botón «Solicitar adopción» no existe y promete transferencias y OXXO cuando Stripe solo acepta tarjeta. `Linking.openURL` falla en silencio. WhatsApp y teléfono quedan ocultos porque sus variables de entorno están vacías |
+| app/ayuda.tsx | pantalla | funciona | ~~No usa ScreenContainer ni ScreenHeader (`paddingTop: 60`, sin safe area)~~ ✅ (F21) · ~~**FAQ falsas**: el botón «Solicitar adopción» no existe y promete transferencias y OXXO cuando Stripe solo acepta tarjeta~~ ✅ FAQ verídicas: «¡Quiero Adoptar!» y solo tarjeta (F21) · ~~`Linking.openURL` falla en silencio~~ ✅ aviso con el correo de soporte (F21). WhatsApp y teléfono quedan ocultos porque sus variables de entorno están vacías |
 | hooks notifications / search | hook | rota / funciona | Mapeo de tipos equivocado. «Marcar todas» hace N `PATCH`. No hay contador de no leídas. Están muertos: barrels, `useSearch.ts`, `types/notifications.ts` y un `TYPE_CONFIG` duplicado |
 | src/services/alerts.ts | servicio | parte muerta | Es de Mi clínica, no del usuario. 4 funciones muertas (vía `useAlerts`) |
 | backend core notifications / search | backend | funciona / **rota** | Notificaciones: faltan `read-all`, `unread-count` y el campo `link`; la tabla está vacía en producción. Ecommerce no emite ninguna. Búsqueda: error 500 y **expone clínicas y productos no aprobados** |
@@ -316,8 +316,8 @@ Arreglos:
 - [x] P0 La búsqueda da 500 (`backend/michicondrias_core/app/api/routes/search.py:43`)
 - [x] P0 Las notificaciones no navegan (`src/hooks/notifications/useNotifications.ts:31-37`)
 - [x] P0 El punto de la campana es falso (`(tabs)/index.tsx:75`)
-- [ ] P1 ~~La búsqueda expone contenido no aprobado~~ ✅; FAQ falsas (`ayuda.tsx:12-13`); ~~sin header durante la carga~~ ✅
-- [ ] P1 Entradas duplicadas; tarjetas sin destino que parecen tocables; `Linking` silencioso; productos sin precio
+- [ ] P1 ~~La búsqueda expone contenido no aprobado~~ ✅; ~~FAQ falsas (`ayuda.tsx:12-13`)~~ ✅ (F21); ~~sin header durante la carga~~ ✅
+- [ ] P1 Entradas duplicadas; tarjetas sin destino que parecen tocables; ~~`Linking` silencioso~~ ✅ (F21); productos sin precio
 - [ ] P2 EmptyState, tokens, quitar el refresh de búsqueda, tipar `services/search.ts`, Ayuda con componentes base
 
 ---
@@ -347,7 +347,7 @@ Arreglos:
 | register.tsx:178 | Check de términos | Decorativo |
 | register.tsx:184,191 · ayuda.tsx:91 | Términos / Privacidad | Sin URL configurada → no hacen nada |
 | forgot-password.tsx:183 · reset-password.tsx:111 | «¿Ya tienes el token?» / campo token | El correo no muestra el token |
-| ayuda.tsx:27 | Email / WhatsApp | Fallo silencioso; WhatsApp oculto sin variable de entorno |
+| ayuda.tsx:27 | Email / WhatsApp | ~~Fallo silencioso~~ ✅ aviso (F21); WhatsApp oculto sin variable de entorno |
 | diagnostico-ia.tsx:167 | Vacío «registra una mascota» | Sin botón |
 | (tabs)/tienda-tab.tsx:200 | Vacío de productos | Sin acción |
 | use2FA.ts:121 · auth2fa.ts:39 | `upgradeToPartner` | Muerto y roto (422) |

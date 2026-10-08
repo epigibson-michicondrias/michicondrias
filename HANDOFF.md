@@ -231,7 +231,7 @@ El detalle de cada tarea está en `PROGRESO_MOBILE.md` → *Backlog por fase* y 
 | ~~F17~~ ✅ | Diagnóstico IA: vacío con "Agregar mascota", error de "sin peso" con botón a editar, selector de mascota también en triage (`pet_id` opcional y aditivo en backend) — hecho 2026-10-07 | sin callejones sin salida |
 | ~~F18~~ ✅ | Tienda: hook `useCheckout` (`useMutation`, invalida `my-orders`/`store-products`/`product`), refrescar precio y stock del carrito al abrirlo, no vaciar la bolsa antes de pagar — hecho 2026-10-07 | sin lógica de red en `CartContext` |
 | ~~F20~~ ✅ | Stripe con `expo-web-browser` `openAuthSessionAsync` (ya está en `package.json`; confirmado: es dependencia declarada y ya se usa) — hecho 2026-10-07 (`utils/payments.openStripeUrl` en los 5 puntos que abren Stripe) | el pago vuelve a la app |
-| F21 | Ayuda: FAQ verídicas (solo tarjeta, botón real "¡Quiero Adoptar!"), avisar si falla `Linking`, `ScreenContainer`/`ScreenHeader` | |
+| ~~F21~~ ✅ | Ayuda: FAQ verídicas (solo tarjeta, botón real "¡Quiero Adoptar!"), avisar si falla `Linking`, `ScreenContainer`/`ScreenHeader` — hecho 2026-10-07 | |
 | ~~F23~~ ✅ | Los `onError` de mutaciones no muestran error si `ApiError.sessionExpired` — hecho 2026-10-07 (corte central en `AppAlert.notifySessionExpired`) | un solo aviso al vencer la sesión |
 | F15 🛠️ | PUT/DELETE de vacunas y consultas (carnet) + UI con confirmación | |
 | F11 🛠️ | Core: email sin distinguir mayúsculas (**antes** busca duplicados por mayúsculas en `users`), mensajes en español, contraseña mínima, `created_at` en `/users/me` | |

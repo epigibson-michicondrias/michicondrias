@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search, MessageCircle, Mail, Phone, ExternalLink, ChevronRight } from 'lucide-react-native';
-import BackButton from '../src/components/BackButton';
+import { Search, MessageCircle, Mail, Phone, ExternalLink, ChevronRight, ShieldCheck } from 'lucide-react-native';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
-import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_WHATSAPP, TERMS_URL } from '@/src/constants/support';
+import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_WHATSAPP, TERMS_URL, PRIVACY_URL } from '@/src/constants/support';
 
+// FAQ verídicas: describen lo que la app tiene hoy (el botón de adopción es «¡Quiero Adoptar!» y
+// los pagos con tarjeta; nada de transferencias ni tiendas de conveniencia).
 const FAQS = [
     { question: '¿Cómo reportar una mascota perdida?', answer: 'Ve a la sección "Mascotas Perdidas", presiona el botón "+" y completa el formulario con fotos y ubicación.' },
-    { question: '¿Qué es el Michi-Tracker Pro?', answer: 'Es nuestro sistema premium de rastreo en tiempo real para mascotas mediante dispositivos GPS compatibles.' },
-    { question: '¿Cómo puedo adoptar?', answer: 'Explora el módulo de "Adopciones", elige un michi y presiona "Solicitar Adopción" para iniciar el proceso.' },
-    { question: 'Métodos de pago aceptados', answer: 'Aceptamos todas las tarjetas de crédito/débito, transferencias y pagos en tiendas de conveniencia.' },
+    { question: '¿Qué es el Michi-Tracker Pro?', answer: 'Es nuestro sistema premium de rastreo GPS para mascotas: lo activas desde la ficha de tu mascota y puedes gestionar o cancelar la suscripción cuando quieras.' },
+    { question: '¿Cómo puedo adoptar?', answer: 'Explora las mascotas en adopción, elige una y presiona «¡Quiero Adoptar!» en su ficha para iniciar el proceso.' },
+    { question: 'Métodos de pago aceptados', answer: 'Aceptamos tarjetas de crédito y débito a través de Stripe.' },
 ];
 
 export default function HelpScreen() {
@@ -24,15 +28,20 @@ export default function HelpScreen() {
         ? FAQS.filter(f => f.question.toLowerCase().includes(normalized) || f.answer.toLowerCase().includes(normalized))
         : FAQS;
 
-    const open = (url: string) => Linking.openURL(url).catch(() => {});
+    // Si el sistema no puede abrir el enlace, se avisa: un contacto silencioso no sirve
+    const open = (url: string) => {
+        Linking.openURL(url).catch(() => {
+            showAlert({
+                type: 'info',
+                title: 'No se pudo abrir el enlace',
+                message: 'Inténtalo de nuevo o escríbenos directo a ' + SUPPORT_EMAIL + '.',
+            });
+        });
+    };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <BackButton onPress={() => router.back()} />
-                <Text style={[styles.title, { color: theme.text }]}>Centro de Ayuda</Text>
-                <View style={{ width: 44 }} />
-            </View>
+        <ScreenContainer>
+            <ScreenHeader title="Centro de Ayuda" onBack={() => router.back()} />
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
                 <View style={[styles.searchBar, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
@@ -95,8 +104,15 @@ export default function HelpScreen() {
                         <ChevronRight size={18} color={theme.textMuted} />
                     </TouchableOpacity>
                 )}
+                {!!PRIVACY_URL && (
+                    <TouchableOpacity accessibilityRole="button" style={[styles.footerCard, { borderColor: theme.border }, { backgroundColor: theme.surface }]} onPress={() => open(PRIVACY_URL)}>
+                        <ShieldCheck size={20} color={theme.primary} />
+                        <Text style={[styles.footerCardText, { color: theme.text }]}>Aviso de Privacidad</Text>
+                        <ChevronRight size={18} color={theme.textMuted} />
+                    </TouchableOpacity>
+                )}
             </ScrollView>
-        </View>
+        </ScreenContainer>
     );
 }
 
@@ -112,22 +128,6 @@ function ContactBtn({ icon: Icon, label, color, theme, onPress }: any) {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
-    title: {
-        flex: 1,
-        fontSize: 20,
-        fontWeight: '800',
-        textAlign: 'center',
-    },
     scroll: {
         padding: 20,
         gap: 32,
