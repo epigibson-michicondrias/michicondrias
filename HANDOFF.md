@@ -39,7 +39,7 @@ sin repetir trabajo ni errores ya resueltos. Léelo completo una vez; después �
 | 2 Limpieza | ✅ (código muerto, barrels, pantallas falsas, lint en 0 errores) |
 | 3 Navegación | ✅ (grupo `(auth)`, Perfil único, Herramientas, Inicio, Explorar, Tienda, ficha de mascota con pestañas) |
 | 4 Funcionalidad | 🟡 F1–F27 ✅ (completa en módulos P1) |
-| 5 UI premium + APK | ⬜ (U1–U11) |
+| 5 UI premium + APK | 🟡 U1 ✅ tema · U2 ✅ componentes (PetForm, AuthShell, kit README); faltan U3–U11 (U3 arranca adoptando `AuthShell`) |
 
 `npm run check` **pasa** (tsc limpio, ESLint 0 errores / 72 avisos). Repo sincronizado con `origin/main` y desplegado (ver §3).
 
