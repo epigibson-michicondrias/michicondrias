@@ -5,7 +5,7 @@ import { getCurrentUser } from '../services/auth';
 import { saveCachedUser, getCachedUser, clearStoredSession } from '../lib/sessionStorage';
 import { ApiError, getToken, setToken, setUnauthorizedHandler } from '../lib/api';
 import { clearStoredCart } from '../lib/cartStorage';
-import { showAlert } from '@/src/components/AppAlert';
+import { showAlert, notifySessionExpired } from '@/src/components/AppAlert';
 
 interface AuthContextType {
     user: User | null;
@@ -52,6 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUnauthorizedHandler(() => {
             if (!userRef.current) return;
             endSession();
+            // F23: un solo aviso — este es el bueno; los onError de las acciones en vuelo quedan silenciados
+            notifySessionExpired();
             showAlert({ type: 'info', title: 'Tu sesión expiró', message: 'Por seguridad, vuelve a iniciar sesión.' });
         });
         return () => setUnauthorizedHandler(null);

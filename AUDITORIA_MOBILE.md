@@ -83,7 +83,7 @@ Problemas que no son de un módulo y afectan a toda la app.
 | Tema: persistencia | El modo se guarda en SecureStore (en web falla y queda atrapado en el catch) y parpadea al arrancar porque empieza en `system` | P2 |
 | Notificaciones | No existen push (`expo-notifications` no está instalado). El modelo no tiene `link`. El backend emite tipos (`citas`, `seguros`, …) que la app no mapea | P0 (ver módulo) |
 | ESLint `rules-of-hooks` | `src/hooks/rides/useRideTracking.ts:50` llama `useMutation` dentro de una función `make` (posible bug real; es del módulo Transportistas, P2) | P1 |
-| Errores tras sesión vencida | Si el token vence durante una mutación, el aviso «Tu sesión expiró» queda tapado por el `showAlert` de error de la pantalla (AppAlert tiene un solo espacio). Que los `onError` ignoren `ApiError.sessionExpired` | P2 |
+| ✅ 2026-10-07 Errores tras sesión vencida — resuelto (F23) | Si el token vence durante una mutación, el aviso «Tu sesión expiró» queda tapado por el `showAlert` de error de la pantalla (AppAlert tiene un solo espacio). Que los `onError` ignoren `ApiError.sessionExpired` | P2 |
 | Tráfico de polling | Sin la caché manual, los intervalos de 15–30 s ya consultan la red de verdad (`useMyClinic`, `useReportDetail`, `usePatients`, `useMyApplications`) y `usePetDetail` hace refetch en cada foco. Es lo correcto, pero hay que vigilar la carga del backend | P2 |
 | Redirección de arranque | `initialRouteName '(tabs)'` + `useEffect` de redirección: sin sesión se ven las pestañas un instante antes del login | P2 |
 

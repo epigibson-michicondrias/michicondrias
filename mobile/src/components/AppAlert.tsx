@@ -42,7 +42,17 @@ function getAlertColors(type: AlertType, theme: any) {
 
 let globalSetAlert: ((config: InternalAlertConfig) => void) | null = null;
 
+// F23 — «un solo aviso al vencer la sesión»: cuando la sesión expira, AuthContext avisa y lleva al login;
+// las acciones en vuelo caen con el mismo error y sus `onError` no deben apilar avisos de error encima.
+let sessionExpiredNoticeUntil = 0;
+
+/** Lo llama AuthContext al mostrar el aviso de sesión vencida: silencia los avisos de error de unos segundos. */
+export function notifySessionExpired() {
+    sessionExpiredNoticeUntil = Date.now() + 5000;
+}
+
 export function showAlert(config: AlertConfig) {
+    if (config.type === 'error' && Date.now() < sessionExpiredNoticeUntil) return;
     if (globalSetAlert) {
         globalSetAlert({ ...config, visible: true });
     }

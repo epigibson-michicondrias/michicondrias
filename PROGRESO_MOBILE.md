@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16, F17 y F18 ✅ · faltan F11, F12, F14, F15 y F19–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16, F17, F18 y F23 ✅ · faltan F11, F12, F14, F15 y F19–F22, F24–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -255,7 +255,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [ ] F26 Pasaporte público: enmascarar `policy_number` (últimos 4) y página legible en vez del JSON crudo (va con F16).
 - [ ] F27 `DatePicker` con `useTheme`/tokens y etiqueta en tipo oración (hoy usa `constants/Colors`); fechas del carnet
       con locale `es-MX`.
-- [ ] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext).
+- [x] F23 `onError` de mutaciones: no mostrar error si `ApiError.sessionExpired` (ya avisa AuthContext) — corte central
+      en `AppAlert.notifySessionExpired` (un solo aviso al vencer la sesión).
 - [ ] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
 
 **Fase 5 — UI premium + APK**
@@ -437,4 +438,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   reabrirlo se refresca al del servidor ($250) y se pide el producto al backend, el checkout crea pedido + sesión y
   abre la pasarela (en web navega a Stripe), la bolsa sigue llena hasta que `pago-exitoso` la vacía. `npm run check`
   0 errores.
+- **2026-10-07** — **F23 Un solo aviso al vencer la sesión** (transversal, solo app). En vez de tocar los ~138 `onError`
+  de mutaciones (74 archivos), el corte es **central en `AppAlert`**: `notifySessionExpired()` (lo llama `AuthContext`
+  justo antes de mostrar «Tu sesión expiró») silencia los avisos de `type: 'error'` durante 5 s — los `onError` de las
+  acciones que caen con la sesión ya no tapan ni duplican el aviso bueno. Verificado sin tocar producción (stub con
+  modo «sesión vencida» que responde 401 con token): **7/7** — compartir el carnet con la sesión vencida muestra UN
+  aviso («Tu sesión expiró»), NO aparece el «No se pudo compartir» de la acción en vuelo y la guarda lleva al login.
+  `npm run check` 0 errores.
 
