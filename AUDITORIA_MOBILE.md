@@ -210,7 +210,7 @@ Flujo: Inicio (carrusel) / Perfil → `/mascotas` → `/mascotas/[id]` → `/car
 | app/mascotas/index.tsx | pantalla | funciona | `DataList` con skeleton, vacío y refresh. El pie dice «Ver carnet y detalles» pero abre la ficha. Emojis de placeholder. 2 hex |
 | app/mascotas/[id].tsx | pantalla | funciona | ~~El engrane de editar se ve en mascotas ajenas~~ ✅ (F6) · ~~insignia «verificado» falsa~~ ✅ (F6) · ~~«Vacunas al día» del booleano manual (:80)~~ ✅ calculado del carnet (F16) · ~~«Notas médicas» muestra la descripción (:154)~~ ✅ (F6) · ~~Michi-Tracker activo sin salida (:102-118)~~ ✅ abre facturación (F16) · ~~`handleShare` sin botón~~ ✅ «Compartir carnet» con QR, solo el dueño (F16). `LoadingOverlay` a pantalla completa. Sin pull-to-refresh |
 | app/mascotas/nuevo.tsx · editar/[id].tsx | pantalla | funciona | Comparten ~95 % del JSX. Sin FormField ni KeyboardScreen. Validación por alerta. Raza y descripción obligatorias en la app aunque el backend no las pide |
-| app/mascotas/diagnostico-ia.tsx | pantalla | funciona | La IA es real (Claude con reglas de alarma como piso). 466 líneas. Usa `Picker` en vez de `FormSelect`. El triage no manda mascota, especie ni peso. El vacío sin mascotas no tiene acción. Si falta el peso, la alerta no lleva a editar. 9 hex y 4 `ActivityIndicator` |
+| app/mascotas/diagnostico-ia.tsx | pantalla | funciona | La IA es real (Claude con reglas de alarma como piso). 466 líneas. Usa `Picker` en vez de `FormSelect`. ~~El triage no manda mascota, especie ni peso~~ ✅ selector de mascota y `pet_id` (F17). ~~El vacío sin mascotas no tiene acción~~ ✅ «Agregar mascota» (F17). ~~Si falta el peso, la alerta no lleva a editar~~ ✅ CTA «Editar mascota» (F17). 9 hex y 4 `ActivityIndicator` |
 | hooks mascotas | hook | funciona | Query keys duplicadas para la misma mascota (`pet` y `pet-profile`; `user-pets` y `my-pets-carnet`). Mutaciones con `useState` |
 | backend pets.py | backend | funciona / riesgo | **El pasaporte compartido nunca trae vacunas**: llama a carnet sin token (:331). `share_url` apunta a JSON. `GET /pets/{id}` deja a cualquier usuario con sesión leer cualquier mascota, microchip incluido. `diet-plan` no filtra `is_active` |
 
@@ -220,12 +220,12 @@ Propuesta de rediseño (requiere visto bueno): **una sola ficha `mascotas/[id]` 
 (el carnet pasa a ser Salud/Historial), «Compartir carnet» con QR en el header, modo solo lectura para quien no es el
 dueño, y un `PetForm` único para alta y edición.
 Backend: llamada interna con token mascotas→carnet, página pública legible del pasaporte, revisar la privacidad de
-`GET /pets/{id}`, `pet_id` opcional en symptom-check.
+`GET /pets/{id}`, ~~`pet_id` opcional en symptom-check~~ ✅ (F17, con contexto de especie/peso/edad y sin datos de mascotas ajenas).
 Arreglos:
 - [x] P0 El pasaporte compartido nunca trae vacunas (`backend/michicondrias_mascotas/.../pets.py:331`)
 - [x] P0 Editar visible en mascotas ajenas → 403 (`app/mascotas/[id].tsx:51`)
 - [x] P1 ~~«Vacunas al día» manual; insignia falsa; «Notas médicas» con la descripción; Tracker sin salida; compartir sin botón~~ ✅ F6 (insignia, notas) y F16 (vacunas calculadas, Tracker → facturación, compartir carnet con QR)
-- [ ] P1 Diagnóstico IA: vacío sin acción y error de peso sin CTA a editar
+- [x] P1 Diagnóstico IA: vacío sin acción y error de peso sin CTA a editar (F17: vacío con «Agregar mascota», error de peso con «Editar mascota» y selector de mascota en el triage)
 - [ ] P2 `PetForm` común, Skeleton, `FormSelect`, `SegmentedTabs`, tokens, query keys unificadas
 
 ---

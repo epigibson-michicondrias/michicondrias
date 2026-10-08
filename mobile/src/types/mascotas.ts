@@ -54,6 +54,8 @@ export const PET_FORM_DEFAULTS: PetFormData = {
 export interface SymptomCheckRequest {
     symptom_description: string;
     duration_hours: number;
+    /** Opcional: da contexto (especie, peso, edad) al análisis; el backend ignora las mascotas ajenas. */
+    pet_id?: string;
 }
 
 export interface SymptomCheckResponse {

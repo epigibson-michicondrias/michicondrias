@@ -19,6 +19,8 @@ export default function DiagnosticoIAScreen() {
         setSymptoms,
         durationHours,
         setDurationHours,
+        triagePetId,
+        setTriagePetId,
         triageLoading,
         triageResult,
         handleSymptomCheck,
@@ -36,6 +38,7 @@ export default function DiagnosticoIAScreen() {
         pets,
         loadingPets,
         getTriageColor,
+        goAddPet,
         router,
     } = useAIDiagnosis();
 
@@ -83,6 +86,41 @@ export default function DiagnosticoIAScreen() {
                         <Text style={[styles.subtitle, { color: theme.textMuted }]}>
                             Te orientamos sobre qué tan urgente es atender a tu mascota según los síntomas. No es un diagnóstico ni sustituye a un veterinario.
                         </Text>
+
+                        {/* Mascota del análisis (opcional): aporta especie, peso y edad al triage */}
+                        <View style={styles.formGroup}>
+                            <Text style={[styles.label, { color: theme.text }]}>¿A qué mascota le pasa? (opcional)</Text>
+                            {loadingPets ? (
+                                <ActivityIndicator size="small" color={theme.primary} />
+                            ) : pets.length === 0 ? (
+                                <View style={[styles.emptyPetsCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                                    <AlertTriangle size={24} color="#f59e0b" />
+                                    <Text style={[styles.emptyPetsText, { color: theme.text }]}>
+                                        Registra a tu mascota para orientar el análisis con su especie, peso y edad.
+                                    </Text>
+                                    <TouchableOpacity
+                                        style={[styles.emptyPetsBtn, { backgroundColor: theme.primary }]}
+                                        onPress={goAddPet}
+                                        accessibilityRole="button"
+                                    >
+                                        <Text style={styles.emptyPetsBtnText}>Agregar mascota</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            ) : (
+                                <View style={[styles.pickerContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                                    <Picker
+                                        selectedValue={triagePetId}
+                                        onValueChange={(val) => setTriagePetId(val)}
+                                        style={{ color: theme.text }}
+                                    >
+                                        <Picker.Item label="-- Sin especificar --" value="" />
+                                        {pets.map((pet) => (
+                                            <Picker.Item key={pet.id} label={pet.name} value={pet.id} />
+                                        ))}
+                                    </Picker>
+                                </View>
+                            )}
+                        </View>
 
                         <View style={styles.formGroup}>
                             <Text style={[styles.label, { color: theme.text }]}>¿Qué síntomas presenta tu mascota?</Text>
@@ -170,6 +208,13 @@ export default function DiagnosticoIAScreen() {
                                 <Text style={[styles.emptyPetsText, { color: theme.text }]}>
                                     Necesitas registrar al menos una mascota para generar un plan nutricional.
                                 </Text>
+                                <TouchableOpacity
+                                    style={[styles.emptyPetsBtn, { backgroundColor: theme.primary }]}
+                                    onPress={goAddPet}
+                                    accessibilityRole="button"
+                                >
+                                    <Text style={styles.emptyPetsBtnText}>Agregar mascota</Text>
+                                </TouchableOpacity>
                             </View>
                         ) : (
                             <>
@@ -441,6 +486,18 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         textAlign: 'center',
         lineHeight: 20,
+    },
+    emptyPetsBtn: {
+        minHeight: 44,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyPetsBtnText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '800',
     },
     metricRow: {
         flexDirection: 'row',

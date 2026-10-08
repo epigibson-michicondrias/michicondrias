@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13 y F16 ✅ · faltan F11, F12 y F14, F15, F17–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16 y F17 ✅ · faltan F11, F12, F14, F15 y F18–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -239,7 +239,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [ ] 🛠️ F14 Recordatorios y refuerzos: job emisor de notificaciones (o confirmar que se quitan de la UI).
 - [ ] 🛠️ F15 Carnet: PUT/DELETE de vacunas y consultas + UI con confirmación; recalcular `is_vaccinated`; invalidaciones.
 - [x] F16 Mascotas: "vacunas al día" calculado, Tracker activo con salida, compartir carnet con QR (QR 📱 si es lib nativa).
-- [ ] F17 Diagnóstico IA: vacío con "Agregar mascota", error sin peso → editar, selector de mascota en triage.
+- [x] F17 Diagnóstico IA: vacío con "Agregar mascota", error sin peso → editar, selector de mascota en triage
+      (`pet_id` opcional en el backend, aditivo, con contexto de especie/peso/edad).
 - [ ] F18 Tienda: hook `useCheckout` (useMutation + invalidaciones), refrescar precio y stock del carrito, no vaciar antes
       de pagar.
 - [ ] 🛠️ F19 Tienda backend: liberar pedidos vencidos en `/orders/*`, notificar el pago a comprador y vendedor,
@@ -415,4 +416,14 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   mascota `is_vaccinated: true` + vacuna con refuerzo vencido): **10/10** — la ficha muestra «Vencido» pese al booleano,
   el Tracker abre facturación (POST al portal), el modal con QR dibujado (SVG 180) se cierra sin romper. `npm run
   check` 0 errores (72 avisos).
+- **2026-10-07** — **F17 Diagnóstico IA sin callejones** (app + backend aditivo). App: selector de mascota **también en
+  el triage** (opcional; manda `pet_id`), el vacío sin mascotas ofrece **«Agregar mascota»** (en el triage y en el plan
+  nutricional) y si falta el peso la alerta lleva a **«Editar mascota»** (pre-chequeo en el hook + mapeo del 400 del
+  backend). Backend (`mascotas`): `SymptomCheckRequest.pet_id` **opcional y aditivo** — el dueño pasa contexto real
+  («Michi (gato, Criollo, 4.2 kg, 18 meses)») al prompt de Claude y al resumen de reglas; las mascotas ajenas se
+  ignoran (sin filtrar datos). Verificado sin tocar producción: TestClient + SQLite en memoria **4/4** (sin pet_id =
+  comportamiento previo, con pet_id propio hay contexto, mascota ajena ignorada, id inexistente sin contexto) y smoke
+  web con stub **11/11** (selector con las mascotas, `pet_id` presente/ausente en el body según corresponde, CTA de
+  peso navega a `/mascotas/editar/[id]`, «Agregar mascota» navega al alta). `npm run check` 0 errores.
+  **El backend queda listo para desplegar** (sin migración; se agrupa con el siguiente bloque 🛠️).
 

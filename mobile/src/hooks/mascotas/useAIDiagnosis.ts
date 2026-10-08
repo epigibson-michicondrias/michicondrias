@@ -27,6 +27,8 @@ export function useAIDiagnosis() {
   // Triage State
   const [symptoms, setSymptoms] = useState('');
   const [durationHours, setDurationHours] = useState('12');
+  // La mascota del triage es opcional: da contexto (especie, peso, edad) al análisis
+  const [triagePetId, setTriagePetId] = useState(petId || '');
   const [triageLoading, setTriageLoading] = useState(false);
   const [triageResult, setTriageResult] = useState<SymptomCheckResponse | null>(null);
 
@@ -62,6 +64,7 @@ export function useAIDiagnosis() {
       const res = await aiSymptomCheck({
         symptom_description: symptoms.trim(),
         duration_hours: hours,
+        pet_id: triagePetId || undefined,
       });
       setTriageResult(res);
     } catch (err: any) {
@@ -69,11 +72,29 @@ export function useAIDiagnosis() {
     } finally {
       setTriageLoading(false);
     }
-  }, [symptoms, durationHours]);
+  }, [symptoms, durationHours, triagePetId]);
+
+  /** Sin peso registrado no hay plan que calcular: la salida es ir a editarlo (F17). */
+  const alertMissingWeight = useCallback(() => {
+    showAlert({
+      type: 'info',
+      title: 'Falta el peso',
+      message: 'Registra el peso de tu mascota para calcular su plan de nutrición.',
+      showCancel: true,
+      cancelText: 'Ahora no',
+      buttonText: 'Editar mascota',
+      onButtonPress: () => router.push(`/mascotas/editar/${selectedPetId}`),
+    });
+  }, [router, selectedPetId]);
 
   const handleDietPlan = useCallback(async () => {
     if (!selectedPetId) {
       showAlert({ type: 'error', title: 'Faltan datos', message: 'Por favor selecciona una mascota.' });
+      return;
+    }
+    const pet = pets.find((p) => p.id === selectedPetId);
+    if (pet && (!pet.weight_kg || pet.weight_kg <= 0)) {
+      alertMissingWeight();
       return;
     }
     const target = targetWeight.trim() === '' ? undefined : parseFloat(targetWeight.replace(',', '.'));
@@ -92,11 +113,15 @@ export function useAIDiagnosis() {
       });
       setDietResult(res);
     } catch (err: any) {
-      showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo generar el plan de nutrición.' });
+      if (err?.status === 400 && /peso/i.test(err?.message || '')) {
+        alertMissingWeight();
+      } else {
+        showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo generar el plan de nutrición.' });
+      }
     } finally {
       setDietLoading(false);
     }
-  }, [selectedPetId, activityLevel, allergies, targetWeight]);
+  }, [selectedPetId, activityLevel, allergies, targetWeight, pets, alertMissingWeight]);
 
   const getTriageColor = useCallback(
     (urgency: string) => {
@@ -124,6 +149,8 @@ export function useAIDiagnosis() {
     setSymptoms,
     durationHours,
     setDurationHours,
+    triagePetId,
+    setTriagePetId,
     triageLoading,
     triageResult,
     handleSymptomCheck,
@@ -149,6 +176,7 @@ export function useAIDiagnosis() {
     getTriageColor,
 
     // Navigation
+    goAddPet: () => router.push('/mascotas/nuevo'),
     router,
   };
 }
