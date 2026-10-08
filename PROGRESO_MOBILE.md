@@ -516,3 +516,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   endpoint público. Además **`pet_access` quedó alineado con `VET_ROLES`** en la lectura: clínica y hospital podían
   escribir el carnet pero no leerlo. Verificado con TestClient + SQLite: **4/4** (dueño 200, extraño 403, los cuatro
   roles clínicos 200, servicio interno 200). **Pendiente de desplegar** (sin migración; junto a F11/F12).
+- **2026-10-08** — **Despliegue**: push (`802734c..b951380`, F11+F12+F22) → `deploy-oracle.yml` ✅, **migración de core
+  `f12a8b3c4d5e` aplicada en la VM** (`scripts/vm.sh migrate core` → head) y **OTA en `production`** (update group
+  `a16937de-d804-4085-9275-c429d26a4b86`, commit `b951380`). `scripts/vm.sh status`: **17/17 activos en http 200**.
+  Ya en producción: correo sin mayúsculas, mensajes en español, contraseña mínima, `created_at`, recuperación con
+  código de 6 dígitos (y su pantalla única) y la ficha de mascota solo para dueño/equipo clínico/admin.
