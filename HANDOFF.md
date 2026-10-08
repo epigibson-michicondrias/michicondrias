@@ -233,7 +233,7 @@ El detalle de cada tarea está en `PROGRESO_MOBILE.md` → *Backlog por fase* y 
 | ~~F20~~ ✅ | Stripe con `expo-web-browser` `openAuthSessionAsync` (ya está en `package.json`; confirmado: es dependencia declarada y ya se usa) — hecho 2026-10-07 (`utils/payments.openStripeUrl` en los 5 puntos que abren Stripe) | el pago vuelve a la app |
 | ~~F21~~ ✅ | Ayuda: FAQ verídicas (solo tarjeta, botón real "¡Quiero Adoptar!"), avisar si falla `Linking`, `ScreenContainer`/`ScreenHeader` — hecho 2026-10-07 | |
 | ~~F23~~ ✅ | Los `onError` de mutaciones no muestran error si `ApiError.sessionExpired` — hecho 2026-10-07 (corte central en `AppAlert.notifySessionExpired`) | un solo aviso al vencer la sesión |
-| F15 🛠️ | PUT/DELETE de vacunas y consultas (carnet) + UI con confirmación | |
+| ~~F15~~ 🛠️ ✅ | PUT/DELETE de vacunas y consultas (carnet) + UI con confirmación — hecho 2026-10-07 (GET por id, recálculo de `is_vaccinated`, editar desde los formularios y borrar con confirmación) | |
 | F11 🛠️ | Core: email sin distinguir mayúsculas (**antes** busca duplicados por mayúsculas en `users`), mensajes en español, contraseña mínima, `created_at` en `/users/me` | |
 | F12 🛠️ | Recuperación con código de 6 dígitos (decisión tomada): endpoint en core + pantalla única de reset | |
 | F14 🛠️ | Emisor de recordatorios y refuerzos (job + notificación con `link`) | |

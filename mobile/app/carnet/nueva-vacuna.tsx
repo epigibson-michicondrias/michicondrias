@@ -22,13 +22,14 @@ export default function NuevaVacunaScreen() {
         handleSave,
         isSaving,
         isVet,
+        isEditing,
     } = useVaccineForm();
 
     const fieldStyle = [styles.inputGroup, { borderColor: theme.border, backgroundColor: theme.surface }];
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Registrar vacuna" />
+            <ScreenHeader title={isEditing ? 'Editar vacuna' : 'Registrar vacuna'} />
 
             <KeyboardScreen contentContainerStyle={styles.scrollContent}>
                 <View style={styles.sectionHeader}>
@@ -50,15 +51,25 @@ export default function NuevaVacunaScreen() {
                 </View>
                 {nameError && <Text style={[type.caption, styles.fieldError, { color: theme.error }]}>{nameError}</Text>}
 
-                <View style={fieldStyle}>
-                    <DatePicker
-                        value={appliedOn}
-                        onChange={setAppliedOn}
-                        mode="date"
-                        label="Fecha de aplicación"
-                        maximumDate={today}
-                    />
-                </View>
+                {/* La fecha de aplicación es un dato clínico: al editar solo se puede consultar */}
+                {isEditing ? (
+                    <View style={fieldStyle}>
+                        <Text style={[type.label, styles.label, { color: theme.textMuted }]}>Fecha de aplicación</Text>
+                        <Text style={[type.subtitle, { color: theme.text }]}>
+                            {appliedOn.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </Text>
+                    </View>
+                ) : (
+                    <View style={fieldStyle}>
+                        <DatePicker
+                            value={appliedOn}
+                            onChange={setAppliedOn}
+                            mode="date"
+                            label="Fecha de aplicación"
+                            maximumDate={today}
+                        />
+                    </View>
+                )}
 
                 <View style={fieldStyle}>
                     {nextDue ? (

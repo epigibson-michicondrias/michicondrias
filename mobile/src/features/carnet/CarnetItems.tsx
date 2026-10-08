@@ -7,7 +7,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
     Calendar, ChevronDown, ChevronUp, Weight, Thermometer, FileText, Syringe, Clock, Pill, Check, FlaskConical,
-    AlertCircle, Activity, Info,
+    AlertCircle, Activity, Info, Pencil, Trash2,
 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { spacing, radius, type, layout } from '@/constants/design';
@@ -25,8 +25,49 @@ function Tag({ label, color }: { label: string; color: string }) {
     );
 }
 
+/** Acciones de edición/borrado de un renglón del carnet (solo el dueño o el equipo clínico). */
+function ItemActions({ theme, onEdit, onDelete, label }: {
+    theme: any;
+    onEdit?: () => void;
+    onDelete?: () => void;
+    label: string;
+}) {
+    if (!onEdit && !onDelete) return null;
+    return (
+        <View style={styles.actionsRow}>
+            {!!onEdit && (
+                <TouchableOpacity
+                    style={[styles.actionBtn, { borderColor: theme.border }]}
+                    onPress={onEdit}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Editar ${label}`}
+                >
+                    <Pencil size={layout.icon.xs} color={theme.primary} />
+                    <Text style={[type.caption, { color: theme.primary }]}>Editar</Text>
+                </TouchableOpacity>
+            )}
+            {!!onDelete && (
+                <TouchableOpacity
+                    style={[styles.actionBtn, { borderColor: theme.border }]}
+                    onPress={onDelete}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Eliminar ${label}`}
+                >
+                    <Trash2 size={layout.icon.xs} color={theme.error} />
+                    <Text style={[type.caption, { color: theme.error }]}>Eliminar</Text>
+                </TouchableOpacity>
+            )}
+        </View>
+    );
+}
+
 // ── Consulta (Historial) ────────────────────────────────────────────
-export function RecordItem({ record, petId }: { record: MedicalRecord; petId: string }) {
+export function RecordItem({ record, petId, onEdit, onDelete }: {
+    record: MedicalRecord;
+    petId: string;
+    onEdit?: () => void;
+    onDelete?: () => void;
+}) {
     const { theme } = useTheme();
     const router = useRouter();
     const [expanded, setExpanded] = useState(false);
@@ -102,12 +143,17 @@ export function RecordItem({ record, petId }: { record: MedicalRecord; petId: st
                     )}
                 </View>
             )}
+            <ItemActions theme={theme} onEdit={onEdit} onDelete={onDelete} label={`consulta ${record.reason_for_visit}`} />
         </View>
     );
 }
 
 // ── Vacuna (Salud) ──────────────────────────────────────────────────
-export function VaccineItem({ vaccine }: { vaccine: Vaccine }) {
+export function VaccineItem({ vaccine, onEdit, onDelete }: {
+    vaccine: Vaccine;
+    onEdit?: () => void;
+    onDelete?: () => void;
+}) {
     const { theme } = useTheme();
     const overdue = !!vaccine.next_due_date && new Date(vaccine.next_due_date) < new Date();
     const color = overdue ? theme.error : theme.success;
@@ -128,6 +174,7 @@ export function VaccineItem({ vaccine }: { vaccine: Vaccine }) {
                         <Text style={[type.caption, { color: overdue ? theme.error : theme.primary }]}>Refuerzo: {formatDate(vaccine.next_due_date)}</Text>
                     </View>
                 )}
+                <ItemActions theme={theme} onEdit={onEdit} onDelete={onDelete} label={`vacuna ${vaccine.name}`} />
             </View>
         </View>
     );
@@ -256,6 +303,20 @@ const styles = StyleSheet.create({
     flex: {
         flex: 1,
         gap: spacing.xxs,
+    },
+    actionsRow: {
+        flexDirection: 'row',
+        gap: spacing.sm,
+        marginTop: spacing.sm,
+    },
+    actionBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        minHeight: layout.minTouch,
+        paddingHorizontal: spacing.md,
+        borderRadius: radius.md,
+        borderWidth: 1,
     },
     iconBox: {
         width: layout.iconBox.md,

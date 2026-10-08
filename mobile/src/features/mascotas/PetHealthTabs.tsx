@@ -44,7 +44,16 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
                 {health.loadingVaccines ? <LoadingRows /> : health.vaccines.length === 0 ? (
                     <EmptyLine text={`Aún no hay vacunas registradas de ${petName}.`} />
                 ) : (
-                    <View style={styles.list}>{health.vaccines.map((v) => <VaccineItem key={v.id} vaccine={v} />)}</View>
+                    <View style={styles.list}>
+                        {health.vaccines.map((v) => (
+                            <VaccineItem
+                                key={v.id}
+                                vaccine={v}
+                                onEdit={health.canEdit ? () => health.editVaccine(v.id) : undefined}
+                                onDelete={health.canEdit ? () => health.confirmDeleteVaccine(v.id, v.name) : undefined}
+                            />
+                        ))}
+                    </View>
                 )}
             </View>
 
@@ -101,7 +110,15 @@ export function PetHistoryTab({ health, petId }: { health: Health; petId: string
                 <>
                     {health.canEdit && <Button label="Registrar consulta" onPress={health.addRecord} variant="secondary" fullWidth />}
                     <View style={styles.list}>
-                        {health.records.map((r) => <RecordItem key={r.id} record={r} petId={petId} />)}
+                        {health.records.map((r) => (
+                            <RecordItem
+                                key={r.id}
+                                record={r}
+                                petId={petId}
+                                onEdit={health.canEdit ? () => health.editRecord(r.id) : undefined}
+                                onDelete={health.canEdit ? () => health.confirmDeleteRecord(r.id, r.reason_for_visit) : undefined}
+                            />
+                        ))}
                     </View>
                 </>
             )}

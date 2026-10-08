@@ -2,17 +2,19 @@
  * useConsultationForm — Form state and mutation for creating a new medical consultation
  * Manages form fields, prescription list, validation, and save mutation
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createRecord, MedicalRecordCreate } from '@/src/services/carnet';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createRecord, getRecord, updateRecord, MedicalRecordCreate } from '@/src/services/carnet';
 import { showAlert } from '@/src/components/AppAlert';
 
 export function useConsultationForm() {
-    const { pet_id } = useLocalSearchParams();
+    const { pet_id, id } = useLocalSearchParams<{ pet_id?: string; id?: string }>();
     const router = useRouter();
     const queryClient = useQueryClient();
     const petId = pet_id as string;
+    // Con `id` el formulario edita una consulta existente (la receta se gestiona aparte)
+    const editId = typeof id === 'string' && id ? id : null;
 
     // Form fields
     const [reason, setReason] = useState('');
@@ -23,13 +25,44 @@ export function useConsultationForm() {
     const [temp, setTemp] = useState('');
     const [prescriptions, setPrescriptions] = useState<MedicalRecordCreate['prescriptions']>([]);
 
+    const { data: editing } = useQuery({
+        queryKey: ['record', editId],
+        queryFn: () => getRecord(editId!),
+        enabled: !!editId,
+    });
+
+    useEffect(() => {
+        if (!editing) return;
+        setReason(editing.reason_for_visit);
+        setDiagnosis(editing.diagnosis || '');
+        setTreatment(editing.treatment || '');
+        setNotes(editing.notes || '');
+        setWeight(editing.weight_kg ? String(editing.weight_kg) : '');
+        setTemp(editing.temperature_c ? String(editing.temperature_c) : '');
+    }, [editing]);
+
     const mutation = useMutation({
-        mutationFn: (data: MedicalRecordCreate) => createRecord(data),
+        mutationFn: (data: MedicalRecordCreate) => {
+            if (!editId) return createRecord(data);
+            return updateRecord(editId, {
+                reason_for_visit: data.reason_for_visit,
+                diagnosis: data.diagnosis,
+                treatment: data.treatment,
+                weight_kg: data.weight_kg,
+                temperature_c: data.temperature_c,
+                notes: data.notes,
+            });
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['pet-records', petId] });
             // La receta genera recordatorios de medicamento en el backend
             queryClient.invalidateQueries({ queryKey: ['pet-reminders', petId] });
-            showAlert({ type: 'success', title: 'Consulta guardada', message: 'El expediente se actualizó correctamente.' });
+            if (editId) queryClient.invalidateQueries({ queryKey: ['record', editId] });
+            showAlert({
+                type: 'success',
+                title: editId ? 'Consulta actualizada' : 'Consulta guardada',
+                message: editId ? 'Se guardaron los cambios del expediente.' : 'El expediente se actualizó correctamente.',
+            });
             router.back();
         },
         onError: (error: any) => {
@@ -99,6 +132,7 @@ export function useConsultationForm() {
 
     return {
         petId,
+        isEditing: !!editId,
         // Form fields
         reason, setReason,
         diagnosis, setDiagnosis,

@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { normalizeRole } from '@/src/constants/roles';
-import { getRecordsByPet, getVaccinesByPet } from '@/src/services/carnet';
+import { getRecordsByPet, getVaccinesByPet, deleteVaccine, deleteRecord } from '@/src/services/carnet';
 import { getRemindersWithDetails, checkReminder } from '@/src/services/reminders';
 import { getPetLabHistory } from '@/src/services/laboratorio';
 import { showAlert } from '@/src/components/AppAlert';
@@ -85,6 +85,59 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         },
     });
 
+    // ── Edición y borrado del carnet (F15): el backend recalcula is_vaccinated al tocar vacunas ──
+    const invalidateCarnet = (kind: 'pet-vaccines' | 'pet-records') => {
+        queryClient.invalidateQueries({ queryKey: [kind, petId] });
+        queryClient.invalidateQueries({ queryKey: ['pet-profile'] });
+    };
+
+    const deleteVaccineMutation = useMutation({
+        mutationFn: (vaccineId: string) => deleteVaccine(vaccineId),
+        onSuccess: () => {
+            invalidateCarnet('pet-vaccines');
+            showAlert({ type: 'success', title: 'Vacuna eliminada', message: 'Se quitó del carnet de tu mascota.' });
+        },
+        onError: (error: any) => {
+            showAlert({ type: 'error', title: 'No se pudo eliminar', message: error?.message || 'Inténtalo de nuevo.' });
+        },
+    });
+
+    const deleteRecordMutation = useMutation({
+        mutationFn: (recordId: string) => deleteRecord(recordId),
+        onSuccess: () => {
+            invalidateCarnet('pet-records');
+            showAlert({ type: 'success', title: 'Consulta eliminada', message: 'Se quitó del carnet de tu mascota.' });
+        },
+        onError: (error: any) => {
+            showAlert({ type: 'error', title: 'No se pudo eliminar', message: error?.message || 'Inténtalo de nuevo.' });
+        },
+    });
+
+    /** Borrado destructivo: siempre con confirmación. */
+    const confirmDeleteVaccine = (vaccineId: string, name: string) => {
+        showAlert({
+            type: 'warning',
+            title: 'Eliminar vacuna',
+            message: `¿Quitar «${name}» del carnet? Esta acción no se puede deshacer.`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => deleteVaccineMutation.mutate(vaccineId),
+        });
+    };
+
+    const confirmDeleteRecord = (recordId: string, reason: string) => {
+        showAlert({
+            type: 'warning',
+            title: 'Eliminar consulta',
+            message: `¿Quitar la consulta «${reason}» del carnet? Esta acción no se puede deshacer.`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => deleteRecordMutation.mutate(recordId),
+        });
+    };
+
     return {
         canEdit,
         isOwner,
@@ -101,6 +154,10 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         checkReminder: (id: string) => checkMutation.mutate(id),
         addRecord: () => router.push(`/carnet/nueva-consulta?pet_id=${petId}` as any),
         addVaccine: () => router.push(`/carnet/nueva-vacuna?pet_id=${petId}` as any),
+        editRecord: (id: string) => router.push(`/carnet/nueva-consulta?pet_id=${petId}&id=${id}` as any),
+        editVaccine: (id: string) => router.push(`/carnet/nueva-vacuna?pet_id=${petId}&id=${id}` as any),
+        confirmDeleteVaccine,
+        confirmDeleteRecord,
         openSymptomCheck: () => router.push({ pathname: '/mascotas/diagnostico-ia', params: { petId } } as any),
     };
 }

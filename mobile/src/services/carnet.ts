@@ -1,5 +1,5 @@
 import { apiFetch } from "../lib/api";
-import type { VaccineCreate } from "../types/carnet";
+import type { MedicalRecordUpdate, VaccineCreate, VaccineUpdate } from "../types/carnet";
 
 export interface Prescription {
     id: string;
@@ -67,6 +67,21 @@ export async function createRecord(record: MedicalRecordCreate): Promise<Medical
     });
 }
 
+export async function getRecord(recordId: string): Promise<MedicalRecord> {
+    return apiFetch<MedicalRecord>("carnet", `/records/${recordId}`);
+}
+
+export async function updateRecord(recordId: string, data: MedicalRecordUpdate): Promise<MedicalRecord> {
+    return apiFetch<MedicalRecord>("carnet", `/records/${recordId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteRecord(recordId: string): Promise<void> {
+    await apiFetch("carnet", `/records/${recordId}`, { method: "DELETE" });
+}
+
 export async function getVaccinesByPet(petId: string): Promise<Vaccine[]> {
     return apiFetch<Vaccine[]>("carnet", `/vaccines/pet/${petId}`);
 }
@@ -76,4 +91,19 @@ export async function createVaccine(vaccine: VaccineCreate): Promise<Vaccine> {
         method: "POST",
         body: JSON.stringify(vaccine),
     });
+}
+
+export async function getVaccine(vaccineId: string): Promise<Vaccine> {
+    return apiFetch<Vaccine>("carnet", `/vaccines/${vaccineId}`);
+}
+
+export async function updateVaccine(vaccineId: string, data: VaccineUpdate): Promise<Vaccine> {
+    return apiFetch<Vaccine>("carnet", `/vaccines/${vaccineId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteVaccine(vaccineId: string): Promise<void> {
+    await apiFetch("carnet", `/vaccines/${vaccineId}`, { method: "DELETE" });
 }

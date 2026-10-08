@@ -21,6 +21,7 @@ export default function NuevaConsultaScreen() {
         removePrescription,
         handleSave,
         isSaving,
+        isEditing,
     } = useConsultationForm();
 
     return (
@@ -30,7 +31,7 @@ export default function NuevaConsultaScreen() {
         >
             <ScreenContainer>
                 <ScreenHeader
-                    title="Nueva Consulta"
+                    title={isEditing ? 'Editar Consulta' : 'Nueva Consulta'}
                     rightElement={
                         <TouchableOpacity
                             style={[styles.saveBtn, { backgroundColor: theme.primary }]}
@@ -133,6 +134,8 @@ export default function NuevaConsultaScreen() {
                         </View>
                     </View>
 
+                    {/* La receta se gestiona aparte: al editar solo cambian los datos de la consulta */}
+                    {!isEditing && (
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
                             <ShoppingBag size={18} color={theme.success} />
@@ -206,6 +209,7 @@ export default function NuevaConsultaScreen() {
                             <Text style={[styles.addPresText, { color: theme.primary }]}>Agregar Medicamento</Text>
                         </TouchableOpacity>
                     </View>
+                    )}
 
                     <View style={[styles.infoBox, { backgroundColor: theme.primary + '10' }]}>
                         <Info size={16} color={theme.primary} />

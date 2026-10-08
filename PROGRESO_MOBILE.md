@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F16–F18, F20, F21 y F23 ✅ · faltan F11, F12, F14, F15, F19, F22 y F24–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10, F13, F15–F18, F20, F21 y F23 ✅ · faltan F11, F12, F14, F19, F22 y F24–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -55,7 +55,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Pestañas (`(tabs)/`) | 5 | 🔍 | ⬜ | ⬜ | Campana falsa; tienda ×5; Herramientas duplica Perfil |
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
-| P1 | Carnet (`carnet/`) | 6 | 🔍 | ⬜ | ⬜ | 987 líneas; sin fecha de vacuna; recordatorios huérfana; promesa de aviso falsa |
+| P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); falta F14 (recordatorios) y la pasada U7 |
 | P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | 🟡 | ⬜ | F18 ✅ (`useCheckout`, carrito con precio/stock frescos, bolsa se vacía al confirmar el pago); faltan F19 (backend) y F20 (Stripe) |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
 | P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
@@ -237,7 +237,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] F13 Perfil: 2FA con QR / "abrir en app autenticadora" / copiar, invalidar `user-profile`; verificacion con hook,
       cámara y CTA "Activar cuenta pro"; partner muestra el KYC antes de elegir.
 - [ ] 🛠️ F14 Recordatorios y refuerzos: job emisor de notificaciones (o confirmar que se quitan de la UI).
-- [ ] 🛠️ F15 Carnet: PUT/DELETE de vacunas y consultas + UI con confirmación; recalcular `is_vaccinated`; invalidaciones.
+- [x] 🛠️ F15 Carnet: PUT/DELETE de vacunas y consultas + UI con confirmación; recalcular `is_vaccinated`; invalidaciones
+      (edición desde los mismos formularios: fecha de aplicación en solo lectura y la receta se gestiona aparte).
 - [x] F16 Mascotas: "vacunas al día" calculado, Tracker activo con salida, compartir carnet con QR (QR 📱 si es lib nativa).
 - [x] F17 Diagnóstico IA: vacío con "Agregar mascota", error sin peso → editar, selector de mascota en triage
       (`pet_id` opcional en el backend, aditivo, con contexto de especie/peso/edad).
@@ -466,6 +467,18 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   configurada). Verificado sin tocar producción: **7/7** con stub — render, FAQ corregidas (sin «Solicitar
   Adopción» ni «transferencias»), Email visible y los opcionales ocultos, el contacto no rompe la pantalla.
   `npm run check` 0 errores. **Pendiente del usuario:** valores de `EXPO_PUBLIC_SUPPORT_PHONE`,
-  `EXPO_PUBLIC_SUPPORT_WHATSAPP`, `EXPO_PUBLIC_TERMS_URL` y `EXPO_PUBLIC_PRIVACY_URL` en `.env` para que se vean
+  `EXPO_PUBLIC_SUPPORT_WHATSAPP`,   `EXPO_PUBLIC_TERMS_URL` y `EXPO_PUBLIC_PRIVACY_URL` en `.env` para que se vean
   WhatsApp, teléfono y las filas legales.
+- **2026-10-07** — **F15 Carnet editable** (app + backend). **Backend (carnet)**: PUT y DELETE de vacunas y consultas
+  (con `assert_can_write_pet_record`: dueño o equipo clínico), GET por id para editar, y **recálculo de
+  `is_vaccinated`** en la mascota al crear/borrar vacunas (SQL sobre la base compartida). `MedicalRecordUpdate` acepta
+  además `temperature_c` (aditivo). Verificado con TestClient + SQLite: **6/6** (PUT, DELETE conservando el estado,
+  recálculo a falso al vaciar, vuelta a true al crear, PUT/DELETE de consulta, 403 de extraños y 404). **App**:
+  servicios y tipos de actualización/borrado, botones **Editar/Eliminar** en cada vacuna y consulta (solo dueño o
+  clínica), **borrar siempre con confirmación**, y edición desde los mismos formularios (`nueva-vacuna`,
+  `nueva-consulta` con `?id=`): precarga, guarda con PUT y **la fecha de aplicación queda en solo lectura** (dato
+  clínico) y la receta se gestiona aparte. Invalidaciones de `pet-vaccines`/`pet-records`, `pet-profile` y la ficha
+  individual. Verificado sin tocar producción: smoke con stub **13/13** (confirmación con Cancelar que conserva, DELETE
+  que borra y llega al backend, edición precargada con la fecha solo lectura, PUT con los cambios y vuelta al carnet).
+  `npm run check` 0 errores. **El backend de carnet queda listo para desplegar** (sin migración; se agrupa con F14/F19/F22/F24).
 

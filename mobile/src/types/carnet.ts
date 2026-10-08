@@ -77,6 +77,24 @@ export interface VaccineCreate {
     administered_by_vet_id?: string | null;
 }
 
+/** Edición parcial de vacuna (PUT /vaccines/{id}); la fecha de aplicación no se toca. */
+export interface VaccineUpdate {
+    name?: string;
+    next_due_date?: string;
+    batch_number?: string;
+    notes?: string;
+}
+
+/** Edición parcial de consulta (PUT /records/{id}); la receta se gestiona aparte. */
+export interface MedicalRecordUpdate {
+    reason_for_visit?: string;
+    diagnosis?: string;
+    treatment?: string;
+    weight_kg?: number;
+    temperature_c?: number;
+    notes?: string;
+}
+
 // ─── Constants & Defaults ───────────────────────────────────────────────────────
 
 /** Default values for creating a new medical record */
