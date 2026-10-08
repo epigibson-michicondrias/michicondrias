@@ -1,14 +1,5 @@
 import { apiFetch } from "../lib/api";
-
-interface KYCPresignedUrl {
-    key: "id_front" | "id_back" | "proof_of_address";
-    url: string;
-    object_key: string;
-}
-
-export interface KYCPresignedUrlsResponse {
-    urls: KYCPresignedUrl[];
-}
+import type { KYCPresignedUrlsResponse } from "../types/auth";
 
 export async function getKYCPresignedUrls(extensions: {
     id_front: string;

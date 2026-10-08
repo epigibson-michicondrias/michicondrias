@@ -168,15 +168,15 @@ Eliminar cuenta / Paleta. Verificación: `perfil/verificacion` **o** `perfil/kyc
 |---|---|---|---|
 | app/(tabs)/two.tsx | pantalla | funciona (menú) | 412 líneas, 18 hex. No usa ListRow, SectionHeader ni Card. **Muestra la inicial y no la foto real** (:44-50). Dos lápices que van al mismo sitio (:63 y :81). Bug de `isLast` en Privacidad (:176). Versión escrita a mano. Aquí vive el único selector real de tema (:112-137) |
 | app/perfil/index.tsx | pantalla | funciona, con piezas rotas | 656 líneas. Formulario sin FormField ni validación inline. Carga con texto en vez de Skeleton. **«Configuración» → `/menu`** (:358), una pestaña oculta para el consumidor. **«Paleta de colores» → pantalla falsa** (:374). «Verificación (KYC)» → `perfil/kyc` duplicada (:299). Mis Mascotas, Compras y Cerrar sesión repiten la pestaña. 2FA, Facturación y Eliminar cuenta **solo se alcanzan desde aquí** |
-| app/perfil/verificacion.tsx | pantalla | funciona | Es el destino canónico (5 referencias). Llama al servicio y hace `fetch` a S3 desde la pantalla. No invalida `user-profile`. Solo galería y sin pedir permiso. Encabezado con `paddingTop: 60` fijo. Si el estado es VERIFIED no ofrece «Activar cuenta pro». 8 hex |
+| app/perfil/verificacion.tsx | pantalla | funciona | ~~Llama al servicio y hace `fetch` a S3 desde la pantalla~~ ✅ usa `useKYC` (F13). ~~Solo galería y sin pedir permiso~~ ✅ cámara y galería (F13). ~~No invalida `user-profile`~~ ✅ `reloadUser` al enviar (F13). ~~Si el estado es VERIFIED no ofrece «Activar cuenta pro»~~ ✅ CTA (F13). Encabezado con `paddingTop: 60` fijo. 8 hex |
 | app/perfil/kyc.tsx | pantalla | duplicada / rota | Repite verificacion. **No refresca el estado al enviar** y deja reenviar con PENDING o VERIFIED. El texto dice que es solo para «patrocinador o establecimiento». 10 hex |
-| app/perfil/seguridad-2fa.tsx | pantalla | funciona, incompleta | **No hay QR**: muestra el URI `otpauth://` como texto, no hay «Abrir en app autenticadora» ni botón de copiar. No invalida `user-profile`, así que eliminar-cuenta puede no pedir el código. 10 hex |
-| app/perfil/partner.tsx | pantalla | funciona | `apiFetch`, `setToken` y SecureStore en la pantalla, sin hook. 15 roles con emoji escritos a mano. Avisa que falta el KYC **después** de elegir el rol |
+| app/perfil/seguridad-2fa.tsx | pantalla | funciona | ~~**No hay QR**: muestra el URI `otpauth://` como texto, no hay «Abrir en app autenticadora» ni botón de copiar. No invalida `user-profile`~~ ✅ QR en SVG + ambas acciones + invalidación (F13). 10 hex |
+| app/perfil/partner.tsx | pantalla | funciona | ~~`apiFetch`, `setToken` y SecureStore en la pantalla, sin hook~~ ✅ `usePartnerUpgrade` (F9). ~~Avisa que falta el KYC **después** de elegir el rol~~ ✅ tarjeta de estado del KYC antes de elegir (F13). 15 roles con emoji escritos a mano |
 | app/perfil/eliminar-cuenta.tsx | pantalla | funciona | La más cercana al estándar. Hace `useQuery` en la pantalla. `router.replace('/login')` es redundante |
 | app/perfil/paleta.tsx | pantalla | **rota (falsa)** | «Aplicar paleta» no hace nada: muestra al usuario «edita constants/palettes.ts» (:20-36) |
 | src/hooks/perfil/useProfile.ts | hook | funciona | `getRoleLabel` duplica `getRoleLabelFor` y muestra «Usuario» para 6 roles. `getRoleIcon` está muerto |
-| src/hooks/perfil/useKYC.ts | hook | rota/incompleta | Solo lo usa kyc.tsx. No hace `reloadUser` ni invalida |
-| src/hooks/perfil/use2FA.ts | hook | funciona, con código muerto | `handleUpgradeToPartner` está muerto y roto. El disable manda `secretKey: code` como parche |
+| src/hooks/perfil/useKYC.ts | hook | funciona | ~~Solo lo usa kyc.tsx. No hace `reloadUser` ni invalida~~ ✅ lo usa `verificacion` con cámara/galería y `reloadUser` al enviar (F13) |
+| src/hooks/perfil/use2FA.ts | hook | funciona | ~~`handleUpgradeToPartner` está muerto y roto~~ ✅ borrado en Fase 2. F13 suma `openAuthenticator`, `copySecret` y la invalidación de `user-profile`. El disable manda `secretKey: code` como parche |
 | services profile / avatar / kyc | servicio | funciona | Coinciden con `users.py` |
 | backend core users.py | backend | funciona | `read_user_me` no devuelve `created_at`, así que «Miembro desde» nunca aparece. El portal de facturación crea un cliente de Stripe aunque no haya suscripción y vuelve a la web |
 
@@ -193,11 +193,11 @@ deep link de vuelta.
 Arreglos:
 - [ ] P0 Pantalla de paleta falsa y sus 2 accesos (`perfil/paleta.tsx`, `perfil/index.tsx:374`, `useMenu.ts:115`)
 - [ ] P0 `perfil/kyc`: no refresca el estado y deja reenviar → eliminarla y apuntar a verificacion (`perfil/index.tsx:299`)
-- [ ] P1 2FA: QR, «Abrir en app autenticadora», copiar clave e invalidar `user-profile`
+- [x] P1 2FA: QR, «Abrir en app autenticadora», copiar clave e invalidar `user-profile` (F13)
 - [ ] P1 «Configuración» → `/menu` (`perfil/index.tsx:358`); 2FA, Facturación y Eliminar escondidos en Editar
 - [ ] P1 Etiqueta de rol «Usuario» (`useProfile.ts:128-143`) → `getRoleLabelFor`; foto real en la pestaña
-- [ ] P1 partner: estado del KYC antes de elegir; verificacion: CTA «Activar cuenta pro» cuando esté VERIFIED
-- [ ] P2 Capas (partner, verificacion, eliminar-cuenta), código muerto, `perfil/index` 656 líneas → `src/features/perfil/`, hex
+- [x] P1 partner: estado del KYC antes de elegir; verificacion: CTA «Activar cuenta pro» cuando esté VERIFIED (F13)
+- [ ] P2 Capas (~~partner~~ ✅ F9, ~~verificacion~~ ✅ F13, eliminar-cuenta), código muerto, `perfil/index` 656 líneas → `src/features/perfil/`, hex
 
 ---
 

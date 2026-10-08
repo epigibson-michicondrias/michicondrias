@@ -5,11 +5,13 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import {
     getKYCPresignedUrls,
     finalizeKYC,
-    KYCPresignedUrlsResponse,
 } from '@/src/services/kyc';
+import type { KYCPresignedUrlsResponse } from '@/src/types/auth';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 import { getFileExtension, getImageMimeType } from '@/src/utils/helpers';
 
@@ -23,6 +25,7 @@ export interface KYCDocument {
 
 export function useKYC() {
     const router = useRouter();
+    const { reloadUser } = useAuth();
 
     const [documents, setDocuments] = useState<KYCDocument[]>([
         { key: 'id_front', label: 'INE / ID - Frente', uri: null, uploaded: false, uploading: false },
@@ -34,6 +37,31 @@ export function useKYC() {
         setDocuments(prev =>
             prev.map(doc => (doc.key === key ? { ...doc, uri } : doc))
         );
+    };
+
+    /** Captura o elige la imagen de un documento: cámara (la recomendada) o galería. */
+    const pickDocument = async (key: string, from: 'camera' | 'library') => {
+        try {
+            const options: ImagePicker.ImagePickerOptions = {
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                quality: 0.8,
+            };
+            const result = from === 'camera'
+                ? await ImagePicker.launchCameraAsync(options)
+                : await ImagePicker.launchImageLibraryAsync(options);
+            if (!result.canceled && result.assets[0]?.uri) {
+                setDocumentUri(key, result.assets[0].uri);
+            }
+        } catch {
+            showAlert({
+                type: 'error',
+                title: from === 'camera' ? 'No se pudo abrir la cámara' : 'No se pudo abrir la galería',
+                message: from === 'camera'
+                    ? 'Revisa los permisos de la cámara o elige el archivo desde tu galería.'
+                    : 'Inténtalo de nuevo.',
+            });
+        }
     };
 
     const setDocumentUploading = (key: string, uploading: boolean) => {
@@ -110,7 +138,9 @@ export function useKYC() {
                 proof_of_address_url: uploadedUrls['proof_of_address_url'],
             });
         },
-        onSuccess: () => {
+        onSuccess: async () => {
+            // El estado del KYC vive en el usuario: recargarlo para que se vea "En revisión" al volver
+            await reloadUser();
             showAlert({
                 type: 'success',
                 title: '¡Documentos enviados!',
@@ -138,6 +168,7 @@ export function useKYC() {
     return {
         documents,
         setDocumentUri,
+        pickDocument,
         allDocumentsSelected,
         allDocumentsUploaded,
         isAnyUploading,

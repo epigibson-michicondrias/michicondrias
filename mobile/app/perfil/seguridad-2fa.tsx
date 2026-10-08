@@ -1,10 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '@/src/hooks/useTheme';
 import { use2FA } from '@/src/hooks/perfil/use2FA';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Shield, ShieldCheck, ShieldOff, Eye, EyeOff } from 'lucide-react-native';
+import { Shield, ShieldCheck, ShieldOff, Eye, EyeOff, Smartphone, Copy } from 'lucide-react-native';
 
 export default function Seguridad2FAScreen() {
     const { theme } = useTheme();
@@ -20,6 +21,8 @@ export default function Seguridad2FAScreen() {
         handleSetup,
         handleEnable,
         handleDisable,
+        openAuthenticator,
+        copySecret,
     } = use2FA();
 
     const [showSecret, setShowSecret] = React.useState(false);
@@ -73,21 +76,39 @@ export default function Seguridad2FAScreen() {
                     </View>
                 )}
 
-                {/* QR Code / URI Display */}
+                {/* QR Code + acciones */}
                 {qrUri && !is2FAEnabled && (
                     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                         <Text style={[styles.cardTitle, { color: theme.text }]}>
                             Escanea el código QR
                         </Text>
                         <Text style={[styles.cardDescription, { color: theme.textMuted }]}>
-                            Escanea este enlace con tu app de autenticación o copia la clave secreta.
+                            Escanea el código con tu app de autenticación (Google Authenticator, Authy, etc.).
                         </Text>
 
-                        {/* QR URI display */}
-                        <View style={[styles.qrContainer, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                            <Text style={[styles.qrText, { color: theme.primary }]} selectable>
-                                {qrUri}
-                            </Text>
+                        {/* QR real en SVG (siempre negro sobre blanco: si no, no se escanea) */}
+                        <View style={[styles.qrContainer, { borderColor: theme.border }]}>
+                            <QRCode value={qrUri} size={180} />
+                        </View>
+
+                        {/* Acciones */}
+                        <View style={styles.qrActions}>
+                            <TouchableOpacity
+                                style={[styles.qrActionButton, { borderColor: theme.border }]}
+                                onPress={openAuthenticator}
+                                activeOpacity={0.8}
+                            >
+                                <Smartphone size={18} color={theme.primary} />
+                                <Text style={[styles.qrActionText, { color: theme.primary }]}>Abrir en app autenticadora</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.qrActionButton, { borderColor: theme.border }]}
+                                onPress={copySecret}
+                                activeOpacity={0.8}
+                            >
+                                <Copy size={18} color={theme.primary} />
+                                <Text style={[styles.qrActionText, { color: theme.primary }]}>Copiar clave</Text>
+                            </TouchableOpacity>
                         </View>
 
                         {/* Secret Key */}
@@ -226,15 +247,28 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     qrContainer: {
+        alignSelf: 'center',
         padding: 16,
         borderRadius: 12,
         borderWidth: 1,
         marginBottom: 16,
     },
-    qrText: {
-        fontSize: 12,
-        fontFamily: 'monospace',
-        lineHeight: 18,
+    qrActions: {
+        gap: 10,
+        marginBottom: 16,
+    },
+    qrActionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        minHeight: 44,
+        borderRadius: 12,
+        borderWidth: 1.5,
+    },
+    qrActionText: {
+        fontSize: 14,
+        fontWeight: '700',
     },
     secretContainer: {
         marginTop: 4,

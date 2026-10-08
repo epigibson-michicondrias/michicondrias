@@ -43,3 +43,28 @@ export interface RefreshTokenResponse extends TokenResponse {
 
 /** POST /users/me/upgrade-role: usuario actualizado + token que ya lleva el rol nuevo. */
 export type RoleUpgradeResponse = User & TokenResponse;
+
+/** POST /users/me/2fa/setup: clave secreta y enlace otpauth para el QR de la app de autenticación. */
+export interface Setup2FAResponse {
+    secret: string;
+    otpauth_url: string;
+}
+
+/** POST /users/me/2fa/enable y /2fa/disable. */
+export interface TwoFAActionResponse {
+    id: string;
+    email: string;
+    is_two_factor_enabled?: boolean;
+}
+
+/** URL firmada para subir un documento del KYC a S3. */
+export interface KYCPresignedUrl {
+    key: 'id_front' | 'id_back' | 'proof_of_address';
+    url: string;
+    object_key: string;
+}
+
+/** GET /users/me/kyc/presigned-urls. */
+export interface KYCPresignedUrlsResponse {
+    urls: KYCPresignedUrl[];
+}

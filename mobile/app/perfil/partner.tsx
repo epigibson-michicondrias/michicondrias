@@ -5,16 +5,26 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useRouter } from 'expo-router';
 import { showAlert } from '@/src/components/AppAlert';
 import { usePartnerUpgrade } from '@/src/hooks/perfil/usePartnerUpgrade';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
-import { ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react-native';
+import { useAuth } from '@/src/contexts/AuthContext';
+import { useTheme } from '@/src/hooks/useTheme';
+import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock } from 'lucide-react-native';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme } = useTheme();
+    const { user } = useAuth();
     const [selectedRole, setSelectedRole] = useState<string | null>(null);
     const { upgrade, isUpgrading } = usePartnerUpgrade();
+
+    // El estado de la identidad se muestra ANTES de elegir rol (F13): el backend exige KYC aprobado
+    const verification = user?.verification_status || 'UNVERIFIED';
+    const kycCard = {
+        UNVERIFIED: { icon: ShieldCheck, color: theme.textMuted, title: 'Identidad sin verificar', desc: 'Primero verifica tu identidad para poder elegir una cuenta profesional.', action: 'Verificar' },
+        PENDING: { icon: Clock, color: theme.warning, title: 'Identidad en revisión', desc: 'Cuando un administrador apruebe tus documentos podrás elegir tu cuenta profesional.', action: 'Ver estado' },
+        VERIFIED: { icon: CheckCircle, color: theme.success, title: 'Identidad verificada', desc: 'Ya puedes elegir el tipo de cuenta profesional que quieres activar.', action: null },
+        REJECTED: { icon: AlertCircle, color: theme.error, title: 'Identidad rechazada', desc: 'Vuelve a subir tus documentos para poder continuar.', action: 'Reintentar' },
+    }[verification as 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED'];
+    const KycIcon = kycCard.icon;
 
     const roles = [
         { id: "veterinario", icon: "🩺", title: "Veterinario", desc: "Atiende pacientes, agenda citas y emite recetas.", benefits: ["🏥 Gestión de pacientes", "📅 Sistema de citas", "🎥 Videoconsultas"] },
@@ -121,6 +131,22 @@ export default function PartnerOnboardingScreen() {
             />
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
+            {/* Estado de la identidad antes de elegir el rol */}
+            <View style={[styles.kycCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <View style={[styles.kycIconBox, { backgroundColor: kycCard.color + '20' }]}>
+                    <KycIcon size={22} color={kycCard.color} />
+                </View>
+                <View style={styles.kycInfo}>
+                    <Text style={[styles.kycTitle, { color: theme.text }]}>{kycCard.title}</Text>
+                    <Text style={[styles.kycDesc, { color: theme.textMuted }]}>{kycCard.desc}</Text>
+                </View>
+                {kycCard.action && (
+                    <TouchableOpacity onPress={() => router.push('/perfil/verificacion')} activeOpacity={0.7}>
+                        <Text style={[styles.kycAction, { color: theme.primary }]}>{kycCard.action}</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
             <View style={styles.rolesContainer}>
                 {roles.map(renderRoleCard)}
             </View>
@@ -187,6 +213,39 @@ const styles = StyleSheet.create({
     rolesContainer: {
         padding: 24,
         gap: 16,
+    },
+    kycCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 24,
+        marginTop: 16,
+        padding: 16,
+        borderRadius: 16,
+        borderWidth: 1,
+        gap: 12,
+    },
+    kycIconBox: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    kycInfo: {
+        flex: 1,
+    },
+    kycTitle: {
+        fontSize: 14,
+        fontWeight: '800',
+        marginBottom: 2,
+    },
+    kycDesc: {
+        fontSize: 12,
+        lineHeight: 17,
+    },
+    kycAction: {
+        fontSize: 13,
+        fontWeight: '800',
     },
     roleCard: {
         padding: 20,

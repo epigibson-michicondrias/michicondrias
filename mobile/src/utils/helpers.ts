@@ -1,6 +1,7 @@
 /**
  * Shared helper utilities
  */
+import { Platform } from 'react-native';
 
 /**
  * Base URL pública del storage de archivos (AWS S3, Oracle Object Storage, etc.).
@@ -25,6 +26,20 @@ export function getS3Url(objectKey: string): string {
 export function getFileExtension(uri: string): string {
     const match = uri.match(/\.(\w+)(?:\?|$)/);
     return match ? match[1].toLowerCase() : 'jpg';
+}
+
+/**
+ * Copia texto al portapapeles. En web usa el API del navegador; en nativo devuelve false
+ * (sin `expo-clipboard` todavía: va en el APK de U10) y el llamador decide la alternativa.
+ */
+export async function copyText(text: string): Promise<boolean> {
+    if (Platform.OS !== 'web') return false;
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 /**

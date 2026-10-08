@@ -1,18 +1,7 @@
 import { apiFetch } from "../lib/api";
+import type { Setup2FAResponse, TwoFAActionResponse } from "../types/auth";
 
 // --- Two-Factor Authentication ---
-
-export interface Setup2FAResponse {
-    secret: string;
-    otpauth_url: string;
-}
-
-export interface TwoFAActionResponse {
-    // UserResponse from backend
-    id: string;
-    email: string;
-    is_two_factor_enabled?: boolean;
-}
 
 export async function setup2FA(): Promise<Setup2FAResponse> {
     return apiFetch<Setup2FAResponse>("core", "/users/me/2fa/setup", {

@@ -1,112 +1,46 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
-import * as ImagePicker from 'expo-image-picker';
-import { getKYCPresignedUrls, finalizeKYC } from '../../src/services/kyc';
 import { useAuth } from '../../src/contexts/AuthContext';
+import { useKYC } from '@/src/hooks/perfil/useKYC';
 import { useTheme } from '@/src/hooks/useTheme';
-import { ShieldCheck, FileText, Upload, CheckCircle2, AlertCircle, Info } from 'lucide-react-native';
+import { ShieldCheck, FileText, Camera, Images, CheckCircle2, AlertCircle, Info, ArrowRight } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
+
+const DOC_HINTS: Record<string, string> = {
+    id_front: 'INE, Pasaporte o Cédula',
+    id_back: 'Parte trasera del documento',
+    proof_of_address: 'Luz, Agua o Teléfono (< 3 meses)',
+};
 
 export default function VerificationScreen() {
     const router = useRouter();
-    const { user, reloadUser } = useAuth();
-    const { theme, isDark } = useTheme();
+    const { user } = useAuth();
+    const { theme } = useTheme();
+    const { documents, pickDocument, handleSubmit, isSubmitting } = useKYC();
 
-    const [uploading, setUploading] = useState(false);
-    const [docs, setDocs] = useState<{
-        id_front: string | null;
-        id_back: string | null;
-        proof_of_address: string | null;
-    }>({
-        id_front: null,
-        id_back: null,
-        proof_of_address: null,
-    });
-
-    const pickDocument = async (type: keyof typeof docs) => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 0.8,
-        });
-
-        if (!result.canceled) {
-            setDocs(prev => ({ ...prev, [type]: result.assets[0].uri }));
-        }
-    };
-
-    const handleUpload = async () => {
-        if (!docs.id_front || !docs.id_back || !docs.proof_of_address) {
-            showAlert({ type: 'error', title: 'Documentos incompletos', message: 'Por favor selecciona los 3 documentos requeridos.' });
-            return;
-        }
-
-        setUploading(true);
-        try {
-            // 1. Get presigned URLs
-            const extensions = {
-                id_front: docs.id_front.split('.').pop() || 'jpg',
-                id_back: docs.id_back.split('.').pop() || 'jpg',
-                proof_of_address: docs.proof_of_address.split('.').pop() || 'jpg',
-            };
-
-            const { urls } = await getKYCPresignedUrls(extensions);
-
-            // 2. Upload to S3
-            await Promise.all(urls.map(async (u) => {
-                const uri = docs[u.key as keyof typeof docs];
-                if (!uri) return;
-
-                const response = await fetch(uri);
-                const blob = await response.blob();
-
-                const uploadRes = await fetch(u.url, {
-                    method: 'PUT',
-                    body: blob,
-                    headers: {
-                        'Content-Type': blob.type || 'image/jpeg',
-                    },
-                });
-
-                if (!uploadRes.ok) throw new Error(`Falló la subida de ${u.key}`);
-            }));
-
-            // 3. Finalize
-            await finalizeKYC({
-                id_front_url: urls.find(u => u.key === 'id_front')?.object_key || '',
-                id_back_url: urls.find(u => u.key === 'id_back')?.object_key || '',
-                proof_of_address_url: urls.find(u => u.key === 'proof_of_address')?.object_key || '',
-            });
-
-            await reloadUser();
-            showAlert({ type: 'success', title: '¡Enviado!', message: 'Tus documentos están en revisión. Te notificaremos pronto.' });
-        } catch (error) {
-            console.error("KYC Error:", error);
-            showAlert({ type: 'error', title: 'Error', message: 'Hubo un problema al subir tus documentos. Inténtalo de nuevo.' });
-        } finally {
-            setUploading(false);
-        }
-    };
+    const status = user?.verification_status || 'UNVERIFIED';
+    const canUpload = status === 'UNVERIFIED' || status === 'REJECTED';
 
     const renderStatus = () => {
-        const status = user?.verification_status || 'UNVERIFIED';
-
         const configs = {
-            UNVERIFIED: { icon: ShieldCheck, color: theme.textMuted, title: 'Cuenta no verificada', desc: 'Verifica tu identidad para iniciar procesos de adopción formal.' },
-            PENDING: { icon: ActivityIndicator, color: '#f59e0b', title: 'Verificación en curso', desc: 'Estamos revisando tus documentos. Esto toma de 24 a 48 horas.' },
-            VERIFIED: { icon: CheckCircle2, color: '#10b981', title: 'Cuenta Verificada', desc: '¡Felicidades! Tienes acceso total a todas las funciones de Michicondrias.' },
-            REJECTED: { icon: AlertCircle, color: '#ef4444', title: 'Verificación Rechazada', desc: 'Hubo un problema con tus documentos. Por favor intenta de nuevo.' },
+            UNVERIFIED: { color: theme.textMuted, title: 'Cuenta no verificada', desc: 'Verifica tu identidad para iniciar procesos de adopción formal.' },
+            PENDING: { color: theme.warning, title: 'Verificación en curso', desc: 'Estamos revisando tus documentos. Esto toma de 24 a 48 horas.' },
+            VERIFIED: { color: theme.success, title: 'Cuenta verificada', desc: '¡Felicidades! Tienes acceso total a todas las funciones de Michicondrias.' },
+            REJECTED: { color: theme.error, title: 'Verificación rechazada', desc: 'Hubo un problema con tus documentos. Por favor intenta de nuevo.' },
         };
-
         const config = configs[status as keyof typeof configs];
-        const Icon = config.icon;
 
         return (
-            <View style={[styles.statusCard, { backgroundColor: theme.surface }]}>
-                <View style={[styles.statusIconBox, { backgroundColor: config.color + '15' }]}>
-                    {status === 'PENDING' ? <ActivityIndicator color={config.color} /> : <Icon size={32} color={config.color} />}
+            <View style={[styles.statusCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                <View style={[styles.statusIconBox, { backgroundColor: config.color + '20' }]}>
+                    {status === 'PENDING'
+                        ? <ActivityIndicator color={config.color} />
+                        : status === 'VERIFIED'
+                            ? <CheckCircle2 size={32} color={config.color} />
+                            : status === 'REJECTED'
+                                ? <AlertCircle size={32} color={config.color} />
+                                : <ShieldCheck size={32} color={config.color} />}
                 </View>
                 <View style={styles.statusInfo}>
                     <Text style={[styles.statusTitle, { color: theme.text }]}>{config.title}</Text>
@@ -130,59 +64,59 @@ export default function VerificationScreen() {
                 <View style={styles.content}>
                     {renderStatus()}
 
-                    {(user?.verification_status === 'UNVERIFIED' || user?.verification_status === 'REJECTED') && (
+                    {/* Con la identidad aprobada, el siguiente paso es la cuenta profesional */}
+                    {status === 'VERIFIED' && (
+                        <TouchableOpacity
+                            style={[styles.submitBtn, { backgroundColor: theme.primary }]}
+                            onPress={() => router.push('/perfil/partner')}
+                            activeOpacity={0.85}
+                        >
+                            <View style={styles.ctaRow}>
+                                <Text style={styles.submitBtnText}>Activar cuenta profesional</Text>
+                                <ArrowRight size={20} color="#fff" />
+                            </View>
+                        </TouchableOpacity>
+                    )}
+
+                    {canUpload && (
                         <>
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Documentos requeridos</Text>
 
-                            <TouchableOpacity
-                                style={[styles.docCard, { backgroundColor: theme.surface }]}
-                                onPress={() => pickDocument('id_front')}
-                            >
-                                <View style={[styles.docIcon, { backgroundColor: theme.primary + '15' }]}>
-                                    <FileText size={20} color={theme.primary} />
+                            {documents.map((doc) => (
+                                <View key={doc.key} style={[styles.docCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                                    <View style={styles.docRow}>
+                                        <View style={[styles.docIcon, { backgroundColor: theme.primaryLight }]}>
+                                            <FileText size={20} color={theme.primary} />
+                                        </View>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={[styles.docLabel, { color: theme.text }]}>{doc.label}</Text>
+                                            <Text style={[styles.docStatus, { color: doc.uri ? theme.success : theme.textMuted }]}>
+                                                {doc.uri ? '✓ Archivo seleccionado' : DOC_HINTS[doc.key]}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.docActions}>
+                                        <TouchableOpacity
+                                            style={[styles.docButton, { borderColor: theme.border }]}
+                                            onPress={() => pickDocument(doc.key, 'camera')}
+                                            activeOpacity={0.8}
+                                        >
+                                            <Camera size={16} color={theme.primary} />
+                                            <Text style={[styles.docButtonText, { color: theme.primary }]}>Tomar foto</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[styles.docButton, { borderColor: theme.border }]}
+                                            onPress={() => pickDocument(doc.key, 'library')}
+                                            activeOpacity={0.8}
+                                        >
+                                            <Images size={16} color={theme.primary} />
+                                            <Text style={[styles.docButtonText, { color: theme.primary }]}>Galería</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.docLabel, { color: theme.text }]}>Identificación Oficial (Frente)</Text>
-                                    <Text style={[styles.docStatus, { color: docs.id_front ? '#10b981' : theme.textMuted }]}>
-                                        {docs.id_front ? '✓ Archivo seleccionado' : 'INE, Pasaporte o Cédula'}
-                                    </Text>
-                                </View>
-                                <Upload size={20} color={theme.textMuted} />
-                            </TouchableOpacity>
+                            ))}
 
-                            <TouchableOpacity
-                                style={[styles.docCard, { backgroundColor: theme.surface }]}
-                                onPress={() => pickDocument('id_back')}
-                            >
-                                <View style={[styles.docIcon, { backgroundColor: theme.primary + '15' }]}>
-                                    <FileText size={20} color={theme.primary} />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.docLabel, { color: theme.text }]}>Identificación Oficial (Reverso)</Text>
-                                    <Text style={[styles.docStatus, { color: docs.id_back ? '#10b981' : theme.textMuted }]}>
-                                        {docs.id_back ? '✓ Archivo seleccionado' : 'Parte trasera del documento'}
-                                    </Text>
-                                </View>
-                                <Upload size={20} color={theme.textMuted} />
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[styles.docCard, { backgroundColor: theme.surface }]}
-                                onPress={() => pickDocument('proof_of_address')}
-                            >
-                                <View style={[styles.docIcon, { backgroundColor: theme.secondary + '15' }]}>
-                                    <FileText size={20} color={theme.secondary} />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.docLabel, { color: theme.text }]}>Comprobante de Domicilio</Text>
-                                    <Text style={[styles.docStatus, { color: docs.proof_of_address ? '#10b981' : theme.textMuted }]}>
-                                        {docs.proof_of_address ? '✓ Archivo seleccionado' : 'Luz, Agua o Teléfono (< 3 meses)'}
-                                    </Text>
-                                </View>
-                                <Upload size={20} color={theme.textMuted} />
-                            </TouchableOpacity>
-
-                            <View style={[styles.infoBox, { backgroundColor: theme.primary + '10' }]}>
+                            <View style={[styles.infoBox, { backgroundColor: theme.primaryLight }]}>
                                 <Info size={18} color={theme.primary} />
                                 <Text style={[styles.infoText, { color: theme.textMuted }]}>
                                     Tus datos están protegidos y solo se utilizarán para validar tu identidad en el proceso de adopción.
@@ -190,11 +124,14 @@ export default function VerificationScreen() {
                             </View>
 
                             <TouchableOpacity
-                                style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                                disabled={uploading}
-                                onPress={handleUpload}
+                                style={[styles.submitBtn, { backgroundColor: theme.primary }, isSubmitting && { opacity: 0.7 }]}
+                                disabled={isSubmitting}
+                                onPress={handleSubmit}
+                                activeOpacity={0.85}
                             >
-                                {uploading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitBtnText}>Enviar para revisión</Text>}
+                                {isSubmitting
+                                    ? <ActivityIndicator color="#fff" />
+                                    : <Text style={styles.submitBtnText}>Enviar para revisión</Text>}
                             </TouchableOpacity>
                         </>
                     )}
@@ -233,7 +170,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 20,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
     },
     statusIconBox: {
         width: 64,
@@ -260,13 +196,15 @@ const styles = StyleSheet.create({
         marginBottom: -4,
     },
     docCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
         padding: 16,
         borderRadius: 20,
-        gap: 16,
+        gap: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)',
+    },
+    docRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
     },
     docIcon: {
         width: 48,
@@ -283,6 +221,24 @@ const styles = StyleSheet.create({
     docStatus: {
         fontSize: 11,
         fontWeight: '600',
+    },
+    docActions: {
+        flexDirection: 'row',
+        gap: 10,
+    },
+    docButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        minHeight: 44,
+        borderRadius: 12,
+        borderWidth: 1.5,
+    },
+    docButtonText: {
+        fontSize: 13,
+        fontWeight: '700',
     },
     infoBox: {
         flexDirection: 'row',
@@ -308,5 +264,10 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: '800',
-    }
+    },
+    ctaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
 });

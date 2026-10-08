@@ -13,7 +13,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9 y F10 ✅ · faltan F11–F27 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9, F10 y F13 ✅ · faltan F11, F12 y F14–F27 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
 > **Orden recomendado:** las tareas P0 de la Fase 4 marcadas 🚨 (sesión, caché, búsqueda) no dependen de la navegación y
@@ -53,7 +53,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 |---|---|---|---|---|---|---|
 | P1 | Auth (`login`, `register`, `forgot-password`, `reset-password`) | 4 | 🔍 | 🟡 | ⬜ | F9 ✅ (en capas) y F10 ✅ (auto-login); faltan F11–F13. Reset sin deep link inutilizable (F12) |
 | P1 | Pestañas (`(tabs)/`) | 5 | 🔍 | ⬜ | ⬜ | Campana falsa; tienda ×5; Herramientas duplica Perfil |
-| P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | ⬜ | ⬜ | 2 perfiles, 2 KYC, paleta falsa, 2FA sin QR |
+| P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | ⬜ | ⬜ | Ficha y carnet duplicados; editar visible en ajenas; triage IA real |
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | ⬜ | ⬜ | 987 líneas; sin fecha de vacuna; recordatorios huérfana; promesa de aviso falsa |
 | P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ⬜ | ⬜ | Stripe real; carrito y dirección pasan entre usuarios; caché de 30 s |
@@ -234,7 +234,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [ ] 🛠️ F11 Backend auth: email sin distinguir mayúsculas (revisar duplicados antes), mensajes en español, contraseña
       mínima, `created_at` en `/users/me`.
 - [ ] 🛠️ F12 Recuperación con código de 6 dígitos (si se aprueba) o token de un solo uso.
-- [ ] F13 Perfil: 2FA con QR / "abrir en app autenticadora" / copiar, invalidar `user-profile`; verificacion con hook,
+- [x] F13 Perfil: 2FA con QR / "abrir en app autenticadora" / copiar, invalidar `user-profile`; verificacion con hook,
       cámara y CTA "Activar cuenta pro"; partner muestra el KYC antes de elegir.
 - [ ] 🛠️ F14 Recordatorios y refuerzos: job emisor de notificaciones (o confirmar que se quitan de la UI).
 - [ ] 🛠️ F15 Carnet: PUT/DELETE de vacunas y consultas + UI con confirmación; recalcular `is_vaccinated`; invalidaciones.
@@ -389,4 +389,19 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   el tráfico no llega al stub antes de registrar): 7/7 — render, línea pro, validación local y, tras el registro,
   sesión abierta en Inicio (smoke headless 375×812). `npm run check` 0 errores. El arnés del stub quedó en
   `/tmp/opencode/f9-smoke/` (no se sube al repo). Commit local; el OTA sigue agrupado con el siguiente bloque.
+- **2026-10-07** — **F13 Perfil: 2FA con QR y KYC con cámara** (solo app). `seguridad-2fa`: QR real en SVG
+  (`react-native-qrcode-svg`, JS puro sobre `react-native-svg` que ya estaba → sin APK) en lugar del texto
+  `otpauth://`, más «Abrir en app autenticadora» (`Linking`) y «Copiar clave» (web: portapapeles; nativo: el menú de
+  compartir incluye «Copiar», y si tampoco hay, aviso para copiarla a mano — `expo-clipboard` va en el APK de U10).
+  `use2FA` invalida `['user-profile']` al activar/desactivar. `verificacion` reescrita sobre `useKYC` (fuera el
+  `fetch` a S3 y `services/kyc` de la pantalla): cada documento se captura **con cámara o galería**
+  (`pickDocument`, `launchCameraAsync`/`launchImageLibraryAsync`), `reloadUser` al enviar y **CTA «Activar cuenta
+  profesional» cuando el KYC está VERIFIED**. `partner` muestra la **tarjeta de estado del KYC antes de elegir el
+  rol** (con enlace a verificación si falta). Helpers: `copyText` en `utils/helpers` y `shareContent` ahora informa
+  si el menú abrió. Verificado sin tocar producción (stub core con CORS + Metro aparte con `EXPO_PUBLIC_API_URL`,
+  sonda de seguridad incluida): **15/15** en web 375×812 — setup con QR (SVG de 180 px confirmado en el DOM), copiar
+  clave con feedback, cámara/galería con filechooser real (3 documentos), envío → «¡Documentos enviados!», partner
+  con el estado del KYC y CTA pro solo con VERIFIED, sin errores de runtime. `npm run check` 0 errores (72 avisos, −1
+  vs línea base). Nota: la cámara nativa puede necesitar el plugin `expo-image-picker` en `app.config.js` (va con el
+  APK de U10); en web funciona con el selector de archivos.
 
