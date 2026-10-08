@@ -13,10 +13,10 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 1 | Auditoría | 🟡 P1 🔍 2026-10-07 · P2/P3 ⬜ |
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
-| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F13, F15–F18, F20–F24 y F27 ✅ · faltan F14, F19, F25 y F26 |
+| 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · F9–F18, F20–F24 y F27 ✅ · faltan F19, F25 y F26 |
 | 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
 
-> **Siguiente:** F14 y F19 (backend 🛠️) y F25/F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
+> **Siguiente:** F19 (backend 🛠️) y F25/F26 (app) cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
 > A1–A5) y Fase 5 (U1 Tema primero). El detalle y el orden están en `HANDOFF.md` §8.
 
 ---
@@ -55,7 +55,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Pestañas (`(tabs)/`) | 5 | 🔍 | ⬜ | ⬜ | Campana falsa; tienda ×5; Herramientas duplica Perfil |
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
-| P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); falta F14 (recordatorios) y la pasada U7 |
+| P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); F14 ✅ (avisos de dosis y refuerzos en la bandeja); falta la pasada U7 |
 | P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | 🟡 | ⬜ | F18 ✅ (`useCheckout`, carrito con precio/stock frescos, bolsa se vacía al confirmar el pago); faltan F19 (backend) y F20 (Stripe) |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
 | P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
@@ -237,7 +237,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       (**migración aditiva** `f12a8b3c4d5e`: `users.reset_code_hash`/`reset_code_expires_at`).
 - [x] F13 Perfil: 2FA con QR / "abrir en app autenticadora" / copiar, invalidar `user-profile`; verificacion con hook,
       cámara y CTA "Activar cuenta pro"; partner muestra el KYC antes de elegir.
-- [ ] 🛠️ F14 Recordatorios y refuerzos: job emisor de notificaciones (o confirmar que se quitan de la UI).
+- [x] 🛠️ F14 Recordatorios y refuerzos: job emisor dentro de carnet (`app/jobs/reminders.py`, cada 5 min): dosis de
+      medicamento (`recetas`) y refuerzos 7 días antes (`vacunas`), con `link` a la pestaña Salud (**migración
+      `c14a7e2b9d01`**).
 - [x] 🛠️ F15 Carnet: PUT/DELETE de vacunas y consultas + UI con confirmación; recalcular `is_vaccinated`; invalidaciones
       (edición desde los mismos formularios: fecha de aplicación en solo lectura y la receta se gestiona aparte).
 - [x] F16 Mascotas: "vacunas al día" calculado, Tracker activo con salida, compartir carnet con QR (QR 📱 si es lib nativa).
@@ -539,3 +541,20 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   **17/17 en http 200** y **OTA en `production`** (update group `f60b79a3-41bc-4332-9fe9-0b7297ab6555`). Sin migraciones.
   Ya en producción: las notificaciones de los 5 servicios llevan a su pantalla con `link` y el `DatePicker` usa el
   sistema de diseño. **Cola restante: F25 (búsqueda), F26 (pasaporte), F19 (pedidos) y F14 (recordatorios).**
+- **2026-10-08** — **Revisión del trabajo de MIMO** (`REVIEW_MIMO.md`, F9–F27): todo ✅. Atendido: `react-native-qrcode-svg`
+  fijado en `6.3.26` (es JS sobre `react-native-svg`, ya instalado → **OTA-safe**, no cuenta para U10); duplicados por
+  mayúsculas de F11 ya estaban verificados (0). Los hex de `(auth)/*` son deuda previa de pantallas enteras con
+  `Colors` → se resuelven completas en U3, no a parches.
+- **2026-10-08** — **F14 Recordatorios y refuerzos** (carnet + app). **Carnet**: emisor `app/jobs/reminders.py`, tarea
+  asyncio que arranca con el servicio (`startup`) y cada 5 min (`REMINDERS_INTERVAL_SECONDS`; se apaga con
+  `REMINDERS_JOB_ENABLED=false`) inserta en `notifications`: (1) **dosis de medicamento** que ya tocan y no se marcaron
+  como tomadas (tipo `recetas`; las de más de 6 h se silencian para no inundar la bandeja) y (2) **refuerzos de vacuna**
+  que vencen en ≤ 7 días o vencieron hace < 30 (tipo `vacunas`, fecha en hora de México). Un aviso por dosis/vacuna;
+  si se cambia la fecha del refuerzo, `update_vaccine` limpia la marca y se vuelve a avisar. Todo en una transacción con
+  `pg_try_advisory_xact_lock`. `link` → `/mascotas/{id}?tab=salud`. **Migración aditiva `c14a7e2b9d01`**
+  (`medication_reminders.notified_at`, `vaccines.booster_notified_at`; `sent` sigue siendo «el dueño la marcó como
+  tomada»). **App**: tipo `vacunas` en la bandeja (ícono jeringa) y en `resolveNotificationRoute`; `nueva-vacuna`
+  vuelve a prometer el aviso, ahora con emisor real («Te avisaremos en tus notificaciones una semana antes»).
+  Verificado: SQLite con 5 pasadas (aviso único, sin duplicados, dosis viejas silenciadas, refuerzo reprogramado se
+  reavisa, editar sin cambiar fecha no reavisa) y arranque del servicio con el job vivo aunque la BD falle. Push
+  todavía no (las notificaciones push van con `expo-notifications` en U10).

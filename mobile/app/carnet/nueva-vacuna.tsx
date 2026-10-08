@@ -81,6 +81,9 @@ export default function NuevaVacunaScreen() {
                                 label="Próximo refuerzo"
                                 minimumDate={appliedOn}
                             />
+                            <Text style={[type.caption, { color: theme.textMuted }]}>
+                                Te avisaremos en tus notificaciones una semana antes.
+                            </Text>
                             <TouchableOpacity
                                 style={styles.inlineAction}
                                 onPress={clearNextDue}

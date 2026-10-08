@@ -243,7 +243,7 @@ Flujo: Perfil / Explorar → `/carnet` → `/carnet/[id]` (Historial · Vacunas 
 | app/carnet/recordatorios.tsx | pantalla | **muerta** | Nadie navega a ella y repite la pestaña Recordatorios. Es, eso sí, la mejor maquetada (EmptyState, Badge, Skeleton) |
 | app/carnet/receta/[id].tsx | pantalla | funciona | Encabezado hecho a mano. Comparte texto plano. Usa un ícono de bolsa de compras para la receta |
 | hooks carnet | hook | funciona / parte muerta | `useReminders` solo lo usa la pantalla muerta. `canEdit` deja fuera a clínica y hospital. Rol calculado a mano en 4 hooks. `usePetCarnet` sin `enabled` |
-| backend carnet | backend | funciona | ~~Solo GET y POST; no hay PUT ni DELETE aunque los schemas existen~~ ✅ PUT/DELETE + GET por id y recálculo de `is_vaccinated` (F15). **Ningún emisor de recordatorios ni refuerzos**. ~~Clínica y hospital pueden escribir pero no leer~~ ✅ lectura alineada con `VET_ROLES` (F22) |
+| backend carnet | backend | funciona | ~~Solo GET y POST; no hay PUT ni DELETE aunque los schemas existen~~ ✅ PUT/DELETE + GET por id y recálculo de `is_vaccinated` (F15). ~~Ningún emisor de recordatorios ni refuerzos~~ ✅ emisor en `app/jobs/reminders.py` (F14). ~~Clínica y hospital pueden escribir pero no leer~~ ✅ lectura alineada con `VET_ROLES` (F22) |
 
 Redundancias: el detalle de la mascota en 2 pantallas, los recordatorios en 2 sitios, la lista de mascotas ×2, **2
 sistemas de recetas** (carnet y clínica, `services/prescriptions.ts`).
@@ -251,7 +251,7 @@ Propuesta de rediseño: fusionar con Mascotas (ver arriba), partir `carnet/[id]`
 `carnet/index` y `carnet/recordatorios`, quitar el «Modo médico» por UUID (el veterinario entra desde Mi clínica).
 `carnet/[id]` queda como redirect (lo usan `mi-clinica/pacientes.tsx:46` y `useAgenda.ts:120`).
 Backend: ~~PUT/DELETE de vacunas y consultas, `date_administered` opcional, `GET /records/{id}`, recalcular
-`is_vaccinated`~~ ✅ (F7 y F15), emisor de recordatorios (o quitar la promesa), ~~alinear la lectura con `VET_ROLES`~~ ✅ (F22).
+`is_vaccinated`~~ ✅ (F7 y F15), ~~emisor de recordatorios (o quitar la promesa)~~ ✅ (F14), ~~alinear la lectura con `VET_ROLES`~~ ✅ (F22).
 Arreglos:
 - [x] P0 Promesa de un aviso del refuerzo que no existe (`nueva-vacuna.tsx:102`) — se quitó el texto (el emisor real es F14)
 - [x] P0 Sin fecha de aplicación de la vacuna (`nueva-vacuna.tsx`, `schemas/carnet.py:64`)

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import {
     Bell, CheckCheck, Heart, Package, MapPin, Calendar, Pill, Shield, FlaskConical, Flower2, Car, ChevronRight,
-    Stethoscope, ShieldCheck,
+    Stethoscope, ShieldCheck, Syringe,
 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useNotifications, formatTimeAgo } from '@/src/hooks/notifications/useNotifications';
@@ -22,7 +22,8 @@ const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: ThemeColorKey }> =
     alert: { icon: MapPin, color: 'error' },             // mascotas perdidas
     citas: { icon: Calendar, color: 'primary' },
     cirugias: { icon: Stethoscope, color: 'primary' },
-    recetas: { icon: Pill, color: 'success' },
+    recetas: { icon: Pill, color: 'success' },          // dosis de medicamento (F14)
+    vacunas: { icon: Syringe, color: 'info' },           // refuerzos de vacuna (F14)
     kyc: { icon: ShieldCheck, color: 'success' },
     seguros: { icon: Shield, color: 'info' },
     laboratorio: { icon: FlaskConical, color: 'success' },

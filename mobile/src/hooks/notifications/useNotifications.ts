@@ -50,6 +50,7 @@ export function resolveNotificationRoute(notification: Notification, roleName?: 
       return role === 'veterinario' || role === 'hospital' ? '/mi-clinica/agenda' : '/directorio/citas';
     case 'cirugias':
     case 'recetas':
+    case 'vacunas':
       return '/mascotas';
     case 'kyc':
       return '/perfil/verificacion';

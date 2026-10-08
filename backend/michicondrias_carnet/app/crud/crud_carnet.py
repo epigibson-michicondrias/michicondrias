@@ -98,12 +98,31 @@ def create_vaccine(db: Session, vaccine: VaccineCreate, vet_id: str = None):
 
 def update_vaccine(db: Session, db_vaccine: Vaccine, vaccine_update: VaccineUpdate):
     update_data = vaccine_update.model_dump(exclude_unset=True)
+    due_changed = "next_due_date" in update_data and _utc(update_data["next_due_date"]) != _utc(db_vaccine.next_due_date)
     for key, value in update_data.items():
         setattr(db_vaccine, key, value)
     db.add(db_vaccine)
     db.commit()
+    if due_changed:
+        _reset_booster_notice(db, db_vaccine.id)
     db.refresh(db_vaccine)
     return db_vaccine
+
+def _utc(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+
+def _reset_booster_notice(db: Session, vaccine_id: str) -> None:
+    """Refuerzo con otra fecha → el emisor (app/jobs/reminders.py, F14) lo vuelve a avisar. La columna va por SQL
+    directo y fuera del modelo para que el código no dependa de que la migración c14a7e2b9d01 ya esté aplicada."""
+    try:
+        db.execute(text("UPDATE vaccines SET booster_notified_at = NULL WHERE id = :id"), {"id": vaccine_id})
+        db.commit()
+    except Exception:
+        db.rollback()
 
 def delete_vaccine(db: Session, db_vaccine: Vaccine):
     pet_id = db_vaccine.pet_id

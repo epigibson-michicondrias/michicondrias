@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.main import api_router
 from mangum import Mangum
+import asyncio
 import os
 import time
 import logging
@@ -76,6 +77,21 @@ async def observability_middleware(request: Request, call_next):
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.on_event("startup")
+async def start_reminders_job():
+    """F14: emisor de recordatorios de medicamentos y refuerzos (ver app/jobs/reminders.py)."""
+    from app.jobs import reminders
+    if reminders.is_enabled():
+        app.state.reminders_task = asyncio.create_task(reminders.reminders_loop())
+
+
+@app.on_event("shutdown")
+async def stop_reminders_job():
+    task = getattr(app.state, "reminders_task", None)
+    if task:
+        task.cancel()
 
 @app.get("/")
 def root():
