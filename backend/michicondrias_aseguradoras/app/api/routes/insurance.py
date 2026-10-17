@@ -36,7 +36,7 @@ def _norm_species(value: str) -> str:
     return _SPECIES_ALIASES.get(v, v)
 
 
-def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "seguros") -> None:
+def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "seguros", link: str = None) -> None:
     """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
     try:
         db.execute(text(

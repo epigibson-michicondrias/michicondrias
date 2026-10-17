@@ -37,7 +37,7 @@ def _pet_owner_id(db: Session, pet_id: str):
     return row[0] if row else None
 
 
-def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "funeraria") -> None:
+def _notify(db: Session, user_id: str, title: str, message: str, ntype: str = "funeraria", link: str = None) -> None:
     """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
     try:
         db.execute(text(

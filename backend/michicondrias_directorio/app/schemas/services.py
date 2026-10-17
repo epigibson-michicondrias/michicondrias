@@ -99,10 +99,12 @@ class AppointmentCreate(BaseModel):
         if isinstance(data, dict):
             # 1. Parse date and start_time from appointment_date if date/start_time are not directly provided
             appt_date = data.get("appointment_date")
-            if appt_date and not data.get("date") and not data.get("start_time"):
+            if appt_date:
                 parts = appt_date.strip().split()
-                if len(parts) >= 2:
+                # fecha sola ("YYYY-MM-DD") o fecha+hora ("YYYY-MM-DD HH:MM")
+                if not data.get("date"):
                     data["date"] = parts[0]
+                if len(parts) >= 2 and not data.get("start_time"):
                     # Combine time part and optional AM/PM indicator
                     time_part = " ".join(parts[1:])
                     if "AM" in time_part or "PM" in time_part:
