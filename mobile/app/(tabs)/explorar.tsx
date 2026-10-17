@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   View,
   Text,
-  TextInput,
   Dimensions,
 } from 'react-native';
 import { useTheme, useHeroStatusBar } from '@/src/hooks/useTheme';
@@ -61,13 +60,10 @@ export default function ExplorarScreen() {
         <View style={styles.searchContainer}>
           <TouchableOpacity activeOpacity={0.85} accessibilityRole="search" accessibilityLabel="Buscar mascotas, clínicas y productos" onPress={() => router.push('/busqueda' as any)} style={[styles.searchBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.9)', borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(124,58,237,0.15)' }]}>
             <Search size={20} color={isDark ? 'rgba(255,255,255,0.5)' : '#94a3b8'} />
-            <TextInput
-              style={[styles.searchInput, { color: theme.text }]}
-              placeholder="Buscar mascotas, clínicas, productos..."
-              placeholderTextColor={isDark ? 'rgba(255,255,255,0.4)' : '#94a3b8'}
-              editable={false}
-              pointerEvents="none"
-            />
+            {/* Text (no TextInput): el input readonly interceptaba el clic en web y no navegaba */}
+            <Text style={[styles.searchInput, { color: isDark ? 'rgba(255,255,255,0.4)' : '#94a3b8' }]}>
+              Buscar mascotas, clínicas, productos...
+            </Text>
           </TouchableOpacity>
         </View>
 

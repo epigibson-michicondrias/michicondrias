@@ -49,13 +49,15 @@ def get_product(db: Session, product_id: str):
     return _attach_rating_info(db, product)
 
 def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None):
-    # Public view only shows active AND approved products
-    query = db.query(Product).filter(Product.is_active == True, Product.is_approved == True)
+    query = db.query(Product)
+    # La vista pública solo muestra activos Y aprobados; el vendedor ve TODOS los suyos (también los pendientes).
+    if not seller_id:
+        query = query.filter(Product.is_active == True, Product.is_approved == True)
     if category:
         query = query.filter(Product.category_id == category) # Fixed category_id
     if seller_id:
         query = query.filter(Product.seller_id == seller_id)
-    
+
     products = query.offset(skip).limit(limit).all()
     return _batch_attach_ratings(db, products)
 

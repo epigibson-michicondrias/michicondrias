@@ -8,12 +8,15 @@ import { getMyAvatar, getAvatarPresignedUrl, setMyAvatar } from '@/src/services/
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
 import { getFileExtension } from '@/src/utils/helpers';
 import { showAlert } from '@/src/components/AppAlert';
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export function useAvatar() {
     const queryClient = useQueryClient();
+    const { user } = useAuth();
     const [uploading, setUploading] = useState(false);
 
-    const { data } = useQuery({ queryKey: ['my-avatar'], queryFn: getMyAvatar });
+    // Solo con sesión: sin token el endpoint responde 401 y ensucia la consola.
+    const { data } = useQuery({ queryKey: ['my-avatar'], queryFn: getMyAvatar, enabled: !!user });
 
     const pickAndUpload = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();

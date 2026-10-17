@@ -66,7 +66,11 @@ async def observability_middleware(request: Request, call_next):
             content='{"detail": "Internal Server Error", "correlation_id": "'+correlation_id+'"}',
             status_code=500,
             media_type="application/json",
-            headers={"X-Correlation-ID": correlation_id}
+            headers={
+                "X-Correlation-ID": correlation_id,
+                **({"Access-Control-Allow-Origin": request.headers.get("origin", ""), "Access-Control-Allow-Credentials": "true"}
+                   if request.headers.get("origin") in ("http://localhost:3000", "http://127.0.0.1:3000", "https://michicondrias.vercel.app") else {}),
+            }
         )
 
 
