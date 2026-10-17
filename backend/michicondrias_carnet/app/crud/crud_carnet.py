@@ -6,6 +6,18 @@ from app.schemas.carnet import MedicalRecordCreate, MedicalRecordUpdate, Vaccine
 # CRUD MEDICAL RECORDS
 from datetime import datetime, timedelta, timezone
 
+
+def _vet_profile_id(db: Session, user_id: str | None) -> str | None:
+    """Traduce el `user_id` del token al id del perfil en `veterinarians` (directorio).
+
+    Las FK de `administered_by_vet_id` y `veterinarian_id` apuntan a `veterinarians.id`,
+    no a `users.id`. Si el profesional aún no tiene perfil, se guarda NULL en vez de
+    reventar con una violación de FK."""
+    if not user_id:
+        return None
+    row = db.execute(text("SELECT id FROM veterinarians WHERE user_id = :uid"), {"uid": user_id}).first()
+    return row[0] if row else None
+
 def get_medical_record(db: Session, record_id: str):
     return db.query(MedicalRecord).filter(MedicalRecord.id == record_id).first()
 
@@ -21,7 +33,7 @@ def create_medical_record(db: Session, record: MedicalRecordCreate, vet_id: str 
     # Create the MedicalRecord
     record_data = record.model_dump(exclude={"prescriptions"})
     db_record = MedicalRecord(**record_data)
-    db_record.veterinarian_id = vet_id
+    db_record.veterinarian_id = _vet_profile_id(db, vet_id)
     db.add(db_record)
     db.flush() # flush to get the record ID
     
@@ -89,7 +101,7 @@ def create_vaccine(db: Session, vaccine: VaccineCreate, vet_id: str = None):
     if data.get("date_administered") is None:
         data.pop("date_administered", None)  # deja actuar el server_default (ahora)
     db_vaccine = Vaccine(**data)
-    db_vaccine.administered_by_vet_id = vet_id
+    db_vaccine.administered_by_vet_id = _vet_profile_id(db, vet_id)
     db.add(db_vaccine)
     db.commit()
     db.refresh(db_vaccine)

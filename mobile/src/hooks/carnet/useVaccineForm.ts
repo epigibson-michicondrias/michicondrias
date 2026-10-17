@@ -118,8 +118,8 @@ export function useVaccineForm() {
             batch_number: batch.trim() || undefined,
             next_due_date: nextDue ? atLocalNoon(nextDue) : undefined,
             notes: notes.trim() || undefined,
-            // El backend asigna quién la aplicó según la sesión; solo se declara cuando es personal veterinario
-            administered_by_vet_id: isVet ? user?.id || null : null,
+            // El backend traduce la sesión al perfil de `veterinarians` y asigna quién la aplicó
+            administered_by_vet_id: null,
         });
     };
 
