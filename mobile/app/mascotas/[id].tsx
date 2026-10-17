@@ -43,17 +43,27 @@ export default function PetProfileScreen() {
         </ScreenContainer>
     );
 
-    if (error || !pet) return (
-        <ScreenContainer style={styles.center}>
-            <Text style={{ color: theme.error }}>No pudimos cargar a tu mascota. Revisa tu conexión.</Text>
-            <TouchableOpacity onPress={() => refetch()} style={[styles.backBtn, { backgroundColor: theme.primary }]} accessibilityRole="button">
-                <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={goBack} style={[styles.backBtn, { backgroundColor: theme.surface }]}>
-                <Text style={{ color: theme.text }}>Regresar</Text>
-            </TouchableOpacity>
-        </ScreenContainer>
-    );
+    if (error || !pet) {
+        const status = (error as any)?.status;
+        const errorCopy = status === 403
+            ? 'No tienes permiso para ver esta mascota.'
+            : status === 404
+                ? 'Esta mascota ya no existe o fue eliminada.'
+                : 'No pudimos cargar a tu mascota. Revisa tu conexión.';
+        return (
+            <ScreenContainer style={styles.center}>
+                <Text style={{ color: theme.error }}>{errorCopy}</Text>
+                {status !== 403 && status !== 404 && (
+                    <TouchableOpacity onPress={() => refetch()} style={[styles.backBtn, { backgroundColor: theme.primary }]} accessibilityRole="button">
+                        <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+                    </TouchableOpacity>
+                )}
+                <TouchableOpacity onPress={goBack} style={[styles.backBtn, { backgroundColor: theme.surface }]}>
+                    <Text style={{ color: theme.text }}>Regresar</Text>
+                </TouchableOpacity>
+            </ScreenContainer>
+        );
+    }
 
     return (
         <ScreenContainer>

@@ -68,6 +68,11 @@ Arreglos: - [ ] P0 … - [ ] P1 … - [ ] P2 …
 Transversales · Pestañas · Auth · Perfil · Mascotas · Carnet · Tienda cliente · Notificaciones/Búsqueda/Ayuda ·
 Botones rotos o redundantes (consolidado). La propuesta de navegación antes/después está en `PROGRESO_MOBILE.md`.
 
+> **Auditoría integral 2026-10-08** (multi-agente): los hallazgos detallados de los módulos P2/P3 (A3+A4), backend,
+> arquitectura, frontend web y UX/UI están en [`docs/auditoria-integral/`](auditoria-integral/00-plan-maestro.md).
+> El plan de correcciones por etapas (0/A/B/C/D) vive en `00-plan-maestro.md`. IDs: MO (mobile), BE (backend),
+> AR (arquitectura), FE (frontend), UX (diseño).
+
 ---
 
 ## Transversales — auditado 2026-10-07
@@ -657,3 +662,83 @@ Arreglos:
 - [ ] P1 Privacidad: un estilista ve los reportes de otros estilistas en el historial de la mascota (`grooming.py:198-210`)
 - [ ] P1 `RoleGuard` en `grooming/gestion` y `estilistas/nuevo`. Invalidar cliente e historial al guardar fotos
 - [ ] P2 Fusión de carpetas y nombre único «Estética». Reseña de mis-citas a un hook. Skeleton en agendar. `FormField`. Tokens. Borrar `src/types/grooming.ts` y los exports muertos
+
+---
+
+## Barrido funcional en vivo — 2026-10-17 (producción, Playwright)
+
+Probado con **18 usuarios de prueba** (uno por rol, `users.md`) y datos reales sembrados. App web 375×812 contra
+`https://michicondrias.duckdns.org`. Cobertura: **~140 rutas** de los 17 roles + interacciones de P1 (login, alta de
+mascota, carnet, adopciones, búsqueda, carrito, ficha, notificaciones, admin, vendedor).
+
+### Funciona (verificado)
+
+- Login / logout en los 17 roles; JWT con `role` correcto.
+- Todas las rutas de `ROLE_TOOLS` + las de consumidor cargan (sin 404, sin pantalla en blanco).
+- Alta de mascota (validación inline, éxito, aparece en lista e Inicio).
+- Alta de vacuna y consulta en el carnet (tras fix del P0).
+- Publicación de adopción (queda `is_approved: false` → pasa por moderación).
+- Búsqueda: «croquetas» → 2 productos; «Max» → 1 mascota.
+- Carrito: agregar producto, totales, «Proceder al pago».
+- Ficha de mascota con pestañas Resumen · Salud · Historial (vacunas con VIGENTE/Vencido, Editar/Eliminar).
+- Admin: usuarios y moderación. Vendedor: productos con Editar/Ocultar/Eliminar.
+
+### Hallazgos nuevos
+
+| ID | Gravedad | Dónde | Qué pasa |
+|---|---|---|---|
+| **B-01** | **P0** | `backend/michicondrias_carnet/app/crud/crud_carnet.py` | `create_vaccine` / `create_medical_record` guardaban `identity["user_id"]` (`users.id`) en `administered_by_vet_id` / `veterinarian_id`, pero la FK apunta a `veterinarians.id` → **500 al registrar vacunas o consultas** (cualquier rol). **Corregido** con `_vet_profile_id()` (resuelve `veterinarians.user_id` → `id`, o NULL). Commit `58d177e`, aplicado en la VM. **Falta push.** |
+| **B-02** | P1 | carnet (y servicios con el mismo patrón) | Los **500 sin manejar no llevan `Access-Control-Allow-Origin`** → la app muestra «Failed to fetch» en vez del mensaje real. El middleware CORS no se aplica a las excepciones no controladas. |
+| **B-03** | P1 | `backend/michicondrias_ecommerce/.../crud_ecommerce.py:53` | `get_products` filtra `is_approved == True` también para `/products/seller/me`: el vendedor **no ve sus productos pendientes** de moderación (solo los aprobados). Debería ver todos los suyos. |
+| **B-04** | P1 | `GET /core/api/v1/users/me/avatar` | Responde **401** cuando lo llama la app (con `curl` + Bearer responde 200). Sospecha de carrera: la query se dispara antes de tener el token, o no se adjunta en esa llamada. |
+| **B-05** | P2 | `mobile/app/(tabs)/explorar.tsx:62` | El campo de búsqueda es un `TextInput` `readonly` dentro de un `TouchableOpacity`. **El clic en el input no dispara `onPress`** (sí el del contenedor). En web se siente muerto. |
+
+### Notas de moderación (comportamiento esperado, no bugs)
+
+- Los productos nuevos quedan `is_approved: false` hasta que un admin los aprueba (`/admin/moderacion`).
+- Las publicaciones de adopción nuevas también pasan por moderación.
+- El perfil de veterinaria se crea con `is_approved: false` (aprobación manual).
+
+---
+
+## Carnet / Historial clínico — auditoría funcional 2026-10-17
+
+Barrido completo con Playwright (producción, 375×812) sobre el módulo de carnet: ficha con pestañas, alta/edición/
+borrado de vacunas y consultas, receta digital, recordatorios, permisos y redirect. **20 OK · 0 FAIL · 2 WARN.**
+
+### Funciona (verificado end-to-end)
+
+| Qué | Estado |
+|---|---|
+| Ficha con pestañas Resumen · Salud · Historial | ✅ |
+| «Vacunas al día» calculado del carnet (VIGENTE / VENCIDO / sin registro) | ✅ |
+| Lista de vacunas en Salud con badge de vigencia | ✅ |
+| Editar vacuna (precarga de nombre, lote, fechas, notas) | ✅ |
+| Crear vacuna (dueño y veterinario) | ✅ |
+| Eliminar vacuna (confirmación obligatoria) | ✅ |
+| Lista de consultas en Historial con tags de peso/temp/receta | ✅ |
+| Crear consulta con sección de receta | ✅ |
+| **Receta digital** (folio RX-, paciente, diagnóstico, medicamentos, compartir) | ✅ |
+| Recordatorios de medicación visibles en Salud | ✅ |
+| `carnet/[id]` redirige a `mascotas/[id]?tab=salud` | ✅ |
+| Veterinario ve y puede editar/borrar carnet ajeno | ✅ |
+| Extraño NO puede ver el carnet (403 del backend) | ✅ |
+| Botones Editar/Eliminar solo para dueño o equipo clínico | ✅ |
+
+### Correcciones en esta auditoría
+
+| # | Qué | Fix |
+|---|---|---|
+| C-01 | Un extraño que abría una mascota ajena veía «Revisa tu conexión» (el 403 se confundía con error de red) | `mascotas/[id].tsx`: el mensaje ahora distingue 403 («No tienes permiso para ver esta mascota») y 404 («ya no existe») y solo ofrece «Reintentar» en errores de red |
+
+### Notas (comportamiento correcto, no bugs)
+
+- La etiqueta **«Receta»** en una consulta es un tag informativo; el acceso al detalle es el botón **«Ver receta»**
+  que aparece al expandir la consulta.
+- El `QueryErrorBanner` de `ScreenContainer` muestra «No pudimos cargar la información» también cuando el 403 es
+  esperado (las queries de vacunas/consultas fallan junto con la de la mascota). Podría silenciarse en 403/404, pero
+  no bloquea el flujo: el mensaje principal ya es el correcto.
+- Al crear una consulta, las recetas sin nombre de medicamento se descartan silenciosamente (validación del hook:
+  `validPrescriptions` filtra `medication_name.trim()`). Correcto: no se guardan recetas vacías.
+- Los recordatorios de medicación los genera el backend (job F14, cada 5 min) a partir de las prescripciones;
+  se ven en Salud y se marcan como dados con `POST /reminders/{id}/check` (solo el dueño).
