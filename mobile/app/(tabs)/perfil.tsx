@@ -4,11 +4,12 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     PawPrint, Calendar, ShoppingBag, Heart, UserRound, ShieldCheck, Lock, CreditCard, Handshake, HelpCircle,
-    FileText, LogOut, Sun, Moon, Monitor, ChevronRight, AlertCircle, CheckCircle2,
+    FileText, LogOut, Sun, Moon, Monitor, ChevronRight, AlertCircle, CheckCircle2, RefreshCw,
 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAccount } from '@/src/hooks/perfil/useAccount';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
+import { useAppUpdate } from '@/src/hooks/perfil/useAppUpdate';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ListRow from '@/src/components/ListRow';
 import SectionHeader from '@/src/components/SectionHeader';
@@ -22,6 +23,7 @@ export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const { avatarUrl } = useAvatar();
+    const { checkAndApply, isBusy } = useAppUpdate();
     const {
         user, roleLabel, canBecomePro, verification, verificationCopy, pendingAction,
         themeMode, setThemeMode, openBillingPortal, isOpeningBilling, hasLegal, openLegal, confirmSignOut, appVersion,
@@ -129,6 +131,15 @@ export default function ProfileScreen() {
                             { value: 'system', label: 'Sistema', icon: Monitor },
                         ]}
                     />
+                    <View style={styles.rows}>
+                        <ListRow
+                            icon={RefreshCw}
+                            label={isBusy ? 'Buscando actualizaciones…' : 'Buscar actualizaciones'}
+                            desc="Descarga e instala la última versión"
+                            color={theme.info}
+                            onPress={isBusy ? undefined : checkAndApply}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.section}>
