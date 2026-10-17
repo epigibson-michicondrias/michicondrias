@@ -53,6 +53,36 @@ def create_appointment(
 from app.models.clinic import Clinic
 from app.models.services import ClinicService
 
+@router.get("/vet/me", response_model=List[AppointmentResponse])
+def read_my_vet_appointments(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Citas asignadas al veterinario logueado (perfil en `veterinarians`), aunque no sea dueño de la clínica."""
+    from sqlalchemy import text as _text
+    vet_row = db.execute(_text("SELECT id FROM veterinarians WHERE user_id = :uid"), {"uid": user_id}).first()
+    if not vet_row:
+        return []
+    appointments = crud_services.get_vet_appointments(db, vet_row[0])
+    if not appointments:
+        return []
+    service_ids = list({a.service_id for a in appointments if a.service_id})
+    clinic_ids = list({a.clinic_id for a in appointments if a.clinic_id})
+    pet_ids = list({a.pet_id for a in appointments if a.pet_id})
+    services = db.query(ClinicService).filter(ClinicService.id.in_(service_ids)).all() if service_ids else []
+    clinics = db.query(Clinic).filter(Clinic.id.in_(clinic_ids)).all() if clinic_ids else []
+    svc_map = {s.id: s for s in services}
+    clinic_map = {c.id: c for c in clinics}
+    pet_map = _get_pet_names_map(db, pet_ids)
+    result = []
+    for appt in appointments:
+        svc = svc_map.get(appt.service_id)
+        clinic = clinic_map.get(appt.clinic_id)
+        pet_name = pet_map.get(appt.pet_id)
+        result.append(_serialize_appointment(appt, svc, clinic, pet_name))
+    return result
+
+
 @router.get("/me", response_model=List[AppointmentResponse])
 def read_my_appointments(
     db: Session = Depends(get_db),
@@ -139,19 +169,31 @@ def read_clinic_appointments(
     return result
 
 
+def _is_clinic_staff(db: Session, user_id: str, appt, clinic) -> bool:
+    """Dueño de la clínica o veterinario asignado a la cita (su perfil en `veterinarians`)."""
+    if clinic.owner_user_id == user_id:
+        return True
+    if appt.vet_id:
+        from sqlalchemy import text as _text
+        row = db.execute(_text("SELECT id FROM veterinarians WHERE id = :vid AND user_id = :uid"),
+                         {"vid": appt.vet_id, "uid": user_id}).first()
+        return bool(row)
+    return False
+
+
 @router.put("/{appointment_id}/confirm", response_model=AppointmentResponse)
 def confirm_appointment(
     appointment_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
-    """Confirm an appointment (Owner only)."""
+    """Confirm an appointment (Owner or assigned vet)."""
     appt = crud_services.get_appointment(db, appointment_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Cita no encontrada")
     clinic = get_clinic(db, appt.clinic_id)
-    if clinic.owner_user_id != user_id:
-        raise HTTPException(status_code=403, detail="Solo el dueño puede confirmar citas")
+    if not _is_clinic_staff(db, user_id, appt, clinic):
+        raise HTTPException(status_code=403, detail="Solo el equipo de la clínica puede confirmar citas")
     if appt.status != "pending":
         raise HTTPException(status_code=409, detail="Solo se pueden confirmar citas pendientes")
     appt = crud_services.update_appointment_status(db, appointment_id, "confirmed", actor_id=user_id)
@@ -166,13 +208,13 @@ def complete_appointment(
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
-    """Mark appointment as completed (Owner only)."""
+    """Mark appointment as completed (Owner or assigned vet)."""
     appt = crud_services.get_appointment(db, appointment_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Cita no encontrada")
     clinic = get_clinic(db, appt.clinic_id)
-    if clinic.owner_user_id != user_id:
-        raise HTTPException(status_code=403, detail="Solo el dueño puede completar citas")
+    if not _is_clinic_staff(db, user_id, appt, clinic):
+        raise HTTPException(status_code=403, detail="Solo el equipo de la clínica puede completar citas")
     if appt.status not in ("pending", "confirmed"):
         raise HTTPException(status_code=409, detail="Esta cita ya no se puede completar")
     appt = crud_services.update_appointment_status(db, appointment_id, "completed", actor_id=user_id)
@@ -194,8 +236,8 @@ def cancel_appointment(
     if not appt:
         raise HTTPException(status_code=404, detail="Cita no encontrada")
     clinic = get_clinic(db, appt.clinic_id)
-    # Both consumer and owner can cancel
-    if appt.user_id != user_id and clinic.owner_user_id != user_id:
+    # El dueño de la mascota, el dueño de la clínica o el vet asignado pueden cancelar
+    if appt.user_id != user_id and not _is_clinic_staff(db, user_id, appt, clinic):
         raise HTTPException(status_code=403, detail="No tienes permisos para cancelar esta cita")
     if appt.status not in ("pending", "confirmed"):
         raise HTTPException(status_code=409, detail="Esta cita ya no se puede cancelar")

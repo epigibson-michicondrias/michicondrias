@@ -5,7 +5,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { getMyClinics, getClinicAppointments, confirmAppointment, cancelAppointment, completeAppointment } from '@/src/services/directorio';
+import { getMyClinics, getClinicAppointments, getMyVetAppointments, confirmAppointment, cancelAppointment, completeAppointment } from '@/src/services/directorio';
 import { showAlert } from '@/src/components/AppAlert';
 
 export function useAgenda() {
@@ -27,9 +27,10 @@ export function useAgenda() {
     const clinic = clinics[0];
 
     const { data: appointments = [], isLoading: loadingAppts, refetch } = useQuery({
-        queryKey: ['clinic-appointments-full', clinic?.id],
-        queryFn: () => getClinicAppointments(clinic!.id),
-        enabled: !!clinic?.id,
+        // Dueño de clínica → citas de su clínica. Veterinario asociado → citas donde le toca atender.
+        queryKey: ['clinic-appointments-full', clinic?.id, clinic ? 'owner' : 'vet'],
+        queryFn: () => clinic?.id ? getClinicAppointments(clinic.id) : getMyVetAppointments(),
+        enabled: !!clinic?.id || !loadingClinics,
     });
 
     const filtered = useMemo(() => {

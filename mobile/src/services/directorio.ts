@@ -279,6 +279,11 @@ export async function getClinicAppointments(clinicId: string, status?: string): 
     return apiFetch<AppointmentItem[]>("directorio", `/appointments/clinic/${clinicId}${query}`);
 }
 
+/** Citas asignadas al veterinario logueado (para su agenda, aunque no sea dueño de la clínica). */
+export async function getMyVetAppointments(): Promise<AppointmentItem[]> {
+    return apiFetch<AppointmentItem[]>("directorio", "/appointments/vet/me");
+}
+
 export async function getAppointmentById(id: string): Promise<AppointmentItem> {
     return apiFetch<AppointmentItem>("directorio", `/appointments/${id}`);
 }
@@ -292,8 +297,11 @@ export async function completeAppointment(id: string): Promise<AppointmentItem> 
 }
 
 export async function cancelAppointment(id: string, reason?: string): Promise<AppointmentItem> {
-    const query = reason ? `?reason=${reason}` : "";
-    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/cancel${query}`, { method: "PUT" });
+    // El backend espera AppointmentCancel como body JSON (no query): sin body → 422 (MO-016)
+    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/cancel`, {
+        method: 'PUT',
+        body: JSON.stringify({ cancellation_reason: reason ?? null }),
+    });
 }
 
 export async function rescheduleAppointment(id: string, date: string, startTime: string): Promise<AppointmentItem> {

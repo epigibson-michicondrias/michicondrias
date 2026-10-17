@@ -9,7 +9,7 @@ import { getMyAppointments } from '@/src/services/directorio';
 import type { AppointmentItem } from '@/src/services/directorio';
 import { showAlert } from '@/src/components/AppAlert';
 
-export type FilterTab = 'all' | 'scheduled' | 'confirmed' | 'completed';
+export type FilterTab = 'all' | 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
 
 export const STATUS_CONFIG: Record<string, { label: string; color: string; lightColor: string }> = {
     scheduled: { label: 'Pendiente', color: '#f59e0b', lightColor: '#f59e0b20' },
@@ -25,6 +25,7 @@ export const FILTER_TABS: { key: FilterTab; label: string }[] = [
     { key: 'scheduled', label: 'Pendientes' },
     { key: 'confirmed', label: 'Confirmadas' },
     { key: 'completed', label: 'Completadas' },
+    { key: 'cancelled', label: 'Canceladas' },
 ];
 
 export function formatDateTime(dateStr: string): { date: string; time: string } {

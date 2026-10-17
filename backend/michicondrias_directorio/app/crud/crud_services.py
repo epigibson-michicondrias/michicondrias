@@ -318,6 +318,13 @@ def get_clinic_appointments(db: Session, clinic_id: str, status: str = None):
         query = query.filter(Appointment.status == status)
     return query.order_by(Appointment.date, Appointment.start_time).all()
 
+def get_vet_appointments(db: Session, vet_profile_id: str, status: str = None):
+    """Citas asignadas a un veterinario (por su perfil en `veterinarians`), aunque no sea dueño de la clínica."""
+    query = db.query(Appointment).filter(Appointment.vet_id == vet_profile_id)
+    if status:
+        query = query.filter(Appointment.status == status)
+    return query.order_by(Appointment.date, Appointment.start_time).all()
+
 def update_appointment_status(db: Session, appointment_id: str, status: str, reason: str = None, actor_id: str = None):
     """Cambia el estado de la cita y notifica SOLO a la contraparte de quien hace el cambio
     (si cancela el dueño, se avisa a la clínica; si la clínica cambia el estado, se avisa al dueño)."""
