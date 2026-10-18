@@ -742,3 +742,81 @@ borrado de vacunas y consultas, receta digital, recordatorios, permisos y redire
   `validPrescriptions` filtra `medication_name.trim()`). Correcto: no se guardan recetas vacías.
 - Los recordatorios de medicación los genera el backend (job F14, cada 5 min) a partir de las prescripciones;
   se ven en Salud y se marcan como dados con `POST /reminders/{id}/check` (solo el dueño).
+
+---
+
+## Citas y recordatorios — auditoría funcional 2026-10-17
+
+Barrido con Playwright (producción) sobre: Mis citas (consumidor), Agenda del vet, notificaciones (badge, marcar
+leídas, links) y recordatorios de medicación/refuerzos.
+
+### Funciona (verificado)
+
+| Qué | Estado |
+|---|---|
+| Mis citas: lista con estado (Pendiente/Confirmada/Completada/Cancelada) | ✅ |
+| Filtros de Mis citas (incluye **Canceladas** — agregado en esta auditoría) | ✅ |
+| Cancelar cita desde el cliente (con motivo y confirmación) | ✅ |
+| Directorio: listar clínicas, abrir detalle con servicios | ✅ |
+| Agenda del vet: ver citas asignadas con filtros y acciones | ✅ |
+| **Confirmar / Completar / Cancelar** cita desde la agenda (como vet) | ✅ |
+| Notificaciones: lista con contenido, marcar leídas | ✅ |
+| Notificaciones: navegación por `link` (o por tipo+rol si no hay link) | ✅ |
+| Recordatorios de medicación: visibles y marcar dosis como dada | ✅ |
+| Refuerzos de vacuna: estados VIGENTE/VENCIDO visibles en Salud | ✅ |
+| Badge de la campana de notificaciones en Inicio | ✅ |
+
+### Bugs corregidos en esta auditoría
+
+| # | Qué | Fix |
+|---|---|---|
+| **MO-016** | `services/directorio.cancelAppointment` mandaba la razón como query y **sin body** → el backend respondía **422** al cancelar citas («Field required») | Ahora manda `{ cancellation_reason }` como body JSON |
+| C-02 | El **veterinario asignado no veía su agenda**: `getMyClinics` devuelve vacío si no es dueño de la clínica, y `/appointments/clinic/{id}` es solo para el dueño | Nuevo endpoint `GET /appointments/vet/me` (citas donde `vet_id` = perfil del vet); `useAgenda` lo usa como fallback |
+| C-03 | **confirm / complete / cancel** solo aceptaban al dueño de la clínica → el vet asignado recibía 403 | `_is_clinic_staff()`: dueño de la clínica **o** vet asignado a la cita |
+| C-04 | El filtro de «Mis citas» no tenía **«Canceladas»** (una cita cancelada solo se veía en «Todas») | `FILTER_TABS` + tipo `FilterTab` ampliados |
+
+### Notas
+
+- El badge de la campana usa `aria-label="Notificaciones"`; con 0 no leídas puede no tener contador visible.
+- Las notificaciones de tipo `sistema` (ej. «Bienvenido») no navegan: son informativas (`resolveNotificationRoute`
+  devuelve `null` para tipos sin pantalla asignada).
+- `completeAppointment` además navega a `/mi-clinica/historial/nuevo?appointment_id=…` para registrar la consulta
+  (flujo: completar cita → abrir historial clínico).
+
+---
+
+## Adopciones — auditoría funcional 2026-10-17
+
+Barrido con Playwright (producción) sobre: listado público, detalle, solicitud, mis solicitudes, publicaciones del
+refugio, solicitudes recibidas con flujo de estados, formulario de compatibilidad y nueva publicación.
+
+### Funciona (verificado)
+
+| Qué | Estado |
+|---|---|
+| Listado público de mascotas en adopción | ✅ |
+| Detalle de mascota (foto, descripción, datos) | ✅ |
+| Solicitar adopción (form de solicitud) | ✅ |
+| Mis solicitudes (estados: Pendiente/En revisión/Adoptado/Rechazada) | ✅ |
+| Formulario de compatibilidad accesible | ✅ |
+| Mis publicaciones (refugio) con iconos Editar/Eliminar | ✅ |
+| **Editar publicación** (abre form precargado) | ✅ |
+| Eliminar publicación (con confirmación) | ✅ |
+| **Solicitudes recibidas** agrupadas por mascota | ✅ |
+| **Flujo de estados**: Pendiente → «Revisar» → «En revisión» → «Aprobar Adopción» → «Adoptado» | ✅ |
+| Acciones en lista (Ver Detalles, Rechazar, Revisar, Programar Entrevista) | ✅ |
+| Acciones en detalle (Comenzar Revisión, Rechazar, Aprobar Adopción) | ✅ |
+| Aplicaciones / Postulaciones (flujo B) accesible | ✅ |
+| Nueva publicación (form completo) | ✅ |
+| Confirmación con alert antes de cada cambio de estado | ✅ |
+
+### Notas (comportamiento correcto)
+
+- Los botones de edición de publicaciones son **iconos** (`Edit3`, `Trash2`) con `aria-label` — no tienen texto
+  visible, por eso un test basado en texto no los encuentra.
+- El flujo de aprobación es **en dos pasos**: «Revisar» (PENDING → REVIEWING) y luego «Aprobar Adopción»
+  (REVIEWING → ADOPTED). No hay «Aprobar» directo desde Pendiente — correcto: primero se revisa.
+- Cada cambio de estado muestra un **alert de confirmación** («¿Cambiar estado a …?» con Cancelar/Confirmar).
+- Las solicitudes nuevas quedan `PENDING` hasta que el refugio las revisa.
+- `useApplications.handleStatusUpdate` usa `STATUS_LABELS[status]` para el texto del alert — el nombre mostrado
+  es correcto («En revisión», «Pre-aprobada», etc.).
