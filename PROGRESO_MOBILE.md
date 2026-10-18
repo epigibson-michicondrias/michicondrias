@@ -178,8 +178,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 **Fase 1 — Auditoría (resto)**
 - [x] A1 Auditar P2: Directorio/citas, Adopciones, Perdidas.
 - [x] A2 Auditar P2: Paseadores/Cuidadores, Pet-friendly/Establecimientos, Grooming/Estilistas (decidir fusiones).
-- [ ] A3 Auditar P2: Entrenadores, Transportistas, Aseguradoras, Laboratorio, Funeraria, Donaciones.
-- [ ] A4 Auditar P3: Mi clínica, Servicios pro, Tienda vendedor, Patrocinadores, Admin.
+- [x] A3 Auditar P2: Entrenadores, Transportistas, Aseguradoras, Laboratorio, Funeraria, Donaciones. (2026-10-08, informe `docs/auditoria-integral/03-mobile.md`)
+- [x] A4 Auditar P3: Mi clínica, Servicios pro, Tienda vendedor, Patrocinadores, Admin. (2026-10-08, ídem)
 - [ ] A5 Revisión visual con capturas (skill `review-ux`) de las pestañas y del flujo de compra, en claro y oscuro.
 
 **Fase 2 — Limpieza** (aprobación del usuario por bloque)
@@ -532,6 +532,16 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   funeraria, solicitudes/mis-viajes). Si el rol no puede abrir el link, la app cae al mapeo por tipo+rol de siempre
   (`resolveNotificationRoute` lo valida). Verificado: los 8 archivos compilan y `notify_user` con link inserta bien en
   una tabla `notifications` de prueba. **Pendiente de desplegar** (sin migración; la `d3e9a7b4c215` ya está aplicada).
+- **2026-10-08** — **Auditoría integral multi-agente** (solo lectura, sin cambios de código). Equipo: Arquitecto,
+  Backend (395 endpoints / 17 servicios), Mobile (P2/P3 = A3+A4), Frontend web y UX/UI. Informes en
+  `docs/auditoria-integral/` (00-plan-maestro.md es el consolidado con el plan por etapas 0/A/B/C/D). Cierre de A3+A4:
+  8/11 módulos P2/P3 funcionan; **MO-016 P0 vivo** (cancelación de citas de la clínica: `directorio.cancelAppointment`
+  sin body → 422; el arreglo correcto está en `services/citas.ts`); Patrocinadores rota (2 pantallas de alta, CTA fuera
+  de `ROUTE_ACCESS`); `RoleGuard` solo en 3 pantallas. Backend: **P0s de seguridad** — tokens `is_temp` aceptados en
+  10/17 servicios, `SECRET_KEY` por defecto en los 17, certificados de funeraria sin auth, sin rate limit, migración de
+  `perdidas` crea la tabla equivocada. Arquitectura: monolito de BD + 17 procesos, 3 tablas con doble propiedad. UX:
+  81% pantallas con hex, `AuthShell` sin adoptar. Frontend Next.js = legacy congelado (recomendación: archivar).
+  **Siguiente: Etapa 0 del plan maestro (seguridad + MO-016).**
 - **2026-10-08** — **F27 DatePicker con el sistema de diseño** (solo app). `DatePicker` deja `constants/Colors` y el
   `ThemeContext` directo por el `useTheme()` estándar, y sus estilos pasan a los tokens (`spacing`, `radius` y el
   token nuevo **`type.labelSentence`** para etiquetas de campo en tipo oración — antes cada uno armaba su estilo).
@@ -628,3 +638,78 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   **`AuthShell`** creado (esqueleto de `(auth)` con `heroGradient`) — U3 lo adopta en las 4 pantallas —.
   **`components/README.md`** documentando el kit completo. Verificado: `npm run check` 0 errores (73 avisos, los
   archivos tocados sin avisos nuevos).
+- **2026-10-17** — **Barrido funcional completo con usuarios de prueba** (producción). Creados **18 usuarios**
+  (1 por rol + 2 consumidores) con KYC `VERIFIED`, documentados en [`users.md`](users.md) con la contraseña
+  `MichiTest2026!`. Datos de prueba sembrados vía API/SQL: 3 mascotas, 8 productos aprobados, 5 vacunas, 3 consultas,
+  4 publicaciones de adopción, 1 reporte de perdidas, perfil de veterinaria. **Barrido con Playwright** (app web
+  375×812 contra producción): **~140 rutas** de los 17 roles cargan sin 404 ni pantalla en blanco; interacciones
+  verificadas (login, alta de mascota, alta de vacuna/consulta, publicar adopción, búsqueda, carrito → «Proceder al
+  pago», ficha con pestañas, notificaciones, admin usuarios/moderación, vendedor productos). **Bugs hallados:**
+  **P0 carnet** — registrar vacunas/consultas daba 500 (FK: se guardaba `users.id` pero la FK apunta a
+  `veterinarians.id`); corregido en `58d177e` (`_vet_profile_id` resuelve `user_id` → `veterinarians.id`, o NULL si el
+  pro no tiene perfil; `pet_access` buscaba por `id` en vez de `user_id`) y **aplicado a mano en la VM** para poder
+  probar — **falta `git push`** (las credenciales de GitHub en esta máquina solo tienen lectura). **P1:** los 500 sin
+  manejar no llevan headers CORS (la app dice «Failed to fetch»); `GET /products/seller/me` filtra `is_approved` y el
+  vendedor no ve sus productos pendientes; `GET /users/me/avatar` responde 401 desde la app. **P2:** el buscador de
+  Explorar es `readonly` y el clic en el input no navega (sí el del contenedor). Detalle y datos en
+  [`users.md`](users.md); capturas en `output/playwright/`.
+- **2026-10-17** — **Segundo pase: botones restantes + fixes B-02…B-05** (app + backend). Probados: editar/ocultar/
+  eliminar producto (con confirmación), editar/eliminar vacuna, 2FA («Iniciar Configuración» → QR + clave + verificar),
+  donaciones, solicitudes y publicaciones de adopción, agenda del vet (filtros, estado vacío), editar perfil (el
+  nombre se guarda), compartir carnet con QR, diagnóstico IA, perdidas (lista + detalle), checkout (crea pedido y
+  llama a Stripe). **Corregidos:** B-02 (los 17 servicios añaden CORS a la respuesta del middleware de errores; antes
+  un 500 llegaba como «Failed to fetch»), B-03 (`/products/seller/me` ya no filtra `is_approved`), B-04 (`useAvatar`
+  solo consulta con sesión), B-05 (el buscador de Explorar usa `Text` en vez de `TextInput` readonly). Commit
+  `97197e3` **aplicado en la VM** (carne, ecommerce, core, etc. reiniciados y verificados). **Sigue sin poderse hacer
+  `git push`** (credenciales de GitHub solo lectura): los commits `58d177e` y `97197e3` esperan push. **Stripe no está
+  configurado** en producción (`STRIPE_SECRET_KEY` vacío en `ecommerce.env`): el botón de pago crea el pedido y avisa
+  «Pagos no disponibles; tu carrito se conservó» — es config, no código. Resumen y datos en [`users.md`](users.md).
+- **2026-10-17** — **Llenado completo de datos de prueba + 4 bugs nuevos corregidos**. Todas las tablas del dominio
+  con contenido real (ver [`users.md`](users.md) para el inventario): 6 mascotas, 9 vacunas, 5 consultas, 8 productos,
+  4 pedidos, 2 reseñas, 4 adopciones + 3 solicitudes, 1 clínica con 5 servicios y 6 horarios, 3 citas, 3 planes de
+  seguro + 3 pólizas + 3 reclamos, 3 servicios funerarios + booking + memorial, 3 programas de entrenamiento,
+  3 servicios de grooming, 4 tests de lab + 2 órdenes, 2 campañas, 3 venues, paseador/cuidador + solicitud,
+  conductor + viaje, 9 notificaciones, 1 donación, 1 reporte de perdidas. **Bugs hallados al llenar y corregidos:**
+  `_notify()` sin parámetro `link` en **aseguradoras, transportistas y funeraria** (500 al crear reclamos, viajes y
+  servicios — F24 actualizó los llamadores pero no las firmas) y `AppointmentCreate` no seteaba `date` desde
+  `appointment_date` cuando `start_time` venía por separado (**500 al crear citas**). Todo aplicado en la VM y
+  commiteado. Inventario y detalle en [`users.md`](users.md).
+- **2026-10-17** — **Auditoría funcional del módulo Carnet/historial clínico** (Playwright, producción). **20 OK · 0
+  FAIL**: ficha con pestañas, estado de vacunas calculado, alta/edición/borrado de vacunas y consultas con
+  confirmación, receta digital (folio, medicamentos, compartir), recordatorios de medicación, `carnet/[id]` redirect,
+  permisos (vet edita, extraño recibe 403). **C-01 corregido:** el error al abrir una mascota ajena decía «Revisa tu
+  conexión» — ahora dice «No tienes permiso» (403) o «ya no existe» (404) y solo ofrece reintento en errores de red.
+  Detalle en [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md) (sección Carnet).
+- **2026-10-17** — **Auditoría funcional de Citas y Recordatorios** (Playwright, producción). **MO-016 corregido:**
+  `directorio.cancelAppointment` mandaba la razón como query y sin body → 422 al cancelar citas. **C-02:** el vet
+  asignado no veía su agenda (`getMyClinics` vacío si no es dueño) → nuevo `GET /appointments/vet/me` + fallback en
+  `useAgenda`. **C-03:** confirm/complete/cancel solo aceptaban al dueño de la clínica → ahora también al vet asignado
+  (`_is_clinic_staff`). **C-04:** filtro «Canceladas» en Mis citas. Verificado: estados de citas (confirmada,
+  completada, cancelada) desde la agenda del vet y desde el cliente; notificaciones con navegación; recordatorios de
+  medicación (marcar dosis); refuerzos de vacuna. Detalle en [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Auditoría funcional de Adopciones** (Playwright, producción). Todo el flujo verificado: listado
+  público, detalle, solicitud de adopción, mis solicitudes, publicaciones del refugio (editar/eliminar), solicitudes
+  recibidas con **flujo de estados completo** (Pendiente → Revisar → En revisión → Aprobar Adopción → Adoptado),
+  formulario de compatibilidad, nueva publicación. Los botones de editar publicación son iconos con `aria-label`.
+  Sin bugs nuevos: el flujo de dos pasos y los alerts de confirmación son el diseño correcto. Detalle en
+  [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Auditoría funcional de módulos P2 y P3** (Playwright, producción). **P2-A: 17 OK** (Perdidas,
+  Donaciones, Paseadores/Cuidadores cliente y pro). **P2-B: 30 OK** (Estilistas, Entrenadores, Transportes, Seguros,
+  Laboratorio, Funeraria — cliente y pro). **P3: 23 OK** (Mi Clínica vet/hospital, Tienda vendedor, Admin,
+  Patrocinadores, Establecimientos, Servicios pro). **P3-01 corregido:** rutas `/hospitals/*` devolvían 404 porque
+  `/{clinic_id}` capturaba `hospitals` como id — ahora las rutas estáticas van antes que las dinámicas.
+  Los 8 falsos positivos del test eran regex sin `i` («Panel Admin» vs `panel»). Detalle en
+  [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Seed masivo: 70/70 tablas con datos, 0 vacías**. Las 31 tablas que estaban sin contenido quedaron
+  llenas: reviews (vet, clínica, paseo, cuidado, grooming, entrenamiento, venues), formularios y contratos de adopción,
+  citas de grooming, tests/resultados/citas de laboratorio, cirugías, inventario (10 items), recetas clínicas, alertas
+  y métricas del dashboard, videoconsultas, avistamientos de mascotas perdidas, solicitudes de cuidado, inscripciones
+  y metas de entrenamiento, defunciones funerarias, lugares pet-friendly con reseñas, excepciones de horario, cupones
+  canjeados, boost de alertas, medical records extended. Constraints respetados (enums de status/priority/alert_level).
+  Inventario completo en [`users.md`](users.md).
+- **2026-10-17** — **Auditoría de Receta/Recordatorios y Especialistas sin clínica**. **R-01:** QR para surtir en
+  farmacia agregado a `receta/[id].tsx` (los estilos `barcode*` existían pero nunca se renderizaban). **R-02:** switch
+  de recordatorios de medicación en la receta (los recordatorios se generan solos al crearla; ahora el usuario sabe
+  que existen y puede controlarlos). **R-03:** el especialista sin clínica ya no bloquea — ofrece «Agendar
+  videoconsulta» (el schema `Consultation` ya permitía `clinic_id` opcional). Commit `ee75ca6`. Detalle en
+  [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).

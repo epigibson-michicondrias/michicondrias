@@ -7,12 +7,13 @@ from datetime import datetime, timedelta
 from app.crud.crud_clinic import get_clinic
 from app.crud.dashboard_crud import get_clinic_alerts, create_clinic_alert, generate_automatic_alerts, format_time_ago
 from app.api import deps
+from app.api.clinic_access import is_clinic_staff
 from app.db.session import get_db
 from app.models.dashboard import ClinicAlerts
 
 router = APIRouter()
 
-@router.get("/clinics/{clinic_id}/alerts")
+@router.get("/{clinic_id}/alerts")
 def get_clinic_alerts_endpoint(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -21,7 +22,7 @@ def get_clinic_alerts_endpoint(
     """Get clinical alerts for a clinic dashboard."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Obtener alertas desde Supabase
@@ -50,7 +51,7 @@ def get_clinic_alerts_endpoint(
     return result
 
 
-@router.get("/clinics/{clinic_id}/alerts/emergency")
+@router.get("/{clinic_id}/alerts/emergency")
 def get_emergency_alerts(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -58,7 +59,7 @@ def get_emergency_alerts(
 ) -> Any:
     """Get emergency alerts for a clinic."""
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     alerts = get_clinic_alerts(db, clinic_id, unread_only=False)
@@ -78,7 +79,7 @@ def get_emergency_alerts(
     } for a in emergency_alerts]
 
 
-@router.get("/clinics/{clinic_id}/alerts/inventory")
+@router.get("/{clinic_id}/alerts/inventory")
 def get_inventory_alerts(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -86,7 +87,7 @@ def get_inventory_alerts(
 ) -> Any:
     """Get inventory alerts for a clinic."""
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     alerts = get_clinic_alerts(db, clinic_id, unread_only=False)
@@ -106,7 +107,7 @@ def get_inventory_alerts(
     } for a in inventory_alerts]
 
 
-@router.get("/clinics/{clinic_id}/alerts/laboratory")
+@router.get("/{clinic_id}/alerts/laboratory")
 def get_laboratory_alerts(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -114,7 +115,7 @@ def get_laboratory_alerts(
 ) -> Any:
     """Get laboratory alerts for a clinic."""
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     alerts = get_clinic_alerts(db, clinic_id, unread_only=False)
@@ -133,7 +134,7 @@ def get_laboratory_alerts(
         "actionUrl": a.action_url or "/dashboard"
     } for a in lab_alerts]
 
-@router.post("/clinics/{clinic_id}/alerts")
+@router.post("/{clinic_id}/alerts")
 def create_clinic_alert_endpoint(
     clinic_id: str,
     alert_data: dict,
@@ -143,7 +144,7 @@ def create_clinic_alert_endpoint(
     """Create a new clinic alert."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Agregar clinic_id y valores por defecto
@@ -179,7 +180,7 @@ def mark_alert_as_read(
     
     # Verificar permisos (el usuario debe pertenecer a la clínica de la alerta)
     clinic = get_clinic(db, alert.clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Marcar como leída
@@ -193,7 +194,7 @@ def mark_alert_as_read(
         "read_at": alert.read_at.isoformat() if alert.read_at else None
     }
 
-@router.get("/clinics/{clinic_id}/alerts/unread")
+@router.get("/{clinic_id}/alerts/unread")
 def get_unread_alerts(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -202,7 +203,7 @@ def get_unread_alerts(
     """Get unread alerts for a clinic."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Obtener solo alertas no leídas
@@ -244,7 +245,7 @@ def delete_alert(
     
     # Verificar permisos
     clinic = get_clinic(db, alert.clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Eliminar alerta

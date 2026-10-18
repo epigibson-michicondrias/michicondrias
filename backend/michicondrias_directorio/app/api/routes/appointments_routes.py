@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.crud import crud_services
 from app.crud.crud_clinic import get_clinic
 from app.api import deps
+from app.api.clinic_access import is_clinic_staff
 from app.db.session import get_db
 from app.schemas.services import (
     AppointmentCreate, AppointmentResponse, AppointmentCancel, AppointmentReschedule,
@@ -146,8 +147,8 @@ def read_clinic_appointments(
     clinic = get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
-        raise HTTPException(status_code=403, detail="Solo el dueño puede ver las citas")
+    if not is_clinic_staff(db, user_id, clinic_id):
+        raise HTTPException(status_code=403, detail="Solo el equipo de la clínica puede ver las citas")
         
     appointments = crud_services.get_clinic_appointments(db, clinic_id, status)
     if not appointments:

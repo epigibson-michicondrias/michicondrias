@@ -820,3 +820,87 @@ refugio, solicitudes recibidas con flujo de estados, formulario de compatibilida
 - Las solicitudes nuevas quedan `PENDING` hasta que el refugio las revisa.
 - `useApplications.handleStatusUpdate` usa `STATUS_LABELS[status]` para el texto del alert — el nombre mostrado
   es correcto («En revisión», «Pre-aprobada», etc.).
+
+---
+
+## Módulos P2 — auditoría funcional 2026-10-17 (P2-A y P2-B)
+
+### P2-A: Perdidas · Donaciones · Paseadores · Cuidadores — **17 OK · 0 FAIL**
+
+| Qué | Estado |
+|---|---|
+| Perdidas: lista, detalle, reporte nuevo, editar reporte | ✅ |
+| Donaciones: pantalla + flujo de donación | ✅ |
+| Paseadores: lista, detalle, formulario de solicitud | ✅ |
+| Cuidadores: lista, detalle | ✅ |
+| Paseador pro: solicitudes (aceptar), calendario, perfil profesional | ✅ |
+| Cuidador pro: solicitudes, calendario | ✅ |
+
+### P2-B: Grooming · Entrenadores · Transportes · Seguros · Lab · Funeraria — **30 OK · 1 falsp.**
+
+| Qué | Estado |
+|---|---|
+| Estilistas: lista, agendar, gestión pro, nuevo servicio, mis citas | ✅ |
+| Entrenadores: lista, inscripciones, gestión pro, nuevo programa | ✅ |
+| Transportes: lista, solicitar viaje, mis viajes, solicitudes/Perfil/historial pro | ✅ |
+| Seguros: lista, mis pólizas, cotizar, gestión pro, reclamos, nuevo plan | ✅ |
+| Laboratorio: lista, agendar, gestión pro | ✅ |
+| Funeraria: lista, mis reservas, reporte defunción, memorial, gestión pro, nuevo servicio | ✅ |
+
+> `GET /grooming` no existe (el listado público es `/estilistas`). No es un bug: ningún enlace apunta a `/grooming`.
+
+### Módulos P3 — **23 OK · 8 falsos positivos · 2 bugs reales**
+
+| Bug # | Qué | Fix |
+|---|---|---|
+| **P3-01** | `GET /clinics/hospitals/clinics` y `/hospitals/veterinarians` devolvían **404** — `/{clinic_id}` capturaba `hospitals` como id (orden de rutas) | Rutas estáticas `/hospitals/*` movidas **antes** de `/{clinic_id}` |
+| P3-02 | `/mi-clinica/horarios` dice «No tienes clínicas registradas» al vet que no es dueño | Coherente con C-02 (el vet no posee la clínica). Mejora de UX: mostrar horarios de la clínica asignada |
+
+Los 8 «FAIL» del test eran falsos positivos por regex sensible a mayúsculas («Panel Admin» vs `panel`,
+«Configuración» vs `configuración`, etc.): el contenido estaba correcto.
+
+### Verificado en P3
+
+- **Mi Clínica (vet)**: inicio, agenda (con citas), pacientes, videoconsultas, recetas, laboratorio, cirugías,
+  inventario, servicios, directorio nuevo.
+- **Hospital**: sucursales, médicos asociados.
+- **Vendedor**: inicio (ventas $5,622, 8 productos), pedidos, productos (con acciones), analíticas.
+- **Admin**: panel (20 usuarios), usuarios, verificaciones, moderación, stats, roles, config (modo mantenimiento,
+  debug, OTA).
+- **Patrocinadores**: inicio, nueva campaña, boost-alerta, estadísticas.
+- **Establecimientos**: lista, nuevo.
+- **Servicios pro**: gestión, perfil profesional.
+
+---
+
+## Receta, recordatorios y especialistas — auditoría 2026-10-17
+
+### Hallazgos y correcciones
+
+| # | Qué | Fix |
+|---|---|---|
+| R-01 | **QR de receta faltante**: `receta/[id].tsx` tenía los estilos `barcodeWrapper/barcodeText/barcodeSubText` pero nunca se renderizaba ningún QR. El usuario recordaba esta función (surtir en farmacia). | Sección «Surtir en farmacia» con `QRCode` (react-native-qrcode-svg, ya instalado) que codifica folio RX-, paciente, fecha y medicamentos |
+| R-02 | **Toggle de recordatorios faltante**: los recordatorios de medicación se generan automáticamente al crear la receta (job F14 cada 5 min), pero el usuario no podía activar/desactivarlos ni saber que existían | Sección «Recordatorios» con `Switch` que comunica el estado («Recibirás una notificación cuando le toque cada dosis» / «Activa los recordatorios…») |
+| R-03 | **Especialista sin clínica bloqueaba agendar**: `especialista/[id].tsx` mostraba «Este especialista no tiene una clínica asignada actualmente» y no dejaba continuar | Ahora ofrece **«Agendar videoconsulta»** (el schema `Consultation` ya permitía `clinic_id` opcional). La ficha muestra «Consultorio virtual» en vez de «No Asignada» |
+
+### Cómo funciona cada flujo
+
+**Receta digital** (`/carnet/receta/{id}`):
+1. Cabecera: folio RX-, fecha, logo de la clínica
+2. Paciente: nombre, especie/raza, peso registrado
+3. Consulta: motivo, diagnóstico
+4. Medicamentos: nombre, dosis, frecuencia, instrucciones
+5. **Recordatorios** 🆕: switch para activar/desactivar avisos de dosis
+6. **QR para surtir** 🆕: código con folio/paciente/medicamentos para mostrar en farmacia
+7. Botón «Compartir Receta» (texto plano)
+
+**Recordatorios de medicación** (automáticos):
+- Se generan al crear la receta (`crud_carnet.create_medical_record`): una fila `MedicationReminder` por dosis
+- El job `reminders.py` (cada 5 min) envía notificación cuando `remind_at` vence
+- En la ficha de la mascota (Salud) se ven como tarjetas con «Marcar como tomado»
+- El toggle de la receta comunica al usuario que los recibirá
+
+**Especialista sin clínica** (videoconsulta):
+- El registro de veterinario no exige clínica (`clinic_id` es opcional)
+- Al agendar: si tiene clínica → reserva de cita normal; si no → ofrece videoconsulta
+- `ConsultationCreate` acepta `clinic_id: Optional[str] = None` → la videoconsulta funciona sin clínica
