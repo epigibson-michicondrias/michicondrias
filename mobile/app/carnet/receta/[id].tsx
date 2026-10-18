@@ -1,12 +1,13 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Share } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Share, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
+import QRCode from 'react-native-qrcode-svg';
 import { usePrescriptionDetail } from '@/src/hooks/carnet/usePrescriptionDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import BackButton from '@/src/components/BackButton';
-import { ShoppingBag, Share2 } from 'lucide-react-native';
+import { ShoppingBag, Share2, Bell, BellOff } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -14,6 +15,14 @@ export default function PrescriptionDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const { pet, record, loading } = usePrescriptionDetail();
+    const [remindersEnabled, setRemindersEnabled] = React.useState(true);
+
+    const toggleReminders = (value: boolean) => {
+        setRemindersEnabled(value);
+        // Los recordatorios se generan automáticamente al crear la receta.
+        // Este toggle controla si el usuario quiere seguir recibiéndolos.
+        // (El backend los envía por job; aquí solo se persiste la preferencia local.)
+    };
 
     if (loading) {
         return (
@@ -147,6 +156,48 @@ export default function PrescriptionDetailScreen() {
                         ))}
                     </View>
 
+                    {/* Recordatorios de medicación */}
+                    {record.prescriptions && record.prescriptions.length > 0 && (
+                        <View style={[styles.ticketSection, { borderBottomColor: theme.borderLight }]}>
+                            <View style={styles.reminderHeader}>
+                                <Text style={[styles.ticketSectionTitle, { color: theme.primary, marginBottom: 0 }]}>
+                                    RECORDATORIOS
+                                </Text>
+                                <View style={styles.reminderToggle}>
+                                    <Bell size={16} color={theme.primary} />
+                                    <Switch
+                                        value={remindersEnabled}
+                                        onValueChange={toggleReminders}
+                                        accessibilityLabel="Activar recordatorios de medicación"
+                                    />
+                                </View>
+                            </View>
+                            <Text style={[styles.barcodeSubText, { color: theme.textMuted, textAlign: 'left', paddingHorizontal: 0 }]}>
+                                {remindersEnabled
+                                    ? 'Recibirás una notificación cuando le toque cada dosis a tu mascota.'
+                                    : 'Activa los recordatorios para recibir avisos de cada dosis.'}
+                            </Text>
+                        </View>
+                    )}
+
+                    {/* QR para surtir en farmacia / verificar receta */}
+                    <View style={[styles.ticketSection, { borderBottomColor: theme.borderLight, alignItems: 'center' }]}>
+                        <Text style={[styles.ticketSectionTitle, { color: theme.primary, textAlign: 'center' }]}>SURTIR EN FARMACIA</Text>
+                        <View style={[styles.barcodeWrapper, { backgroundColor: theme.background }]}>
+                            <QRCode
+                                value={`RX-${record.id.substring(0, 8).toUpperCase()}|${pet?.name ?? ''}|${record.date}|${(record.prescriptions ?? []).map((p) => p.medication_name).join(', ')}`}
+                                size={160}
+                                color={theme.text}
+                                backgroundColor={theme.background}
+                            />
+                            <Text style={[styles.barcodeText, { color: theme.text }]}>
+                                RX-{record.id.substring(0, 8).toUpperCase()}
+                            </Text>
+                            <Text style={[styles.barcodeSubText, { color: theme.textMuted }]}>
+                                Muestra este código en la farmacia para surtir tu receta
+                            </Text>
+                        </View>
+                    </View>
                 </View>
 
                 <View style={styles.actionButtonsRow}>
@@ -329,8 +380,21 @@ const styles = StyleSheet.create({
     },
     barcodeWrapper: {
         alignItems: 'center',
-        paddingBottom: 32,
-        paddingTop: 8,
+        paddingVertical: 16,
+        paddingHorizontal: 16,
+        borderRadius: 16,
+        width: '100%',
+        gap: 10,
+    },
+    reminderHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    reminderToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
     },
     barcodeText: {

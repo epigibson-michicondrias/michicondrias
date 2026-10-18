@@ -57,10 +57,24 @@ export default function SpecialistDetailScreen() {
                 }
             } as any);
         } else {
-            showAlert({ 
-                type: 'error', 
-                title: 'Clínica no asignada', 
-                message: 'Este especialista no tiene una clínica asignada actualmente.' 
+            // Especialista sin clínica (independiente): ofrecer videoconsulta
+            showAlert({
+                type: 'warning',
+                title: 'Consultorio virtual',
+                message: 'Este especialista trabaja de forma independiente. Puedes agendar una videoconsulta.',
+                showCancel: true,
+                cancelText: 'Cancelar',
+                buttonText: 'Agendar videoconsulta',
+                onButtonPress: () => {
+                    router.push({
+                        pathname: '/directorio/citas/agendar/independiente',
+                        params: {
+                            vet_id: specialist.id,
+                            service_id: serviceId || undefined,
+                            virtual: '1',
+                        }
+                    } as any);
+                }
             });
         }
     };
@@ -136,10 +150,10 @@ export default function SpecialistDetailScreen() {
                         >
                             <Briefcase size={20} color={theme.primary} />
                             <Text style={[styles.statValue, { color: theme.text }]} numberOfLines={1}>
-                                {clinic?.name || 'Clínica'}
+                                {clinic?.name || 'Videoconsulta'}
                             </Text>
                             <Text style={[styles.statLabel, { color: theme.textMuted }]}>
-                                {specialist.clinic_id ? 'Ver Perfil' : 'No Asignada'}
+                                {specialist.clinic_id ? 'Ver Perfil' : 'Consultorio virtual'}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -171,14 +185,18 @@ export default function SpecialistDetailScreen() {
                         </View>
                     )}
 
-                    {specialist.clinic_id && (
-                        <View style={styles.servicesSection}>
-                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Disponibles</Text>
-                            {services.length === 0 ? (
-                                <Text style={{ color: theme.textMuted, marginLeft: 8 }}>
-                                    No hay servicios listados actualmente en su clínica.
-                                </Text>
-                            ) : (
+                    {/* Servicios: siempre visibles — si no hay clínica, son del consultorio virtual */}
+                    <View style={styles.servicesSection}>
+                        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                            {specialist.clinic_id ? 'Servicios Disponibles' : 'Consultorio Virtual'}
+                        </Text>
+                        {services.length === 0 ? (
+                            <Text style={{ color: theme.textMuted, marginLeft: 8 }}>
+                                {specialist.clinic_id
+                                    ? 'No hay servicios listados actualmente en su clínica.'
+                                    : 'Videoconsulta disponible. Agenda directamente con el especialista.'}
+                            </Text>
+                        ) : (
                                 services.map((service) => (
                                     <TouchableOpacity
                                         key={service.id}
@@ -201,7 +219,6 @@ export default function SpecialistDetailScreen() {
                                 ))
                             )}
                         </View>
-                    )}
 
                     <View style={styles.contactSection}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Contacto</Text>
@@ -399,12 +416,14 @@ export default function SpecialistDetailScreen() {
             <View style={[styles.footer, { borderTopColor: theme.borderLight }]}>
                 <TouchableOpacity
                     accessibilityRole="button"
-                    accessibilityLabel="Agendar consulta"
+                    accessibilityLabel={specialist.clinic_id ? 'Agendar consulta' : 'Agendar videoconsulta'}
                     style={[styles.bookBtn, { backgroundColor: theme.primary }]}
                     onPress={() => handleBookConsultation()}
                 >
                     <Calendar size={20} color="#fff" />
-                    <Text style={styles.bookBtnText}>Agendar Consulta</Text>
+                    <Text style={styles.bookBtnText}>
+                        {specialist.clinic_id ? 'Agendar Consulta' : 'Agendar Videoconsulta'}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </ScreenContainer>
