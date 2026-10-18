@@ -31,8 +31,19 @@ def read_my_clinics(
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
-    """Retrieve clinics owned by the current user."""
+    """Clínicas propias del usuario. Si es veterinario sin clínica propia, incluye la clínica donde trabaja (su perfil en `veterinarians`)."""
     clinics = crud.crud_clinic.get_clinics_by_owner(db, owner_user_id=user_id)
+    if not clinics:
+        # Veterinario asociado a una clínica: devolver su clínica de trabajo
+        from sqlalchemy import text as _text
+        row = db.execute(_text(
+            "SELECT c.id FROM clinics c JOIN veterinarians v ON v.clinic_id = c.id WHERE v.user_id = :uid LIMIT 1"
+        ), {"uid": user_id}).first()
+        if row:
+            from app.models.clinic import Clinic as _Clinic
+            clinic = db.query(_Clinic).filter(_Clinic.id == row[0]).first()
+            if clinic:
+                clinics = [clinic]
     for clinic in clinics:
         clinic.average_rating = crud.crud_clinic.get_clinic_average_rating(db, clinic.id)
         clinic.total_reviews = len(crud.crud_clinic.get_clinic_reviews(db, clinic.id))

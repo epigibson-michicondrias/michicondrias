@@ -455,11 +455,11 @@ export async function addScheduleException(clinicId: string, data: Partial<Sched
 // --- Clinic Metrics & Alerts ---
 
 export async function getWeeklyMetrics(clinicId: string): Promise<any> {
-    return apiFetch<any>("directorio", `/clinics/clinics/${clinicId}/metrics/weekly`);
+    return apiFetch<any>("directorio", `/clinics/${clinicId}/metrics/weekly`);
 }
 
 export async function getUnreadAlertCount(clinicId: string): Promise<{ count: number }> {
-    return apiFetch<{ count: number }>("directorio", `/clinics/clinics/${clinicId}/alerts/unread`);
+    return apiFetch<{ count: number }>("directorio", `/clinics/${clinicId}/alerts/unread`);
 }
 
 export async function deleteAlert(alertId: string): Promise<void> {

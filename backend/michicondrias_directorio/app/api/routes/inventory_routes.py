@@ -4,6 +4,7 @@ from typing import Any, List
 from datetime import datetime, timedelta
 
 from app.api import deps
+from app.api.clinic_access import is_clinic_staff
 from app.models.dashboard import InventoryItems
 from app.models.clinic import Clinic
 
@@ -17,7 +18,7 @@ def get_clinic_inventory(
 ) -> Any:
     # Check permissions
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     items = db.query(InventoryItems).filter(InventoryItems.clinic_id == clinic_id).all()
@@ -45,7 +46,7 @@ def get_critical_inventory(
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     # Items with stock <= min_stock or explicitly marked critical
@@ -73,7 +74,7 @@ def add_inventory_item(
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     name = (item_data.get("name") or "").strip()
@@ -112,7 +113,7 @@ def update_inventory_item(
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     item = db.query(InventoryItems).filter(
@@ -156,7 +157,7 @@ def delete_inventory_item(
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     item = db.query(InventoryItems).filter(

@@ -14,16 +14,16 @@ export interface CriticalPatient {
 }
 
 export async function getCriticalPatients(clinicId: string): Promise<CriticalPatient[]> {
-    return apiFetch<CriticalPatient[]>("directorio", `/clinics/clinics/${clinicId}/patients/critical`);
+    return apiFetch<CriticalPatient[]>("directorio", `/clinics/${clinicId}/patients/critical`);
 }
 
 export async function getActivePatients(clinicId: string): Promise<CriticalPatient[]> {
-    const all = await apiFetch<CriticalPatient[]>("directorio", `/clinics/clinics/${clinicId}/patients/critical`);
+    const all = await apiFetch<CriticalPatient[]>("directorio", `/clinics/${clinicId}/patients/critical`);
     return all.filter(p => p.alertLevel === 'yellow' || p.alertLevel === 'green');
 }
 
 export async function getEmergencyPatients(clinicId: string): Promise<CriticalPatient[]> {
-    const all = await apiFetch<CriticalPatient[]>("directorio", `/clinics/clinics/${clinicId}/patients/critical`);
+    const all = await apiFetch<CriticalPatient[]>("directorio", `/clinics/${clinicId}/patients/critical`);
     return all.filter(p => p.alertLevel === 'red');
 }
 
@@ -42,5 +42,5 @@ export interface ClinicPatient {
 
 /** Pacientes reales de la clínica (mascotas con citas), no solo los marcados como críticos. */
 export async function getClinicPatients(clinicId: string): Promise<ClinicPatient[]> {
-    return apiFetch<ClinicPatient[]>("directorio", `/clinics/clinics/${clinicId}/patients`);
+    return apiFetch<ClinicPatient[]>("directorio", `/clinics/${clinicId}/patients`);
 }

@@ -5,6 +5,7 @@ from datetime import date
 
 from app.db.session import get_db
 from app.api import deps
+from app.api.clinic_access import is_clinic_staff
 from app.crud import dashboard_crud
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List as PydanticList
@@ -22,7 +23,7 @@ def _assert_clinic_owner(db: Session, clinic_id: str, user_id: str) -> None:
     clinic = get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos sobre esta clínica")
 
 # Schema for Surgeries
