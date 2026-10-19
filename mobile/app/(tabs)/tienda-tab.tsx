@@ -35,7 +35,7 @@ export default function TiendaTabScreen() {
     const props = {
       product: item,
       onPress: () => router.push(`/tienda/producto/${item.id}`),
-      onQuickAdd: () => shop.quickAdd(item),
+      onQuickAdd: shop.canBuy(item) ? () => shop.quickAdd(item) : undefined,
       isFavorite: shop.isFavorite(item.id),
       onToggleFavorite: () => shop.toggleFavorite(item.id),
     };

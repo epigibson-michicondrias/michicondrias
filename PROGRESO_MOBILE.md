@@ -56,7 +56,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); F14 ✅ (avisos de dosis y refuerzos en la bandeja); falta la pasada U7 |
-| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | 🟡 | ⬜ | F18 ✅ (`useCheckout`, carrito con precio/stock frescos, bolsa se vacía al confirmar el pago); F19 ✅ (pedidos vencidos, aviso de pago, `can_review`, paginación); F20 ✅ |
+| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ✅ | ✅ | F18–F20 ✅. U8 ✅ 2026-10-19: pestaña (favoritos, ordenar, cuadrícula/lista, agregar rápido, CartBar), producto, bolsa, compras con filtros, pedido con seguimiento y «Volver a comprar» |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
 | P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
 | P2 | Adopciones | 12 | ⬜ | ⬜ | ⬜ | Muchas pantallas de solicitudes: ¿fusionar? |
@@ -72,7 +72,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P2 | Donaciones | 1 | ⬜ | ⬜ | ⬜ | |
 | P3 | Mi clínica (veterinario/hospital) | 14 | ⬜ | ⬜ | ⬜ | Segundo sistema de recetas (`services/prescriptions.ts`) |
 | P3 | Servicios pro | 3 | ⬜ | ⬜ | ⬜ | |
-| P3 | Tienda vendedor | 5 | ⬜ | ⬜ | ⬜ | |
+| P3 | Tienda vendedor | 5 | 🔍 | ✅ | ✅ | 2026-10-19: panel con avisos accionables, catálogo con filtros por estado, pedidos con nombre del comprador y confirmación, analíticas (tendencia de 7 días, más vendidos), formulario con errores en línea y vista previa |
 | P3 | Patrocinadores | 5 | ⬜ | ⬜ | ⬜ | |
 | P3 | Admin | 14 | ⬜ | ⬜ | ⬜ | |
 
@@ -278,7 +278,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [ ] U5 Perfil + `perfil/editar` + verificacion, 2FA, partner, eliminar-cuenta.
 - [ ] U6 Mascotas: ficha con pestañas, `PetForm`, diagnóstico IA (`FormSelect`, colores del tema).
 - [ ] U7 Carnet: partir `carnet/[id]` en `src/features/carnet/`, formularios con botón primario abajo, receta.
-- [ ] U8 Tienda: tab, producto (extraer), carrito, compras, pedido.
+- [x] U8 Tienda: tab, producto (extraer), carrito, compras, pedido. (2026-10-19, también vendedor)
 - [ ] U9 Notificaciones, búsqueda (ampliada a más dominios) y Ayuda.
 - [ ] 📱 U10 APK único: `expo-image`, `expo-haptics`, FlashList, fuente propia, **`expo-notifications` (push + tabla
       `push_tokens` 🛠️)**, QR si es nativa; quitar deps sin uso; `npx expo install --check`.
@@ -780,3 +780,22 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   ya respeta acentos ("Siamés").
   Después: `MediaCard`/`MediaRow` (componentes base de elemento con foto) y `useGridCell`; Adopciones (cuadrícula/lista)
   y Perdidas (cuadrícula/lista/mapa, antes solo cuadrícula↔mapa) usan el mismo selector, recordado por pantalla.
+- **2026-10-19** — **Tienda completa (cliente + vendedor)**. Cliente: pestaña con cabecera hero (bolsa con contador),
+  buscador, categorías con ícono, **favoritos** (`useFavorites`, en el teléfono por usuario), **ordenar**
+  (`OptionMenu`), cuadrícula/lista, **agregar rápido** desde la tarjeta y **barra flotante de la bolsa** (`CartBar`);
+  producto con botones flotantes en la safe area, existencias, opiniones de compra verificada (`ReviewsSection`),
+  «También te puede gustar» y cantidad + agregar fijos; bolsa con `QuantityStepper` de 44 px, dirección con error en
+  línea, vaciar con confirmación y «Pagar» fijo (`KeyboardScreen` con `footer`); Mis compras con filtros por estado;
+  pedido con seguimiento (`OrderTracking`), **«Volver a comprar»** (`addManyToCart`) y correo a soporte con el pedido.
+  Vendedor: panel (`SummaryCard` con el color del rol, avisos accionables «por enviar / agotados / en revisión»,
+  más vendidos), catálogo con filtros por estado y `?filtro=`, pedidos con **nombre del comprador** y confirmación
+  antes de avanzar, analíticas con tendencia de 7 días (`MiniBarChart`) y top 5, formulario con errores en línea,
+  teclado numérico y **vista previa**. Estados de pedido unificados en `features/tienda/orderStatus.ts` (sin hex).
+  Backend ecommerce: `buyer_name` en `/orders/seller/me`; `GET /products/?seller_id=` ya no expone productos ocultos
+  ni pendientes. Borrado `useSellerDashboard` (lo cubre `useSellerAnalytics`).
+  Revisión (`code-reviewer`) aplicada: `DataList` dibuja carga y vacío dentro de la misma `FlatList` (el buscador ya no
+  pierde el foco al quedarse sin resultados); «Volver a comprar» omite productos no aprobados; panel y catálogo cuentan
+  igual (`CATALOG_FILTERS`); `addToCart` devuelve las piezas agregadas; el vendedor no ve «agregar» en sus productos;
+  `RoleGuard` en `tienda/vendedor/_layout.tsx`. Pendiente: métricas del vendedor limitadas a 50 pedidos (`/orders/seller/me`
+  sin paginación).
+

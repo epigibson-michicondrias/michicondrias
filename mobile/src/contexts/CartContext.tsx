@@ -12,8 +12,10 @@ export interface CartItem {
 
 interface CartContextType {
     items: CartItem[];
-    /** Devuelve false si no se pudo agregar (agotado o límite de stock alcanzado). */
-    addToCart: (product: Product, quantity?: number) => boolean;
+    /** Devuelve cuántas piezas se agregaron de verdad (0 si está agotado o ya está todo el stock en la bolsa). */
+    addToCart: (product: Product, quantity?: number) => number;
+    /** Agrega varios sin avisos (p. ej. "Volver a comprar"): ajusta al stock y omite los agotados. */
+    addManyToCart: (lines: { product: Product; quantity: number }[]) => { added: number; skipped: number; adjusted: number; alreadyInCart: number };
     removeFromCart: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
@@ -77,16 +79,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (userId) AsyncStorage.setItem(addressKey(userId), address).catch(() => {});
     };
 
-    const addToCart = (product: Product, quantity: number = 1): boolean => {
+    const addToCart = (product: Product, quantity: number = 1): number => {
         const stock = product.stock ?? 0;
         const inCart = items.find(item => item.product.id === product.id)?.quantity ?? 0;
         if (stock <= 0) {
             showAlert({ type: 'warning', title: 'Producto agotado', message: 'Por ahora no hay unidades disponibles de este producto.' });
-            return false;
+            return 0;
         }
         if (inCart >= stock) {
             showAlert({ type: 'info', title: 'Ya tienes todo el stock', message: `Solo hay ${stock} ${stock === 1 ? 'unidad disponible' : 'unidades disponibles'} y ya están en tu bolsa.` });
-            return false;
+            return 0;
         }
         const toAdd = Math.max(1, Math.min(quantity, stock - inCart));
         if (toAdd < quantity) {
@@ -103,7 +105,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             }
             return [...prevItems, { product, quantity: toAdd }];
         });
-        return true;
+        return toAdd;
+    };
+
+    const addManyToCart = (lines: { product: Product; quantity: number }[]) => {
+        let added = 0;
+        let skipped = 0;
+        let adjusted = 0;
+        let alreadyInCart = 0;
+        const next = [...items];
+        for (const { product, quantity } of lines) {
+            const stock = product.stock ?? 0;
+            const index = next.findIndex((i) => i.product.id === product.id);
+            const inCart = index >= 0 ? next[index].quantity : 0;
+            const toAdd = Math.min(quantity, Math.max(0, stock - inCart));
+            if (toAdd <= 0) {
+                // Sin existencias, o ya está todo el stock en la bolsa
+                if (stock > 0 && inCart >= stock) alreadyInCart += 1;
+                else skipped += 1;
+                continue;
+            }
+            if (toAdd < quantity) adjusted += 1;
+            added += 1;
+            if (index >= 0) next[index] = { product, quantity: inCart + toAdd };
+            else next.push({ product, quantity: toAdd });
+        }
+        if (added > 0) setItems(next);
+        return { added, skipped, adjusted, alreadyInCart };
     };
 
     const removeFromCart = (productId: string) => {
@@ -167,6 +195,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         <CartContext.Provider value={{
             items,
             addToCart,
+            addManyToCart,
             removeFromCart,
             updateQuantity,
             clearCart,

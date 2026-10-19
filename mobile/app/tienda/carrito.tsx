@@ -112,7 +112,9 @@ export default function CarritoScreen() {
                             onMaxReached={() => showAlert({
                                 type: 'info',
                                 title: 'No hay más piezas',
-                                message: `Solo hay ${item.product.stock} ${item.product.stock === 1 ? 'pieza disponible' : 'piezas disponibles'} de este producto.`,
+                                message: item.product.stock > 0
+                                    ? `Solo hay ${item.product.stock} ${item.product.stock === 1 ? 'pieza disponible' : 'piezas disponibles'} de este producto.`
+                                    : 'Este producto se agotó; al abrir tu bolsa se actualizan las existencias.',
                             })}
                         />
                     ))}

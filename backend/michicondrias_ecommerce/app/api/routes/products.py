@@ -43,7 +43,7 @@ def read_my_products(
     """
     Retrieve products created by the current seller.
     """
-    return crud.crud_ecommerce.get_products(db, seller_id=user_id)
+    return crud.crud_ecommerce.get_products(db, seller_id=user_id, include_unpublished=True)
 
 @router.get("/presigned-url", response_model=PresignedUrlResponse)
 def get_presigned_url(

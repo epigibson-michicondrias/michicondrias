@@ -21,8 +21,13 @@ de la ruta con `useScreenAccent`.
 ## Acciones y contenido
 | Componente | Para qué |
 |---|---|
-| `IconButton` | Botón de solo ícono de 44 px. `variant` subtle/surface/primary/glass · `loading` · `disabled`. En cabeceras se usa vía `actions` de `ScreenHeader` |
+| `IconButton` | Botón de solo ícono de 44 px (`size="sm"`: 38 px con área táctil de 44). `variant` subtle/surface/primary/glass · `loading` · `disabled` · `badge` (contador). En cabeceras se usa vía `actions` de `ScreenHeader` |
 | `StatTile` | Cifra con ícono y etiqueta; con `onPress`/`active` funciona como filtro |
+| `SummaryCard` | Cifra principal de un panel (ventas, ingresos) con hasta 3 secundarias, en el degradado del módulo/rol |
+| `MiniBarChart` | Barras simples para tendencias cortas (ventas por semana) |
+| `MediaCard` / `MediaRow` | Elemento con foto en cuadrícula / lista: `lines`, `footer`, insignias; `MediaRow` acepta `actions` (botones fuera del principal) |
+| `QuantityStepper` | Cantidad − / + de 44 px; con `min={0}` el − se vuelve "quitar" |
+| `OptionMenu` | Botón compacto que abre una hoja inferior para elegir una opción (ordenar, filtrar) |
 | `BackButton` | `IconButton` con chevron y etiqueta "Volver" |
 | `Button` | Acción. `variant` primary/secondary/ghost/danger/gold · `size` · `loading` · `icon` · `fullWidth` |
 | `Card` | Tarjeta (`onPress` la hace tocable, `elevated`, `flush`) |
@@ -52,6 +57,8 @@ Validación: `@/src/utils/validators` (`validateRequired`, `validateEmail`, …)
 | Pieza | Para qué |
 |---|---|
 | `mascotas/PetForm` | Formulario común de mascota (alta y edición) |
+| `tienda/ProductCard` · `CartBar` · `CartItemRow` | Producto en cuadrícula/lista (favorito, agregar rápido), barra flotante de la bolsa, artículo de la bolsa |
+| `tienda/orderStatus` · `OrderTracking` · `SellerOrderCard` | Estados de pedido (fuente única), seguimiento del comprador, pedido visto por el vendedor |
 | `mascotas/PetCards` | Tarjetas de Mis mascotas: `PetGridCard`, `PetListRow`, `PetDetailCard` |
 | `perdidas/ReportCard` | Reporte en cuadrícula (`ReportGridCard`) o lista (`ReportListRow`) |
 | `mascotas/PetHealthTabs` / `carnet/CarnetItems` | Pestañas Salud/Historial y renglones del carnet |

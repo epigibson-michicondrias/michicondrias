@@ -60,6 +60,8 @@ export interface Order {
     shipping_address?: string;
     created_at: string;
     items?: OrderItem[];
+    /** Solo en los pedidos del vendedor (`/orders/seller/me`): nombre del comprador para el envío. */
+    buyer_name?: string | null;
 }
 
 export interface OrderCreate {

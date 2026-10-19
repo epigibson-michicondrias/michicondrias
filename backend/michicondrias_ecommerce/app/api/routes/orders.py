@@ -1,6 +1,7 @@
 import logging
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import bindparam, text
 from sqlalchemy.orm import Session
 
 from app import crud
@@ -10,6 +11,18 @@ from app.models.ecommerce import OrderItem, Product
 from app.schemas.ecommerce import OrderCreate, OrderResponse
 
 router = APIRouter()
+
+
+def _user_names(db: Session, ids: set) -> dict:
+    """Mapa user_id -> nombre leyendo la tabla `users` (misma BD). Si falla, vacío sin romper la respuesta."""
+    if not ids:
+        return {}
+    try:
+        stmt = text("SELECT id, full_name FROM users WHERE id IN :ids").bindparams(bindparam("ids", expanding=True))
+        return {str(r[0]): r[1] for r in db.execute(stmt, {"ids": [str(i) for i in ids]}).fetchall()}
+    except Exception:
+        db.rollback()
+        return {}
 
 VALID_STATUSES = ("pending", "paid", "confirmed", "shipped", "delivered", "cancelled")
 # Transiciones que puede hacer el vendedor sobre un pedido ya pagado
@@ -69,7 +82,11 @@ def read_seller_orders(
     Retrieve orders containing products from the current seller.
     """
     crud.crud_ecommerce.release_stale_pending_orders(db)
-    return crud.crud_ecommerce.get_seller_orders(db, seller_id=user_id, skip=skip, limit=limit)
+    orders = crud.crud_ecommerce.get_seller_orders(db, seller_id=user_id, skip=skip, limit=limit)
+    names = _user_names(db, {o.user_id for o in orders})
+    for o in orders:
+        o.buyer_name = names.get(str(o.user_id))
+    return orders
 
 @router.get("/{order_id}", response_model=OrderResponse)
 def read_order(

@@ -294,9 +294,12 @@ con `openAuthSessionAsync` en nativo).
 Arreglos:
 - [x] P0 Caché de 30 s contra el polling y el refresh de pedidos (ver Transversales)
 - [x] P0 El carrito y la dirección pasan al siguiente usuario (`CartContext.tsx:28`, `carrito.tsx:14`) — ahora se guardan por usuario
-- [ ] P1 ~~`checkout` sin invalidar; precio y stock viejos~~ ✅ (F18); reseña visible para quien no puede reseñar; texto «se avisará al vendedor»
+- [x] P1 ~~`checkout` sin invalidar; precio y stock viejos~~ ✅ (F18); ~~reseña visible para quien no puede reseñar~~ ✅ (F19 + U8: `ReviewsSection` solo con `can_review`); ~~texto «se avisará al vendedor»~~ ✅ (F19 ya notifica)
 - [ ] P1 Pedidos abandonados que no expiran (backend); ~~`showAlert` con `require()` (`pedido/[id].tsx:225`)~~ ✅ (Fase 2)
-- [ ] P2 tienda-tab: refresh, EmptyState, SkeletonList, tokens. producto: Skeleton, safe area, extraer. carrito: KeyboardScreen, Button, 44 px
+- [x] P2 tienda-tab: refresh, EmptyState, SkeletonList, tokens. producto: Skeleton, safe area, extraer. carrito: KeyboardScreen, Button, 44 px (U8, 2026-10-19)
+- [x] Vendedor (2026-10-19): «Comprador 954825ca» → nombre real (`buyer_name`); etiqueta de existencias rota en el formulario (`{isEditing ? …}` literal) y sin teclado numérico; 2 mapas de estados con hex; panel y analíticas en azul dentro de la zona verde del rol; avanzar estado sin confirmación
+- [x] Backend: `GET /products/?seller_id=X` (público) devolvía productos ocultos y pendientes de ese vendedor
+- [ ] Pendiente: favoritos solo en el teléfono (no se sincronizan entre dispositivos); búsqueda y orden locales sobre 100 productos (el backend no tiene `q` ni `sort`); reseñas sin nombre del autor (se muestran como «Compra verificada»)
 
 ---
 

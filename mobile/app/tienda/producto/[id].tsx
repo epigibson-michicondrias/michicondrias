@@ -37,12 +37,16 @@ export default function ProductDetailScreen() {
     const photoHeight = Math.min(width, 380);
 
     const handleAddToCart = () => {
-        if (!product || !p.addToCart(product, quantity)) return;
+        if (!product) return;
+        const added = p.addToCart(product, quantity);
+        if (!added) return;
         setQuantity(1);
+        // Si se ajustó al stock, addToCart ya avisó cuántas se agregaron
+        if (added < quantity) return;
         showAlert({
             type: 'success',
             title: 'Agregado a tu bolsa',
-            message: `${quantity} × ${product.name}`,
+            message: `${added} × ${product.name}`,
             buttonText: 'Ver bolsa',
             onButtonPress: () => router.push('/tienda/carrito'),
             showCancel: true,

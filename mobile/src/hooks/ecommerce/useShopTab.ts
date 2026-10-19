@@ -3,7 +3,8 @@
  * La búsqueda y el orden son locales sobre el catálogo de la categoría (el backend no ofrece `q` ni `sort`).
  */
 import { useState, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { useLocalSearchParams } from 'expo-router';
 import { Sparkles, Package, Star, HeartPulse, Tag, Shirt, Bath, Heart } from 'lucide-react-native';
 import { getProducts, getCategories } from '@/src/services/ecommerce';
@@ -66,6 +67,7 @@ export function useShopTab() {
   const [sort, setSort] = useState<ShopSort>('relevance');
   const [viewMode, setViewMode] = useViewMode<ShopViewMode>('tienda', SHOP_VIEW_MODES, 'grid');
   const { cartCount, addToCart } = useCart();
+  const { user } = useAuth();
   const { favoriteIds, isFavorite, toggleFavorite } = useFavorites('productos');
 
   // Enlaces con ?category=… abren la tienda en esa categoría
@@ -93,6 +95,8 @@ export function useShopTab() {
   const { data: catalog = [], isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['store-products', categoryParam ?? 'all'],
     queryFn: () => getProducts(categoryParam),
+    // Al cambiar de categoría se queda lo anterior en pantalla hasta que llega lo nuevo (sin parpadeo)
+    placeholderData: keepPreviousData,
   });
 
   const products = useMemo(() => {
@@ -127,7 +131,9 @@ export function useShopTab() {
     isRefetching,
 
     cartCount,
-    quickAdd: (product: Product) => addToCart(product, 1),
+    quickAdd: (product: Product) => addToCart(product, 1) > 0,
+    /** El vendedor no puede comprar sus propios productos (el backend lo rechaza al pagar). */
+    canBuy: (product: Product) => !user || product.seller_id !== user.id,
     isFavorite,
     toggleFavorite,
   };

@@ -48,10 +48,12 @@ def get_product(db: Session, product_id: str):
     product = db.query(Product).filter(Product.id == product_id).first()
     return _attach_rating_info(db, product)
 
-def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None):
+def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None,
+                 include_unpublished: bool = False):
     query = db.query(Product)
-    # La vista pública solo muestra activos Y aprobados; el vendedor ve TODOS los suyos (también los pendientes).
-    if not seller_id:
+    # La vista pública (también filtrada por vendedor) solo muestra activos Y aprobados; el propio vendedor
+    # (`/products/seller/me`) pide `include_unpublished` para ver también los ocultos y los pendientes.
+    if not include_unpublished:
         query = query.filter(Product.is_active == True, Product.is_approved == True)
     if category:
         query = query.filter(Product.category_id == category) # Fixed category_id

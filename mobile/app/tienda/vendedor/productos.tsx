@@ -1,106 +1,126 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
+import { StyleSheet, View, FlatList, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Plus, Trash2, Eye, EyeOff, Package, SearchX, Star } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useSellerProducts } from '@/src/hooks/ecommerce/useSellerProducts';
+import { useSellerProducts, CATALOG_FILTERS } from '@/src/hooks/ecommerce/useSellerProducts';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
-import { Plus, Edit3, Trash2, Eye, EyeOff, Package } from 'lucide-react-native';
-import { Product } from '@/src/services/ecommerce';
-import { formatCurrency } from '@/src/utils/formatters';
+import SearchBar from '@/src/components/SearchBar';
+import FilterChip from '@/src/components/FilterChip';
+import IconButton from '@/src/components/IconButton';
+import Badge from '@/src/components/Badge';
+import { SkeletonList } from '@/src/components/Skeleton';
+import { MediaRow } from '@/src/components/MediaCard';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import type { Product } from '@/src/services/ecommerce';
+import { formatCurrency } from '@/src/utils/formatters';
+import { layout, spacing } from '@/constants/design';
+import { LOW_STOCK } from '@/src/features/tienda/ProductCard';
 
 export default function VendedorProductosScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const {
-        products,
-        filteredProducts,
-        isLoading,
-        handleDelete,
-        toggleProductStatus,
-    } = useSellerProducts();
+    const c = useSellerProducts();
+    const goNew = () => router.push('/tienda/vendedor/productos/nuevo');
+
+    const statusBadge = (p: Product) => {
+        if (p.is_approved === false) return <Badge label="En revisión" color={theme.info} size="sm" />;
+        if (!p.is_active) return <Badge label="Oculto" color={theme.textMuted} size="sm" />;
+        if (p.stock <= 0) return <Badge label="Agotado" color={theme.error} size="sm" />;
+        if (p.stock <= LOW_STOCK) return <Badge label={`Quedan ${p.stock}`} color={theme.warning} size="sm" />;
+        return null;
+    };
 
     const renderItem = ({ item }: { item: Product }) => (
-        <View style={[styles.productCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-            {item.image_url ? (
-                <Image source={{ uri: item.image_url }} style={styles.productImage} />
-            ) : (
-                <View style={[styles.productImage, { backgroundColor: theme.backgroundSecondary, justifyContent: 'center', alignItems: 'center' }]}>
-                    <Package size={28} color={theme.textMuted} />
-                </View>
-            )}
-            <View style={styles.productDetails}>
-                <View style={styles.productHeader}>
-                    <Text style={[styles.productName, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
-                    <TouchableOpacity
-                        onPress={() => toggleProductStatus(item.id, item.is_active)}
-                        accessibilityRole="button"
-                        accessibilityLabel={item.is_active ? 'Ocultar producto de la tienda' : 'Publicar producto en la tienda'}
-                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                        {item.is_active ? <Eye size={20} color={theme.primary} /> : <EyeOff size={20} color={theme.textMuted} />}
-                    </TouchableOpacity>
-                </View>
-
-                <Text style={[styles.productPrice, { color: theme.primary }]}>{formatCurrency(item.price)}</Text>
-                {item.is_approved === false ? (
-                    <Text style={{ color: theme.warning, fontSize: font.sm, fontWeight: '800' }}>En revisión · aún no visible en la tienda</Text>
-                ) : !item.is_active ? (
-                    <Text style={{ color: theme.textMuted, fontSize: font.sm, fontWeight: '800' }}>Oculto · no se vende</Text>
-                ) : null}
-
-                <View style={styles.stockRow}>
-                    <View style={[styles.stockBadge, { backgroundColor: item.stock > 0 ? theme.successLight : theme.errorLight }]}>
-                        <Text style={[styles.stockLabel, { color: item.stock > 0 ? theme.success : theme.error }]}>
-                            {item.stock > 0 ? `Stock: ${item.stock}` : 'Agotado'}
-                        </Text>
-                    </View>
-                    <View style={styles.actions}>
-                        <TouchableOpacity style={styles.iconBtn} accessibilityRole="button" accessibilityLabel="Editar producto" onPress={() => router.push(`/tienda/vendedor/productos/${item.id}` as any)}>
-                            <Edit3 size={18} color={theme.textMuted} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconBtn} accessibilityRole="button" accessibilityLabel="Eliminar producto" onPress={() => handleDelete(item.id)}>
-                            <Trash2 size={18} color={theme.error} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
-        </View>
+        <MediaRow
+            imageUrl={item.image_url}
+            fallbackIcon={Package}
+            title={item.name}
+            trailing={statusBadge(item)}
+            lines={[
+                { text: `${formatCurrency(item.price)} · ${item.stock} en existencia` },
+                ...(item.review_count > 0 ? [{ text: `${item.average_rating.toFixed(1)} · ${item.review_count} ${item.review_count === 1 ? 'opinión' : 'opiniones'}`, icon: Star }] : []),
+            ]}
+            onPress={() => router.push(`/tienda/vendedor/productos/${item.id}`)}
+            accessibilityLabel={`Editar ${item.name}`}
+            actions={
+                <>
+                    <IconButton
+                        icon={item.is_active ? Eye : EyeOff}
+                        accessibilityLabel={item.is_active ? `Ocultar ${item.name} de la tienda` : `Publicar ${item.name} en la tienda`}
+                        onPress={() => c.toggleProductStatus(item.id, item.is_active)}
+                        loading={c.togglingId === item.id}
+                        color={item.is_active ? theme.primary : theme.textMuted}
+                        size="sm"
+                    />
+                    <IconButton
+                        icon={Trash2}
+                        accessibilityLabel={`Eliminar ${item.name}`}
+                        onPress={() => c.handleDelete(item.id)}
+                        color={theme.error}
+                        size="sm"
+                    />
+                </>
+            }
+        />
     );
+
+    const header = c.products.length > 0 ? (
+        <View style={styles.header}>
+            <SearchBar value={c.searchQuery} onChangeText={c.setSearchQuery} placeholder="Buscar en tu catálogo..." />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
+                {CATALOG_FILTERS.filter((f) => f.key === 'todos' || c.counts[f.key] > 0).map((f) => (
+                    <FilterChip
+                        key={f.key}
+                        label={f.label}
+                        count={f.key === 'todos' ? undefined : c.counts[f.key]}
+                        active={c.filter === f.key}
+                        onPress={() => c.setFilter(f.key)}
+                    />
+                ))}
+            </ScrollView>
+        </View>
+    ) : null;
 
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="Mi Catálogo"
-                subtitle={`${products.length} Productos`}
-                actionIcon={Plus}
-                onAction={() => router.push('/tienda/vendedor/productos/nuevo' as any)}
+                title="Mi catálogo"
+                subtitle={`${c.products.length} ${c.products.length === 1 ? 'producto' : 'productos'}`}
+                actions={[{ icon: Plus, label: 'Publicar producto', onPress: goNew }]}
             />
 
-            {isLoading ? (
-                <View style={styles.center}>
-                    <LoadingOverlay />
-                </View>
+            {c.isLoading ? (
+                <View style={styles.list}><SkeletonList count={5} inset={false} /></View>
             ) : (
                 <FlatList
-            refreshControl={<AppRefreshControl />}
-                    data={filteredProducts}
+                    refreshControl={<AppRefreshControl />}
+                    data={c.filteredProducts}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
+                    ListHeaderComponent={header}
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
                     contentContainerStyle={styles.list}
-                    ListEmptyComponent={
+                    keyboardShouldPersistTaps="handled"
+                    ListEmptyComponent={c.products.length > 0 ? (
                         <EmptyState
-                            icon={<Package size={40} color={theme.textMuted} strokeWidth={1} />}
-                            title="Aún no tienes productos"
-                            subtitle="Publica tu primer producto con foto, precio y stock. Un admin lo revisa antes de mostrarlo en la tienda."
-                            actionLabel="Agregar producto"
-                            onAction={() => router.push('/tienda/vendedor/productos/nuevo' as any)}
+                            icon={<SearchX size={layout.icon.xl} color={theme.textMuted} />}
+                            title="Sin resultados"
+                            subtitle="Ningún producto coincide con la búsqueda o el filtro."
+                            actionLabel="Ver todos"
+                            onAction={() => { c.setFilter('todos'); c.setSearchQuery(''); }}
                         />
-                    }
+                    ) : (
+                        <EmptyState
+                            icon={<Package size={layout.icon.xl} color={theme.textMuted} strokeWidth={1.5} />}
+                            title="Aún no tienes productos"
+                            subtitle="Publica tu primer producto con foto, precio y existencias. Un admin lo revisa antes de mostrarlo en la tienda."
+                            actionLabel="Publicar producto"
+                            onAction={goNew}
+                        />
+                    )}
                 />
             )}
         </ScreenContainer>
@@ -108,17 +128,9 @@ export default function VendedorProductosScreen() {
 }
 
 const styles = StyleSheet.create({
-    list: { padding: spacing.xxl, paddingBottom: 100 },
-    productCard: { flexDirection: 'row', borderRadius: 24, padding: spacing.md, marginBottom: spacing.lg, borderWidth: 1, gap: spacing.lg },
-    productImage: { width: 90, height: 90, borderRadius: 16 },
-    productDetails: { flex: 1, justifyContent: 'space-between', paddingVertical: spacing.xs },
-    productHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-    productName: { fontSize: font.xl, fontWeight: '800', flex: 1, marginRight: spacing.sm },
-    productPrice: { fontSize: font.xxl, fontWeight: '800' },
-    stockRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    stockBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
-    stockLabel: { fontSize: font.sm, fontWeight: '800' },
-    actions: { flexDirection: 'row', gap: spacing.xs },
-    iconBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.huge },
+    header: { gap: spacing.md, marginBottom: spacing.md },
+    chipsScroll: { marginHorizontal: -layout.screenPadding },
+    chips: { gap: spacing.sm, paddingHorizontal: layout.screenPadding, alignItems: 'center' },
+    separator: { height: spacing.sm },
 });

@@ -73,47 +73,38 @@ export default function DataList<T>({
 }: DataListProps<T>) {
     const { theme } = useTheme();
 
-    if (isLoading) {
-        if (!skeleton) return <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
-        // El encabezado (buscador, filtros) se queda visible mientras cargan los elementos
-        return (
-            <View style={[styles.listContent, contentStyle, styles.emptyContainer]}>
-                {header}
-                {skeletonVariant === 'grid' ? <SkeletonGrid count={skeletonCount} /> : <SkeletonList count={skeletonCount} inset={false} />}
-            </View>
-        );
-    }
+    if (isLoading && !skeleton) return <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
 
-    if (data.length === 0 && !isLoading) {
-        // Un emoji/texto debe ir dentro de <Text> (RN falla si hay texto suelto dentro de <View>)
-        const iconElement =
-            typeof emptyIcon === 'string' ? (
-                <Text style={styles.emoji} accessibilityElementsHidden>{emptyIcon}</Text>
-            ) : (
-                emptyIcon
-            );
-
-        return (
-            <View style={[styles.listContent, contentStyle, styles.emptyContainer]}>
-                {header}
-                <EmptyState
-                    icon={iconElement}
-                    title={emptyTitle}
-                    subtitle={emptySubtitle}
-                    actionLabel={emptyActionLabel}
-                    onAction={onEmptyAction}
-                />
-            </View>
+    // Un emoji/texto debe ir dentro de <Text> (RN falla si hay texto suelto dentro de <View>)
+    const iconElement =
+        typeof emptyIcon === 'string' ? (
+            <Text style={styles.emoji} accessibilityElementsHidden>{emptyIcon}</Text>
+        ) : (
+            emptyIcon
         );
-    }
+
+    // Carga y vacío van dentro de la MISMA lista: así el encabezado (buscador, filtros) nunca se vuelve a montar
+    // y no pierde el foco del teclado ni la posición de los chips al cambiar de estado.
+    const placeholder = isLoading
+        ? (skeletonVariant === 'grid' ? <SkeletonGrid count={skeletonCount} /> : <SkeletonList count={skeletonCount} inset={false} />)
+        : (
+            <EmptyState
+                icon={iconElement}
+                title={emptyTitle}
+                subtitle={emptySubtitle}
+                actionLabel={emptyActionLabel}
+                onAction={onEmptyAction}
+            />
+        );
 
     return (
         <FlatList
-            data={data}
+            data={isLoading ? [] : data}
             renderItem={renderItem}
             contentContainerStyle={[styles.listContent, contentStyle]}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={header}
+            ListEmptyComponent={placeholder}
             refreshControl={
                 onRefresh ? (
                     <RefreshControl
@@ -133,9 +124,6 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
-    },
-    emptyContainer: {
-        flex: 1,
     },
     emoji: {
         fontSize: font.display,
