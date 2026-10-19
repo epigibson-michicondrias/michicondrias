@@ -772,3 +772,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `DevSettings.reload` en desarrollo). Hook `useUiScale`. Lo que siga con medidas numéricas sueltas (anchos/altos,
   tamaños de ícono en props) no escala.
 
+- **2026-10-19** — Compactación y Mis mascotas. Cabecera hero más baja (botones `IconButton size="sm"` de 38 px con
+  área táctil 44, título 19) y margen lateral 22 → 18 (`layout.screenPadding`) en 85 archivos. 85 estilos de
+  chips/pestañas/botones hechos a mano ahora centran su contenido; Directorio usa `FilterChip`. Mis mascotas con
+  selector de vista (`ViewModeToggle` + `useViewMode`, recordado por pantalla en `src/lib/prefs.ts`): cuadrícula
+  (2 columnas, 3 en ≥ 600 px, por defecto), lista y tarjetas (`src/features/mascotas/PetCards.tsx`). `capitalize`
+  ya respeta acentos ("Siamés").
