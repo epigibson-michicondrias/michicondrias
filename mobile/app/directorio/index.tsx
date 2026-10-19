@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ActivityIndicator, Linking } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ActivityIndicator, Linking, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicsAndVets } from '@/src/hooks/directorio/useClinicsAndVets';
@@ -28,6 +28,13 @@ export default function DirectorioIndexScreen() {
         setSearchQuery,
         filterService,
         setFilterService,
+        filterSpecialty,
+        setFilterSpecialty,
+        filterCity,
+        setFilterCity,
+        specialties,
+        cities,
+        hasActiveFilters,
         canRegister,
         isMounted,
         resultsCount,
@@ -251,31 +258,75 @@ export default function DirectorioIndexScreen() {
                 />
             </View>
 
-            {/* Filters (clinics only) */}
-            {activeTab === 'clinics' && (
-                <View style={styles.filterRow}>
-                    {[
-                        { key: 'all', label: 'Todas' },
-                        { key: '24h', label: '24 Horas' },
-                        { key: 'emergencia', label: 'Urgencias' },
-                    ].map(f => (
-                        <TouchableOpacity
-                            key={f.key}
-                            accessibilityRole="button"
-                            accessibilityState={{ selected: filterService === f.key }}
-                            style={[styles.filterChip, {
-                                backgroundColor: filterService === f.key ? theme.primary : theme.surface,
-                                borderColor: filterService === f.key ? theme.primary : theme.border,
-                            }]}
-                            onPress={() => setFilterService(f.key)}
-                        >
-                            <Text style={[styles.filterText, {
-                                color: filterService === f.key ? '#fff' : theme.text,
-                            }]}>{f.label}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            )}
+            {/* Filters — Doctoralia style: scrollable chips */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll} contentContainerStyle={styles.filterRow}>
+                {activeTab === 'clinics' ? (
+                    <>
+                        {[
+                            { key: 'all', label: 'Todas' },
+                            { key: '24h', label: '24 Horas' },
+                            { key: 'emergencia', label: 'Urgencias' },
+                        ].map(f => (
+                            <TouchableOpacity
+                                key={f.key}
+                                accessibilityRole="button"
+                                accessibilityState={{ selected: filterService === f.key }}
+                                style={[styles.filterChip, {
+                                    backgroundColor: filterService === f.key ? theme.primary : theme.surface,
+                                    borderColor: filterService === f.key ? theme.primary : theme.border,
+                                }]}
+                                onPress={() => setFilterService(f.key)}
+                            >
+                                <Text style={[styles.filterText, { color: filterService === f.key ? '#fff' : theme.text }]}>{f.label}</Text>
+                            </TouchableOpacity>
+                        ))}
+                        {cities.length > 1 && (
+                            <TouchableOpacity
+                                accessibilityRole="button"
+                                accessibilityState={{ selected: filterCity !== 'all' }}
+                                style={[styles.filterChip, {
+                                    backgroundColor: filterCity !== 'all' ? theme.primary : theme.surface,
+                                    borderColor: filterCity !== 'all' ? theme.primary : theme.border,
+                                }]}
+                                onPress={() => {
+                                    const idx = cities.indexOf(filterCity);
+                                    setFilterCity(cities[(idx + 1) % cities.length]);
+                                }}
+                            >
+                                <MapPin size={14} color={filterCity !== 'all' ? '#fff' : theme.textMuted} />
+                                <Text style={[styles.filterText, { color: filterCity !== 'all' ? '#fff' : theme.text }]}>
+                                    {filterCity === 'all' ? 'Ciudad' : filterCity}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        {specialties.map(s => (
+                            <TouchableOpacity
+                                key={s}
+                                accessibilityRole="button"
+                                accessibilityState={{ selected: filterSpecialty === s }}
+                                style={[styles.filterChip, {
+                                    backgroundColor: filterSpecialty === s ? theme.primary : theme.surface,
+                                    borderColor: filterSpecialty === s ? theme.primary : theme.border,
+                                }]}
+                                onPress={() => setFilterSpecialty(s)}
+                            >
+                                <Text style={[styles.filterText, { color: filterSpecialty === s ? '#fff' : theme.text }]}>
+                                    {s === 'all' ? 'Todas las especialidades' : s}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </>
+                )}
+            </ScrollView>
+
+            {/* Result count */}
+            <Text style={[styles.resultCount, { color: theme.textMuted }]}>
+                {resultsCount} resultado{resultsCount !== 1 ? 's' : ''}
+                {hasActiveFilters ? ' · filtros activos' : ''}
+            </Text>
 
             {/* Mi Clínica Banner */}
             {isMounted && canRegister && (
@@ -321,7 +372,6 @@ export default function DirectorioIndexScreen() {
         </>
     );
 
-    const hasActiveFilters = searchQuery.trim() !== '' || filterService !== 'all';
     const emptyTitle = hasActiveFilters ? 'Sin resultados' : (activeTab === 'clinics' ? 'Aún no hay clínicas registradas' : 'Aún no hay especialistas registrados');
     const emptySubtitle = hasActiveFilters ? 'No encontramos lo que buscas. Intenta con otros términos.' : 'Cuando se registren aparecerán aquí.';
 
@@ -372,6 +422,8 @@ export default function DirectorioIndexScreen() {
 }
 
 const styles = StyleSheet.create({
+    filterScroll: { flexGrow: 0, marginBottom: 8 },
+    resultCount: { fontSize: 12, fontWeight: '600', paddingHorizontal: 24, marginBottom: 8 },
     container: { flex: 1 },
     header: {
         paddingTop: 60,
