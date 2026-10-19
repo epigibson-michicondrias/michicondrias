@@ -59,9 +59,9 @@ export default function ExplorarScreen() {
         {/* Search Bar */}
         <View style={styles.searchContainer}>
           <TouchableOpacity activeOpacity={0.85} accessibilityRole="search" accessibilityLabel="Buscar mascotas, clínicas y productos" onPress={() => router.push('/busqueda' as any)} style={[styles.searchBar, { backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.9)', borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(124,58,237,0.15)' }]}>
-            <Search size={20} color={isDark ? 'rgba(255,255,255,0.5)' : '#94a3b8'} />
+            <Search size={20} color={isDark ? 'rgba(255,255,255,0.5)' : theme.textMuted} />
             {/* Text (no TextInput): el input readonly interceptaba el clic en web y no navegaba */}
-            <Text style={[styles.searchInput, { color: isDark ? 'rgba(255,255,255,0.4)' : '#94a3b8' }]}>
+            <Text style={[styles.searchInput, { color: isDark ? 'rgba(255,255,255,0.4)' : theme.textMuted }]}>
               Buscar mascotas, clínicas, productos...
             </Text>
           </TouchableOpacity>
@@ -95,11 +95,11 @@ export default function ExplorarScreen() {
                   },
                 ]}
               >
-                <CatIcon size={16} color={isSelected ? '#fff' : cat.color} />
+                <CatIcon size={16} color={isSelected ? theme.onPrimary : cat.color} />
                 <Text
                   style={[
                     styles.categoryLabel,
-                    { color: isSelected ? '#fff' : theme.text },
+                    { color: isSelected ? theme.onPrimary : theme.text },
                   ]}
                 >
                   {cat.label}
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     elevation: 8,
-    shadowColor: '#7c3aed',
+    shadowColor: '#6366f1',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 15,

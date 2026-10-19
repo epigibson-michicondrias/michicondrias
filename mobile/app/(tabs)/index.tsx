@@ -61,7 +61,7 @@ export default function DashboardScreen() {
         {/* ─── Top Bar ─── */}
         <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
           <View style={styles.topLogo}>
-            <Sparkles size={16} color="#e9c883" />
+            <Sparkles size={16} color={theme.accent} />
             <Text style={styles.logoText}>MICHICONDRIAS</Text>
           </View>
           <TouchableOpacity
@@ -70,10 +70,10 @@ export default function DashboardScreen() {
             accessibilityRole="button"
             accessibilityLabel={unreadNotifications > 0 ? `Notificaciones, ${unreadNotifications} sin leer` : 'Notificaciones'}
           >
-            <Bell size={24} color="#fff" />
+            <Bell size={24} color={theme.onHero} />
             {unreadNotifications > 0 && (
               <View style={[styles.notifBadge, { backgroundColor: theme.error }]}>
-                <Text style={styles.notifBadgeText}>{unreadNotifications > 9 ? '9+' : unreadNotifications}</Text>
+                <Text style={[styles.notifBadgeText, { color: theme.onHero }]}>{unreadNotifications > 9 ? '9+' : unreadNotifications}</Text>
               </View>
             )}
           </TouchableOpacity>
@@ -100,7 +100,7 @@ export default function DashboardScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Ir a tu perfil"
               >
-                <LinearGradient colors={['#f3dca0', '#c9a257']} style={styles.avatarBorder}>
+                <LinearGradient colors={[theme.accent, theme.accent]} style={styles.avatarBorder}>
                   <View style={[styles.avatarInner, { overflow: 'hidden' }]}>
                     {avatarUrl ? (
                       <Image source={{ uri: avatarUrl }} style={{ width: '100%', height: '100%' }} accessibilityLabel="Tu foto de perfil" />
@@ -117,12 +117,12 @@ export default function DashboardScreen() {
             {/* Stats strip */}
             <View style={styles.statsStrip}>
               <TouchableOpacity style={styles.statItem} onPress={() => router.push('/mascotas')} accessibilityRole="button" accessibilityLabel={`${pets.length} mascotas`}>
-                <Text style={styles.statVal}>{pets.length}</Text>
+                <Text style={[styles.statVal, { color: theme.onHero }]}>{pets.length}</Text>
                 <Text style={styles.statLab}>Mascotas</Text>
               </TouchableOpacity>
               <View style={styles.statDivider} />
               <TouchableOpacity style={styles.statItem} onPress={() => router.push('/directorio/citas' as any)} accessibilityRole="button" accessibilityLabel="Próximas citas">
-                <Text style={styles.statVal}>{appointmentsLoading ? '–' : upcomingAppointments.length}</Text>
+                <Text style={[styles.statVal, { color: theme.onHero }]}>{appointmentsLoading ? '–' : upcomingAppointments.length}</Text>
                 <Text style={styles.statLab}>Citas</Text>
               </TouchableOpacity>
 
@@ -246,9 +246,9 @@ export default function DashboardScreen() {
                     style={styles.petOverlay}
                   />
                   <View style={styles.petInfo}>
-                    <Text style={styles.petName}>{item.name}</Text>
+                    <Text style={[styles.petName, { color: theme.onHero }]}>{item.name}</Text>
                     <View style={styles.petTag}>
-                      <Text style={styles.petTagText}>{item.species}</Text>
+                      <Text style={[styles.petTagText, { color: theme.onHero }]}>{item.species}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -323,13 +323,13 @@ export default function DashboardScreen() {
                 Agenda tu primera cita con un veterinario
               </Text>
               <View style={[styles.emptyCitasBtn, { backgroundColor: theme.primary }]}>
-                <Text style={styles.emptyCitasBtnText}>Agendar tu primera cita</Text>
+                <Text style={[styles.emptyCitasBtnText, { color: theme.onPrimary }]}>Agendar tu primera cita</Text>
               </View>
             </TouchableOpacity>
           ) : (
             <View style={styles.citasList}>
               {upcomingAppointments.map((appt) => {
-                const statusColor = STATUS_COLORS[appt.status] || '#94a3b8';
+                const statusColor = STATUS_COLORS[appt.status] || theme.textMuted;
                 const statusLabel = STATUS_LABELS[appt.status] || appt.status;
                 return (
                   <TouchableOpacity
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   topLogo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  logoText: { fontSize: 13, fontWeight: '800', color: '#f5f1e8', letterSpacing: 3 },
+  logoText: { fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.7)', letterSpacing: 3 },
   notifBadge: {
     position: 'absolute',
     top: -spacing.xs,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  notifBadgeText: { ...type.label, letterSpacing: 0, color: '#fff' }, // blanco como el resto del hero (siempre oscuro)
+  notifBadgeText: { ...type.label, letterSpacing: 0 }, // color: theme.onHero (inline)
 
   /* hero welcome */
   heroContainer: { paddingHorizontal: 24, marginTop: 30 },
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   statItem: { alignItems: 'center', flex: 1 },
-  statVal: { fontSize: 18, fontWeight: '900', color: '#fff' },
+  statVal: { fontSize: 18, fontWeight: '900' }, // color: theme.onHero (inline)
   statLab: { fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.85)', marginTop: 2 },
   statDivider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.2)' },
 
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   petImage: { ...StyleSheet.absoluteFillObject },
   petOverlay: { ...StyleSheet.absoluteFillObject },
   petInfo: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16 },
-  petName: { fontSize: 16, fontWeight: '900', color: '#fff' },
+  petName: { fontSize: 16, fontWeight: '900' }, // color: theme.onHero (inline)
   petTag: {
     backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 8,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: 4,
   },
-  petTagText: { fontSize: 9, fontWeight: '800', color: '#fff', textTransform: 'uppercase' },
+  petTagText: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase' }, // color: theme.onHero (inline)
   emptyPets: {
     marginHorizontal: 24,
     height: 180,
@@ -600,5 +600,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 16,
   },
-  emptyCitasBtnText: { fontSize: 13, fontWeight: '800', color: '#fff' },
+  emptyCitasBtnText: { fontSize: 13, fontWeight: '800' }, // color: theme.onPrimary (inline)
 });
