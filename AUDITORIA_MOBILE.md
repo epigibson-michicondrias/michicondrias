@@ -1042,7 +1042,7 @@ Pantallas con más deuda: `(tabs)/index` (605 l.), `adopciones/solicitar/[id]`, 
 `adopciones/nuevo`, `petfriendly/[id]` (615 l.), `admin/moderacion`, `paseadores/[id]`, `admin/usuarios`, `(tabs)/explorar`.
 
 ### Revisión de P0 abiertos (en código)
-- [x] Directorio: cancelar cita ya manda `{cancellation_reason}`; `vet_id` ya viaja al agendar desde el especialista.
+- [x] Directorio: cancelar cita ya manda `{cancellation_reason}`. ~~`vet_id` ya viaja~~: en realidad `useBookAppointment` lo ignoraba; ✅ corregido 2026-10-19 (se envía en `createAppointment`).
 - [x] Perfil: `paleta` y `kyc` ya no existen; Carnet: `recordatorios` ya no existe.
 - [x] **P0 Paseadores** ✅ 2026-10-19: el modal arranca con `walkDate = ''` → `new Date('T12:00:00')` = *Invalid Date* en el selector (`paseadores/[id].tsx:199`).
 - [x] **P0 Cuidadores** ✅ 2026-10-19: filtros y etiquetas usan `daycare`/`boarding`, el backend usa `hosting`/`visiting`/`both` → los filtros no devuelven nada (`cuidadores/index.tsx:77,151`).
@@ -1077,4 +1077,4 @@ Pantallas con más deuda: `(tabs)/index` (605 l.), `adopciones/solicitar/[id]`, 
 - [x] Paso 8: 17 archivos sin uso borrados. Pendiente: 5 dependencias (con el próximo APK).
 - Por decidir con el usuario: fusionar `adopciones/solicitudes` y `ver-solicitudes`; KYC de adopción en el backend;
   si el admin debe ver el collar GPS en Perdidas.
-
+- [x] **P0 Especialista** ✅ 2026-10-19: con veterinario sin clínica, «Agendar» llevaba a `agendar/independiente` (clínica inexistente). Ahora la acción es contactarlo (no hay agenda en línea sin clínica).

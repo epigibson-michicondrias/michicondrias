@@ -1,269 +1,239 @@
 /**
- * Detalle de especialista (vet) — estilo Doctoralia.
- * Hero con foto + especialidad + rating + cédula · acciones · servicios · reseñas · CTA fijo.
- * Diferenciadores: videoconsulta sin clínica, cédula profesional, clínica de práctica.
+ * Perfil de especialista: datos, contacto rápido, clínica donde atiende, servicios (agendar) y reseñas.
  */
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, Linking, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Phone, Star, ShieldCheck, Calendar, Share2, MessageCircle, Building2, ChevronRight, UserX, Stethoscope } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useVetDetail } from '@/src/hooks/directorio/useVetDetail';
 import { useVetReviews } from '@/src/hooks/directorio/useVetReviews';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import BackButton from '@/src/components/BackButton';
-import { Phone, Mail, Award, ShieldCheck, Calendar, Briefcase, MapPin, Star, Share2, Heart, MessageCircle, Video, Navigation } from 'lucide-react-native';
-import { ProviderSection, ProviderBio, ProviderReviews, ProviderReviewForm, ProviderFooter, ProviderStats } from '@/src/features/proveedor/ProviderProfile';
-import { spacing, radius, type, layout, shadow } from '@/constants/design';
+import { DetailTopBar, DetailFooter } from '@/src/components/layout/DetailLayout';
+import IconButton, { type IconComponent } from '@/src/components/IconButton';
+import Button from '@/src/components/Button';
+import Badge from '@/src/components/Badge';
+import ListRow from '@/src/components/ListRow';
+import EmptyState from '@/src/components/EmptyState';
+import { Skeleton } from '@/src/components/Skeleton';
+import ReviewsSection from '@/src/components/reviews/ReviewsSection';
+import { ProviderSection, ProviderBio } from '@/src/features/proveedor/ProviderProfile';
+import { formatCurrency } from '@/src/utils/formatters';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
+
+function QuickAction({ icon: Icon, label, color, onPress }: { icon: IconComponent; label: string; color: string; onPress: () => void }) {
+    const { theme } = useTheme();
+    return (
+        <TouchableOpacity
+            style={[styles.quick, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+            onPress={onPress}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+        >
+            <Icon size={layout.icon.md} color={color} />
+            <Text style={[type.caption, styles.quickLabel, { color: theme.text }]}>{label}</Text>
+        </TouchableOpacity>
+    );
+}
 
 export default function SpecialistDetailScreen() {
-    const router = useRouter();
     const { theme } = useTheme();
-    const { vetId, specialist, isLoading, isError, refetch, clinic, services, canReview } = useVetDetail();
-    const { rating, reviews, handleCreateReview, isCreatingReview } = useVetReviews(vetId);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const insets = useSafeAreaInsets();
+    const v = useVetDetail();
+    const { specialist, clinic, services } = v;
+    const { rating, reviews, handleCreateReview, isCreatingReview } = useVetReviews(v.vetId);
 
-    const handleBookConsultation = (serviceId?: string) => {
-        if (specialist?.clinic_id) {
-            router.push({
-                pathname: '/directorio/citas/agendar/[clinic_id]',
-                params: { clinic_id: specialist.clinic_id, vet_id: specialist.id, service_id: serviceId || undefined },
-            } as any);
-        } else {
-            router.push({
-                pathname: '/directorio/citas/agendar/independiente',
-                params: { vet_id: specialist?.id, service_id: serviceId || undefined, virtual: '1' },
-            } as any);
-        }
-    };
+    const topBar = (
+        <DetailTopBar
+            onBack={v.goBack}
+            actions={specialist ? <IconButton icon={Share2} accessibilityLabel="Compartir perfil" onPress={v.share} variant="surface" size="sm" /> : undefined}
+        />
+    );
 
-    const callVet = () => {
-        if (specialist?.phone) Linking.openURL(`tel:${specialist.phone}`).catch(() => {});
-    };
-    const openWhatsApp = () => {
-        if (specialist?.phone) {
-            const phone = specialist.phone.replace(/[^0-9]/g, '');
-            Linking.openURL(`https://wa.me/52${phone}`).catch(() => {});
-        }
-    };
-    const shareVet = () => {
-        const text = `${specialist?.first_name} ${specialist?.last_name} — ${specialist?.specialty || 'Médico Veterinario'}`;
-        if (typeof navigator !== 'undefined' && navigator.share) {
-            navigator.share({ title: 'Especialista', text }).catch(() => {});
-        }
-    };
-
-    if (isLoading) {
+    if (v.isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Cargando..." />
-                <View style={styles.loadingBox}><ActivityIndicator size="large" color={theme.primary} /></View>
+                <View style={[styles.content, { paddingTop: insets.top + spacing.huge }]}>
+                    <Skeleton width={88} height={88} borderRadius={44} style={styles.center} />
+                    <Skeleton width="55%" height={24} style={styles.center} />
+                    <Skeleton height={56} />
+                    <Skeleton height={140} />
+                </View>
+                {topBar}
             </ScreenContainer>
         );
     }
 
     if (!specialist) {
         return (
-            <ScreenContainer>
-                <ScreenHeader title="Especialista" />
-                <View style={styles.loadingBox}>
-                    <Text style={{ color: theme.textMuted }}>{isError ? 'No se pudo cargar el especialista' : 'Especialista no encontrado'}</Text>
-                </View>
+            <ScreenContainer style={styles.centerScreen}>
+                <EmptyState
+                    icon={<UserX size={layout.icon.xl} color={theme.textMuted} />}
+                    title={v.isError ? 'No pudimos cargar este perfil' : 'No encontramos a este especialista'}
+                    subtitle={v.isError ? 'Revisa tu conexión e inténtalo de nuevo.' : 'Puede que ya no esté en el directorio.'}
+                    actionLabel={v.isError ? 'Reintentar' : 'Ver directorio'}
+                    onAction={v.isError ? () => v.refetch() : v.goBack}
+                />
+                {topBar}
             </ScreenContainer>
         );
     }
 
+    const total = rating?.total_reviews ?? 0;
+
     return (
         <ScreenContainer>
-            {/* Hero */}
-            <View style={[styles.hero, { backgroundColor: theme.secondary + '08' }]}>
-                <BackButton onPress={() => router.back()} style={styles.backBtn} />
-                <TouchableOpacity style={styles.shareBtn} onPress={shareVet} accessibilityRole="button" accessibilityLabel="Compartir">
-                    <Share2 size={20} color={theme.textMuted} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.favBtn} onPress={() => setIsFavorite((v) => !v)} accessibilityRole="button" accessibilityLabel={isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}>
-                    <Heart size={20} color={isFavorite ? theme.error : theme.textMuted} fill={isFavorite ? theme.error : 'transparent'} />
-                </TouchableOpacity>
-
-                <View style={[styles.avatarContainer, { borderColor: theme.secondary }]}>
-                    {specialist.photo_url ? (
-                        <Image source={{ uri: specialist.photo_url }} style={styles.avatar} />
-                    ) : (
-                        <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary + '15' }]}>
-                            <Text style={[styles.avatarInitial, { color: theme.secondary }]}>{specialist.first_name.charAt(0)}</Text>
-                        </View>
-                    )}
-                </View>
-                <Text style={[styles.heroName, { color: theme.text }]}>{specialist.first_name} {specialist.last_name}</Text>
-                <Text style={[styles.heroSpecialty, { color: theme.secondary }]}>{specialist.specialty || 'Médico Veterinario'}</Text>
-
-                <View style={styles.heroRating}>
-                    <Star size={16} color={theme.warning} fill={theme.warning} />
-                    <Text style={[styles.heroRatingText, { color: theme.text }]}>
-                        {rating?.total_reviews ? Number(rating.average_rating || 0).toFixed(1) : 'Nuevo'}
-                    </Text>
-                    <Text style={[styles.heroRatingCount, { color: theme.textMuted }]}>
-                        ({rating?.total_reviews || 0} reseña{rating?.total_reviews === 1 ? '' : 's'})
-                    </Text>
-                </View>
-
-                {!!specialist.license_number && (
-                    <View style={[styles.badge, { backgroundColor: theme.success + '15', borderColor: theme.success + '30' }]}>
-                        <ShieldCheck size={12} color={theme.success} />
-                        <Text style={[styles.badgeText, { color: theme.success }]}>Cédula: {specialist.license_number}</Text>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.huge }]}>
+                <View style={styles.hero}>
+                    <View style={[styles.avatar, { backgroundColor: theme.secondary + tint.soft }]}>
+                        {specialist.photo_url
+                            ? <Image source={{ uri: specialist.photo_url }} style={styles.fill} accessibilityLabel={`Foto de ${v.fullName}`} />
+                            : <Text style={[type.display, { color: theme.secondary }]}>{specialist.first_name.charAt(0).toUpperCase()}</Text>}
                     </View>
-                )}
-            </View>
+                    <Text style={[type.h1, styles.centerText, { color: theme.text }]}>{v.fullName}</Text>
+                    <Text style={[type.subtitle, { color: theme.secondary }]}>{specialist.specialty || 'Médico veterinario'}</Text>
+                    <View style={styles.meta}>
+                        <Star size={layout.icon.sm} color={theme.accent} fill={total > 0 ? theme.accent : 'transparent'} />
+                        <Text style={[type.bodyStrong, { color: theme.text }]}>{total > 0 ? Number(rating!.average_rating || 0).toFixed(1) : 'Nuevo'}</Text>
+                        <Text style={[type.caption, { color: theme.textMuted }]}>· {total} {total === 1 ? 'reseña' : 'reseñas'}</Text>
+                    </View>
+                    {specialist.license_number ? (
+                        <Badge label={`Cédula ${specialist.license_number}`} color={theme.success} size="sm" icon={<ShieldCheck size={layout.icon.xs} color={theme.success} />} />
+                    ) : null}
+                </View>
 
-            {/* Quick Actions */}
-            <View style={styles.quickActions}>
-                {specialist.phone && (
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]} onPress={callVet} accessibilityRole="button" accessibilityLabel="Llamar">
-                        <Phone size={20} color={theme.primary} />
-                        <Text style={[styles.actionLabel, { color: theme.text }]}>Llamar</Text>
-                    </TouchableOpacity>
-                )}
-                {specialist.phone && (
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]} onPress={openWhatsApp} accessibilityRole="button" accessibilityLabel="WhatsApp">
-                        <MessageCircle size={20} color={theme.success} />
-                        <Text style={[styles.actionLabel, { color: theme.text }]}>WhatsApp</Text>
-                    </TouchableOpacity>
-                )}
-                {clinic && (
-                    <TouchableOpacity
-                        style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
-                        onPress={() => router.push(`/directorio/clinica/${clinic.id}` as any)}
-                        accessibilityRole="button"
-                        accessibilityLabel="Ver clínica"
-                    >
-                        <Briefcase size={20} color={theme.info} />
-                        <Text style={[styles.actionLabel, { color: theme.text }]}>Clínica</Text>
-                    </TouchableOpacity>
-                )}
-                <TouchableOpacity
-                    style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}
-                    onPress={() => handleBookConsultation()}
-                    accessibilityRole="button"
-                    accessibilityLabel={specialist.clinic_id ? 'Agendar cita' : 'Agendar videoconsulta'}
-                >
-                    {specialist.clinic_id ? <Calendar size={20} color={theme.primary} /> : <Video size={20} color={theme.primary} />}
-                    <Text style={[styles.actionLabel, { color: theme.text }]}>{specialist.clinic_id ? 'Agendar' : 'Video'}</Text>
-                </TouchableOpacity>
-            </View>
+                {v.call || clinic ? (
+                    <View style={styles.quickRow}>
+                        {v.call ? <QuickAction icon={Phone} label="Llamar" color={theme.primary} onPress={v.call} /> : null}
+                        {v.whatsapp ? <QuickAction icon={MessageCircle} label="WhatsApp" color={theme.success} onPress={v.whatsapp} /> : null}
+                        {clinic ? <QuickAction icon={Building2} label="Su clínica" color={theme.info} onPress={v.openClinic} /> : null}
+                    </View>
+                ) : null}
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* Stats */}
-                <ProviderStats items={[
-                    { value: String(rating?.total_reviews || 0), label: 'Reseñas' },
-                    { value: clinic?.name || 'Video', label: specialist.clinic_id ? 'Clínica' : 'Modalidad' },
-                    { value: services.length ? String(services.length) : '—', label: 'Servicios' },
-                ]} />
-
-                {/* Bio */}
-                {!!specialist.bio && (
-                    <ProviderSection title="Biografía Profesional">
+                {specialist.bio ? (
+                    <ProviderSection title="Sobre mí">
                         <ProviderBio text={specialist.bio} />
                     </ProviderSection>
-                )}
+                ) : null}
 
-                {/* Clínica de práctica */}
-                {clinic && (
-                    <ProviderSection title="Clínica de Práctica">
-                        <TouchableOpacity
-                            style={styles.clinicRow}
-                            onPress={() => router.push(`/directorio/clinica/${clinic.id}` as any)}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Ver ${clinic.name}`}
-                        >
-                            <View style={[styles.clinicIcon, { backgroundColor: theme.primary + '15' }]}>
-                                <MapPin size={20} color={theme.primary} />
+                {clinic ? (
+                    <ListRow
+                        icon={Building2}
+                        label={clinic.name}
+                        desc={[clinic.address, clinic.city].filter(Boolean).join(', ') || 'Ver clínica'}
+                        onPress={v.openClinic}
+                    />
+                ) : null}
+
+                {v.canBook ? (
+                    <ProviderSection title="Servicios">
+                        {services.length === 0 ? (
+                            <Text style={[type.body, { color: theme.textMuted }]}>Aún no hay servicios para agendar en línea.</Text>
+                        ) : (
+                            <View style={styles.services}>
+                                {services.map((service) => (
+                                    <TouchableOpacity
+                                        key={service.id}
+                                        style={[styles.service, { borderColor: theme.cardBorder }]}
+                                        onPress={() => v.book(service.id)}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={`Agendar ${service.name}`}
+                                    >
+                                        <View style={styles.flex}>
+                                            <Text style={[type.bodyStrong, { color: theme.text }]}>{service.name}</Text>
+                                            <Text style={[type.caption, { color: theme.textMuted }]}>{service.duration_minutes} min</Text>
+                                        </View>
+                                        <Text style={[type.bodyStrong, { color: theme.primary }]}>
+                                            {service.price ? formatCurrency(Number(service.price)) : 'Consultar'}
+                                        </Text>
+                                        <ChevronRight size={layout.icon.sm} color={theme.textMuted} />
+                                    </TouchableOpacity>
+                                ))}
                             </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.clinicName, { color: theme.text }]}>{clinic.name}</Text>
-                                <Text style={[styles.clinicAddress, { color: theme.textMuted }]}>
-                                    {clinic.address ? `${clinic.address}, ` : ''}{clinic.city || ''}
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
+                        )}
                     </ProviderSection>
+                ) : (
+                    <View style={[styles.note, { backgroundColor: theme.info + tint.faint }]}>
+                        <Stethoscope size={layout.icon.sm} color={theme.info} />
+                        <Text style={[type.body, styles.flex, { color: theme.text }]}>
+                            Atiende por su cuenta: contáctalo directo para acordar la consulta.
+                        </Text>
+                    </View>
                 )}
 
-                {/* Servicios */}
-                <ProviderSection title={specialist.clinic_id ? 'Servicios disponibles' : 'Consultorio Virtual'}>
-                    {services.length === 0 ? (
-                        <Text style={{ color: theme.textMuted }}>
-                            {specialist.clinic_id
-                                ? 'No hay servicios listados actualmente.'
-                                : 'Videoconsulta disponible. Agenda directamente con el especialista.'}
-                        </Text>
-                    ) : (
-                        services.map((service) => (
-                            <TouchableOpacity
-                                key={service.id}
-                                style={[styles.serviceItem, { backgroundColor: theme.background, borderColor: theme.borderLight }]}
-                                onPress={() => handleBookConsultation(service.id)}
-                                accessibilityRole="button"
-                                accessibilityLabel={`Agendar ${service.name}`}
-                            >
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.serviceName, { color: theme.text }]}>{service.name}</Text>
-                                    <Text style={[styles.serviceDuration, { color: theme.textMuted }]}>{service.duration_minutes} min</Text>
-                                </View>
-                                <View style={styles.serviceRight}>
-                                    <Text style={[styles.servicePrice, { color: theme.primary }]}>
-                                        {service.price ? Number(service.price).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) : 'Consultar'}
-                                    </Text>
-                                    <Calendar size={18} color={theme.primary} />
-                                </View>
-                            </TouchableOpacity>
-                        ))
-                    )}
-                </ProviderSection>
-
-                {/* Reseñas */}
-                <ProviderSection title="Reseñas y Opiniones">
-                    <ProviderReviews reviews={reviews.map((r: any) => ({ id: r.id, user_name: 'Usuario', rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
-                    {canReview ? <ProviderReviewForm onSubmit={(rating, comment) => { handleCreateReview(rating, comment || undefined); }} isSubmitting={isCreatingReview} /> : null}
-                </ProviderSection>
+                <ReviewsSection
+                    title="Opiniones"
+                    average={Number(rating?.average_rating ?? 0)}
+                    count={total}
+                    reviews={reviews.map((r: any) => ({ id: r.id, rating: r.rating, comment: r.comment, created_at: r.created_at, author_name: 'Cliente' }))}
+                    canReview={v.canReview}
+                    submitting={isCreatingReview}
+                    onSubmit={(value, comment) => handleCreateReview(value, comment || undefined)}
+                    formPrompt="¿Cómo te atendió?"
+                    style={styles.reviews}
+                />
             </ScrollView>
 
-            <ProviderFooter
-                label={specialist.clinic_id ? 'Agendar Consulta' : 'Agendar Videoconsulta'}
-                onPress={() => handleBookConsultation()}
-                icon={specialist.clinic_id ? <Calendar size={20} color={theme.onPrimary} /> : <Video size={20} color={theme.onPrimary} />}
-            />
+            {v.canBook ? (
+                <DetailFooter>
+                    <Button label="Agendar cita" icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />} onPress={() => v.book()} size="lg" style={styles.flex} />
+                </DetailFooter>
+            ) : v.whatsapp || v.call ? (
+                <DetailFooter>
+                    <Button
+                        label={v.whatsapp ? 'Escribir por WhatsApp' : 'Llamar'}
+                        icon={v.whatsapp ? <MessageCircle size={layout.icon.sm} color={theme.onPrimary} /> : <Phone size={layout.icon.sm} color={theme.onPrimary} />}
+                        onPress={(v.whatsapp ?? v.call)!}
+                        size="lg"
+                        style={styles.flex}
+                    />
+                </DetailFooter>
+            ) : null}
+            {topBar}
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    hero: { alignItems: 'center', paddingTop: spacing.xl + 40, paddingBottom: spacing.xl, paddingHorizontal: spacing.xl },
-    backBtn: { position: 'absolute', top: spacing.lg, left: spacing.lg },
-    shareBtn: { position: 'absolute', top: spacing.lg, right: spacing.xl + 36, width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    favBtn: { position: 'absolute', top: spacing.lg, right: spacing.lg, width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    avatarContainer: { width: 96, height: 96, borderRadius: 48, borderWidth: 2, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.md, overflow: 'hidden' },
-    avatar: { width: 96, height: 96, borderRadius: 48 },
-    avatarPlaceholder: { width: 96, height: 96, borderRadius: 48, justifyContent: 'center', alignItems: 'center' },
-    avatarInitial: { fontSize: 36, fontWeight: '900' },
-    heroName: { fontSize: type.h1.fontSize, fontWeight: '900', textAlign: 'center', marginBottom: spacing.xs },
-    heroSpecialty: { fontSize: type.subtitle.fontSize, fontWeight: '700', marginBottom: spacing.sm },
-    heroRating: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.md },
-    heroRatingText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
-    heroRatingCount: { fontSize: type.caption.fontSize },
-    badge: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.pill, borderWidth: 1 },
-    badgeText: { fontSize: type.caption.fontSize, fontWeight: '700' },
-    quickActions: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.lg },
-    actionBtn: { flex: 1, alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.md, borderRadius: radius.lg, borderWidth: 1, flexDirection: 'row', justifyContent: 'center' },
-    actionLabel: { fontSize: type.caption.fontSize, fontWeight: '600' },
-    scrollContent: { paddingHorizontal: spacing.lg, paddingBottom: 100 },
-    clinicRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    clinicIcon: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    clinicName: { fontSize: type.subtitle.fontSize, fontWeight: '700' },
-    clinicAddress: { fontSize: type.caption.fontSize, marginTop: spacing.xxs },
-    serviceItem: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, borderRadius: radius.md, borderWidth: 1, marginBottom: spacing.sm },
-    serviceName: { fontSize: type.subtitle.fontSize, fontWeight: '700' },
-    serviceDuration: { fontSize: type.caption.fontSize, marginTop: spacing.xxs },
-    serviceRight: { alignItems: 'flex-end', gap: spacing.xs },
-    servicePrice: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
+    flex: { flex: 1 },
+    fill: { width: '100%', height: '100%' },
+    center: { alignSelf: 'center' },
+    centerText: { textAlign: 'center' },
+    centerScreen: { justifyContent: 'center' },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
+    hero: { alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
+    avatar: {
+        width: layout.iconBox.lg * 2,
+        height: layout.iconBox.lg * 2,
+        borderRadius: layout.iconBox.lg,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: spacing.sm,
+    },
+    meta: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    quickRow: { flexDirection: 'row', gap: spacing.sm },
+    quick: {
+        flex: 1,
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.md,
+        minHeight: layout.minTouch,
+        borderRadius: radius.md,
+        borderWidth: 1,
+    },
+    quickLabel: { fontWeight: '600' },
+    services: { gap: spacing.sm },
+    service: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
+        padding: spacing.md,
+        minHeight: layout.minTouch,
+        borderRadius: radius.md,
+        borderWidth: 1,
+    },
+    note: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
+    reviews: { marginHorizontal: 0, marginBottom: 0 },
 });

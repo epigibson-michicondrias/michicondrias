@@ -19,8 +19,10 @@ export function toLocalYMD(d: Date): string {
 }
 
 export function useBookAppointment() {
-    const { clinic_id, service_id, reschedule_id, pet_id } = useLocalSearchParams<{
+    const { clinic_id, service_id, reschedule_id, pet_id, vet_id } = useLocalSearchParams<{
         clinic_id: string;
+        /** Especialista elegido (desde su perfil): la cita queda asignada a él. */
+        vet_id?: string;
         service_id?: string;
         reschedule_id?: string;
         pet_id?: string;
@@ -107,6 +109,7 @@ export function useBookAppointment() {
                 start_time: selectedSlot,
                 reason: reason.trim(),
                 is_emergency: isEmergency,
+                ...(vet_id ? { vet_id } : {}),
             });
         },
         onSuccess: () => {

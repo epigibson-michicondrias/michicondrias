@@ -31,6 +31,8 @@ export interface AppointmentCreate {
     start_time: string;
     reason: string;
     is_emergency?: boolean;
+    /** Veterinario de la clínica con quien se agenda (opcional). */
+    vet_id?: string;
 }
 
 // Authenticated

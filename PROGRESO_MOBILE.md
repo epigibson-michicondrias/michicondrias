@@ -877,4 +877,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   Barrido visual de 15 módulos de cliente: listas de paseadores y cuidadores sin botón anidado (error en web);
   emojis usados como ícono reemplazados por lucide (Partner con un ícono por rol, Aseguradoras, Transportistas,
   Diagnóstico IA, «Primeros pasos»).
+- **2026-10-19** — Especialista rehecho como la clínica (encabezado en el scroll, `DetailTopBar`, sin favorito
+  falso, compartir real, `ReviewsSection`, acciones en `useVetDetail`). **Bugs**: `vet_id` nunca se enviaba al
+  agendar (la cita no quedaba asignada al especialista) y el especialista sin clínica mandaba a una ruta inexistente;
+  ahora su acción principal es WhatsApp/llamar.
 
