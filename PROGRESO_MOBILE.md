@@ -765,4 +765,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   1,301 `fontSize` numéricos → `font.*` (un escalón más chico en los grandes: 14→13, 16→15, 18→16, 20→18, 24→20,
   28→22) y 3,163 padding/margin/gap numéricos → `spacing.*` (12→10, 16→14, 20→18, 24→22). Título de cabecera 26→22.
   Sin tocar radios, anchos/altos ni valores ≥ 48. Paso 2 pendiente: ajuste de escala dentro de la app.
+- **2026-10-19** — Homologación de tamaños (paso 2 de 2): «Tamaño del contenido» en Perfil › Apariencia
+  (Compacto 0.9 · Normal 1 · Grande 1.12). `src/lib/uiScale.ts` guarda la escala (SecureStore síncrono en nativo,
+  localStorage en web) y `constants/design.ts` multiplica todos los tokens (`spacing`, `font`, `type`, `radius`,
+  `layout`; fijo `minTouch` y `pill`) con `scaled()` al arrancar. Cambiarla recarga la app (`Updates.reloadAsync`;
+  `DevSettings.reload` en desarrollo). Hook `useUiScale`. Lo que siga con medidas numéricas sueltas (anchos/altos,
+  tamaños de ícono en props) no escala.
 
