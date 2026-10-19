@@ -863,4 +863,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   moderación → `ver-solicitudes/{id}`; reportes `expired` = «Vencido»; clínica inexistente con `EmptyState`;
   `FormSelect`/`FormImagePicker` sin margen doble dentro de `FormSection`; `BottomSheet` con `padding` en Android;
   «Hasta» se recorre si «Desde» lo rebasa.
+- **2026-10-19** — **Paso 8: código muerto**. Borrados 17 archivos sin uso (Knip): hooks `useAdminOrders`, `useAlerts`,
+  `usePatients`, `useSubcategories` y 13 tipos viejos de `src/types/`. Quedan 5 dependencias sin uso (`@expo/cli`,
+  `@teovilla/react-native-web-maps`, `axios`, `expo-symbols`, `react-native-get-location`): quitarlas junto con el
+  próximo APK.
 
