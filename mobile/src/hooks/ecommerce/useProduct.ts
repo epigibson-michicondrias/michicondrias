@@ -1,9 +1,12 @@
 /**
- * useProduct — Hook for product detail screen
+ * useProduct — Detalle de producto: producto, reseñas (con permiso para opinar), relacionados, favorito y bolsa.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getProduct, getReviews, getReviewEligibility, createProductReview } from '@/src/services/ecommerce';
+import { useMemo } from 'react';
+import { getProduct, getProducts, getReviews, getReviewEligibility, createProductReview } from '@/src/services/ecommerce';
+import { useCart } from '@/src/contexts/CartContext';
+import { useFavorites } from '@/src/hooks/useFavorites';
 import { useAuth } from '@/src/contexts/AuthContext';
 import type { Product, Review, ReviewCreate } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
@@ -40,7 +43,27 @@ export function useProduct() {
         meta: { silentError: true },
     });
 
-    const goBack = () => router.back();
+    // «También te puede gustar»: misma categoría (comparte caché con la pestaña Tienda), con existencias primero
+    const categoryKey = product?.category_id ?? 'all';
+    const { data: sameCategory = [] } = useQuery({
+        queryKey: ['store-products', categoryKey],
+        queryFn: () => getProducts(product?.category_id ?? undefined),
+        enabled: !!product,
+        meta: { silentError: true },
+    });
+    const related = useMemo(
+        () => sameCategory
+            .filter((p) => p.id !== id)
+            .sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0) || b.average_rating - a.average_rating)
+            .slice(0, 8),
+        [sameCategory, id],
+    );
+
+    const { addToCart, cartCount, items } = useCart();
+    const { isFavorite, toggleFavorite } = useFavorites('productos');
+    const inCart = items.find((i) => i.product.id === id)?.quantity ?? 0;
+
+    const goBack = () => (router.canGoBack() ? router.back() : router.replace('/(tabs)/tienda-tab'));
 
     const createReviewMutation = useMutation({
         mutationFn: (data: ReviewCreate) => createProductReview(id!, data),
@@ -73,6 +96,17 @@ export function useProduct() {
         alreadyReviewed: eligibility?.reason === 'already_reviewed',
         handleCreateReview,
         isCreatingReview: createReviewMutation.isPending,
+        // Relacionados, bolsa y favoritos
+        related,
+        addToCart,
+        cartCount,
+        inCart,
+        isOwner: !!product && !!user && product.seller_id === user.id,
+        isFavorite: product ? isFavorite(product.id) : false,
+        toggleFavorite: () => product && toggleFavorite(product.id),
+        isFavoriteId: isFavorite,
+        toggleFavoriteId: toggleFavorite,
+        userId: user?.id,
     };
 }
 

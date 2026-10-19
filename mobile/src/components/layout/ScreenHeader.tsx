@@ -29,6 +29,8 @@ export interface HeaderAction {
     onPress: () => void;
     loading?: boolean;
     disabled?: boolean;
+    /** Contador sobre el botón (p. ej. artículos en la bolsa). */
+    badge?: number;
 }
 
 interface ScreenHeaderProps {
@@ -144,6 +146,7 @@ export default function ScreenHeader({
                                 onPress={a.onPress}
                                 loading={a.loading}
                                 disabled={a.disabled}
+                                badge={a.badge}
                                 variant={isHero ? 'glass' : 'primary'}
                                 size="sm"
                             />

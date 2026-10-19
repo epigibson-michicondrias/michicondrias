@@ -51,9 +51,10 @@ export function SkeletonCard() {
     );
 }
 
-export function SkeletonList({ count = 4 }: { count?: number }) {
+/** `inset`: margen propio alrededor (por defecto). Sin él, para usarla dentro de un contenedor que ya tiene márgenes. */
+export function SkeletonList({ count = 4, inset = true }: { count?: number; inset?: boolean }) {
     return (
-        <View style={{ gap: spacing.md, padding: spacing.xl }} accessibilityLabel="Cargando">
+        <View style={{ gap: spacing.md, padding: inset ? spacing.xl : 0, paddingTop: inset ? spacing.xl : spacing.sm }} accessibilityLabel="Cargando">
             {Array.from({ length: count }).map((_, i) => <SkeletonCard key={i} />)}
         </View>
     );

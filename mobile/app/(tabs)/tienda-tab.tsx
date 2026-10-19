@@ -1,511 +1,151 @@
 import React from 'react';
-import {
-  StyleSheet, ScrollView, TouchableOpacity, View, Text,
-  Image, TextInput, Dimensions
-} from 'react-native';
-import KeyboardScreen from '../../src/components/KeyboardScreen';
+import { StyleSheet, ScrollView, View, Text } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Package, ShoppingBag, ArrowUpDown, LayoutGrid, List, SearchX, Heart } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useShopTab } from '@/src/hooks/ecommerce/useShopTab';
+import { useShopTab, FAVORITES, SHOP_SORTS, type ShopViewMode } from '@/src/hooks/ecommerce/useShopTab';
+import { useGridCell } from '@/src/hooks/useViewMode';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import HeroStatusBar from '@/src/components/layout/HeroStatusBar';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ShoppingBag, Search, ShoppingCart, Package, Star, ArrowRight, X } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import DataList from '@/src/components/data/DataList';
+import SearchBar from '@/src/components/SearchBar';
+import FilterChip from '@/src/components/FilterChip';
+import OptionMenu from '@/src/components/OptionMenu';
+import ViewModeToggle from '@/src/components/ViewModeToggle';
+import { ProductGridCard, ProductListRow } from '@/src/features/tienda/ProductCard';
+import CartBar, { CART_BAR_SPACE } from '@/src/features/tienda/CartBar';
+import type { Product } from '@/src/types/ecommerce';
+import { layout, spacing, type } from '@/constants/design';
 
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = Math.floor((width - 61) / 2);
+const VIEW_OPTIONS = [
+  { value: 'grid' as const, label: 'Ver en cuadrícula', icon: LayoutGrid },
+  { value: 'list' as const, label: 'Ver como lista', icon: List },
+];
+const GAP: Record<ShopViewMode, number> = { grid: spacing.md, list: spacing.sm };
 
 export default function TiendaTabScreen() {
+  const router = useRouter();
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
-  const {
-    selectedCategory,
-    setSelectedCategory,
-    searchQuery,
-    setSearchQuery,
-    products,
-    isLoading,
-    categories,
-    handleSearch,
-    totalProducts,
-    showAll,
-    setShowAll,
-    cartCount,
-    router,
-  } = useShopTab();
-  const isSearching = searchQuery.trim().length > 0;
-  const visibleProducts = showAll || isSearching ? products : products.slice(0, 6);
+  const shop = useShopTab();
+  const isGrid = shop.viewMode === 'grid';
+  const gap = GAP[shop.viewMode];
+  const { columns, cellWidth } = useGridCell(gap);
+
+  const renderItem = ({ item }: { item: Product }) => {
+    const props = {
+      product: item,
+      onPress: () => router.push(`/tienda/producto/${item.id}`),
+      onQuickAdd: () => shop.quickAdd(item),
+      isFavorite: shop.isFavorite(item.id),
+      onToggleFavorite: () => shop.toggleFavorite(item.id),
+    };
+    return isGrid ? <ProductGridCard {...props} width={cellWidth} /> : <ProductListRow {...props} />;
+  };
+
+  const header = (
+    <View style={styles.header}>
+      <SearchBar value={shop.searchQuery} onChangeText={shop.setSearchQuery} placeholder="Buscar productos para tu michi..." />
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.chipsScroll}
+        contentContainerStyle={styles.chips}
+      >
+        {shop.categories.map((cat) => {
+          const active = shop.selectedCategory === cat.id;
+          const Icon = cat.icon;
+          return (
+            <FilterChip
+              key={cat.id}
+              label={cat.label}
+              active={active}
+              onPress={() => shop.setSelectedCategory(active && cat.id !== 'all' ? 'all' : cat.id)}
+              icon={<Icon size={layout.icon.xs} color={active ? theme.onPrimary : cat.color} />}
+            />
+          );
+        })}
+      </ScrollView>
+
+      <View style={styles.toolbar}>
+        <Text style={[type.caption, styles.count, { color: theme.textMuted }]}>
+          {shop.isLoading ? 'Cargando…' : `${shop.products.length} ${shop.products.length === 1 ? 'producto' : 'productos'}`}
+        </Text>
+        <OptionMenu icon={ArrowUpDown} title="Ordenar por" value={shop.sort} onChange={shop.setSort} options={SHOP_SORTS} />
+        <ViewModeToggle value={shop.viewMode} onChange={shop.setViewMode} options={VIEW_OPTIONS} />
+      </View>
+    </View>
+  );
+
+  const emptyProps = shop.selectedCategory === FAVORITES
+    ? {
+      emptyIcon: <Heart size={layout.icon.xl} color={theme.textMuted} />,
+      emptyTitle: 'Sin favoritos aquí',
+      emptySubtitle: 'Toca el corazón de un producto para guardarlo.',
+    }
+    : shop.hasFilters
+      ? {
+        emptyIcon: <SearchX size={layout.icon.xl} color={theme.textMuted} />,
+        emptyTitle: 'Sin resultados',
+        emptySubtitle: shop.searchQuery.trim()
+          ? `No encontramos "${shop.searchQuery.trim()}". Prueba con otra palabra u otra categoría.`
+          : 'Esta categoría todavía no tiene productos.',
+        emptyActionLabel: 'Quitar filtros',
+        onEmptyAction: shop.clearFilters,
+      }
+      : {
+        emptyIcon: <ShoppingBag size={layout.icon.xl} color={theme.textMuted} />,
+        emptyTitle: 'Aún no hay productos',
+        emptySubtitle: 'Los vendedores están publicando sus productos. Vuelve pronto.',
+      };
 
   return (
     <ScreenContainer>
-      <HeroStatusBar />
+      <ScreenHeader
+        title="Michi-Shop"
+        subtitle="Todo para tu mejor amigo"
+        showBack={false}
+        actions={[
+          { icon: Package, label: 'Mis compras', onPress: () => router.push('/tienda/compras') },
+          {
+            icon: ShoppingBag,
+            label: `Abrir bolsa, ${shop.cartCount} ${shop.cartCount === 1 ? 'artículo' : 'artículos'}`,
+            onPress: () => router.push('/tienda/carrito'),
+            badge: shop.cartCount,
+          },
+        ]}
+      />
 
-      <KeyboardScreen contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* Header */}
-        <LinearGradient
-          colors={[...theme.heroGradient, theme.background]}
-          style={[styles.header, { paddingTop: insets.top + 16 }]}
-        >
-          <View style={styles.headerTop}>
-            <View>
-              <Text style={styles.headerLabel}>MICHICONDRIAS</Text>
-              <Text style={styles.headerTitle}>Michi-Shop</Text>
-            </View>
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                style={styles.headerBtn}
-                onPress={() => router.push('/tienda/compras' as any)}
-                accessibilityRole="button"
-                accessibilityLabel="Mis pedidos"
-              >
-                <Package size={22} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.headerBtn}
-                onPress={() => router.push('/tienda/carrito' as any)}
-                accessibilityRole="button"
-                accessibilityLabel={`Abrir bolsa, ${cartCount} artículos`}
-              >
-                <ShoppingCart size={22} color="#fff" />
-                {cartCount > 0 ? (
-                  <View style={[styles.cartBadge, { backgroundColor: theme.error }]}>
-                    <Text style={styles.cartBadgeText}>{cartCount > 99 ? '99+' : cartCount}</Text>
-                  </View>
-                ) : null}
-              </TouchableOpacity>
-            </View>
-          </View>
+      <DataList
+        // Cambiar el número de columnas exige volver a montar la lista
+        key={isGrid ? `grid-${columns}` : 'list'}
+        data={shop.products}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        numColumns={isGrid ? columns : 1}
+        columnWrapperStyle={isGrid ? { gap } : undefined}
+        ItemSeparatorComponent={() => <View style={{ height: gap }} />}
+        header={header}
+        isLoading={shop.isLoading}
+        skeleton
+        skeletonVariant={isGrid ? 'grid' : 'list'}
+        onRefresh={shop.refetch}
+        isRefreshing={shop.isRefetching}
+        keyboardShouldPersistTaps="handled"
+        contentStyle={{ paddingBottom: CART_BAR_SPACE + spacing.lg }}
+        {...emptyProps}
+      />
 
-          {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <Search size={18} color="rgba(255,255,255,0.6)" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar productos para tu michi..."
-              placeholderTextColor="rgba(255,255,255,0.5)"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearch}
-              returnKeyType="search"
-              accessibilityLabel="Buscar productos"
-            />
-            {isSearching ? (
-              <TouchableOpacity
-                style={styles.filterBtn}
-                onPress={() => setSearchQuery('')}
-                accessibilityRole="button"
-                accessibilityLabel="Borrar búsqueda"
-              >
-                <X size={16} color="#fff" />
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        </LinearGradient>
-
-        {/* Categories */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Categor{'\u00ed'}as</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesList}>
-            {categories.map((cat) => {
-              const isActive = selectedCategory === cat.id;
-              const Icon = cat.icon;
-              return (
-                <TouchableOpacity
-                  key={cat.id}
-                  style={[
-                    styles.categoryChip,
-                    isActive
-                      ? { backgroundColor: theme.primary }
-                      : { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1 }
-                  ]}
-                  onPress={() => setSelectedCategory(cat.id)}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isActive }}
-                  accessibilityLabel={`Categoría ${cat.label}`}
-                >
-                  <Icon size={16} color={isActive ? '#fff' : cat.color} />
-                  <Text style={[
-                    styles.categoryLabel,
-                    { color: isActive ? '#fff' : theme.text }
-                  ]}>{cat.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        {/* Products Grid */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, styles.sectionTitleInline, { color: theme.text }]}>
-              {isSearching ? `Resultados (${products.length})` : showAll ? 'Todos los productos' : 'Productos destacados'}
-            </Text>
-            {!isSearching && totalProducts > 6 ? (
-              <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.seeAllBtn} accessibilityRole="button">
-                <Text style={[styles.seeAllText, { color: theme.primary }]}>{showAll ? 'Ver menos' : 'Ver todos'}</Text>
-                <ArrowRight size={14} color={theme.primary} />
-              </TouchableOpacity>
-            ) : null}
-          </View>
-
-          {isLoading ? (
-            <View style={styles.loadingGrid}>
-              {[1, 2, 3, 4].map((i) => (
-                <View key={i} style={[styles.productSkeleton, { backgroundColor: theme.surface }]} />
-              ))}
-            </View>
-          ) : products.length === 0 ? (
-            <View style={[styles.emptyState, { backgroundColor: theme.surface }]}>
-              <ShoppingBag size={48} color={theme.textMuted} />
-              <Text style={[styles.emptyTitle, { color: theme.text }]}>
-                {isSearching ? 'Sin resultados' : 'Aún no hay productos aquí'}
-              </Text>
-              <Text style={[styles.emptyDesc, { color: theme.textMuted }]}>
-                {isSearching
-                  ? `No encontramos "${searchQuery.trim()}". Prueba con otra palabra o revisa las categorías.`
-                  : selectedCategory === 'all'
-                    ? 'Los vendedores están publicando sus productos. Vuelve pronto.'
-                    : 'Esta categoría todavía no tiene productos.'}
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.productsGrid}>
-              {visibleProducts.map((product: any) => (
-                <TouchableOpacity
-                  key={product.id}
-                  style={[styles.productCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                  onPress={() => router.push(`/tienda/producto/${product.id}` as any)}
-                  activeOpacity={0.8}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${product.name}, $${product.price?.toFixed(2)}`}
-                >
-                  <View style={styles.productImageContainer}>
-                    {product.image_url ? (
-                      <Image source={{ uri: product.image_url }} style={styles.productImage} />
-                    ) : (
-                      <View style={[styles.productImagePlaceholder, { backgroundColor: theme.backgroundSecondary }]}>
-                        <Package size={32} color={theme.textMuted} />
-                      </View>
-                    )}
-                    {product.stock <= 0 && (
-                      <View style={[styles.discountBadge, { backgroundColor: theme.error }]}>
-                        <Text style={styles.discountText}>Agotado</Text>
-                      </View>
-                    )}
-                  </View>
-                  <View style={styles.productInfo}>
-                    <Text style={[styles.productName, { color: theme.text }]} numberOfLines={2}>{product.name}</Text>
-                    <Text style={[styles.productPrice, { color: theme.primary }]}>
-                      ${product.price?.toFixed(2) || '0.00'}
-                    </Text>
-                    {product.review_count > 0 && (
-                      <View style={styles.ratingRow}>
-                        <Star size={12} color={theme.accent} fill={theme.accent} />
-                        <Text style={[styles.ratingText, { color: theme.textMuted }]}>
-                          {Number(product.average_rating).toFixed(1)} ({product.review_count})
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-
-      </KeyboardScreen>
+      <CartBar />
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: layout.screenPadding,
-    paddingBottom: spacing.xxxl,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  headerLabel: {
-    fontSize: font.xs,
-    fontWeight: '900',
-    color: 'rgba(255,255,255,0.6)',
-    letterSpacing: 2,
-  },
-  headerTitle: {
-    fontSize: font.h1,
-    fontWeight: '900',
-    color: '#fff',
-    marginTop: spacing.xxs,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  headerBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 20,
-    paddingHorizontal: spacing.lg,
-    height: 48,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    gap: spacing.md,
-  },
-  searchInput: {
-    flex: 1,
-    color: '#fff',
-    fontSize: font.base,
-    fontWeight: '600',
-  },
-  filterBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quickActions: {
-    paddingHorizontal: layout.screenPadding,
-    gap: spacing.md,
-    marginTop: -16,
-  },
-  quickAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.lg,
-    borderRadius: 22,
-    borderWidth: 1,
-    gap: spacing.lg,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-  },
-  quickIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quickLabel: {
-    flex: 1,
-    fontSize: font.lg,
-    fontWeight: '800',
-  },
-  section: {
-    marginTop: spacing.xxxl,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: layout.screenPadding,
-    marginBottom: spacing.lg,
-  },
-  sectionTitleInline: {
-    marginBottom: 0,
-    paddingHorizontal: 0,
-  },
-  cartBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    paddingHorizontal: spacing.xs,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cartBadgeText: { color: '#fff', fontSize: font.xs, fontWeight: '900' },
-  sectionTitle: {
-    fontSize: font.xxl,
-    fontWeight: '900',
-    paddingHorizontal: layout.screenPadding,
-    marginBottom: spacing.lg,
-  },
-  seeAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  seeAllText: {
-    fontSize: font.base,
-    fontWeight: '700',
-  },
-  categoriesList: {
-    paddingHorizontal: layout.screenPadding,
-    gap: spacing.md,
-  },
-  categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: 16,
-    gap: spacing.sm,
-  },
-  categoryLabel: {
-    fontSize: font.base,
-    fontWeight: '800',
-  },
-  loadingGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: layout.screenPadding,
-    gap: spacing.md,
-  },
-  productSkeleton: {
-    width: CARD_WIDTH,
-    height: 200,
-    borderRadius: 24,
-  },
-  emptyState: {
-    marginHorizontal: layout.screenPadding,
-    padding: spacing.huge,
-    borderRadius: 28,
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  emptyTitle: {
-    fontSize: font.xxl,
-    fontWeight: '900',
-  },
-  emptyDesc: {
-    fontSize: font.base,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  productsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: layout.screenPadding,
-    gap: spacing.md,
-  },
-  productCard: {
-    width: CARD_WIDTH,
-    borderRadius: 24,
-    borderWidth: 1,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-  },
-  productImageContainer: {
-    width: '100%',
-    height: 130,
-    position: 'relative',
-  },
-  productImage: {
-    width: '100%',
-    height: '100%',
-  },
-  productImagePlaceholder: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  discountBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: '#ef4444',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 8,
-  },
-  discountText: {
-    color: '#fff',
-    fontSize: font.xs,
-    fontWeight: '900',
-  },
-  productInfo: {
-    padding: spacing.md,
-    gap: spacing.xs,
-  },
-  productName: {
-    fontSize: font.base,
-    fontWeight: '800',
-    lineHeight: 18,
-  },
-  productPrice: {
-    fontSize: font.xl,
-    fontWeight: '900',
-    marginTop: spacing.xs,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.xxs,
-  },
-  ratingText: {
-    fontSize: font.sm,
-    fontWeight: '700',
-  },
-  promoSection: {
-    paddingHorizontal: layout.screenPadding,
-    marginTop: spacing.xxxl,
-  },
-  promoBanner: {
-    height: 120,
-    borderRadius: 28,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#101c3d',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-  },
-  promoGradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  promoContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: spacing.xxl,
-    justifyContent: 'space-between',
-  },
-  promoTextCol: { flex: 1 },
-  promoTag: {
-    fontSize: font.xs,
-    fontWeight: '900',
-    color: 'rgba(255,255,255,0.7)',
-    letterSpacing: 1,
-  },
-  promoTitle: {
-    fontSize: font.h2,
-    fontWeight: '900',
-    color: '#fff',
-    marginTop: spacing.xs,
-  },
-  promoDesc: {
-    fontSize: font.md,
-    fontWeight: '600',
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: spacing.xs,
-  },
+  header: { gap: spacing.md, marginBottom: spacing.md },
+  // Los chips llegan de orilla a orilla
+  chipsScroll: { marginHorizontal: -layout.screenPadding },
+  chips: { gap: spacing.sm, paddingHorizontal: layout.screenPadding, alignItems: 'center' },
+  toolbar: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  count: { flex: 1, fontWeight: '700' },
 });

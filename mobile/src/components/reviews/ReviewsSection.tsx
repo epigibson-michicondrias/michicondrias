@@ -3,7 +3,7 @@
  * Genérico: lo usan programas de entrenamiento y estilistas. El formulario solo aparece si `canReview`.
  */
 import React, { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { font, spacing, layout } from '@/constants/design';
@@ -77,13 +77,15 @@ interface Props {
     onSubmit?: (rating: number, comment: string) => void;
     /** Texto del formulario, p. ej. "¿Cómo fue tu experiencia?" */
     formPrompt?: string;
+    /** Ajustes de contenedor (p. ej. quitar el margen lateral dentro de un contenedor con padding). */
+    style?: StyleProp<ViewStyle>;
 }
 
-export default function ReviewsSection({ title = 'Reseñas', average, count, reviews, canReview, submitting, onSubmit, formPrompt = '¿Cómo fue tu experiencia?' }: Props) {
+export default function ReviewsSection({ title = 'Reseñas', average, count, reviews, canReview, submitting, onSubmit, formPrompt = '¿Cómo fue tu experiencia?', style }: Props) {
     const { theme } = useTheme();
 
     return (
-        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }, style]}>
             <View style={styles.header}>
                 <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
                 {count > 0 ? (

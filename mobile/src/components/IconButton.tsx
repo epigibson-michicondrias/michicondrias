@@ -11,9 +11,9 @@
  * - `glass`: vidrio translúcido, para usar encima de una cabecera hero (`HeroBackground`).
  */
 import React from 'react';
-import { ActivityIndicator, TouchableOpacity, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { radius, layout } from '@/constants/design';
+import { font, radius, layout, spacing } from '@/constants/design';
 
 export type IconButtonVariant = 'subtle' | 'surface' | 'primary' | 'glass';
 
@@ -32,6 +32,8 @@ interface IconButtonProps {
     disabled?: boolean;
     /** Muestra un indicador en lugar del ícono y bloquea el botón (p. ej. mientras se guarda). */
     loading?: boolean;
+    /** Contador sobre la esquina (p. ej. artículos en la bolsa). No se muestra si es 0. */
+    badge?: number;
     /** `md` (44 px) o `sm` (38 px, para cabeceras compactas). */
     size?: 'sm' | 'md';
     style?: StyleProp<ViewStyle>;
@@ -47,6 +49,7 @@ export default function IconButton({
     disabled,
     loading,
     size = 'md',
+    badge,
     style,
 }: IconButtonProps) {
     const { theme } = useTheme();
@@ -79,6 +82,11 @@ export default function IconButton({
             ) : (
                 <Icon size={isSmall ? layout.icon.md : layout.icon.lg} color={color || current.icon} strokeWidth={strokeWidth} />
             )}
+            {badge ? (
+                <View style={[styles.badge, { backgroundColor: theme.error, borderColor: theme.surface }]} pointerEvents="none">
+                    <Text style={[styles.badgeText, { color: theme.onPrimary }]}>{badge > 99 ? '99+' : badge}</Text>
+                </View>
+            ) : null}
         </TouchableOpacity>
     );
 }
@@ -95,6 +103,22 @@ const styles = StyleSheet.create({
         width: layout.iconBox.md,
         height: layout.iconBox.md,
         borderRadius: radius.sm + 2,
+    },
+    badge: {
+        position: 'absolute',
+        top: -spacing.xs,
+        right: -spacing.xs,
+        minWidth: 18,
+        height: 18,
+        paddingHorizontal: spacing.xs,
+        borderRadius: radius.pill,
+        borderWidth: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    badgeText: {
+        fontSize: font.xs,
+        fontWeight: '800',
     },
     disabled: {
         opacity: 0.5,

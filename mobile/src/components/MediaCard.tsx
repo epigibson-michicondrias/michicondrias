@@ -31,6 +31,8 @@ interface MediaBaseProps {
     lines?: MediaLine[];
     onPress: () => void;
     accessibilityLabel: string;
+    /** Contenido extra bajo los renglones (precio, acciones…). Si lleva botones, van como hermanos del principal. */
+    footer?: React.ReactNode;
 }
 
 function Photo({ imageUrl, fallbackIcon: Icon, fallbackColor, iconSize, style }: Pick<MediaBaseProps, 'imageUrl' | 'fallbackIcon' | 'fallbackColor'> & { iconSize: number; style: object }) {
@@ -65,7 +67,7 @@ interface MediaCardProps extends MediaBaseProps {
     topRight?: React.ReactNode;
 }
 
-export function MediaCard({ width, topLeft, topRight, title, lines, onPress, accessibilityLabel, ...photo }: MediaCardProps) {
+export function MediaCard({ width, topLeft, topRight, title, lines, footer, onPress, accessibilityLabel, ...photo }: MediaCardProps) {
     const { theme } = useTheme();
     return (
         <TouchableOpacity
@@ -81,6 +83,7 @@ export function MediaCard({ width, topLeft, topRight, title, lines, onPress, acc
             <View style={styles.cardInfo}>
                 <Text style={[type.subtitle, { color: theme.text }]} numberOfLines={1}>{title}</Text>
                 <Lines lines={lines} />
+                {footer}
             </View>
         </TouchableOpacity>
     );
@@ -91,13 +94,15 @@ interface MediaRowProps extends MediaBaseProps {
     corner?: React.ReactNode;
     /** Elemento a la derecha del título (p. ej. una insignia). */
     trailing?: React.ReactNode;
+    /** Botones a la derecha de la fila (reemplazan el chevron). */
+    actions?: React.ReactNode;
 }
 
-export function MediaRow({ corner, trailing, title, lines, onPress, accessibilityLabel, ...photo }: MediaRowProps) {
+export function MediaRow({ corner, trailing, actions, title, lines, footer, onPress, accessibilityLabel, ...photo }: MediaRowProps) {
     const { theme } = useTheme();
-    return (
+    const main = (
         <TouchableOpacity
-            style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+            style={[styles.rowMain, !actions && [styles.row, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]]}
             onPress={onPress}
             activeOpacity={0.88}
             accessibilityRole="button"
@@ -113,9 +118,18 @@ export function MediaRow({ corner, trailing, title, lines, onPress, accessibilit
                     {trailing}
                 </View>
                 <Lines lines={lines} />
+                {footer}
             </View>
-            <ChevronRight size={layout.icon.sm} color={theme.textMuted} />
+            {actions ? null : <ChevronRight size={layout.icon.sm} color={theme.textMuted} />}
         </TouchableOpacity>
+    );
+    if (!actions) return main;
+    // Con acciones, la tarjeta es un contenedor y las acciones van como hermanas del botón principal
+    return (
+        <View style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+            {main}
+            <View style={styles.rowActions}>{actions}</View>
+        </View>
     );
 }
 
@@ -144,6 +158,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         ...shadow.card,
     },
+    rowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    rowActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     thumb: { width: layout.iconBox.lg + spacing.sm, height: layout.iconBox.lg + spacing.sm, borderRadius: radius.md },
     corner: { position: 'absolute', top: -spacing.xxs, right: -spacing.xxs },
     titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

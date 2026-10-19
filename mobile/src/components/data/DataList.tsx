@@ -15,7 +15,7 @@ import {
 import { useTheme } from '@/src/hooks/useTheme';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { SkeletonList } from '@/src/components/Skeleton';
+import { SkeletonGrid, SkeletonList } from '@/src/components/Skeleton';
 import { font, spacing, layout } from '@/constants/design';
 
 interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'> {
@@ -48,6 +48,8 @@ interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'>
     /** Muestra skeletons en lugar del spinner mientras carga */
     skeleton?: boolean;
     skeletonCount?: number;
+    /** Forma del skeleton: filas (por defecto) o cuadrícula. */
+    skeletonVariant?: 'list' | 'grid';
 }
 
 export default function DataList<T>({
@@ -66,12 +68,20 @@ export default function DataList<T>({
     header,
     skeleton,
     skeletonCount = 4,
+    skeletonVariant = 'list',
     ...flatListProps
 }: DataListProps<T>) {
     const { theme } = useTheme();
 
     if (isLoading) {
-        return skeleton ? <SkeletonList count={skeletonCount} /> : <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
+        if (!skeleton) return <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
+        // El encabezado (buscador, filtros) se queda visible mientras cargan los elementos
+        return (
+            <View style={[styles.listContent, contentStyle, styles.emptyContainer]}>
+                {header}
+                {skeletonVariant === 'grid' ? <SkeletonGrid count={skeletonCount} /> : <SkeletonList count={skeletonCount} inset={false} />}
+            </View>
+        );
     }
 
     if (data.length === 0 && !isLoading) {
@@ -84,7 +94,7 @@ export default function DataList<T>({
             );
 
         return (
-            <View style={styles.emptyContainer}>
+            <View style={[styles.listContent, contentStyle, styles.emptyContainer]}>
                 {header}
                 <EmptyState
                     icon={iconElement}

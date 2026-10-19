@@ -1,29 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Trash2, Plus, Minus, ShoppingBag, ShieldCheck, Package, MapPin } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Trash2, ShoppingBag, ShieldCheck, MapPin, Lock } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useCart } from '../../src/contexts/CartContext';
+import { useCart } from '@/src/contexts/CartContext';
 import { useCheckout } from '@/src/hooks/ecommerce/useCheckout';
 import { useCartProducts } from '@/src/hooks/ecommerce/useCartProducts';
 import { formatCurrency } from '@/src/utils/formatters';
 import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import DataList from '@/src/components/data/DataList';
-import { font, spacing } from '@/constants/design';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
+import EmptyState from '@/src/components/EmptyState';
+import FormField from '@/src/components/FormField';
+import Button from '@/src/components/Button';
+import Card from '@/src/components/Card';
+import CartItemRow from '@/src/features/tienda/CartItemRow';
+import { layout, shadow, spacing, type } from '@/constants/design';
 
 const MIN_ADDRESS_LENGTH = 10;
 
 export default function CarritoScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { items, cartTotal, cartCount, removeFromCart, updateQuantity, savedAddress, rememberAddress } = useCart();
+    const insets = useSafeAreaInsets();
+    const { items, cartTotal, cartCount, updateQuantity, clearCart, savedAddress, rememberAddress } = useCart();
     const { checkout, isCheckingOut } = useCheckout();
     // Precio y stock frescos al abrir la bolsa (el snapshot guardado puede quedar viejo)
     useCartProducts();
     const [address, setAddress] = useState('');
-    const [addressError, setAddressError] = useState(false);
+    const [addressError, setAddressError] = useState<string | null>(null);
 
     // Recuerda la última dirección usada para no pedirla en cada compra
     useEffect(() => {
@@ -33,322 +40,151 @@ export default function CarritoScreen() {
     const handleCheckout = () => {
         const trimmed = address.trim();
         if (trimmed.length < MIN_ADDRESS_LENGTH) {
-            setAddressError(true);
-            showAlert({
-                type: 'warning',
-                title: 'Falta la dirección de envío',
-                message: 'Escribe calle, número, colonia, ciudad y código postal para que el vendedor pueda enviarte el pedido.',
-            });
+            setAddressError('Escribe calle, número, colonia, ciudad y C.P. para que el vendedor pueda enviarte el pedido.');
             return;
         }
-        setAddressError(false);
+        setAddressError(null);
         rememberAddress(trimmed);
         checkout(trimmed);
     };
 
-    const renderItem = ({ item }: { item: any }) => {
-        const stock = item.product.stock ?? 0;
-        const atLimit = stock > 0 && item.quantity >= stock;
+    const confirmClear = () => showAlert({
+        type: 'warning',
+        title: '¿Vaciar la bolsa?',
+        message: `Se quitarán ${cartCount} ${cartCount === 1 ? 'artículo' : 'artículos'}.`,
+        buttonText: 'Vaciar',
+        onButtonPress: clearCart,
+        showCancel: true,
+        cancelText: 'Cancelar',
+    });
+
+    const itemsLabel = `${cartCount} ${cartCount === 1 ? 'artículo' : 'artículos'}`;
+
+    if (items.length === 0) {
         return (
-            <View style={[styles.cartItem, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                <TouchableOpacity
-                    accessibilityRole="button"
-                    accessibilityLabel={`Ver ${item.product.name}`}
-                    onPress={() => router.push(`/tienda/producto/${item.product.id}` as any)}
-                >
-                    {item.product.image_url ? (
-                        <Image source={{ uri: item.product.image_url }} style={styles.itemImage} />
-                    ) : (
-                        <View style={[styles.itemImage, styles.itemImagePlaceholder, { backgroundColor: theme.backgroundSecondary }]}>
-                            <Package size={28} color={theme.textMuted} />
-                        </View>
-                    )}
-                </TouchableOpacity>
-                <View style={styles.itemInfo}>
-                    <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={2}>
-                        {item.product.name}
-                    </Text>
-                    <Text style={[styles.itemPrice, { color: theme.primary }]}>
-                        {formatCurrency(item.product.price * item.quantity)}
-                        {item.quantity > 1 ? (
-                            <Text style={[styles.itemUnit, { color: theme.textMuted }]}>{`  (${formatCurrency(item.product.price)} c/u)`}</Text>
-                        ) : null}
-                    </Text>
-
-                    <View style={styles.quantityControls}>
-                        <TouchableOpacity
-                            style={[styles.qtyBtn, { backgroundColor: theme.backgroundSecondary }]}
-                            onPress={() => updateQuantity(item.product.id, item.quantity - 1)}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Quitar una unidad de ${item.product.name}`}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                        >
-                            <Minus size={16} color={theme.text} />
-                        </TouchableOpacity>
-                        <Text style={[styles.qtyText, { color: theme.text }]} accessibilityLabel={`Cantidad ${item.quantity}`}>{item.quantity}</Text>
-                        <TouchableOpacity
-                            style={[styles.qtyBtn, { backgroundColor: theme.backgroundSecondary }, atLimit && { opacity: 0.4 }]}
-                            onPress={() => {
-                                if (atLimit) {
-                                    showAlert({ type: 'info', title: 'Stock máximo', message: `Solo hay ${stock} ${stock === 1 ? 'unidad disponible' : 'unidades disponibles'} de este producto.` });
-                                    return;
-                                }
-                                updateQuantity(item.product.id, item.quantity + 1);
-                            }}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Agregar una unidad de ${item.product.name}`}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                        >
-                            <Plus size={16} color={theme.text} />
-                        </TouchableOpacity>
-
-                        <View style={{ flex: 1 }} />
-                        <TouchableOpacity
-                            style={styles.deleteBtn}
-                            onPress={() => removeFromCart(item.product.id)}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Quitar ${item.product.name} de la bolsa`}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                        >
-                            <Trash2 size={20} color={theme.error} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
+            <ScreenContainer>
+                <ScreenHeader title="Mi bolsa" />
+                <EmptyState
+                    icon={<ShoppingBag size={layout.icon.xl} color={theme.textMuted} strokeWidth={1.5} />}
+                    title="Tu bolsa está vacía"
+                    subtitle="Explora el Michi-Shop y agrega productos para tu mejor amigo."
+                    actionLabel="Ir a la tienda"
+                    onAction={() => router.replace('/(tabs)/tienda-tab')}
+                />
+            </ScreenContainer>
         );
-    };
+    }
+
+    const footer = (
+        <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.border, paddingBottom: insets.bottom + spacing.md }]}>
+            <View style={styles.footerTotal}>
+                <Text style={[type.caption, { color: theme.textMuted }]}>Total · {itemsLabel}</Text>
+                <Text style={[type.h2, styles.bold, { color: theme.text }]}>{formatCurrency(cartTotal)}</Text>
+            </View>
+            <Button
+                label="Pagar"
+                icon={<Lock size={layout.icon.sm} color={theme.onPrimary} />}
+                onPress={handleCheckout}
+                loading={isCheckingOut}
+                size="lg"
+                style={styles.payBtn}
+                accessibilityLabel={`Pagar ${formatCurrency(cartTotal)}`}
+            />
+        </View>
+    );
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Mi Bolsa" subtitle={cartCount > 0 ? `${cartCount} ${cartCount === 1 ? 'artículo' : 'artículos'}` : undefined} />
+            <ScreenHeader
+                title="Mi bolsa"
+                subtitle={itemsLabel}
+                actions={[{ icon: Trash2, label: 'Vaciar bolsa', onPress: confirmClear }]}
+            />
 
-            {items.length === 0 ? (
-                <DataList
-                    data={[]}
-                    renderItem={() => null}
-                    emptyIcon={<ShoppingBag size={40} color={theme.textMuted} strokeWidth={1} />}
-                    emptyTitle="Tu bolsa está vacía"
-                    emptySubtitle="Explora el Michi-Shop y agrega productos para tu mejor amigo."
-                    emptyActionLabel="Explorar Tienda"
-                    onEmptyAction={() => router.replace('/(tabs)/tienda-tab' as any)}
-                    keyExtractor={() => 'empty'}
-                />
-            ) : (
-                <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                    <DataList
-                        data={items}
-                        keyExtractor={(item) => item.product.id}
-                        renderItem={renderItem}
-                        contentStyle={styles.list}
-                        keyboardShouldPersistTaps="handled"
-                    />
-
-                    <View style={[styles.footer, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                        <View style={styles.addressHeader}>
-                            <MapPin size={16} color={theme.primary} />
-                            <Text style={[styles.addressLabel, { color: theme.text }]}>Dirección de envío</Text>
-                        </View>
-                        <TextInput
-                            style={[
-                                styles.addressInput,
-                                { color: theme.text, backgroundColor: theme.inputBg, borderColor: addressError ? theme.error : theme.inputBorder },
-                            ]}
-                            value={address}
-                            onChangeText={(v) => { setAddress(v); if (addressError) setAddressError(false); }}
-                            placeholder="Calle, número, colonia, ciudad y C.P."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            accessibilityLabel="Dirección de envío"
+            <KeyboardScreen contentContainerStyle={styles.content} footer={footer}>
+                <View style={styles.items}>
+                    {items.map((item) => (
+                        <CartItemRow
+                            key={item.product.id}
+                            item={item}
+                            onOpen={() => router.push(`/tienda/producto/${item.product.id}`)}
+                            onChangeQuantity={(q) => updateQuantity(item.product.id, q)}
+                            onMaxReached={() => showAlert({
+                                type: 'info',
+                                title: 'No hay más piezas',
+                                message: `Solo hay ${item.product.stock} ${item.product.stock === 1 ? 'pieza disponible' : 'piezas disponibles'} de este producto.`,
+                            })}
                         />
-                        {addressError ? (
-                            <Text style={[styles.addressHint, { color: theme.error }]}>Escribe una dirección completa para continuar.</Text>
-                        ) : null}
+                    ))}
+                </View>
 
-                        <View style={[styles.summaryRow, { marginTop: spacing.lg }]}>
-                            <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Subtotal</Text>
-                            <Text style={[styles.summaryValue, { color: theme.text }]}>{formatCurrency(cartTotal)}</Text>
+                <View style={styles.section}>
+                    <View style={styles.sectionTitle}>
+                        <MapPin size={layout.icon.sm} color={theme.primary} />
+                        <Text style={[type.title, { color: theme.text }]}>Envío</Text>
+                    </View>
+                    <FormField
+                        label="Dirección de envío"
+                        value={address}
+                        onChangeText={(v) => { setAddress(v); if (addressError) setAddressError(null); }}
+                        placeholder="Calle, número, colonia, ciudad y C.P."
+                        multiline
+                        autoComplete="street-address"
+                        textContentType="fullStreetAddress"
+                        error={addressError}
+                        hint={savedAddress && address === savedAddress ? 'La misma de tu última compra.' : undefined}
+                    />
+                </View>
+
+                <Card>
+                    <View style={styles.summary}>
+                        <View style={styles.summaryRow}>
+                            <Text style={[type.body, { color: theme.textMuted }]}>Subtotal</Text>
+                            <Text style={[type.bodyStrong, { color: theme.text }]}>{formatCurrency(cartTotal)}</Text>
                         </View>
                         <View style={styles.summaryRow}>
-                            <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Envío</Text>
-                            <Text style={[styles.summaryValue, { color: theme.success }]}>Gratis</Text>
+                            <Text style={[type.body, { color: theme.textMuted }]}>Envío</Text>
+                            <Text style={[type.bodyStrong, { color: theme.success }]}>Gratis</Text>
                         </View>
                         <View style={[styles.divider, { backgroundColor: theme.divider }]} />
                         <View style={styles.summaryRow}>
-                            <Text style={[styles.totalLabel, { color: theme.text }]}>Total</Text>
-                            <Text style={[styles.totalValue, { color: theme.primary }]}>{formatCurrency(cartTotal)}</Text>
+                            <Text style={[type.title, { color: theme.text }]}>Total</Text>
+                            <Text style={[type.title, styles.bold, { color: theme.primary }]}>{formatCurrency(cartTotal)}</Text>
                         </View>
-
-                        <View style={[styles.secureBadge, { backgroundColor: theme.successLight }]}>
-                            <ShieldCheck size={16} color={theme.success} />
-                            <Text style={{ fontSize: font.md, color: theme.success, fontWeight: '700' }}>Pago seguro con Stripe</Text>
-                        </View>
-
-                        <TouchableOpacity
-                            style={[
-                                styles.checkoutBtn,
-                                { backgroundColor: theme.primary },
-                                isCheckingOut && { opacity: 0.7 }
-                            ]}
-                            onPress={handleCheckout}
-                            disabled={isCheckingOut}
-                            accessibilityRole="button"
-                            accessibilityLabel="Proceder al pago"
-                            accessibilityState={{ disabled: isCheckingOut, busy: isCheckingOut }}
-                        >
-                            {isCheckingOut ? (
-                                <ActivityIndicator color={theme.onPrimary} />
-                            ) : (
-                                <Text style={styles.checkoutBtnText}>Proceder al pago</Text>
-                            )}
-                        </TouchableOpacity>
                     </View>
-                </KeyboardAvoidingView>
-            )}
+                </Card>
+
+                <View style={styles.secure}>
+                    <ShieldCheck size={layout.icon.sm} color={theme.success} />
+                    <Text style={[type.caption, styles.flex, { color: theme.textMuted }]}>
+                        Pagas con tarjeta en la página segura de Stripe. Tus productos quedan apartados mientras completas el pago.
+                    </Text>
+                </View>
+            </KeyboardScreen>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    list: {
-        paddingHorizontal: spacing.xl,
-        paddingBottom: spacing.xl,
-    },
-    cartItem: {
-        flexDirection: 'row',
-        padding: spacing.md,
-        borderRadius: 20,
-        marginBottom: spacing.lg,
-        gap: spacing.lg,
-        borderWidth: 1,
-    },
-    itemImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 12,
-    },
-    itemImagePlaceholder: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    itemUnit: {
-        fontSize: font.sm,
-        fontWeight: '600',
-    },
-    addressHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-        marginBottom: spacing.sm,
-    },
-    addressLabel: {
-        fontSize: font.base,
-        fontWeight: '800',
-    },
-    addressInput: {
-        borderWidth: 1,
-        borderRadius: 14,
-        paddingHorizontal: spacing.lg,
-        paddingVertical: spacing.md,
-        minHeight: 48,
-        maxHeight: 90,
-        fontSize: font.base,
-        fontWeight: '600',
-    },
-    addressHint: {
-        fontSize: font.md,
-        fontWeight: '600',
-        marginTop: spacing.sm,
-    },
-    itemInfo: {
-        flex: 1,
-        justifyContent: 'space-between',
-    },
-    itemName: {
-        fontSize: font.lg,
-        fontWeight: '700',
-    },
-    itemPrice: {
-        fontSize: font.xl,
-        fontWeight: '800',
-    },
-    quantityControls: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        marginTop: spacing.sm,
-    },
-    qtyBtn: {
-        width: 28,
-        height: 28,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    qtyText: {
-        fontSize: font.xl,
-        fontWeight: '700',
-    },
-    deleteBtn: {
-        padding: spacing.xs,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl, gap: spacing.xl },
+    items: { gap: spacing.sm },
+    section: { gap: spacing.sm },
+    sectionTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    summary: { gap: spacing.sm },
+    summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    divider: { height: 1, marginVertical: spacing.xs },
+    secure: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    flex: { flex: 1 },
+    bold: { fontWeight: '800' },
     footer: {
-        padding: spacing.xl,
-        borderWidth: 1,
-        borderBottomWidth: 0,
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 10,
-    },
-    summaryRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: spacing.sm,
-    },
-    summaryLabel: {
-        fontSize: font.lg,
-        fontWeight: '600',
-    },
-    summaryValue: {
-        fontSize: font.lg,
-        fontWeight: '800',
-    },
-    divider: {
-        height: 1,
-        marginVertical: spacing.md,
-    },
-    totalLabel: {
-        fontSize: font.xxl,
-        fontWeight: '800',
-    },
-    totalValue: {
-        fontSize: font.h2,
-        fontWeight: '800',
-    },
-    secureBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: spacing.sm,
-        marginVertical: spacing.lg,
-        paddingVertical: spacing.sm,
-        borderRadius: 12,
+        gap: spacing.lg,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.md,
+        borderTopWidth: 1,
+        ...shadow.raised,
     },
-    checkoutBtn: {
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    checkoutBtnText: {
-        color: '#fff',
-        fontSize: font.xl,
-        fontWeight: '800',
-    },
+    footerTotal: { flex: 1 },
+    payBtn: { flex: 1.2 },
 });
