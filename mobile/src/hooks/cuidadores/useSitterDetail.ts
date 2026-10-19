@@ -121,17 +121,17 @@ export function useSitterDetail() {
         });
     };
 
-    const handleBook = (_serviceType: string) => {
+    const handleBook = () => {
         setSitModalVisible(true);
     };
 
     const handleSubmitSitRequest = () => {
         if (!selectedPetId) {
-            showAlert({ type: 'error', title: 'Error', message: 'Selecciona una mascota.' });
+            showAlert({ type: 'info', title: 'Elige a tu mascota', message: 'Selecciona a quién va a cuidar.' });
             return;
         }
         if (!startDate || !endDate) {
-            showAlert({ type: 'error', title: 'Error', message: 'Selecciona las fechas de inicio y fin.' });
+            showAlert({ type: 'info', title: 'Faltan las fechas', message: 'Elige desde y hasta cuándo.' });
             return;
         }
         if (endDate < startDate) {

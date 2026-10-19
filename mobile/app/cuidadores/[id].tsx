@@ -1,648 +1,224 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Calendar, Dog, Cat, Home, Sun, Moon, Trees, UserX, PawPrint, Send } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useSitterDetail } from '@/src/hooks/cuidadores/useSitterDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import LoadingOverlay from '@/src/components/LoadingOverlay';
-
-import { MapPin, Star, Clock, Home, Users, Calendar, Shield, Share2, Dog, Cat, CheckCircle, Sun, Moon } from 'lucide-react-native';
-import { shareContent } from '@/src/utils/share';
-import { ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice, ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter } from '@/src/features/proveedor/ProviderProfile';
+import EmptyState from '@/src/components/EmptyState';
+import BottomSheet from '@/src/components/BottomSheet';
+import FilterChip from '@/src/components/FilterChip';
+import FormField from '@/src/components/FormField';
+import Button from '@/src/components/Button';
 import DatePicker from '@/src/components/DatePicker';
+import { Skeleton } from '@/src/components/Skeleton';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
+import {
+    ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice,
+    ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter,
+} from '@/src/features/proveedor/ProviderProfile';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
-import { font, spacing, layout } from '@/constants/design';
+import { formatCurrency, sentenceCase } from '@/src/utils/formatters';
+import { layout, spacing, type } from '@/constants/design';
+
+const toDate = (iso: string) => new Date(`${iso}T12:00:00`);
 
 export default function SitterDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const {
-        sitter,
-        isOwnProfile,
-        sitServiceType,
-        setSitServiceType,
-        isLoading,
-        error,
-        handleBook,
-        getServiceName,
-        // Sit request
-        sitModalVisible,
-        setSitModalVisible,
-        selectedPetId,
-        setSelectedPetId,
-        startDate,
-        setStartDate,
-        endDate,
-        setEndDate,
-        sitNotes,
-        setSitNotes,
-        myPets,
-        handleSubmitSitRequest,
-        isRequestingSit,
-        // Reviews
-        reviews,
-        reviewsLoading,
-        handleCreateReview,
-        isCreatingReview,
-        unreviewedCompletedRequests,
-    } = useSitterDetail();
+    const s = useSitterDetail();
+    const { sitter } = s;
 
-    const [formRating, setFormRating] = React.useState(5);
-    const [formComment, setFormComment] = React.useState('');
-
-    const getServiceIcon = (type: string) => {
-        switch (type) {
-            case 'visiting': return <Sun size={20} color={theme.primary} />;
-            case 'hosting': return <Moon size={20} color={theme.primary} />;
-            default: return <Home size={20} color={theme.primary} />;
-        }
-    };
-
-    if (isLoading) {
+    if (s.isLoading) {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Cuidador" />
-                <View style={styles.loadingContainer}>
-                    <LoadingOverlay message="Cargando información..." />
+                <View style={styles.loading}>
+                    <Skeleton width={96} height={96} borderRadius={48} style={styles.center} />
+                    <Skeleton width="50%" height={24} style={styles.center} />
+                    <Skeleton height={72} />
+                    <Skeleton height={120} />
                 </View>
             </ScreenContainer>
         );
     }
 
-    if (error || !sitter) {
+    if (s.error || !sitter) {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Cuidador" />
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, { color: theme.textMuted }]}>
-                        No pudimos cargar la información del cuidador.
-                    </Text>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.retryButton, { backgroundColor: theme.primary }]}
-                        onPress={() => router.back()}
-                    >
-                        <Text style={styles.retryButtonText}>Volver</Text>
-                    </TouchableOpacity>
-                </View>
+                <EmptyState
+                    icon={<UserX size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No pudimos cargar este perfil"
+                    subtitle="Puede que ya no esté disponible o que no tengas conexión."
+                    actionLabel="Ver cuidadores"
+                    onAction={() => router.replace('/cuidadores')}
+                />
             </ScreenContainer>
         );
     }
+
+    const offersHosting = sitter.service_type === 'hosting' || sitter.service_type === 'both';
+    const offersVisits = sitter.service_type === 'visiting' || sitter.service_type === 'both';
+
+    // El promedio guardado en el perfil no siempre está al día: se calcula con las reseñas
+    const average = s.reviews.length ? s.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / s.reviews.length : 0;
 
     return (
         <ScreenContainer>
-            <ScrollView style={{ flex: 1 }}>
-                <ScreenHeader
-                    title="Perfil del Cuidador"
-                />
+            <ScreenHeader title={sitter.display_name} subtitle={sitter.is_verified ? 'Cuidador verificado' : 'Cuidador'} />
 
+            <ScrollView showsVerticalScrollIndicator={false} refreshControl={<AppRefreshControl />} contentContainerStyle={styles.content}>
                 <ProviderHero
                     photoUrl={sitter.photo_url}
                     name={sitter.display_name}
-                    subtitle={sitter.is_verified ? 'Cuidador verificado' : undefined}
-                    rating={sitter.rating}
-                    reviewCount={sitter.total_sits}
+                    rating={s.reviews.length ? average : undefined}
+                    reviewCount={s.reviews.length}
                     accent={theme.secondary}
                 />
-
                 <ProviderStats items={[
                     { value: String(sitter.total_sits), label: 'Cuidados' },
-                    { value: String(sitter.experience_years ?? 0), label: 'Años' },
-                    { value: String(sitter.max_pets ?? 0), label: 'Mascotas' },
+                    { value: String(sitter.experience_years ?? 0), label: sitter.experience_years === 1 ? 'Año' : 'Años' },
+                    { value: String(sitter.max_pets ?? 0), label: 'A la vez' },
                 ]} />
 
-                {/* Bio */}
-                {sitter.bio && (
+                {sitter.bio ? (
                     <ProviderSection title="Sobre mí">
                         <ProviderBio text={sitter.bio} />
                     </ProviderSection>
-                )}
+                ) : null}
 
-                {/* Services */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Ofrecidos</Text>
-                    <View style={styles.servicesContainer}>
-                        <View style={[styles.serviceCard, { borderColor: theme.border }, { backgroundColor: theme.primary + '10' }]}>
-                            {getServiceIcon(sitter.service_type)}
-                            <View style={styles.serviceInfo}>
-                                <Text style={[styles.serviceName, { color: theme.primary }]}>
-                                    {getServiceName(sitter.service_type)}
-                                </Text>
-                                <Text style={[styles.serviceDesc, { color: theme.textMuted }]}>
-                                    {sitter.service_type === 'visiting' ? 'Visita a tu mascota en tu domicilio' : sitter.service_type === 'hosting' ? 'Tu mascota se hospeda en casa del cuidador' : 'Hospedaje en casa del cuidador o visitas a domicilio'}
-                                </Text>
-                            </View>
-                            <CheckCircle size={20} color={theme.success} />
-                        </View>
+                <ProviderSection title="Servicios">
+                    <ProviderServices services={[
+                        { name: 'Hospedaje en su casa', active: offersHosting, icon: <Moon size={layout.icon.md} color={offersHosting ? theme.primary : theme.textMuted} /> },
+                        { name: 'Visitas a domicilio', active: offersVisits, icon: <Sun size={layout.icon.md} color={offersVisits ? theme.primary : theme.textMuted} /> },
+                        { name: 'Perros', active: sitter.accepts_dogs, icon: <Dog size={layout.icon.md} color={sitter.accepts_dogs ? theme.primary : theme.textMuted} /> },
+                        { name: 'Gatos', active: sitter.accepts_cats, icon: <Cat size={layout.icon.md} color={sitter.accepts_cats ? theme.primary : theme.textMuted} /> },
+                    ]} />
+                </ProviderSection>
+
+                {offersHosting && (sitter.home_type || sitter.has_yard) ? (
+                    <ProviderSection title="Su casa">
+                        <ProviderServices services={[
+                            ...(sitter.home_type ? [{ name: sentenceCase(sitter.home_type), active: true, icon: <Home size={layout.icon.md} color={theme.primary} /> }] : []),
+                            ...(sitter.has_yard ? [{ name: 'Patio', active: true, icon: <Trees size={layout.icon.md} color={theme.primary} /> }] : []),
+                        ]} />
+                    </ProviderSection>
+                ) : null}
+
+                {sitter.location ? (
+                    <ProviderSection title="Zona">
+                        <ProviderLocation text={sitter.location} />
+                    </ProviderSection>
+                ) : null}
+
+                <ProviderSection title="Tarifas">
+                    <View style={styles.prices}>
+                        <ProviderPrice label="Por día" amount={sitter.price_per_day ? formatCurrency(sitter.price_per_day) : 'Por acordar'} />
+                        {sitter.price_per_visit ? <ProviderPrice label="Por visita" amount={formatCurrency(sitter.price_per_visit)} /> : null}
                     </View>
-                </View>
+                </ProviderSection>
 
-                {/* Pet Types */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Tipos de Mascotas</Text>
-                    <View style={styles.petTypesContainer}>
-                        <View style={[styles.petTypeCard, { borderColor: theme.border }, { backgroundColor: sitter.accepts_dogs ? theme.primary + '10' : theme.surface }]}>
-                            <Dog size={24} color={sitter.accepts_dogs ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.petTypeName, { color: sitter.accepts_dogs ? theme.primary : theme.textMuted }]}>
-                                Perros
-                            </Text>
-                            <CheckCircle size={16} color={sitter.accepts_dogs ? theme.success : theme.textMuted} />
-                        </View>
-                        <View style={[styles.petTypeCard, { borderColor: theme.border }, { backgroundColor: sitter.accepts_cats ? theme.primary + '10' : theme.surface }]}>
-                            <Cat size={24} color={sitter.accepts_cats ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.petTypeName, { color: sitter.accepts_cats ? theme.primary : theme.textMuted }]}>
-                                Gatos
-                            </Text>
-                            <CheckCircle size={16} color={sitter.accepts_cats ? theme.success : theme.textMuted} />
-                        </View>
-                    </View>
-                </View>
-
-                {/* Home Features */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Características del Hogar</Text>
-                    <View style={styles.featuresGrid}>
-                        {sitter.home_type ? (
-                            <View style={styles.featureItem}>
-                                <Home size={20} color={theme.primary} />
-                                <Text style={[styles.featureText, { color: theme.textMuted }]}>{sitter.home_type}</Text>
-                            </View>
-                        ) : null}
-                        {sitter.has_yard && (
-                            <View style={styles.featureItem}>
-                                <Sun size={20} color={theme.secondary} />
-                                <Text style={[styles.featureText, { color: theme.textMuted }]}>Patio privado</Text>
-                            </View>
-                        )}
-                    </View>
-                </View>
-
-                {/* Location */}
-                {sitter.location && (
-                    <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Ubicación</Text>
-                        <View style={styles.locationRow}>
-                            <MapPin size={20} color={theme.primary} />
-                            <Text style={[styles.locationText, { color: theme.textMuted }]}>
-                                {sitter.location}
-                            </Text>
-                        </View>
-                    </View>
-                )}
-
-                {/* Pricing */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Tarifas</Text>
-                    <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
-                        <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Cuidado por día</Text>
-                        <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                            {sitter.price_per_day ? `$${sitter.price_per_day}` : 'Por acordar'}
-                        </Text>
-                    </View>
-                    {sitter.price_per_visit && (
-                        <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
-                            <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Visita individual</Text>
-                            <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                                ${sitter.price_per_visit}
-                            </Text>
-                        </View>
-                    )}
-                </View>
-
-                <ProviderSection title="Reseñas y Opiniones">
-                    <ProviderRatingSummary rating={sitter.rating || 0} count={reviews.length} />
-                    {unreviewedCompletedRequests.length > 0 && (
-                        <ProviderReviewForm onSubmit={(rating, comment) => { const req = unreviewedCompletedRequests[0]; if (req) handleCreateReview(req.id, { rating, comment }); }} isSubmitting={isCreatingReview} />
-                    )}
-                    <ProviderReviews reviews={reviews.map((r: any) => ({ id: r.id, user_name: r.user_name, rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
+                <ProviderSection title="Opiniones">
+                    <ProviderRatingSummary rating={average} count={s.reviews.length} />
+                    {s.unreviewedCompletedRequests.length > 0 ? (
+                        <ProviderReviewForm
+                            onSubmit={(rating, comment) => {
+                                const req = s.unreviewedCompletedRequests[0];
+                                if (req) s.handleCreateReview(req.id, { rating, comment });
+                            }}
+                            isSubmitting={s.isCreatingReview}
+                        />
+                    ) : null}
+                    <ProviderReviews reviews={s.reviews.map((r: any) => ({ id: r.id, user_name: r.user_name, rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
                 </ProviderSection>
             </ScrollView>
 
-            {!isOwnProfile && (
-                <ProviderFooter label="Reservar Cuidado" onPress={() => handleBook('boarding')} icon={<Calendar size={20} color={theme.onPrimary} />} />
-            )}
+            {!s.isOwnProfile ? (
+                <ProviderFooter label="Solicitar cuidado" onPress={s.handleBook} icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />} />
+            ) : null}
 
+            <BottomSheet
+                visible={s.sitModalVisible}
+                onClose={() => s.setSitModalVisible(false)}
+                title="Solicitar cuidado"
+                subtitle={`Con ${sitter.display_name}`}
+                footer={(
+                    <>
+                        <Button label="Cancelar" variant="secondary" onPress={() => s.setSitModalVisible(false)} style={styles.flex} />
+                        <Button
+                            label="Enviar"
+                            icon={<Send size={layout.icon.sm} color={theme.onPrimary} />}
+                            onPress={s.handleSubmitSitRequest}
+                            loading={s.isRequestingSit}
+                            style={styles.primary}
+                        />
+                    </>
+                )}
+            >
+                <View style={styles.group}>
+                    <Text style={[type.labelSentence, { color: theme.text }]}>¿A quién cuida?</Text>
+                    {s.myPets.length === 0 ? (
+                        <View style={styles.inline}>
+                            <Text style={[type.body, styles.flex, { color: theme.textMuted }]}>Primero agrega a tu mascota.</Text>
+                            <Button label="Agregar" size="sm" onPress={() => { s.setSitModalVisible(false); router.push('/mascotas/nuevo'); }} />
+                        </View>
+                    ) : (
+                        <View style={styles.chips}>
+                            {s.myPets.map((pet: { id: string; name: string }) => {
+                                const active = s.selectedPetId === pet.id;
+                                return (
+                                    <FilterChip
+                                        key={pet.id}
+                                        label={pet.name}
+                                        active={active}
+                                        onPress={() => s.setSelectedPetId(pet.id)}
+                                        icon={<PawPrint size={layout.icon.xs} color={active ? theme.onPrimary : theme.textMuted} />}
+                                    />
+                                );
+                            })}
+                        </View>
+                    )}
+                </View>
+                {sitter.service_type === 'both' ? (
+                    <View style={styles.group}>
+                        <Text style={[type.labelSentence, { color: theme.text }]}>Tipo de cuidado</Text>
+                        <View style={styles.chips}>
+                            <FilterChip label="Hospedaje en su casa" active={s.sitServiceType === 'hosting'} onPress={() => s.setSitServiceType('hosting')} />
+                            <FilterChip label="Visitas a mi casa" active={s.sitServiceType === 'visiting'} onPress={() => s.setSitServiceType('visiting')} />
+                        </View>
+                    </View>
+                ) : null}
+                <View style={styles.row}>
+                    <View style={styles.flex}>
+                        <DatePicker label="Desde" value={toDate(s.startDate)} onChange={(d) => s.setStartDate(toLocalIsoDate(d))} minimumDate={new Date()} />
+                    </View>
+                    <View style={styles.flex}>
+                        <DatePicker label="Hasta" value={toDate(s.endDate)} onChange={(d) => s.setEndDate(toLocalIsoDate(d))} minimumDate={toDate(s.startDate)} />
+                    </View>
+                </View>
+                <FormField
+                    label="Notas para el cuidador"
+                    value={s.sitNotes}
+                    onChangeText={s.setSitNotes}
+                    placeholder="Alimentación, medicinas, dirección para visitas…"
+                    multiline
+                />
+            </BottomSheet>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: spacing.lg,
-    },
-    errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: layout.screenPadding,
-        gap: spacing.lg,
-    },
-    errorText: {
-        fontSize: font.xl,
-        textAlign: 'center',
-    },
-    retryButton: {
-        paddingHorizontal: layout.screenPadding,
-        paddingVertical: spacing.md,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    retryButtonText: {
-        color: '#fff',
-        fontSize: font.xl,
-        fontWeight: '600',
-    },
-    profileHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: layout.screenPadding,
-        paddingVertical: spacing.xl,
-        gap: spacing.lg,
-    },
-    avatarContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-    },
-    avatar: {
-        width: '100%',
-        height: '100%',
-    },
-    avatarText: {
-        fontSize: font.display,
-        fontWeight: '800',
-    },
-    profileInfo: {
-        flex: 1,
-    },
-    profileName: {
-        fontSize: font.h2,
-        fontWeight: '800',
-        marginBottom: spacing.xs,
-    },
-    ratingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-        marginBottom: spacing.sm,
-    },
-    ratingText: {
-        fontSize: font.base,
-        fontWeight: '600',
-    },
-    verifiedBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-        alignSelf: 'flex-start',
-    },
-    verifiedText: {
-        fontSize: font.md,
-        fontWeight: '600',
-        color: '#10b981',
-    },
-    shareButton: {
-        padding: spacing.sm,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginHorizontal: layout.screenPadding,
-        padding: spacing.xl,
-        borderRadius: 16,
-        marginBottom: spacing.lg,
-    },
-    statItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    statDivider: {
-        width: 1,
-        marginHorizontal: spacing.lg,
-    },
-    statNumber: {
-        fontSize: font.h3,
-        fontWeight: '800',
-        marginTop: spacing.sm,
-    },
-    statLabel: {
-        fontSize: font.md,
-        marginTop: spacing.xs,
-    },
-    section: {
-        marginHorizontal: layout.screenPadding,
-        padding: spacing.xl,
-        borderRadius: 16,
-        marginBottom: spacing.lg,
-    },
-    sectionTitle: {
-        fontSize: font.xxl,
-        fontWeight: '700',
-        marginBottom: spacing.md,
-    },
-    bioText: {
-        fontSize: font.lg,
-        lineHeight: 22,
-    },
-    servicesContainer: {
-        gap: spacing.md,
-    },
-    serviceCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: spacing.lg,
-        borderRadius: 12,
-        borderWidth: 1,
-        gap: spacing.md,
-    },
-    serviceInfo: {
-        flex: 1,
-    },
-    serviceName: {
-        fontSize: font.xl,
-        fontWeight: '700',
-        marginBottom: spacing.xs,
-    },
-    serviceDesc: {
-        fontSize: font.base,
-        lineHeight: 18,
-    },
-    petTypesContainer: {
-        gap: spacing.md,
-    },
-    petTypeCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: spacing.lg,
-        borderRadius: 12,
-        borderWidth: 1,
-        gap: spacing.md,
-    },
-    petTypeName: {
-        flex: 1,
-        fontSize: font.lg,
-        fontWeight: '600',
-    },
-    featuresGrid: {
-        gap: spacing.md,
-    },
-    featureItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        paddingVertical: spacing.sm,
-    },
-    featureText: {
-        fontSize: font.base,
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-    },
-    locationText: {
-        fontSize: font.lg,
-        flex: 1,
-    },
-    pricingCard: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: spacing.md,
-        borderBottomWidth: 1,
-    },
-    priceLabel: {
-        fontSize: font.lg,
-    },
-    priceAmount: {
-        fontSize: font.h3,
-        fontWeight: '800',
-    },
-    actionContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: layout.screenPadding,
-        gap: spacing.md,
-        marginBottom: spacing.xxl,
-    },
-    contactButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: spacing.lg,
-        borderRadius: 12,
-        gap: spacing.sm,
-        borderWidth: 1,
-    },
-    contactButtonText: {
-        fontSize: font.lg,
-        fontWeight: '600',
-    },
-    bookButton: {
-        flex: 1.5,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 56,
-        borderRadius: 18,
-        gap: spacing.sm,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-    },
-    bookButtonText: {
-        color: '#fff',
-        fontSize: font.lg,
-        fontWeight: '800',
-    },
-    footer: {
-        flexDirection: 'row',
-        padding: spacing.xl,
-        paddingBottom: spacing.huge,
-        borderTopWidth: 1,
-        gap: spacing.md,
-    },
-    contactBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 56,
-        borderRadius: 18,
-        gap: spacing.sm,
-        borderWidth: 1.5,
-    },
-    contactBtnText: {
-        fontSize: font.lg,
-        fontWeight: '700',
-    },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '85%' },
-    modalTitle: { fontSize: font.h2, fontWeight: '800', marginBottom: spacing.xl },
-    modalLabel: { fontSize: font.md, fontWeight: '700', marginTop: spacing.lg, marginBottom: spacing.sm },
-    petChip: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12, marginRight: spacing.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    petChipText: { fontSize: font.base, fontWeight: '700' },
-    noPetsText: { fontSize: font.base, paddingVertical: spacing.sm },
-    modalInput: { borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.lg, height: 80, textAlignVertical: 'top' },
-    modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxl },
-    modalCancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    modalCancelText: { fontSize: font.lg, fontWeight: '700' },
-    modalSubmitBtn: { flex: 2, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    modalSubmitText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
-    ratingSummaryCard: {
-        flexDirection: 'row',
-        padding: spacing.xl,
-        borderRadius: 24,
-        borderWidth: 1,
-        marginBottom: spacing.xl,
-        alignItems: 'center',
-    },
-    summaryLeft: {
-        alignItems: 'center',
-        paddingRight: spacing.xl,
-    },
-    bigRating: {
-        fontSize: font.display,
-        fontWeight: '800',
-    },
-    starsRow: {
-        flexDirection: 'row',
-        gap: spacing.xxs,
-        marginVertical: spacing.sm,
-    },
-    totalReviewsText: {
-        fontSize: font.sm,
-        fontWeight: '700',
-    },
-    summarySeparator: {
-        width: 1,
-        height: '80%',
-    },
-    summaryRight: {
-        flex: 1,
-        paddingLeft: spacing.xl,
-    },
-    summaryDescription: {
-        fontSize: font.md,
-        lineHeight: 18,
-        fontWeight: '600',
-    },
-    writeReviewCard: {
-        padding: spacing.xl,
-        borderRadius: 24,
-        borderWidth: 1,
-        marginBottom: spacing.xxl,
-    },
-    writeReviewTitle: {
-        fontSize: font.xl,
-        fontWeight: '800',
-        marginBottom: spacing.xs,
-    },
-    writeReviewSubtitle: {
-        fontSize: font.md,
-        fontWeight: '600',
-        marginBottom: spacing.lg,
-    },
-    interactiveStars: {
-        flexDirection: 'row',
-        gap: spacing.md,
-        justifyContent: 'center',
-        marginBottom: spacing.xl,
-    },
-    starTouch: {
-        padding: spacing.xs,
-    },
-    commentInput: {
-        borderRadius: 16,
-        borderWidth: 1,
-        padding: spacing.md,
-        fontSize: font.base,
-        height: 80,
-        textAlignVertical: 'top',
-        marginBottom: spacing.lg,
-        fontWeight: '600',
-    },
-    submitReviewBtn: {
-        height: 48,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    submitReviewBtnText: {
-        color: '#fff',
-        fontSize: font.base,
-        fontWeight: '800',
-    },
-    infoReviewCard: {
-        padding: spacing.lg,
-        borderRadius: 20,
-        borderWidth: 1,
-        marginBottom: spacing.xl,
-    },
-    infoReviewText: {
-        fontSize: font.base,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-    reviewsList: {
-        gap: spacing.md,
-        marginBottom: spacing.md,
-    },
-    emptyReviewsText: {
-        fontSize: font.base,
-        fontWeight: '600',
-        textAlign: 'center',
-        paddingVertical: spacing.xl,
-        fontStyle: 'italic',
-    },
-    reviewItemCard: {
-        padding: spacing.lg,
-        borderRadius: 20,
-        borderWidth: 1,
-    },
-    reviewItemHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        marginBottom: spacing.md,
-    },
-    reviewAvatar: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    reviewAvatarText: {
-        fontSize: font.base,
-        fontWeight: '800',
-    },
-    reviewUserName: {
-        fontSize: font.base,
-        fontWeight: '800',
-    },
-    reviewStarsRow: {
-        flexDirection: 'row',
-        gap: spacing.xxs,
-        marginTop: spacing.xxs,
-    },
-    reviewDate: {
-        fontSize: font.sm,
-        fontWeight: '700',
-    },
-    reviewCommentText: {
-        fontSize: font.base,
-        lineHeight: 19,
-        fontWeight: '600',
-    },
+    flex: { flex: 1 },
+    primary: { flex: 1.6 },
+    center: { alignSelf: 'center' },
+    loading: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.md },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl },
+    prices: { gap: spacing.sm },
+    group: { gap: spacing.sm },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    row: { flexDirection: 'row', gap: spacing.md },
+    inline: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 });

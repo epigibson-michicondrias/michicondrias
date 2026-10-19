@@ -1,638 +1,205 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Calendar, Dog, Cat, UserX, PawPrint, Send } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useWalkerDetail } from '@/src/hooks/paseadores/useWalkerDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { 
-    MapPin, Star, Clock, Users, Calendar, 
-    Shield, Share2, Dog, Cat, CheckCircle 
-} from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-
-import { shareContent } from '@/src/utils/share';
-import { ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice, ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter } from '@/src/features/proveedor/ProviderProfile';
+import EmptyState from '@/src/components/EmptyState';
+import BottomSheet from '@/src/components/BottomSheet';
+import FilterChip from '@/src/components/FilterChip';
+import FormField from '@/src/components/FormField';
+import Button from '@/src/components/Button';
 import DatePicker from '@/src/components/DatePicker';
+import { Skeleton } from '@/src/components/Skeleton';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
+import {
+    ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice,
+    ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter,
+} from '@/src/features/proveedor/ProviderProfile';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
-import { font, spacing, layout } from '@/constants/design';
+import { formatCurrency } from '@/src/utils/formatters';
+import { layout, spacing, type } from '@/constants/design';
+
+const DURATIONS = [30, 45, 60, 90];
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const {
-        walker,
-        isOwnProfile,
-        walkDate,
-        setWalkDate,
-        isLoading,
-        error,
-        handleBook,
-        // Walk request
-        walkModalVisible,
-        setWalkModalVisible,
-        selectedPetId,
-        setSelectedPetId,
-        walkNotes,
-        setWalkNotes,
-        walkDuration,
-        setWalkDuration,
-        myPets,
-        handleSubmitWalkRequest,
-        isRequestingWalk,
-        // Reviews
-        reviews,
-        reviewsLoading,
-        handleCreateReview,
-        isCreatingReview,
-        unreviewedCompletedRequests,
-    } = useWalkerDetail();
+    const w = useWalkerDetail();
+    const { walker } = w;
 
-    const [formRating, setFormRating] = React.useState(5);
-    const [formComment, setFormComment] = React.useState('');
-
-    if (isLoading) {
+    if (w.isLoading) {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Paseador" />
-                <View style={styles.loadingContainer}>
-                    <LoadingOverlay message="Cargando información..." />
+                <View style={styles.loading}>
+                    <Skeleton width={96} height={96} borderRadius={48} style={styles.center} />
+                    <Skeleton width="50%" height={24} style={styles.center} />
+                    <Skeleton height={72} />
+                    <Skeleton height={120} />
                 </View>
             </ScreenContainer>
         );
     }
 
-    if (error || !walker) {
+    if (w.error || !walker) {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Paseador" />
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, { color: theme.textMuted }]}>
-                        No pudimos cargar la información del paseador.
-                    </Text>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.retryButton, { backgroundColor: theme.primary }]}
-                        onPress={() => router.back()}
-                    >
-                        <Text style={styles.retryButtonText}>Volver</Text>
-                    </TouchableOpacity>
-                </View>
+                <EmptyState
+                    icon={<UserX size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No pudimos cargar este perfil"
+                    subtitle="Puede que ya no esté disponible o que no tengas conexión."
+                    actionLabel="Ver paseadores"
+                    onAction={() => router.replace('/paseadores')}
+                />
             </ScreenContainer>
         );
     }
+
+    // El promedio guardado en el perfil no siempre está al día: se calcula con las reseñas
+    const average = w.reviews.length ? w.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / w.reviews.length : 0;
 
     return (
-        <ScreenContainer style={{ backgroundColor: theme.background }}>
-            <ScreenHeader
-                title="Perfil del Paseador"
-            />
+        <ScreenContainer>
+            <ScreenHeader title={walker.display_name} subtitle={walker.is_verified ? 'Paseador verificado' : 'Paseador'} />
 
-            <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContainer}>
+            <ScrollView showsVerticalScrollIndicator={false} refreshControl={<AppRefreshControl />} contentContainerStyle={styles.content}>
                 <ProviderHero
                     photoUrl={walker.photo_url}
                     name={walker.display_name}
-                    subtitle={walker.is_verified ? 'Paseador verificado' : undefined}
-                    rating={walker.rating}
-                    reviewCount={walker.total_walks}
+                    rating={w.reviews.length ? average : undefined}
+                    reviewCount={w.reviews.length}
                 />
-
                 <ProviderStats items={[
                     { value: String(walker.total_walks), label: 'Paseos' },
-                    { value: String(walker.experience_years ?? 0), label: 'Años' },
-                    { value: String(walker.max_pets_per_walk), label: 'Mascotas' },
+                    { value: String(walker.experience_years ?? 0), label: walker.experience_years === 1 ? 'Año' : 'Años' },
+                    { value: String(walker.max_pets_per_walk), label: 'Por paseo' },
                 ]} />
 
-                {walker.bio && (
+                {walker.bio ? (
                     <ProviderSection title="Sobre mí">
                         <ProviderBio text={walker.bio} />
                     </ProviderSection>
-                )}
+                ) : null}
 
-                <ProviderSection title="Servicios">
+                <ProviderSection title="Pasea a">
                     <ProviderServices services={[
-                        { name: 'Paseo de Perros', active: walker.accepts_dogs, icon: <Dog size={24} color={walker.accepts_dogs ? theme.primary : theme.textMuted} /> },
-                        { name: 'Paseo de Gatos', active: walker.accepts_cats, icon: <Cat size={24} color={walker.accepts_cats ? theme.primary : theme.textMuted} /> },
+                        { name: 'Perros', active: walker.accepts_dogs, icon: <Dog size={layout.icon.md} color={walker.accepts_dogs ? theme.primary : theme.textMuted} /> },
+                        { name: 'Gatos', active: walker.accepts_cats, icon: <Cat size={layout.icon.md} color={walker.accepts_cats ? theme.primary : theme.textMuted} /> },
                     ]} />
                 </ProviderSection>
 
-                {walker.location && (
-                    <ProviderSection title="Ubicación">
-                        <ProviderLocation text={walker.location} extra={walker.service_radius_km ? `Radio de servicio: ${walker.service_radius_km} km` : undefined} />
+                {walker.location ? (
+                    <ProviderSection title="Zona">
+                        <ProviderLocation text={walker.location} extra={walker.service_radius_km ? `Hasta ${walker.service_radius_km} km a la redonda` : undefined} />
                     </ProviderSection>
-                )}
+                ) : null}
 
-                {/* Pricing */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Tarifas</Text>
-                    <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
-                        <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Por hora</Text>
-                        <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                            {walker.price_per_hour ? `$${walker.price_per_hour}` : 'Por acordar'}
-                        </Text>
+                <ProviderSection title="Tarifas">
+                    <View style={styles.prices}>
+                        <ProviderPrice label="Por hora" amount={walker.price_per_hour ? formatCurrency(walker.price_per_hour) : 'Por acordar'} />
+                        {walker.price_per_walk ? <ProviderPrice label="Paseo individual" amount={formatCurrency(walker.price_per_walk)} /> : null}
                     </View>
-                    {walker.price_per_walk && (
-                        <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
-                            <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Paseo individual</Text>
-                            <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                                ${walker.price_per_walk}
-                            </Text>
-                        </View>
-                    )}
-                </View>
+                </ProviderSection>
 
-                <ProviderSection title="Reseñas y Opiniones">
-                    <ProviderRatingSummary rating={walker.rating || 0} count={reviews.length} />
-                    {unreviewedCompletedRequests.length > 0 && (
-                        <ProviderReviewForm onSubmit={(rating, comment) => { const req = unreviewedCompletedRequests[0]; if (req) handleCreateReview(req.id, { rating, comment }); }} isSubmitting={isCreatingReview} />
-                    )}
-                    <ProviderReviews reviews={reviews.map((r: any) => ({ id: r.id, user_name: r.user_name, rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
+                <ProviderSection title="Opiniones">
+                    <ProviderRatingSummary rating={average} count={w.reviews.length} />
+                    {w.unreviewedCompletedRequests.length > 0 ? (
+                        <ProviderReviewForm
+                            onSubmit={(rating, comment) => {
+                                const req = w.unreviewedCompletedRequests[0];
+                                if (req) w.handleCreateReview(req.id, { rating, comment });
+                            }}
+                            isSubmitting={w.isCreatingReview}
+                        />
+                    ) : null}
+                    <ProviderReviews reviews={w.reviews.map((r: any) => ({ id: r.id, user_name: r.user_name, rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
                 </ProviderSection>
             </ScrollView>
 
-            {/* Action Buttons (Sticky Footer) */}
-            {!isOwnProfile && (
-            <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
-<TouchableOpacity accessibilityRole="button"
-                    style={[styles.bookButton, { backgroundColor: theme.primary }]}
-                    onPress={handleBook}
-                >
-                    <Calendar size={20} color="#fff" />
-                    <Text style={styles.bookButtonText}>Reservar Paseo</Text>
-                </TouchableOpacity>
-            </View>
-            )}
+            {!w.isOwnProfile ? (
+                <ProviderFooter label="Solicitar paseo" onPress={w.handleBook} icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />} />
+            ) : null}
 
-            {/* Walk Request Modal */}
-            <Modal visible={walkModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-                        <Text style={[styles.modalTitle, { color: theme.text }]}>Solicitar Paseo</Text>
-                        
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Selecciona tu mascota</Text>
-                        {myPets.length === 0 ? (
-                            <Text style={[styles.noPetsText, { color: theme.textMuted }]}>No tienes mascotas registradas</Text>
-                        ) : (
-                            <FlatList
-                                data={myPets}
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                keyExtractor={p => p.id}
-                                renderItem={({ item: pet }) => (
-                                    <TouchableOpacity accessibilityRole="button"
-                                        style={[
-                                            styles.petChip,
-                                            { backgroundColor: theme.surface, borderColor: selectedPetId === pet.id ? theme.primary : theme.border },
-                                            selectedPetId === pet.id && { borderWidth: 2 }
-                                        ]}
-                                        onPress={() => setSelectedPetId(pet.id)}
-                                    >
-                                        <Text style={[styles.petChipText, { color: selectedPetId === pet.id ? theme.primary : theme.text }]}>
-                                            {pet.name}
-                                        </Text>
-                                    </TouchableOpacity>
-                                )}
-                            />
-                        )}
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha del paseo</Text>
-                        <DatePicker
-                            value={new Date(walkDate + 'T12:00:00')}
-                            onChange={(d) => setWalkDate(toLocalIsoDate(d))}
-                            minimumDate={new Date()}
+            <BottomSheet
+                visible={w.walkModalVisible}
+                onClose={() => w.setWalkModalVisible(false)}
+                title="Solicitar paseo"
+                subtitle={`Con ${walker.display_name}`}
+                footer={(
+                    <>
+                        <Button label="Cancelar" variant="secondary" onPress={() => w.setWalkModalVisible(false)} style={styles.flex} />
+                        <Button
+                            label="Enviar"
+                            icon={<Send size={layout.icon.sm} color={theme.onPrimary} />}
+                            onPress={w.handleSubmitWalkRequest}
+                            loading={w.isRequestingWalk}
+                            style={styles.primary}
                         />
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Duración (minutos)</Text>
-                        <View style={styles.durationRow}>
-                            {[30, 45, 60, 90].map(d => (
-                                <TouchableOpacity accessibilityRole="button"
-                                    key={d}
-                                    style={[
-                                        styles.durationChip,
-                                        { backgroundColor: walkDuration === d ? theme.primary : theme.surface, borderColor: theme.border }
-                                    ]}
-                                    onPress={() => setWalkDuration(d)}
-                                >
-                                    <Text style={{ color: walkDuration === d ? '#fff' : theme.text, fontWeight: '700', fontSize: font.base }}>{d}</Text>
-                                </TouchableOpacity>
-                            ))}
+                    </>
+                )}
+            >
+                <View style={styles.group}>
+                    <Text style={[type.labelSentence, { color: theme.text }]}>¿A quién pasea?</Text>
+                    {w.myPets.length === 0 ? (
+                        <View style={styles.inline}>
+                            <Text style={[type.body, styles.flex, { color: theme.textMuted }]}>Primero agrega a tu mascota.</Text>
+                            <Button label="Agregar" size="sm" onPress={() => { w.setWalkModalVisible(false); router.push('/mascotas/nuevo'); }} />
                         </View>
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Notas (opcional)</Text>
-                        <TextInput
-                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            value={walkNotes}
-                            onChangeText={setWalkNotes}
-                            placeholder="Instrucciones especiales..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                        />
-
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity accessibilityRole="button" style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} onPress={() => setWalkModalVisible(false)}>
-                                <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSubmitWalkRequest}
-                                disabled={isRequestingWalk}
-                            >
-                                {isRequestingWalk ? <ActivityIndicator color="#fff" size="small" /> : (
-                                    <Text style={styles.modalSubmitText}>Enviar Solicitud</Text>
-                                )}
-                            </TouchableOpacity>
+                    ) : (
+                        <View style={styles.chips}>
+                            {w.myPets.map((pet) => {
+                                const active = w.selectedPetId === pet.id;
+                                return (
+                                    <FilterChip
+                                        key={pet.id}
+                                        label={pet.name}
+                                        active={active}
+                                        onPress={() => w.setSelectedPetId(pet.id)}
+                                        icon={<PawPrint size={layout.icon.xs} color={active ? theme.onPrimary : theme.textMuted} />}
+                                    />
+                                );
+                            })}
                         </View>
+                    )}
+                </View>
+                <DatePicker
+                    label="Día del paseo"
+                    value={new Date(`${w.walkDate}T12:00:00`)}
+                    onChange={(d) => w.setWalkDate(toLocalIsoDate(d))}
+                    minimumDate={new Date()}
+                />
+                <View style={styles.group}>
+                    <Text style={[type.labelSentence, { color: theme.text }]}>Duración</Text>
+                    <View style={styles.chips}>
+                        {DURATIONS.map((d) => (
+                            <FilterChip key={d} label={`${d} min`} active={w.walkDuration === d} onPress={() => w.setWalkDuration(d)} />
+                        ))}
                     </View>
                 </View>
-            </Modal>
-
+                <FormField
+                    label="Notas para el paseador"
+                    value={w.walkNotes}
+                    onChangeText={w.setWalkNotes}
+                    placeholder="Hora preferida, dirección, si jala la correa…"
+                    multiline
+                />
+            </BottomSheet>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: spacing.lg,
-    },
-    loadingText: {
-        fontSize: font.xl,
-    },
-    errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: layout.screenPadding,
-        gap: spacing.lg,
-    },
-    errorText: {
-        fontSize: font.xl,
-        textAlign: 'center',
-    },
-    retryButton: {
-        paddingHorizontal: layout.screenPadding,
-        paddingVertical: spacing.md,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    retryButtonText: {
-        color: '#fff',
-        fontSize: font.xl,
-        fontWeight: '600',
-    },
-    profileHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: layout.screenPadding,
-        paddingVertical: spacing.xl,
-        gap: spacing.lg,
-    },
-    avatarContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-    },
-    avatar: {
-        width: '100%',
-        height: '100%',
-    },
-    avatarText: {
-        fontSize: font.display,
-        fontWeight: '800',
-    },
-    profileInfo: {
-        flex: 1,
-    },
-    profileName: {
-        fontSize: font.h2,
-        fontWeight: '800',
-        marginBottom: spacing.xs,
-    },
-    ratingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-        marginBottom: spacing.sm,
-    },
-    ratingText: {
-        fontSize: font.base,
-        fontWeight: '600',
-    },
-    verifiedBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-        alignSelf: 'flex-start',
-    },
-    verifiedText: {
-        fontSize: font.md,
-        fontWeight: '600',
-        color: '#10b981',
-    },
-    shareButton: {
-        padding: spacing.sm,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginHorizontal: layout.screenPadding,
-        padding: spacing.xl,
-        borderRadius: 16,
-        marginBottom: spacing.lg,
-    },
-    statItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    statDivider: {
-        width: 1,
-        marginHorizontal: spacing.lg,
-    },
-    statNumber: {
-        fontSize: font.h3,
-        fontWeight: '800',
-        marginTop: spacing.sm,
-    },
-    statLabel: {
-        fontSize: font.md,
-        marginTop: spacing.xs,
-    },
-    section: {
-        marginHorizontal: layout.screenPadding,
-        padding: spacing.xl,
-        borderRadius: 16,
-        marginBottom: spacing.lg,
-    },
-    sectionTitle: {
-        fontSize: font.xxl,
-        fontWeight: '700',
-        marginBottom: spacing.md,
-    },
-    bioText: {
-        fontSize: font.lg,
-        lineHeight: 22,
-    },
-    servicesGrid: {
-        gap: spacing.md,
-    },
-    serviceCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: spacing.lg,
-        borderRadius: 12,
-        borderWidth: 1,
-        gap: spacing.md,
-    },
-    serviceName: {
-        flex: 1,
-        fontSize: font.lg,
-        fontWeight: '600',
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.sm,
-        marginBottom: spacing.sm,
-    },
-    locationText: {
-        fontSize: font.lg,
-        flex: 1,
-    },
-    radiusText: {
-        fontSize: font.base,
-        fontStyle: 'italic',
-    },
-    pricingCard: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: spacing.md,
-        borderBottomWidth: 1,
-    },
-    priceLabel: {
-        fontSize: font.lg,
-    },
-    priceAmount: {
-        fontSize: font.h3,
-        fontWeight: '800',
-    },
-    actionContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: layout.screenPadding,
-        gap: spacing.md,
-        marginBottom: spacing.xxl,
-    },
-    scrollContainer: {
-        flex: 1,
-    },
-    contactBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 56,
-        borderRadius: 18,
-        gap: spacing.sm,
-        borderWidth: 1.5,
-    },
-    contactBtnText: {
-        fontSize: font.lg,
-        fontWeight: '700',
-    },
-    bookButton: {
-        flex: 1.5,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 56,
-        borderRadius: 18,
-        gap: spacing.sm,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-    },
-    bookButtonText: {
-        color: '#fff',
-        fontSize: font.lg,
-        fontWeight: '800',
-    },
-    footer: {
-        flexDirection: 'row',
-        padding: spacing.xl,
-        paddingBottom: spacing.huge,
-        borderTopWidth: 1,
-        gap: spacing.md,
-    },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '80%' },
-    modalTitle: { fontSize: font.h2, fontWeight: '800', marginBottom: spacing.xl },
-    modalLabel: { fontSize: font.md, fontWeight: '700', marginTop: spacing.lg, marginBottom: spacing.sm },
-    petChip: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12, marginRight: spacing.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    petChipText: { fontSize: font.base, fontWeight: '700' },
-    noPetsText: { fontSize: font.base, paddingVertical: spacing.sm },
-    durationRow: { flexDirection: 'row', gap: spacing.md },
-    durationChip: { flex: 1, paddingVertical: spacing.md, borderRadius: 12, alignItems: 'center', borderWidth: 1, justifyContent: 'center' },
-    modalInput: { borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.lg, height: 80, textAlignVertical: 'top' },
-    modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxl },
-    modalCancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    modalCancelText: { fontSize: font.lg, fontWeight: '700' },
-    modalSubmitBtn: { flex: 2, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    modalSubmitText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
-    ratingSummaryCard: {
-        flexDirection: 'row',
-        padding: spacing.xl,
-        borderRadius: 24,
-        borderWidth: 1,
-        marginBottom: spacing.xl,
-        alignItems: 'center',
-    },
-    summaryLeft: {
-        alignItems: 'center',
-        paddingRight: spacing.xl,
-    },
-    bigRating: {
-        fontSize: font.display,
-        fontWeight: '800',
-    },
-    starsRow: {
-        flexDirection: 'row',
-        gap: spacing.xxs,
-        marginVertical: spacing.sm,
-    },
-    totalReviewsText: {
-        fontSize: font.sm,
-        fontWeight: '700',
-    },
-    summarySeparator: {
-        width: 1,
-        height: '80%',
-    },
-    summaryRight: {
-        flex: 1,
-        paddingLeft: spacing.xl,
-    },
-    summaryDescription: {
-        fontSize: font.md,
-        lineHeight: 18,
-        fontWeight: '600',
-    },
-    writeReviewCard: {
-        padding: spacing.xl,
-        borderRadius: 24,
-        borderWidth: 1,
-        marginBottom: spacing.xxl,
-    },
-    writeReviewTitle: {
-        fontSize: font.xl,
-        fontWeight: '800',
-        marginBottom: spacing.xs,
-    },
-    writeReviewSubtitle: {
-        fontSize: font.md,
-        fontWeight: '600',
-        marginBottom: spacing.lg,
-    },
-    interactiveStars: {
-        flexDirection: 'row',
-        gap: spacing.md,
-        justifyContent: 'center',
-        marginBottom: spacing.xl,
-    },
-    starTouch: {
-        padding: spacing.xs,
-    },
-    commentInput: {
-        borderRadius: 16,
-        borderWidth: 1,
-        padding: spacing.md,
-        fontSize: font.base,
-        height: 80,
-        textAlignVertical: 'top',
-        marginBottom: spacing.lg,
-        fontWeight: '600',
-    },
-    submitReviewBtn: {
-        height: 48,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    submitReviewBtnText: {
-        color: '#fff',
-        fontSize: font.base,
-        fontWeight: '800',
-    },
-    infoReviewCard: {
-        padding: spacing.lg,
-        borderRadius: 20,
-        borderWidth: 1,
-        marginBottom: spacing.xl,
-    },
-    infoReviewText: {
-        fontSize: font.base,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-    reviewsList: {
-        gap: spacing.md,
-        marginBottom: spacing.md,
-    },
-    emptyReviewsText: {
-        fontSize: font.base,
-        fontWeight: '600',
-        textAlign: 'center',
-        paddingVertical: spacing.xl,
-        fontStyle: 'italic',
-    },
-    reviewItemCard: {
-        padding: spacing.lg,
-        borderRadius: 20,
-        borderWidth: 1,
-    },
-    reviewItemHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        marginBottom: spacing.md,
-    },
-    reviewAvatar: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    reviewAvatarText: {
-        fontSize: font.base,
-        fontWeight: '800',
-    },
-    reviewUserName: {
-        fontSize: font.base,
-        fontWeight: '800',
-    },
-    reviewStarsRow: {
-        flexDirection: 'row',
-        gap: spacing.xxs,
-        marginTop: spacing.xxs,
-    },
-    reviewDate: {
-        fontSize: font.sm,
-        fontWeight: '700',
-    },
-    reviewCommentText: {
-        fontSize: font.base,
-        lineHeight: 19,
-        fontWeight: '600',
-    },
+    flex: { flex: 1 },
+    primary: { flex: 1.6 },
+    center: { alignSelf: 'center' },
+    loading: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.md },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl },
+    prices: { gap: spacing.sm },
+    group: { gap: spacing.sm },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    inline: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 });

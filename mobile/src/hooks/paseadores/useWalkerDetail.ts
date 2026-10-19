@@ -127,7 +127,7 @@ export function useWalkerDetail() {
 
     const handleSubmitWalkRequest = () => {
         if (!selectedPetId) {
-            showAlert({ type: 'error', title: 'Error', message: 'Selecciona una mascota para el paseo.' });
+            showAlert({ type: 'info', title: 'Elige a tu mascota', message: 'Selecciona a quién llevará a pasear.' });
             return;
         }
         requestWalkMutation.mutate({

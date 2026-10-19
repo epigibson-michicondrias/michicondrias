@@ -58,10 +58,10 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); F14 ✅ (avisos de dosis y refuerzos en la bandeja); falta la pasada U7 |
 | P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ✅ | ✅ | F18–F20 ✅. U8 ✅ 2026-10-19: pestaña (favoritos, ordenar, cuadrícula/lista, agregar rápido, CartBar), producto, bolsa, compras con filtros, pedido con seguimiento y «Volver a comprar» |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
-| P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
+| P2 | Directorio y citas | 6 | 🔍 | 🟡 | 🟡 | 2026-10-19: mis citas, agendar y clínica premium; falta `index`/`especialista`/`nuevo` |
 | P2 | Adopciones | 12 | 🔍 | 🟡 | ✅ | U ✅ 2026-10-19. Pendiente: KYC en backend; fusionar `solicitudes` y `ver-solicitudes` (requiere aprobación) |
 | P2 | Perdidas | 5 | 🔍 | ✅ | ✅ | 2026-10-19: detalle, crear/editar, mis reportes; privacidad en backend |
-| P2 | Paseadores / Cuidadores (cliente) | 4+4 | ⬜ | ⬜ | ⬜ | Detalles de 844 y 938 líneas casi gemelos → componente compartido |
+| P2 | Paseadores / Cuidadores (cliente) | 4+4 | 🔍 | 🟡 | 🟡 | 2026-10-19: detalles con `BottomSheet` (reservar cuidado ya funciona); faltan listas y calendarios |
 | P2 | Pet-friendly / Establecimientos | 3+4 | ⬜ | ⬜ | ⬜ | Dos módulos de "lugares": ¿solapan? (ambos en Explorar) |
 | P2 | Grooming / Estilistas | 4+2 | ⬜ | ⬜ | ⬜ | Dos nombres para lo mismo |
 | P2 | Entrenadores | 7 | ⬜ | ⬜ | ⬜ | |
@@ -847,4 +847,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   detalle de clínica (encabezado dentro del scroll con `DetailTopBar` fijo, contacto rápido solo con lo registrado,
   `ReviewsSection` sin formulario para el dueño, sin favorito falso, compartir real; acciones en `useClinicDetail`).
   Especialista: sin formulario de reseña para el propio veterinario.
+- **2026-10-19** — **Paso 5b: Paseadores y Cuidadores**. **Bug**: «Reservar cuidado» no abría nada (el modal del
+  cuidador nunca se dibujaba); ahora ambos detalles usan el nuevo `BottomSheet` (mascota con `FilterChip`, fecha/rango
+  con `DatePicker`, duración o tipo de cuidado, notas, Cancelar/Enviar). Detalles con skeleton, `EmptyState`,
+  `ProviderPrice`/`ProviderServices`, calificación calculada con las reseñas reales. `ProviderFooter` usa
+  `DetailFooter` + `Button` (safe area) para todos los proveedores.
 

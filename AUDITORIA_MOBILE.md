@@ -1062,4 +1062,4 @@ Pantallas con más deuda: `(tabs)/index` (605 l.), `adopciones/solicitar/[id]`, 
 6. **Auth, Carnet, Perfil, Mascotas** (pasadas U3, U5–U7).
 7. Profesionales: Mi clínica, Admin, Aseguradoras, Entrenadores, Funeraria, Patrocinadores, Laboratorio, Transportistas, Estética, Lugares.
 8. **Limpieza**: borrar los 19 archivos sin uso y los exports muertos que reporta Knip.
-
+- [x] **P0 Cuidadores** ✅ 2026-10-19: «Reservar cuidado» no abría nada (estado de modal sin `Modal` dibujado). Ahora `BottomSheet`.

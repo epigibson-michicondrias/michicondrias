@@ -4,9 +4,11 @@
  */
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
-import { Star, MapPin, Phone, MessageCircle, Check } from 'lucide-react-native';
+import { Star, MapPin } from 'lucide-react-native';
+import { DetailFooter } from '@/src/components/layout/DetailLayout';
+import Button from '@/src/components/Button';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, radius, type, layout, font } from '@/constants/design';
+import { spacing, radius, type, font } from '@/constants/design';
 
 // ── Hero (avatar + nombre + especialidad + rating) ──
 export function ProviderHero({ photoUrl, name, subtitle, rating, reviewCount, accent, children }: {
@@ -211,24 +213,15 @@ export function ProviderFooter({ label, onPress, disabled, icon }: {
     disabled?: boolean;
     icon?: React.ReactNode;
 }) {
-    const { theme } = useTheme();
     return (
-        <View style={[styles.footer, { backgroundColor: theme.background, borderTopColor: theme.borderLight }]}>
-            <TouchableOpacity
-                style={[styles.bookBtn, { backgroundColor: theme.primary }, disabled && { opacity: 0.6 }]}
-                onPress={onPress}
-                disabled={disabled}
-                accessibilityRole="button"
-                accessibilityLabel={label}
-            >
-                {icon}
-                <Text style={[styles.bookBtnText, { color: theme.onPrimary }]}>{label}</Text>
-            </TouchableOpacity>
-        </View>
+        <DetailFooter>
+            <Button label={label} onPress={onPress} disabled={disabled} icon={icon} size="lg" style={styles.flex} />
+        </DetailFooter>
     );
 }
 
 const styles = StyleSheet.create({
+    flex: { flex: 1 },
     hero: { alignItems: 'center', paddingVertical: spacing.xl },
     avatarContainer: { width: 96, height: 96, borderRadius: 48, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.md },
     avatar: { width: 96, height: 96, borderRadius: 48 },
@@ -268,7 +261,4 @@ const styles = StyleSheet.create({
     reviewInput: { borderRadius: radius.md, borderWidth: 1, padding: spacing.md, fontSize: type.body.fontSize, minHeight: 80, textAlignVertical: 'top' },
     submitBtn: { borderRadius: radius.md, paddingVertical: spacing.md, alignItems: 'center', justifyContent: 'center' },
     submitBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
-    footer: { padding: spacing.lg, paddingBottom: spacing.xl, borderTopWidth: 1 },
-    bookBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, minHeight: layout.minTouch + 8, borderRadius: radius.lg },
-    bookBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
 });
