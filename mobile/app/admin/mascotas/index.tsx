@@ -20,7 +20,7 @@ const SPECIES_COLORS: Record<string, string> = {
 export default function AdminMascotasScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { mascotas, isLoading, isFetching, refetch, searchText, setSearchText, vaccinatedCount } = useAdminPets();
+    const { mascotas, isLoading, isFetching, refetch, searchText, setSearchText, vaccinatedCount, ownerName } = useAdminPets();
 
     const renderPetCard = ({ item }: { item: Pet }) => {
         const color = SPECIES_COLORS[item.species] || '#6b7280';
@@ -38,7 +38,7 @@ export default function AdminMascotasScreen() {
                         {item.is_vaccinated && <Shield size={14} color={theme.info} fill={theme.info + '30'} />}
                     </View>
                     <Text style={[styles.petDetails, { color: theme.textMuted }]}>{item.species}{item.breed ? ` • ${item.breed}` : ''}</Text>
-                    <Text style={[styles.ownerName, { color: theme.primary }]}>Dueño: {item.owner_id}</Text>
+                    <Text style={[styles.ownerName, { color: theme.primary }]} numberOfLines={1}>Dueño: {ownerName(item.owner_id)}</Text>
                 </View>
                 <ChevronLeft size={18} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
             </TouchableOpacity>

@@ -871,4 +871,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   (las 35 pantallas que lo usaban para cargar ya no muestran un spinner a pantalla completa). Codemod: 127 `#fff` en
   JSX → `theme.onPrimary` en 57 archivos (en tema oscuro `onPrimary` es oscuro: el blanco fijo sobre botones claros
   tenía poco contraste); sobre velos de foto se usa `theme.onHero`.
+  Revisión visual de Mi clínica (12 pantallas: consistentes, deuda solo de código) y Admin (14): Mascotas muestra el
+  nombre del dueño en vez de su UUID; Usuarios sin textos encimados (nombre/correo en una línea, insignias que
+  saltan de línea, acciones con `IconButton` de 44 px de área).
 

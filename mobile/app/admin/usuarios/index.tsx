@@ -5,6 +5,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminUsers } from '@/src/hooks/admin/useAdminUsers';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import IconButton from '@/src/components/IconButton';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import { AdminUser } from '@/src/services/adminUsers';
@@ -65,10 +66,10 @@ export default function AdminUsersScreen() {
                     <Text style={styles.avatarText}>{item.full_name.charAt(0).toUpperCase()}</Text>
                 </LinearGradient>
                 <View style={styles.userInfo}>
-                    <Text style={[styles.userName, { color: theme.text }]}>{item.full_name}</Text>
+                    <Text style={[styles.userName, { color: theme.text }]} numberOfLines={1}>{item.full_name}</Text>
                     <View style={styles.emailRow}>
                         <Mail size={10} color={theme.textMuted} style={{ marginRight: spacing.xs }} />
-                        <Text style={[styles.userEmail, { color: theme.textMuted }]}>{item.email}</Text>
+                        <Text style={[styles.userEmail, { color: theme.textMuted }]} numberOfLines={1}>{item.email}</Text>
                     </View>
                     <View style={styles.userMeta}>
                         <View style={[styles.roleBadge, { backgroundColor: getRoleColorLocal(getRoleName(item.role_id, item.role_name)) + '15' }]}>
@@ -85,25 +86,15 @@ export default function AdminUsersScreen() {
                     </View>
                 </View>
                 <View style={styles.cardActions}>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
+                    <IconButton
+                        icon={item.is_active ? EyeOff : Eye}
+                        accessibilityLabel={item.is_active ? `Desactivar a ${item.full_name}` : `Activar a ${item.full_name}`}
                         onPress={() => toggleUserStatus.mutate(item.id)}
                         disabled={toggleUserStatus.isPending}
-                    >
-                        {item.is_active ? <EyeOff size={14} color={theme.textMuted} /> : <Eye size={14} color={theme.primary} />}
-                    </TouchableOpacity>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
-                        onPress={() => openEditModal(item)}
-                    >
-                        <Edit size={14} color={theme.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
-                        onPress={() => handleDeletePress(item.id, item.full_name)}
-                    >
-                        <Trash2 size={14} color={theme.error} />
-                    </TouchableOpacity>
+                        size="sm"
+                    />
+                    <IconButton icon={Edit} accessibilityLabel={`Editar a ${item.full_name}`} onPress={() => openEditModal(item)} size="sm" />
+                    <IconButton icon={Trash2} accessibilityLabel={`Eliminar a ${item.full_name}`} onPress={() => handleDeletePress(item.id, item.full_name)} color={theme.error} size="sm" />
                 </View>
             </View>
         </View>
@@ -397,6 +388,8 @@ const styles = StyleSheet.create({
     },
     userInfo: {
         flex: 1,
+        minWidth: 0,
+        marginRight: spacing.sm,
     },
     userName: {
         fontSize: font.xl,
@@ -414,8 +407,10 @@ const styles = StyleSheet.create({
     },
     userMeta: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         alignItems: 'center',
-        gap: spacing.sm,
+        gap: spacing.xs,
+        marginTop: spacing.xs,
     },
     roleBadge: {
         paddingHorizontal: spacing.md,
@@ -447,7 +442,7 @@ const styles = StyleSheet.create({
     },
     cardActions: {
         flexDirection: 'row',
-        gap: spacing.sm,
+        gap: spacing.xs,
     },
     actionIconButton: {
         width: 36,
