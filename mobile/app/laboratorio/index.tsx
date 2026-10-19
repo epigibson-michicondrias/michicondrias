@@ -21,7 +21,8 @@ export default function LaboratorioScreen() {
     const { pets } = usePets();
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
     const [modalVisible, setModalVisible] = useState(false);
-    const [view, setView] = useState<'citas' | 'estudios'>('citas');
+    // Vista principal: catálogo de estudios. «Mis citas» es un enlace secundario.
+    const [view, setView] = useState<'estudios' | 'citas'>('estudios');
     const {
         appointments,
         tests,
@@ -88,7 +89,7 @@ export default function LaboratorioScreen() {
 
     const renderEmpty = () => (
         <View style={styles.emptyContainer}>
-            <FlaskConical size={48} color={theme.textMuted} />
+            <Calendar size={48} color={theme.textMuted} />
             <Text style={[styles.emptyTitle, { color: theme.text }]}>
                 Sin citas de laboratorio
             </Text>
@@ -97,6 +98,7 @@ export default function LaboratorioScreen() {
             </Text>
             <TouchableOpacity
                 accessibilityRole="button"
+                accessibilityLabel="Ver estudios disponibles"
                 onPress={() => setView('estudios')}
                 style={{ marginTop: 16, backgroundColor: theme.primary, paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12 }}
             >
@@ -112,9 +114,14 @@ export default function LaboratorioScreen() {
                 subtitle="Estudios clínicos para tu mascota"
             />
 
-            <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 24, marginBottom: 12 }}>
-                <FilterChip label="Mis citas" active={view === 'citas'} onPress={() => setView('citas')} />
-                <FilterChip label={`Estudios${tests.length ? ` (${tests.length})` : ''}`} active={view === 'estudios'} onPress={() => setView('estudios')} />
+            <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 24, marginBottom: 12, alignItems: 'center' }}>
+                <FilterChip label="Estudios" active={view === 'estudios'} onPress={() => setView('estudios')} />
+                <FilterChip
+                    label={`Mis citas${appointments.length ? ` (${appointments.length})` : ''}`}
+                    active={view === 'citas'}
+                    onPress={() => setView('citas')}
+                    icon={<Calendar size={16} color={view === 'citas' ? theme.onPrimary : theme.textMuted} />}
+                />
             </View>
 
             {view === 'estudios' ? (
