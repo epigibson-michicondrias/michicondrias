@@ -60,6 +60,8 @@ export const shadow = {
  */
 export const type = {
     display: { fontSize: 28, fontWeight: '700', letterSpacing: -0.6 } as TextStyle,
+    /** Título de `ScreenHeader`. */
+    screenTitle: { fontSize: 26, fontWeight: '800', letterSpacing: -0.4 } as TextStyle,
     h1: { fontSize: 22, fontWeight: '700', letterSpacing: -0.4 } as TextStyle,
     h2: { fontSize: 18, fontWeight: '700', letterSpacing: -0.2 } as TextStyle,
     title: { fontSize: 16, fontWeight: '600', letterSpacing: -0.1 } as TextStyle,
@@ -108,6 +110,21 @@ export const accents = {
 } as const;
 
 export type AccentKey = keyof typeof accents;
+
+/** Mezcla un color hex (#rrggbb) con negro. `amount` 0 = igual, 1 = negro. */
+function darken(hex: string, amount: number): string {
+    const n = parseInt(hex.slice(1, 7), 16);
+    const channel = (shift: number) => Math.round(((n >> shift) & 255) * (1 - amount));
+    return `#${[16, 8, 0].map((s) => channel(s).toString(16).padStart(2, '0')).join('')}`;
+}
+
+/**
+ * Degradado de cabecera a partir del acento de un módulo (p. ej. `accents.danger` → rojo profundo). Se oscurece lo
+ * suficiente para que el texto blanco (`theme.onHero`) tenga buen contraste en ambos temas.
+ */
+export function accentGradient(accent: string): readonly [string, string] {
+    return [darken(accent, 0.25), darken(accent, 0.6)];
+}
 
 /** Duraciones de animación (ms). */
 export const motion = { fast: 150, base: 220, slow: 360 } as const;

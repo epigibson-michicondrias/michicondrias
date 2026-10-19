@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useClinicConfig } from '@/src/hooks/clinica/useClinicConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -167,13 +168,7 @@ export default function ConfigClinicaScreen() {
                             />
                         </View>
 
-                        <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                            onPress={handleSave}
-                            disabled={loading}
-                        >
-                            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Guardar Cambios</Text>}
-                        </TouchableOpacity>
+                        <Button label="Guardar Cambios" onPress={handleSave} loading={loading} />
 
                         <View style={{ height: 40 }} />
                     </View>

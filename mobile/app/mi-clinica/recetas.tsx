@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, FlatList } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { usePrescriptions } from '@/src/hooks/clinica/usePrescriptions';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -212,13 +213,7 @@ export default function RecetasScreen() {
                             <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSavePrescription}
-                                disabled={loadingAction}
-                            >
-                                {loadingAction ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Emitir</Text>}
-                            </TouchableOpacity>
+                            <Button label="Emitir" onPress={handleSavePrescription} loading={loadingAction} />
                         </View>
                     </View>
                 </View>

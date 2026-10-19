@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useClinicServices } from '@/src/hooks/clinica/useClinicServices';
 import { ClinicServiceItem } from '@/src/services/directorio';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -167,13 +168,7 @@ export default function ServiciosClinicaScreen() {
                                 />
                             </View>
 
-                            <TouchableOpacity
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSave}
-                                disabled={loadingAction}
-                            >
-                                {loadingAction ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{editingService ? 'Actualizar Servicio' : 'Crear Servicio'}</Text>}
-                            </TouchableOpacity>
+                            <Button label={editingService ? 'Actualizar Servicio' : 'Crear Servicio'} onPress={handleSave} loading={loadingAction} />
                         </ScrollView>
                     </View>
                 </KeyboardAvoidingView>

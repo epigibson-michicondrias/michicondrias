@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { Camera, MapPin, AlertCircle, Check, Search } from 'lucide-react-native';
 
 import { showAlert } from '@/src/components/AppAlert';

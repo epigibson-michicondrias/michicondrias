@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useInventory } from '@/src/hooks/clinica/useInventory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -185,13 +186,7 @@ export default function InventarioScreen() {
                             <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: theme.surface }]} onPress={() => setModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cancelar">
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSaveItem}
-                                disabled={loadingAction}
-                            >
-                                {loadingAction ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Guardar</Text>}
-                            </TouchableOpacity>
+                            <Button label="Guardar" onPress={handleSaveItem} loading={loadingAction} />
                         </View>
                     </View>
                 </View>
@@ -263,13 +258,7 @@ export default function InventarioScreen() {
                             >
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleUpdateItem}
-                                disabled={isUpdating}
-                            >
-                                {isUpdating ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Guardar</Text>}
-                            </TouchableOpacity>
+                            <Button label="Guardar" onPress={handleUpdateItem} loading={isUpdating} />
                         </View>
                     </View>
                 </View>
