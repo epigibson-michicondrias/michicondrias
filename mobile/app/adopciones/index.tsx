@@ -10,6 +10,7 @@ import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
 import type { Listing } from '@/src/types/adopciones';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 const cardWidth = Math.floor((width - 61) / 2);
@@ -133,12 +134,12 @@ export default function AdopcionesScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 22,
-        paddingBottom: 40,
+        paddingHorizontal: spacing.xxl,
+        paddingBottom: spacing.huge,
     },
     card: {
         width: cardWidth,
-        margin: 8,
+        margin: spacing.sm,
         borderRadius: 24,
         overflow: 'hidden',
         borderWidth: 1,
@@ -173,25 +174,25 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     genderText: {
-        fontSize: 16,
+        fontSize: font.xl,
     },
     emergencyBadge: {
         position: 'absolute',
         top: 10,
         left: 10,
         backgroundColor: '#ef4444',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     emergencyText: {
         color: '#fff',
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '900',
     },
     info: {
-        padding: 14,
-        gap: 4,
+        padding: spacing.lg,
+        gap: spacing.xs,
     },
     nameRow: {
         flexDirection: 'row',
@@ -199,40 +200,40 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     name: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
         flex: 1,
     },
     speciesTag: {
-        paddingHorizontal: 6,
-        paddingVertical: 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xxs,
         borderRadius: 6,
     },
     speciesTagText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '700',
     },
     breed: {
-        fontSize: 12,
+        fontSize: font.md,
     },
     location: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        marginTop: 4,
+        gap: spacing.xs,
+        marginTop: spacing.xs,
     },
     locationText: {
-        fontSize: 11,
+        fontSize: font.sm,
     },
     filterSection: {
-        marginTop: 4,
-        marginBottom: 8,
+        marginTop: spacing.xs,
+        marginBottom: spacing.sm,
     },
     chipsScroll: {
-        marginTop: 12,
+        marginTop: spacing.md,
     },
     chipsContainer: {
-        gap: 8,
-        paddingRight: 20,
+        gap: spacing.sm,
+        paddingRight: spacing.xl,
     },
 });

@@ -7,6 +7,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Megaphone, Link, Info } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { font, spacing } from '@/constants/design';
 
 export default function NuevoPatrocinadorScreen() {
     const router = useRouter();
@@ -128,22 +129,22 @@ export default function NuevoPatrocinadorScreen() {
 const styles = StyleSheet.create({
 
     content: {
-        padding: 24,
-        gap: 20,
+        padding: spacing.xxl,
+        gap: spacing.xl,
     },
     inputGroup: {
-        gap: 8,
+        gap: spacing.sm,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.05)',
     },
@@ -157,18 +158,18 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     inputWithIcon: {
-        paddingLeft: 46,
+        paddingLeft: spacing.huge,
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -177,13 +178,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 10,
-        marginTop: 10,
-        marginBottom: 40,
+        gap: spacing.md,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

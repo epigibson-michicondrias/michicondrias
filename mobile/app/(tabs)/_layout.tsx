@@ -7,6 +7,7 @@ import { useCart } from '../../src/contexts/CartContext';
 import { normalizeRole, isProRole } from '../../src/constants/roles';
 
 import { useTheme } from '@/src/hooks/useTheme';
+import { font, spacing } from '@/constants/design';
 
 export default function TabLayout() {
   const { theme, colorScheme } = useTheme();
@@ -29,7 +30,7 @@ export default function TabLayout() {
           borderTopWidth: 0.5,
           height: Platform.OS === 'ios' ? 88 : 68,
           paddingBottom: Platform.OS === 'ios' ? 28 : 10,
-          paddingTop: 8,
+          paddingTop: spacing.sm,
           elevation: 20,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
@@ -37,7 +38,7 @@ export default function TabLayout() {
           shadowRadius: 12,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: font.xs,
           fontWeight: '700',
           letterSpacing: 0.3,
         },
@@ -74,7 +75,7 @@ export default function TabLayout() {
           title: 'Michi-Shop',
           // Lo que hay en la bolsa, visible desde cualquier pestaña
           tabBarBadge: cartCount > 0 ? (cartCount > 99 ? '99+' : cartCount) : undefined,
-          tabBarBadgeStyle: { backgroundColor: theme.error, color: theme.background, fontSize: 10, fontWeight: '800' },
+          tabBarBadgeStyle: { backgroundColor: theme.error, color: theme.background, fontSize: font.xs, fontWeight: '800' },
           tabBarIcon: ({ color, focused }) => (
             <ShoppingBag size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />
           ),

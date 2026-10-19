@@ -8,6 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import { useMyListings } from '@/src/hooks/adopciones/useMyListings';
 import type { Listing } from '@/src/types/adopciones';
+import { font, spacing } from '@/constants/design';
 
 export default function MisPublicacionesScreen() {
     const router = useRouter();
@@ -112,8 +113,8 @@ export default function MisPublicacionesScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        padding: 20,
-        gap: 16,
+        padding: spacing.xl,
+        gap: spacing.lg,
     },
     card: {
         flexDirection: 'row',
@@ -128,32 +129,32 @@ const styles = StyleSheet.create({
     },
     info: {
         flex: 1,
-        padding: 12,
+        padding: spacing.md,
         justifyContent: 'center',
     },
     nameHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     name: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xxs,
         borderRadius: 6,
     },
     statusText: {
         color: '#fff',
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '700',
     },
     breed: {
-        fontSize: 12,
-        marginBottom: 12,
+        fontSize: font.md,
+        marginBottom: spacing.md,
     },
     actions: {
         flexDirection: 'row',
@@ -163,20 +164,20 @@ const styles = StyleSheet.create({
     actionBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 10,
-        gap: 6,
+        gap: spacing.sm,
     },
     actionBtnText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
     miniActions: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     iconBtn: {
-        padding: 4,
+        padding: spacing.xs,
     },
 });

@@ -7,6 +7,7 @@ import { createClinic } from '../../src/services/directorio';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Info, CheckCircle2 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function NuevoRegistroProfesionalScreen() {
     const router = useRouter();
@@ -201,49 +202,49 @@ const styles = StyleSheet.create({
     },
 
     content: {
-        padding: 24,
-        gap: 20,
+        padding: spacing.xxl,
+        gap: spacing.xl,
     },
     inputGroup: {
-        gap: 8,
+        gap: spacing.sm,
     },
     row: {
         flexDirection: 'row',
-        gap: 16,
+        gap: spacing.lg,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     textArea: {
         height: 120,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginTop: 10,
+        marginTop: spacing.md,
     },
     toggleItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
@@ -252,23 +253,23 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     toggleLabel: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     toggleDesc: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: font.md,
+        marginTop: spacing.xxs,
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -276,12 +277,12 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 40,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     }
 });

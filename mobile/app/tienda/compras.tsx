@@ -11,7 +11,7 @@ import { Package, ShoppingBag } from 'lucide-react-native';
 import { Order } from '@/src/services/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { spacing } from '@/constants/design';
+import { spacing, font } from '@/constants/design';
 
 export default function ComprasScreen() {
     const router = useRouter();
@@ -105,15 +105,15 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.lg,
     },
     list: {
-        paddingHorizontal: 20,
-        paddingBottom: 40,
+        paddingHorizontal: spacing.xl,
+        paddingBottom: spacing.huge,
     },
     card: {
         flexDirection: 'row',
-        padding: 12,
+        padding: spacing.md,
         borderRadius: 24,
-        gap: 16,
-        marginBottom: 16,
+        gap: spacing.lg,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     itemImagePlaceholder: {
@@ -126,39 +126,39 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         justifyContent: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     orderId: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
     },
     statusText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
     },
     itemName: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
     },
     footerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginTop: 4,
+        gap: spacing.sm,
+        marginTop: spacing.xs,
     },
     price: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     dot: {
@@ -166,9 +166,9 @@ const styles = StyleSheet.create({
         height: 4,
         borderRadius: 2,
     },
-    pendingHint: { fontSize: 11, fontWeight: '700', marginTop: 2 },
+    pendingHint: { fontSize: font.sm, fontWeight: '700', marginTop: spacing.xxs },
     date: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
 });

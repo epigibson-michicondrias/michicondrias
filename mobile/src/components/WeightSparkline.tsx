@@ -1,5 +1,5 @@
 import React from 'react';
-import { spacing, radius } from '@/constants/design';
+import { spacing, radius, font } from '@/constants/design';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -64,8 +64,8 @@ export default function WeightSparkline({ data, color, height = 60 }: WeightSpar
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 20,
-        marginBottom: 10,
+        marginTop: spacing.xl,
+        marginBottom: spacing.md,
         padding: spacing.xl,
         borderRadius: radius.xl,
         borderWidth: 1,
@@ -74,27 +74,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: spacing.lg,
     },
     label: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '900',
         letterSpacing: 1,
     },
     currentWeight: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
     },
     svg: {
-        marginTop: 5,
+        marginTop: spacing.xs,
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10,
+        marginTop: spacing.md,
     },
     dateText: {
-        fontSize: 9,
+        fontSize: font.xs,
         fontWeight: '700',
     }
 });

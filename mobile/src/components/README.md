@@ -2,7 +2,7 @@
 
 Piezas base de la app. **Regla de oro:** si un patrón de UI se repite, se extrae aquí y se reutiliza; no se copian
 estilos entre pantallas. Los colores salen de `useTheme()` (`@/src/hooks/useTheme`) y las medidas/tipografía de
-`@/constants/design` (`spacing`, `radius`, `type`, `shadow`, `layout`, `accents`). Nada de `constants/Colors`, hex
+`@/constants/design` (`spacing`, `font`, `radius`, `type`, `shadow`, `layout`, `accents`). Nada de `constants/Colors`, hex
 sueltos ni `fontSize` inventados. El color de identidad de cada módulo vive en `src/constants/modules.ts`
 (`MODULE_ACCENTS`, y `ROLE_ACCENTS` por rol): lo usan Explorar, las insignias de rol y las cabeceras hero, que lo deducen
 de la ruta con `useScreenAccent`.

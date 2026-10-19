@@ -10,7 +10,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { copyText } from '@/src/utils/helpers';
 import { shareContent } from '@/src/utils/share';
-import { spacing, radius, type, shadow, layout } from '@/constants/design';
+import { spacing, radius, type, shadow, layout, font } from '@/constants/design';
 
 interface Props {
     /** URL pública del pasaporte; `null` mantiene cerrada la tarjeta. */
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
         maxHeight: 40,
     },
     url: {
-        fontSize: 12,
+        fontSize: font.md,
     },
     shareBtn: {
         flexDirection: 'row',
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
         borderRadius: radius.lg,
     },
     shareBtnText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     closeBtn: {

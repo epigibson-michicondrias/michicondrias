@@ -12,6 +12,7 @@ import EmptyState from '@/src/components/EmptyState';
 
 import { useAuth } from '@/src/contexts/AuthContext';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function FunerariaScreen() {
     const { theme } = useTheme();
@@ -97,7 +98,7 @@ export default function FunerariaScreen() {
                 )}
             </View>
 
-            <View style={{ marginHorizontal: 24, marginBottom: 20 }}>
+            <View style={{ marginHorizontal: spacing.xxl, marginBottom: spacing.xl }}>
                 <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -131,39 +132,39 @@ export default function FunerariaScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 16,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     actionButton: {
         flexDirection: 'row',
         flex: 1,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     card: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 16,
+        marginBottom: spacing.lg,
+        gap: spacing.lg,
     },
     iconContainer: {
         width: 56,
@@ -176,29 +177,29 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     cardDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
     },
     tagsRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: spacing.sm,
     },
     tag: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
-        gap: 4,
+        gap: spacing.xs,
     },
     tagText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
 });

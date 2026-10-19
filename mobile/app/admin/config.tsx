@@ -6,6 +6,7 @@ import { useAdminConfig } from '@/src/hooks/admin/useAdminConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, ShieldCheck, Zap, Globe, Bell, Database, HardDrive, Cpu, Cloud, Lock } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminConfigScreen() {
     const { theme } = useTheme();
@@ -156,20 +157,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     scroll: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 60, 
-        paddingTop: 12,
-        gap: 24 
+        paddingTop: spacing.md,
+        gap: spacing.xxl 
     },
-    section: { gap: 16 },
+    section: { gap: spacing.lg },
     sectionHeader: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 10, 
-        marginLeft: 8 
+        gap: spacing.md, 
+        marginLeft: spacing.sm 
     },
     sectionTitle: { 
-        fontSize: 11, 
+        fontSize: font.sm, 
         fontWeight: '800', 
         letterSpacing: 1.2 
     },
@@ -186,8 +187,8 @@ const styles = StyleSheet.create({
     row: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        padding: 20, 
-        gap: 16 
+        padding: spacing.xl, 
+        gap: spacing.lg 
     },
     iconBox: { 
         width: 44, 
@@ -197,12 +198,12 @@ const styles = StyleSheet.create({
         alignItems: 'center' 
     },
     rowLabel: { 
-        fontSize: 15, 
+        fontSize: font.lg, 
         fontWeight: '800' 
     },
     rowDesc: { 
-        fontSize: 12, 
-        marginTop: 2, 
+        fontSize: font.md, 
+        marginTop: spacing.xxs, 
         fontWeight: '600' 
     },
 });

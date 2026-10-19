@@ -6,7 +6,7 @@ import Button from '@/src/components/Button';
 import { useProductForm } from '@/src/hooks/ecommerce/useProductForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { spacing } from '@/constants/design';
+import { spacing, font } from '@/constants/design';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
 
@@ -115,15 +115,15 @@ export default function VendedorProductoFormScreen() {
 
 const styles = StyleSheet.create({
     saveBtn: { marginTop: spacing.xl },
-    content: { padding: 24, paddingBottom: 100 },
-    section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1 },
-    groupTitle: { fontSize: 12, fontWeight: '800', marginBottom: 12, marginLeft: 12, letterSpacing: 1 },
-    inputGroup: { marginBottom: 16 },
-    label: { fontSize: 12, fontWeight: '700', marginBottom: 8 },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, fontSize: 15, fontWeight: '600' },
-    textArea: { height: 100, paddingTop: 12, textAlignVertical: 'top' },
-    row: { flexDirection: 'row', gap: 12 },
-    catLabels: { flexDirection: 'row', marginTop: 8 },
-    catBadge: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12, marginRight: 8, borderWidth: 1 },
-    catText: { fontSize: 12, fontWeight: '600' },
+    content: { padding: spacing.xxl, paddingBottom: 100 },
+    section: { padding: spacing.xl, borderRadius: 24, marginBottom: spacing.xxl, borderWidth: 1 },
+    groupTitle: { fontSize: font.md, fontWeight: '800', marginBottom: spacing.md, marginLeft: spacing.md, letterSpacing: 1 },
+    inputGroup: { marginBottom: spacing.lg },
+    label: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm },
+    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontWeight: '600' },
+    textArea: { height: 100, paddingTop: spacing.md, textAlignVertical: 'top' },
+    row: { flexDirection: 'row', gap: spacing.md },
+    catLabels: { flexDirection: 'row', marginTop: spacing.sm },
+    catBadge: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 12, marginRight: spacing.sm, borderWidth: 1 },
+    catText: { fontSize: font.md, fontWeight: '600' },
 });

@@ -9,6 +9,7 @@ import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Building2, MapPin, Tag, FileText, Save, Trash2 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function EditarEstablecimientoScreen() {
     const { theme } = useTheme();
@@ -158,59 +159,59 @@ export default function EditarEstablecimientoScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 40,
+        paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
     },
     inputGroup: {
         borderRadius: 14,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
         overflow: 'hidden',
     },
     inputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        gap: 12,
+        paddingHorizontal: spacing.lg,
+        gap: spacing.md,
     },
     input: {
         flex: 1,
-        fontSize: 15,
-        paddingVertical: 16,
+        fontSize: font.lg,
+        paddingVertical: spacing.lg,
     },
     actionButtons: {
-        gap: 12,
-        marginTop: 8,
+        gap: spacing.md,
+        marginTop: spacing.sm,
     },
     submitButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        gap: 10,
+        gap: spacing.md,
     },
     submitDisabled: {
         opacity: 0.7,
     },
     submitText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     deleteButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
         borderWidth: 1.5,
-        gap: 10,
+        gap: spacing.md,
     },
     deleteText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
 });

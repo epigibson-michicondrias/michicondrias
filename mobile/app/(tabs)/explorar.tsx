@@ -16,6 +16,7 @@ import { Search, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { font, spacing } from '@/constants/design';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_GAP = 12;
@@ -207,34 +208,34 @@ const styles = StyleSheet.create({
     height: 320,
   },
   headerContainer: {
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
     zIndex: 10,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: font.display,
     fontWeight: '900',
     color: '#fff',
     letterSpacing: 0.5,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: font.base,
     fontWeight: '600',
     color: 'rgba(255,255,255,0.75)',
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   searchContainer: {
-    paddingHorizontal: 24,
-    marginTop: 20,
+    paddingHorizontal: spacing.xxl,
+    marginTop: spacing.xl,
     zIndex: 10,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
     height: 50,
     borderRadius: 24,
     borderWidth: 1,
-    gap: 10,
+    gap: spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -243,23 +244,23 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: font.base,
     fontWeight: '500',
   },
   categoryList: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 8,
-    gap: 10,
+    paddingHorizontal: spacing.xxl,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.sm,
+    gap: spacing.md,
   },
   categoryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 20,
     borderWidth: 1,
-    gap: 8,
+    gap: spacing.sm,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -267,23 +268,23 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   categoryLabel: {
-    fontSize: 13,
+    fontSize: font.base,
     fontWeight: '700',
   },
   resultsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    marginTop: 16,
-    marginBottom: 16,
+    paddingHorizontal: spacing.xxl,
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
   },
   resultsCount: {
-    fontSize: 13,
+    fontSize: font.base,
     fontWeight: '600',
   },
   clearFilter: {
-    fontSize: 13,
+    fontSize: font.base,
     fontWeight: '700',
   },
   gridContainer: {
@@ -295,8 +296,8 @@ const styles = StyleSheet.create({
     gap: CARD_GAP,
   },
   gridCard: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.lg,
     borderRadius: 24,
     borderWidth: 1,
     alignItems: 'center',
@@ -312,22 +313,22 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   gridTitle: {
-    fontSize: 15,
+    fontSize: font.lg,
     fontWeight: '800',
     textAlign: 'center',
   },
   gridSubtitle: {
-    fontSize: 11,
+    fontSize: font.sm,
     fontWeight: '500',
-    marginTop: 3,
+    marginTop: spacing.xs,
     textAlign: 'center',
   },
   bannerContainer: {
-    paddingHorizontal: 24,
-    marginTop: 28,
+    paddingHorizontal: spacing.xxl,
+    marginTop: spacing.xxxl,
   },
   aiBanner: {
     height: 120,
@@ -343,29 +344,29 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 24,
+    padding: spacing.xxl,
     justifyContent: 'space-between',
   },
   bannerTextCol: {
     flex: 1,
   },
   bannerTag: {
-    fontSize: 9,
+    fontSize: font.xs,
     fontWeight: '900',
     color: 'rgba(255,255,255,0.7)',
     letterSpacing: 1.5,
   },
   bannerTitle: {
-    fontSize: 20,
+    fontSize: font.h3,
     fontWeight: '900',
     color: '#fff',
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   bannerDesc: {
-    fontSize: 12,
+    fontSize: font.md,
     fontWeight: '600',
     color: 'rgba(255,255,255,0.85)',
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
   bannerIconBox: {
     width: 64,

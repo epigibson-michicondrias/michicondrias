@@ -11,6 +11,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Package, MapPin, Calendar, CreditCard, ChevronRight, XCircle } from 'lucide-react-native';
 import { SUPPORT_EMAIL } from '@/src/constants/support';
 import { formatCurrency } from '@/src/utils/formatters';
+import { font, spacing } from '@/constants/design';
 
 export default function PedidoDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,7 +23,7 @@ export default function PedidoDetailScreen() {
         return (
             <ScreenContainer style={{ backgroundColor: theme.background }}>
                 <ScreenHeader title="Detalle de Pedido" />
-                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
+                <View style={{ padding: spacing.xl }}><SkeletonList count={4} /></View>
             </ScreenContainer>
         );
     }
@@ -41,7 +42,7 @@ export default function PedidoDetailScreen() {
                         <Text style={styles.backButtonText}>Reintentar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => router.replace('/tienda/compras' as any)}>
-                        <Text style={{ color: theme.textMuted, fontWeight: '700', marginTop: 12 }}>Ir a Mis compras</Text>
+                        <Text style={{ color: theme.textMuted, fontWeight: '700', marginTop: spacing.md }}>Ir a Mis compras</Text>
                     </TouchableOpacity>
                 </View>
             </ScreenContainer>
@@ -228,46 +229,46 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
-        paddingHorizontal: 32,
+        gap: spacing.md,
+        paddingHorizontal: spacing.xxxl,
     },
     loadingText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     errorText: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
         textAlign: 'center',
-        marginTop: 8,
+        marginTop: spacing.sm,
         lineHeight: 22,
     },
     backButton: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
         borderRadius: 14,
-        marginTop: 16,
+        marginTop: spacing.lg,
     },
     backButtonText: {
         color: '#fff',
         fontWeight: '800',
-        fontSize: 14,
+        fontSize: font.base,
     },
     scrollContainer: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 60,
     },
     ticketCard: {
         borderRadius: 24,
-        padding: 20,
+        padding: spacing.xl,
         borderWidth: 1,
-        gap: 16,
-        marginBottom: 24,
+        gap: spacing.lg,
+        marginBottom: spacing.xxl,
     },
     ticketRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     iconWrapper: {
         width: 40,
@@ -279,24 +280,24 @@ const styles = StyleSheet.create({
     },
     infoWrapper: {
         flex: 1,
-        gap: 4,
+        gap: spacing.xs,
     },
     ticketLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     ticketValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     statusBadge: {
         alignSelf: 'flex-start',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     statusText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
     },
     divider: {
@@ -304,21 +305,21 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     sectionTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     itemsContainer: {
-        gap: 12,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     itemCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 12,
+        padding: spacing.md,
         borderRadius: 20,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     itemImage: {
         width: 76,
@@ -327,36 +328,36 @@ const styles = StyleSheet.create({
     },
     itemInfo: {
         flex: 1,
-        gap: 2,
+        gap: spacing.xxs,
     },
     itemName: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
         lineHeight: 18,
     },
     priceQtyRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     itemQty: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     itemPrice: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
     itemSubtotal: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     arrow: {
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     emptyCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
         justifyContent: 'center',
@@ -364,31 +365,31 @@ const styles = StyleSheet.create({
     },
     shippingCard: {
         borderRadius: 24,
-        padding: 20,
+        padding: spacing.xl,
         borderWidth: 1,
-        gap: 10,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     shippingHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     shippingTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     shippingAddress: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
         lineHeight: 18,
     },
     invoiceCard: {
         borderRadius: 24,
-        padding: 20,
+        padding: spacing.xl,
         borderWidth: 1,
-        gap: 12,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     invoiceRow: {
         flexDirection: 'row',
@@ -396,70 +397,70 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     invoiceLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     invoiceValue: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
     },
     dottedDivider: {
         borderStyle: 'dashed',
         borderWidth: 0.5,
         borderRadius: 1,
-        marginVertical: 4,
+        marginVertical: spacing.xs,
     },
     totalLabelRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     totalLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     totalValue: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     actionCard: {
         borderRadius: 24,
-        padding: 20,
+        padding: spacing.xl,
         borderWidth: 1,
-        gap: 12,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
-    actionTitle: { fontSize: 16, fontWeight: '800' },
-    actionText: { fontSize: 13, fontWeight: '500', lineHeight: 19 },
+    actionTitle: { fontSize: font.xl, fontWeight: '800' },
+    actionText: { fontSize: font.base, fontWeight: '500', lineHeight: 19 },
     payBtn: {
         height: 52,
         borderRadius: 16,
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    payBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    payBtnText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
     cancelBtn: {
         height: 46,
         borderRadius: 14,
         borderWidth: 1.5,
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    cancelBtnText: { fontSize: 14, fontWeight: '800' },
+    cancelBtnText: { fontSize: font.base, fontWeight: '800' },
     helpButton: {
         borderWidth: 1.5,
         borderRadius: 18,
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         justifyContent: 'center',
         alignItems: 'center',
         borderStyle: 'dashed',
     },
     helpButtonText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
 });

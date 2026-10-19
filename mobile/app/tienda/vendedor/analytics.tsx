@@ -7,6 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { formatCurrency } from '@/src/utils/formatters';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Package, ShoppingBag, Clock, TrendingUp, AlertTriangle } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function VendedorAnalyticsScreen() {
   const { theme } = useTheme();
@@ -125,9 +126,9 @@ export default function VendedorAnalyticsScreen() {
         </View>
 
         {lowStockProducts + outOfStockProducts > 0 ? (
-          <View style={[styles.breakdownCard, { backgroundColor: theme.warningLight, borderColor: theme.warning, marginTop: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
+          <View style={[styles.breakdownCard, { backgroundColor: theme.warningLight, borderColor: theme.warning, marginTop: spacing.lg, flexDirection: 'row', alignItems: 'center', gap: spacing.md }]}>
             <AlertTriangle size={20} color={theme.warning} />
-            <Text style={{ flex: 1, color: theme.text, fontSize: 13, fontWeight: '600' }}>
+            <Text style={{ flex: 1, color: theme.text, fontSize: font.base, fontWeight: '600' }}>
               {outOfStockProducts > 0 ? `${outOfStockProducts} producto(s) agotado(s). ` : ''}
               {lowStockProducts > 0 ? `${lowStockProducts} con pocas unidades (5 o menos). ` : ''}
               Actualiza tu inventario desde el catálogo.
@@ -141,16 +142,16 @@ export default function VendedorAnalyticsScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+    paddingHorizontal: spacing.xxl,
+    paddingBottom: spacing.huge,
   },
   revenueCard: {
-    padding: 24,
+    padding: spacing.xxl,
     borderRadius: 28,
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
   revenueLabel: {
-    fontSize: 11,
+    fontSize: font.sm,
     fontWeight: '800',
     color: 'rgba(255,255,255,0.8)',
     letterSpacing: 1,
@@ -159,45 +160,45 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: '800',
     color: '#fff',
-    marginTop: 4,
-    marginBottom: 20,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xl,
   },
   revenueRow: {
     flexDirection: 'row',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.15)',
-    paddingTop: 16,
+    paddingTop: spacing.lg,
   },
   revenueStat: { flex: 1 },
   revenueStatLabel: {
-    fontSize: 11,
+    fontSize: font.sm,
     fontWeight: '700',
     color: 'rgba(255,255,255,0.8)',
   },
   revenueStatValue: {
-    fontSize: 18,
+    fontSize: font.xxl,
     fontWeight: '800',
     color: '#fff',
-    marginTop: 2,
+    marginTop: spacing.xxs,
   },
   revenueDivider: {
     width: 1,
     height: 28,
     backgroundColor: 'rgba(255,255,255,0.2)',
-    marginHorizontal: 20,
+    marginHorizontal: spacing.xl,
   },
   statsGrid: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
+    gap: spacing.md,
+    marginBottom: spacing.md,
   },
   statCard: {
     flex: 1,
-    padding: 20,
+    padding: spacing.xl,
     borderRadius: 20,
     alignItems: 'center',
     borderWidth: 1,
-    gap: 8,
+    gap: spacing.sm,
   },
   statIconBox: {
     width: 44,
@@ -206,35 +207,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statValue: { fontSize: 22, fontWeight: '800' },
-  statLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase' },
+  statValue: { fontSize: font.h2, fontWeight: '800' },
+  statLabel: { fontSize: font.md, fontWeight: '700', textTransform: 'uppercase' },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: font.base,
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
   },
   breakdownCard: {
-    padding: 20,
+    padding: spacing.xl,
     borderRadius: 20,
     borderWidth: 1,
-    gap: 14,
+    gap: spacing.lg,
   },
   breakdownRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
   breakdownLabel: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
     width: 110,
   },
   breakdownDot: { width: 8, height: 8, borderRadius: 4 },
-  breakdownText: { fontSize: 13, fontWeight: '600' },
+  breakdownText: { fontSize: font.base, fontWeight: '600' },
   breakdownBar: {
     flex: 1,
     height: 8,
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   breakdownCount: {
-    fontSize: 13,
+    fontSize: font.base,
     fontWeight: '700',
     width: 24,
     textAlign: 'right',

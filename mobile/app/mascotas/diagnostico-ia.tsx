@@ -9,7 +9,7 @@ import FormSelect from '@/src/components/forms/FormSelect';
 import SegmentedControl from '@/src/components/SegmentedControl';
 import Button from '@/src/components/Button';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { spacing, radius, type, shadow, layout } from '@/constants/design';
+import { spacing, radius, type, shadow, layout, font } from '@/constants/design';
 
 export default function DiagnosticoIAScreen() {
     const { theme } = useTheme();
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
         borderRadius: radius.md,
         paddingHorizontal: spacing.md,
         borderWidth: 1,
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600',
     },
     textArea: {
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingTop: spacing.md,
         borderWidth: 1,
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600',
         textAlignVertical: 'top',
     },
@@ -407,14 +407,14 @@ const styles = StyleSheet.create({
         borderRadius: radius.md,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     metricVal: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
     },
     metricLabel: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '700',
         textTransform: 'uppercase',
     },

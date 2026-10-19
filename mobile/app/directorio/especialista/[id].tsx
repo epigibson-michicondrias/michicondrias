@@ -260,10 +260,10 @@ const styles = StyleSheet.create({
     clinicRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     clinicIcon: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     clinicName: { fontSize: type.subtitle.fontSize, fontWeight: '700' },
-    clinicAddress: { fontSize: type.caption.fontSize, marginTop: 2 },
+    clinicAddress: { fontSize: type.caption.fontSize, marginTop: spacing.xxs },
     serviceItem: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, borderRadius: radius.md, borderWidth: 1, marginBottom: spacing.sm },
     serviceName: { fontSize: type.subtitle.fontSize, fontWeight: '700' },
-    serviceDuration: { fontSize: type.caption.fontSize, marginTop: 2 },
+    serviceDuration: { fontSize: type.caption.fontSize, marginTop: spacing.xxs },
     serviceRight: { alignItems: 'flex-end', gap: spacing.xs },
     servicePrice: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
 });

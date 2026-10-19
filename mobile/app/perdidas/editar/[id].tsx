@@ -8,6 +8,7 @@ import FormSelect from '@/src/components/forms/FormSelect';
 import { Camera, Save } from 'lucide-react-native';
 import { useEditReport } from '@/src/hooks/perdidas/useEditReport';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import { font, spacing } from '@/constants/design';
 
 const SPECIES_OPTIONS = [
     { label: 'Perro', value: 'perro' },
@@ -136,15 +137,15 @@ export default function EditarReporteScreen() {
 
 const styles = StyleSheet.create({
     content: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
     },
     imageSelector: {
         width: '100%',
         height: 200,
         borderRadius: 24,
         overflow: 'hidden',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
         borderWidth: 2,
         borderColor: 'transparent',
     },
@@ -154,9 +155,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     imagePlaceholderText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     selectedImage: {
         width: '100%',
@@ -176,37 +177,37 @@ const styles = StyleSheet.create({
         borderColor: '#fff',
     },
     formContainer: {
-        gap: 20,
+        gap: spacing.xl,
     },
     inputGroup: {
-        gap: 8,
+        gap: spacing.sm,
     },
     row: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 20,
-        fontSize: 16,
+        paddingHorizontal: spacing.xl,
+        fontSize: font.xl,
         fontWeight: '600',
         borderWidth: 1,
         borderColor: 'transparent',
     },
     textArea: {
         height: 120,
-        paddingTop: 16,
+        paddingTop: spacing.lg,
         textAlignVertical: 'top',
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     saveBtn: {
@@ -218,11 +219,11 @@ const styles = StyleSheet.create({
     btnContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     saveBtnText: {
         color: '#fff',
-        fontSize: 17,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

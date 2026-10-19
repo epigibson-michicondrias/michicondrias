@@ -759,3 +759,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
     Horarios. Etiquetas explícitas en las 14 cabeceras con `actionIcon`. Quitados los «+» falsos de Admin › Mascotas,
     Productos y Clínicas. Perdidas: carga propia del filtro «Reunidos», «Quitar filtros» en el vacío, reunidos en verde
     en el mapa.
+- **2026-10-19** — Fix: `AppRefreshControl` no reenviaba `children`/`style` en nativo → en Android la lista dentro de
+  `ScrollView`/`FlatList` con jalar-para-refrescar no se dibujaba (Perdidas en blanco). OTA publicada.
+- **2026-10-19** — Homologación de tamaños (paso 1 de 2): nueva escala `font` en `design.ts`; codemod en 155 archivos:
+  1,301 `fontSize` numéricos → `font.*` (un escalón más chico en los grandes: 14→13, 16→15, 18→16, 20→18, 24→20,
+  28→22) y 3,163 padding/margin/gap numéricos → `spacing.*` (12→10, 16→14, 20→18, 24→22). Título de cabecera 26→22.
+  Sin tocar radios, anchos/altos ni valores ≥ 48. Paso 2 pendiente: ajuste de escala dentro de la app.
+

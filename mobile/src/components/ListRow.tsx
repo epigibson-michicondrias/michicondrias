@@ -6,7 +6,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { layout, radius, shadow, spacing, tint, type } from '@/constants/design';
+import { layout, radius, shadow, spacing, tint, type, font } from '@/constants/design';
 
 interface ListRowProps {
     icon: React.ComponentType<any>;
@@ -54,6 +54,6 @@ const styles = StyleSheet.create({
     },
     iconBox: { width: layout.iconBox.md, height: layout.iconBox.md, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
     info: { flex: 1 },
-    badge: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: radius.pill },
-    badgeText: { fontSize: 10, fontWeight: '800' },
+    badge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: radius.pill },
+    badgeText: { fontSize: font.xs, fontWeight: '800' },
 });

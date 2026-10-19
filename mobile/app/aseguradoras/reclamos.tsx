@@ -17,6 +17,7 @@ import {
     AlertTriangle,
     Sparkles,
 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function ReclamosScreen() {
     const { theme } = useTheme();
@@ -162,20 +163,20 @@ export default function ReclamosScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     claimCard: {
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 14,
+        marginBottom: spacing.lg,
         overflow: 'hidden',
     },
     claimHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        gap: 12,
+        padding: spacing.lg,
+        gap: spacing.md,
     },
     claimIcon: {
         width: 44,
@@ -188,51 +189,51 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     claimId: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     claimReason: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 16,
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     statusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     claimDetails: {
-        padding: 16,
+        padding: spacing.lg,
         borderTopWidth: 1,
-        gap: 10,
+        gap: spacing.md,
     },
     detailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     detailLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         width: 55,
     },
     detailValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
         flex: 1,
     },
     receiptLink: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
         flex: 1,
     },
     actionRow: {
         flexDirection: 'row',
-        gap: 12,
-        padding: 16,
+        gap: spacing.md,
+        padding: spacing.lg,
         paddingTop: 0,
     },
     rejectBtn: {
@@ -240,13 +241,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 12,
         borderWidth: 1.5,
-        gap: 6,
+        gap: spacing.sm,
     },
     rejectBtnText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     approveBtn: {
@@ -254,13 +255,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 12,
-        gap: 6,
+        gap: spacing.sm,
     },
     approveBtnText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
 });

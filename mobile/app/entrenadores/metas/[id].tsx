@@ -28,6 +28,7 @@ import {
     ClipboardList,
     X,
 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 const STATUS_INFO: Record<string, { label: string; color: string; icon: any }> = {
     pending: { label: 'Pendiente', color: '#f59e0b', icon: ClipboardList },
@@ -165,9 +166,9 @@ export default function GoalManagementScreen() {
                         )}
                     </View>
 
-                    {isGoalsLoading && <ActivityIndicator style={{ marginVertical: 24 }} color={theme.primary} />}
+                    {isGoalsLoading && <ActivityIndicator style={{ marginVertical: spacing.xxl }} color={theme.primary} />}
                     {!isGoalsLoading && goals.length === 0 && (
-                        <Text style={{ color: theme.textMuted, textAlign: 'center', marginVertical: 24 }}>
+                        <Text style={{ color: theme.textMuted, textAlign: 'center', marginVertical: spacing.xxl }}>
                             {isTrainer ? 'Aún no hay metas. Agrega la primera con el botón +.' : 'El entrenador aún no ha definido metas.'}
                         </Text>
                     )}
@@ -385,30 +386,30 @@ export default function GoalManagementScreen() {
 }
 
 const styles = StyleSheet.create({
-    enrollActions: { flexDirection: 'row', gap: 12, marginHorizontal: 24, marginBottom: 16 },
-    enrollActionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 14 },
-    enrollActionText: { color: '#fff', fontSize: 13, fontWeight: '800' },
+    enrollActions: { flexDirection: 'row', gap: spacing.md, marginHorizontal: spacing.xxl, marginBottom: spacing.lg },
+    enrollActionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.md, borderRadius: 14 },
+    enrollActionText: { color: '#fff', fontSize: font.base, fontWeight: '800' },
     progressCard: {
-        marginHorizontal: 24,
-        padding: 20,
+        marginHorizontal: spacing.xxl,
+        padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     progressHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     progressTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     progressRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     progressCircle: {
         width: 64,
@@ -419,15 +420,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     progressPercent: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     progressStats: {
         flex: 1,
-        gap: 8,
+        gap: spacing.sm,
     },
     progressStatText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     progressBarBg: {
@@ -440,17 +441,17 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     goalsSection: {
-        paddingHorizontal: 24,
-        gap: 12,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
     },
     goalsSectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     addGoalBtn: {
@@ -463,13 +464,13 @@ const styles = StyleSheet.create({
     goalCard: {
         borderRadius: 16,
         borderWidth: 1,
-        padding: 16,
-        gap: 12,
+        padding: spacing.lg,
+        gap: spacing.md,
     },
     goalHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     goalIconBg: {
         width: 40,
@@ -480,24 +481,24 @@ const styles = StyleSheet.create({
     },
     goalInfo: {
         flex: 1,
-        gap: 6,
+        gap: spacing.sm,
     },
     goalName: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     goalStatusBadge: {
         alignSelf: 'flex-start',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     goalStatusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     goalNotes: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     videoActions: {
@@ -507,14 +508,14 @@ const styles = StyleSheet.create({
     reviewBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        gap: spacing.sm,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 12,
     },
     reviewBtnText: {
         color: '#fff',
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     footer: { height: 40 },
@@ -525,85 +526,85 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 32,
+        paddingHorizontal: spacing.xxxl,
     },
     modalContainer: {
         width: '100%',
         borderRadius: 24,
-        padding: 24,
+        padding: spacing.xxl,
     },
     modalHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     modalTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
-    modalBody: { gap: 12 },
+    modalBody: { gap: spacing.md },
     modalLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     modalInput: {
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
         borderWidth: 1,
-        fontSize: 15,
+        fontSize: font.lg,
     },
     modalTextArea: {
         minHeight: 80,
-        paddingTop: 14,
+        paddingTop: spacing.lg,
     },
     modalSubmitBtn: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
-        marginTop: 16,
+        marginTop: spacing.lg,
     },
     modalSubmitText: {
         color: '#fff',
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     reviewGoalName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     videoPlaceholder: {
         height: 160,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
+        gap: spacing.sm,
+        marginBottom: spacing.sm,
     },
     videoPlaceholderText: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     reviewActions: {
         flexDirection: 'row',
-        gap: 12,
-        marginTop: 16,
+        gap: spacing.md,
+        marginTop: spacing.lg,
     },
     rejectBtn: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
         borderWidth: 1.5,
-        gap: 6,
+        gap: spacing.sm,
     },
     rejectBtnText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     approveBtn: {
@@ -611,13 +612,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
-        gap: 6,
+        gap: spacing.sm,
     },
     approveBtnText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
 });

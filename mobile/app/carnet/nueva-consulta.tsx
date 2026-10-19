@@ -4,7 +4,7 @@ import { useConsultationForm } from '@/src/hooks/carnet/useConsultationForm';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { spacing } from '@/constants/design';
+import { spacing, font } from '@/constants/design';
 import Button from '@/src/components/Button';
 import { Plus, Trash2, ClipboardList, Weight, Thermometer, ShoppingBag, Info, Activity } from 'lucide-react-native';
 
@@ -218,105 +218,105 @@ export default function NuevaConsultaScreen() {
 const styles = StyleSheet.create({
     saveBtn: { marginTop: spacing.xl },
     scrollContent: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
     },
     section: {
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     inputGroup: {
         borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
+        padding: spacing.lg,
+        marginBottom: spacing.md,
         borderWidth: 1,
     },
     label: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
         letterSpacing: 0.5,
     },
     labelRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginBottom: 8,
+        gap: spacing.sm,
+        marginBottom: spacing.sm,
     },
     input: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '600',
         minHeight: 24,
     },
     row: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     prescriptionCard: {
         borderRadius: 20,
-        padding: 16,
-        marginBottom: 12,
+        padding: spacing.lg,
+        marginBottom: spacing.md,
         borderWidth: 1,
     },
     pCardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     pNumber: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
     pInput: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
-        paddingVertical: 8,
+        paddingVertical: spacing.sm,
         borderBottomWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     pSubGroup: {
         flex: 1,
     },
     pLabel: {
-        fontSize: 9,
+        fontSize: font.xs,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     addPresBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 2,
         borderStyle: 'dashed',
-        gap: 10,
-        marginTop: 8,
+        gap: spacing.md,
+        marginTop: spacing.sm,
     },
     addPresText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     infoBox: {
         flexDirection: 'row',
-        gap: 12,
-        padding: 16,
+        gap: spacing.md,
+        padding: spacing.lg,
         borderRadius: 16,
-        marginTop: 10,
+        marginTop: spacing.md,
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
         fontWeight: '500',
         opacity: 0.8,

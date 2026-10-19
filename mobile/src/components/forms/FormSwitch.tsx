@@ -6,6 +6,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { font, spacing } from '@/constants/design';
 
 interface FormSwitchProps {
     label: string;
@@ -68,24 +69,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
         borderWidth: 1.5,
-        marginBottom: 10,
+        marginBottom: spacing.md,
     },
     content: {
         flex: 1,
-        marginRight: 12,
+        marginRight: spacing.md,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     description: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     checkBox: {
         width: 24,

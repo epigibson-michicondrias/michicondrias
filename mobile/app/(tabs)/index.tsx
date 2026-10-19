@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GettingStartedCard from '@/src/components/GettingStartedCard';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
-import { spacing, radius, type } from '@/constants/design';
+import { spacing, radius, type, font } from '@/constants/design';
 
 // Helper to get beautiful, high-quality placeholders by species
 const getPetPlaceholder = (species: string) => {
@@ -141,7 +141,7 @@ export default function DashboardScreen() {
               activeOpacity={0.85}
               accessibilityRole="button"
               onPress={() => router.push((proOnboarding === 'approved' ? '/perfil/partner' : '/perfil/verificacion') as any)}
-              style={[styles.actionCard, { width: 'auto', alignSelf: 'stretch', flexBasis: 'auto', marginHorizontal: 24, flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: theme.surface, borderColor: theme.accent }]}
+              style={[styles.actionCard, { width: 'auto', alignSelf: 'stretch', flexBasis: 'auto', marginHorizontal: spacing.xxl, flexDirection: 'row', alignItems: 'center', gap: spacing.lg, backgroundColor: theme.surface, borderColor: theme.accent }]}
             >
               <View style={[styles.actionIconBox, { backgroundColor: theme.accentLight, marginBottom: 0 }]}>
                 {proOnboarding === 'approved' ? <Handshake size={24} color={theme.accent} /> : <XCircle size={24} color={theme.error} />}
@@ -150,7 +150,7 @@ export default function DashboardScreen() {
                 <Text style={[styles.actionTitle, { color: theme.text, textAlign: 'left' }]}>
                   {proOnboarding === 'approved' ? 'Identidad aprobada' : 'Verificación rechazada'}
                 </Text>
-                <Text style={{ color: theme.textMuted, fontSize: 12, fontWeight: '500', marginTop: 2 }}>
+                <Text style={{ color: theme.textMuted, fontSize: font.md, fontWeight: '500', marginTop: spacing.xxs }}>
                   {proOnboarding === 'approved' ? 'Activa tu cuenta profesional ahora' : 'Vuelve a subir tus documentos'}
                 </Text>
               </View>
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
     zIndex: 10,
   },
   topBarBtn: {
@@ -399,8 +399,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(233,200,131,0.28)',
     position: 'relative',
   },
-  topLogo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  logoText: { fontSize: 13, fontWeight: '800', color: 'rgba(255,255,255,0.7)', letterSpacing: 3 },
+  topLogo: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  logoText: { fontSize: font.base, fontWeight: '800', color: 'rgba(255,255,255,0.7)', letterSpacing: 3 },
   notifBadge: {
     position: 'absolute',
     top: -spacing.xs,
@@ -415,9 +415,9 @@ const styles = StyleSheet.create({
   notifBadgeText: { ...type.label, letterSpacing: 0 }, // color: theme.onHero (inline)
 
   /* hero welcome */
-  heroContainer: { paddingHorizontal: 24, marginTop: 30 },
+  heroContainer: { paddingHorizontal: spacing.xxl, marginTop: spacing.xxxl },
   glassCard: {
-    padding: 24,
+    padding: spacing.xxl,
     borderRadius: 28,
     borderWidth: 1,
     borderColor: 'rgba(233,200,131,0.3)',
@@ -431,19 +431,19 @@ const styles = StyleSheet.create({
   welcomeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: spacing.lg,
     backgroundColor: 'transparent',
   },
   welcomeInfo: { flex: 1, backgroundColor: 'transparent' },
   welcomeLabel: {
-    fontSize: 10,
+    fontSize: font.xs,
     fontWeight: '900',
     color: 'rgba(255,255,255,0.85)',
     letterSpacing: 1.5,
   },
-  welcomeName: { fontSize: 26, fontWeight: '900', color: '#fff', marginTop: 2 },
+  welcomeName: { fontSize: font.h1, fontWeight: '900', color: '#fff', marginTop: spacing.xxs },
   avatarBox: { width: 66, height: 66 },
-  avatarBorder: { padding: 3, borderRadius: 24, ...StyleSheet.absoluteFillObject },
+  avatarBorder: { padding: spacing.xs, borderRadius: 24, ...StyleSheet.absoluteFillObject },
   avatarInner: {
     flex: 1,
     borderRadius: 21,
@@ -451,35 +451,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarText: { fontSize: 24, fontWeight: '900', color: '#7c3aed' },
+  avatarText: { fontSize: font.h2, fontWeight: '900', color: '#7c3aed' },
   statsStrip: {
     flexDirection: 'row',
-    marginTop: 24,
-    paddingTop: 20,
+    marginTop: spacing.xxl,
+    paddingTop: spacing.xl,
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'transparent',
   },
   statItem: { alignItems: 'center', flex: 1 },
-  statVal: { fontSize: 18, fontWeight: '900' }, // color: theme.onHero (inline)
-  statLab: { fontSize: 10, fontWeight: '700', color: 'rgba(255,255,255,0.85)', marginTop: 2 },
+  statVal: { fontSize: font.xxl, fontWeight: '900' }, // color: theme.onHero (inline)
+  statLab: { fontSize: font.xs, fontWeight: '700', color: 'rgba(255,255,255,0.85)', marginTop: spacing.xxs },
   statDivider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.2)' },
 
   /* sections */
-  section: { marginTop: 32 },
+  section: { marginTop: spacing.xxxl },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    marginBottom: 16,
+    paddingHorizontal: spacing.xxl,
+    marginBottom: spacing.lg,
   },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  sectionTitle: { fontSize: 18, fontWeight: '900' },
-  seeAll: { fontSize: 14, fontWeight: '700' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  sectionTitle: { fontSize: font.xxl, fontWeight: '900' },
+  seeAll: { fontSize: font.base, fontWeight: '700' },
 
   /* pets carousel */
-  petsList: { paddingLeft: 24, paddingRight: 24, gap: 16 },
+  petsList: { paddingLeft: spacing.xxl, paddingRight: spacing.xxl, gap: spacing.lg },
   addPetBtn: {
     width: 110,
     height: 180,
@@ -502,47 +502,47 @@ const styles = StyleSheet.create({
   },
   petImage: { ...StyleSheet.absoluteFillObject },
   petOverlay: { ...StyleSheet.absoluteFillObject },
-  petInfo: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16 },
-  petName: { fontSize: 16, fontWeight: '900' }, // color: theme.onHero (inline)
+  petInfo: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: spacing.lg },
+  petName: { fontSize: font.xl, fontWeight: '900' }, // color: theme.onHero (inline)
   petTag: {
     backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
     borderRadius: 6,
     alignSelf: 'flex-start',
-    marginTop: 4,
+    marginTop: spacing.xs,
   },
-  petTagText: { fontSize: 9, fontWeight: '800', textTransform: 'uppercase' }, // color: theme.onHero (inline)
+  petTagText: { fontSize: font.xs, fontWeight: '800', textTransform: 'uppercase' }, // color: theme.onHero (inline)
   emptyPets: {
-    marginHorizontal: 24,
+    marginHorizontal: spacing.xxl,
     height: 180,
     borderRadius: 32,
     borderWidth: 2,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: spacing.md,
   },
-  emptyPetsText: { fontSize: 14, fontWeight: '700', color: '#64748b' },
+  emptyPetsText: { fontSize: font.base, fontWeight: '700', color: '#64748b' },
   loadingBox: { height: 180, justifyContent: 'center', alignItems: 'center' },
 
   /* 2×2 actions grid */
   actionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 24,
-    gap: 14,
+    paddingHorizontal: spacing.xxl,
+    gap: spacing.lg,
   },
   actionCard: {
     width: '47%' as any,
     flexBasis: '47%',
     flexGrow: 0,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.lg,
     borderRadius: 24,
     borderWidth: 1,
     alignItems: 'center',
-    gap: 10,
+    gap: spacing.md,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -556,17 +556,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  actionTitle: { fontSize: 14, fontWeight: '800' },
+  actionTitle: { fontSize: font.base, fontWeight: '800' },
 
   /* citas */
-  citasList: { paddingHorizontal: 24, gap: 12 },
+  citasList: { paddingHorizontal: spacing.xxl, gap: spacing.md },
   citaCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 22,
     borderWidth: 1,
-    gap: 14,
+    gap: spacing.lg,
   },
   citaDateBadge: {
     width: 44,
@@ -576,30 +576,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   citaInfo: { flex: 1 },
-  citaDate: { fontSize: 14, fontWeight: '800' },
-  citaClinic: { fontSize: 12, fontWeight: '500', marginTop: 2 },
+  citaDate: { fontSize: font.base, fontWeight: '800' },
+  citaClinic: { fontSize: font.md, fontWeight: '500', marginTop: spacing.xxs },
   citaStatusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
     borderRadius: 10,
   },
-  citaStatusText: { fontSize: 10, fontWeight: '800' },
+  citaStatusText: { fontSize: font.xs, fontWeight: '800' },
   emptyCitas: {
-    marginHorizontal: 24,
+    marginHorizontal: spacing.xxl,
     borderRadius: 28,
     borderWidth: 1,
-    padding: 28,
+    padding: spacing.xxxl,
     alignItems: 'center',
-    gap: 10,
+    gap: spacing.md,
     overflow: 'hidden',
   },
-  emptyCitasTitle: { fontSize: 16, fontWeight: '900', marginTop: 4 },
-  emptyCitasDesc: { fontSize: 13, fontWeight: '500', textAlign: 'center' },
+  emptyCitasTitle: { fontSize: font.xl, fontWeight: '900', marginTop: spacing.xs },
+  emptyCitasDesc: { fontSize: font.base, fontWeight: '500', textAlign: 'center' },
   emptyCitasBtn: {
-    marginTop: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.md,
     borderRadius: 16,
   },
-  emptyCitasBtnText: { fontSize: 13, fontWeight: '800' }, // color: theme.onPrimary (inline)
+  emptyCitasBtnText: { fontSize: font.base, fontWeight: '800' }, // color: theme.onPrimary (inline)
 });

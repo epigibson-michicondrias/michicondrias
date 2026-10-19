@@ -8,6 +8,7 @@ import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView } from 're
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '@/src/hooks/useTheme';
+import { spacing } from '@/constants/design';
 
 interface AuthShellProps {
     children: React.ReactNode;
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     },
     scroll: {
         flexGrow: 1,
-        paddingHorizontal: 28,
+        paddingHorizontal: spacing.xxxl,
         paddingVertical: 48,
         justifyContent: 'center',
     },

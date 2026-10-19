@@ -6,6 +6,7 @@ import { useKYC } from '@/src/hooks/perfil/useKYC';
 import { useTheme } from '@/src/hooks/useTheme';
 import { ShieldCheck, FileText, Camera, Images, CheckCircle2, AlertCircle, Info, ArrowRight } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { font, spacing } from '@/constants/design';
 
 const DOC_HINTS: Record<string, string> = {
     id_front: 'INE, Pasaporte o Cédula',
@@ -140,15 +141,15 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     content: {
-        padding: 24,
-        gap: 24,
+        padding: spacing.xxl,
+        gap: spacing.xxl,
     },
     statusCard: {
         flexDirection: 'row',
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 24,
         alignItems: 'center',
-        gap: 20,
+        gap: spacing.xl,
         borderWidth: 1,
     },
     statusIconBox: {
@@ -162,29 +163,29 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     statusTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     statusDesc: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
         marginBottom: -4,
     },
     docCard: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
     },
     docRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     docIcon: {
         width: 48,
@@ -194,42 +195,42 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     docLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     docStatus: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
     docActions: {
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.md,
     },
     docButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
+        gap: spacing.sm,
         minHeight: 44,
         borderRadius: 12,
         borderWidth: 1.5,
     },
     docButtonText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -237,17 +238,17 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 40,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     ctaRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
 });

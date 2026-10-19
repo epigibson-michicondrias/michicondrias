@@ -6,6 +6,7 @@ import { useEnrollment } from '@/src/hooks/training/useEnrollment';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, DollarSign, Clock, PawPrint, CheckCircle, ArrowRight } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function EnrollPetScreen() {
     const { theme } = useTheme();
@@ -155,16 +156,16 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
-    loadingText: { fontSize: 16 },
+    loadingText: { fontSize: font.xl },
     programCard: {
-        marginHorizontal: 24,
-        padding: 24,
+        marginHorizontal: spacing.xxl,
+        padding: spacing.xxl,
         borderRadius: 20,
         borderWidth: 1,
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     programIconBg: {
         width: 64,
@@ -172,67 +173,67 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     programName: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     programDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     programStats: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     statChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 14,
-        paddingVertical: 8,
+        gap: spacing.sm,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
     },
     statChipText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     sectionContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 24,
+        paddingHorizontal: spacing.xxl,
+        marginBottom: spacing.xxl,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     sectionSubtitle: {
-        fontSize: 14,
-        marginBottom: 16,
+        fontSize: font.base,
+        marginBottom: spacing.lg,
     },
     emptyPets: {
         alignItems: 'center',
-        padding: 32,
+        padding: spacing.xxxl,
         borderRadius: 16,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     emptyText: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
     },
-    petList: { gap: 12 },
+    petList: { gap: spacing.md },
     petCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 14,
+        gap: spacing.lg,
     },
     petAvatar: {
         width: 48,
@@ -243,12 +244,12 @@ const styles = StyleSheet.create({
     },
     petInfo: { flex: 1 },
     petName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     petBreed: {
-        fontSize: 13,
-        marginTop: 2,
+        fontSize: font.base,
+        marginTop: spacing.xxs,
     },
     checkCircle: {
         width: 28,
@@ -258,20 +259,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     actionContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 24,
+        paddingHorizontal: spacing.xxl,
+        marginBottom: spacing.xxl,
     },
     enrollButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        gap: 10,
+        gap: spacing.md,
         borderWidth: 1,
     },
     enrollButtonText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     footer: { height: 20 },

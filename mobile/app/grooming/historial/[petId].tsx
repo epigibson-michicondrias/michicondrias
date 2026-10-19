@@ -12,6 +12,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
+import { font, spacing } from '@/constants/design';
 
 export default function HistorialGroomingScreen() {
     const { petId } = useLocalSearchParams<{ petId: string }>();
@@ -172,23 +173,23 @@ export default function HistorialGroomingScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
 
     // Grooming file card
     fileCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
-        marginTop: 16,
-        marginBottom: 24,
+        marginTop: spacing.lg,
+        marginBottom: spacing.xxl,
     },
     fileHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     fileIcon: {
         width: 44,
@@ -198,48 +199,48 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     fileTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     fileRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
+        gap: spacing.sm,
+        marginBottom: spacing.sm,
     },
     fileLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     fileValue: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         flex: 1,
     },
     allergyBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
+        padding: spacing.md,
         borderRadius: 10,
-        gap: 8,
-        marginTop: 6,
+        gap: spacing.sm,
+        marginTop: spacing.sm,
     },
     allergyText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         flex: 1,
     },
     lastVisit: {
-        fontSize: 12,
-        marginTop: 10,
+        fontSize: font.md,
+        marginTop: spacing.md,
         textAlign: 'right',
     },
 
     // Section title
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
 
     // Timeline
@@ -255,51 +256,51 @@ const styles = StyleSheet.create({
         width: 12,
         height: 12,
         borderRadius: 6,
-        marginTop: 20,
+        marginTop: spacing.xl,
     },
     timelineLine: {
         width: 2,
         flex: 1,
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
 
     // Session card
     sessionCard: {
         flex: 1,
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 12,
-        marginLeft: 8,
+        marginBottom: spacing.md,
+        marginLeft: spacing.sm,
     },
     sessionHeader: {
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     sessionService: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     sessionDateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
+        gap: spacing.xs,
     },
     sessionDate: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
     },
 
     // Photos
     photosContainer: {
         flexDirection: 'row',
-        gap: 10,
-        marginBottom: 12,
+        gap: spacing.md,
+        marginBottom: spacing.md,
     },
     photoColumn: {
         flex: 1,
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     photo: {
         width: '100%',
@@ -307,7 +308,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     photoCaption: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
 
@@ -315,13 +316,13 @@ const styles = StyleSheet.create({
     reportBox: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        padding: 12,
+        padding: spacing.md,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
     reportText: {
         flex: 1,
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 19,
     },
 });

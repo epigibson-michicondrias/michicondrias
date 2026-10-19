@@ -15,6 +15,7 @@ import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petf
 import { useAuth } from '../../src/contexts/AuthContext';
 import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -167,7 +168,7 @@ export default function NuevoLugarScreen() {
                         </ScrollView>
 
                         <Text style={[styles.label, { color: theme.text }]}>Ubicación</Text>
-                        <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 8 }}>
+                        <Text style={{ color: theme.textMuted, fontSize: font.md, marginBottom: spacing.sm }}>
                             Se usa tu posición actual: regístralo estando en el lugar.
                         </Text>
                         <View style={styles.mapWrapper}>
@@ -190,7 +191,7 @@ export default function NuevoLugarScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Usar mi ubicación actual"
                             onPress={locate}
-                            style={{ alignSelf: 'flex-start', marginBottom: 16 }}
+                            style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }}
                         >
                             <Text style={{ color: theme.primary, fontWeight: '800' }}>{location ? 'Actualizar mi ubicación' : 'Usar mi ubicación actual'}</Text>
                         </TouchableOpacity>
@@ -253,7 +254,7 @@ export default function NuevoLugarScreen() {
                         {loading ? (
                             <Text style={styles.saveBtnText}>Registrando...</Text>
                         ) : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
                                 <Check size={20} color="#fff" />
                                 <Text style={styles.saveBtnText}>Publicar Lugar</Text>
                             </View>
@@ -274,22 +275,22 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingTop: 60,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
+        paddingHorizontal: spacing.xl,
+        paddingBottom: spacing.xl,
     },
     title: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
     },
     scroll: {
-        padding: 24,
+        padding: spacing.xxl,
     },
     imageSelector: {
         width: '100%',
         height: 180,
         borderRadius: 24,
         overflow: 'hidden',
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
     },
     imagePlaceholder: {
         flex: 1,
@@ -300,47 +301,47 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
     },
     imagePlaceholderText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     selectedImage: {
         width: '100%',
         height: '100%',
     },
     form: {
-        gap: 16,
+        gap: spacing.lg,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginBottom: 4,
-        marginLeft: 4,
+        marginBottom: spacing.xs,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     categoryRow: {
-        gap: 10,
-        paddingBottom: 4,
+        gap: spacing.md,
+        paddingBottom: spacing.xs,
     },
     catBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 16,
-        gap: 8,
+        gap: spacing.sm,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     catText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     mapWrapper: {
@@ -362,19 +363,19 @@ const styles = StyleSheet.create({
     },
     amenitiesGrid: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     amenityBtn: {
         flex: 1,
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     amenityText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
         textAlign: 'center',
     },
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
     },
     sizeRow: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     sizeBtn: {
         flex: 1,
@@ -403,17 +404,17 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(128,128,128,0.2)',
     },
     sizeText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     textArea: {
         height: 120,
-        paddingTop: 16,
+        paddingTop: spacing.lg,
         textAlignVertical: 'top',
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     saveBtn: {
@@ -429,7 +430,7 @@ const styles = StyleSheet.create({
     },
     saveBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

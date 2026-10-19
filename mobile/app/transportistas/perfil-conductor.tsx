@@ -18,6 +18,7 @@ import {
   Save,
   UserCircle,
 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function PerfilConductorScreen() {
   const { theme } = useTheme();
@@ -184,16 +185,16 @@ export default function PerfilConductorScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing.xxl,
     paddingBottom: 100,
   },
   statusBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 16,
-    gap: 14,
-    marginBottom: 24,
+    gap: spacing.lg,
+    marginBottom: spacing.xxl,
   },
   statusIcon: {
     width: 48,
@@ -206,22 +207,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statusTitle: {
-    fontSize: 16,
+    fontSize: font.xl,
     fontWeight: '800',
-    marginBottom: 2,
+    marginBottom: spacing.xxs,
   },
   statusSub: {
-    fontSize: 13,
+    fontSize: font.base,
     fontWeight: '500',
   },
   inputGroup: {
-    gap: 8,
-    marginBottom: 16,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   label: {
-    fontSize: 13,
+    fontSize: font.base,
     fontWeight: '700',
-    marginLeft: 4,
+    marginLeft: spacing.xs,
   },
   inputWrapper: {
     position: 'relative',
@@ -235,39 +236,39 @@ const styles = StyleSheet.create({
   input: {
     height: 56,
     borderRadius: 16,
-    paddingHorizontal: 16,
-    fontSize: 15,
+    paddingHorizontal: spacing.lg,
+    fontSize: font.lg,
     borderWidth: 1,
   },
   inputWithIcon: {
-    paddingLeft: 46,
+    paddingLeft: spacing.huge,
   },
   featuresSummary: {
-    padding: 20,
+    padding: spacing.xl,
     borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 16,
-    gap: 12,
+    marginBottom: spacing.lg,
+    gap: spacing.md,
   },
   featuresTitle: {
-    fontSize: 14,
+    fontSize: font.base,
     fontWeight: '800',
   },
   featuresRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: spacing.sm,
   },
   featureChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: 8,
-    gap: 6,
+    gap: spacing.sm,
   },
   featureText: {
-    fontSize: 12,
+    fontSize: font.md,
     fontWeight: '600',
   },
   submitBtn: {
@@ -276,9 +277,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 10,
-    marginTop: 8,
-    marginBottom: 40,
+    gap: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.huge,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   },
   submitBtnText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: font.xxl,
     fontWeight: '800',
   },
 });

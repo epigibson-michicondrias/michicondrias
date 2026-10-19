@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     description: { fontSize: type.body.fontSize, lineHeight: 22 },
     serviceItem: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, borderRadius: radius.md, borderWidth: 1, marginBottom: spacing.sm },
     serviceName: { fontSize: type.subtitle.fontSize, fontWeight: '700' },
-    serviceDuration: { fontSize: type.caption.fontSize, marginTop: 2 },
+    serviceDuration: { fontSize: type.caption.fontSize, marginTop: spacing.xxs },
     serviceRight: { alignItems: 'flex-end', gap: spacing.xs },
     servicePrice: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
 });

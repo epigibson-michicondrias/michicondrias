@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { Star, MapPin, Phone, MessageCircle, Check } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, radius, type, layout } from '@/constants/design';
+import { spacing, radius, type, layout, font } from '@/constants/design';
 
 // ── Hero (avatar + nombre + especialidad + rating) ──
 export function ProviderHero({ photoUrl, name, subtitle, rating, reviewCount, accent, children }: {
@@ -104,7 +104,7 @@ export function ProviderLocation({ text, extra }: { text: string; extra?: string
             <MapPin size={18} color={theme.primary} />
             <View style={{ flex: 1 }}>
                 <Text style={[styles.locationText, { color: theme.text }]}>{text}</Text>
-                {!!extra && <Text style={[styles.locationText, { color: theme.textMuted, fontSize: 12 }]}>{extra}</Text>}
+                {!!extra && <Text style={[styles.locationText, { color: theme.textMuted, fontSize: font.md }]}>{extra}</Text>}
             </View>
         </View>
     );
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     statItem: { flex: 1, alignItems: 'center', paddingVertical: spacing.lg },
     statDivider: { width: 1 },
     statNumber: { fontSize: type.h2.fontSize, fontWeight: '900' },
-    statLabel: { fontSize: type.caption.fontSize, marginTop: 2 },
+    statLabel: { fontSize: type.caption.fontSize, marginTop: spacing.xxs },
     section: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.lg, marginBottom: spacing.md },
     sectionTitle: { fontSize: type.subtitle.fontSize, fontWeight: '800', marginBottom: spacing.md },
     bioText: { fontSize: type.body.fontSize, lineHeight: 22 },
@@ -256,12 +256,12 @@ const styles = StyleSheet.create({
     priceAmount: { fontSize: type.h2.fontSize, fontWeight: '900' },
     ratingSummaryCard: { alignItems: 'center', padding: spacing.xl, borderRadius: radius.lg, borderWidth: 1, marginBottom: spacing.lg },
     ratingBig: { fontSize: 48, fontWeight: '900' },
-    starsRow: { flexDirection: 'row', gap: 2, marginVertical: spacing.xs },
+    starsRow: { flexDirection: 'row', gap: spacing.xxs, marginVertical: spacing.xs },
     reviewsList: { gap: spacing.sm },
     reviewCard: { borderRadius: radius.md, borderWidth: 1, padding: spacing.lg },
     reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
     reviewAvatar: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
-    reviewAvatarText: { fontSize: 14, fontWeight: '800' },
+    reviewAvatarText: { fontSize: font.base, fontWeight: '800' },
     reviewName: { fontSize: type.body.fontSize, fontWeight: '700' },
     reviewComment: { fontSize: type.body.fontSize, lineHeight: 20 },
     reviewForm: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.lg, gap: spacing.md },

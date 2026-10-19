@@ -9,6 +9,7 @@ import DataList from '@/src/components/data/DataList';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { InsurancePlan } from '@/src/services/insurance';
 import { Shield, Clock, DollarSign, ChevronRight, Plus, CheckCircle } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function AseguradorasScreen() {
     const router = useRouter();
@@ -131,39 +132,39 @@ export default function AseguradorasScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 20,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     actionButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     planCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     planHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 12,
+        marginBottom: spacing.lg,
+        gap: spacing.md,
     },
     iconContainer: {
         width: 48,
@@ -176,12 +177,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     planName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     planDesc: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     arrowButton: {
@@ -194,12 +195,12 @@ const styles = StyleSheet.create({
     planStats: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderTopWidth: 1,
         borderTopColor: 'rgba(255,255,255,0.05)',
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(255,255,255,0.05)',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     statItem: {
         alignItems: 'center',
@@ -209,38 +210,38 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.1)',
     },
     statText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     statLabel: {
-        fontSize: 11,
-        marginTop: 2,
+        fontSize: font.sm,
+        marginTop: spacing.xxs,
     },
     tagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: spacing.sm,
     },
     speciesTag: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     speciesText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     activeTag: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
-        gap: 4,
+        gap: spacing.xs,
     },
     activeText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
 });

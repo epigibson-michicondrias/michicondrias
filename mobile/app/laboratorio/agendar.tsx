@@ -12,6 +12,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import PetPicker from '@/src/features/salud/PetPicker';
 import { toISODate } from '@/src/features/salud/format';
 import { showAlert } from '@/src/components/AppAlert';
+import { font, spacing } from '@/constants/design';
 
 const TIME_SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '16:00', '17:00'];
 
@@ -82,7 +83,7 @@ export default function AgendarLaboratorioScreen() {
                             <FlaskConical size={22} color={theme.primary} />
                             <View style={{ flex: 1 }}>
                                 <Text style={[styles.title, { color: theme.text }]}>{test.name}</Text>
-                                {!!test.description && <Text style={{ color: theme.textMuted, fontSize: 13 }}>{test.description}</Text>}
+                                {!!test.description && <Text style={{ color: theme.textMuted, fontSize: font.base }}>{test.description}</Text>}
                             </View>
                             <Text style={[styles.title, { color: theme.primary }]}>${Number(test.price).toFixed(2)}</Text>
                         </View>
@@ -141,13 +142,13 @@ export default function AgendarLaboratorioScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { padding: 24, gap: 20, paddingBottom: 60 },
-    summary: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 16, borderWidth: 1 },
-    title: { fontSize: 16, fontWeight: '800' },
-    label: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
-    slots: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-    slot: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1 },
-    input: { minHeight: 90, borderRadius: 14, borderWidth: 1, padding: 14, fontSize: 14 },
-    submit: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 14 },
-    submitText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+    content: { padding: spacing.xxl, gap: spacing.xl, paddingBottom: 60 },
+    summary: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: 16, borderWidth: 1 },
+    title: { fontSize: font.xl, fontWeight: '800' },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    slots: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    slot: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 12, borderWidth: 1 },
+    input: { minHeight: 90, borderRadius: 14, borderWidth: 1, padding: spacing.lg, fontSize: font.base },
+    submit: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.lg, borderRadius: 14 },
+    submitText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
 });

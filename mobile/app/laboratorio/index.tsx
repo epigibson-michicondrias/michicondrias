@@ -14,6 +14,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { FlaskConical, Calendar, Clock, ChevronRight, X, Info, DollarSign, Activity, PawPrint, CheckCircle } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function LaboratorioScreen() {
     const router = useRouter();
@@ -100,7 +101,7 @@ export default function LaboratorioScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Ver estudios disponibles"
                 onPress={() => setView('estudios')}
-                style={{ marginTop: 16, backgroundColor: theme.primary, paddingVertical: 12, paddingHorizontal: 20, borderRadius: 12 }}
+                style={{ marginTop: spacing.lg, backgroundColor: theme.primary, paddingVertical: spacing.md, paddingHorizontal: spacing.xl, borderRadius: 12 }}
             >
                 <Text style={{ color: '#fff', fontWeight: '800' }}>Ver estudios</Text>
             </TouchableOpacity>
@@ -114,7 +115,7 @@ export default function LaboratorioScreen() {
                 subtitle="Estudios clínicos para tu mascota"
             />
 
-            <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 24, marginBottom: 12, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.xxl, marginBottom: spacing.md, alignItems: 'center' }}>
                 <FilterChip label="Estudios" active={view === 'estudios'} onPress={() => setView('estudios')} />
                 <FilterChip
                     label={`Mis citas${appointments.length ? ` (${appointments.length})` : ''}`}
@@ -126,7 +127,7 @@ export default function LaboratorioScreen() {
 
             {view === 'estudios' ? (
                 isLoadingTests ? (
-                    <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
+                    <View style={{ padding: spacing.xl }}><SkeletonList count={4} /></View>
                 ) : (
                     <FlatList
                         data={tests}
@@ -161,7 +162,7 @@ export default function LaboratorioScreen() {
                     />
                 )
             ) : isLoadingAppointments ? (
-                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
+                <View style={{ padding: spacing.xl }}><SkeletonList count={4} /></View>
             ) : (
                 <FlatList
                     data={appointments}
@@ -224,14 +225,14 @@ export default function LaboratorioScreen() {
                                         <View style={[styles.gridRow, { borderBottomColor: theme.borderLight }]}>
                                             <View style={styles.gridItem}>
                                                 <PawPrint size={18} color={theme.textMuted} />
-                                                <View style={{ marginLeft: 2 }}>
+                                                <View style={{ marginLeft: spacing.xxs }}>
                                                     <Text style={[styles.gridLabel, { color: theme.textMuted }]}>Paciente</Text>
                                                     <Text style={[styles.gridValue, { color: theme.text }]}>{petName}</Text>
                                                 </View>
                                             </View>
                                             <View style={styles.gridItem}>
                                                 <Activity size={18} color={theme.textMuted} />
-                                                <View style={{ marginLeft: 2 }}>
+                                                <View style={{ marginLeft: spacing.xxs }}>
                                                     <Text style={[styles.gridLabel, { color: theme.textMuted }]}>Estado</Text>
                                                     <View style={[styles.statusBadgeInline, { backgroundColor: statusInfo.bg }]}>
                                                         <Text style={[styles.statusTextInline, { color: statusInfo.color }]}>
@@ -245,7 +246,7 @@ export default function LaboratorioScreen() {
                                         <View style={[styles.gridRow, { borderBottomColor: theme.borderLight }]}>
                                             <View style={styles.gridItem}>
                                                 <Calendar size={18} color={theme.textMuted} />
-                                                <View style={{ marginLeft: 2 }}>
+                                                <View style={{ marginLeft: spacing.xxs }}>
                                                     <Text style={[styles.gridLabel, { color: theme.textMuted }]}>Fecha</Text>
                                                     <Text style={[styles.gridValue, { color: theme.text }]}>
                                                         {formatDateMx(selectedAppointment.scheduled_date) || 'Sin fecha'}
@@ -254,7 +255,7 @@ export default function LaboratorioScreen() {
                                             </View>
                                             <View style={styles.gridItem}>
                                                 <Clock size={18} color={theme.textMuted} />
-                                                <View style={{ marginLeft: 2 }}>
+                                                <View style={{ marginLeft: spacing.xxs }}>
                                                     <Text style={[styles.gridLabel, { color: theme.textMuted }]}>Hora</Text>
                                                     <Text style={[styles.gridValue, { color: theme.text }]}>
                                                         {selectedAppointment.scheduled_time?.slice(0, 5) || 'Sin hora'}
@@ -278,8 +279,8 @@ export default function LaboratorioScreen() {
                                     {/* Notes / Indications */}
                                     {selectedAppointment.notes ? (
                                         <View style={[styles.notesCard, { backgroundColor: theme.warningLight, borderColor: theme.warning }]}>
-                                            <Info size={18} color={theme.warning} style={{ marginTop: 2 }} />
-                                            <View style={{ flex: 1, marginLeft: 2 }}>
+                                            <Info size={18} color={theme.warning} style={{ marginTop: spacing.xxs }} />
+                                            <View style={{ flex: 1, marginLeft: spacing.xxs }}>
                                                 <Text style={styles.notesTitle}>Indicaciones de Preparación</Text>
                                                 <Text style={[styles.notesText, { color: theme.text }]}>
                                                     {selectedAppointment.notes}
@@ -290,8 +291,8 @@ export default function LaboratorioScreen() {
 
                                     {selectedAppointment.status === 'completed' && (
                                         <View style={[styles.completedCard, { backgroundColor: theme.successLight, borderColor: theme.success }]}>
-                                            <CheckCircle size={18} color={theme.success} style={{ marginTop: 2 }} />
-                                            <View style={{ flex: 1, marginLeft: 2 }}>
+                                            <CheckCircle size={18} color={theme.success} style={{ marginTop: spacing.xxs }} />
+                                            <View style={{ flex: 1, marginLeft: spacing.xxs }}>
                                                 <Text style={[styles.completedTitle, { color: theme.success }]}>Resultados de {petName}</Text>
                                                 {petResults.length === 0 ? (
                                                     <Text style={[styles.completedText, { color: theme.text }]}>
@@ -314,7 +315,7 @@ export default function LaboratorioScreen() {
                                             accessibilityRole="button"
                                             disabled={isCancelling}
                                             onPress={() => confirmCancel(selectedAppointment.id)}
-                                            style={{ borderWidth: 1, borderColor: theme.error, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: 12 }}
+                                            style={{ borderWidth: 1, borderColor: theme.error, borderRadius: 12, paddingVertical: spacing.md, alignItems: 'center', marginTop: spacing.md }}
                                         >
                                             <Text style={{ color: theme.error, fontWeight: '700' }}>Cancelar cita</Text>
                                         </TouchableOpacity>
@@ -333,29 +334,29 @@ const styles = StyleSheet.create({
     summaryCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        marginHorizontal: 24,
-        marginBottom: 16,
-        padding: 14,
+        gap: spacing.md,
+        marginHorizontal: spacing.xxl,
+        marginBottom: spacing.lg,
+        padding: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
     },
     summaryText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     loadingText: {
-        fontSize: 15,
+        fontSize: font.lg,
     },
     listContent: {
-        paddingHorizontal: 24,
-        paddingBottom: 40,
+        paddingHorizontal: spacing.xxl,
+        paddingBottom: spacing.huge,
     },
     emptyList: {
         flex: 1,
@@ -363,11 +364,11 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 14,
         borderWidth: 1,
-        marginBottom: 10,
-        gap: 14,
+        marginBottom: spacing.md,
+        gap: spacing.lg,
     },
     cardIcon: {
         width: 48,
@@ -378,44 +379,44 @@ const styles = StyleSheet.create({
     },
     cardContent: {
         flex: 1,
-        gap: 4,
+        gap: spacing.xs,
     },
     cardTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     cardMeta: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     cardMetaText: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     statusBadge: {
         alignSelf: 'flex-start',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     statusText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
-        paddingHorizontal: 40,
+        gap: spacing.md,
+        paddingHorizontal: spacing.huge,
     },
     emptyTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
     },
     emptySubtitle: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
         lineHeight: 20,
     },
@@ -427,8 +428,8 @@ const styles = StyleSheet.create({
     modalContent: {
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderWidth: 1,
         borderBottomWidth: 0,
     },
@@ -436,10 +437,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     modalTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     closeBtn: {
@@ -450,15 +451,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalBody: {
-        gap: 16,
+        gap: spacing.lg,
     },
     modalTestCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        gap: 14,
+        gap: spacing.lg,
     },
     modalTestIcon: {
         width: 54,
@@ -469,14 +470,14 @@ const styles = StyleSheet.create({
     },
     modalTestInfo: {
         flex: 1,
-        gap: 2,
+        gap: spacing.xxs,
     },
     modalTestName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     modalLabName: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     gridContainer: {
@@ -485,85 +486,85 @@ const styles = StyleSheet.create({
     },
     gridRow: {
         flexDirection: 'row',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderBottomWidth: 1,
     },
     gridItem: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     gridLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
         textTransform: 'uppercase',
     },
     gridValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     statusBadgeInline: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
         alignSelf: 'flex-start',
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     statusTextInline: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     priceRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderBottomWidth: 1,
-        gap: 8,
+        gap: spacing.sm,
     },
     priceLabel: {
         flex: 1,
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     priceValue: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
     },
     notesCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     notesTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
         color: '#f59e0b',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     notesText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '500',
         lineHeight: 18,
     },
     completedCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     completedTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
         color: '#10b981',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     completedText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '500',
         lineHeight: 18,
     },

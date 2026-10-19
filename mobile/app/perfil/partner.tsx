@@ -8,6 +8,7 @@ import { usePartnerUpgrade } from '@/src/hooks/perfil/usePartnerUpgrade';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
 import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
@@ -211,18 +212,18 @@ const styles = StyleSheet.create({
     },
 
     rolesContainer: {
-        padding: 24,
-        gap: 16,
+        padding: spacing.xxl,
+        gap: spacing.lg,
     },
     kycCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: 24,
-        marginTop: 16,
-        padding: 16,
+        marginHorizontal: spacing.xxl,
+        marginTop: spacing.lg,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     kycIconBox: {
         width: 44,
@@ -235,112 +236,112 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     kycTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     kycDesc: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 17,
     },
     kycAction: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
     },
     roleCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 2,
     },
     roleHeader: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: 12,
-        gap: 16,
+        marginBottom: spacing.md,
+        gap: spacing.lg,
     },
     roleIcon: {
-        fontSize: 32,
+        fontSize: font.display,
     },
     roleTitleContainer: {
         flex: 1,
     },
     roleTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     selectedBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
         alignSelf: 'flex-start',
     },
     selectedText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     roleDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     benefitsContainer: {
-        gap: 8,
+        gap: spacing.sm,
     },
     benefitsTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     benefitItem: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     actionContainer: {
-        padding: 24,
-        gap: 12,
+        padding: spacing.xxl,
+        gap: spacing.md,
     },
     upgradeButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 24,
+        paddingVertical: spacing.lg,
+        paddingHorizontal: spacing.xxl,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
     upgradeButtonText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     cancelButton: {
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
     },
     cancelButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     infoContainer: {
-        padding: 24,
+        padding: spacing.xxl,
         paddingTop: 0,
     },
     infoCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 12,
-        gap: 16,
+        gap: spacing.lg,
     },
     infoContent: {
         flex: 1,
     },
     infoTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     infoText: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
     },
 });

@@ -8,6 +8,7 @@ import { Camera, Dog, Cat, Heart, MapPin } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useListingForm } from '@/src/hooks/adopciones/useListingForm';
+import { font, spacing } from '@/constants/design';
 
 const SIZES = ['Pequeño', 'Mediano', 'Grande'];
 const ENERGY_LEVELS = ['Baja', 'Media', 'Alta'];
@@ -219,7 +220,7 @@ function CustomSwitch({ label, active, onPress, theme, activeColor }: { label: s
 
 const styles = StyleSheet.create({
     scroll: {
-        padding: 24,
+        padding: spacing.xxl,
     },
     imageSelector: {
         alignSelf: 'center',
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
         height: 150,
         borderRadius: 24,
         overflow: 'hidden',
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
     },
     imagePlaceholder: {
         flex: 1,
@@ -238,28 +239,28 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
     },
     imagePlaceholderText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     selectedImage: {
         width: '100%',
         height: '100%',
     },
     form: {
-        gap: 16,
+        gap: spacing.lg,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginBottom: 4,
-        marginLeft: 4,
+        marginBottom: spacing.xs,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
@@ -273,16 +274,16 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     inputWithIcon: {
-        paddingLeft: 46,
+        paddingLeft: spacing.huge,
     },
     textArea: {
         height: 120,
-        paddingTop: 16,
+        paddingTop: spacing.lg,
         textAlignVertical: 'top',
     },
     speciesRow: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     choiceBtn: {
         flex: 1,
@@ -291,12 +292,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
+        gap: spacing.md,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     choiceText: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     row: {
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
     },
     genderRow: {
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.md,
     },
     genderBtn: {
         flex: 1,
@@ -317,11 +318,11 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(128,128,128,0.2)',
     },
     genderBtnText: {
-        fontSize: 20,
+        fontSize: font.h3,
     },
     sizeRow: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     sizeBtn: {
         flex: 1,
@@ -333,12 +334,12 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(128,128,128,0.2)',
     },
     sizeText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     saveBtn: {
@@ -354,39 +355,39 @@ const styles = StyleSheet.create({
     },
     saveBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     divider: {
         height: 1,
         backgroundColor: 'rgba(128,128,128,0.08)',
-        marginVertical: 8,
+        marginVertical: spacing.sm,
     },
     sectionSubtitle: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '900',
         textTransform: 'uppercase',
         letterSpacing: 1,
-        marginTop: 10,
+        marginTop: spacing.md,
     },
     switchGrid: {
-        gap: 12,
+        gap: spacing.md,
     },
     switchRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 4,
+        paddingVertical: spacing.xs,
     },
     switchLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     switch: {
         width: 48,
         height: 26,
         borderRadius: 13,
-        padding: 3,
+        padding: spacing.xs,
     },
     switchThumb: {
         width: 20,

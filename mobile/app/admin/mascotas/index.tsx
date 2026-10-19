@@ -8,6 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import { ChevronLeft, Bone, Shield } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 const SPECIES_COLORS: Record<string, string> = {
     Perro: '#3b82f6',
@@ -99,15 +100,15 @@ export default function AdminMascotasScreen() {
 const styles = StyleSheet.create({
     statsRow: {
         flexDirection: 'row',
-        paddingHorizontal: 20,
-        gap: 12,
-        marginTop: 8,
-        marginBottom: 8,
+        paddingHorizontal: spacing.xl,
+        gap: spacing.md,
+        marginTop: spacing.sm,
+        marginBottom: spacing.sm,
     },
     statItem: {
         flex: 1,
         alignItems: 'center',
-        padding: 14,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
         elevation: 3,
@@ -117,21 +118,21 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
     },
     statVal: { 
-        fontSize: 22, 
+        fontSize: font.h2, 
         fontWeight: '800',
     },
     statLab: { 
-        fontSize: 10, 
+        fontSize: font.xs, 
         fontWeight: '800', 
         letterSpacing: 0.5,
-        marginTop: 2,
+        marginTop: spacing.xxs,
         textTransform: 'uppercase',
     },
     filterRow: { 
         flexDirection: 'row', 
-        paddingHorizontal: 20, 
-        paddingVertical: 12, 
-        gap: 12, 
+        paddingHorizontal: spacing.xl, 
+        paddingVertical: spacing.md, 
+        gap: spacing.md, 
     },
     filterBtn: { 
         width: 54, 
@@ -147,17 +148,17 @@ const styles = StyleSheet.create({
         shadowRadius: 10 
     },
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 8 
+        paddingTop: spacing.sm 
     },
     card: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        padding: 16, 
+        padding: spacing.lg, 
         borderRadius: 24, 
         borderWidth: 1.5, 
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -172,24 +173,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 1,
     },
-    cardInfo: { flex: 1, marginLeft: 16 },
+    cardInfo: { flex: 1, marginLeft: spacing.lg },
     nameRow: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 8 
+        gap: spacing.sm 
     },
     petName: { 
-        fontSize: 17, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     petDetails: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '700', 
-        marginTop: 2 
+        marginTop: spacing.xxs 
     },
     ownerName: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '800', 
-        marginTop: 6 
+        marginTop: spacing.sm 
     }
 });

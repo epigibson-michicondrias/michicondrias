@@ -6,6 +6,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Home, Users, Heart, Check, ShieldAlert, Lock, PartyPopper } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -73,7 +74,7 @@ export default function SolicitarAdopcionScreen() {
                             {isPending ? 'Ver Estatus de Seguridad' : 'Ir a Centro de Seguridad'}
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ marginTop: 20 }} onPress={goBack}>
+                    <TouchableOpacity style={{ marginTop: spacing.xl }} onPress={goBack}>
                         <Text style={{ color: theme.textMuted, fontWeight: '700' }}>Volver</Text>
                     </TouchableOpacity>
                 </View>
@@ -325,52 +326,52 @@ function Switch({ value, onToggle, theme, label }: any) {
 
 const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    stepBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
-    stepBadgeText: { fontWeight: '900', fontSize: 12 },
+    stepBadge: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10 },
+    stepBadgeText: { fontWeight: '900', fontSize: font.md },
     progressBar: { height: 4, backgroundColor: 'rgba(128,128,128,0.08)', width: '100%' },
     progressFill: { height: '100%' },
-    scroll: { padding: 24 },
-    formSection: { gap: 20 },
-    stepHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 10 },
+    scroll: { padding: spacing.xxl },
+    formSection: { gap: spacing.xl },
+    stepHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.md },
     stepIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    stepTitle: { fontSize: 22, fontWeight: '900' },
-    label: { fontSize: 15, fontWeight: '800', marginBottom: 8 },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: 16, fontSize: 16, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    textArea: { height: 100, paddingTop: 16, textAlignVertical: 'top' },
-    optionsScroll: { flexDirection: 'row', marginBottom: 5 },
-    optionBtn: { paddingHorizontal: 20, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 10, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    optionText: { fontSize: 14, fontWeight: '700' },
-    switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 4 },
-    switch: { width: 52, height: 30, borderRadius: 15, padding: 4 },
+    stepTitle: { fontSize: font.h2, fontWeight: '900' },
+    label: { fontSize: font.lg, fontWeight: '800', marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, fontSize: font.xl, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
+    textArea: { height: 100, paddingTop: spacing.lg, textAlignVertical: 'top' },
+    optionsScroll: { flexDirection: 'row', marginBottom: spacing.xs },
+    optionBtn: { paddingHorizontal: spacing.xl, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
+    optionText: { fontSize: font.base, fontWeight: '700' },
+    switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.xs },
+    switch: { width: 52, height: 30, borderRadius: 15, padding: spacing.xs },
     switchThumb: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' },
     switchThumbActive: { alignSelf: 'flex-end' },
-    toggleGroup: { flexDirection: 'row', gap: 10 },
+    toggleGroup: { flexDirection: 'row', gap: spacing.md },
     toggleBtn: { flex: 1, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    inputRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-    checkRow: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 16, borderRadius: 18, backgroundColor: 'rgba(128,128,128,0.08)', borderLeftWidth: 4 },
+    inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+    checkRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, padding: spacing.lg, borderRadius: 18, backgroundColor: 'rgba(128,128,128,0.08)', borderLeftWidth: 4 },
     checkbox: { width: 24, height: 24, borderRadius: 8, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
-    checkText: { flex: 1, fontSize: 13, fontWeight: '600', lineHeight: 20 },
-    footer: { padding: 24, paddingBottom: 40, borderTopWidth: 1 },
+    checkText: { flex: 1, fontSize: font.base, fontWeight: '600', lineHeight: 20 },
+    footer: { padding: spacing.xxl, paddingBottom: spacing.huge, borderTopWidth: 1 },
     nextBtn: { height: 60, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
-    nextBtnText: { color: '#fff', fontSize: 18, fontWeight: '900' },
+    nextBtnText: { color: '#fff', fontSize: font.xxl, fontWeight: '900' },
     submitBtn: { height: 60, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
-    submitBtnText: { color: '#fff', fontSize: 18, fontWeight: '900' },
+    submitBtnText: { color: '#fff', fontSize: font.xxl, fontWeight: '900' },
 
     // Gate screens
-    gateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-    lockIconBox: { width: 100, height: 100, borderRadius: 30, justifyContent: 'center', alignItems: 'center', marginBottom: 30 },
-    gateTitle: { fontSize: 24, fontWeight: '900', marginBottom: 12, textAlign: 'center' },
-    gateDesc: { fontSize: 16, textAlign: 'center', lineHeight: 24, marginBottom: 40 },
+    gateContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.huge },
+    lockIconBox: { width: 100, height: 100, borderRadius: 30, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.xxxl },
+    gateTitle: { fontSize: font.h2, fontWeight: '900', marginBottom: spacing.md, textAlign: 'center' },
+    gateDesc: { fontSize: font.xl, textAlign: 'center', lineHeight: 24, marginBottom: spacing.huge },
     gateBtn: { width: '100%', height: 60, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
-    gateBtnText: { fontSize: 16, fontWeight: '800' },
+    gateBtnText: { fontSize: font.xl, fontWeight: '800' },
 
     // Success screen
-    successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
-    successIconBox: { width: 120, height: 120, borderRadius: 60, justifyContent: 'center', alignItems: 'center', marginBottom: 30 },
-    successTitle: { fontSize: 28, fontWeight: '900', marginBottom: 16, textAlign: 'center' },
-    successDesc: { fontSize: 16, textAlign: 'center', lineHeight: 24, marginBottom: 40 },
+    successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.huge },
+    successIconBox: { width: 120, height: 120, borderRadius: 60, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.xxxl },
+    successTitle: { fontSize: font.h1, fontWeight: '900', marginBottom: spacing.lg, textAlign: 'center' },
+    successDesc: { fontSize: font.xl, textAlign: 'center', lineHeight: 24, marginBottom: spacing.huge },
     successBtn: { width: '100%', height: 60, borderRadius: 18, justifyContent: 'center', alignItems: 'center' },
-    successBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+    successBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
     confettiContainer: { position: 'absolute', width: '100%', height: '100%', pointerEvents: 'none' },
     confetti: { position: 'absolute', width: 10, height: 10, borderRadius: 2 },
 });

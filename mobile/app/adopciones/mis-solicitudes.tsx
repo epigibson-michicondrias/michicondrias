@@ -7,6 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import { useMyApplications } from '@/src/hooks/adopciones/useMyApplications';
 import type { AdoptionRequest } from '@/src/types/adopciones';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -179,31 +180,31 @@ export default function MisSolicitudesScreen() {
 }
 
 const styles = StyleSheet.create({
-    liveIndicatorRow: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 24, marginBottom: 10 },
+    liveIndicatorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.xxl, marginBottom: spacing.md },
     liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981' },
-    liveText: { fontSize: 10, fontWeight: '800', color: '#10b981', textTransform: 'uppercase' },
-    list: { padding: 20, paddingBottom: 40 },
-    infoCard: { flexDirection: 'row', padding: 16, borderRadius: 20, gap: 12, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    infoText: { flex: 1, fontSize: 12, fontWeight: '600', lineHeight: 18 },
-    card: { borderRadius: 28, padding: 20, marginBottom: 20, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 5 },
-    cardHeader: { flexDirection: 'row', gap: 16, alignItems: 'center', marginBottom: 20 },
+    liveText: { fontSize: font.xs, fontWeight: '800', color: '#10b981', textTransform: 'uppercase' },
+    list: { padding: spacing.xl, paddingBottom: spacing.huge },
+    infoCard: { flexDirection: 'row', padding: spacing.lg, borderRadius: 20, gap: spacing.md, marginBottom: spacing.xxl, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
+    infoText: { flex: 1, fontSize: font.md, fontWeight: '600', lineHeight: 18 },
+    card: { borderRadius: 28, padding: spacing.xl, marginBottom: spacing.xl, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 5 },
+    cardHeader: { flexDirection: 'row', gap: spacing.lg, alignItems: 'center', marginBottom: spacing.xl },
     petImage: { width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: '#7c3aed' },
-    headerText: { flex: 1, gap: 4 },
-    petName: { fontSize: 18, fontWeight: '800' },
-    idRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    idBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-    idText: { fontSize: 10, fontWeight: '800' },
-    dateText: { fontSize: 11, fontWeight: '600' },
-    rejectedBanner: { flexDirection: 'row', gap: 12, padding: 14, borderRadius: 16, alignItems: 'center' },
-    adoptedBanner: { flexDirection: 'row', gap: 12, padding: 16, borderRadius: 20, alignItems: 'center' },
-    bannerTitle: { fontSize: 14, fontWeight: '800' },
-    bannerSub: { fontSize: 11, fontWeight: '600', marginTop: 2 },
-    bannerText: { flex: 1, fontSize: 12, fontWeight: '700', lineHeight: 18 },
-    stepperContainer: { marginTop: 10 },
+    headerText: { flex: 1, gap: spacing.xs },
+    petName: { fontSize: font.xxl, fontWeight: '800' },
+    idRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    idBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6 },
+    idText: { fontSize: font.xs, fontWeight: '800' },
+    dateText: { fontSize: font.sm, fontWeight: '600' },
+    rejectedBanner: { flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: 16, alignItems: 'center' },
+    adoptedBanner: { flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: 20, alignItems: 'center' },
+    bannerTitle: { fontSize: font.base, fontWeight: '800' },
+    bannerSub: { fontSize: font.sm, fontWeight: '600', marginTop: spacing.xxs },
+    bannerText: { flex: 1, fontSize: font.md, fontWeight: '700', lineHeight: 18 },
+    stepperContainer: { marginTop: spacing.md },
     stepperLine: { height: 3, width: '100%', borderRadius: 1.5, position: 'absolute', top: 12, left: 0 },
     stepperFill: { height: '100%', borderRadius: 1.5 },
     stepsRow: { flexDirection: 'row', justifyContent: 'space-between' },
     stepItem: { alignItems: 'center', width: (width - 80) / 5 },
     stepIconBox: { width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
-    stepLabel: { fontSize: 9, fontWeight: '700', marginTop: 8 },
+    stepLabel: { fontSize: font.xs, fontWeight: '700', marginTop: spacing.sm },
 });

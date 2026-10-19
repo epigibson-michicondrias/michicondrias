@@ -13,6 +13,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { ClipboardList } from 'lucide-react-native';
+import { spacing } from '@/constants/design';
 
 export default function WalkerRequestsScreen() {
     const { theme } = useTheme();
@@ -74,7 +75,7 @@ export default function WalkerRequestsScreen() {
 }
 
 const styles = StyleSheet.create({
-    search: { marginHorizontal: 24, marginBottom: 12 },
-    chips: { paddingHorizontal: 24, gap: 8, paddingBottom: 12 },
-    list: { paddingHorizontal: 24, paddingTop: 4, paddingBottom: 100 },
+    search: { marginHorizontal: spacing.xxl, marginBottom: spacing.md },
+    chips: { paddingHorizontal: spacing.xxl, gap: spacing.sm, paddingBottom: spacing.md },
+    list: { paddingHorizontal: spacing.xxl, paddingTop: spacing.xs, paddingBottom: 100 },
 });

@@ -11,6 +11,7 @@ import BackButton from '@/src/components/BackButton';
 import { MapPin, Phone, Clock, AlertTriangle, Wifi, Navigation, Share2, CheckCircle2, Info, Scale, Fingerprint, Calendar, PawPrint, Eye, Pencil, Send } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
 import { getTimeAgo } from '@/src/utils/formatters';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 // Si la última señal del collar tiene más de este tiempo se considera "sin señal"
@@ -33,7 +34,7 @@ export default function PerdidasDetailScreen() {
 
     if (isLoading) return (
         <ScreenContainer>
-            <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
+            <View style={{ padding: spacing.xl }}><SkeletonList count={4} /></View>
         </ScreenContainer>
     );
 
@@ -41,9 +42,9 @@ export default function PerdidasDetailScreen() {
         <ScreenContainer>
             <View style={styles.center}>
                 <AlertTriangle size={48} color={theme.error} />
-                <Text style={{ color: theme.text, marginTop: 16, fontWeight: '700' }}>No pudimos cargar el reporte</Text>
-                <Text style={{ color: theme.textMuted, marginTop: 6, textAlign: 'center' }}>Puede que ya no exista o que no tengas conexión.</Text>
-                <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
+                <Text style={{ color: theme.text, marginTop: spacing.lg, fontWeight: '700' }}>No pudimos cargar el reporte</Text>
+                <Text style={{ color: theme.textMuted, marginTop: spacing.sm, textAlign: 'center' }}>Puede que ya no exista o que no tengas conexión.</Text>
+                <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: spacing.xl }}>
                     <TouchableOpacity onPress={goBack} accessibilityRole="button" style={[styles.backBtn, { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1 }]}>
                         <Text style={{ color: theme.text, fontWeight: '700' }}>Regresar</Text>
                     </TouchableOpacity>
@@ -124,7 +125,7 @@ export default function PerdidasDetailScreen() {
                     ) : (
                         <View style={[styles.heroImage, { backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }]}>
                             <PawPrint size={72} color={theme.textMuted} />
-                            <Text style={{ color: theme.textMuted, marginTop: 8, fontWeight: '600' }}>Sin foto</Text>
+                            <Text style={{ color: theme.textMuted, marginTop: spacing.sm, fontWeight: '600' }}>Sin foto</Text>
                         </View>
                     )}
                     <View style={[styles.heroOverlay, { backgroundColor: 'rgba(15, 23, 42, 0.45)' }]} />
@@ -249,7 +250,7 @@ export default function PerdidasDetailScreen() {
                                     <PawPrint size={18} color={theme.primary} />
                                     <View style={{ flex: 1 }}>
                                         <Text style={[styles.gridValue, { color: theme.text }]} numberOfLines={1}>{m.pet_name}</Text>
-                                        <Text style={{ color: theme.textMuted, fontSize: 12 }} numberOfLines={1}>{m.last_seen_location || 'Sin ubicación'}</Text>
+                                        <Text style={{ color: theme.textMuted, fontSize: font.md }} numberOfLines={1}>{m.last_seen_location || 'Sin ubicación'}</Text>
                                     </View>
                                 </TouchableOpacity>
                             ))}
@@ -261,16 +262,16 @@ export default function PerdidasDetailScreen() {
                         <>
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Avistamientos ({sightings.length})</Text>
                             {sightings.length === 0 ? (
-                                <Text style={[styles.descriptionText, { color: theme.textMuted, marginBottom: 24 }]}>
+                                <Text style={[styles.descriptionText, { color: theme.textMuted, marginBottom: spacing.xxl }]}>
                                     Aún nadie ha avisado que lo vio. Cuando alguien lo haga, recibirás una notificación y aparecerá aquí.
                                 </Text>
                             ) : sightings.map((s) => (
                                 <View key={s.id} style={[styles.rowCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder, alignItems: 'flex-start' }]}>
-                                    <Eye size={18} color={theme.warning} style={{ marginTop: 2 }} />
+                                    <Eye size={18} color={theme.warning} style={{ marginTop: spacing.xxs }} />
                                     <View style={{ flex: 1 }}>
                                         <Text style={[styles.gridValue, { color: theme.text }]}>{s.location_text || (s.latitude != null ? 'Ubicación marcada en el mapa' : 'Sin ubicación')}</Text>
-                                        {!!s.note && <Text style={{ color: theme.textMuted, fontSize: 13, marginTop: 2 }}>{s.note}</Text>}
-                                        <Text style={{ color: theme.textMuted, fontSize: 11, marginTop: 4 }}>{getTimeAgo(s.created_at)}</Text>
+                                        {!!s.note && <Text style={{ color: theme.textMuted, fontSize: font.base, marginTop: spacing.xxs }}>{s.note}</Text>}
+                                        <Text style={{ color: theme.textMuted, fontSize: font.sm, marginTop: spacing.xs }}>{getTimeAgo(s.created_at)}</Text>
                                     </View>
                                 </View>
                             ))}
@@ -279,7 +280,7 @@ export default function PerdidasDetailScreen() {
 
                     {!isOwner && isActive && (
                         <View style={[styles.sightingCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
                                 <Eye size={20} color={theme.primary} />
                                 <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 0, flex: 1 }]}>
                                     {isLost ? '¿Lo viste?' : '¿Es tu mascota?'}
@@ -289,12 +290,12 @@ export default function PerdidasDetailScreen() {
                                 <TouchableOpacity
                                     accessibilityRole="button"
                                     onPress={() => setShowSightingForm(true)}
-                                    style={[styles.primaryBtn, { backgroundColor: theme.primary, marginTop: 14 }]}
+                                    style={[styles.primaryBtn, { backgroundColor: theme.primary, marginTop: spacing.lg }]}
                                 >
                                     <Text style={styles.primaryBtnText}>Avisar al dueño</Text>
                                 </TouchableOpacity>
                             ) : (
-                                <View style={{ marginTop: 14, gap: 10 }}>
+                                <View style={{ marginTop: spacing.lg, gap: spacing.md }}>
                                     <TextInput
                                         style={[styles.input, { backgroundColor: theme.inputBg, borderColor: theme.inputBorder, color: theme.text }]}
                                         placeholder="¿Dónde lo viste? (calle, colonia, referencia)"
@@ -312,8 +313,8 @@ export default function PerdidasDetailScreen() {
                                         multiline
                                         accessibilityLabel="Nota del avistamiento"
                                     />
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                                        <Text style={{ flex: 1, color: theme.textMuted, fontSize: 13 }}>Compartir mi ubicación actual como punto del avistamiento</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+                                        <Text style={{ flex: 1, color: theme.textMuted, fontSize: font.base }}>Compartir mi ubicación actual como punto del avistamiento</Text>
                                         <Switch value={shareLocation} onValueChange={setShareLocation} trackColor={{ true: theme.primary, false: theme.border }} />
                                     </View>
                                     <TouchableOpacity
@@ -323,13 +324,13 @@ export default function PerdidasDetailScreen() {
                                         style={[styles.primaryBtn, { backgroundColor: theme.primary, opacity: isSendingSighting ? 0.6 : 1 }]}
                                     >
                                         {isSendingSighting ? <ActivityIndicator color="#fff" /> : (
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
                                                 <Send size={18} color="#fff" />
                                                 <Text style={styles.primaryBtnText}>Enviar avistamiento</Text>
                                             </View>
                                         )}
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setShowSightingForm(false)} accessibilityRole="button" style={{ alignItems: 'center', padding: 6 }}>
+                                    <TouchableOpacity onPress={() => setShowSightingForm(false)} accessibilityRole="button" style={{ alignItems: 'center', padding: spacing.sm }}>
                                         <Text style={{ color: theme.textMuted, fontWeight: '600' }}>Cancelar</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -395,11 +396,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 40,
+        padding: spacing.huge,
     },
     loadingText: {
-        marginTop: 16,
-        fontSize: 16,
+        marginTop: spacing.lg,
+        fontSize: font.xl,
         fontWeight: '600',
     },
     hero: {
@@ -421,20 +422,20 @@ const styles = StyleSheet.create({
     },
     statusRow: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 12,
+        gap: spacing.md,
+        marginBottom: spacing.md,
     },
     statusBadge: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     statusText: {
         color: '#fff',
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '800',
         letterSpacing: 1,
     },
@@ -443,87 +444,87 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: '#fff',
         letterSpacing: -1,
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     lastSeenRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     lastSeenText: {
         color: '#cbd5e1',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '500',
     },
     body: {
-        padding: 24,
+        padding: spacing.xxl,
     },
     alertCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     alertText: {
         flex: 1,
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
-        marginBottom: 32,
+        gap: spacing.md,
+        marginBottom: spacing.xxxl,
     },
     gridItem: {
         width: Math.floor((width - 61) / 2),
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     gridLabel: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '700',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     gridValue: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
     },
     trackerCard: {
-        padding: 24,
+        padding: spacing.xxl,
         borderRadius: 28,
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
         borderWidth: 1,
     },
     trackerHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     trackerTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     trackerTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     liveBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
         borderWidth: 1,
-        gap: 6,
+        gap: spacing.sm,
     },
     liveDot: {
         width: 6,
@@ -531,7 +532,7 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     liveText: {
-        fontSize: 9,
+        fontSize: font.xs,
         fontWeight: '800',
     },
     trackerMetrics: {
@@ -541,32 +542,32 @@ const styles = StyleSheet.create({
     metric: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     metricLabel: {
-        fontSize: 8,
+        fontSize: font.xs,
         fontWeight: '800',
     },
     metricValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     descriptionText: {
-        fontSize: 16,
+        fontSize: font.xl,
         lineHeight: 24,
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
     },
     mapWrapper: {
         height: 200,
         borderRadius: 24,
         overflow: 'hidden',
         borderWidth: 4,
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
     },
     map: {
         flex: 1,
@@ -577,7 +578,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
@@ -586,7 +587,7 @@ const styles = StyleSheet.create({
     },
     resolveBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     footer: {
@@ -594,13 +595,13 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     footerActions: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     iconBtn: {
         width: 60,
@@ -617,7 +618,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 20,
@@ -625,30 +626,30 @@ const styles = StyleSheet.create({
     },
     callText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     rowCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        padding: 14,
+        gap: spacing.md,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 10,
+        marginBottom: spacing.md,
     },
     sightingCard: {
-        padding: 18,
+        padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     input: {
         borderWidth: 1,
         borderRadius: 14,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        fontSize: 15,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        fontSize: font.lg,
     },
     primaryBtn: {
         height: 50,
@@ -656,10 +657,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+    primaryBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
     backBtn: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
         borderRadius: 10,
     },
 });

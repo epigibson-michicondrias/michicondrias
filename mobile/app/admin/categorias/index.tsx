@@ -10,6 +10,7 @@ import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Plus, Package, Edit2, Trash2, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminCategoriasScreen() {
     const { theme } = useTheme();
@@ -100,7 +101,7 @@ export default function AdminCategoriasScreen() {
                                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                             />
 
-                            <Text style={[styles.label, { color: theme.textMuted, marginTop: 16 }]}>DESCRIPCIÓN</Text>
+                            <Text style={[styles.label, { color: theme.textMuted, marginTop: spacing.lg }]}>DESCRIPCIÓN</Text>
                             <TextInput
                                 style={[styles.input, styles.textArea, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Breve detalle..."
@@ -135,18 +136,18 @@ export default function AdminCategoriasScreen() {
 
 const styles = StyleSheet.create({
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 12 
+        paddingTop: spacing.md 
     },
     card: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        padding: 16, 
+        padding: spacing.lg, 
         borderRadius: 24, 
-        marginBottom: 16, 
+        marginBottom: spacing.lg, 
         borderWidth: 1, 
-        gap: 16,
+        gap: spacing.lg,
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -163,18 +164,18 @@ const styles = StyleSheet.create({
     },
     cardInfo: { flex: 1 },
     categoryName: { 
-        fontSize: 16, 
+        fontSize: font.xl, 
         fontWeight: '800' 
     },
     categoryDesc: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '600', 
-        marginTop: 4,
+        marginTop: spacing.xs,
         lineHeight: 16,
     },
     actions: { 
         flexDirection: 'row', 
-        gap: 8 
+        gap: spacing.sm 
     },
     actionBtn: { 
         width: 40, 
@@ -191,33 +192,33 @@ const styles = StyleSheet.create({
     modalContent: { 
         borderTopLeftRadius: 32, 
         borderTopRightRadius: 32, 
-        padding: 28, 
-        paddingBottom: 40,
+        padding: spacing.xxxl, 
+        paddingBottom: spacing.huge,
         elevation: 20,
     },
     modalHeader: { 
         flexDirection: 'row', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        marginBottom: 28 
+        marginBottom: spacing.xxxl 
     },
     modalTitle: { 
-        fontSize: 22, 
+        fontSize: font.h2, 
         fontWeight: '800',
         letterSpacing: -0.5 
     },
-    form: { gap: 12 },
+    form: { gap: spacing.md },
     label: { 
-        fontSize: 11, 
+        fontSize: font.sm, 
         fontWeight: '800', 
         letterSpacing: 1.2,
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: { 
         borderRadius: 18, 
-        padding: 18, 
+        padding: spacing.xl, 
         borderWidth: 1.5, 
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600' 
     },
     textArea: { 
@@ -226,9 +227,9 @@ const styles = StyleSheet.create({
     },
     submitBtn: { 
         borderRadius: 18, 
-        padding: 20, 
+        padding: spacing.xl, 
         alignItems: 'center', 
-        marginTop: 24, 
+        marginTop: spacing.xxl, 
         elevation: 6,
         shadowColor: '#8b5cf6',
         shadowOffset: { width: 0, height: 4 },
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     },
     submitBtnText: { 
         color: '#fff', 
-        fontSize: 16, 
+        fontSize: font.xl, 
         fontWeight: '800' 
     }
 });

@@ -17,6 +17,7 @@ import {
     FileText,
     ChevronRight,
 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function MisPolizasScreen() {
     const router = useRouter();
@@ -115,7 +116,7 @@ export default function MisPolizasScreen() {
                                     <FileText size={14} color={tone.color} />
                                     <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Reclamo</Text>
                                     <Text style={[styles.detailValue, { color: theme.text }]} numberOfLines={1}>${c.amount_claimed}</Text>
-                                    <Text style={{ color: tone.color, fontWeight: '700', fontSize: 12 }}>{tone.label}</Text>
+                                    <Text style={{ color: tone.color, fontWeight: '700', fontSize: font.md }}>{tone.label}</Text>
                                 </View>
                             );
                         })}
@@ -187,118 +188,118 @@ export default function MisPolizasScreen() {
 const styles = StyleSheet.create({
     statsRow: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 20,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     statCard: {
         flex: 1,
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     statValue: {
-        fontSize: 28,
+        fontSize: font.h1,
         fontWeight: '800',
     },
     statLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     policyCard: {
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         overflow: 'hidden',
     },
     petHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        gap: 12,
+        padding: spacing.lg,
+        gap: spacing.md,
     },
     petEmoji: {
-        fontSize: 32,
+        fontSize: font.display,
     },
     petInfo: {
         flex: 1,
     },
     petName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     petBreed: {
-        fontSize: 13,
-        marginTop: 2,
+        fontSize: font.base,
+        marginTop: spacing.xxs,
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 10,
-        gap: 4,
+        gap: spacing.xs,
     },
     statusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     policyDetails: {
-        padding: 16,
+        padding: spacing.lg,
         borderTopWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     detailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     detailLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         width: 60,
     },
     detailValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
         flex: 1,
     },
     coverageBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 10,
+        padding: spacing.md,
         borderRadius: 10,
-        gap: 6,
-        marginTop: 4,
+        gap: spacing.sm,
+        marginTop: spacing.xs,
     },
     coverageText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
         flex: 1,
     },
     policyStatusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 8,
         alignSelf: 'flex-start',
     },
     policyStatusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     insureCta: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 14,
-        gap: 6,
+        padding: spacing.lg,
+        gap: spacing.sm,
     },
     insureCtaText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
 });

@@ -75,7 +75,7 @@ export default function HelpScreen() {
                                         <ChevronRight size={18} color={theme.textMuted} style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }} />
                                     </TouchableOpacity>
                                     {isOpen && (
-                                        <Text style={{ color: theme.textMuted, paddingHorizontal: spacing.lg, paddingBottom: 16, lineHeight: 20 }}>{faq.answer}</Text>
+                                        <Text style={{ color: theme.textMuted, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, lineHeight: 20 }}>{faq.answer}</Text>
                                     )}
                                 </View>
                             );
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     },
     contactBtn: {
         flex: 1,
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: radius.xl,
         alignItems: 'center',
         gap: spacing.md,
@@ -198,9 +198,9 @@ const styles = StyleSheet.create({
     footerCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: radius.xl,
-        gap: 16,
+        gap: spacing.lg,
         borderWidth: 1,
     },
     footerCardText: {

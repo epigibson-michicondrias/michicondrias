@@ -6,6 +6,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { FileCheck, PenTool } from 'lucide-react-native';
 import { useAdoptionContract } from '@/src/hooks/adopciones/useAdoptionContract';
+import { font, spacing } from '@/constants/design';
 
 export default function AdoptionContractScreen() {
     const { theme } = useTheme();
@@ -54,7 +55,7 @@ export default function AdoptionContractScreen() {
                     accessibilityLabel="Rechazar postulación"
                     onPress={handleReject}
                     disabled={isRejecting || isSigning}
-                    style={{ alignItems: 'center', paddingVertical: 10, marginBottom: 8 }}
+                    style={{ alignItems: 'center', paddingVertical: spacing.md, marginBottom: spacing.sm }}
                 >
                     <Text style={{ color: theme.error, fontWeight: '800' }}>{isRejecting ? 'Rechazando...' : 'Rechazar postulación'}</Text>
                 </TouchableOpacity>
@@ -90,42 +91,42 @@ export default function AdoptionContractScreen() {
 
 const styles = StyleSheet.create({
     content: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
     },
     contractHeader: {
         alignItems: 'center',
-        padding: 24,
+        padding: spacing.xxl,
         borderRadius: 20,
-        marginBottom: 24,
-        gap: 8,
+        marginBottom: spacing.xxl,
+        gap: spacing.sm,
     },
     contractTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
         textAlign: 'center',
     },
     contractSubtitle: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '500',
         textAlign: 'center',
     },
     contractBox: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     contractText: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 22,
     },
     agreementSection: {
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     signBtn: {
@@ -138,10 +139,10 @@ const styles = StyleSheet.create({
     btnContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     signBtnText: {
-        fontSize: 17,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

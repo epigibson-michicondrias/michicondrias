@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { formatDateMx } from '@/src/features/salud/format';
 import { cremationLabel } from '@/src/services/funerary';
 import { FileText, Download, Calendar, Heart, Shield } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function CertificadoScreen() {
     const { theme } = useTheme();
@@ -145,14 +146,14 @@ export default function CertificadoScreen() {
 const styles = StyleSheet.create({
     content: {
         flex: 1,
-        padding: 24,
+        padding: spacing.xxl,
     },
     certificateCard: {
-        padding: 28,
+        padding: spacing.xxxl,
         borderRadius: 16,
         borderWidth: 1,
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     emblem: {
         width: 72,
@@ -160,44 +161,44 @@ const styles = StyleSheet.create({
         borderRadius: 36,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     certificateTitle: {
-        fontSize: 22,
+        fontSize: font.h2,
         fontWeight: '800',
         textAlign: 'center',
     },
     certificateSubtitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '500',
-        marginTop: 4,
-        marginBottom: 20,
+        marginTop: spacing.xs,
+        marginBottom: spacing.xl,
     },
     divider: {
         height: 1,
         width: '100%',
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     detailsSection: {
         width: '100%',
-        gap: 16,
+        gap: spacing.lg,
     },
     detailRow: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 12,
+        gap: spacing.md,
     },
     detailContent: {
         flex: 1,
     },
     detailLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     detailValue: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     downloadBtn: {
         height: 64,
@@ -205,16 +206,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 10,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     downloadBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     disclaimer: {
-        fontSize: 12,
+        fontSize: font.md,
         textAlign: 'center',
         lineHeight: 18,
     },

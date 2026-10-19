@@ -11,6 +11,7 @@ import { Package, Clock, Truck, CheckCircle, XCircle, CreditCard, User, MapPin }
 import { Order } from '@/src/services/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 const STATUS_ICONS: Record<string, any> = {
     pending: Clock,
@@ -175,26 +176,26 @@ export default function VendedorOrdenesScreen() {
 }
 
 const styles = StyleSheet.create({
-    tabsContainer: { marginBottom: 16 },
-    tabsScroll: { paddingHorizontal: 24, gap: 10 },
-    tab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1 },
-    tabText: { fontSize: 13, fontWeight: '600' },
-    list: { padding: 24, paddingBottom: 100 },
-    orderCard: { borderRadius: 24, padding: 20, marginBottom: 16, borderWidth: 1 },
-    itemsBox: { borderRadius: 14, padding: 12, gap: 4, marginBottom: 14 },
-    itemLine: { fontSize: 13, fontWeight: '700' },
-    waitText: { fontSize: 12, fontWeight: '600' },
-    orderHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    orderIdBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    orderId: { fontSize: 14, fontWeight: '800' },
-    statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
-    statusLabel: { fontSize: 11, fontWeight: '800' },
-    orderBody: { gap: 10, marginBottom: 20 },
-    infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    infoText: { fontSize: 14, fontWeight: '600' },
-    orderFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 16, borderTopWidth: 1 },
-    totalAmount: { fontSize: 15, fontWeight: '800' },
-    shipBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12 },
-    shipBtnText: { color: '#fff', fontSize: 12, fontWeight: '800' },
+    tabsContainer: { marginBottom: spacing.lg },
+    tabsScroll: { paddingHorizontal: spacing.xxl, gap: spacing.md },
+    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1 },
+    tabText: { fontSize: font.base, fontWeight: '600' },
+    list: { padding: spacing.xxl, paddingBottom: 100 },
+    orderCard: { borderRadius: 24, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1 },
+    itemsBox: { borderRadius: 14, padding: spacing.md, gap: spacing.xs, marginBottom: spacing.lg },
+    itemLine: { fontSize: font.base, fontWeight: '700' },
+    waitText: { fontSize: font.md, fontWeight: '600' },
+    orderHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
+    orderIdBox: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    orderId: { fontSize: font.base, fontWeight: '800' },
+    statusBadge: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: 10 },
+    statusLabel: { fontSize: font.sm, fontWeight: '800' },
+    orderBody: { gap: spacing.md, marginBottom: spacing.xl },
+    infoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    infoText: { fontSize: font.base, fontWeight: '600' },
+    orderFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing.lg, borderTopWidth: 1 },
+    totalAmount: { fontSize: font.lg, fontWeight: '800' },
+    shipBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12 },
+    shipBtnText: { color: '#fff', fontSize: font.md, fontWeight: '800' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

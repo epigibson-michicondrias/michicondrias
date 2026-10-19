@@ -16,7 +16,7 @@ import Card from '@/src/components/Card';
 import EmptyState from '@/src/components/EmptyState';
 import { SkeletonList } from '@/src/components/Skeleton';
 import { formatMoney } from '@/src/components/rides/rideStatus';
-import { radius, spacing, type } from '@/constants/design';
+import { radius, spacing, type, font } from '@/constants/design';
 
 export default function SolicitarTransporteScreen() {
   const { theme } = useTheme();
@@ -321,20 +321,20 @@ export default function SolicitarTransporteScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  pad: { paddingHorizontal: 20 },
-  scrollContent: { paddingHorizontal: 24, paddingBottom: 100 },
+  pad: { paddingHorizontal: spacing.xl },
+  scrollContent: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
   selectionRow: { flexDirection: 'row', gap: spacing.md, paddingBottom: spacing.xs },
   selectionCard: { width: 120, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1.5, alignItems: 'center', gap: spacing.sm },
   driverCard: { width: 140, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1.5, alignItems: 'center', gap: spacing.sm },
   selectionIcon: { width: 44, height: 44, borderRadius: radius.md, justifyContent: 'center', alignItems: 'center' },
-  selectionName: { fontSize: 14, fontWeight: '700' },
-  selectionSub: { fontSize: 12, fontWeight: '500' },
+  selectionName: { fontSize: font.base, fontWeight: '700' },
+  selectionSub: { fontSize: font.md, fontWeight: '500' },
   inputGroup: { gap: spacing.sm, marginBottom: spacing.lg },
-  label: { fontSize: 13, fontWeight: '700', marginLeft: spacing.xs },
+  label: { fontSize: font.base, fontWeight: '700', marginLeft: spacing.xs },
   inputWrapper: { position: 'relative' },
   inputIcon: { position: 'absolute', left: 16, top: 18, zIndex: 1 },
-  input: { minHeight: 56, borderRadius: radius.lg, paddingHorizontal: spacing.lg, fontSize: 15, borderWidth: 1 },
-  inputWithIcon: { paddingLeft: 46 },
+  input: { minHeight: 56, borderRadius: radius.lg, paddingHorizontal: spacing.lg, fontSize: font.lg, borderWidth: 1 },
+  inputWithIcon: { paddingLeft: spacing.huge },
   notes: { minHeight: 80, paddingTop: spacing.md, textAlignVertical: 'top' },
   locateBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, minHeight: 44, paddingHorizontal: spacing.xs },
   estimateCard: { marginTop: spacing.md },
@@ -342,5 +342,5 @@ const styles = StyleSheet.create({
   estimateItem: { alignItems: 'center', gap: spacing.xs },
   infoBox: { flexDirection: 'row', padding: spacing.lg, borderRadius: radius.lg, gap: spacing.md, alignItems: 'center', marginBottom: spacing.lg },
   summary: { marginBottom: spacing.lg, gap: spacing.sm },
-  submit: { marginTop: spacing.sm, marginBottom: 40 },
+  submit: { marginTop: spacing.sm, marginBottom: spacing.huge },
 });

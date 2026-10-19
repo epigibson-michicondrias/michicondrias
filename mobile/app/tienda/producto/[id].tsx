@@ -11,6 +11,7 @@ import { useCart } from '@/src/contexts/CartContext';
 import { ShoppingCart, Star, ShieldCheck, Truck, Minus, Plus, Package, Edit3 } from 'lucide-react-native';
 import { useAuth } from '@/src/contexts/AuthContext';
 import BackButton from '@/src/components/BackButton';
+import { font, spacing } from '@/constants/design';
 
 
 export default function ProductDetailScreen() {
@@ -47,8 +48,8 @@ export default function ProductDetailScreen() {
     if (!product) return (
         <ScreenContainer style={styles.center}>
             <Package size={44} color={theme.textMuted} />
-            <Text style={{ color: theme.text, fontWeight: '800', fontSize: 16, marginTop: 12 }}>Este producto ya no está disponible</Text>
-            <TouchableOpacity onPress={goBack} style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: theme.primary }}>
+            <Text style={{ color: theme.text, fontWeight: '800', fontSize: font.xl, marginTop: spacing.md }}>Este producto ya no está disponible</Text>
+            <TouchableOpacity onPress={goBack} style={{ marginTop: spacing.lg, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: 14, backgroundColor: theme.primary }}>
                 <Text style={{ color: theme.onPrimary, fontWeight: '800' }}>Volver a la tienda</Text>
             </TouchableOpacity>
         </ScreenContainer>
@@ -168,7 +169,7 @@ export default function ProductDetailScreen() {
 
                     {/* Sección de Reseñas y Calificaciones */}
                     <View style={styles.reviewsSection}>
-                        <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 12 }]}>Reseñas y Opiniones</Text>
+                        <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: spacing.md }]}>Reseñas y Opiniones</Text>
                         
                         {/* Tarjeta de Resumen */}
                         <View style={[styles.ratingSummaryCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
@@ -326,7 +327,7 @@ const styles = StyleSheet.create({
         right: 0,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
+        paddingHorizontal: spacing.xl,
     },
     circleBtn: {
         width: 44,
@@ -337,14 +338,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     content: {
-        padding: 24,
+        padding: spacing.xxl,
     },
     mainInfo: {
-        gap: 12,
-        marginBottom: 20,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     title: {
-        fontSize: 26,
+        fontSize: font.h1,
         fontWeight: '800',
     },
     priceRow: {
@@ -353,112 +354,112 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     price: {
-        fontSize: 28,
+        fontSize: font.h1,
         fontWeight: '800',
     },
     ratingBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     ratingText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     reviewCount: {
-        fontSize: 12,
+        fontSize: font.md,
     },
     divider: {
         height: 1,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     quantitySection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     tabsSection: {
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     quantityPicker: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        gap: spacing.xl,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 16,
         borderWidth: 1,
     },
     quantityValue: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
         minWidth: 20,
         textAlign: 'center',
     },
     description: {
-        fontSize: 15,
+        fontSize: font.lg,
         lineHeight: 24,
-        marginTop: 12,
-        marginBottom: 24,
+        marginTop: spacing.md,
+        marginBottom: spacing.xxl,
     },
     benefitSection: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        marginBottom: 32,
-        padding: 16,
+        marginBottom: spacing.xxxl,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
     },
     benefitItem: {
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     benefitText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     reviewsSection: {
-        marginBottom: 40,
+        marginBottom: spacing.huge,
     },
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     reviewItem: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
-        marginBottom: 12,
+        marginBottom: spacing.md,
         borderWidth: 1,
     },
     reviewHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     starsRow: {
         flexDirection: 'row',
-        gap: 2,
+        gap: spacing.xxs,
     },
     reviewDate: {
-        fontSize: 10,
+        fontSize: font.xs,
     },
     reviewComment: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
         flexDirection: 'row',
-        gap: 16,
+        gap: spacing.lg,
     },
     cartBtn: {
         width: 64,
@@ -473,7 +474,7 @@ const styles = StyleSheet.create({
         height: 60,
         borderRadius: 22,
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.md,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -484,44 +485,44 @@ const styles = StyleSheet.create({
         minWidth: 18,
         height: 18,
         borderRadius: 9,
-        paddingHorizontal: 4,
+        paddingHorizontal: spacing.xs,
         justifyContent: 'center',
         alignItems: 'center',
     },
     cartBadgeText: {
         color: '#fff',
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
     },
     buyBtnText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     stockRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     stockLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     stockValue: {
-        fontSize: 14,
+        fontSize: font.base,
     },
     ratingSummaryCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
-        marginBottom: 20,
+        marginBottom: spacing.xl,
         alignItems: 'center',
     },
     summaryLeft: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingRight: 16,
+        paddingRight: spacing.lg,
         minWidth: 90,
     },
     bigRating: {
@@ -530,58 +531,58 @@ const styles = StyleSheet.create({
         lineHeight: 42,
     },
     totalReviewsText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     summarySeparator: {
         width: 1,
         height: '80%',
-        marginHorizontal: 4,
+        marginHorizontal: spacing.xs,
     },
     summaryRight: {
         flex: 1,
-        paddingLeft: 12,
+        paddingLeft: spacing.md,
     },
     summaryDescription: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     emptyReviews: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
-        marginVertical: 20,
+        marginVertical: spacing.xl,
         fontStyle: 'italic',
     },
     writeReviewCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 24,
         borderWidth: 1,
-        marginTop: 20,
-        gap: 12,
+        marginTop: spacing.xl,
+        gap: spacing.md,
     },
     writeReviewTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     writeReviewSubtitle: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     interactiveStars: {
         flexDirection: 'row',
-        gap: 8,
-        marginVertical: 4,
+        gap: spacing.sm,
+        marginVertical: spacing.xs,
     },
     starTouch: {
-        padding: 4,
+        padding: spacing.xs,
     },
     commentInput: {
         borderWidth: 1,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 14,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        fontSize: font.base,
         minHeight: 80,
         textAlignVertical: 'top',
     },
@@ -590,11 +591,11 @@ const styles = StyleSheet.create({
         height: 48,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     submitReviewBtnText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
 });

@@ -12,6 +12,7 @@ import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, Clock, DollarSign, Info, Calendar } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function ProgramDetailScreen() {
     const router = useRouter();
@@ -150,37 +151,37 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     loadingText: {
-        fontSize: 16,
+        fontSize: font.xl,
     },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 24,
-        gap: 16,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.lg,
     },
     errorText: {
-        fontSize: 16,
+        fontSize: font.xl,
         textAlign: 'center',
     },
     retryButton: {
-        paddingHorizontal: 24,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.xxl,
+        paddingVertical: spacing.md,
         borderRadius: 8,
     },
     retryButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '600',
     },
     programHeader: {
         alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingVertical: 20,
-        gap: 12,
+        paddingHorizontal: spacing.xxl,
+        paddingVertical: spacing.xl,
+        gap: spacing.md,
     },
     iconContainer: {
         width: 80,
@@ -188,24 +189,24 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     programName: {
-        fontSize: 24,
+        fontSize: font.h2,
         fontWeight: '800',
         textAlign: 'center',
     },
     programDesc: {
-        fontSize: 15,
+        fontSize: font.lg,
         lineHeight: 22,
         textAlign: 'center',
     },
     statsContainer: {
         flexDirection: 'row',
-        marginHorizontal: 24,
-        padding: 20,
+        marginHorizontal: spacing.xxl,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     statItem: {
         flex: 1,
@@ -216,46 +217,46 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(128,128,128,0.25)',
     },
     statNumber: {
-        fontSize: 22,
+        fontSize: font.h2,
         fontWeight: '800',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     statLabel: {
-        fontSize: 12,
-        marginTop: 4,
+        fontSize: font.md,
+        marginTop: spacing.xs,
     },
     section: {
-        marginHorizontal: 24,
-        padding: 20,
+        marginHorizontal: spacing.xxl,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     detailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        paddingVertical: 10,
+        gap: spacing.md,
+        paddingVertical: spacing.md,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(128,128,128,0.2)',
     },
     detailLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         flex: 1,
     },
     detailValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     benefitItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        paddingVertical: 8,
+        gap: spacing.md,
+        paddingVertical: spacing.sm,
     },
     benefitDot: {
         width: 8,
@@ -263,24 +264,24 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     benefitText: {
-        fontSize: 14,
+        fontSize: font.base,
         flex: 1,
     },
     actionContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 24,
+        paddingHorizontal: spacing.xxl,
+        marginBottom: spacing.xxl,
     },
     enrollButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        gap: 10,
+        gap: spacing.md,
     },
     enrollButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     footer: {

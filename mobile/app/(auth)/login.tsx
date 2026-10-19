@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     },
     logoImage: { width: 72, height: 72, borderRadius: 36 },
     appName: { fontSize: type.title.fontSize, fontWeight: '800', letterSpacing: -0.5 },
-    taglineRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.xs },
+    taglineRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xs },
     tagline: { fontSize: type.body.fontSize, fontWeight: '500' },
     card: {
         borderRadius: radius.xl,
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     loginBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
-    backRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: spacing.lg },
+    backRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
     backText: { fontSize: type.body.fontSize, fontWeight: '600' },
     twoFAHeader: { alignItems: 'center', marginBottom: spacing.lg },
     twoFAIcon: {

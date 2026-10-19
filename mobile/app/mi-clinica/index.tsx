@@ -9,6 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, ChevronRight, Clock, Package, FlaskConical, FileText, AlertTriangle, DollarSign, BarChart3, Video, MapPin } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -83,7 +84,7 @@ export default function MiClinicaScreen() {
                                     </Text>
                                 </View>
                             </View>
-                            <Text style={[styles.ratingText, { color: theme.textMuted, fontSize: 13, fontWeight: '600' }]} numberOfLines={2}>{clinic.address || 'Sin dirección registrada'}</Text>
+                            <Text style={[styles.ratingText, { color: theme.textMuted, fontSize: font.base, fontWeight: '600' }]} numberOfLines={2}>{clinic.address || 'Sin dirección registrada'}</Text>
                         </View>
                     </View>
 
@@ -214,58 +215,58 @@ function MenuItem({ icon: Icon, color, label, sub, onPress, theme }: {
 }
 
 const styles = StyleSheet.create({
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.huge },
     contentScroll: { flex: 1 },
-    content: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 100 },
+    content: { paddingHorizontal: spacing.xxl, paddingTop: spacing.xxl, paddingBottom: 100 },
     profileCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 24,
         alignItems: 'center',
-        gap: 16,
-        marginBottom: 24,
+        gap: spacing.lg,
+        marginBottom: spacing.xxl,
         borderWidth: 1,
     },
     clinicLogo: { width: 60, height: 60, borderRadius: 30 },
-    profileInfo: { flex: 1, gap: 4 },
+    profileInfo: { flex: 1, gap: spacing.xs },
     statusBox: { flexDirection: 'row', alignItems: 'center' },
-    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start' },
-    statusText: { fontSize: 10, fontWeight: '900' },
-    ratingText: { fontSize: 12, fontWeight: '700' },
-    statsGrid: { flexDirection: 'row', gap: 12, marginBottom: 32 },
+    statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6, alignSelf: 'flex-start' },
+    statusText: { fontSize: font.xs, fontWeight: '900' },
+    ratingText: { fontSize: font.md, fontWeight: '700' },
+    statsGrid: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xxxl },
     statItem: {
         flex: 1,
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
     },
     statIconBox: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    statValue: { fontSize: 18, fontWeight: '900' },
-    statLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-    sectionTitle: { fontSize: 14, fontWeight: '900', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 },
-    menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 32 },
+    statValue: { fontSize: font.xxl, fontWeight: '900' },
+    statLabel: { fontSize: font.xs, fontWeight: '700', textTransform: 'uppercase' },
+    sectionTitle: { fontSize: font.base, fontWeight: '900', marginBottom: spacing.lg, textTransform: 'uppercase', letterSpacing: 0.5 },
+    menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.xxxl },
     menuItem: {
         width: Math.floor((width - 61) / 2),
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 24,
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
     },
     iconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    menuLabel: { fontSize: 15, fontWeight: '800' },
-    menuSub: { fontSize: 11, fontWeight: '600' },
-    activityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    activityItem: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 20, gap: 14, marginBottom: 10, borderWidth: 1 },
+    menuLabel: { fontSize: font.lg, fontWeight: '800' },
+    menuSub: { fontSize: font.sm, fontWeight: '600' },
+    activityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
+    activityItem: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, borderRadius: 20, gap: spacing.lg, marginBottom: spacing.md, borderWidth: 1 },
     apptIcon: { width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-    apptInfo: { flex: 1, gap: 2 },
-    apptTitle: { fontSize: 14, fontWeight: '800' },
-    apptSub: { fontSize: 11, fontWeight: '600' },
-    metricsRow: { flexDirection: 'row', gap: 12, marginBottom: 32 },
-    metricCard: { flex: 1, padding: 16, borderRadius: 20, borderWidth: 1, alignItems: 'center', gap: 8 },
+    apptInfo: { flex: 1, gap: spacing.xxs },
+    apptTitle: { fontSize: font.base, fontWeight: '800' },
+    apptSub: { fontSize: font.sm, fontWeight: '600' },
+    metricsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xxxl },
+    metricCard: { flex: 1, padding: spacing.lg, borderRadius: 20, borderWidth: 1, alignItems: 'center', gap: spacing.sm },
     metricIconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    metricValue: { fontSize: 22, fontWeight: '900' },
-    metricLabel: { fontSize: 11, fontWeight: '600', textAlign: 'center' },
+    metricValue: { fontSize: font.h2, fontWeight: '900' },
+    metricLabel: { fontSize: font.sm, fontWeight: '600', textAlign: 'center' },
 });

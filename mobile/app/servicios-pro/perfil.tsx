@@ -7,7 +7,7 @@ import Button from '@/src/components/Button';
 import { useServiceProfile } from '@/src/hooks/servicios-pro/useServiceProfile';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { spacing } from '@/constants/design';
+import { spacing, font } from '@/constants/design';
 
 export default function ProfessionalProfileScreen() {
     const router = useRouter();
@@ -44,7 +44,7 @@ export default function ProfessionalProfileScreen() {
                         <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                             <View style={styles.toggleRow}>
                                 <View style={styles.toggleText}>
-                                    <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 4 }]}>Estatus de Servicio</Text>
+                                    <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: spacing.xs }]}>Estatus de Servicio</Text>
                                     <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>
                                         {formData.is_active ? "Estás visible para nuevos clientes" : "Perfil oculto temporalmente"}
                                     </Text>
@@ -149,7 +149,7 @@ export default function ProfessionalProfileScreen() {
                                     thumbColor={formData.accepts_dogs ? theme.success : '#f4f3f4'}
                                 />
                             </View>
-                            <View style={[styles.toggleItem, { marginTop: 12 }]}>
+                            <View style={[styles.toggleItem, { marginTop: spacing.md }]}>
                                 <Text style={[styles.infoLabel, { color: theme.text }]}>Acepta Gatos</Text>
                                 <Switch
                                     value={formData.accepts_cats}
@@ -169,19 +169,19 @@ export default function ProfessionalProfileScreen() {
 
 const styles = StyleSheet.create({
     saveBtn: { marginTop: spacing.xl },
-    content: { padding: 24, paddingBottom: 100 },
-    section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1 },
-    groupTitle: { fontSize: 12, fontWeight: '800', marginBottom: 12, marginLeft: 12, letterSpacing: 1 },
-    sectionTitle: { fontSize: 16, fontWeight: '800' },
-    sectionSubtitle: { fontSize: 12, fontWeight: '600' },
+    content: { padding: spacing.xxl, paddingBottom: 100 },
+    section: { padding: spacing.xl, borderRadius: 24, marginBottom: spacing.xxl, borderWidth: 1 },
+    groupTitle: { fontSize: font.md, fontWeight: '800', marginBottom: spacing.md, marginLeft: spacing.md, letterSpacing: 1 },
+    sectionTitle: { fontSize: font.xl, fontWeight: '800' },
+    sectionSubtitle: { fontSize: font.md, fontWeight: '600' },
     toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     toggleText: { flex: 1 },
-    inputGroup: { marginBottom: 16 },
-    label: { fontSize: 12, fontWeight: '700', marginBottom: 8 },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, fontSize: 15, fontWeight: '600' },
-    textArea: { height: 120, paddingTop: 12, textAlignVertical: 'top' },
-    inputRow: { flexDirection: 'row', gap: 12 },
+    inputGroup: { marginBottom: spacing.lg },
+    label: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm },
+    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontWeight: '600' },
+    textArea: { height: 120, paddingTop: spacing.md, textAlignVertical: 'top' },
+    inputRow: { flexDirection: 'row', gap: spacing.md },
     toggleItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    infoLabel: { fontSize: 15, fontWeight: '700' },
+    infoLabel: { fontSize: font.lg, fontWeight: '700' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' }
 });

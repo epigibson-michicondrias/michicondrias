@@ -17,6 +17,7 @@ import {
     Activity,
 } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminVerificacionesScreen() {
     const router = useRouter();
@@ -118,14 +119,14 @@ export default function AdminVerificacionesScreen() {
 
 const styles = StyleSheet.create({
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 12 
+        paddingTop: spacing.md 
     },
     card: { 
         borderRadius: 28, 
-        padding: 20, 
-        marginBottom: 24, 
+        padding: spacing.xl, 
+        marginBottom: spacing.xxl, 
         borderWidth: 1,
         elevation: 4,
         shadowColor: '#000',
@@ -136,8 +137,8 @@ const styles = StyleSheet.create({
     cardHeader: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 14, 
-        marginBottom: 20 
+        gap: spacing.lg, 
+        marginBottom: spacing.xl 
     },
     userIcon: { 
         width: 54, 
@@ -148,39 +149,39 @@ const styles = StyleSheet.create({
     },
     userInfo: { flex: 1 },
     userName: { 
-        fontSize: 17, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     infoRow: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 6, 
-        marginTop: 4 
+        gap: spacing.sm, 
+        marginTop: spacing.xs 
     },
     userEmail: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '700' 
     },
     statusBadge: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 4, 
-        paddingHorizontal: 10, 
-        paddingVertical: 5, 
+        gap: spacing.xs, 
+        paddingHorizontal: spacing.md, 
+        paddingVertical: spacing.xs, 
         borderRadius: 10 
     },
     statusText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     docsGrid: { 
         flexDirection: 'row', 
-        gap: 12, 
-        marginBottom: 24 
+        gap: spacing.md, 
+        marginBottom: spacing.xxl 
     },
-    docItem: { flex: 1, gap: 10 },
+    docItem: { flex: 1, gap: spacing.md },
     docLabel: { 
-        fontSize: 11, 
+        fontSize: font.sm, 
         fontWeight: '800', 
         textAlign: 'center' 
     },
@@ -204,23 +205,23 @@ const styles = StyleSheet.create({
     docEmpty: { 
         justifyContent: 'center', 
         alignItems: 'center', 
-        gap: 6,
+        gap: spacing.sm,
         borderStyle: 'dashed',
     },
     docEmptyText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     cardActions: { 
         flexDirection: 'row', 
-        gap: 12 
+        gap: spacing.md 
     },
     btnAction: { 
         flex: 1, 
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        gap: 10, 
+        gap: spacing.md, 
         height: 52, 
         borderRadius: 18 
     },
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
         shadowRadius: 10 
     },
     btnText: { 
-        fontSize: 14, 
+        fontSize: font.base, 
         fontWeight: '800' 
     }
 });

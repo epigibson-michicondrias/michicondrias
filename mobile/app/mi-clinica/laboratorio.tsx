@@ -11,6 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import PatientPicker from '@/src/features/salud/PatientPicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { FlaskConical, TestTube2, CheckCircle2, Clock, Plus, Edit3 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function LaboratorioScreen() {
     const { theme } = useTheme();
@@ -64,7 +65,7 @@ export default function LaboratorioScreen() {
                 <View style={styles.content}>
                     
                     {loadingTests ? (
-                        <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                        <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.huge }} />
                     ) : labTests.length === 0 ? (
                         <EmptyState
                             icon={<TestTube2 size={40} color={theme.textMuted} />}
@@ -98,8 +99,8 @@ export default function LaboratorioScreen() {
                                 {filter === 'completed' && !!test.results && (
                                     <View style={[styles.resultBox, { backgroundColor: theme.background, borderColor: theme.border }]}>
                                         <Text style={[styles.footerLabel, { color: theme.textMuted }]}>Resultados</Text>
-                                        <Text style={{ color: theme.text, fontSize: 13, marginTop: 4 }}>{typeof test.results === 'string' ? test.results : JSON.stringify(test.results)}</Text>
-                                        {!!test.interpretation && <Text style={{ color: theme.textMuted, fontSize: 12, marginTop: 6 }}>{test.interpretation}</Text>}
+                                        <Text style={{ color: theme.text, fontSize: font.base, marginTop: spacing.xs }}>{typeof test.results === 'string' ? test.results : JSON.stringify(test.results)}</Text>
+                                        {!!test.interpretation && <Text style={{ color: theme.textMuted, fontSize: font.md, marginTop: spacing.sm }}>{test.interpretation}</Text>}
                                     </View>
                                 )}
 
@@ -170,48 +171,48 @@ export default function LaboratorioScreen() {
 }
 
 const styles = StyleSheet.create({
-    tabsWrapper: { paddingHorizontal: 24, paddingVertical: 16 },
+    tabsWrapper: { paddingHorizontal: spacing.xxl, paddingVertical: spacing.lg },
     tabsContainer: {
         flexDirection: 'row',
         borderRadius: 16,
-        padding: 4,
+        padding: spacing.xs,
     },
     tab: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
+        paddingVertical: spacing.md,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
-    tabText: { fontSize: 13, fontWeight: '800' },
+    tabText: { fontSize: font.base, fontWeight: '800' },
     contentScroll: { flex: 1 },
-    content: { padding: 24, paddingBottom: 100 },
+    content: { padding: spacing.xxl, paddingBottom: 100 },
     testCard: {
-        padding: 16, borderRadius: 20, borderWidth: 1,
-        marginBottom: 16
+        padding: spacing.lg, borderRadius: 20, borderWidth: 1,
+        marginBottom: spacing.lg
     },
-    testHeader: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 16 },
+    testHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, marginBottom: spacing.lg },
     testIcon: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     testInfo: { flex: 1 },
-    testName: { fontSize: 16, fontWeight: '800' },
-    testType: { fontSize: 12, fontWeight: '600', marginTop: 2 },
-    testFooter: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: 'rgba(128,128,128,0.15)', paddingTop: 16 },
+    testName: { fontSize: font.xl, fontWeight: '800' },
+    testType: { fontSize: font.md, fontWeight: '600', marginTop: spacing.xxs },
+    testFooter: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: 'rgba(128,128,128,0.15)', paddingTop: spacing.lg },
     footerItem: { flex: 1 },
-    footerLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-    footerValue: { fontSize: 13, fontWeight: '700', marginTop: 4 },
+    footerLabel: { fontSize: font.xs, fontWeight: '700', textTransform: 'uppercase' },
+    footerValue: { fontSize: font.base, fontWeight: '700', marginTop: spacing.xs },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '80%' },
-    modalTitle: { fontSize: 20, fontWeight: '900', marginBottom: 20 },
-    inputLabel: { fontSize: 12, fontWeight: '700', marginBottom: 8, marginTop: 16 },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, fontSize: 15, fontWeight: '500' },
-    modalActions: { flexDirection: 'row', gap: 12, marginTop: 32 },
+    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '80%' },
+    modalTitle: { fontSize: font.h3, fontWeight: '900', marginBottom: spacing.xl },
+    inputLabel: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
+    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontWeight: '500' },
+    modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxxl },
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    cancelBtnText: { fontSize: 15, fontWeight: '700' },
+    cancelBtnText: { fontSize: font.lg, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    resultBox: { padding: 12, borderRadius: 12, borderWidth: 1, marginTop: 12 },
-    resultBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 10, borderRadius: 12, marginTop: 12 },
-    resultBtnText: { fontSize: 13, fontWeight: '800' },
+    saveBtnText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
+    resultBox: { padding: spacing.md, borderRadius: 12, borderWidth: 1, marginTop: spacing.md },
+    resultBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: 12, marginTop: spacing.md },
+    resultBtnText: { fontSize: font.base, fontWeight: '800' },
 });

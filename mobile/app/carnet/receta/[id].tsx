@@ -8,6 +8,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ShoppingBag, Share2, Bell, BellOff } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -219,13 +220,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     errorText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: 'bold',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     backErrorBtn: {
-        paddingHorizontal: 24,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.xxl,
+        paddingVertical: spacing.md,
         borderRadius: 12,
     },
     backErrorBtnText: {
@@ -236,8 +237,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        padding: 16,
-        paddingBottom: 40,
+        padding: spacing.lg,
+        paddingBottom: spacing.huge,
     },
     ticketContainer: {
         width: '100%',
@@ -251,15 +252,15 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     ticketHeader: {
-        padding: 24,
+        padding: spacing.xxl,
         borderBottomWidth: 1.5,
         borderStyle: 'dashed',
     },
     ticketHeaderRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     logoIcon: {
         width: 44,
@@ -272,12 +273,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     ticketTitle: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
         letterSpacing: 0.5,
     },
     ticketSubtitle: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     ticketMetaRow: {
@@ -285,65 +286,65 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     ticketMetaLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     ticketBody: {
-        padding: 24,
+        padding: spacing.xxl,
     },
     ticketSection: {
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-        paddingTop: 20,
+        paddingHorizontal: spacing.xxl,
+        paddingBottom: spacing.xl,
+        paddingTop: spacing.xl,
         borderBottomWidth: 1,
         borderStyle: 'solid',
     },
     ticketSectionTitle: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '800',
         letterSpacing: 1,
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     ticketRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     ticketLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '500',
     },
     ticketValue: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         textAlign: 'right',
         flex: 1,
-        marginLeft: 16,
+        marginLeft: spacing.lg,
     },
     ticketMedCard: {
-        padding: 14,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     ticketMedName: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
-        marginBottom: 6,
+        marginBottom: spacing.sm,
     },
     ticketMedDetails: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     ticketInstructionsContainer: {
-        marginTop: 10,
-        paddingTop: 10,
+        marginTop: spacing.md,
+        paddingTop: spacing.md,
         borderTopWidth: 1,
         borderStyle: 'dashed',
     },
     ticketInstructionsText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
         fontStyle: 'italic',
         lineHeight: 18,
@@ -351,11 +352,11 @@ const styles = StyleSheet.create({
     cutLineContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: 24,
-        marginVertical: 24,
+        marginHorizontal: spacing.xxl,
+        marginVertical: spacing.xxl,
     },
     scissorsIcon: {
-        marginRight: 10,
+        marginRight: spacing.md,
     },
     cutLine: {
         flex: 1,
@@ -364,48 +365,48 @@ const styles = StyleSheet.create({
     },
     barcodeWrapper: {
         alignItems: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.lg,
+        paddingHorizontal: spacing.lg,
         borderRadius: 16,
         width: '100%',
-        gap: 10,
+        gap: spacing.md,
     },
     reminderHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: spacing.md,
     },
     reminderToggle: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     barcodeText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
         letterSpacing: 2,
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     barcodeSubText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '500',
         textAlign: 'center',
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
     },
     actionButtonsRow: {
         flexDirection: 'row',
-        gap: 12,
-        marginTop: 24,
-        paddingHorizontal: 4,
+        gap: spacing.md,
+        marginTop: spacing.xxl,
+        paddingHorizontal: spacing.xs,
     },
     actionBtn: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 15,
+        gap: spacing.sm,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
     },
     actionBtnText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
 });

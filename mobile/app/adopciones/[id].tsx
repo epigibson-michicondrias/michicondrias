@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Share2, Heart, Bone, Info, PawPrint, Calendar, Ruler, Scale, MapPin } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { shareContent } from '@/src/utils/share';
+import { font, spacing } from '@/constants/design';
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,13 +22,13 @@ export default function AdopcionDetalleScreen() {
     if (!isLoading && (error || !listing)) {
         return (
             <ScreenContainer style={styles.center}>
-                <Text style={{ color: theme.text, fontWeight: '700', marginBottom: 6 }}>No pudimos cargar la mascota</Text>
-                <Text style={{ color: theme.textMuted, marginBottom: 16, textAlign: 'center' }}>Puede que ya no esté disponible o que no tengas conexión.</Text>
-                <View style={{ flexDirection: 'row', gap: 12 }}>
-                    <TouchableOpacity onPress={goBack} accessibilityRole="button" style={{ backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 }}>
+                <Text style={{ color: theme.text, fontWeight: '700', marginBottom: spacing.sm }}>No pudimos cargar la mascota</Text>
+                <Text style={{ color: theme.textMuted, marginBottom: spacing.lg, textAlign: 'center' }}>Puede que ya no esté disponible o que no tengas conexión.</Text>
+                <View style={{ flexDirection: 'row', gap: spacing.md }}>
+                    <TouchableOpacity onPress={goBack} accessibilityRole="button" style={{ backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: 12 }}>
                         <Text style={{ color: theme.text, fontWeight: '700' }}>Volver</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => refetch()} accessibilityRole="button" style={{ backgroundColor: theme.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 }}>
+                    <TouchableOpacity onPress={() => refetch()} accessibilityRole="button" style={{ backgroundColor: theme.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: 12 }}>
                         <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
                     </TouchableOpacity>
                 </View>
@@ -65,7 +66,7 @@ export default function AdopcionDetalleScreen() {
                             color="#fff"
                             style={styles.glassBtn}
                         />
-                        <View style={{ flexDirection: 'row', gap: 12 }}>
+                        <View style={{ flexDirection: 'row', gap: spacing.md }}>
                             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir" style={styles.glassBtn} onPress={() => shareContent('Adopción', `Conoce a ${listing.name}, está en adopción en Michicondrias 🐾`)}>
                                 <Share2 size={20} color="#fff" />
                             </TouchableOpacity>
@@ -116,7 +117,7 @@ export default function AdopcionDetalleScreen() {
                     </View>
 
                     {/* Description */}
-                    <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 32 }]}>Su Historia</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.text, marginTop: spacing.xxxl }]}>Su Historia</Text>
                     <View style={[styles.descriptionContainer, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                         <Text style={[styles.description, { color: theme.text }]}>
                             {listing.description?.trim() || 'Aún no hay una historia escrita para esta mascota.'}
@@ -249,50 +250,50 @@ const styles = StyleSheet.create({
         bottom: 25,
         left: 24,
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     statusBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 20,
         borderWidth: 1,
     },
     statusText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
     emergencyBadge: {
         backgroundColor: 'rgba(239, 68, 68, 0.4)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 20,
         borderWidth: 1,
         borderColor: 'rgba(239, 68, 68, 0.6)',
     },
     emergencyBadgeText: {
         color: '#ff4d4f',
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
     body: {
-        padding: 24,
+        padding: spacing.xxl,
         paddingBottom: 120,
     },
     titleSection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     name: {
-        fontSize: 32,
+        fontSize: font.display,
         fontWeight: '900',
         lineHeight: 38,
     },
     breed: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     speciesIconContainer: {
         width: 56,
@@ -304,58 +305,58 @@ const styles = StyleSheet.create({
     quickStats: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        gap: spacing.md,
     },
     statCard: {
         width: Math.floor((width - 61) / 2),
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
     },
     statIcon: {
-        fontSize: 20,
+        fontSize: font.h3,
     },
     statLabel: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
         letterSpacing: 1,
     },
     statValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     section: {
-        marginTop: 32,
+        marginTop: spacing.xxxl,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     descriptionContainer: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 24,
         borderWidth: 1,
     },
     description: {
-        fontSize: 15,
+        fontSize: font.lg,
         lineHeight: 24,
     },
     rescatistaCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 24,
-        gap: 16,
+        gap: spacing.lg,
         borderWidth: 1,
     },
     rescatistaIcon: {
@@ -367,11 +368,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     rescatistaName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     rescatistaMeta: {
-        fontSize: 12,
+        fontSize: font.md,
     },
     contactBtn: {
         width: 44,
@@ -383,16 +384,16 @@ const styles = StyleSheet.create({
     featureGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        gap: spacing.md,
     },
     featureItem: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: 'rgba(128,128,128,0.08)',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
         borderWidth: 1,
     },
     dot: {
@@ -401,21 +402,21 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     featureText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     traitsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: spacing.sm,
     },
     traitTag: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 20,
     },
     traitText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     footer: {
@@ -423,8 +424,8 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     applyBtn: {
@@ -433,7 +434,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
         shadowColor: '#6366f1',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.3,
@@ -442,7 +443,7 @@ const styles = StyleSheet.create({
     },
     applyBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

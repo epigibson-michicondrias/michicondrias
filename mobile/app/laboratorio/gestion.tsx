@@ -10,6 +10,7 @@ import FilterChip from '@/src/components/FilterChip';
 import { showAlert } from '@/src/components/AppAlert';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { FlaskConical, Calendar, AlertTriangle, Plus, X } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 type Tab = 'ordenes' | 'citas' | 'anomalias' | 'catalogo';
 const TABS: { key: Tab; label: string }[] = [
@@ -94,7 +95,7 @@ export default function LaboratorioGestionScreen() {
             accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={onPress}
             style={[styles.btn, { borderColor: color, backgroundColor: filled ? color : 'transparent' }, disabled && { opacity: 0.6 }]}
         >
-            <Text style={{ color: filled ? '#fff' : color, fontWeight: '700', fontSize: 13 }}>{label}</Text>
+            <Text style={{ color: filled ? '#fff' : color, fontWeight: '700', fontSize: font.base }}>{label}</Text>
         </TouchableOpacity>
     );
 
@@ -108,11 +109,11 @@ export default function LaboratorioGestionScreen() {
                 </View>
                 {tone && (
                     <View style={[styles.badge, { backgroundColor: tone.bg }]}>
-                        <Text style={{ color: tone.color, fontWeight: '700', fontSize: 12 }}>{tone.label}</Text>
+                        <Text style={{ color: tone.color, fontWeight: '700', fontSize: font.md }}>{tone.label}</Text>
                     </View>
                 )}
             </View>
-            {!!meta && <Text style={[styles.meta, { color: theme.textMuted, marginTop: 8 }]}>{meta}</Text>}
+            {!!meta && <Text style={[styles.meta, { color: theme.textMuted, marginTop: spacing.sm }]}>{meta}</Text>}
             {children}
         </View>
     );
@@ -213,7 +214,7 @@ export default function LaboratorioGestionScreen() {
             </ScrollView>
 
             {loading ? (
-                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
+                <View style={{ padding: spacing.xl }}><SkeletonList count={4} /></View>
             ) : (
                 <FlatList
                     data={data}
@@ -223,7 +224,7 @@ export default function LaboratorioGestionScreen() {
                     refreshControl={<AppRefreshControl />}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <View style={{ alignItems: 'center', marginTop: 48, gap: 10 }}>
+                        <View style={{ alignItems: 'center', marginTop: 48, gap: spacing.md }}>
                             <FlaskConical size={44} color={theme.textMuted} />
                             <Text style={{ color: theme.textMuted, textAlign: 'center' }}>{EMPTY[tab]}</Text>
                         </View>
@@ -236,14 +237,14 @@ export default function LaboratorioGestionScreen() {
                 <View style={styles.overlay}>
                     <View style={[styles.sheet, { backgroundColor: theme.background }]}>
                         <View style={styles.sheetHeader}>
-                            <Text style={[styles.cardTitle, { color: theme.text, fontSize: 18 }]}>Cargar resultados</Text>
+                            <Text style={[styles.cardTitle, { color: theme.text, fontSize: font.xxl }]}>Cargar resultados</Text>
                             <TouchableOpacity accessibilityLabel="Cerrar" onPress={() => setResultOrder(null)}><X size={22} color={theme.text} /></TouchableOpacity>
                         </View>
                         <ScrollView keyboardShouldPersistTaps="handled">
                             {rows.map((r, i) => (
                                 <View key={i} style={[styles.rowBox, { borderColor: theme.border }]}>
                                     <TextInput style={input} placeholder="Parámetro (ej. Hemoglobina)" placeholderTextColor={theme.textMuted} value={r.parameter_name} onChangeText={(v) => patchRow(i, { parameter_name: v })} />
-                                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                                    <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                                         <TextInput style={[input, { flex: 1 }]} placeholder="Valor" keyboardType="numeric" placeholderTextColor={theme.textMuted} value={r.measured_value} onChangeText={(v) => patchRow(i, { measured_value: v })} />
                                         <TextInput style={[input, { flex: 1 }]} placeholder="Unidad" placeholderTextColor={theme.textMuted} value={r.unit} onChangeText={(v) => patchRow(i, { unit: v })} />
                                         <TextInput style={[input, { flex: 1 }]} placeholder="Ref." placeholderTextColor={theme.textMuted} value={r.reference_range} onChangeText={(v) => patchRow(i, { reference_range: v })} />
@@ -254,7 +255,7 @@ export default function LaboratorioGestionScreen() {
                                     </View>
                                 </View>
                             ))}
-                            <TouchableOpacity accessibilityRole="button" onPress={() => setRows((r) => [...r, emptyRow()])} style={{ paddingVertical: 8 }}>
+                            <TouchableOpacity accessibilityRole="button" onPress={() => setRows((r) => [...r, emptyRow()])} style={{ paddingVertical: spacing.sm }}>
                                 <Text style={{ color: theme.primary, fontWeight: '700' }}>+ Agregar parámetro</Text>
                             </TouchableOpacity>
                             <TextInput style={input} placeholder="URL del informe PDF (opcional)" autoCapitalize="none" keyboardType="url" placeholderTextColor={theme.textMuted} value={pdfUrl} onChangeText={setPdfUrl} />
@@ -271,14 +272,14 @@ export default function LaboratorioGestionScreen() {
                 <View style={styles.overlay}>
                     <View style={[styles.sheet, { backgroundColor: theme.background }]}>
                         <View style={styles.sheetHeader}>
-                            <Text style={[styles.cardTitle, { color: theme.text, fontSize: 18 }]}>Nuevo estudio</Text>
+                            <Text style={[styles.cardTitle, { color: theme.text, fontSize: font.xxl }]}>Nuevo estudio</Text>
                             <TouchableOpacity accessibilityLabel="Cerrar" onPress={() => setShowTestForm(false)}><X size={22} color={theme.text} /></TouchableOpacity>
                         </View>
-                        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 10 }}>
+                        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: spacing.md }}>
                             <TextInput style={input} placeholder="Nombre *" placeholderTextColor={theme.textMuted} value={tf.name} onChangeText={(v) => setTf({ ...tf, name: v })} />
                             <TextInput style={[input, { minHeight: 80 }]} multiline placeholder="Descripción / preparación" placeholderTextColor={theme.textMuted} value={tf.description} onChangeText={(v) => setTf({ ...tf, description: v })} />
                             <TextInput style={input} placeholder="Precio (MXN) *" keyboardType="numeric" placeholderTextColor={theme.textMuted} value={tf.price} onChangeText={(v) => setTf({ ...tf, price: v })} />
-                            <View style={{ flexDirection: 'row', gap: 8 }}>
+                            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
                                 <TextInput style={[input, { flex: 1 }]} placeholder="Unidad" placeholderTextColor={theme.textMuted} value={tf.unit} onChangeText={(v) => setTf({ ...tf, unit: v })} />
                                 <TextInput style={[input, { flex: 1 }]} placeholder="Rango ref." placeholderTextColor={theme.textMuted} value={tf.reference_range} onChangeText={(v) => setTf({ ...tf, reference_range: v })} />
                             </View>
@@ -294,22 +295,22 @@ export default function LaboratorioGestionScreen() {
 }
 
 const styles = StyleSheet.create({
-    tabsRow: { paddingHorizontal: 24, gap: 8, marginBottom: 12 },
-    list: { paddingHorizontal: 24, paddingBottom: 100 },
-    card: { padding: 16, borderRadius: 16, borderWidth: 1, marginBottom: 12 },
-    testRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    tabsRow: { paddingHorizontal: spacing.xxl, gap: spacing.sm, marginBottom: spacing.md },
+    list: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
+    card: { padding: spacing.lg, borderRadius: 16, borderWidth: 1, marginBottom: spacing.md },
+    testRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     cardIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    cardTitle: { fontSize: 15, fontWeight: '800' },
-    meta: { fontSize: 13 },
-    badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
-    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 },
-    btn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1 },
+    cardTitle: { fontSize: font.lg, fontWeight: '800' },
+    meta: { fontSize: font.base },
+    badge: { paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: 8 },
+    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
+    btn: { paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, borderRadius: 10, borderWidth: 1 },
     overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
-    sheet: { maxHeight: '90%', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20 },
-    sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-    rowBox: { borderWidth: 1, borderRadius: 14, padding: 12, gap: 8, marginBottom: 10 },
-    input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14 },
-    submit: { paddingVertical: 14, borderRadius: 14, alignItems: 'center', marginTop: 12, marginBottom: 20 },
-    submitText: { color: '#fff', fontWeight: '800', fontSize: 15 },
+    sheet: { maxHeight: '90%', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: spacing.xl },
+    sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
+    rowBox: { borderWidth: 1, borderRadius: 14, padding: spacing.md, gap: spacing.sm, marginBottom: spacing.md },
+    input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, paddingVertical: spacing.md, fontSize: font.base },
+    submit: { paddingVertical: spacing.lg, borderRadius: 14, alignItems: 'center', marginTop: spacing.md, marginBottom: spacing.xl },
+    submitText: { color: '#fff', fontWeight: '800', fontSize: font.lg },
 });

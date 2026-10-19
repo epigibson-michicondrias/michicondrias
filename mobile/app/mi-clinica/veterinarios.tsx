@@ -11,6 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Users, Mail, Phone, Star, Edit, Trash2, X, Stethoscope, ShieldCheck } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function VeterinariosClinicaScreen() {
     const router = useRouter();
@@ -196,7 +197,7 @@ export default function VeterinariosClinicaScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <KeyboardScreen style={{ paddingHorizontal: 24 }}>
+                    <KeyboardScreen style={{ paddingHorizontal: spacing.xxl }}>
                         <View style={styles.formGroup}>
                             <FormField label="Nombre Completo *" value={name} onChangeText={setName} placeholder="Dr. Juan Pérez" />
                         </View>
@@ -239,42 +240,42 @@ export default function VeterinariosClinicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { flex: 1, paddingHorizontal: 24 },
-    statsContainer: { flexDirection: 'row', gap: 16, marginBottom: 24 },
-    statCard: { flex: 1, padding: 20, borderRadius: 16, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    statNumber: { fontSize: 24, fontWeight: '900' },
-    statLabel: { fontSize: 12, fontWeight: '600' },
+    content: { flex: 1, paddingHorizontal: spacing.xxl },
+    statsContainer: { flexDirection: 'row', gap: spacing.lg, marginBottom: spacing.xxl },
+    statCard: { flex: 1, padding: spacing.xl, borderRadius: 16, alignItems: 'center', gap: spacing.sm, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
+    statNumber: { fontSize: font.h2, fontWeight: '900' },
+    statLabel: { fontSize: font.md, fontWeight: '600' },
     list: { paddingBottom: 100 },
-    vetCard: { padding: 20, borderRadius: 16, marginBottom: 16, borderWidth: 1 },
-    vetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-    vetInfo: { flexDirection: 'row', gap: 16, flex: 1 },
+    vetCard: { padding: spacing.xl, borderRadius: 16, marginBottom: spacing.lg, borderWidth: 1 },
+    vetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.lg },
+    vetInfo: { flexDirection: 'row', gap: spacing.lg, flex: 1 },
     vetAvatar: { width: 60, height: 60, borderRadius: 30 },
     vetDetails: { flex: 1 },
-    vetName: { fontSize: 18, fontWeight: '800', marginBottom: 4 },
-    vetSpecialty: { fontSize: 14, fontWeight: '600', marginBottom: 4 },
-    vetMeta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-    ratingContainer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    ratingText: { fontSize: 13, fontWeight: '600' },
-    experienceText: { fontSize: 13 },
-    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-    statusText: { fontSize: 11, fontWeight: '700' },
-    vetContact: { gap: 8, marginBottom: 12 },
-    contactRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    contactText: { fontSize: 13, flex: 1 },
-    vetBio: { fontSize: 13, lineHeight: 18, marginBottom: 16 },
+    vetName: { fontSize: font.xxl, fontWeight: '800', marginBottom: spacing.xs },
+    vetSpecialty: { fontSize: font.base, fontWeight: '600', marginBottom: spacing.xs },
+    vetMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    ratingContainer: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    ratingText: { fontSize: font.base, fontWeight: '600' },
+    experienceText: { fontSize: font.base },
+    statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
+    statusText: { fontSize: font.sm, fontWeight: '700' },
+    vetContact: { gap: spacing.sm, marginBottom: spacing.md },
+    contactRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    contactText: { fontSize: font.base, flex: 1 },
+    vetBio: { fontSize: font.base, lineHeight: 18, marginBottom: spacing.lg },
     vetFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    licenseContainer: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    licenseText: { fontSize: 12 },
-    actionButtons: { flexDirection: 'row', gap: 8 },
+    licenseContainer: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    licenseText: { fontSize: font.md },
+    actionButtons: { flexDirection: 'row', gap: spacing.sm },
     actionBtn: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 20 },
+    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.xl },
     modalContainer: { flex: 1 },
-    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24 },
-    modalTitle: { fontSize: 20, fontWeight: '900' },
-    saveBtnText: { fontSize: 16, fontWeight: '700' },
-    formGroup: { marginBottom: 24 },
-    label: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
-    input: { height: 56, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, fontSize: 16, fontWeight: '600' },
-    textArea: { height: 120, borderRadius: 12, paddingHorizontal: 16, paddingTop: 16, borderWidth: 1, fontSize: 16, textAlignVertical: 'top' },
+    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: spacing.xxl, paddingBottom: spacing.xxl },
+    modalTitle: { fontSize: font.h3, fontWeight: '900' },
+    saveBtnText: { fontSize: font.xl, fontWeight: '700' },
+    formGroup: { marginBottom: spacing.xxl },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontWeight: '600' },
+    textArea: { height: 120, borderRadius: 12, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, borderWidth: 1, fontSize: font.xl, textAlignVertical: 'top' },
     modalFooter: { height: 40 },
 });

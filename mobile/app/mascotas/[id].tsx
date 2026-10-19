@@ -13,7 +13,7 @@ import { Skeleton } from '@/src/components/Skeleton';
 import { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { PetHealthTab, PetHistoryTab } from '@/src/features/mascotas/PetHealthTabs';
 import { PetPassportShare } from '@/src/features/mascotas/PetPassportShare';
-import { spacing, radius, type, shadow, layout } from '@/constants/design';
+import { spacing, radius, type, shadow, layout, font } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -157,7 +157,7 @@ export default function PetProfileScreen() {
                                 activeOpacity={0.88}
                             >
                                 <View style={[styles.actionIcon, { backgroundColor: theme.successLight }]}>
-                                    <Text style={{ fontSize: 24 }}>🛰️</Text>
+                                    <Text style={{ fontSize: font.h2 }}>🛰️</Text>
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={[type.subtitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
@@ -182,7 +182,7 @@ export default function PetProfileScreen() {
                                 activeOpacity={0.88}
                             >
                                 <View style={[styles.actionIcon, { backgroundColor: theme.errorLight }]}>
-                                    <Text style={{ fontSize: 24 }}>🕯️</Text>
+                                    <Text style={{ fontSize: font.h2 }}>🕯️</Text>
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={[type.subtitle, { color: theme.text }]}>Memorial y Recuerdo</Text>
@@ -197,7 +197,7 @@ export default function PetProfileScreen() {
                                 activeOpacity={0.88}
                             >
                                 <View style={[styles.actionIcon, { backgroundColor: theme.primaryLight }]}>
-                                    <Text style={{ fontSize: 24 }}>✂️</Text>
+                                    <Text style={{ fontSize: font.h2 }}>✂️</Text>
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={[type.subtitle, { color: theme.text }]}>Historial de Estética</Text>

@@ -5,7 +5,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, radius, type } from '@/constants/design';
+import { spacing, radius, type, font } from '@/constants/design';
 
 interface SelectOption {
     label: string;
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     optionIcon: {
-        fontSize: 18,
+        fontSize: font.xxl,
     },
     optionLabel: {
         ...type.bodyStrong,

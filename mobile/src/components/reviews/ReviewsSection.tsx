@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { font, spacing } from '@/constants/design';
 
 export interface ReviewItem {
     id: string;
@@ -120,22 +121,22 @@ export default function ReviewsSection({ title = 'Reseñas', average, count, rev
 }
 
 const styles = StyleSheet.create({
-    card: { marginHorizontal: 24, marginBottom: 16, padding: 20, borderRadius: 16, borderWidth: 1, gap: 12 },
+    card: { marginHorizontal: spacing.xxl, marginBottom: spacing.lg, padding: spacing.xl, borderRadius: 16, borderWidth: 1, gap: spacing.md },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    title: { fontSize: 18, fontWeight: '700' },
-    avgBox: { alignItems: 'flex-end', gap: 2 },
-    avgText: { fontSize: 12, fontWeight: '600' },
-    starsRow: { flexDirection: 'row', gap: 4 },
-    formWrap: { paddingBottom: 12, borderBottomWidth: 1 },
-    form: { gap: 10 },
-    formPrompt: { fontSize: 15, fontWeight: '700' },
-    input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, minHeight: 70, textAlignVertical: 'top' },
+    title: { fontSize: font.xxl, fontWeight: '700' },
+    avgBox: { alignItems: 'flex-end', gap: spacing.xxs },
+    avgText: { fontSize: font.md, fontWeight: '600' },
+    starsRow: { flexDirection: 'row', gap: spacing.xs },
+    formWrap: { paddingBottom: spacing.md, borderBottomWidth: 1 },
+    form: { gap: spacing.md },
+    formPrompt: { fontSize: font.lg, fontWeight: '700' },
+    input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.lg, minHeight: 70, textAlignVertical: 'top' },
     submit: { height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    submitText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    empty: { fontSize: 14 },
-    review: { borderTopWidth: 1, paddingTop: 10, gap: 4 },
+    submitText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
+    empty: { fontSize: font.base },
+    review: { borderTopWidth: 1, paddingTop: spacing.md, gap: spacing.xs },
     reviewHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    author: { fontSize: 14, fontWeight: '700' },
-    comment: { fontSize: 14, lineHeight: 20 },
-    date: { fontSize: 11 },
+    author: { fontSize: font.base, fontWeight: '700' },
+    comment: { fontSize: font.base, lineHeight: 20 },
+    date: { fontSize: font.sm },
 });

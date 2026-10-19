@@ -8,6 +8,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { User, Home, Calendar, Clock, CheckCircle, XCircle, Heart, Mail, FileText, AlertCircle } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function ProcesarSolicitudScreen() {
     const { theme } = useTheme();
@@ -253,7 +254,7 @@ export default function ProcesarSolicitudScreen() {
 
                 {(request.status === 'REVIEWING' || request.status === 'INTERVIEW_SCHEDULED' || request.status === 'APPROVED') && (
                     <TouchableOpacity
-                        style={[styles.approveButton, { backgroundColor: theme.error, marginBottom: 12 }]}
+                        style={[styles.approveButton, { backgroundColor: theme.error, marginBottom: spacing.md }]}
                         onPress={() => handleStatusUpdate('REJECTED')}
                         accessibilityRole="button"
                     >
@@ -291,143 +292,143 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     statusCard: {
-        marginHorizontal: 24,
-        marginBottom: 20,
-        padding: 20,
+        marginHorizontal: spacing.xxl,
+        marginBottom: spacing.xl,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
     },
     statusHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     statusIcon: {
-        fontSize: 24,
+        fontSize: font.h2,
     },
     statusInfo: {
         flex: 1,
     },
     statusTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
     },
     statusDate: {
-        fontSize: 14,
-        marginTop: 4,
+        fontSize: font.base,
+        marginTop: spacing.xs,
     },
     card: {
-        marginHorizontal: 24,
-        marginBottom: 20,
-        padding: 20,
+        marginHorizontal: spacing.xxl,
+        marginBottom: spacing.xl,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     infoRow: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     infoContent: {
         flex: 1,
     },
     infoLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     infoValue: {
-        fontSize: 16,
+        fontSize: font.xl,
     },
     checkboxRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     checkboxText: {
-        fontSize: 16,
+        fontSize: font.xl,
     },
     petInfo: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 12,
+        gap: spacing.md,
     },
     petDetails: {
         flex: 1,
     },
     petName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     petBreed: {
-        fontSize: 14,
-        marginBottom: 8,
+        fontSize: font.base,
+        marginBottom: spacing.sm,
     },
     petDescription: {
-        fontSize: 15,
+        fontSize: font.lg,
         lineHeight: 22,
     },
     reasonText: {
-        fontSize: 16,
+        fontSize: font.xl,
         lineHeight: 24,
     },
     inputGroup: {
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     inputLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     textInput: {
         borderWidth: 1,
         borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        fontSize: font.xl,
     },
     textArea: {
         borderWidth: 1,
         borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        fontSize: font.xl,
         height: 100,
         textAlignVertical: 'top',
     },
     actionContainer: {
-        paddingHorizontal: 24,
-        paddingBottom: 40,
+        paddingHorizontal: spacing.xxl,
+        paddingBottom: spacing.huge,
     },
     buttonRow: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     actionButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 16,
+        gap: spacing.sm,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     rejectButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 16,
+        gap: spacing.sm,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
     },
     reviewButton: {
@@ -435,26 +436,26 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 16,
+        gap: spacing.sm,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
     },
     approveButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 16,
+        gap: spacing.sm,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
     },
     buttonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     actionButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
 });

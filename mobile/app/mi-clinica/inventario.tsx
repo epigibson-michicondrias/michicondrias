@@ -12,6 +12,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Package, AlertTriangle, PlusCircle, Box, Search, X } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function InventarioScreen() {
     const router = useRouter();
@@ -56,7 +57,7 @@ export default function InventarioScreen() {
                     {criticalItems.length > 0 && (
                         <View style={styles.alertSection}>
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Atención Inmediata</Text>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.md }}>
                                 {criticalItems.map(item => (
                                     <View key={item.id} style={[styles.criticalCard, { backgroundColor: theme.error + '15', borderColor: theme.error + '50' }]}>
                                         <View style={styles.criticalIconBox}>
@@ -131,7 +132,7 @@ export default function InventarioScreen() {
 
                             <FormField label="Categoría" value={newItem.category ?? ''} onChangeText={t => setNewItem({...newItem, category: t})} placeholder="Ej. Antibióticos" />
 
-                            <View style={{ flexDirection: 'row', gap: 12 }}>
+                            <View style={{ flexDirection: 'row', gap: spacing.md }}>
                                 <View style={{ flex: 1 }}>
                                     <FormField label="Stock Inicial" value={newItem.currentStock?.toString() ?? ''} onChangeText={t => setNewItem({...newItem, currentStock: parseInt(t) || 0})} keyboardType="numeric" />
                                 </View>
@@ -161,7 +162,7 @@ export default function InventarioScreen() {
                         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                             <FormField label="Nombre *" value={editingItem?.name || ''} onChangeText={t => setEditingItem({ ...editingItem, name: t })} />
                             <FormField label="Categoría" value={editingItem?.category || ''} onChangeText={t => setEditingItem({ ...editingItem, category: t })} />
-                            <View style={{ flexDirection: 'row', gap: 12 }}>
+                            <View style={{ flexDirection: 'row', gap: spacing.md }}>
                                 <View style={{ flex: 1 }}>
                                     <FormField label="Stock actual" value={String(editingItem?.currentStock ?? 0)} onChangeText={t => setEditingItem({ ...editingItem, currentStock: Math.max(0, parseInt(t) || 0) })} keyboardType="numeric" />
                                 </View>
@@ -175,7 +176,7 @@ export default function InventarioScreen() {
                                 accessibilityLabel="Eliminar producto del inventario"
                                 disabled={isDeleting}
                                 onPress={() => editingItem?.id && handleDeleteItem(editingItem.id)}
-                                style={{ marginTop: 20, alignItems: 'center', paddingVertical: 12 }}
+                                style={{ marginTop: spacing.xl, alignItems: 'center', paddingVertical: spacing.md }}
                             >
                                 <Text style={{ color: theme.error, fontWeight: '800' }}>Eliminar producto</Text>
                             </TouchableOpacity>
@@ -199,16 +200,16 @@ export default function InventarioScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { padding: 24, paddingBottom: 100 },
-    sectionTitle: { fontSize: 15, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 16 },
-    alertSection: { marginBottom: 32 },
+    content: { padding: spacing.xxl, paddingBottom: 100 },
+    sectionTitle: { fontSize: font.lg, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: spacing.lg },
+    alertSection: { marginBottom: spacing.xxxl },
     criticalCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
         minWidth: 200,
     },
     criticalIconBox: {
@@ -216,38 +217,38 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(239, 68, 68, 0.2)',
         justifyContent: 'center', alignItems: 'center'
     },
-    criticalName: { fontSize: 14, fontWeight: '800' },
-    criticalStock: { fontSize: 12, fontWeight: '700', color: '#ef4444', marginTop: 2 },
-    actionsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    criticalName: { fontSize: font.base, fontWeight: '800' },
+    criticalStock: { fontSize: font.md, fontWeight: '700', color: '#ef4444', marginTop: spacing.xxs },
+    actionsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     addBtn: {
-        flexDirection: 'row', alignItems: 'center', gap: 6,
-        paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12
+        flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+        paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 12
     },
-    addBtnText: { fontSize: 12, fontWeight: '800' },
+    addBtnText: { fontSize: font.md, fontWeight: '800' },
     itemCard: {
         flexDirection: 'row', alignItems: 'center',
-        padding: 16, borderRadius: 20, borderWidth: 1,
-        marginBottom: 12, gap: 14
+        padding: spacing.lg, borderRadius: 20, borderWidth: 1,
+        marginBottom: spacing.md, gap: spacing.lg
     },
     itemIcon: {
         width: 46, height: 46, borderRadius: 14,
         justifyContent: 'center', alignItems: 'center'
     },
     itemInfo: { flex: 1 },
-    itemName: { fontSize: 15, fontWeight: '800' },
-    itemCategory: { fontSize: 12, fontWeight: '600', marginTop: 2 },
+    itemName: { fontSize: font.lg, fontWeight: '800' },
+    itemCategory: { fontSize: font.md, fontWeight: '600', marginTop: spacing.xxs },
     stockInfo: { alignItems: 'flex-end' },
-    stockValue: { fontSize: 20, fontWeight: '900' },
-    stockUnit: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase' },
-    searchContainer: { marginTop: 16, paddingHorizontal: 24 },
+    stockValue: { fontSize: font.h3, fontWeight: '900' },
+    stockUnit: { fontSize: font.sm, fontWeight: '700', textTransform: 'uppercase' },
+    searchContainer: { marginTop: spacing.lg, paddingHorizontal: spacing.xxl },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '80%' },
-    modalTitle: { fontSize: 20, fontWeight: '900', marginBottom: 20 },
-    inputLabel: { fontSize: 12, fontWeight: '700', marginBottom: 8, marginTop: 16 },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, fontSize: 15, fontWeight: '500' },
-    modalActions: { flexDirection: 'row', gap: 12, marginTop: 32 },
+    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '80%' },
+    modalTitle: { fontSize: font.h3, fontWeight: '900', marginBottom: spacing.xl },
+    inputLabel: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
+    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontWeight: '500' },
+    modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxxl },
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    cancelBtnText: { fontSize: 15, fontWeight: '700' },
+    cancelBtnText: { fontSize: font.lg, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+    saveBtnText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
 });

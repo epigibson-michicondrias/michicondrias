@@ -11,6 +11,7 @@ import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function PaseadoresScreen() {
     const router = useRouter();
@@ -156,9 +157,9 @@ export default function PaseadoresScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 16,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     actionButton: {
         flex: 1,
@@ -167,33 +168,33 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        paddingHorizontal: 12,
+        paddingHorizontal: spacing.md,
     },
     actionButtonText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         textAlign: 'center',
         lineHeight: 18,
     },
     searchWrapper: {
-        marginHorizontal: 24,
-        marginBottom: 20,
+        marginHorizontal: spacing.xxl,
+        marginBottom: spacing.xl,
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     walkerCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     walkerHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 16,
+        marginBottom: spacing.lg,
+        gap: spacing.lg,
     },
     avatarPlaceholder: {
         width: 56,
@@ -203,64 +204,64 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatarText: {
-        fontSize: 24,
+        fontSize: font.h2,
         fontWeight: '800',
     },
     walkerInfo: {
         flex: 1,
     },
     walkerName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     locationText: {
-        fontSize: 14,
+        fontSize: font.base,
     },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     ratingText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     walkerStats: {
         flexDirection: 'row',
-        gap: 16,
-        marginBottom: 16,
+        gap: spacing.lg,
+        marginBottom: spacing.lg,
     },
     statItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     statText: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     servicesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     serviceTag: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
     },
     serviceText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     moreText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontStyle: 'italic',
     },
     walkerFooter: {
@@ -269,20 +270,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     priceText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     contactButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.lg,
         borderRadius: 8,
-        gap: 6,
+        gap: spacing.sm,
     },
     contactButtonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
 

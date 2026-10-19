@@ -35,6 +35,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
+import { font, spacing } from '@/constants/design';
 
 const FILTERS: { key: ProviderFilter; label: string; icon: string }[] = [
     { key: 'all',         label: 'Todas',       icon: '' },
@@ -369,47 +370,47 @@ function getStatusColor(status: string | undefined, theme: any): { color: string
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
 
     // Filters
     filtersScroll: {
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     filtersRow: {
         flexDirection: 'row',
-        gap: 10,
-        paddingVertical: 8,
+        gap: spacing.md,
+        paddingVertical: spacing.sm,
     },
     filterChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 12,
         borderWidth: 1.5,
-        gap: 6,
+        gap: spacing.sm,
     },
     filterEmoji: {
-        fontSize: 14,
+        fontSize: font.base,
     },
     filterLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
 
     // Card
     card: {
-        padding: 18,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     cardIcon: {
         width: 48,
@@ -422,39 +423,39 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cardService: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 3,
+        marginBottom: spacing.xs,
     },
     cardDateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
+        gap: spacing.xs,
     },
     cardMeta: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
     },
     statusPill: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     statusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
 
     // Photos
     photosRow: {
         flexDirection: 'row',
-        gap: 12,
-        marginTop: 14,
+        gap: spacing.md,
+        marginTop: spacing.lg,
     },
     photoThumb: {
         flex: 1,
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     thumbImg: {
         width: '100%',
@@ -462,27 +463,27 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     photoLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
 
     // Actions
     cardActions: {
         flexDirection: 'row',
-        gap: 10,
-        marginTop: 14,
+        gap: spacing.md,
+        marginTop: spacing.lg,
     },
     actionBtn: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
+        paddingVertical: spacing.md,
         borderRadius: 12,
-        gap: 6,
+        gap: spacing.sm,
     },
     actionLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
 
@@ -494,31 +495,31 @@ const styles = StyleSheet.create({
     modalContent: {
         borderTopLeftRadius: 28,
         borderTopRightRadius: 28,
-        paddingHorizontal: 24,
-        paddingTop: 20,
+        paddingHorizontal: spacing.xxl,
+        paddingTop: spacing.xl,
         maxHeight: '90%',
     },
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     modalTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     modalLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginBottom: 8,
-        marginTop: 12,
+        marginBottom: spacing.sm,
+        marginTop: spacing.md,
     },
     photoPicker: {
         borderRadius: 16,
         borderWidth: 1.5,
         overflow: 'hidden',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     photoPreview: {
         width: '100%',
@@ -528,28 +529,28 @@ const styles = StyleSheet.create({
         height: 120,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     photoPlaceholderText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     textArea: {
         borderRadius: 14,
         borderWidth: 1,
-        padding: 16,
-        fontSize: 14,
+        padding: spacing.lg,
+        fontSize: font.base,
         minHeight: 100,
     },
     saveBtn: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
-        marginTop: 20,
+        marginTop: spacing.xl,
     },
     saveBtnText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
         color: '#fff',
     },

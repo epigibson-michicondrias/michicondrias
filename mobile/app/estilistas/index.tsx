@@ -12,6 +12,7 @@ import SearchBar from '@/src/components/SearchBar';
 import { Stars } from '@/src/components/reviews/ReviewsSection';
 
 import { useAuth } from '@/src/contexts/AuthContext';
+import { font, spacing } from '@/constants/design';
 
 export default function EstilistasScreen() {
     const router = useRouter();
@@ -48,7 +49,7 @@ export default function EstilistasScreen() {
                         </Text>
                     )}
                     {item.groomer_rating_count ? (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xs }}>
                             <Stars value={item.groomer_rating_avg ?? 0} size={13} />
                             <Text style={[styles.cardDesc, { color: theme.textMuted }]}>
                                 {(item.groomer_rating_avg ?? 0).toFixed(1)} ({item.groomer_rating_count})
@@ -130,41 +131,41 @@ export default function EstilistasScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     actionButton: {
         flexDirection: 'row',
         flex: 1,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     searchContainer: {
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     card: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 16,
+        marginBottom: spacing.lg,
+        gap: spacing.lg,
     },
     iconContainer: {
         width: 56,
@@ -177,25 +178,25 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     cardDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
     },
     cardMeta: {
         flexDirection: 'row',
-        gap: 20,
+        gap: spacing.xl,
     },
     metaItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     metaText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
 });

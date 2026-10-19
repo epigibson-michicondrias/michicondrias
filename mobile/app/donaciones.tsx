@@ -7,6 +7,7 @@ import { openStripeUrl } from '@/src/utils/payments';
 import { useTheme } from '@/src/hooks/useTheme';
 import { DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { font, spacing } from '@/constants/design';
 
 const AMOUNTS = [50, 100, 200, 500];
 
@@ -168,7 +169,7 @@ export default function DonacionesScreen() {
                     <View style={styles.inputGroup}>
                         <Text style={[styles.label, { color: theme.textMuted }]}>Mensaje de aliento (Opcional)</Text>
                         <View style={[styles.textAreaContainer, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-                            <MessageCircle size={20} color={theme.primary} style={{ marginTop: 12 }} />
+                            <MessageCircle size={20} color={theme.primary} style={{ marginTop: spacing.md }} />
                             <TextInput
                                 style={[styles.textArea, { color: theme.text }]}
                                 multiline
@@ -211,18 +212,18 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     content: {
-        padding: 24,
-        gap: 24,
+        padding: spacing.xxl,
+        gap: spacing.xxl,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
         marginBottom: -12,
     },
     amountsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        gap: spacing.md,
     },
     amountBtn: {
         flex: 1,
@@ -234,55 +235,55 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     amountText: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     inputGroup: {
-        gap: 8,
+        gap: spacing.sm,
     },
     label: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.lg,
         height: 60,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
     },
     input: {
         flex: 1,
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
     },
     textAreaContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
     },
     textArea: {
         flex: 1,
         height: 120,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
     },
     trustBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        padding: 16,
+        gap: spacing.md,
+        padding: spacing.lg,
         borderRadius: 16,
     },
     trustText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -291,9 +292,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
-        marginTop: 10,
-        marginBottom: 40,
+        gap: spacing.md,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.3,
         shadowRadius: 20,
@@ -302,16 +303,16 @@ const styles = StyleSheet.create({
     statusBox: {
         borderWidth: 1,
         borderRadius: 16,
-        padding: 16,
-        gap: 8,
+        padding: spacing.lg,
+        gap: spacing.sm,
         alignItems: 'center',
     },
-    statusTitle: { fontSize: 16, fontWeight: '800', textAlign: 'center' },
-    statusText: { fontSize: 13, lineHeight: 19, textAlign: 'center' },
-    statusLink: { fontSize: 14, fontWeight: '800', marginTop: 4 },
+    statusTitle: { fontSize: font.xl, fontWeight: '800', textAlign: 'center' },
+    statusText: { fontSize: font.base, lineHeight: 19, textAlign: 'center' },
+    statusLink: { fontSize: font.base, fontWeight: '800', marginTop: spacing.xs },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     }
 });

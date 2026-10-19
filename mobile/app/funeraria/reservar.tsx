@@ -12,6 +12,7 @@ import DatePicker from '@/src/components/DatePicker';
 import PetPicker from '@/src/features/salud/PetPicker';
 import { toISODate } from '@/src/features/salud/format';
 import { DollarSign, Check, Heart, Info } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function ReservarScreen() {
     const { theme } = useTheme();
@@ -159,29 +160,29 @@ export default function ReservarScreen() {
 const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
-        paddingBottom: 40,
+        paddingBottom: spacing.huge,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        paddingHorizontal: 24,
-        marginTop: 16,
-        marginBottom: 12,
+        paddingHorizontal: spacing.xxl,
+        marginTop: spacing.lg,
+        marginBottom: spacing.md,
     },
     servicesList: {
-        paddingHorizontal: 24,
-        gap: 12,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
     },
     serviceCard: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
     },
     serviceHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 12,
+        gap: spacing.md,
+        marginBottom: spacing.md,
     },
     radioCircle: {
         width: 22,
@@ -200,72 +201,72 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     serviceName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     serviceDesc: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     tagsRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-        marginLeft: 34,
+        gap: spacing.sm,
+        marginLeft: spacing.xxxl,
     },
     tag: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
-        gap: 4,
+        gap: spacing.xs,
     },
     tagText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     formSection: {
-        marginTop: 24,
-        gap: 16,
+        marginTop: spacing.xxl,
+        gap: spacing.lg,
     },
     inputGroup: {
-        gap: 8,
-        paddingHorizontal: 24,
+        gap: spacing.sm,
+        paddingHorizontal: spacing.xxl,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
     },
     textArea: {
         height: 100,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
-        marginHorizontal: 24,
+        marginHorizontal: spacing.xxl,
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -274,14 +275,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 10,
-        marginHorizontal: 24,
-        marginTop: 10,
-        marginBottom: 40,
+        gap: spacing.md,
+        marginHorizontal: spacing.xxl,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

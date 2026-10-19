@@ -17,6 +17,7 @@ import { createReport, getPerdidasPresignedUrl } from '../../src/services/perdid
 import { useAuth } from '../../src/contexts/AuthContext';
 import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -211,7 +212,7 @@ export default function NuevoReporteScreen() {
                         </View>
 
                         <Text style={[styles.label, { color: theme.text }]}>Punto en el mapa</Text>
-                        <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 8 }}>
+                        <Text style={{ color: theme.textMuted, fontSize: font.md, marginBottom: spacing.sm }}>
                             El reporte se ubica en tu posición actual. Si no estás en el lugar, escribe la zona exacta arriba.
                         </Text>
                         <View style={[styles.mapWrapper, { borderColor: theme.border }]}>
@@ -234,7 +235,7 @@ export default function NuevoReporteScreen() {
                             onPress={fetchLocation}
                             disabled={locating}
                             accessibilityRole="button"
-                            style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16, opacity: locating ? 0.6 : 1 }}
+                            style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg, opacity: locating ? 0.6 : 1 }}
                         >
                             {locating ? <ActivityIndicator size="small" color={theme.primary} /> : <MapPin size={16} color={theme.primary} />}
                             <Text style={{ color: theme.primary, fontWeight: '700' }}>
@@ -265,7 +266,7 @@ export default function NuevoReporteScreen() {
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
                                 <Check size={20} color="#fff" />
                                 <Text style={styles.saveBtnText}>Publicar Reporte</Text>
                             </View>
@@ -278,7 +279,7 @@ export default function NuevoReporteScreen() {
 }
 
 const Separator = ({ color }: { color: string }) => (
-    <View style={{ height: 1, backgroundColor: color, marginVertical: 16 }} />
+    <View style={{ height: 1, backgroundColor: color, marginVertical: spacing.lg }} />
 );
 
 const mapStyle = [
@@ -309,20 +310,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
+        paddingHorizontal: spacing.xxl,
+        paddingBottom: spacing.xl,
     },
     title: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     scroll: {
-        padding: 24,
+        padding: spacing.xxl,
     },
     typeSelector: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 32,
+        gap: spacing.md,
+        marginBottom: spacing.xxxl,
     },
     typeBtn: {
         flex: 1,
@@ -331,12 +332,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
+        gap: spacing.md,
         borderWidth: 1,
         borderColor: 'transparent',
     },
     typeText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
         letterSpacing: 0.5,
     },
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
         height: 250,
         borderRadius: 24,
         overflow: 'hidden',
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
         borderWidth: 2,
         borderColor: 'transparent',
     },
@@ -356,9 +357,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     imagePlaceholderText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
-        marginTop: 12,
+        marginTop: spacing.md,
     },
     selectedImage: {
         width: '100%',
@@ -378,51 +379,51 @@ const styles = StyleSheet.create({
         borderColor: '#fff',
     },
     formContainer: {
-        gap: 24,
+        gap: spacing.xxl,
     },
     inputGroup: {
-        gap: 10,
+        gap: spacing.md,
     },
     row: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 60,
         borderRadius: 18,
-        paddingHorizontal: 20,
-        fontSize: 16,
+        paddingHorizontal: spacing.xl,
+        fontSize: font.xl,
         fontWeight: '600',
         borderWidth: 1,
         borderColor: 'transparent',
     },
     textArea: {
         height: 120,
-        paddingTop: 18,
+        paddingTop: spacing.xl,
         textAlignVertical: 'top',
     },
     selectorGroup: {
-        gap: 12,
+        gap: spacing.md,
     },
     optionsRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10,
+        gap: spacing.md,
     },
     optionBtn: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
         borderRadius: 16,
         borderWidth: 1,
         borderColor: 'transparent',
     },
     optionText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
     },
     mapWrapper: {
@@ -431,7 +432,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'transparent',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     map: {
         width: '100%',
@@ -445,8 +446,8 @@ const styles = StyleSheet.create({
         marginLeft: -16,
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     saveBtn: {
@@ -461,7 +462,7 @@ const styles = StyleSheet.create({
     },
     saveBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

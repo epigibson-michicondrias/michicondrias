@@ -13,7 +13,7 @@ import FormSelect from '@/src/components/forms/FormSelect';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { SPECIES_OPTIONS, GENDER_OPTIONS, type PetFormData } from '@/src/types/mascotas';
 import { validateRequired } from '@/src/utils/validators';
-import { spacing, radius } from '@/constants/design';
+import { spacing, radius, font } from '@/constants/design';
 
 interface PetFormProps {
     form: PetFormData;
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     sectionTitle: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
         letterSpacing: 1,
     },
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     saveBtnText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
 });

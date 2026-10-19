@@ -11,6 +11,7 @@ import { SurgeryItem } from '@/src/services/directorio';
 import { Plus, MapPin, Clock, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
 import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 type Tone = 'warning' | 'error' | 'success' | 'textMuted' | 'info';
 const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
@@ -107,7 +108,7 @@ export default function CirugiasScreen() {
                                 onPress={() => changeStatus(item.id!, 'in-progress')}
                                 style={[styles.statusBtn, { borderColor: theme.success }]}
                             >
-                                <Text style={{ color: theme.success, fontWeight: '800', fontSize: 13 }}>Iniciar</Text>
+                                <Text style={{ color: theme.success, fontWeight: '800', fontSize: font.base }}>Iniciar</Text>
                             </TouchableOpacity>
                         )}
                         {item.status === 'in-progress' && (
@@ -118,7 +119,7 @@ export default function CirugiasScreen() {
                                 onPress={() => changeStatus(item.id!, 'completed')}
                                 style={[styles.statusBtn, { borderColor: theme.primary }]}
                             >
-                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Finalizar</Text>
+                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Finalizar</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity
@@ -128,7 +129,7 @@ export default function CirugiasScreen() {
                             onPress={() => changeStatus(item.id!, 'cancelled')}
                             style={[styles.statusBtn, { borderColor: theme.error }]}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: 13 }}>Cancelar</Text>
+                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: font.base }}>Cancelar</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -260,7 +261,7 @@ export default function CirugiasScreen() {
                                             ]}
                                             onPress={() => setSurgType(t.id)}
                                         >
-                                            <Text style={{ color: surgType === t.id ? t.color : theme.textMuted, fontWeight: '700', fontSize: 12 }}>{t.label}</Text>
+                                            <Text style={{ color: surgType === t.id ? t.color : theme.textMuted, fontWeight: '700', fontSize: font.md }}>{t.label}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </View>
@@ -316,45 +317,45 @@ export default function CirugiasScreen() {
 }
 
 const styles = StyleSheet.create({
-    tabsRow: { marginBottom: 10 },
-    tabsScroll: { paddingHorizontal: 20, gap: 8 },
-    tab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1 },
-    tabText: { fontSize: 13, fontWeight: '600' },
-    list: { padding: 20, paddingBottom: 100 },
-    card: { borderRadius: 24, padding: 20, marginBottom: 16, borderWidth: 1 },
+    tabsRow: { marginBottom: spacing.md },
+    tabsScroll: { paddingHorizontal: spacing.xl, gap: spacing.sm },
+    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1 },
+    tabText: { fontSize: font.base, fontWeight: '600' },
+    list: { padding: spacing.xl, paddingBottom: 100 },
+    card: { borderRadius: 24, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1 },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-    headerInfo: { flex: 1, gap: 6 },
-    typeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    typeText: { fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
-    serviceName: { fontSize: 18, fontWeight: '800' },
-    roomRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    timeText: { fontSize: 12, fontWeight: '600' },
-    statusBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12 },
-    statusLabel: { fontSize: 9, fontWeight: '900', textTransform: 'uppercase' },
-    actions: { flexDirection: 'row', gap: 16, marginTop: 16, paddingTop: 16, borderTopWidth: 1 },
-    timeBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    timeDetail: { fontSize: 13, fontWeight: '700' },
+    headerInfo: { flex: 1, gap: spacing.sm },
+    typeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    typeText: { fontSize: font.sm, fontWeight: '800', textTransform: 'uppercase' },
+    serviceName: { fontSize: font.xxl, fontWeight: '800' },
+    roomRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    timeText: { fontSize: font.md, fontWeight: '600' },
+    statusBadge: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 12 },
+    statusLabel: { fontSize: font.xs, fontWeight: '900', textTransform: 'uppercase' },
+    actions: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: 1 },
+    timeBox: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    timeDetail: { fontSize: font.base, fontWeight: '700' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    empty: { paddingTop: 100, alignItems: 'center', gap: 20 },
-    emptyText: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
-    statusActions: { flexDirection: 'row', gap: 10, justifyContent: 'flex-end', marginTop: 12 },
-    statusBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1 },
+    empty: { paddingTop: 100, alignItems: 'center', gap: spacing.xl },
+    emptyText: { fontSize: font.xl, fontWeight: '600', textAlign: 'center' },
+    statusActions: { flexDirection: 'row', gap: spacing.md, justifyContent: 'flex-end', marginTop: spacing.md },
+    statusBtn: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 10, borderWidth: 1 },
     fab: { position: 'absolute', bottom: 30, right: 24, width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 10 },
     modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, height: '85%', padding: 24, paddingBottom: 0 },
-    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-    modalTitle: { fontSize: 24, fontWeight: '900' },
-    modalSub: { fontSize: 14, fontWeight: '600', marginTop: 4 },
+    modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, height: '85%', padding: spacing.xxl, paddingBottom: 0 },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xxl },
+    modalTitle: { fontSize: font.h2, fontWeight: '900' },
+    modalSub: { fontSize: font.base, fontWeight: '600', marginTop: spacing.xs },
     closeBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
-    formGroup: { marginBottom: 20 },
-    formRow: { flexDirection: 'row', gap: 12 },
-    label: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, fontSize: 16, fontWeight: '600' },
-    typeGrid: { flexDirection: 'row', gap: 8 },
+    formGroup: { marginBottom: spacing.xl },
+    formRow: { flexDirection: 'row', gap: spacing.md },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontWeight: '600' },
+    typeGrid: { flexDirection: 'row', gap: spacing.sm },
     typeBtn: { flex: 1, height: 48, borderRadius: 12, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
-    modalFooter: { paddingVertical: 24, borderTopWidth: 1 },
+    modalFooter: { paddingVertical: spacing.xxl, borderTopWidth: 1 },
     submitBtn: { height: 64, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
-    submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
-    searchContainer: { paddingHorizontal: 24, paddingBottom: 16 },
-    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, fontWeight: '600' }
+    submitBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
+    searchContainer: { paddingHorizontal: spacing.xxl, paddingBottom: spacing.lg },
+    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontWeight: '600' }
 });

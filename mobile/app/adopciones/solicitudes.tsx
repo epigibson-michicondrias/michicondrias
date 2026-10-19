@@ -11,6 +11,7 @@ import { useApplications } from '@/src/hooks/adopciones/useApplications';
 import type { Listing, AdoptionRequest } from '@/src/types/adopciones';
 import type { ListingWithRequests } from '@/src/hooks/adopciones/useApplications';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function SolicitudesAdopcionScreen() {
     const router = useRouter();
@@ -243,61 +244,61 @@ const styles = StyleSheet.create({
     filterContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: 24,
-        marginBottom: 20,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        marginHorizontal: spacing.xxl,
+        marginBottom: spacing.xl,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 12,
-        gap: 12,
+        gap: spacing.md,
     },
     filterChip: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 20,
         borderWidth: 1,
-        marginRight: 8,
+        marginRight: spacing.sm,
     },
     filterChipText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     listingSection: {
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     listingHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     listingInfo: {
         flex: 1,
     },
     listingTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
     },
     listingSubtitle: {
-        fontSize: 14,
-        marginTop: 2,
+        fontSize: font.base,
+        marginTop: spacing.xxs,
     },
     viewAllButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 8,
     },
     viewAllText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     requestCard: {
         borderRadius: 16,
-        padding: 16,
-        marginBottom: 12,
+        padding: spacing.lg,
+        marginBottom: spacing.md,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
@@ -305,13 +306,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     requesterInfo: {
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     avatar: {
         width: 40,
@@ -324,89 +325,89 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     requesterName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     requestDate: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: font.md,
+        marginTop: spacing.xxs,
     },
     statusBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
     },
     statusText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     requestContent: {
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     petInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
+        gap: spacing.sm,
+        marginBottom: spacing.sm,
     },
     petName: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600',
     },
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 6,
+        gap: spacing.sm,
+        marginBottom: spacing.sm,
     },
     infoText: {
-        fontSize: 14,
+        fontSize: font.base,
         flex: 1,
     },
     reasonSection: {
-        marginTop: 12,
-        padding: 12,
+        marginTop: spacing.md,
+        padding: spacing.md,
         backgroundColor: 'rgba(128,128,128,0.08)',
         borderRadius: 8,
     },
     reasonLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     reasonText: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
     },
     actionButtons: {
-        gap: 12,
+        gap: spacing.md,
     },
     actionButton: {
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 8,
         alignItems: 'center',
     },
     actionButtonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     statusActions: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     statusButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
-        paddingVertical: 10,
+        gap: spacing.sm,
+        paddingVertical: spacing.md,
         borderRadius: 8,
     },
     statusButtonText: {
         color: '#fff',
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
 });

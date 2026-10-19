@@ -8,6 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { BookOpen, PawPrint, Calendar, TrendingUp, ChevronRight } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 const STATUS_LABEL: Record<string, string> = { active: 'Activo', completed: 'Completado', cancelled: 'Cancelado', pending: 'Pendiente' };
 const statusColorOf = (status: string, theme: any): string =>
@@ -83,9 +84,9 @@ export default function MyEnrollmentsScreen() {
                         onPress={() => router.push(`/entrenadores/${item.program_id}` as any)}
                         accessibilityRole="button"
                         accessibilityLabel="Calificar programa"
-                        style={{ paddingTop: 10 }}
+                        style={{ paddingTop: spacing.md }}
                     >
-                        <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Calificar programa</Text>
+                        <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Calificar programa</Text>
                     </TouchableOpacity>
                 )}
             </TouchableOpacity>
@@ -136,24 +137,24 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
-    loadingText: { fontSize: 16 },
+    loadingText: { fontSize: font.xl },
     listContent: {
-        paddingHorizontal: 24,
-        paddingBottom: 40,
-        gap: 16,
+        paddingHorizontal: spacing.xxl,
+        paddingBottom: spacing.huge,
+        gap: spacing.lg,
     },
     enrollmentCard: {
         borderRadius: 20,
         borderWidth: 1,
-        padding: 20,
-        gap: 16,
+        padding: spacing.xl,
+        gap: spacing.lg,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     programIcon: {
         width: 44,
@@ -166,24 +167,24 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     programTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     petRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        marginTop: 2,
+        gap: spacing.xs,
+        marginTop: spacing.xxs,
     },
     petName: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
+        gap: spacing.sm,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 10,
     },
     statusDot: {
@@ -192,17 +193,17 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     statusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
-    progressSection: { gap: 8 },
+    progressSection: { gap: spacing.sm },
     progressHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     progressLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     progressBarBg: {
@@ -222,16 +223,16 @@ const styles = StyleSheet.create({
     dateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     dateText: {
-        fontSize: 12,
+        fontSize: font.md,
     },
     emptyContainer: {
         alignItems: 'center',
         paddingTop: 80,
-        paddingHorizontal: 32,
-        gap: 12,
+        paddingHorizontal: spacing.xxxl,
+        gap: spacing.md,
     },
     emptyIcon: {
         width: 80,
@@ -239,26 +240,26 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     emptyTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     emptyDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
         lineHeight: 20,
     },
     exploreButton: {
-        paddingHorizontal: 28,
-        paddingVertical: 14,
+        paddingHorizontal: spacing.xxxl,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     exploreButtonText: {
         color: '#fff',
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
 });

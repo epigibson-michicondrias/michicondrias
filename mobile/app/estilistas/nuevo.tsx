@@ -7,6 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSection from '@/src/components/forms/FormSection';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Scissors, Info } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function NuevoEstilistaScreen() {
     const { theme } = useTheme();
@@ -93,48 +94,48 @@ export default function NuevoEstilistaScreen() {
 
 const styles = StyleSheet.create({
     content: {
-        padding: 24,
-        gap: 20,
+        padding: spacing.xxl,
+        gap: spacing.xl,
     },
     inputGroup: {
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     row: {
         flexDirection: 'row',
-        gap: 16,
+        gap: spacing.lg,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
     },
     textArea: {
         height: 120,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -143,13 +144,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 10,
-        marginTop: 10,
-        marginBottom: 40,
+        gap: spacing.md,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

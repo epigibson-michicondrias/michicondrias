@@ -7,6 +7,7 @@ import { createPlan } from '../../src/services/insurance';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Info, CheckCircle2 } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { font, spacing } from '@/constants/design';
 
 export default function NuevoPlanScreen() {
     const router = useRouter();
@@ -192,65 +193,65 @@ const styles = StyleSheet.create({
     },
 
     content: {
-        padding: 24,
-        gap: 20,
+        padding: spacing.xxl,
+        gap: spacing.xl,
     },
     inputGroup: {
-        gap: 8,
+        gap: spacing.sm,
     },
     row: {
         flexDirection: 'row',
-        gap: 16,
+        gap: spacing.lg,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
     },
     textArea: {
         minHeight: 80,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
     },
     speciesContainer: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     speciesButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
-        gap: 8,
+        gap: spacing.sm,
     },
     speciesButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -258,12 +259,12 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 40,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

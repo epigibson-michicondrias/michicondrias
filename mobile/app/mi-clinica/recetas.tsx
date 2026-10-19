@@ -12,6 +12,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { FileText, Plus, AlertCircle, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function RecetasScreen() {
     const { theme } = useTheme();
@@ -42,7 +43,7 @@ export default function RecetasScreen() {
                 <View style={styles.content}>
                     
                     {loadingPrescriptions ? (
-                        <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                        <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.huge }} />
                     ) : prescriptions.length === 0 ? (
                         <EmptyState
                             icon={<FileText size={40} color={theme.textMuted} />}
@@ -129,20 +130,20 @@ export default function RecetasScreen() {
                                 style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.border, justifyContent: 'center' }]}
                                 onPress={() => setPatientPickerVisible(true)}
                             >
-                                <Text style={{ color: newPresc.patientId ? theme.text : theme.textMuted, fontSize: 15, fontWeight: '500' }}>
+                                <Text style={{ color: newPresc.patientId ? theme.text : theme.textMuted, fontSize: font.lg, fontWeight: '500' }}>
                                     {newPresc.patientId
                                         ? resolvedPets.find(p => p.id === newPresc.patientId)?.name || `Paciente: ${newPresc.patientId.substring(0, 8)}...`
                                         : 'Seleccionar paciente'}
                                 </Text>
                             </TouchableOpacity>
 
-                            <Text style={[styles.inputLabel, { color: theme.text, marginTop: 24, fontSize: 14 }]}>Medicamento 1</Text>
+                            <Text style={[styles.inputLabel, { color: theme.text, marginTop: spacing.xxl, fontSize: font.base }]}>Medicamento 1</Text>
                             
                             <FormField label="Nombre *" value={newPresc.medications[0].name} onChangeText={t => setNewPresc({
                                     ...newPresc, 
                                     medications: [{ ...newPresc.medications[0], name: t }] })} placeholder="Ej. Amoxicilina 500mg" />
 
-                            <View style={{ flexDirection: 'row', gap: 12 }}>
+                            <View style={{ flexDirection: 'row', gap: spacing.md }}>
                                 <View style={{ flex: 1 }}>
                                     <FormField label="Dosis" value={newPresc.medications[0].dosage} onChangeText={t => setNewPresc({
                                             ...newPresc, 
@@ -177,14 +178,14 @@ export default function RecetasScreen() {
             <Modal visible={patientPickerVisible} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: theme.background, maxHeight: '70%' }]}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg }}>
                             <Text style={[styles.modalTitle, { marginBottom: 0, color: theme.text }]}>Seleccionar Paciente</Text>
                             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => { setPatientPickerVisible(false); setPatientSearch(''); }}>
                                 <X size={24} color={theme.textMuted} />
                             </TouchableOpacity>
                         </View>
 
-                        <View style={{ marginBottom: 16 }}>
+                        <View style={{ marginBottom: spacing.lg }}>
                             <SearchBar
                                 value={patientSearch}
                                 onChangeText={setPatientSearch}
@@ -193,7 +194,7 @@ export default function RecetasScreen() {
                         </View>
 
                         {loadingPets ? (
-                            <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                            <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.huge }} />
                         ) : (
                             <FlatList
             refreshControl={<AppRefreshControl />}
@@ -214,7 +215,7 @@ export default function RecetasScreen() {
                                     </TouchableOpacity>
                                 )}
                                 ListEmptyComponent={
-                                    <View style={{ padding: 40, alignItems: 'center' }}>
+                                    <View style={{ padding: spacing.huge, alignItems: 'center' }}>
                                         <Text style={{ color: theme.textMuted }}>No se encontraron pacientes</Text>
                                     </View>
                                 }
@@ -229,40 +230,40 @@ export default function RecetasScreen() {
 
 const styles = StyleSheet.create({
     contentScroll: { flex: 1 },
-    content: { padding: 24, paddingBottom: 100 },
+    content: { padding: spacing.xxl, paddingBottom: 100 },
     prescCard: {
-        padding: 16, borderRadius: 20, borderWidth: 1,
-        marginBottom: 16
+        padding: spacing.lg, borderRadius: 20, borderWidth: 1,
+        marginBottom: spacing.lg
     },
-    prescHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 },
+    prescHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg },
     prescIcon: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     prescInfo: { flex: 1 },
-    patientLabel: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', marginBottom: 2 },
-    dateLabel: { fontSize: 14, fontWeight: '800' },
-    statusBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
-    statusText: { fontSize: 10, fontWeight: '900' },
-    medsContainer: { borderTopWidth: 1, borderTopColor: 'rgba(128,128,128,0.2)', paddingTop: 16 },
-    medRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
-    medDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981', marginTop: 6 },
-    medName: { fontSize: 15, fontWeight: '800' },
-    medDetails: { fontSize: 13, fontWeight: '600', marginTop: 2 },
-    notesBox: { flexDirection: 'row', gap: 8, padding: 12, borderRadius: 12, marginTop: 4 },
-    notesText: { flex: 1, fontSize: 12, fontWeight: '500', lineHeight: 18 },
+    patientLabel: { fontSize: font.sm, fontWeight: '700', textTransform: 'uppercase', marginBottom: spacing.xxs },
+    dateLabel: { fontSize: font.base, fontWeight: '800' },
+    statusBadge: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 8 },
+    statusText: { fontSize: font.xs, fontWeight: '900' },
+    medsContainer: { borderTopWidth: 1, borderTopColor: 'rgba(128,128,128,0.2)', paddingTop: spacing.lg },
+    medRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, marginBottom: spacing.md },
+    medDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981', marginTop: spacing.sm },
+    medName: { fontSize: font.lg, fontWeight: '800' },
+    medDetails: { fontSize: font.base, fontWeight: '600', marginTop: spacing.xxs },
+    notesBox: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md, borderRadius: 12, marginTop: spacing.xs },
+    notesText: { flex: 1, fontSize: font.md, fontWeight: '500', lineHeight: 18 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '85%' },
-    modalTitle: { fontSize: 20, fontWeight: '900', marginBottom: 20 },
-    inputLabel: { fontSize: 12, fontWeight: '700', marginBottom: 8, marginTop: 16 },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, fontSize: 15, fontWeight: '500' },
-    modalActions: { flexDirection: 'row', gap: 12, marginTop: 16 },
+    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '85%' },
+    modalTitle: { fontSize: font.h3, fontWeight: '900', marginBottom: spacing.xl },
+    inputLabel: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
+    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontWeight: '500' },
+    modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    cancelBtnText: { fontSize: 15, fontWeight: '700' },
+    cancelBtnText: { fontSize: font.lg, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    petPickerItem: { padding: 16, borderRadius: 16, borderWidth: 1, marginBottom: 10 },
+    saveBtnText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
+    petPickerItem: { padding: spacing.lg, borderRadius: 16, borderWidth: 1, marginBottom: spacing.md },
     petPickerInfo: { flex: 1 },
-    petPickerName: { fontSize: 16, fontWeight: '800', marginBottom: 2 },
-    petPickerBreed: { fontSize: 13, fontWeight: '500' },
-    statusActions: { flexDirection: 'row', gap: 10, marginTop: 12 },
-    statusBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
-    statusBtnText: { fontSize: 13, fontWeight: '800' },
+    petPickerName: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.xxs },
+    petPickerBreed: { fontSize: font.base, fontWeight: '500' },
+    statusActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
+    statusBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: 12, alignItems: 'center' },
+    statusBtnText: { fontSize: font.base, fontWeight: '800' },
 });

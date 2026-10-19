@@ -55,13 +55,31 @@ export const shadow = {
 } as const;
 
 /**
+ * Escala de tamaños de letra. Para estilos que necesitan solo el tamaño (con su propio peso/color); si el texto
+ * encaja en un estilo completo, usa `type`. Nada de `fontSize` numéricos sueltos en pantallas.
+ */
+export const font = {
+    xs: 10,
+    sm: 11,
+    md: 12,
+    base: 13,
+    lg: 14,
+    xl: 15,
+    xxl: 16,
+    h3: 18,
+    h2: 20,
+    h1: 22,
+    display: 26,
+} as const;
+
+/**
  * Tipografía premium: jerarquía refinada, pesos cuidados, letter-spacing sutil.
  * display/h1 para héroes, h2/title para secciones, body para lectura, label para micro-textos.
  */
 export const type = {
     display: { fontSize: 28, fontWeight: '700', letterSpacing: -0.6 } as TextStyle,
     /** Título de `ScreenHeader`. */
-    screenTitle: { fontSize: 26, fontWeight: '800', letterSpacing: -0.4 } as TextStyle,
+    screenTitle: { fontSize: 22, fontWeight: '800', letterSpacing: -0.3 } as TextStyle,
     h1: { fontSize: 22, fontWeight: '700', letterSpacing: -0.4 } as TextStyle,
     h2: { fontSize: 18, fontWeight: '700', letterSpacing: -0.2 } as TextStyle,
     title: { fontSize: 16, fontWeight: '600', letterSpacing: -0.1 } as TextStyle,

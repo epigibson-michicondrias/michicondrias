@@ -9,6 +9,7 @@ import EmptyState from '@/src/components/EmptyState';
 import { AdoptionRequest } from '@/src/services/adopciones';
 import { User, Home, Heart, Check, X, ChevronLeft, Trees, Key, Baby, Clock, PawPrint } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function VerSolicitudesScreen() {
     const { theme } = useTheme();
@@ -38,7 +39,7 @@ export default function VerSolicitudesScreen() {
                 «{item.reason}»
             </Text>
             <View style={styles.viewMoreRow}>
-                <Text style={{ color: theme.primary, fontSize: 12, fontWeight: '700' }}>Ver detalles completos</Text>
+                <Text style={{ color: theme.primary, fontSize: font.md, fontWeight: '700' }}>Ver detalles completos</Text>
                 <ChevronLeft size={16} color={theme.primary} style={{ transform: [{ rotate: '180deg' }] }} />
             </View>
         </TouchableOpacity>
@@ -189,12 +190,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     list: {
-        padding: 20,
-        gap: 16,
+        padding: spacing.xl,
+        gap: spacing.lg,
     },
     requestCard: {
         borderRadius: 20,
-        padding: 16,
+        padding: spacing.lg,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
@@ -202,31 +203,31 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     applicantInfo: {
         flex: 1,
     },
     applicantName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     requestDate: {
-        fontSize: 11,
-        marginTop: 2,
+        fontSize: font.sm,
+        marginTop: spacing.xxs,
     },
     statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     statusText: {
         color: '#fff',
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '900',
     },
     reasonPreview: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
         opacity: 0.8,
     },
@@ -234,8 +235,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        marginTop: 12,
-        gap: 4,
+        marginTop: spacing.md,
+        gap: spacing.xs,
     },
     modalOverlay: {
         flex: 1,
@@ -246,16 +247,16 @@ const styles = StyleSheet.create({
         height: '85%',
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
-        padding: 24,
+        padding: spacing.xxl,
     },
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     modalTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '900',
     },
     closeBtn: {
@@ -267,65 +268,65 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalScroll: {
-        paddingBottom: 40,
+        paddingBottom: spacing.huge,
     },
     detailSection: {
-        marginBottom: 24,
-        gap: 12,
+        marginBottom: spacing.xxl,
+        gap: spacing.md,
     },
     detailHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     detailTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     detailText: {
-        fontSize: 15,
+        fontSize: font.lg,
         lineHeight: 22,
     },
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        gap: spacing.md,
     },
     gridItem: {
         width: '45%',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 12,
+        gap: spacing.md,
+        marginBottom: spacing.md,
         backgroundColor: 'rgba(128,128,128,0.08)',
-        padding: 10,
+        padding: spacing.md,
         borderRadius: 12,
     },
     statIconSmall: {
-        fontSize: 18,
+        fontSize: font.xxl,
     },
     gridLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
     gridValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     commitmentRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     commitmentText: {
-        fontSize: 14,
+        fontSize: font.base,
     },
     modalFooter: {
         flexDirection: 'row',
-        paddingTop: 20,
-        paddingBottom: 10,
+        paddingTop: spacing.xl,
+        paddingBottom: spacing.md,
         borderTopWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     statusBtn: {
         flex: 1,
@@ -334,11 +335,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
         borderWidth: 1,
     },
     statusBtnText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     finalStatus: {
@@ -349,7 +350,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     finalStatusText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '900',
         textTransform: 'uppercase',
     }

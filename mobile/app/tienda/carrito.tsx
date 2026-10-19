@@ -11,6 +11,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
+import { font, spacing } from '@/constants/design';
 
 const MIN_ADDRESS_LENGTH = 10;
 
@@ -163,7 +164,7 @@ export default function CarritoScreen() {
                             <Text style={[styles.addressHint, { color: theme.error }]}>Escribe una dirección completa para continuar.</Text>
                         ) : null}
 
-                        <View style={[styles.summaryRow, { marginTop: 14 }]}>
+                        <View style={[styles.summaryRow, { marginTop: spacing.lg }]}>
                             <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Subtotal</Text>
                             <Text style={[styles.summaryValue, { color: theme.text }]}>{formatCurrency(cartTotal)}</Text>
                         </View>
@@ -179,7 +180,7 @@ export default function CarritoScreen() {
 
                         <View style={[styles.secureBadge, { backgroundColor: theme.successLight }]}>
                             <ShieldCheck size={16} color={theme.success} />
-                            <Text style={{ fontSize: 12, color: theme.success, fontWeight: '700' }}>Pago seguro con Stripe</Text>
+                            <Text style={{ fontSize: font.md, color: theme.success, fontWeight: '700' }}>Pago seguro con Stripe</Text>
                         </View>
 
                         <TouchableOpacity
@@ -209,15 +210,15 @@ export default function CarritoScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 20,
-        paddingBottom: 20,
+        paddingHorizontal: spacing.xl,
+        paddingBottom: spacing.xl,
     },
     cartItem: {
         flexDirection: 'row',
-        padding: 12,
+        padding: spacing.md,
         borderRadius: 20,
-        marginBottom: 16,
-        gap: 16,
+        marginBottom: spacing.lg,
+        gap: spacing.lg,
         borderWidth: 1,
     },
     itemImage: {
@@ -230,51 +231,51 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     itemUnit: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
     addressHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
+        gap: spacing.sm,
+        marginBottom: spacing.sm,
     },
     addressLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     addressInput: {
         borderWidth: 1,
         borderRadius: 14,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         minHeight: 48,
         maxHeight: 90,
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     addressHint: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
-        marginTop: 6,
+        marginTop: spacing.sm,
     },
     itemInfo: {
         flex: 1,
         justifyContent: 'space-between',
     },
     itemName: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     itemPrice: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     quantityControls: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginTop: 8,
+        gap: spacing.md,
+        marginTop: spacing.sm,
     },
     qtyBtn: {
         width: 28,
@@ -284,14 +285,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     qtyText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     deleteBtn: {
-        padding: 4,
+        padding: spacing.xs,
     },
     footer: {
-        padding: 20,
+        padding: spacing.xl,
         borderWidth: 1,
         borderBottomWidth: 0,
         borderTopLeftRadius: 30,
@@ -306,35 +307,35 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     summaryLabel: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600',
     },
     summaryValue: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
     },
     divider: {
         height: 1,
-        marginVertical: 12,
+        marginVertical: spacing.md,
     },
     totalLabel: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     totalValue: {
-        fontSize: 24,
+        fontSize: font.h2,
         fontWeight: '800',
     },
     secureBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
-        marginVertical: 14,
-        paddingVertical: 8,
+        gap: spacing.sm,
+        marginVertical: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
     },
     checkoutBtn: {
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
     },
     checkoutBtnText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
 });

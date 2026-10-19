@@ -127,8 +127,8 @@ export default function SolicitudesConductorScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { paddingHorizontal: 20 },
-  list: { paddingHorizontal: 20, paddingBottom: 100 },
+  pad: { paddingHorizontal: spacing.xl },
+  list: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
   sectionHead: { marginTop: spacing.md, marginBottom: spacing.sm, gap: spacing.xs },
   noLoc: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
 });

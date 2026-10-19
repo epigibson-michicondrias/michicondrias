@@ -12,6 +12,7 @@ import {
     EXPERIENCE_OPTIONS,
     HOURS_OPTIONS,
 } from '@/src/hooks/adopciones/useCompatibilityForm';
+import { font, spacing } from '@/constants/design';
 
 export default function FormularioCompatibilidadScreen() {
     const { theme } = useTheme();
@@ -168,39 +169,39 @@ export default function FormularioCompatibilidadScreen() {
 
 const styles = StyleSheet.create({
     content: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
     },
     stepIndicator: {
         flexDirection: 'row',
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     stepDot: {
         height: 6,
         borderRadius: 3,
     },
     stepLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     infoCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
-        marginTop: 16,
+        gap: spacing.md,
+        marginTop: spacing.lg,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     primaryBtn: {
@@ -212,11 +213,11 @@ const styles = StyleSheet.create({
     btnContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     btnText: {
         color: '#fff',
-        fontSize: 17,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

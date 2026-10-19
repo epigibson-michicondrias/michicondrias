@@ -8,6 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function ServiciosProScreen() {
     const router = useRouter();
@@ -119,51 +120,51 @@ export default function ServiciosProScreen() {
 const styles = StyleSheet.create({
     tabsContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 20,
+        paddingHorizontal: spacing.xxl,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     tab: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 14,
         alignItems: 'center',
     },
     tabText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     searchSection: {
-        paddingHorizontal: 24,
-        marginBottom: 20,
+        paddingHorizontal: spacing.xxl,
+        marginBottom: spacing.xl,
     },
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.lg,
         height: 56,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
     },
     searchInput: {
         flex: 1,
-        fontSize: 16,
+        fontSize: font.xl,
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: spacing.xxl,
         paddingBottom: 100,
     },
     card: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 24,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     cardHeader: {
         flexDirection: 'row',
-        gap: 16,
-        marginBottom: 16,
+        gap: spacing.lg,
+        marginBottom: spacing.lg,
     },
     imageContainer: {
         position: 'relative',
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
     mainInfo: {
         flex: 1,
         justifyContent: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     nameRow: {
         flexDirection: 'row',
@@ -197,55 +198,55 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     name: {
-        fontSize: 17,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     ratingBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     ratingText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     location: {
-        fontSize: 12,
+        fontSize: font.md,
     },
     cardFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 16,
+        paddingTop: spacing.lg,
         borderTopWidth: 1,
     },
     tagsContainer: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     tag: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        gap: spacing.xs,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     tagText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '700',
     },
     price: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     priceUnit: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     loadingContainer: {

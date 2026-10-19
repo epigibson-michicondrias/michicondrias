@@ -11,6 +11,7 @@ import { Plus, Edit3, Trash2, Eye, EyeOff, Package } from 'lucide-react-native';
 import { Product } from '@/src/services/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function VendedorProductosScreen() {
     const router = useRouter();
@@ -47,9 +48,9 @@ export default function VendedorProductosScreen() {
 
                 <Text style={[styles.productPrice, { color: theme.primary }]}>{formatCurrency(item.price)}</Text>
                 {item.is_approved === false ? (
-                    <Text style={{ color: theme.warning, fontSize: 11, fontWeight: '800' }}>En revisión · aún no visible en la tienda</Text>
+                    <Text style={{ color: theme.warning, fontSize: font.sm, fontWeight: '800' }}>En revisión · aún no visible en la tienda</Text>
                 ) : !item.is_active ? (
-                    <Text style={{ color: theme.textMuted, fontSize: 11, fontWeight: '800' }}>Oculto · no se vende</Text>
+                    <Text style={{ color: theme.textMuted, fontSize: font.sm, fontWeight: '800' }}>Oculto · no se vende</Text>
                 ) : null}
 
                 <View style={styles.stockRow}>
@@ -107,17 +108,17 @@ export default function VendedorProductosScreen() {
 }
 
 const styles = StyleSheet.create({
-    list: { padding: 24, paddingBottom: 100 },
-    productCard: { flexDirection: 'row', borderRadius: 24, padding: 12, marginBottom: 16, borderWidth: 1, gap: 16 },
+    list: { padding: spacing.xxl, paddingBottom: 100 },
+    productCard: { flexDirection: 'row', borderRadius: 24, padding: spacing.md, marginBottom: spacing.lg, borderWidth: 1, gap: spacing.lg },
     productImage: { width: 90, height: 90, borderRadius: 16 },
-    productDetails: { flex: 1, justifyContent: 'space-between', paddingVertical: 4 },
+    productDetails: { flex: 1, justifyContent: 'space-between', paddingVertical: spacing.xs },
     productHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-    productName: { fontSize: 16, fontWeight: '800', flex: 1, marginRight: 8 },
-    productPrice: { fontSize: 18, fontWeight: '800' },
+    productName: { fontSize: font.xl, fontWeight: '800', flex: 1, marginRight: spacing.sm },
+    productPrice: { fontSize: font.xxl, fontWeight: '800' },
     stockRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    stockBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-    stockLabel: { fontSize: 11, fontWeight: '800' },
-    actions: { flexDirection: 'row', gap: 4 },
+    stockBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
+    stockLabel: { fontSize: font.sm, fontWeight: '800' },
+    actions: { flexDirection: 'row', gap: spacing.xs },
     iconBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
