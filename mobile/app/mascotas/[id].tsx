@@ -1,18 +1,19 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePetDetail } from '@/src/hooks/mascotas/usePetDetail';
-import { formatAge, formatWeight } from '@/src/utils/formatters';
+import { formatAge, formatWeight, getSpeciesLabel, capitalize } from '@/src/utils/formatters';
 import BackButton from '@/src/components/BackButton';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Settings, Award, Activity, Calendar, ChevronLeft, LayoutGrid, HeartPulse, ClipboardList, Share2 } from 'lucide-react-native';
+import { Settings, Award, Activity, Calendar, ChevronRight, LayoutGrid, HeartPulse, ClipboardList, Share2 } from 'lucide-react-native';
 import SegmentedControl from '@/src/components/SegmentedControl';
 import { Skeleton } from '@/src/components/Skeleton';
 import { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { PetHealthTab, PetHistoryTab } from '@/src/features/mascotas/PetHealthTabs';
 import { PetPassportShare } from '@/src/features/mascotas/PetPassportShare';
-import { spacing, radius } from '@/constants/design';
+import { spacing, radius, type, shadow, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +25,7 @@ const VACCINE_STATUS_LABEL = {
 
 export default function PetProfileScreen() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const {
         pet, isOwner, isLoading, error, refetch, goBack, tab, setTab,
@@ -65,20 +67,24 @@ export default function PetProfileScreen() {
         );
     }
 
+    const speciesLabel = getSpeciesLabel(pet.species);
+    const formattedBreed = pet.breed ? capitalize(pet.breed) : speciesLabel;
+    const genderText = pet.gender === 'macho' ? 'Macho ♂️' : pet.gender === 'hembra' ? 'Hembra ♀️' : 'Sin género';
+
     return (
         <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Hero Image */}
                 <View style={styles.imageContainer}>
                     {pet.photo_url ? (
-                        <Image source={{ uri: pet.photo_url }} style={styles.mainImage} />
+                        <Image source={{ uri: pet.photo_url }} style={styles.mainImage} resizeMode="cover" />
                     ) : (
                         <View style={[styles.mainImage, styles.center, { backgroundColor: theme.backgroundSecondary }]}>
-                            <Text style={{ fontSize: 96 }}>{pet.species === 'gato' ? '🐱' : '🐶'}</Text>
+                            <Text style={styles.fallbackEmoji}>{pet.species === 'gato' ? '🐱' : '🐶'}</Text>
                         </View>
                     )}
-                    <View style={styles.headerButtons}>
-                        <BackButton onPress={goBack} color={theme.onPrimary} style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)' }} />
+                    <View style={[styles.headerButtons, { top: Math.max(insets.top + spacing.xs, spacing.md) }]}>
+                        <BackButton onPress={goBack} color={theme.onPrimary} style={{ backgroundColor: 'rgba(15, 23, 42, 0.65)' }} />
                         {isOwner && (
                             <View style={styles.headerActions}>
                                 <TouchableOpacity
@@ -87,7 +93,7 @@ export default function PetProfileScreen() {
                                     accessibilityRole="button"
                                     accessibilityLabel="Compartir carnet"
                                 >
-                                    <Share2 size={22} color={theme.onPrimary} />
+                                    <Share2 size={layout.icon.md} color={theme.onPrimary} />
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.iconBtn}
@@ -95,7 +101,7 @@ export default function PetProfileScreen() {
                                     accessibilityRole="button"
                                     accessibilityLabel="Editar mascota"
                                 >
-                                    <Settings size={22} color={theme.onPrimary} />
+                                    <Settings size={layout.icon.md} color={theme.onPrimary} />
                                 </TouchableOpacity>
                             </View>
                         )}
@@ -105,10 +111,10 @@ export default function PetProfileScreen() {
                 {/* Content */}
                 <View style={[styles.content, { backgroundColor: theme.background }]}>
                     <View style={styles.titleSection}>
-                        <View>
-                            <Text style={[styles.name, { color: theme.text }]}>{pet.name}</Text>
-                            <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                                {pet.breed || pet.species} • {pet.gender === 'macho' ? 'Macho ♂️' : pet.gender === 'hembra' ? 'Hembra ♀️' : 'Sin género'}
+                        <View style={{ flex: 1, gap: spacing.xxs }}>
+                            <Text style={[type.display, { color: theme.text }]} numberOfLines={1}>{pet.name}</Text>
+                            <Text style={[type.body, { color: theme.textMuted }]} numberOfLines={1}>
+                                {formattedBreed} • {genderText}
                             </Text>
                         </View>
                     </View>
@@ -130,81 +136,84 @@ export default function PetProfileScreen() {
                     {tab === 'resumen' && (<>
                     {/* Stats Grid */}
                     <View style={styles.grid}>
-                        <PetStat icon={<Calendar size={20} color={theme.accent} />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
-                        <PetStat icon={<Activity size={20} color={theme.secondary} />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} />
+                        <PetStat icon={<Calendar size={layout.icon.md} color={theme.accent} />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
+                        <PetStat icon={<Activity size={layout.icon.md} color={theme.secondary} />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} />
                         <PetStat
-                            icon={<Award size={20} color={theme.warning} />}
+                            icon={<Award size={layout.icon.md} color={theme.warning} />}
                             label="Vacunas"
-                            value={VACCINE_STATUS_LABEL[health.vaccinesStatus]}
+                            value={VACCINE_STATUS_LABEL[health.vaccinesStatus] ?? 'Sin vacunas'}
                             theme={theme}
                         />
                     </View>
 
                     {/* Seguimiento GPS (solo el dueño). Con la suscripción activa hay salida: facturación */}
-                    <View style={styles.section}>
-                        {isOwner && (
+                    {isOwner && (
+                        <View style={styles.section}>
                             <TouchableOpacity
                                 style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                                 onPress={pet.has_active_subscription ? openTrackerBilling : handleSubscribeMichiTracker}
                                 disabled={isSubscribing || isOpeningBilling}
                                 accessibilityRole="button"
+                                activeOpacity={0.88}
                             >
-                                <View style={[styles.actionIcon, { backgroundColor: 'rgba(34, 197, 94, 0.1)' }]}>
+                                <View style={[styles.actionIcon, { backgroundColor: theme.successLight }]}>
                                     <Text style={{ fontSize: 24 }}>🛰️</Text>
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.actionTitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
-                                    <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>
+                                    <Text style={[type.subtitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
+                                    <Text style={[type.caption, { color: theme.textMuted, marginTop: spacing.xxs }]}>
                                         {pet.has_active_subscription
                                             ? 'Seguimiento GPS activo · Gestionar suscripción'
                                             : isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
                                     </Text>
                                 </View>
-                                <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                                <ChevronRight size={layout.icon.md} color={theme.textMuted} />
                             </TouchableOpacity>
-                        )}
-                    </View>
+                        </View>
+                    )}
 
                     {/* Servicios y recuerdo (solo el dueño) */}
                     {isOwner && (
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Adicionales</Text>
+                            <Text style={[type.title, { color: theme.text, marginBottom: spacing.md }]}>Servicios Adicionales</Text>
                             <TouchableOpacity
                                 style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                                 onPress={() => router.push({ pathname: '/funeraria/memorial/[petId]', params: { petId: pet.id } } as any)}
+                                activeOpacity={0.88}
                             >
-                                <View style={[styles.actionIcon, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+                                <View style={[styles.actionIcon, { backgroundColor: theme.errorLight }]}>
                                     <Text style={{ fontSize: 24 }}>🕯️</Text>
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.actionTitle, { color: theme.text }]}>Memorial y Recuerdo</Text>
-                                    <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Crear o ver el espacio de homenaje</Text>
+                                    <Text style={[type.subtitle, { color: theme.text }]}>Memorial y Recuerdo</Text>
+                                    <Text style={[type.caption, { color: theme.textMuted, marginTop: spacing.xxs }]}>Crear o ver el espacio de homenaje</Text>
                                 </View>
-                                <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                                <ChevronRight size={layout.icon.md} color={theme.textMuted} />
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                                 onPress={() => router.push({ pathname: '/grooming/historial/[petId]', params: { petId: pet.id } } as any)}
+                                activeOpacity={0.88}
                             >
-                                <View style={[styles.actionIcon, { backgroundColor: 'rgba(99, 102, 241, 0.1)' }]}>
+                                <View style={[styles.actionIcon, { backgroundColor: theme.primaryLight }]}>
                                     <Text style={{ fontSize: 24 }}>✂️</Text>
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.actionTitle, { color: theme.text }]}>Historial de Estética</Text>
-                                    <Text style={[styles.actionSubtitle, { color: theme.textMuted }]}>Consultar visitas y fotos de grooming</Text>
+                                    <Text style={[type.subtitle, { color: theme.text }]}>Historial de Estética</Text>
+                                    <Text style={[type.caption, { color: theme.textMuted, marginTop: spacing.xxs }]}>Consultar visitas y fotos de grooming</Text>
                                 </View>
-                                <ChevronLeft size={20} color={theme.textMuted} style={{ transform: [{ rotate: '180deg' }] }} />
+                                <ChevronRight size={layout.icon.md} color={theme.textMuted} />
                             </TouchableOpacity>
                         </View>
                     )}
 
-                    {/* Descripción libre del dueño (las notas clínicas viven en el carnet) */}
+                    {/* Descripción libre del dueño */}
                     {!!pet.description && (
                         <View style={styles.section}>
-                            <Text style={[styles.sectionTitle, { color: theme.text }]}>Sobre {pet.name}</Text>
-                            <View style={[styles.notesBox, { borderColor: theme.cardBorder }]}>
-                                <Text style={[styles.notesText, { color: theme.textMuted }]}>{pet.description}</Text>
+                            <Text style={[type.title, { color: theme.text, marginBottom: spacing.md }]}>Sobre {pet.name}</Text>
+                            <View style={[styles.notesBox, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+                                <Text style={[type.body, { color: theme.text, lineHeight: 22 }]}>{pet.description}</Text>
                             </View>
                         </View>
                     )}
@@ -223,8 +232,8 @@ function PetStat({ icon, label, value, theme }: { icon: any; label: string; valu
     return (
         <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
             {icon}
-            <Text style={[styles.statLabel, { color: theme.textMuted }]}>{label}</Text>
-            <Text style={[styles.statValue, { color: theme.text }]}>{value}</Text>
+            <Text style={[type.label, { color: theme.textMuted }]} numberOfLines={1}>{label}</Text>
+            <Text style={[type.bodyStrong, { color: theme.text }]} numberOfLines={1}>{value}</Text>
         </View>
     );
 }
@@ -233,127 +242,101 @@ const styles = StyleSheet.create({
     loadingBody: { padding: spacing.xl, gap: spacing.lg },
     tabBody: { marginTop: spacing.xl },
     center: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        padding: spacing.xl,
     },
     imageContainer: {
         width: width,
-        height: 400,
+        height: 380,
     },
     mainImage: {
         width: '100%',
         height: '100%',
     },
+    fallbackEmoji: {
+        fontSize: 96,
+    },
     headerButtons: {
         position: 'absolute',
-        top: 60,
-        left: 20,
-        right: 20,
+        left: spacing.lg,
+        right: spacing.lg,
         flexDirection: 'row',
         justifyContent: 'space-between',
         backgroundColor: 'transparent',
+        zIndex: 10,
     },
     headerActions: {
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.sm,
     },
     iconBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(15, 23, 42, 0.5)',
+        width: layout.minTouch,
+        height: layout.minTouch,
+        borderRadius: radius.pill,
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
         justifyContent: 'center',
         alignItems: 'center',
+        ...shadow.card,
     },
     content: {
-        padding: 24,
-        marginTop: -30,
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
+        padding: spacing.xl,
+        marginTop: -spacing.xxl,
+        borderTopLeftRadius: radius.xxl,
+        borderTopRightRadius: radius.xxl,
+        ...shadow.raised,
     },
     titleSection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
-    },
-    name: {
-        fontSize: 32,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 16,
-        marginTop: 4,
+        marginBottom: spacing.xl,
     },
     grid: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 32,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     statItem: {
-        width: '30%',
-        padding: 16,
-        borderRadius: 20,
+        flex: 1,
+        padding: spacing.md,
+        borderRadius: radius.lg,
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.xs,
         borderWidth: 1,
-    },
-    statLabel: {
-        fontSize: 10,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-    },
-    statValue: {
-        fontSize: 14,
-        fontWeight: '800',
+        ...shadow.card,
     },
     section: {
-        marginBottom: 32,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '800',
-        marginBottom: 16,
+        marginBottom: spacing.xxl,
     },
     actionCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 20,
-        marginBottom: 12,
-        gap: 16,
+        padding: spacing.lg,
+        borderRadius: radius.lg,
+        marginBottom: spacing.md,
+        gap: spacing.lg,
         borderWidth: 1,
+        ...shadow.card,
     },
     actionIcon: {
-        width: 50,
-        height: 50,
-        borderRadius: 15,
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        width: layout.iconBox.lg,
+        height: layout.iconBox.lg,
+        borderRadius: radius.md,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    actionTitle: {
-        fontSize: 15,
-        fontWeight: '700',
-    },
-    actionSubtitle: {
-        fontSize: 12,
-        marginTop: 2,
-    },
     notesBox: {
-        padding: 20,
-        borderRadius: 20,
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        padding: spacing.lg,
+        borderRadius: radius.lg,
         borderWidth: 1,
-    },
-    notesText: {
-        fontSize: 14,
-        lineHeight: 22,
+        ...shadow.card,
     },
     backBtn: {
-        marginTop: 20,
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 10,
+        marginTop: spacing.xl,
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
+        borderRadius: radius.md,
     },
 });

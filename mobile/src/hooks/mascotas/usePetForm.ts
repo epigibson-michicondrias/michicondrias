@@ -68,7 +68,8 @@ export function usePetForm() {
 
         let weightVal: number | undefined = undefined;
         if (form.weight_kg.trim() !== '') {
-            const parsed = parseFloat(form.weight_kg);
+            const normalized = form.weight_kg.trim().replace(',', '.');
+            const parsed = parseFloat(normalized);
             if (isNaN(parsed) || parsed <= 0) {
                 showAlert({ type: 'error', title: 'Error', message: 'El peso debe ser un número mayor a cero' });
                 return;

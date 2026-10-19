@@ -207,3 +207,63 @@ de arriba. Conteos reales en producción:
 | B-09 | directorio | `AppointmentCreate` no seteaba `date` cuando venía `appointment_date` + `start_time` → **500 al crear citas** | **Corregido** |
 
 > Los fixes B-06…B-09 están **aplicados en la VM** y **commiteados**. `git push` los subirá cuando haya permiso.
+
+---
+
+## Tu cuenta real — `hackminor@live.com.mx` (Ricardo)
+
+Rellena con datos de prueba para que al entrar veas todo con contenido:
+
+| Qué tiene | Detalle |
+|---|---|
+| **Mascotas** | **Nami** (gato Carey, 4.5 kg) · **Kira** (Border Collie, 18.5 kg) · **Michi** (gatito mestizo, 1.8 kg) |
+| **Carnet Nami** | 4 vacunas (1 vencida a propósito) + 3 consultas + 1 receta (enjuague bucal) |
+| **Carnet Kira** | 3 vacunas (plan de cachorros) + 1 consulta |
+| **Carnet Michi** | 1 vacuna (tríple felina) |
+| **Compras** | 2 pedidos pagados (croquetas + juguetes) |
+| **Citas** | 1 cita futura en Hospital Michi Central |
+| **Notificaciones** | 8 (vacuna vencida, cita, adopciones, oferta, reporte, pedido…) |
+| **Adopciones** | 1 solicitud enviada |
+| **Donación** | $750 a refugios |
+| **Perdidas** | Reporte de **Luna** (gato Carey, Del Valle) |
+| **Seguro** | Póliza activa para Nami (MICH-2026-RIC-001) |
+
+> **Tu contraseña no la toqué** — la que ya tenías sigue funcionando. Los datos se insertaron directo en la base.
+
+---
+
+## Inventario completo de datos (2026-10-17, seed masivo)
+
+**70 tablas del dominio — 0 vacías.** Cualquier pantalla que abras tiene contenido real:
+
+| Módulo | Tablas con datos |
+|---|---|
+| **Usuarios y roles** | 20 usuarios · 18 roles |
+| **Mascotas y carnet** | 10 mascotas · 18 vacunas · 7 consultas · 2 recetas · 5 recordatorios · 1 record extended |
+| **Tienda** | 8 productos · 6 pedidos · 8 items · 2 reseñas · 6 categorías |
+| **Adopciones** | 4 publicaciones · 5 solicitudes · 2 formularios de compatibilidad · 1 contrato |
+| **Perdidas** | 2 reportes · 2 avistamientos · 1 lost_pets |
+| **Clínica** | 1 clínica · 5 servicios · 6 horarios · 4 citas · 2 excepciones · 3 recetas clínicas · 5 alertas · 5 métricas · 10 inventario · 2 cirugías · 2 videoconsultas |
+| **Laboratorio** | 4 tests catálogo · 3 órdenes · 5 resultados · 3 citas · 2 órdenes de lab |
+| **Seguros** | 3 planes · 4 pólizas · 3 reclamos |
+| **Funeraria** | 3 servicios · 1 booking · 1 memorial · 1 defunción |
+| **Entrenadores** | 3 programas · 2 inscripciones · 6 metas · 1 reseña |
+| **Grooming/Estética** | 3 servicios · 4 citas · 1 reseña · 1 archivo |
+| **Paseo/Cuidado** | 1 paseador · 1 cuidador · 2 paseos · 2 cuidados · 1+1 reseñas |
+| **Transportes** | 1 conductor · 1 viaje |
+| **Patrocinadores** | 2 campañas · 2 stats · 1 boost |
+| **Pet-friendly** | 3 venues · 2 reseñas · 3 places · 2 reseñas · 1 cupón |
+| **Donaciones** | 2 donaciones |
+| **Notificaciones** | 28 (para todos los roles) |
+
+### Cómo se llenó
+
+- **API** para mascotas, productos, pedidos, adopciones, citas, seguros, funeraria, entrenadores, grooming, lab,
+  transporte, patrocinadores, establecimientos, paseo/cuidado, donaciones (probando los endpoints de paso).
+- **SQL directo** (vía SSH a la VM) para las 31 tablas que estaban vacías: reviews, formularios de adopción, contratos,
+  citas de grooming, tests/resultados de lab, cirugías, inventario, recetas clínicas, alertas/métricas, videoconsultas,
+  avistamientos, solicitudes de cuidado, metas de entrenamiento, defunciones, lugares pet-friendly, excepciones de
+  horario, cupones, record extended.
+- **Constraints respetados**: `lab_appointments.status` (pending/confirmed/completed/cancelled), `clinic_alerts.type`
+  (emergency/inventory/laboratory/vaccination/followup) y `priority` (high/medium/low), `claimed_coupons.status`
+  (active/redeemed/expired), `medical_records_extended` (enums de prognosis/trend/adherence).

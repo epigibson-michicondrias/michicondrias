@@ -80,6 +80,12 @@ export default function PetForm({ form, updateField, image, setImage, submitLabe
                         value={form.species}
                         onChange={(v) => updateField('species', v)}
                     />
+                    <FormSelect
+                        label="Género"
+                        options={GENDER_OPTIONS}
+                        value={form.gender}
+                        onChange={(v) => updateField('gender', v)}
+                    />
                     <FormField
                         label="Raza *"
                         placeholder="Ej. Husky Siberiano"
@@ -98,11 +104,12 @@ export default function PetForm({ form, updateField, image, setImage, submitLabe
                             />
                         </View>
                         <View style={styles.rowItem}>
-                            <FormSelect
-                                label="Género"
-                                options={GENDER_OPTIONS}
-                                value={form.gender}
-                                onChange={(v) => updateField('gender', v)}
+                            <FormField
+                                label="Peso (kg)"
+                                placeholder="Ej. 12.5"
+                                keyboardType="decimal-pad"
+                                value={form.weight_kg}
+                                onChangeText={(t) => updateField('weight_kg', t)}
                             />
                         </View>
                     </View>
@@ -122,25 +129,12 @@ export default function PetForm({ form, updateField, image, setImage, submitLabe
                     <FormSwitch label="Vacunado" value={form.is_vaccinated} onChange={(v) => updateField('is_vaccinated', v)} />
                     <FormSwitch label="Esterilizado" value={form.is_sterilized} onChange={(v) => updateField('is_sterilized', v)} />
                     <FormSwitch label="Desparasitado" value={form.is_dewormed} onChange={(v) => updateField('is_dewormed', v)} />
-                    <View style={styles.row}>
-                        <View style={styles.rowItem}>
-                            <FormField
-                                label="Peso (kg)"
-                                placeholder="Ej. 12.5"
-                                keyboardType="decimal-pad"
-                                value={form.weight_kg}
-                                onChangeText={(t) => updateField('weight_kg', t)}
-                            />
-                        </View>
-                        <View style={styles.rowItem}>
-                            <FormField
-                                label="Microchip"
-                                placeholder="Opcional"
-                                value={form.microchip_id}
-                                onChangeText={(t) => updateField('microchip_id', t)}
-                            />
-                        </View>
-                    </View>
+                    <FormField
+                        label="Microchip"
+                        placeholder="Opcional"
+                        value={form.microchip_id}
+                        onChangeText={(t) => updateField('microchip_id', t)}
+                    />
                 </View>
 
                 {children}
@@ -154,11 +148,11 @@ export default function PetForm({ form, updateField, image, setImage, submitLabe
                     accessibilityRole="button"
                 >
                     {busy ? (
-                        <Text style={styles.saveBtnText}>Guardando…</Text>
+                        <Text style={[styles.saveBtnText, { color: theme.onPrimary }]}>Guardando…</Text>
                     ) : (
                         <View style={styles.saveBtnRow}>
                             <Check size={20} color={theme.onPrimary} />
-                            <Text style={styles.saveBtnText}>{submitLabel}</Text>
+                            <Text style={[styles.saveBtnText, { color: theme.onPrimary }]}>{submitLabel}</Text>
                         </View>
                     )}
                 </TouchableOpacity>
@@ -212,7 +206,6 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     saveBtnText: {
-        color: '#fff',
         fontSize: 16,
         fontWeight: '800',
     },

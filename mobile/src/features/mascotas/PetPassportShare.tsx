@@ -10,6 +10,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { copyText } from '@/src/utils/helpers';
 import { shareContent } from '@/src/utils/share';
+import { spacing, radius, type, shadow, layout } from '@/constants/design';
 
 interface Props {
     /** URL pública del pasaporte; `null` mantiene cerrada la tarjeta. */
@@ -34,30 +35,30 @@ export function PetPassportShare({ url, petName, onClose }: Props) {
     return (
         <Modal visible={!!url} transparent animationType="fade" onRequestClose={onClose}>
             <View style={styles.overlay}>
-                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                     <View style={styles.header}>
-                        <Text style={[styles.title, { color: theme.text }]}>Carnet de {petName}</Text>
+                        <Text style={[type.title, { color: theme.text }]}>Carnet de {petName}</Text>
                         <TouchableOpacity
                             onPress={onClose}
                             accessibilityRole="button"
                             accessibilityLabel="Cerrar"
                             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                         >
-                            <X size={22} color={theme.textMuted} />
+                            <X size={layout.icon.md} color={theme.textMuted} />
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={[styles.hint, { color: theme.textMuted }]}>
+                    <Text style={[type.caption, { color: theme.textMuted, lineHeight: 19 }]}>
                         Quien escanee el QR verá el pasaporte de {petName} (datos, vacunas y seguro vigente). El enlace dura 24 horas.
                     </Text>
 
                     {/* QR siempre negro sobre blanco: si no, no se escanea (y sin contenido no se dibuja) */}
-                    <View style={[styles.qrBox, { borderColor: theme.border }]}>
+                    <View style={[styles.qrBox, { borderColor: theme.border, backgroundColor: '#ffffff' }]}>
                         {!!url && <QRCode value={url} size={180} />}
                     </View>
 
                     <ScrollView style={styles.urlBox} horizontal showsHorizontalScrollIndicator={false}>
-                        <Text selectable style={[styles.url, { color: theme.textMuted }]}>{url}</Text>
+                        <Text selectable style={[type.caption, styles.url, { color: theme.textMuted }]}>{url}</Text>
                     </ScrollView>
 
                     <TouchableOpacity
@@ -66,12 +67,12 @@ export function PetPassportShare({ url, petName, onClose }: Props) {
                         activeOpacity={0.85}
                         accessibilityRole="button"
                     >
-                        <Share2 size={18} color="#fff" />
-                        <Text style={styles.shareBtnText}>Compartir enlace</Text>
+                        <Share2 size={layout.icon.sm} color={theme.onPrimary} />
+                        <Text style={[styles.shareBtnText, { color: theme.onPrimary }]}>Compartir enlace</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.closeBtn} onPress={onClose} accessibilityRole="button">
-                        <Text style={[styles.closeBtnText, { color: theme.textMuted }]}>Cerrar</Text>
+                        <Text style={[type.bodyStrong, { color: theme.textMuted }]}>Cerrar</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -82,35 +83,27 @@ export function PetPassportShare({ url, petName, onClose }: Props) {
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.65)',
         justifyContent: 'center',
-        padding: 24,
+        padding: spacing.xl,
     },
     card: {
-        borderRadius: 24,
+        borderRadius: radius.xxl,
         borderWidth: 1,
-        padding: 24,
-        gap: 14,
+        padding: spacing.xl,
+        gap: spacing.md,
+        ...shadow.raised,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 12,
-    },
-    title: {
-        flex: 1,
-        fontSize: 20,
-        fontWeight: '800',
-    },
-    hint: {
-        fontSize: 13,
-        lineHeight: 19,
+        gap: spacing.sm,
     },
     qrBox: {
         alignSelf: 'center',
-        padding: 16,
-        borderRadius: 16,
+        padding: spacing.md,
+        borderRadius: radius.lg,
         borderWidth: 1,
     },
     urlBox: {
@@ -123,22 +116,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: spacing.sm,
         minHeight: 52,
-        borderRadius: 16,
+        borderRadius: radius.lg,
     },
     shareBtnText: {
-        color: '#fff',
         fontSize: 16,
         fontWeight: '800',
     },
     closeBtn: {
         alignItems: 'center',
-        minHeight: 44,
+        minHeight: layout.minTouch,
         justifyContent: 'center',
-    },
-    closeBtnText: {
-        fontSize: 15,
-        fontWeight: '700',
     },
 });
