@@ -1,21 +1,22 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePetDetail } from '@/src/hooks/mascotas/usePetDetail';
 import { formatAge, formatWeight, getSpeciesLabel, capitalize } from '@/src/utils/formatters';
-import BackButton from '@/src/components/BackButton';
+import { DetailPhoto, DetailTopBar } from '@/src/components/layout/DetailLayout';
+import IconButton from '@/src/components/IconButton';
+import ListRow from '@/src/components/ListRow';
+import SectionHeader from '@/src/components/SectionHeader';
+import EmptyState from '@/src/components/EmptyState';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import { Settings, Award, Activity, Calendar, ChevronRight, LayoutGrid, HeartPulse, ClipboardList, Share2 } from 'lucide-react-native';
+import { Award, Activity, Calendar, LayoutGrid, HeartPulse, ClipboardList, Share2, Pencil, PawPrint, Satellite, Scissors, Flower2 } from 'lucide-react-native';
 import SegmentedControl from '@/src/components/SegmentedControl';
 import { Skeleton } from '@/src/components/Skeleton';
 import { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { PetHealthTab, PetHistoryTab } from '@/src/features/mascotas/PetHealthTabs';
 import { PetPassportShare } from '@/src/features/mascotas/PetPassportShare';
-import { spacing, radius, type, shadow, layout, font } from '@/constants/design';
-
-const { width } = Dimensions.get('window');
+import { spacing, radius, type, shadow, layout } from '@/constants/design';
 
 const VACCINE_STATUS_LABEL = {
     'al-dia': 'Al día',
@@ -25,7 +26,6 @@ const VACCINE_STATUS_LABEL = {
 
 export default function PetProfileScreen() {
     const router = useRouter();
-    const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const {
         pet, isOwner, isLoading, error, refetch, goBack, tab, setTab,
@@ -47,74 +47,46 @@ export default function PetProfileScreen() {
 
     if (error || !pet) {
         const status = (error as any)?.status;
-        const errorCopy = status === 403
-            ? 'No tienes permiso para ver esta mascota.'
+        const copy = status === 403
+            ? { title: 'No tienes acceso a esta mascota', subtitle: 'Solo su dueño o un profesional autorizado puede verla.' }
             : status === 404
-                ? 'Esta mascota ya no existe o fue eliminada.'
-                : 'No pudimos cargar a tu mascota. Revisa tu conexión.';
+                ? { title: 'Esta mascota ya no existe', subtitle: 'Puede que la hayan eliminado.' }
+                : { title: 'No pudimos cargar a tu mascota', subtitle: 'Revisa tu conexión e inténtalo de nuevo.' };
+        const retry = status !== 403 && status !== 404;
         return (
             <ScreenContainer style={styles.center}>
-                <Text style={{ color: theme.error }}>{errorCopy}</Text>
-                {status !== 403 && status !== 404 && (
-                    <TouchableOpacity onPress={() => refetch()} style={[styles.backBtn, { backgroundColor: theme.primary }]} accessibilityRole="button">
-                        <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Reintentar</Text>
-                    </TouchableOpacity>
-                )}
-                <TouchableOpacity onPress={goBack} style={[styles.backBtn, { backgroundColor: theme.surface }]}>
-                    <Text style={{ color: theme.text }}>Regresar</Text>
-                </TouchableOpacity>
+                <EmptyState
+                    icon={<PawPrint size={layout.icon.xl} color={theme.textMuted} />}
+                    title={copy.title}
+                    subtitle={copy.subtitle}
+                    actionLabel={retry ? 'Reintentar' : 'Ver mis mascotas'}
+                    onAction={retry ? () => refetch() : () => router.replace('/mascotas')}
+                />
+                <DetailTopBar onBack={goBack} />
             </ScreenContainer>
         );
     }
 
     const speciesLabel = getSpeciesLabel(pet.species);
     const formattedBreed = pet.breed ? capitalize(pet.breed) : speciesLabel;
-    const genderText = pet.gender === 'macho' ? 'Macho ♂️' : pet.gender === 'hembra' ? 'Hembra ♀️' : 'Sin género';
+    const genderText = pet.gender === 'macho' ? 'Macho' : pet.gender === 'hembra' ? 'Hembra' : null;
 
     return (
         <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false}>
-                {/* Hero Image */}
-                <View style={styles.imageContainer}>
-                    {pet.photo_url ? (
-                        <Image source={{ uri: pet.photo_url }} style={styles.mainImage} resizeMode="cover" />
-                    ) : (
-                        <View style={[styles.mainImage, styles.center, { backgroundColor: theme.backgroundSecondary }]}>
-                            <Text style={styles.fallbackEmoji}>{pet.species === 'gato' ? '🐱' : '🐶'}</Text>
-                        </View>
-                    )}
-                    <View style={[styles.headerButtons, { top: Math.max(insets.top + spacing.xs, spacing.md) }]}>
-                        <BackButton onPress={goBack} color={theme.onPrimary} style={{ backgroundColor: 'rgba(15, 23, 42, 0.65)' }} />
-                        {isOwner && (
-                            <View style={styles.headerActions}>
-                                <TouchableOpacity
-                                    style={styles.iconBtn}
-                                    onPress={openShare}
-                                    accessibilityRole="button"
-                                    accessibilityLabel="Compartir carnet"
-                                >
-                                    <Share2 size={layout.icon.md} color={theme.onPrimary} />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={styles.iconBtn}
-                                    onPress={() => router.push(`/mascotas/editar/${pet.id}`)}
-                                    accessibilityRole="button"
-                                    accessibilityLabel="Editar mascota"
-                                >
-                                    <Settings size={layout.icon.md} color={theme.onPrimary} />
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                    </View>
-                </View>
+                <DetailPhoto
+                    images={[pet.photo_url]}
+                    fallbackIcon={PawPrint}
+                    accessibilityLabel={`Foto de ${pet.name}`}
+                />
 
                 {/* Content */}
-                <View style={[styles.content, { backgroundColor: theme.background }]}>
+                <View style={styles.content}>
                     <View style={styles.titleSection}>
                         <View style={{ flex: 1, gap: spacing.xxs }}>
                             <Text style={[type.display, { color: theme.text }]} numberOfLines={1}>{pet.name}</Text>
                             <Text style={[type.body, { color: theme.textMuted }]} numberOfLines={1}>
-                                {formattedBreed} • {genderText}
+                                {[formattedBreed, genderText].filter(Boolean).join(' · ')}
                             </Text>
                         </View>
                     </View>
@@ -149,62 +121,36 @@ export default function PetProfileScreen() {
                     {/* Seguimiento GPS (solo el dueño). Con la suscripción activa hay salida: facturación */}
                     {isOwner && (
                         <View style={styles.section}>
-                            <TouchableOpacity
-                                style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                                onPress={pet.has_active_subscription ? openTrackerBilling : handleSubscribeMichiTracker}
-                                disabled={isSubscribing || isOpeningBilling}
-                                accessibilityRole="button"
-                                activeOpacity={0.88}
-                            >
-                                <View style={[styles.actionIcon, { backgroundColor: theme.successLight }]}>
-                                    <Text style={{ fontSize: font.h2 }}>🛰️</Text>
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[type.subtitle, { color: theme.text }]}>Michi-Tracker Pro</Text>
-                                    <Text style={[type.caption, { color: theme.textMuted, marginTop: spacing.xxs }]}>
-                                        {pet.has_active_subscription
-                                            ? 'Seguimiento GPS activo · Gestionar suscripción'
-                                            : isSubscribing ? 'Abriendo...' : 'Activar seguimiento GPS en tiempo real'}
-                                    </Text>
-                                </View>
-                                <ChevronRight size={layout.icon.md} color={theme.textMuted} />
-                            </TouchableOpacity>
+                            <ListRow
+                                icon={Satellite}
+                                color={theme.success}
+                                label="Michi-Tracker Pro"
+                                desc={pet.has_active_subscription
+                                    ? 'GPS activo · Gestionar suscripción'
+                                    : isSubscribing || isOpeningBilling ? 'Abriendo…' : 'Activa el seguimiento GPS en tiempo real'}
+                                onPress={isSubscribing || isOpeningBilling ? undefined : pet.has_active_subscription ? openTrackerBilling : handleSubscribeMichiTracker}
+                            />
                         </View>
                     )}
 
                     {/* Servicios y recuerdo (solo el dueño) */}
                     {isOwner && (
-                        <View style={styles.section}>
-                            <Text style={[type.title, { color: theme.text, marginBottom: spacing.md }]}>Servicios Adicionales</Text>
-                            <TouchableOpacity
-                                style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                                onPress={() => router.push({ pathname: '/funeraria/memorial/[petId]', params: { petId: pet.id } } as any)}
-                                activeOpacity={0.88}
-                            >
-                                <View style={[styles.actionIcon, { backgroundColor: theme.errorLight }]}>
-                                    <Text style={{ fontSize: font.h2 }}>🕯️</Text>
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[type.subtitle, { color: theme.text }]}>Memorial y Recuerdo</Text>
-                                    <Text style={[type.caption, { color: theme.textMuted, marginTop: spacing.xxs }]}>Crear o ver el espacio de homenaje</Text>
-                                </View>
-                                <ChevronRight size={layout.icon.md} color={theme.textMuted} />
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[styles.actionCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+                        <View style={[styles.section, styles.rows]}>
+                            <SectionHeader title="Más para tu mascota" />
+                            <ListRow
+                                icon={Scissors}
+                                color={theme.info}
+                                label="Historial de estética"
+                                desc="Visitas y fotos de baño y corte"
                                 onPress={() => router.push({ pathname: '/grooming/historial/[petId]', params: { petId: pet.id } } as any)}
-                                activeOpacity={0.88}
-                            >
-                                <View style={[styles.actionIcon, { backgroundColor: theme.primaryLight }]}>
-                                    <Text style={{ fontSize: font.h2 }}>✂️</Text>
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[type.subtitle, { color: theme.text }]}>Historial de Estética</Text>
-                                    <Text style={[type.caption, { color: theme.textMuted, marginTop: spacing.xxs }]}>Consultar visitas y fotos de grooming</Text>
-                                </View>
-                                <ChevronRight size={layout.icon.md} color={theme.textMuted} />
-                            </TouchableOpacity>
+                            />
+                            <ListRow
+                                icon={Flower2}
+                                color={theme.textMuted}
+                                label="Memorial y recuerdo"
+                                desc="Un espacio de homenaje, cuando llegue el momento"
+                                onPress={() => router.push({ pathname: '/funeraria/memorial/[petId]', params: { petId: pet.id } } as any)}
+                            />
                         </View>
                     )}
 
@@ -219,8 +165,17 @@ export default function PetProfileScreen() {
                     )}
                     </>)}
                 </View>
-                <View style={{ height: 100 }} />
             </ScrollView>
+
+            <DetailTopBar
+                onBack={goBack}
+                actions={isOwner ? (
+                    <>
+                        <IconButton icon={Share2} accessibilityLabel="Compartir carnet" onPress={openShare} variant="surface" size="sm" />
+                        <IconButton icon={Pencil} accessibilityLabel="Editar mascota" onPress={() => router.push(`/mascotas/editar/${pet.id}`)} variant="surface" size="sm" />
+                    </>
+                ) : undefined}
+            />
 
             {/* Carnet compartible con QR (solo el dueño lo abre) */}
             <PetPassportShare url={shareUrl} petName={pet.name} onClose={closeShare} />
@@ -247,45 +202,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: spacing.xl,
     },
-    imageContainer: {
-        width: width,
-        height: 380,
-    },
-    mainImage: {
-        width: '100%',
-        height: '100%',
-    },
-    fallbackEmoji: {
-        fontSize: 96,
-    },
-    headerButtons: {
-        position: 'absolute',
-        left: spacing.lg,
-        right: spacing.lg,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: 'transparent',
-        zIndex: 10,
-    },
-    headerActions: {
-        flexDirection: 'row',
-        gap: spacing.sm,
-    },
-    iconBtn: {
-        width: layout.minTouch,
-        height: layout.minTouch,
-        borderRadius: radius.pill,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        ...shadow.card,
-    },
     content: {
-        padding: spacing.xl,
-        marginTop: -spacing.xxl,
-        borderTopLeftRadius: radius.xxl,
-        borderTopRightRadius: radius.xxl,
-        ...shadow.raised,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.xl,
+        paddingBottom: spacing.xl,
     },
     titleSection: {
         flexDirection: 'row',
@@ -310,35 +230,11 @@ const styles = StyleSheet.create({
     section: {
         marginBottom: spacing.xxl,
     },
-    actionCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: spacing.lg,
-        borderRadius: radius.lg,
-        marginBottom: spacing.md,
-        gap: spacing.lg,
-        borderWidth: 1,
-        ...shadow.card,
-    },
-    actionIcon: {
-        width: layout.iconBox.lg,
-        height: layout.iconBox.lg,
-        borderRadius: radius.md,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    rows: { gap: spacing.sm },
     notesBox: {
         padding: spacing.lg,
         borderRadius: radius.lg,
         borderWidth: 1,
         ...shadow.card,
-    },
-    backBtn: {
-        marginTop: spacing.xl,
-        paddingHorizontal: spacing.xl,
-        paddingVertical: spacing.md,
-        borderRadius: radius.md,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 });

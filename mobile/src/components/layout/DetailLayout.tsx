@@ -37,9 +37,11 @@ interface DetailPhotoProps {
 export function DetailPhoto({ images, fallbackIcon: Fallback, fallbackLabel, resizeMode = 'cover', accessibilityLabel }: DetailPhotoProps) {
     const { theme } = useTheme();
     const { width } = useWindowDimensions();
-    const height = useDetailPhotoHeight();
+    const fullHeight = useDetailPhotoHeight();
     const [page, setPage] = useState(0);
     const uris = images.filter((u): u is string => !!u);
+    // Sin foto no se gasta media pantalla en un ícono
+    const height = uris.length > 0 ? fullHeight : Math.round(fullHeight * 0.55);
 
     const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
         const next = Math.round(e.nativeEvent.contentOffset.x / width);

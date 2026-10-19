@@ -57,7 +57,7 @@ export default function RegisterScreen() {
                 <View style={[styles.iconCircle, { backgroundColor: theme.primary + '15' }]}>
                     <UserPlus size={28} color={theme.primary} />
                 </View>
-                <Text style={[styles.title, { color: theme.onHero }]}>Crear Cuenta</Text>
+                <Text style={[styles.title, { color: theme.onHero }]}>Crear cuenta</Text>
                 <Text style={[styles.subtitle, { color: theme.onHeroMuted }]}>
                     Únete a la comunidad de mascotas más grande
                 </Text>
@@ -154,7 +154,7 @@ export default function RegisterScreen() {
                         <ActivityIndicator color={theme.onPrimary} size="small" />
                     ) : (
                         <>
-                            <Text style={[styles.registerBtnText, { color: theme.onPrimary }]}>Crear Cuenta</Text>
+                            <Text style={[styles.registerBtnText, { color: theme.onPrimary }]}>Crear cuenta</Text>
                             <ArrowRight size={20} color={theme.onPrimary} strokeWidth={2.5} />
                         </>
                     )}

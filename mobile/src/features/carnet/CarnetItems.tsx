@@ -10,6 +10,7 @@ import {
     AlertCircle, Activity, Info, Pencil, Trash2,
 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import IconButton from '@/src/components/IconButton';
 import { spacing, radius, type, layout } from '@/constants/design';
 import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
 import type { ReminderWithDetails } from '@/src/services/reminders';
@@ -26,37 +27,18 @@ function Tag({ label, color }: { label: string; color: string }) {
 }
 
 /** Acciones de edición/borrado de un renglón del carnet (solo el dueño o el equipo clínico). */
-function ItemActions({ theme, onEdit, onDelete, label }: {
-    theme: any;
+function ItemActions({ onEdit, onDelete, label }: {
+    theme?: unknown;
     onEdit?: () => void;
     onDelete?: () => void;
     label: string;
 }) {
+    const { theme } = useTheme();
     if (!onEdit && !onDelete) return null;
     return (
         <View style={styles.actionsRow}>
-            {!!onEdit && (
-                <TouchableOpacity
-                    style={[styles.actionBtn, { borderColor: theme.border }]}
-                    onPress={onEdit}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Editar ${label}`}
-                >
-                    <Pencil size={layout.icon.xs} color={theme.primary} />
-                    <Text style={[type.caption, { color: theme.primary }]}>Editar</Text>
-                </TouchableOpacity>
-            )}
-            {!!onDelete && (
-                <TouchableOpacity
-                    style={[styles.actionBtn, { borderColor: theme.border }]}
-                    onPress={onDelete}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Eliminar ${label}`}
-                >
-                    <Trash2 size={layout.icon.xs} color={theme.error} />
-                    <Text style={[type.caption, { color: theme.error }]}>Eliminar</Text>
-                </TouchableOpacity>
-            )}
+            {onEdit ? <IconButton icon={Pencil} accessibilityLabel={`Editar ${label}`} onPress={onEdit} size="sm" /> : null}
+            {onDelete ? <IconButton icon={Trash2} accessibilityLabel={`Eliminar ${label}`} onPress={onDelete} color={theme.error} size="sm" /> : null}
         </View>
     );
 }
@@ -143,7 +125,7 @@ export function RecordItem({ record, petId, onEdit, onDelete }: {
                     )}
                 </View>
             )}
-            <ItemActions theme={theme} onEdit={onEdit} onDelete={onDelete} label={`consulta ${record.reason_for_visit}`} />
+            <ItemActions onEdit={onEdit} onDelete={onDelete} label={`consulta ${record.reason_for_visit}`} />
         </View>
     );
 }
@@ -167,14 +149,18 @@ export function VaccineItem({ vaccine, onEdit, onDelete }: {
                     <Text style={[type.subtitle, styles.flex, { color: theme.text }]}>{vaccine.name}</Text>
                     <Tag label={overdue ? 'Refuerzo vencido' : 'Vigente'} color={color} />
                 </View>
-                <Text style={[type.caption, { color: theme.textMuted }]}>Aplicada: {formatDate(vaccine.date_administered)}</Text>
-                {!!vaccine.next_due_date && (
-                    <View style={styles.row}>
-                        <Clock size={layout.icon.xs} color={overdue ? theme.error : theme.primary} />
-                        <Text style={[type.caption, { color: overdue ? theme.error : theme.primary }]}>Refuerzo: {formatDate(vaccine.next_due_date)}</Text>
+                <View style={styles.rowBetween}>
+                    <View style={styles.flex}>
+                        <Text style={[type.caption, { color: theme.textMuted }]}>Aplicada: {formatDate(vaccine.date_administered)}</Text>
+                        {!!vaccine.next_due_date && (
+                            <View style={styles.row}>
+                                <Clock size={layout.icon.xs} color={overdue ? theme.error : theme.primary} />
+                                <Text style={[type.caption, { color: overdue ? theme.error : theme.primary }]}>Refuerzo: {formatDate(vaccine.next_due_date)}</Text>
+                            </View>
+                        )}
                     </View>
-                )}
-                <ItemActions theme={theme} onEdit={onEdit} onDelete={onDelete} label={`vacuna ${vaccine.name}`} />
+                    <ItemActions onEdit={onEdit} onDelete={onDelete} label={`vacuna ${vaccine.name}`} />
+                </View>
             </View>
         </View>
     );
@@ -306,18 +292,8 @@ const styles = StyleSheet.create({
     },
     actionsRow: {
         flexDirection: 'row',
-        gap: spacing.sm,
-        marginTop: spacing.sm,
-    },
-    actionBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        justifyContent: 'flex-end',
         gap: spacing.xs,
-        minHeight: layout.minTouch,
-        paddingHorizontal: spacing.md,
-        borderRadius: radius.md,
-        borderWidth: 1,
-        justifyContent: 'center',
     },
     iconBox: {
         width: layout.iconBox.md,

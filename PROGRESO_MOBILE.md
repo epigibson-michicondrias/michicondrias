@@ -852,4 +852,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   con `DatePicker`, duración o tipo de cuidado, notas, Cancelar/Enviar). Detalles con skeleton, `EmptyState`,
   `ProviderPrice`/`ProviderServices`, calificación calculada con las reseñas reales. `ProviderFooter` usa
   `DetailFooter` + `Button` (safe area) para todos los proveedores.
+- **2026-10-19** — **Paso 6 (parcial): Mascotas**. Ficha con `DetailPhoto`/`DetailTopBar` (compartir carnet y editar
+  fijos; sin emojis: ícono de huella, `Satellite`, `Scissors`, `Flower2`), `ListRow` para Michi-Tracker y servicios,
+  `EmptyState` en errores. Vacunas y consultas con editar/eliminar como íconos compactos. `DetailPhoto` sin foto usa
+  55 % de alto. Auth revisado (ya premium; «Crear cuenta» en tipo oración).
 
