@@ -75,7 +75,7 @@ function RootLayoutNav() {
     if (!booted || isLoading) return;
     const inAuthGroup = segments[0] === '(auth)';
     // El enlace del correo para cambiar contraseña debe abrirse aunque haya sesión
-    const isPasswordReset = inAuthGroup && segments[1] === 'reset-password';
+    const isPasswordReset = inAuthGroup && (segments as string[])[1] === 'reset-password';
 
     if (!user && !inAuthGroup) {
       router.replace('/login');

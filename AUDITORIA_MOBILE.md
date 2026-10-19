@@ -114,12 +114,12 @@ Explorar, cuenta y soporte en Herramientas y en Perfil, banner de Herramientas y
 Propuesta de rediseño: ver «Propuesta de navegación» en `PROGRESO_MOBILE.md`.
 Arreglos:
 - [x] P0 Punto de la campana falso → badge real de no leídas (`(tabs)/index.tsx:75`)
-- [ ] P1 Quitar los accesos duplicados a la tienda en Inicio (stat, acción rápida, banner) y en Explorar (Michi-Shop, Mis Compras)
-- [ ] P1 Explorar: una sola entrada a Diagnóstico IA; fusionar Clínicas y Veterinarios (o implementar `?type=`); sacar Carnet
-- [ ] P1 Herramientas: solo herramientas del rol; quitar Cuenta, Soporte y Cerrar sesión; banner o lista, no los dos
+- [x] P1 Quitar los accesos duplicados a la tienda en Inicio (stat, acción rápida, banner) y en Explorar (Michi-Shop, Mis Compras)
+- [x] P1 Explorar: una sola entrada a Diagnóstico IA; fusionar Clínicas y Veterinarios (o implementar `?type=`); sacar Carnet
+- [x] P1 Herramientas: solo herramientas del rol; quitar Cuenta, Soporte y Cerrar sesión; banner o lista, no los dos
 - [ ] P2 Borrar `QUICK_ACTIONS` de roles y `BANNERS`, y derivarlos de `ROLE_TOOLS`
-- [ ] P2 Inicio: Skeleton en mascotas y citas, `EmptyState` en citas, pull-to-refresh, cada cita abre su detalle, placeholder local en vez de Unsplash
-- [ ] P2 Hero con un token de degradado por tema; hex → tokens (index 23, menu 16, explorar 12); versión desde `expo-constants`
+- [x] P2 Inicio: Skeleton en mascotas y citas, `EmptyState` en citas, pull-to-refresh, cada cita abre su detalle, placeholder local en vez de Unsplash
+- [x] P2 Hero con un token de degradado por tema; hex → tokens (index 23, menu 16, explorar 12); versión desde `expo-constants`
 
 ---
 

@@ -19,7 +19,7 @@ export function useMenu() {
 
     return {
         isUserAdmin,
-        title: isUserAdmin ? 'Administración' : 'Herramientas',
+        title: isUserAdmin ? 'Administración' : 'Tu panel',
         subtitle: ROLE_PANEL_TITLE[roleName] || getRoleLabelFor(roleName),
         mainTools,
         moreTools,

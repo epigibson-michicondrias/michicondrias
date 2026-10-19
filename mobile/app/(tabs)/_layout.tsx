@@ -93,7 +93,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="menu"
         options={{
-          title: role === 'admin' ? 'Admin' : 'Herramientas',
+          title: role === 'admin' ? 'Admin' : 'Panel',
           href: showTools ? undefined : null,
           tabBarIcon: ({ color, focused }) => (
             <ToolsIcon size={focused ? 26 : 22} color={color} strokeWidth={focused ? 2.5 : 2} />

@@ -3,7 +3,7 @@
  * Extracts filter state and items computation from app/(tabs)/explorar.tsx
  */
 import { useState, useMemo } from 'react';
-import { Stethoscope, UserCheck, Home, MapPin, Heart, AlertTriangle, Bone, HeartPulse, Briefcase, Store, Users, Shield, FlaskConical, Dumbbell, Scissors, Car, Flower2 } from 'lucide-react-native';
+import { Sparkles, Stethoscope, UserCheck, Home, MapPin, Heart, AlertTriangle, Bone, HeartPulse, Briefcase, Store, Users, Shield, FlaskConical, Dumbbell, Scissors, Car, Flower2 } from 'lucide-react-native';
 import { accents } from '@/constants/design';
 import { MODULE_ACCENTS } from '@/src/constants/modules';
 
@@ -36,6 +36,7 @@ export const EXPLORE_ITEMS: ExploreItem[] = [
     { title: 'Veterinarios', subtitle: 'Clínicas y especialistas', icon: Stethoscope, color: MODULE_ACCENTS.directorio, route: '/directorio', category: 'Salud' },
     { title: 'Laboratorios', subtitle: 'Análisis y resultados', icon: FlaskConical, color: MODULE_ACCENTS.laboratorio, route: '/laboratorio', category: 'Salud' },
     { title: 'Seguros', subtitle: 'Planes para tu mascota', icon: Shield, color: MODULE_ACCENTS.aseguradoras, route: '/aseguradoras', category: 'Salud' },
+    { title: 'Diagnóstico IA', subtitle: 'Orientación por síntomas', icon: Sparkles, color: accents.services, route: '/mascotas/diagnostico-ia', category: 'Salud' },
 
     // Servicios
     { title: 'Paseadores', subtitle: 'Paseos a tu medida', icon: UserCheck, color: MODULE_ACCENTS.paseadores, route: '/paseadores', category: 'Servicios' },
@@ -63,14 +64,13 @@ export function useExplore() {
             : EXPLORE_ITEMS;
     }, [selectedCategory]);
 
-    // Build rows of 2 for the grid
-    const rows = useMemo(() => {
-        const result: ExploreItem[][] = [];
-        for (let i = 0; i < filteredItems.length; i += 2) {
-            result.push(filteredItems.slice(i, i + 2));
-        }
-        return result;
-    }, [filteredItems]);
+    // Agrupados por categoría (con filtro queda solo una sección)
+    const sections = useMemo(
+        () => CATEGORIES
+            .map((cat) => ({ ...cat, items: filteredItems.filter((item) => item.category === cat.key) }))
+            .filter((section) => section.items.length > 0),
+        [filteredItems],
+    );
 
     const handleCategoryPress = (key: CategoryKey) => {
         setSelectedCategory((prev) => (prev === key ? null : key));
@@ -82,7 +82,7 @@ export function useExplore() {
         // Data
         categories: CATEGORIES,
         filteredItems,
-        rows,
+        sections,
         selectedCategory,
 
         // Actions

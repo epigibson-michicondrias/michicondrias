@@ -821,4 +821,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - **2026-10-19** — **Auditoría integral** (ver `AUDITORIA_MOBILE.md` § Auditoría integral): deuda medida en las 156
   pantallas, P0 abiertos revisados en código (4 ya resueltos, 3 siguen: fecha del paseo, filtros de cuidadores,
   aprobación de adopciones), ESLint en 0 errores, Knip con 19 archivos sin uso. Plan de 8 pasos.
+- **2026-10-19** — **Paso 1 del plan**: fecha del paseo (hoy por defecto), filtros de cuidadores con los tipos reales
+  (`hosting`/`visiting`), «Solicitudes recibidas» lleva a la gestión de cada solicitud (estados en
+  `features/adopciones/requestStatus.ts`), avisos de avistamiento con enlace, privacidad en `GET /reports/` y
+  `GET /pets/{id}` (backend desplegado y verificado). **Paso 2**: Inicio, Explorar y Panel con `ScreenHeader` hero,
+  secciones en `src/features/home/HomeSections.tsx` (`ShortcutGrid`, `PetCarousel` con skeleton y sin fotos de
+  Unsplash, `AppointmentList`, `ServiceGrid`), pull-to-refresh; Explorar agrupado por categoría con Diagnóstico IA
+  como un servicio más (sin banner duplicado); `SearchBar` con modo `onPress`; pestaña «Herramientas» → «Panel».
 
