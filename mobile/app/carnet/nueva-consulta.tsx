@@ -40,7 +40,7 @@ export default function NuevaConsultaScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Guardar consulta"
                         >
-                            {isSaving ? <ActivityIndicator color="#fff" size="small" /> : <Save size={20} color="#fff" />}
+                            {isSaving ? <ActivityIndicator color={theme.onPrimary} size="small" /> : <Save size={20} color={theme.onPrimary} />}
                         </TouchableOpacity>
                     }
                 />

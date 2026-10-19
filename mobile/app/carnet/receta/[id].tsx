@@ -207,7 +207,7 @@ export default function PrescriptionDetailScreen() {
                         accessibilityRole="button"
                         accessibilityLabel="Compartir receta"
                     >
-                        <Share2 size={18} color="#fff" />
+                        <Share2 size={18} color={theme.onPrimary} />
                         <Text style={styles.actionBtnText}>Compartir Receta</Text>
                     </TouchableOpacity>
                 </View>
