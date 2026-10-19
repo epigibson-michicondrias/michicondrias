@@ -53,11 +53,12 @@ Validación: `@/src/utils/validators` (`validateRequired`, `validateEmail`, …)
 |---|---|
 | `mascotas/PetForm` | Formulario común de mascota (alta y edición) |
 | `mascotas/PetCards` | Tarjetas de Mis mascotas: `PetGridCard`, `PetListRow`, `PetDetailCard` |
+| `perdidas/ReportCard` | Reporte en cuadrícula (`ReportGridCard`) o lista (`ReportListRow`) |
 | `mascotas/PetHealthTabs` / `carnet/CarnetItems` | Pestañas Salud/Historial y renglones del carnet |
 | `tienda/PagoResultado` | Resultado del deep link de pago (éxito/cancelado) |
 
 ## Notas
-- Forma de ver una lista (cuadrícula/lista/tarjetas): `ViewModeToggle` (solo íconos) + `useViewMode(clave, modos, porDefecto)`, que la recuerda; `useGridColumns()` da 2 o 3 columnas según el ancho.
+- Forma de ver una lista (cuadrícula/lista/tarjetas): `ViewModeToggle` (solo íconos) + `useViewMode(clave, modos, porDefecto)`, que la recuerda; `useGridCell(gap)` da columnas (2 o 3 según el ancho) y ancho de celda. Los elementos con foto se pintan con `MediaCard` (cuadrícula) y `MediaRow` (lista).
 - `SegmentedControl` cubre el caso de «pestañas segmentadas» (2–4 opciones): no hace falta otro componente.
 - El QR (`react-native-qrcode-svg`) se dibuja **siempre negro sobre blanco** y el pin del mapa (`WebMapView`) lleva su
   estilo propio: son excepciones de legibilidad, no hex de estilo.

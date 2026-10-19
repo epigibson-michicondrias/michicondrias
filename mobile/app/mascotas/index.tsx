@@ -1,10 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Text, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Plus, PawPrint, LayoutGrid, List, GalleryVertical } from 'lucide-react-native';
 import { usePets } from '@/src/hooks/mascotas/usePets';
-import { useGridColumns, useViewMode } from '@/src/hooks/useViewMode';
+import { useGridCell, useViewMode } from '@/src/hooks/useViewMode';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
@@ -28,13 +28,11 @@ const GAP: Record<PetViewMode, number> = { grid: spacing.md, list: spacing.sm, c
 export default function MascotasListScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { width } = useWindowDimensions();
     const { pets, isLoading, isRefetching, refetch } = usePets();
     const [viewMode, setViewMode] = useViewMode<PetViewMode>('mascotas', VIEW_MODES, 'grid');
-    const columns = useGridColumns();
     const isGrid = viewMode === 'grid';
     const gap = GAP[viewMode];
-    const cellWidth = (width - layout.screenPadding * 2 - gap * (columns - 1)) / columns;
+    const { columns, cellWidth } = useGridCell(gap);
 
     const goToPet = (pet: Pet) => () => router.push(`/mascotas/${pet.id}`);
     const goToNew = () => router.push('/mascotas/nuevo');

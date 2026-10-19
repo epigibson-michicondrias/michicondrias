@@ -1,19 +1,31 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Heart, MapPin, Plus } from 'lucide-react-native';
+import { Heart, MapPin, Plus, Dog, Cat, PawPrint, LayoutGrid, List } from 'lucide-react-native';
 import { useListings } from '@/src/hooks/adopciones/useListings';
+import { useGridCell, useViewMode } from '@/src/hooks/useViewMode';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
+import ViewModeToggle from '@/src/components/ViewModeToggle';
+import Badge from '@/src/components/Badge';
+import { MediaCard, MediaRow, type MediaLine } from '@/src/components/MediaCard';
+import { capitalize, getSpeciesLabel } from '@/src/utils/formatters';
 import type { Listing } from '@/src/types/adopciones';
-import { font, spacing, layout } from '@/constants/design';
+import { spacing, layout } from '@/constants/design';
 
-const { width } = Dimensions.get('window');
-const cardWidth = Math.floor((width - 61) / 2);
+const VIEW_MODES = ['grid', 'list'] as const;
+type ListingViewMode = (typeof VIEW_MODES)[number];
+const VIEW_OPTIONS = [
+    { value: 'grid' as const, label: 'Ver en cuadrícula', icon: LayoutGrid },
+    { value: 'list' as const, label: 'Ver como lista', icon: List },
+];
+const GAP: Record<ListingViewMode, number> = { grid: spacing.md, list: spacing.sm };
+
+const speciesIcon = (species: string) => (species === 'gato' ? Cat : species === 'perro' ? Dog : PawPrint);
 
 export default function AdopcionesScreen() {
     const router = useRouter();
@@ -30,6 +42,10 @@ export default function AdopcionesScreen() {
         sizeFilter,
         setSizeFilter,
     } = useListings();
+    const [viewMode, setViewMode] = useViewMode<ListingViewMode>('adopciones', VIEW_MODES, 'grid');
+    const isGrid = viewMode === 'grid';
+    const gap = GAP[viewMode];
+    const { columns, cellWidth } = useGridCell(gap);
 
     const hasActiveFilters = search.trim() !== '' || (!!speciesFilter && speciesFilter !== 'all') || (!!sizeFilter && sizeFilter !== 'all');
 
@@ -43,49 +59,23 @@ export default function AdopcionesScreen() {
     };
 
     const renderItem = ({ item }: { item: Listing }) => {
-        const speciesColor = getSpeciesColor(item.species);
-        return (
-            <TouchableOpacity
-                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                accessibilityRole="button"
-                accessibilityLabel={`${item.name}, ${item.species}${item.is_emergency ? ', urgente' : ''}`}
-                onPress={() => router.push(`/adopciones/${item.id}` as any)}
-            >
-                <View style={styles.imageWrapper}>
-                    {item.photo_url ? (
-                        <Image source={{ uri: item.photo_url }} style={styles.image} />
-                    ) : (
-                        <View style={[styles.imagePlaceholder, { backgroundColor: speciesColor + '10' }]}>
-                            <Heart size={40} color={speciesColor} strokeWidth={1} />
-                        </View>
-                    )}
-                    {!!item.is_emergency && (
-                        <View style={styles.emergencyBadge}>
-                            <Text style={styles.emergencyText}>URGENTE</Text>
-                        </View>
-                    )}
-                    <View style={styles.cardOverlay} />
-                    <View style={styles.genderBadge}>
-                        <Text style={styles.genderText}>{item.gender === 'hembra' ? '♀' : '♂'}</Text>
-                    </View>
-                </View>
-                <View style={styles.info}>
-                    <View style={styles.nameRow}>
-                        <Text style={[styles.name, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
-                        <View style={[styles.speciesTag, { backgroundColor: speciesColor + '20' }]}>
-                            <Text style={[styles.speciesTagText, { color: speciesColor }]}>{item.species.toUpperCase()}</Text>
-                        </View>
-                    </View>
-                    <Text style={[styles.breed, { color: theme.textMuted }]} numberOfLines={1}>{item.breed || 'Mestizo'}</Text>
-                    <View style={styles.location}>
-                        <MapPin size={12} color={theme.primary} />
-                        <Text style={[styles.locationText, { color: theme.textMuted }]} numberOfLines={1}>
-                            {item.location || 'Sin ubicación'}
-                        </Text>
-                    </View>
-                </View>
-            </TouchableOpacity>
-        );
+        const species = item.species.toLowerCase();
+        const gender = item.gender === 'hembra' ? 'Hembra' : 'Macho';
+        const urgent = item.is_emergency ? <Badge label="Urgente" color={theme.error} variant="solid" size="sm" /> : undefined;
+        const common = {
+            imageUrl: item.photo_url,
+            fallbackIcon: speciesIcon(species),
+            fallbackColor: getSpeciesColor(species),
+            title: item.name,
+            onPress: () => router.push(`/adopciones/${item.id}` as any),
+            accessibilityLabel: `${item.name}, ${getSpeciesLabel(species)}${item.is_emergency ? ', urgente' : ''}`,
+        };
+        const breedLine: MediaLine = { text: `${item.breed ? capitalize(item.breed) : 'Mestizo'} · ${gender}` };
+        const placeLine: MediaLine = { text: item.location || 'Sin ubicación', icon: MapPin };
+
+        return isGrid
+            ? <MediaCard {...common} width={cellWidth} topLeft={urgent} lines={[breedLine, placeLine]} />
+            : <MediaRow {...common} trailing={urgent} lines={[breedLine, placeLine]} />;
     };
 
     const header = (
@@ -95,12 +85,15 @@ export default function AdopcionesScreen() {
                 onChangeText={setSearch}
                 placeholder="Busca por nombre, raza..."
             />
+            <View style={styles.filterRow}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chipsContainer}>
                 <FilterChip label="Todos" active={speciesFilter === 'all' && sizeFilter === 'all'} onPress={() => { setSpeciesFilter('all'); setSizeFilter('all'); }} />
                 <FilterChip label="Perros" active={speciesFilter === 'perro'} onPress={() => setSpeciesFilter(speciesFilter === 'perro' ? 'all' : 'perro')} />
                 <FilterChip label="Gatos" active={speciesFilter === 'gato'} onPress={() => setSpeciesFilter(speciesFilter === 'gato' ? 'all' : 'gato')} />
                 <FilterChip label="Grandes" active={sizeFilter === 'grande'} onPress={() => setSizeFilter(sizeFilter === 'grande' ? 'all' : 'grande')} />
             </ScrollView>
+            {listings.length > 0 && <ViewModeToggle value={viewMode} onChange={setViewMode} options={VIEW_OPTIONS} />}
+            </View>
         </View>
     );
 
@@ -118,123 +111,40 @@ export default function AdopcionesScreen() {
                 data={listings}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
+                // Cambiar el número de columnas exige volver a montar la lista
+                key={isGrid ? `grid-${columns}` : 'list'}
                 isLoading={isLoading}
-                numColumns={2}
+                skeleton
+                numColumns={isGrid ? columns : 1}
+                columnWrapperStyle={isGrid ? { gap } : undefined}
+                ItemSeparatorComponent={() => <View style={{ height: gap }} />}
                 onRefresh={refetch}
                 isRefreshing={isRefetching}
                 header={header}
-                emptyIcon={<Heart size={48} color={theme.textMuted} strokeWidth={1.5} />}
+                emptyIcon={<Heart size={layout.icon.xl} color={theme.textMuted} strokeWidth={1.5} />}
                 emptyTitle={hasActiveFilters ? 'Sin resultados' : 'Aún no hay mascotas en adopción'}
                 emptySubtitle={hasActiveFilters ? 'Prueba con otra búsqueda o quita los filtros.' : 'Cuando un refugio publique una mascota aparecerá aquí.'}
-                contentStyle={styles.list}
             />
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    list: {
-        paddingHorizontal: layout.screenPadding,
-        paddingBottom: spacing.huge,
-    },
-    card: {
-        width: cardWidth,
-        margin: spacing.sm,
-        borderRadius: 24,
-        overflow: 'hidden',
-        borderWidth: 1,
-    },
-    imageWrapper: {
-        height: 160,
-        position: 'relative',
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-    imagePlaceholder: {
-        width: '100%',
-        height: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    cardOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0,0,0,0.05)',
-    },
-    genderBadge: {
-        position: 'absolute',
-        bottom: 10,
-        right: 10,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    genderText: {
-        fontSize: font.xl,
-    },
-    emergencyBadge: {
-        position: 'absolute',
-        top: 10,
-        left: 10,
-        backgroundColor: '#ef4444',
-        paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.xs,
-        borderRadius: 8,
-    },
-    emergencyText: {
-        color: '#fff',
-        fontSize: font.xs,
-        fontWeight: '900',
-    },
-    info: {
-        padding: spacing.lg,
-        gap: spacing.xs,
-    },
-    nameRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    name: {
-        fontSize: font.xl,
-        fontWeight: '800',
-        flex: 1,
-    },
-    speciesTag: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.xxs,
-        borderRadius: 6,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    speciesTagText: {
-        fontSize: font.xs,
-        fontWeight: '700',
-    },
-    breed: {
-        fontSize: font.md,
-    },
-    location: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.xs,
-        marginTop: spacing.xs,
-    },
-    locationText: {
-        fontSize: font.sm,
-    },
     filterSection: {
         marginTop: spacing.xs,
-        marginBottom: spacing.sm,
+        marginBottom: spacing.md,
     },
-    chipsScroll: {
+    filterRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
         marginTop: spacing.md,
     },
+    chipsScroll: {
+        flex: 1,
+    },
     chipsContainer: {
+        alignItems: 'center',
         gap: spacing.sm,
         paddingRight: spacing.xl,
     },

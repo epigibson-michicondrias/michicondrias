@@ -5,14 +5,16 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getReports } from '@/src/services/perdidas';
+import { useViewMode } from '@/src/hooks/useViewMode';
 import type { LostPetReport } from '@/src/types/perdidas';
 
 /** `resolved` muestra los casos ya reunidos con su familia. */
 export type FilterType = 'all' | 'lost' | 'found' | 'resolved';
-export type ViewMode = 'map' | 'list';
+const VIEW_MODES = ['grid', 'list', 'map'] as const;
+export type ViewMode = (typeof VIEW_MODES)[number];
 
 export function useReports() {
-    const [viewMode, setViewMode] = useState<ViewMode>('list');
+    const [viewMode, setViewMode] = useViewMode<ViewMode>('perdidas', VIEW_MODES, 'grid');
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<FilterType>('all');
     const [filterSpecies, setFilterSpecies] = useState('all');
@@ -74,10 +76,6 @@ export function useReports() {
         setSearchQuery('');
     };
 
-    const toggleViewMode = () => {
-        setViewMode(prev => prev === 'map' ? 'list' : 'map');
-    };
-
     return {
         // Data
         reports,
@@ -101,7 +99,7 @@ export function useReports() {
 
         // View
         viewMode,
-        toggleViewMode,
+        setViewMode,
     };
 }
 

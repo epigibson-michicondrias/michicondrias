@@ -9,6 +9,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { Cat, Dog, ChevronRight, Settings } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { getSpeciesLabel, getGenderLabel, formatAge, formatWeight, capitalize } from '@/src/utils/formatters';
+import { MediaCard, MediaRow } from '@/src/components/MediaCard';
 import type { Pet } from '@/src/types/mascotas';
 import { spacing, radius, type, shadow, layout } from '@/constants/design';
 
@@ -44,57 +45,34 @@ function TrackerDot() {
     return <View style={[styles.trackerDot, { backgroundColor: theme.success, borderColor: theme.surface }]} />;
 }
 
-/** `width`: ancho de la celda (lo calcula la pantalla según las columnas). */
+/** `width`: ancho de la celda (de `useGridCell`). */
 export function PetGridCard({ pet, onPress, width }: PetCardProps & { width: number }) {
-    const { theme } = useTheme();
     return (
-        <TouchableOpacity
-            style={[styles.gridCard, { width, backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+        <MediaCard
+            width={width}
+            imageUrl={pet.photo_url}
+            fallbackIcon={pet.species === 'gato' ? Cat : Dog}
+            title={pet.name}
+            lines={[{ text: summaryOf(pet) }]}
+            topRight={pet.has_active_subscription ? <TrackerDot /> : undefined}
             onPress={onPress}
-            activeOpacity={0.88}
-            accessibilityRole="button"
-            accessibilityLabel={`Ver a ${pet.name}`}
-        >
-            <PetPhoto pet={pet} style={styles.gridPhoto} iconSize={layout.icon.xl * 1.5} />
-            {pet.has_active_subscription && (
-                <View style={styles.gridTracker} accessibilityLabel="Michi-Tracker activo">
-                    <TrackerDot />
-                </View>
-            )}
-            <View style={styles.gridInfo}>
-                <Text style={[type.subtitle, { color: theme.text }]} numberOfLines={1}>{pet.name}</Text>
-                <Text style={[type.caption, { color: theme.textMuted }]} numberOfLines={1}>{summaryOf(pet)}</Text>
-            </View>
-        </TouchableOpacity>
+            accessibilityLabel={`Ver a ${pet.name}${pet.has_active_subscription ? ', Michi-Tracker activo' : ''}`}
+        />
     );
 }
 
 export function PetListRow({ pet, onPress }: PetCardProps) {
-    const { theme } = useTheme();
     const details = [getGenderLabel(pet.gender), hasWeight(pet) ? formatWeight(pet.weight_kg) : null].filter(Boolean).join(' · ');
     return (
-        <TouchableOpacity
-            style={[styles.listRow, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+        <MediaRow
+            imageUrl={pet.photo_url}
+            fallbackIcon={pet.species === 'gato' ? Cat : Dog}
+            title={pet.name}
+            lines={[{ text: summaryOf(pet) }, ...(details ? [{ text: details }] : [])]}
+            corner={pet.has_active_subscription ? <TrackerDot /> : undefined}
             onPress={onPress}
-            activeOpacity={0.88}
-            accessibilityRole="button"
-            accessibilityLabel={`Ver a ${pet.name}`}
-        >
-            <View>
-                <PetPhoto pet={pet} style={styles.listAvatar} iconSize={layout.icon.lg} />
-                {pet.has_active_subscription && (
-                    <View style={styles.listTracker} accessibilityLabel="Michi-Tracker activo">
-                        <TrackerDot />
-                    </View>
-                )}
-            </View>
-            <View style={styles.flex}>
-                <Text style={[type.subtitle, { color: theme.text }]} numberOfLines={1}>{pet.name}</Text>
-                <Text style={[type.caption, { color: theme.textMuted }]} numberOfLines={1}>{summaryOf(pet)}</Text>
-                {details ? <Text style={[type.caption, { color: theme.textMuted }]} numberOfLines={1}>{details}</Text> : null}
-            </View>
-            <ChevronRight size={layout.icon.sm} color={theme.textMuted} />
-        </TouchableOpacity>
+            accessibilityLabel={`Ver a ${pet.name}${pet.has_active_subscription ? ', Michi-Tracker activo' : ''}`}
+        />
     );
 }
 
@@ -163,30 +141,6 @@ const styles = StyleSheet.create({
     strong: { fontWeight: '700' },
     photoFallback: { alignItems: 'center', justifyContent: 'center' },
     trackerDot: { width: 10, height: 10, borderRadius: radius.pill, borderWidth: 2 },
-
-    // Cuadrícula
-    gridCard: {
-        borderRadius: radius.lg,
-        borderWidth: 1,
-        overflow: 'hidden',
-        ...shadow.card,
-    },
-    gridPhoto: { width: '100%', aspectRatio: 1 },
-    gridTracker: { position: 'absolute', top: spacing.sm, right: spacing.sm },
-    gridInfo: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, gap: spacing.xxs },
-
-    // Lista
-    listRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        padding: spacing.md,
-        borderRadius: radius.lg,
-        borderWidth: 1,
-        ...shadow.card,
-    },
-    listAvatar: { width: layout.iconBox.lg + spacing.sm, height: layout.iconBox.lg + spacing.sm, borderRadius: radius.md },
-    listTracker: { position: 'absolute', top: -spacing.xxs, right: -spacing.xxs },
 
     // Tarjetas
     detailCard: {

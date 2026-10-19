@@ -778,3 +778,5 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   selector de vista (`ViewModeToggle` + `useViewMode`, recordado por pantalla en `src/lib/prefs.ts`): cuadrícula
   (2 columnas, 3 en ≥ 600 px, por defecto), lista y tarjetas (`src/features/mascotas/PetCards.tsx`). `capitalize`
   ya respeta acentos ("Siamés").
+  Después: `MediaCard`/`MediaRow` (componentes base de elemento con foto) y `useGridCell`; Adopciones (cuadrícula/lista)
+  y Perdidas (cuadrícula/lista/mapa, antes solo cuadrícula↔mapa) usan el mismo selector, recordado por pantalla.

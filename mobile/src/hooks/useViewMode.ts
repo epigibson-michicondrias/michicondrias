@@ -2,11 +2,12 @@
  * useViewMode — Forma de ver una lista (cuadrícula, lista, tarjetas…) recordada por pantalla.
  *
  *   const [mode, setMode] = useViewMode('mascotas', ['grid', 'list', 'cards'] as const, 'grid');
- *   const columns = useGridColumns(); // 2 en teléfono, 3 en pantallas anchas
+ *   const { columns, cellWidth } = useGridCell(spacing.md); // 2 columnas en teléfono, 3 en pantallas anchas
  */
 import { useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { readPref, savePref } from '@/src/lib/prefs';
+import { layout } from '@/constants/design';
 
 export function useViewMode<T extends string>(screenKey: string, modes: readonly T[], fallback: T) {
     const storageKey = `view_mode_${screenKey}`;
@@ -29,4 +30,12 @@ const WIDE_SCREEN = 600;
 export function useGridColumns(): 2 | 3 {
     const { width } = useWindowDimensions();
     return width >= WIDE_SCREEN ? 3 : 2;
+}
+
+/** Columnas y ancho de celda de una cuadrícula a todo lo ancho de la pantalla (menos los márgenes laterales). */
+export function useGridCell(gap: number) {
+    const { width } = useWindowDimensions();
+    const columns = useGridColumns();
+    const cellWidth = Math.floor((width - layout.screenPadding * 2 - gap * (columns - 1)) / columns);
+    return { columns, cellWidth };
 }

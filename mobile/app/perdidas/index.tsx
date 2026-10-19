@@ -3,24 +3,31 @@ import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useReports } from '@/src/hooks/perdidas/useReports';
-import { Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid } from 'lucide-react-native';
+import { Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, List } from 'lucide-react-native';
 import WebMapView from '@/src/components/WebMapView';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
 import EmptyState from '@/src/components/EmptyState';
 import StatTile from '@/src/components/StatTile';
-import IconButton from '@/src/components/IconButton';
+import ViewModeToggle from '@/src/components/ViewModeToggle';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { SkeletonGrid } from '@/src/components/Skeleton';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import ReportCard from '@/src/features/perdidas/ReportCard';
+import { ReportGridCard, ReportListRow } from '@/src/features/perdidas/ReportCard';
+import { useGridCell } from '@/src/hooks/useViewMode';
 import { layout, radius, spacing, tint, type } from '@/constants/design';
 
 const SPECIES_FILTERS = [
     { key: 'perro', label: 'Perros' },
     { key: 'gato', label: 'Gatos' },
 ] as const;
+
+const VIEW_OPTIONS = [
+    { value: 'grid' as const, label: 'Ver en cuadrícula', icon: LayoutGrid },
+    { value: 'list' as const, label: 'Ver como lista', icon: List },
+    { value: 'map' as const, label: 'Ver en el mapa', icon: MapIcon },
+];
 
 export default function PerdidasScreen() {
     const router = useRouter();
@@ -40,8 +47,9 @@ export default function PerdidasScreen() {
         toggleFilterSpecies,
         clearFilters,
         viewMode,
-        toggleViewMode,
+        setViewMode,
     } = useReports();
+    const { cellWidth } = useGridCell(spacing.md);
 
     const goToNew = () => router.push('/perdidas/nuevo');
     const hasFilters = filterType !== 'all' || filterSpecies !== 'all' || searchQuery.length > 0;
@@ -78,10 +86,13 @@ export default function PerdidasScreen() {
             );
         }
         return (
-            <View style={styles.grid}>
-                {filteredReports.map((report) => (
-                    <ReportCard key={report.id} report={report} onPress={() => router.push(`/perdidas/${report.id}`)} />
-                ))}
+            <View style={viewMode === 'grid' ? styles.grid : styles.list}>
+                {filteredReports.map((report) => {
+                    const open = () => router.push(`/perdidas/${report.id}`);
+                    return viewMode === 'grid'
+                        ? <ReportGridCard key={report.id} report={report} width={cellWidth} onPress={open} />
+                        : <ReportListRow key={report.id} report={report} onPress={open} />;
+                })}
             </View>
         );
     };
@@ -136,12 +147,7 @@ export default function PerdidasScreen() {
                                 />
                             ))}
                         </View>
-                        <IconButton
-                            icon={viewMode === 'map' ? LayoutGrid : MapIcon}
-                            accessibilityLabel={viewMode === 'map' ? 'Ver como lista' : 'Ver en el mapa'}
-                            onPress={toggleViewMode}
-                            variant="surface"
-                        />
+                        <ViewModeToggle value={viewMode} onChange={setViewMode} options={VIEW_OPTIONS} />
                     </View>
                 </View>
 
@@ -203,5 +209,6 @@ const styles = StyleSheet.create({
     mapEmpty: { textAlign: 'center' },
     map: { height: 500, width: '100%' },
     feed: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.huge * 2 },
-    grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.md },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+    list: { gap: spacing.sm },
 });

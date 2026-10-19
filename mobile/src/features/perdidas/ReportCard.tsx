@@ -1,86 +1,73 @@
 /**
- * ReportCard — Tarjeta de un reporte de mascota perdida/encontrada para la cuadrícula de 2 columnas.
+ * Reporte de mascota perdida/encontrada en sus dos formas de ver: `ReportGridCard` (cuadrícula) y `ReportListRow`
+ * (lista). Ambas se apoyan en `MediaCard`/`MediaRow`.
  */
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { PawPrint, Wifi, MapPin, Clock, CheckCircle2 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import Badge from '@/src/components/Badge';
+import { MediaCard, MediaRow, type MediaLine } from '@/src/components/MediaCard';
 import { getTimeAgo } from '@/src/utils/formatters';
 import type { LostPetReport } from '@/src/types/perdidas';
-import { layout, radius, spacing, type } from '@/constants/design';
+import { layout, spacing } from '@/constants/design';
 
 interface ReportCardProps {
     report: LostPetReport;
     onPress: () => void;
 }
 
-export default function ReportCard({ report, onPress }: ReportCardProps) {
+/** Insignias, renglones y etiqueta comunes a las dos formas. */
+function useReportContent(report: LostPetReport) {
     const { theme } = useTheme();
     const isLost = report.report_type === 'lost';
+    const status = report.is_resolved
+        ? <Badge label="Reunido" color={theme.success} variant="solid" size="sm" icon={<CheckCircle2 size={layout.icon.xs} color={theme.onPrimary} />} />
+        : <Badge label={isLost ? 'Perdida' : 'Encontrada'} color={isLost ? theme.error : theme.info} variant="solid" size="sm" />;
+    const gps = report.has_tracker
+        ? <Badge label="GPS" color={theme.success} variant="solid" size="sm" icon={<Wifi size={layout.icon.xs} color={theme.onPrimary} />} />
+        : undefined;
+    const lines: MediaLine[] = [
+        { text: report.last_seen_location || 'Sin ubicación', icon: MapPin },
+        { text: getTimeAgo(report.created_at) || 'Reciente', icon: Clock },
+    ];
+    const accessibilityLabel = `${report.is_resolved ? 'Reunido' : isLost ? 'Perdida' : 'Encontrada'}: ${report.pet_name}`;
+    return { status, gps, lines, accessibilityLabel };
+}
 
+/** `width`: ancho de la celda (de `useGridCell`). */
+export function ReportGridCard({ report, onPress, width }: ReportCardProps & { width: number }) {
+    const { status, gps, lines, accessibilityLabel } = useReportContent(report);
     return (
-        <TouchableOpacity
-            style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+        <MediaCard
+            width={width}
+            imageUrl={report.image_url}
+            fallbackIcon={PawPrint}
+            title={report.pet_name}
+            lines={lines}
+            topLeft={status}
+            topRight={gps}
             onPress={onPress}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel={`${isLost ? 'Perdida' : 'Encontrada'}: ${report.pet_name}`}
-        >
-            <View style={styles.imageBox}>
-                {report.image_url ? (
-                    <Image source={{ uri: report.image_url }} style={styles.image} accessibilityLabel={`Foto de ${report.pet_name}`} />
-                ) : (
-                    <View style={[styles.image, styles.noImage, { backgroundColor: theme.overlay }]}>
-                        <PawPrint size={layout.icon.xl} color={theme.textMuted} />
-                    </View>
-                )}
-                <View style={styles.badgeLeft}>
-                    <Badge label={isLost ? 'Perdida' : 'Encontrada'} color={isLost ? theme.error : theme.info} variant="solid" size="sm" />
-                </View>
-                {report.has_tracker && (
-                    <View style={styles.badgeRight}>
-                        <Badge label="GPS" color={theme.success} variant="solid" size="sm" icon={<Wifi size={layout.icon.xs} color={theme.onPrimary} />} />
-                    </View>
-                )}
-            </View>
+            accessibilityLabel={accessibilityLabel}
+        />
+    );
+}
 
-            <View style={styles.body}>
-                <Text style={[type.title, { color: theme.text }]} numberOfLines={1}>{report.pet_name}</Text>
-                <View style={styles.row}>
-                    <MapPin size={layout.icon.xs} color={theme.textMuted} />
-                    <Text style={[type.caption, styles.flex, { color: theme.textMuted }]} numberOfLines={1}>
-                        {report.last_seen_location || 'Sin ubicación'}
-                    </Text>
-                </View>
-                <View style={styles.footer}>
-                    <View style={styles.row}>
-                        <Clock size={layout.icon.xs} color={theme.textMuted} />
-                        <Text style={[type.caption, { color: theme.textMuted }]}>{getTimeAgo(report.created_at) || 'Reciente'}</Text>
-                    </View>
-                    {report.is_resolved && (
-                        <CheckCircle2 size={layout.icon.sm} color={theme.success} accessibilityLabel="Reunido" />
-                    )}
-                </View>
-            </View>
-        </TouchableOpacity>
+export function ReportListRow({ report, onPress }: ReportCardProps) {
+    const { status, gps, lines, accessibilityLabel } = useReportContent(report);
+    return (
+        <MediaRow
+            imageUrl={report.image_url}
+            fallbackIcon={PawPrint}
+            title={report.pet_name}
+            lines={lines}
+            trailing={<View style={styles.badges}>{gps}{status}</View>}
+            onPress={onPress}
+            accessibilityLabel={accessibilityLabel}
+        />
     );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        width: '48%',
-        borderRadius: radius.lg,
-        overflow: 'hidden',
-        borderWidth: 1,
-    },
-    imageBox: { height: 112, width: '100%' },
-    image: { width: '100%', height: '100%' },
-    noImage: { alignItems: 'center', justifyContent: 'center' },
-    badgeLeft: { position: 'absolute', top: spacing.sm, left: spacing.sm },
-    badgeRight: { position: 'absolute', top: spacing.sm, right: spacing.sm },
-    body: { padding: spacing.md, gap: spacing.xs },
-    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-    flex: { flex: 1 },
-    footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    badges: { flexDirection: 'row', gap: spacing.xs },
 });
