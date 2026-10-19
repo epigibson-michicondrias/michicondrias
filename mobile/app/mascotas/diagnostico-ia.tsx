@@ -94,7 +94,7 @@ export default function DiagnosticoIAScreen() {
                                 <ActivityIndicator size="small" color={theme.primary} />
                             ) : pets.length === 0 ? (
                                 <View style={[styles.emptyPetsCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                    <AlertTriangle size={24} color="#f59e0b" />
+                                    <AlertTriangle size={24} color={theme.warning} />
                                     <Text style={[styles.emptyPetsText, { color: theme.text }]}>
                                         Registra a tu mascota para orientar el análisis con su especie, peso y edad.
                                     </Text>
@@ -153,10 +153,10 @@ export default function DiagnosticoIAScreen() {
                             disabled={triageLoading}
                         >
                             {triageLoading ? (
-                                <ActivityIndicator size="small" color="#fff" />
+                                <ActivityIndicator size="small" color={theme.onPrimary} />
                             ) : (
                                 <>
-                                    <Sparkles size={20} color="#fff" />
+                                    <Sparkles size={20} color={theme.onPrimary} />
                                     <Text style={styles.submitBtnText}>Iniciar Análisis Clínico</Text>
                                 </>
                             )}
@@ -204,7 +204,7 @@ export default function DiagnosticoIAScreen() {
                             <ActivityIndicator size="small" color={theme.primary} />
                         ) : pets.length === 0 ? (
                             <View style={[styles.emptyPetsCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                <AlertTriangle size={24} color="#f59e0b" />
+                                <AlertTriangle size={24} color={theme.warning} />
                                 <Text style={[styles.emptyPetsText, { color: theme.text }]}>
                                     Necesitas registrar al menos una mascota para generar un plan nutricional.
                                 </Text>
@@ -278,10 +278,10 @@ export default function DiagnosticoIAScreen() {
                                     disabled={dietLoading}
                                 >
                                     {dietLoading ? (
-                                        <ActivityIndicator size="small" color="#fff" />
+                                        <ActivityIndicator size="small" color={theme.onPrimary} />
                                     ) : (
                                         <>
-                                            <Sparkles size={20} color="#fff" />
+                                            <Sparkles size={20} color={theme.onPrimary} />
                                             <Text style={styles.submitBtnText}>Generar Plan de Dieta</Text>
                                         </>
                                     )}
@@ -306,13 +306,13 @@ export default function DiagnosticoIAScreen() {
                                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>RER (kcal/día)</Text>
                                     </View>
                                     <View style={[styles.metricBox, { backgroundColor: theme.background }]}>
-                                        <Text style={[styles.metricVal, { color: '#10b981' }]}>
+                                        <Text style={[styles.metricVal, { color: theme.success }]}>
                                             {dietResult.daily_energy_needs_kcal}
                                         </Text>
                                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>Meta Calórica</Text>
                                     </View>
                                     <View style={[styles.metricBox, { backgroundColor: theme.background }]}>
-                                        <Text style={[styles.metricVal, { color: '#0ea5e9' }]}>
+                                        <Text style={[styles.metricVal, { color: theme.info }]}>
                                             {dietResult.hydration_target_ml}ml
                                         </Text>
                                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>Hidratación</Text>
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 30,
         elevation: 4,
-        shadowColor: '#7c3aed',
+        shadowColor: '#6366f1',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8,

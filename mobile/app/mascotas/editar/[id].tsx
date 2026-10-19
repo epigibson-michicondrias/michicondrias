@@ -43,7 +43,7 @@ export default function EditarMascotaScreen() {
                     <Button
                         label="Eliminar mascota"
                         variant="danger"
-                        icon={<Trash2 size={18} color="#fff" />}
+                        icon={<Trash2 size={18} color={theme.onPrimary} />}
                         onPress={handleDelete}
                         loading={isDeleting}
                         disabled={isUpdating}

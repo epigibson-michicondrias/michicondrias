@@ -55,7 +55,7 @@ export default function PetProfileScreen() {
                 <Text style={{ color: theme.error }}>{errorCopy}</Text>
                 {status !== 403 && status !== 404 && (
                     <TouchableOpacity onPress={() => refetch()} style={[styles.backBtn, { backgroundColor: theme.primary }]} accessibilityRole="button">
-                        <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+                        <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Reintentar</Text>
                     </TouchableOpacity>
                 )}
                 <TouchableOpacity onPress={goBack} style={[styles.backBtn, { backgroundColor: theme.surface }]}>
@@ -78,7 +78,7 @@ export default function PetProfileScreen() {
                         </View>
                     )}
                     <View style={styles.headerButtons}>
-                        <BackButton onPress={goBack} color="#fff" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)' }} />
+                        <BackButton onPress={goBack} color={theme.onPrimary} style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)' }} />
                         {isOwner && (
                             <View style={styles.headerActions}>
                                 <TouchableOpacity
@@ -87,7 +87,7 @@ export default function PetProfileScreen() {
                                     accessibilityRole="button"
                                     accessibilityLabel="Compartir carnet"
                                 >
-                                    <Share2 size={22} color="#fff" />
+                                    <Share2 size={22} color={theme.onPrimary} />
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.iconBtn}
@@ -95,7 +95,7 @@ export default function PetProfileScreen() {
                                     accessibilityRole="button"
                                     accessibilityLabel="Editar mascota"
                                 >
-                                    <Settings size={22} color="#fff" />
+                                    <Settings size={22} color={theme.onPrimary} />
                                 </TouchableOpacity>
                             </View>
                         )}
@@ -130,10 +130,10 @@ export default function PetProfileScreen() {
                     {tab === 'resumen' && (<>
                     {/* Stats Grid */}
                     <View style={styles.grid}>
-                        <PetStat icon={<Calendar size={20} color="#6366f1" />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
-                        <PetStat icon={<Activity size={20} color="#ec4899" />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} />
+                        <PetStat icon={<Calendar size={20} color={theme.accent} />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
+                        <PetStat icon={<Activity size={20} color={theme.secondary} />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} />
                         <PetStat
-                            icon={<Award size={20} color="#facc15" />}
+                            icon={<Award size={20} color={theme.warning} />}
                             label="Vacunas"
                             value={VACCINE_STATUS_LABEL[health.vaccinesStatus]}
                             theme={theme}
