@@ -1,7 +1,7 @@
 /**
  * Design tokens de Michicondrias — ÚNICA fuente de verdad para espaciado, radios,
- * sombras, tipografía y tamaños. Los colores viven en constants/palettes.ts
- * (se leen con useTheme().theme). Usa estos tokens en pantallas nuevas y al migrar las existentes.
+ * sombras, tipografía y tamaños. Estética premium: bordes finos, sombras sutiles,
+ * tipografía refinada, espaciado intencional.
  *
  * Uso:
  *   import { spacing, radius, shadow, type, layout } from '@/constants/design';
@@ -9,31 +9,31 @@
  */
 import { Platform, TextStyle, ViewStyle } from 'react-native';
 
-/** Escala de espaciado (múltiplos de 4). */
+/** Escala de espaciado (múltiplos de 4). Premium: más compacta, intencional. */
 export const spacing = {
     xxs: 2,
+    xs: 4,
+    sm: 6,
+    md: 10,
+    lg: 14,
+    xl: 18,
+    xxl: 22,
+    xxxl: 28,
+    huge: 40,
+} as const;
+
+/** Radios de borde. Premium: radios más suaves, menos "burbuja". */
+export const radius = {
     xs: 4,
     sm: 8,
     md: 12,
     lg: 16,
     xl: 20,
-    xxl: 24,
-    xxxl: 32,
-    huge: 48,
-} as const;
-
-/** Radios de borde. */
-export const radius = {
-    xs: 6,
-    sm: 10,
-    md: 14,
-    lg: 18,
-    xl: 24,
-    xxl: 32,
+    xxl: 28,
     pill: 999,
 } as const;
 
-/** Sombras (nativo + web). `card` para tarjetas de lista, `raised` para elementos destacados, `floating` para modales/tab bar. */
+/** Sombras (nativo + web). Premium: sutiles, casi imperceptibles. */
 function makeShadow(opacity: number, radiusPx: number, offsetY: number, elevation: number): ViewStyle {
     return Platform.select<ViewStyle>({
         web: { boxShadow: `0px ${offsetY}px ${radiusPx}px rgba(0,0,0,${opacity})` } as ViewStyle,
@@ -49,41 +49,44 @@ function makeShadow(opacity: number, radiusPx: number, offsetY: number, elevatio
 
 export const shadow = {
     none: {} as ViewStyle,
-    card: makeShadow(0.06, 8, 2, 2),
-    raised: makeShadow(0.12, 14, 6, 6),
-    floating: makeShadow(0.2, 22, 10, 12),
+    card: makeShadow(0.04, 6, 1, 1),
+    raised: makeShadow(0.08, 12, 4, 4),
+    floating: makeShadow(0.14, 20, 8, 10),
 } as const;
 
-/** Tipografía. Usa `type.title`, `type.body`, etc. y añade `color` desde el tema. */
+/**
+ * Tipografía premium: jerarquía refinada, pesos cuidados, letter-spacing sutil.
+ * display/h1 para héroes, h2/title para secciones, body para lectura, label para micro-textos.
+ */
 export const type = {
-    display: { fontSize: 30, fontWeight: '800', letterSpacing: -0.5 } as TextStyle,
-    h1: { fontSize: 24, fontWeight: '800', letterSpacing: -0.3 } as TextStyle,
-    h2: { fontSize: 20, fontWeight: '800' } as TextStyle,
-    title: { fontSize: 17, fontWeight: '800' } as TextStyle,
-    subtitle: { fontSize: 15, fontWeight: '700' } as TextStyle,
-    body: { fontSize: 14, fontWeight: '500', lineHeight: 20 } as TextStyle,
-    bodyStrong: { fontSize: 14, fontWeight: '700', lineHeight: 20 } as TextStyle,
-    caption: { fontSize: 12, fontWeight: '500', lineHeight: 16 } as TextStyle,
-    label: { fontSize: 11, fontWeight: '800', letterSpacing: 1.2, textTransform: 'uppercase' } as TextStyle,
+    display: { fontSize: 28, fontWeight: '700', letterSpacing: -0.6 } as TextStyle,
+    h1: { fontSize: 22, fontWeight: '700', letterSpacing: -0.4 } as TextStyle,
+    h2: { fontSize: 18, fontWeight: '700', letterSpacing: -0.2 } as TextStyle,
+    title: { fontSize: 16, fontWeight: '600', letterSpacing: -0.1 } as TextStyle,
+    subtitle: { fontSize: 14, fontWeight: '600' } as TextStyle,
+    body: { fontSize: 13, fontWeight: '400', lineHeight: 19 } as TextStyle,
+    bodyStrong: { fontSize: 13, fontWeight: '600', lineHeight: 19 } as TextStyle,
+    caption: { fontSize: 11, fontWeight: '500', lineHeight: 15 } as TextStyle,
+    label: { fontSize: 10, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' } as TextStyle,
     /** Etiqueta de campo en tipo oración (sin versalitas): para formularios y controles. */
-    labelSentence: { fontSize: 13, fontWeight: '700' } as TextStyle,
-    button: { fontSize: 15, fontWeight: '800' } as TextStyle,
+    labelSentence: { fontSize: 12, fontWeight: '600' } as TextStyle,
+    button: { fontSize: 13, fontWeight: '600', letterSpacing: 0.1 } as TextStyle,
 } as const;
 
-/** Medidas de layout comunes. */
+/** Medidas de layout comunes. Premium: más compactas, elegantes. */
 export const layout = {
     /** Margen horizontal estándar de pantallas. */
-    screenPadding: 20,
+    screenPadding: 18,
     /** Alto mínimo táctil (accesibilidad). */
     minTouch: 44,
     /** Alto de botones. */
-    buttonHeight: { sm: 38, md: 48, lg: 56 },
+    buttonHeight: { sm: 34, md: 42, lg: 50 },
     /** Alto de inputs. */
-    inputHeight: 52,
+    inputHeight: 44,
     /** Tamaño de iconos. */
-    icon: { xs: 14, sm: 16, md: 20, lg: 24, xl: 32 },
+    icon: { xs: 12, sm: 14, md: 18, lg: 22, xl: 28 },
     /** Contenedor de icono en filas/tarjetas. */
-    iconBox: { sm: 36, md: 44, lg: 52 },
+    iconBox: { sm: 30, md: 38, lg: 46 },
 } as const;
 
 /**

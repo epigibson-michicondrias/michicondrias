@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: spacing.xxxl,
-        paddingVertical: spacing.huge,
+        paddingVertical: spacing.xxxl,
         gap: spacing.sm,
     },
     iconContainer: {

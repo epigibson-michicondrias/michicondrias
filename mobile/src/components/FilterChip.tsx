@@ -43,13 +43,13 @@ export default function FilterChip({ label, active, onPress, color, icon, count 
 
 const styles = StyleSheet.create({
     chip: {
-        paddingHorizontal: spacing.lg,
+        paddingHorizontal: spacing.md,
         borderRadius: radius.pill,
         borderWidth: 1,
         alignSelf: 'flex-start',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.xs + spacing.xxs,
-        minHeight: layout.minTouch,
+        gap: spacing.xs,
+        minHeight: 36,
     },
 });

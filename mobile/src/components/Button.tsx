@@ -56,7 +56,7 @@ export default function Button({
                     minHeight: layout.buttonHeight[size],
                     backgroundColor: palette.bg,
                     borderColor: palette.border,
-                    borderWidth: variant === 'secondary' ? 1.5 : 0,
+                    borderWidth: variant === 'secondary' ? 1 : 0,
                     opacity: inactive ? 0.55 : 1,
                     alignSelf: fullWidth ? 'stretch' : 'flex-start',
                 },
@@ -81,10 +81,10 @@ export default function Button({
 
 const styles = StyleSheet.create({
     base: {
-        borderRadius: radius.md,
-        paddingHorizontal: spacing.xl,
+        borderRadius: radius.sm,
+        paddingHorizontal: spacing.lg + 4,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm - 2 },
 });

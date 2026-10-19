@@ -23,7 +23,7 @@ export default function Card({ children, onPress, flush, elevated, style, access
         styles.card,
         { backgroundColor: theme.surface, borderColor: theme.border },
         elevated ? shadow.raised : shadow.card,
-        !flush && { padding: spacing.lg },
+        !flush && { padding: spacing.lg - 2 },
         style,
     ];
     if (onPress) {
@@ -43,5 +43,5 @@ export default function Card({ children, onPress, flush, elevated, style, access
 }
 
 const styles = StyleSheet.create({
-    card: { borderRadius: radius.lg, borderWidth: 1, overflow: 'hidden' },
+    card: { borderRadius: radius.md, borderWidth: 1, overflow: 'hidden' },
 });
