@@ -3,10 +3,9 @@
  * Manages request detail fetching, status updates, and approval flow
  */
 import { useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getListing, getRequest, updateRequestStatus, approveAdoption } from '@/src/services/adopciones';
-import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 import { REQUEST_STATUS } from '@/src/features/adopciones/requestStatus';
 
@@ -14,8 +13,6 @@ export const STATUS_LABELS = REQUEST_STATUS;
 
 export function useApplicationDetail() {
     const { id } = useLocalSearchParams();
-    const router = useRouter();
-    const { user } = useAuth();
     const queryClient = useQueryClient();
 
     const [notes, setNotes] = useState('');
@@ -46,10 +43,10 @@ export function useApplicationDetail() {
             queryClient.invalidateQueries({ queryKey: ['listing-requests'] });
             queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
-            showAlert({ type: 'success', title: 'Éxito', message: 'Estado actualizado correctamente' });
+            showAlert({ type: 'success', title: 'Listo', message: 'Le avisamos a quien envió la solicitud.' });
         },
         onError: (e: Error) => {
-            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo actualizar el estado' });
+            showAlert({ type: 'error', title: 'No se pudo actualizar', message: e.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -66,7 +63,7 @@ export function useApplicationDetail() {
             showAlert({ type: 'success', title: 'Adopción aprobada', message: 'La mascota ya aparece en la cuenta del adoptante.' });
         },
         onError: (e: Error) => {
-            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo aprobar la adopción' });
+            showAlert({ type: 'error', title: 'No se pudo aprobar', message: e.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -74,17 +71,17 @@ export function useApplicationDetail() {
         const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.PENDING;
 
         if (status === 'INTERVIEW_SCHEDULED' && !interviewDate) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una fecha para la entrevista' });
+            showAlert({ type: 'info', title: 'Falta la fecha', message: 'Escribe cuándo y dónde será la entrevista.' });
             return;
         }
 
         showAlert({
             type: 'warning',
-            title: 'Confirmar Acción',
-            message: `¿Cambiar estado a "${statusInfo.label}"?`,
+            title: status === 'REJECTED' ? '¿Rechazar esta solicitud?' : `¿Pasar a «${statusInfo.label}»?`,
+            message: status === 'REJECTED' ? 'Se le avisará a quien la envió. No se puede deshacer.' : 'Se le avisará a quien la envió.',
             showCancel: true,
             cancelText: 'Cancelar',
-            buttonText: 'Confirmar',
+            buttonText: status === 'REJECTED' ? 'Rechazar' : 'Confirmar',
             onButtonPress: () => statusMutation.mutate(status),
         });
     };
@@ -92,7 +89,7 @@ export function useApplicationDetail() {
     const handleApprove = () => {
         showAlert({
             type: 'warning',
-            title: 'Aprobar Adopción',
+            title: '¿Aprobar la adopción?',
             message: '¿Aprobar esta adopción? La mascota se registrará a nombre del adoptante, las demás solicitudes se rechazarán y esta acción no se puede deshacer.',
             showCancel: true,
             cancelText: 'Cancelar',
@@ -105,7 +102,6 @@ export function useApplicationDetail() {
         ? STATUS_LABELS[request.status] || STATUS_LABELS.PENDING
         : STATUS_LABELS.PENDING;
 
-    const goBack = () => router.back();
 
     return {
         // Data
@@ -116,11 +112,12 @@ export function useApplicationDetail() {
         notes,
         interviewDate,
 
+        isMutating: statusMutation.isPending || approveMutation.isPending,
+
         // Actions
         setNotes,
         setInterviewDate,
         handleStatusUpdate,
         handleApprove,
-        goBack,
     };
 }

@@ -1,401 +1,194 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { StyleSheet, View } from 'react-native';
+import { Heart, Dog, Cat } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import FormField from '@/src/components/FormField';
-import Button from '@/src/components/Button';
-import { Camera, Dog, Cat, Heart, MapPin } from 'lucide-react-native';
+import { useListingForm } from '@/src/hooks/adopciones/useListingForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { useListingForm } from '@/src/hooks/adopciones/useListingForm';
-import { font, spacing } from '@/constants/design';
+import { DetailFooter } from '@/src/components/layout/DetailLayout';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
+import FormField from '@/src/components/FormField';
+import FormSection from '@/src/components/forms/FormSection';
+import FormSwitch from '@/src/components/forms/FormSwitch';
+import FormImagePicker from '@/src/components/forms/FormImagePicker';
+import FilterChip from '@/src/components/FilterChip';
+import Button from '@/src/components/Button';
+import { Skeleton } from '@/src/components/Skeleton';
+import { layout, spacing } from '@/constants/design';
 
 const SIZES = ['Pequeño', 'Mediano', 'Grande'];
 const ENERGY_LEVELS = ['Baja', 'Media', 'Alta'];
+const SPECIES = [
+    { value: 'perro', label: 'Perro', icon: Dog },
+    { value: 'gato', label: 'Gato', icon: Cat },
+];
+const GENDERS = [
+    { value: 'macho', label: 'Macho' },
+    { value: 'hembra', label: 'Hembra' },
+];
 
 export default function NuevaAdopcionScreen() {
     const { theme } = useTheme();
     const {
-        form,
-        image,
-        loading,
-        updateField,
-        toggleField,
-        handleImageSelected,
-        handleSave,
-        isEditing,
+        form, image, loading, errors, isEditing, loadingExisting,
+        updateField, toggleField, handleImageSelected, handleImageRemoved, handleSave,
     } = useListingForm();
+    const title = isEditing ? 'Editar publicación' : 'Dar en adopción';
 
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-
-        if (!result.canceled) {
-            handleImageSelected(result.assets[0].uri);
-        }
-    };
-
-    return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+    if (loadingExisting) {
+        return (
             <ScreenContainer>
-                <ScreenHeader title={isEditing ? 'Editar publicación' : 'Poner en Adopción'} />
-
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                    <TouchableOpacity style={styles.imageSelector} onPress={pickImage}>
-                        {image ? (
-                            <Image source={{ uri: image }} style={styles.selectedImage} />
-                        ) : (
-                            <View style={[styles.imagePlaceholder, { backgroundColor: theme.surface }]}>
-                                <Camera size={32} color={theme.textMuted} />
-                                <Text style={[styles.imagePlaceholderText, { color: theme.textMuted }]}>Subir Foto</Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-
-                    <View style={styles.form}>
-                        <FormField label="Nombre del Michi o Lomito" value={form.name} onChangeText={(t) => updateField('name', t)} placeholder="Ej. Bolita" />
-
-                        <Text style={[styles.label, { color: theme.text }]}>Especie</Text>
-                        <View style={styles.speciesRow}>
-                            <TouchableOpacity
-                                style={[styles.choiceBtn, form.species === 'perro' && { backgroundColor: theme.primary, borderColor: theme.primary }]}
-                                onPress={() => updateField('species', 'perro')}
-                            >
-                                <Dog size={20} color={form.species === 'perro' ? '#fff' : theme.textMuted} />
-                                <Text style={[styles.choiceText, { color: form.species === 'perro' ? '#fff' : theme.textMuted }]}>Perro</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.choiceBtn, form.species === 'gato' && { backgroundColor: theme.secondary, borderColor: theme.secondary }]}
-                                onPress={() => updateField('species', 'gato')}
-                            >
-                                <Cat size={20} color={form.species === 'gato' ? '#fff' : theme.textMuted} />
-                                <Text style={[styles.choiceText, { color: form.species === 'gato' ? '#fff' : theme.textMuted }]}>Gato</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <FormField label="Raza (Opcional)" value={form.breed} onChangeText={(t) => updateField('breed', t)} placeholder="Ej. Mestizo" />
-
-                        <View style={styles.row}>
-                            <View style={{ flex: 1 }}>
-                                <FormField label="Edad (Meses)" value={form.age_months} onChangeText={(t) => updateField('age_months', t)} placeholder="Ej. 6" keyboardType="numeric" />
-                            </View>
-                            <View style={{ width: 20 }} />
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.label, { color: theme.text }]}>Género</Text>
-                                <View style={styles.genderRow}>
-                                    <TouchableOpacity
-                                        style={[styles.genderBtn, form.gender === 'macho' && { backgroundColor: theme.primary }]}
-                                        onPress={() => updateField('gender', 'macho')}
-                                    >
-                                        <Text style={[styles.genderBtnText, { color: form.gender === 'macho' ? '#fff' : theme.textMuted }]}>♂️</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[styles.genderBtn, form.gender === 'hembra' && { backgroundColor: theme.secondary }]}
-                                        onPress={() => updateField('gender', 'hembra')}
-                                    >
-                                        <Text style={[styles.genderBtnText, { color: form.gender === 'hembra' ? '#fff' : theme.textMuted }]}>♀️</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-
-                        <Text style={[styles.label, { color: theme.text }]}>Tamaño</Text>
-                        <View style={styles.sizeRow}>
-                            {SIZES.map((size) => (
-                                <TouchableOpacity
-                                    key={size}
-                                    style={[
-                                        styles.sizeBtn,
-                                        { backgroundColor: theme.surface },
-                                        form.size === size && { backgroundColor: theme.primary, borderColor: theme.primary }
-                                    ]}
-                                    onPress={() => updateField('size', size)}
-                                >
-                                    <Text style={[styles.sizeText, { color: form.size === size ? '#fff' : theme.textMuted }]}>{size}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        <Text style={[styles.label, { color: theme.text }]}>Ubicación</Text>
-                        <View style={styles.inputWrapper}>
-                            <MapPin size={18} color={theme.textMuted} style={styles.inputIcon} />
-                            <TextInput
-                                style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text }]}
-                                placeholder="Ej. Ciudad de México, CDMX"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.location}
-                                onChangeText={(t) => updateField('location', t)}
-                            />
-                        </View>
-
-                        <TextInput
-                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text }]}
-                            placeholder="Cuéntanos su historia y qué tipo de familia necesita..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            numberOfLines={4}
-                            value={form.description}
-                            onChangeText={(t) => updateField('description', t)}
-                        />
-
-                        <FormField label="Temperamento / Rasgos" value={form.temperament} onChangeText={(t) => updateField('temperament', t)} placeholder="Ej. Juguetón, Tranquilo, Miedoso..." />
-
-                        <Text style={[styles.label, { color: theme.text }]}>Nivel de Energía</Text>
-                        <View style={styles.sizeRow}>
-                            {ENERGY_LEVELS.map((level) => (
-                                <TouchableOpacity
-                                    key={level}
-                                    style={[
-                                        styles.sizeBtn,
-                                        { backgroundColor: theme.surface },
-                                        form.energy_level === level && { backgroundColor: theme.primary, borderColor: theme.primary }
-                                    ]}
-                                    onPress={() => updateField('energy_level', level)}
-                                >
-                                    <Text style={[styles.sizeText, { color: form.energy_level === level ? '#fff' : theme.textMuted }]}>{level}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        <View style={styles.divider} />
-
-                        <CustomSwitch
-                            label="¿Es un caso urgente?"
-                            active={form.is_emergency}
-                            onPress={() => toggleField('is_emergency')}
-                            theme={theme}
-                            activeColor={theme.error}
-                        />
-
-                        <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>Salud</Text>
-                        <View style={styles.switchGrid}>
-                            <CustomSwitch label="Vacunado" active={form.is_vaccinated} onPress={() => toggleField('is_vaccinated')} theme={theme} />
-                            <CustomSwitch label="Esterilizado" active={form.is_sterilized} onPress={() => toggleField('is_sterilized')} theme={theme} />
-                            <CustomSwitch label="Desparasitado" active={form.is_dewormed} onPress={() => toggleField('is_dewormed')} theme={theme} />
-                        </View>
-
-                        <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>Socialización</Text>
-                        <View style={styles.switchGrid}>
-                            <CustomSwitch label="Apto c/ Gatos" active={form.social_cats} onPress={() => toggleField('social_cats')} theme={theme} />
-                            <CustomSwitch label="Apto c/ Perros" active={form.social_dogs} onPress={() => toggleField('social_dogs')} theme={theme} />
-                            <CustomSwitch label="Apto c/ Niños" active={form.social_children} onPress={() => toggleField('social_children')} theme={theme} />
-                        </View>
-                    </View>
-                </ScrollView>
-
-                <View style={[styles.footer, { borderTopColor: theme.border }]}>
-                    <Button
-                        label={isEditing ? 'Guardar cambios' : 'Publicar Adopción'}
-                        onPress={handleSave}
-                        loading={loading}
-                        icon={<Heart size={18} color={theme.onAccent} />}
-                        variant="gold"
-                    />
+                <ScreenHeader title={title} />
+                <View style={styles.content}>
+                    <Skeleton height={200} />
+                    <Skeleton height={56} />
+                    <Skeleton height={56} />
                 </View>
             </ScreenContainer>
-        </KeyboardAvoidingView>
-    );
-}
+        );
+    }
 
-function CustomSwitch({ label, active, onPress, theme, activeColor }: { label: string, active: boolean, onPress: () => void, theme: any, activeColor?: string }) {
     return (
-        <View style={styles.switchRow}>
-            <Text style={[styles.switchLabel, { color: theme.text }]}>{label}</Text>
-            <TouchableOpacity
-                style={[styles.switch, { backgroundColor: active ? (activeColor || theme.success) : theme.surface }]}
-                onPress={onPress}
-                accessibilityRole="switch"
-                accessibilityLabel={label}
-                accessibilityState={{ checked: active }}
+        <ScreenContainer>
+            <ScreenHeader
+                title={title}
+                subtitle={isEditing ? 'Si cambias datos, se vuelve a revisar' : 'Un admin la revisa antes de publicarla'}
+            />
+            <KeyboardScreen
+                contentContainerStyle={styles.content}
+                footer={(
+                    <DetailFooter>
+                        <Button
+                            label={isEditing ? 'Guardar cambios' : 'Enviar a revisión'}
+                            onPress={handleSave}
+                            loading={loading}
+                            icon={<Heart size={layout.icon.sm} color={theme.onPrimary} />}
+                            size="lg"
+                            style={styles.flex}
+                        />
+                    </DetailFooter>
+                )}
             >
-                <View style={[styles.switchThumb, active && styles.switchThumbActive]} />
-            </TouchableOpacity>
-        </View>
+                <FormSection title="Foto">
+                    <FormImagePicker
+                        imageUri={image}
+                        onImageSelected={handleImageSelected}
+                        onImageRemoved={handleImageRemoved}
+                        aspect={[1, 1]}
+                        previewHeight={200}
+                        placeholder="Una foto clara de su cara ayuda a que lo adopten"
+                    />
+                </FormSection>
+
+                <FormSection title="¿Quién es?">
+                    <FormField
+                        label="Nombre *"
+                        value={form.name}
+                        onChangeText={(t) => updateField('name', t)}
+                        placeholder="Ej. Bolita"
+                        maxLength={60}
+                        error={errors.name}
+                    />
+                    <View style={styles.chips}>
+                        {SPECIES.map(({ value, label, icon: Icon }) => {
+                            const active = form.species === value;
+                            return (
+                                <FilterChip
+                                    key={value}
+                                    label={label}
+                                    active={active}
+                                    onPress={() => updateField('species', value)}
+                                    icon={<Icon size={layout.icon.xs} color={active ? theme.onPrimary : theme.textMuted} />}
+                                />
+                            );
+                        })}
+                        {GENDERS.map(({ value, label }) => (
+                            <FilterChip key={value} label={label} active={form.gender === value} onPress={() => updateField('gender', value)} />
+                        ))}
+                    </View>
+                    <View style={styles.row}>
+                        <View style={styles.flex}>
+                            <FormField label="Raza" value={form.breed} onChangeText={(t) => updateField('breed', t)} placeholder="Ej. Mestizo" />
+                        </View>
+                        <View style={styles.flex}>
+                            <FormField
+                                label="Edad en meses"
+                                value={form.age_months}
+                                onChangeText={(t) => updateField('age_months', t.replace(/\D/g, ''))}
+                                placeholder="Ej. 6"
+                                keyboardType="number-pad"
+                                maxLength={3}
+                                error={errors.age_months}
+                            />
+                        </View>
+                    </View>
+                    <FormField
+                        label="Ubicación *"
+                        value={form.location}
+                        onChangeText={(t) => updateField('location', t)}
+                        placeholder="Ej. Guadalajara, Jalisco"
+                        error={errors.location}
+                    />
+                </FormSection>
+
+                <FormSection title="Tamaño y energía">
+                    <View style={styles.chips}>
+                        {SIZES.map((size) => (
+                            <FilterChip key={size} label={size} active={form.size === size} onPress={() => updateField('size', size)} />
+                        ))}
+                    </View>
+                    <View style={styles.chips}>
+                        {ENERGY_LEVELS.map((level) => (
+                            <FilterChip key={level} label={`Energía ${level.toLowerCase()}`} active={form.energy_level === level} onPress={() => updateField('energy_level', level)} />
+                        ))}
+                    </View>
+                </FormSection>
+
+                <FormSection title="Su historia">
+                    <FormField
+                        label="Historia"
+                        value={form.description}
+                        onChangeText={(t) => updateField('description', t)}
+                        placeholder="Cómo llegó contigo y qué tipo de familia necesita"
+                        multiline
+                    />
+                    <FormField
+                        label="Personalidad"
+                        value={form.temperament}
+                        onChangeText={(t) => updateField('temperament', t)}
+                        placeholder="Separada por comas: juguetón, tranquilo, cariñoso"
+                    />
+                </FormSection>
+
+                <FormSection title="Salud">
+                    <FormSwitch label="Vacunado" value={form.is_vaccinated} onChange={() => toggleField('is_vaccinated')} />
+                    <FormSwitch label="Desparasitado" value={form.is_dewormed} onChange={() => toggleField('is_dewormed')} />
+                    <FormSwitch label="Esterilizado" value={form.is_sterilized} onChange={() => toggleField('is_sterilized')} />
+                </FormSection>
+
+                <FormSection title="Convivencia">
+                    <FormSwitch label="Convive con perros" value={form.social_dogs} onChange={() => toggleField('social_dogs')} />
+                    <FormSwitch label="Convive con gatos" value={form.social_cats} onChange={() => toggleField('social_cats')} />
+                    <FormSwitch label="Convive con niños" value={form.social_children} onChange={() => toggleField('social_children')} />
+                </FormSection>
+
+                <FormSection title="Prioridad">
+                    <FormSwitch
+                        variant="switch"
+                        label="Caso urgente"
+                        description="Se destaca en el listado. Úsalo solo si corre peligro o necesita hogar ya."
+                        value={form.is_emergency}
+                        onChange={() => toggleField('is_emergency')}
+                    />
+                </FormSection>
+            </KeyboardScreen>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    scroll: {
-        padding: spacing.xxl,
-    },
-    imageSelector: {
-        alignSelf: 'center',
-        width: 150,
-        height: 150,
-        borderRadius: 24,
-        overflow: 'hidden',
-        marginBottom: spacing.xxxl,
-    },
-    imagePlaceholder: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 2,
-        borderColor: 'rgba(128,128,128,0.2)',
-        borderStyle: 'dashed',
-    },
-    imagePlaceholderText: {
-        fontSize: font.md,
-        fontWeight: '700',
-        marginTop: spacing.sm,
-    },
-    selectedImage: {
-        width: '100%',
-        height: '100%',
-    },
-    form: {
-        gap: spacing.lg,
-    },
-    label: {
-        fontSize: font.base,
-        fontWeight: '800',
-        marginBottom: spacing.xs,
-        marginLeft: spacing.xs,
-    },
-    input: {
-        height: 56,
-        borderRadius: 16,
-        paddingHorizontal: spacing.lg,
-        fontSize: font.xl,
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    inputWrapper: {
-        position: 'relative',
-    },
-    inputIcon: {
-        position: 'absolute',
-        left: 16,
-        top: 18,
-        zIndex: 1,
-    },
-    inputWithIcon: {
-        paddingLeft: spacing.huge,
-    },
-    textArea: {
-        height: 120,
-        paddingTop: spacing.lg,
-        textAlignVertical: 'top',
-    },
-    speciesRow: {
-        flexDirection: 'row',
-        gap: spacing.md,
-    },
-    choiceBtn: {
-        flex: 1,
-        height: 50,
-        borderRadius: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: spacing.md,
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    choiceText: {
-        fontSize: font.lg,
-        fontWeight: '700',
-    },
-    row: {
-        flexDirection: 'row',
-    },
-    genderRow: {
-        flexDirection: 'row',
-        gap: spacing.md,
-    },
-    genderBtn: {
-        flex: 1,
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(128,128,128,0.08)',
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    genderBtnText: {
-        fontSize: font.h3,
-    },
-    sizeRow: {
-        flexDirection: 'row',
-        gap: spacing.sm,
-    },
-    sizeBtn: {
-        flex: 1,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    sizeText: {
-        fontSize: font.md,
-        fontWeight: '700',
-    },
-    footer: {
-        padding: spacing.xxl,
-        paddingBottom: spacing.huge,
-        borderTopWidth: 1,
-    },
-    saveBtn: {
-        height: 64,
-        borderRadius: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#ec4899',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
-        elevation: 8,
-    },
-    saveBtnText: {
-        color: '#fff',
-        fontSize: font.xxl,
-        fontWeight: '800',
-    },
-    divider: {
-        height: 1,
-        backgroundColor: 'rgba(128,128,128,0.08)',
-        marginVertical: spacing.sm,
-    },
-    sectionSubtitle: {
-        fontSize: font.md,
-        fontWeight: '900',
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-        marginTop: spacing.md,
-    },
-    switchGrid: {
-        gap: spacing.md,
-    },
-    switchRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: spacing.xs,
-    },
-    switchLabel: {
-        fontSize: font.base,
-        fontWeight: '600',
-    },
-    switch: {
-        width: 48,
-        height: 26,
-        borderRadius: 13,
-        padding: spacing.xs,
-    },
-    switchThumb: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        backgroundColor: '#fff',
-    },
-    switchThumbActive: {
-        alignSelf: 'flex-end',
-    }
+    flex: { flex: 1 },
+    content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+    row: { flexDirection: 'row', gap: spacing.md },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
 });

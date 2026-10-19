@@ -59,7 +59,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ✅ | ✅ | F18–F20 ✅. U8 ✅ 2026-10-19: pestaña (favoritos, ordenar, cuadrícula/lista, agregar rápido, CartBar), producto, bolsa, compras con filtros, pedido con seguimiento y «Volver a comprar» |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
 | P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
-| P2 | Adopciones | 12 | ⬜ | ⬜ | ⬜ | Muchas pantallas de solicitudes: ¿fusionar? |
+| P2 | Adopciones | 12 | 🔍 | 🟡 | ✅ | U ✅ 2026-10-19. Pendiente: KYC en backend; fusionar `solicitudes` y `ver-solicitudes` (requiere aprobación) |
 | P2 | Perdidas | 4 | ⬜ | ⬜ | ⬜ | |
 | P2 | Paseadores / Cuidadores (cliente) | 4+4 | ⬜ | ⬜ | ⬜ | Detalles de 844 y 938 líneas casi gemelos → componente compartido |
 | P2 | Pet-friendly / Establecimientos | 3+4 | ⬜ | ⬜ | ⬜ | Dos módulos de "lugares": ¿solapan? (ambos en Explorar) |
@@ -828,4 +828,12 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   secciones en `src/features/home/HomeSections.tsx` (`ShortcutGrid`, `PetCarousel` con skeleton y sin fotos de
   Unsplash, `AppointmentList`, `ServiceGrid`), pull-to-refresh; Explorar agrupado por categoría con Diagnóstico IA
   como un servicio más (sin banner duplicado); `SearchBar` con modo `onPress`; pestaña «Herramientas» → «Panel».
+- **2026-10-19** — **Paso 3: Adopciones** (12 pantallas premium). Solicitar (pasos con `FormField`/`FormSwitch`/
+  `FilterChip`, errores en línea, puertas de admin y verificación con `EmptyState`; veterinarios ya pueden adoptar),
+  publicar/editar (`FormImagePicker`, secciones, skeleton al editar), gestionar solicitud (estado + siguiente paso,
+  datos del hogar, entrevista, «Rechazar» + acción principal fija), «Solicitudes recibidas» en una lista con filtros
+  (`RequestCard` compartida con `ver-solicitudes`), mis solicitudes (sin «En vivo» falso), mis publicaciones
+  (`MediaRow` con editar/eliminar; sin eliminar en adoptadas), compatibilidad y contrato con `Button`/`DetailFooter`.
+  La cabecera de Adopciones lleva a mis solicitudes y mis publicaciones. Base: `FormSection` con `gap` (los
+  `FormSwitch` dentro no suman margen) y `EmptyState` con la acción centrada.
 

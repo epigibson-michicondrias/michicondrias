@@ -1,12 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { DetailFooter } from '@/src/components/layout/DetailLayout';
+import Button from '@/src/components/Button';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { FileCheck, PenTool } from 'lucide-react-native';
 import { useAdoptionContract } from '@/src/hooks/adopciones/useAdoptionContract';
-import { font, spacing } from '@/constants/design';
+import { font, layout, radius, spacing } from '@/constants/design';
 
 export default function AdoptionContractScreen() {
     const { theme } = useTheme();
@@ -49,55 +51,42 @@ export default function AdoptionContractScreen() {
                 </View>
             </ScrollView>
 
-            <View style={[styles.footer, { borderTopColor: theme.border }]}>
-                <TouchableOpacity
-                    accessibilityRole="button"
-                    accessibilityLabel="Rechazar postulación"
+            <DetailFooter>
+                <Button
+                    label="Rechazar"
+                    variant="secondary"
                     onPress={handleReject}
-                    disabled={isRejecting || isSigning}
-                    style={{ alignItems: 'center', paddingVertical: spacing.md, marginBottom: spacing.sm }}
-                >
-                    <Text style={{ color: theme.error, fontWeight: '800' }}>{isRejecting ? 'Rechazando...' : 'Rechazar postulación'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    accessibilityRole="button"
-                    accessibilityLabel="Firmar contrato"
-                    style={[
-                        styles.signBtn,
-                        {
-                            backgroundColor: agreed ? theme.primary : theme.surface,
-                            borderColor: agreed ? theme.primary : theme.border,
-                        },
-                        isSigning && { opacity: 0.7 },
-                    ]}
+                    loading={isRejecting}
+                    disabled={isSigning}
+                    size="lg"
+                    style={styles.flex}
+                />
+                <Button
+                    label="Firmar contrato"
+                    icon={<PenTool size={layout.icon.sm} color={theme.onPrimary} />}
                     onPress={handleSign}
-                    disabled={isSigning || !agreed}
-                >
-                    {isSigning ? (
-                        <ActivityIndicator color={agreed ? '#fff' : theme.textMuted} />
-                    ) : (
-                        <View style={styles.btnContent}>
-                            <PenTool size={20} color={agreed ? '#fff' : theme.textMuted} />
-                            <Text style={[styles.signBtnText, { color: agreed ? '#fff' : theme.textMuted }]}>
-                                Firmar Contrato
-                            </Text>
-                        </View>
-                    )}
-                </TouchableOpacity>
-            </View>
+                    loading={isSigning}
+                    disabled={!agreed || isRejecting}
+                    size="lg"
+                    style={styles.primary}
+                />
+            </DetailFooter>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
+    flex: { flex: 1 },
+    primary: { flex: 1.6 },
     content: {
-        padding: spacing.xxl,
-        paddingBottom: spacing.huge,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.xl,
     },
     contractHeader: {
         alignItems: 'center',
         padding: spacing.xxl,
-        borderRadius: 20,
+        borderRadius: radius.lg,
         marginBottom: spacing.xxl,
         gap: spacing.sm,
     },
@@ -113,36 +102,14 @@ const styles = StyleSheet.create({
     },
     contractBox: {
         padding: spacing.xl,
-        borderRadius: 20,
+        borderRadius: radius.lg,
         borderWidth: 1,
         marginBottom: spacing.xxl,
     },
     contractText: {
         fontSize: font.base,
-        lineHeight: 22,
     },
     agreementSection: {
         marginBottom: spacing.sm,
-    },
-    footer: {
-        padding: spacing.xxl,
-        paddingBottom: spacing.huge,
-        borderTopWidth: 1,
-    },
-    signBtn: {
-        height: 60,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-    },
-    btnContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-    },
-    signBtnText: {
-        fontSize: font.xxl,
-        fontWeight: '800',
     },
 });

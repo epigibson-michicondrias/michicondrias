@@ -30,11 +30,11 @@ export function useMyListings() {
             showAlert({ type: 'success', title: 'Actualizado', message: 'La publicación se actualizó correctamente.' });
         },
         onError: (e: Error) => {
-            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo actualizar la publicación.' });
+            showAlert({ type: 'error', title: 'No se pudo actualizar', message: e.message || 'Inténtalo de nuevo.' });
         },
     });
 
-    const deleteeMutation = useMutation({
+    const deleteMutation = useMutation({
         mutationFn: (id: string) => deleteListing(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
@@ -43,7 +43,7 @@ export function useMyListings() {
             showAlert({ type: 'success', title: 'Eliminada', message: 'La publicación ha sido eliminada.' });
         },
         onError: (e: Error) => {
-            showAlert({ type: 'error', title: 'Error', message: e.message || 'No se pudo eliminar la publicación.' });
+            showAlert({ type: 'error', title: 'No se pudo eliminar', message: e.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -63,7 +63,7 @@ export function useMyListings() {
             showCancel: true,
             cancelText: 'Cancelar',
             buttonText: 'Eliminar',
-            onButtonPress: () => deleteeMutation.mutate(id),
+            onButtonPress: () => deleteMutation.mutate(id),
         });
     };
 
@@ -78,7 +78,8 @@ export function useMyListings() {
         handleUpdate,
         handleDelete,
         isUpdating: updateMutation.isPending,
-        isDeleting: deleteeMutation.isPending,
+        isDeleting: deleteMutation.isPending,
+        deletingId: deleteMutation.isPending ? deleteMutation.variables : undefined,
     };
 }
 

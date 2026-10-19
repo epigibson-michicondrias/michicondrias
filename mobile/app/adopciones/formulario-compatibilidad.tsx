@@ -1,8 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { DetailFooter } from '@/src/components/layout/DetailLayout';
+import Button from '@/src/components/Button';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSelect from '@/src/components/forms/FormSelect';
 import FormSwitch from '@/src/components/forms/FormSwitch';
@@ -12,7 +14,7 @@ import {
     EXPERIENCE_OPTIONS,
     HOURS_OPTIONS,
 } from '@/src/hooks/adopciones/useCompatibilityForm';
-import { font, spacing } from '@/constants/design';
+import { font, layout, radius, spacing } from '@/constants/design';
 
 export default function FormularioCompatibilidadScreen() {
     const { theme } = useTheme();
@@ -135,42 +137,36 @@ export default function FormularioCompatibilidadScreen() {
                 {renderStep()}
             </ScrollView>
 
-            <View style={[styles.footer, { borderTopColor: theme.border }]}>
+            <DetailFooter>
                 {isLastStep ? (
-                    <TouchableOpacity
-                        style={[styles.primaryBtn, { backgroundColor: theme.primary }, isSubmitting && { opacity: 0.7 }]}
+                    <Button
+                        label="Enviar formulario"
+                        icon={<Check size={layout.icon.sm} color={theme.onPrimary} />}
                         onPress={handleSubmit}
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <View style={styles.btnContent}>
-                                <Check size={20} color="#fff" />
-                                <Text style={styles.btnText}>Enviar Formulario</Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
+                        loading={isSubmitting}
+                        size="lg"
+                        style={styles.flex}
+                    />
                 ) : (
-                    <TouchableOpacity
-                        style={[styles.primaryBtn, { backgroundColor: theme.primary }]}
+                    <Button
+                        label="Siguiente"
+                        iconRight={<ChevronRight size={layout.icon.sm} color={theme.onPrimary} />}
                         onPress={nextStep}
-                    >
-                        <View style={styles.btnContent}>
-                            <Text style={styles.btnText}>Siguiente</Text>
-                            <ChevronRight size={20} color="#fff" />
-                        </View>
-                    </TouchableOpacity>
+                        size="lg"
+                        style={styles.flex}
+                    />
                 )}
-            </View>
+            </DetailFooter>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
+    flex: { flex: 1 },
     content: {
-        padding: spacing.xxl,
-        paddingBottom: spacing.huge,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.xl,
     },
     stepIndicator: {
         flexDirection: 'row',
@@ -189,7 +185,7 @@ const styles = StyleSheet.create({
     infoCard: {
         flexDirection: 'row',
         padding: spacing.lg,
-        borderRadius: 16,
+        borderRadius: radius.md,
         gap: spacing.md,
         marginTop: spacing.lg,
         alignItems: 'center',
@@ -198,26 +194,5 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: font.base,
         lineHeight: 18,
-    },
-    footer: {
-        padding: spacing.xxl,
-        paddingBottom: spacing.huge,
-        borderTopWidth: 1,
-    },
-    primaryBtn: {
-        height: 60,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    btnContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-    },
-    btnText: {
-        color: '#fff',
-        fontSize: font.xxl,
-        fontWeight: '800',
     },
 });

@@ -23,7 +23,7 @@ export default function EmptyState({ icon, title, subtitle, actionLabel, onActio
             </View>
             <Text style={[type.title, styles.center, { color: theme.text }]}>{title}</Text>
             {subtitle ? <Text style={[type.body, styles.center, styles.subtitle, { color: theme.textMuted }]}>{subtitle}</Text> : null}
-            {actionLabel && onAction ? <Button label={actionLabel} onPress={onAction} fullWidth={false} /> : null}
+            {actionLabel && onAction ? <Button label={actionLabel} onPress={onAction} fullWidth={false} style={styles.action} /> : null}
         </View>
     );
 }
@@ -50,4 +50,5 @@ const styles = StyleSheet.create({
     },
     center: { textAlign: 'center' },
     subtitle: { marginBottom: spacing.lg },
+    action: { alignSelf: 'center' },
 });

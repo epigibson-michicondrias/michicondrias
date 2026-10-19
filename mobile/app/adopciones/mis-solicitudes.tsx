@@ -1,15 +1,18 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Image } from 'react-native';
+import { PawPrint, Clock, CheckCircle2, XCircle, Search, MessageSquare, PartyPopper, Check, Heart } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { PawPrint, Info, Clock, CheckCircle2, XCircle, Search, MessageSquare, PartyPopper, ChevronRight, Check } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
+import Card from '@/src/components/Card';
+import Badge from '@/src/components/Badge';
+import ListRow from '@/src/components/ListRow';
 import { useMyApplications } from '@/src/hooks/adopciones/useMyApplications';
+import { useRequestStatus } from '@/src/features/adopciones/requestStatus';
 import type { AdoptionRequest } from '@/src/types/adopciones';
-import { font, spacing, layout } from '@/constants/design';
-
-const { width } = Dimensions.get('window');
+import { formatDate } from '@/src/utils/formatters';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
 
 const STEP_ICONS = {
     PENDING: Clock,
@@ -19,113 +22,69 @@ const STEP_ICONS = {
     ADOPTED: PartyPopper,
 } as const;
 
+const DOT = layout.iconBox.sm - spacing.sm;
+
 export default function MisSolicitudesScreen() {
     const { theme } = useTheme();
-    const {
-        requests,
-        isLoading,
-        isRefetching,
-        refetch,
-        getProgressIndex,
-        goToExplore,
-        goToMyPets,
-        STEPS,
-    } = useMyApplications();
+    const statusOf = useRequestStatus();
+    const { requests, isLoading, isRefetching, refetch, getProgressIndex, goToExplore, goToMyPets, STEPS } = useMyApplications();
 
     const renderItem = ({ item }: { item: AdoptionRequest }) => {
-        const currentIdx = getProgressIndex(item.status);
-        const isRejected = ["REJECTED", "RECHAZADO"].includes((item.status || "").toUpperCase());
-
+        const current = getProgressIndex(item.status);
+        const isRejected = item.status === 'REJECTED';
+        const status = statusOf(item.status);
         return (
-            <View style={[styles.card, { backgroundColor: theme.surface }]}>
-                {/* Header info */}
-                <View style={styles.cardHeader}>
-                    {item.pet_photo_url ? (
-                        <Image source={{ uri: item.pet_photo_url }} style={styles.petImage} />
+            <Card>
+                <View style={styles.body}>
+                    <View style={styles.head}>
+                        <View style={[styles.photo, { backgroundColor: theme.primary + tint.faint }]}>
+                            {item.pet_photo_url
+                                ? <Image source={{ uri: item.pet_photo_url }} style={styles.fill} />
+                                : <PawPrint size={layout.icon.md} color={theme.primary} />}
+                        </View>
+                        <View style={styles.flex}>
+                            <Text style={[type.title, { color: theme.text }]} numberOfLines={1}>{item.pet_name || 'Mascota'}</Text>
+                            <Text style={[type.caption, { color: theme.textMuted }]}>Enviada el {formatDate(item.created_at)}</Text>
+                        </View>
+                        <Badge label={status.label} color={status.color} size="sm" />
+                    </View>
+
+                    {isRejected ? (
+                        <View style={[styles.note, { backgroundColor: theme.error + tint.faint }]}>
+                            <XCircle size={layout.icon.sm} color={theme.error} />
+                            <Text style={[type.body, styles.flex, { color: theme.text }]}>
+                                Esta vez no siguió adelante. Hay más mascotas buscando hogar.
+                            </Text>
+                        </View>
+                    ) : item.status === 'ADOPTED' ? (
+                        <ListRow
+                            icon={PartyPopper}
+                            color={theme.success}
+                            label="¡Felicidades, ya es parte de tu familia!"
+                            desc="Ya está registrada en tus mascotas"
+                            onPress={goToMyPets}
+                        />
                     ) : (
-                        <View style={[styles.petImage, { backgroundColor: theme.overlay, alignItems: 'center', justifyContent: 'center' }]}>
-                            <PawPrint size={28} color={theme.textMuted} />
-                        </View>
-                    )}
-                    <View style={styles.headerText}>
-                        <Text style={[styles.petName, { color: theme.text }]}>Adopción de {item.pet_name || 'Mascota'}</Text>
-                        <View style={styles.idRow}>
-                            <View style={[styles.idBadge, { backgroundColor: theme.primary + '15' }]}>
-                                <Text style={[styles.idText, { color: theme.primary }]}>#{item.id.substring(0, 8).toUpperCase()}</Text>
+                        <View style={styles.stepper}>
+                            <View style={[styles.line, { backgroundColor: theme.border }]}>
+                                <View style={[styles.lineFill, { backgroundColor: theme.primary, width: `${(current / (STEPS.length - 1)) * 100}%` }]} />
                             </View>
-                            <Text style={[styles.dateText, { color: theme.textMuted }]}>Enviada para evaluación</Text>
-                        </View>
-                    </View>
-                </View>
-
-                {isRejected ? (
-                    <View style={[styles.rejectedBanner, { backgroundColor: theme.error + '15' }]}>
-                        <XCircle size={18} color={theme.error} />
-                        <Text style={[styles.bannerText, { color: theme.error }]}>
-                            El refugio no continuó con esta solicitud. Puedes explorar otras mascotas en adopción.
-                        </Text>
-                    </View>
-                ) : (
-                    <>
-                        {item.status === "ADOPTED" && (
-                            <TouchableOpacity
-                                style={[styles.adoptedBanner, { backgroundColor: theme.success + '15' }]}
-                                onPress={goToMyPets}
-                            >
-                                <PartyPopper size={20} color={theme.success} />
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.bannerTitle, { color: theme.success }]}>¡Felicidades! Adopción Finalizada</Text>
-                                    <Text style={[styles.bannerSub, { color: theme.success, opacity: 0.8 }]}>
-                                        Tu nuevo mejor amigo ya está registrado. Toca para ver tus mascotas.
-                                    </Text>
-                                </View>
-                                <ChevronRight size={18} color={theme.success} />
-                            </TouchableOpacity>
-                        )}
-
-                        {/* Stepper */}
-                        <View style={styles.stepperContainer}>
-                            <View style={[styles.stepperLine, { backgroundColor: theme.border }]}>
-                                <View
-                                    style={[
-                                        styles.stepperFill,
-                                        {
-                                            backgroundColor: theme.primary,
-                                            width: `${(currentIdx / (STEPS.length - 1)) * 100}%`
-                                        }
-                                    ]}
-                                />
-                            </View>
-                            <View style={styles.stepsRow}>
+                            <View style={styles.steps}>
                                 {STEPS.map((step, idx) => {
-                                    const isCompleted = idx < currentIdx;
-                                    const isActive = idx === currentIdx;
+                                    const done = idx < current;
+                                    const active = idx === current;
                                     const Icon = STEP_ICONS[step.key as keyof typeof STEP_ICONS] || Clock;
-
                                     return (
-                                        <View key={step.key} style={styles.stepItem}>
-                                            <View
-                                                style={[
-                                                    styles.stepIconBox,
-                                                    { backgroundColor: theme.surface, borderColor: theme.border },
-                                                    isCompleted && { backgroundColor: theme.primary, borderColor: theme.primary },
-                                                    isActive && { borderColor: theme.primary, borderWidth: 2 }
-                                                ]}
-                                            >
-                                                {isCompleted ? (
-                                                    <Check size={12} color="#fff" strokeWidth={3} />
-                                                ) : (
-                                                    <Icon size={12} color={isActive ? theme.primary : theme.textMuted} />
-                                                )}
+                                        <View key={step.key} style={styles.step}>
+                                            <View style={[
+                                                styles.dot,
+                                                { backgroundColor: done ? theme.primary : theme.surface, borderColor: done || active ? theme.primary : theme.border },
+                                            ]}>
+                                                {done
+                                                    ? <Check size={layout.icon.xs} color={theme.onPrimary} strokeWidth={3} />
+                                                    : <Icon size={layout.icon.xs} color={active ? theme.primary : theme.textMuted} />}
                                             </View>
-                                            <Text
-                                                style={[
-                                                    styles.stepLabel,
-                                                    { color: theme.textMuted },
-                                                    isActive && { color: theme.primary, fontWeight: '800' }
-                                                ]}
-                                                numberOfLines={1}
-                                            >
+                                            <Text style={[type.caption, styles.stepLabel, { color: active ? theme.primary : theme.textMuted }]} numberOfLines={1}>
                                                 {step.label}
                                             </Text>
                                         </View>
@@ -133,46 +92,28 @@ export default function MisSolicitudesScreen() {
                                 })}
                             </View>
                         </View>
-                    </>
-                )}
-            </View>
+                    )}
+                </View>
+            </Card>
         );
     };
 
-    const ListHeader = (
-        <View style={[styles.infoCard, { backgroundColor: theme.primary + '10' }]}>
-            <Info size={20} color={theme.primary} />
-            <Text style={[styles.infoText, { color: theme.text }]}>
-                El equipo de rescate valida periódicamente el estatus de cada trámite. Recibirás una notificación ante cualquier cambio.
-            </Text>
-        </View>
-    );
-
     return (
         <ScreenContainer>
-            <ScreenHeader
-                title="Mis Solicitudes"
-            />
-
-            {/* Live indicator below header */}
-            <View style={styles.liveIndicatorRow}>
-                <View style={styles.liveDot} />
-                <Text style={styles.liveText}>En Vivo</Text>
-            </View>
-
+            <ScreenHeader title="Mis solicitudes" subtitle="Te avisamos cada vez que cambie su estado" />
             <DataList
                 data={requests}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
                 isLoading={isLoading}
-                loadingMessage="Consultando estatus en tiempo real..."
+                skeleton
                 onRefresh={refetch}
                 isRefreshing={isRefetching}
-                contentStyle={styles.list}
-                header={ListHeader}
-                emptyIcon={<CheckCircle2 size={48} color={theme.textMuted} strokeWidth={1} />}
-                emptyTitle="Aún no has solicitado ninguna adopción"
-                emptyActionLabel="Explorar Mascotas"
+                emptyIcon={<Heart size={layout.icon.xl} color={theme.textMuted} strokeWidth={1.5} />}
+                emptyTitle="Aún no has pedido adoptar"
+                emptySubtitle="Cuando postules por una mascota, aquí verás en qué paso va."
+                emptyActionLabel="Ver mascotas en adopción"
                 onEmptyAction={goToExplore}
             />
         </ScreenContainer>
@@ -180,31 +121,25 @@ export default function MisSolicitudesScreen() {
 }
 
 const styles = StyleSheet.create({
-    liveIndicatorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: layout.screenPadding, marginBottom: spacing.md },
-    liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981' },
-    liveText: { fontSize: font.xs, fontWeight: '800', color: '#10b981', textTransform: 'uppercase' },
-    list: { padding: spacing.xl, paddingBottom: spacing.huge },
-    infoCard: { flexDirection: 'row', padding: spacing.lg, borderRadius: 20, gap: spacing.md, marginBottom: spacing.xxl, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    infoText: { flex: 1, fontSize: font.md, fontWeight: '600', lineHeight: 18 },
-    card: { borderRadius: 28, padding: spacing.xl, marginBottom: spacing.xl, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 5 },
-    cardHeader: { flexDirection: 'row', gap: spacing.lg, alignItems: 'center', marginBottom: spacing.xl },
-    petImage: { width: 64, height: 64, borderRadius: 32, borderWidth: 3, borderColor: '#7c3aed' },
-    headerText: { flex: 1, gap: spacing.xs },
-    petName: { fontSize: font.xxl, fontWeight: '800' },
-    idRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    idBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6 },
-    idText: { fontSize: font.xs, fontWeight: '800' },
-    dateText: { fontSize: font.sm, fontWeight: '600' },
-    rejectedBanner: { flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: 16, alignItems: 'center' },
-    adoptedBanner: { flexDirection: 'row', gap: spacing.md, padding: spacing.lg, borderRadius: 20, alignItems: 'center' },
-    bannerTitle: { fontSize: font.base, fontWeight: '800' },
-    bannerSub: { fontSize: font.sm, fontWeight: '600', marginTop: spacing.xxs },
-    bannerText: { flex: 1, fontSize: font.md, fontWeight: '700', lineHeight: 18 },
-    stepperContainer: { marginTop: spacing.md },
-    stepperLine: { height: 3, width: '100%', borderRadius: 1.5, position: 'absolute', top: 12, left: 0 },
-    stepperFill: { height: '100%', borderRadius: 1.5 },
-    stepsRow: { flexDirection: 'row', justifyContent: 'space-between' },
-    stepItem: { alignItems: 'center', width: (width - 80) / 5 },
-    stepIconBox: { width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
-    stepLabel: { fontSize: font.xs, fontWeight: '700', marginTop: spacing.sm },
+    flex: { flex: 1 },
+    fill: { width: '100%', height: '100%' },
+    body: { gap: spacing.md },
+    head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    photo: {
+        width: layout.iconBox.lg,
+        height: layout.iconBox.lg,
+        borderRadius: radius.md,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    note: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
+    stepper: { paddingTop: spacing.xs },
+    line: { position: 'absolute', top: spacing.xs + DOT / 2, left: '10%', right: '10%', height: 2, borderRadius: radius.pill },
+    lineFill: { height: '100%', borderRadius: radius.pill },
+    steps: { flexDirection: 'row' },
+    step: { flex: 1, alignItems: 'center', gap: spacing.xs },
+    dot: { width: DOT, height: DOT, borderRadius: DOT / 2, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
+    stepLabel: { textAlign: 'center' },
+    separator: { height: spacing.md },
 });

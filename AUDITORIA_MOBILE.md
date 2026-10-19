@@ -466,10 +466,10 @@ Arreglos:
 - [ ] P0 Flujo B roto de punta a punta: formulario inalcanzable; el contrato promete «aprobada» sin cerrar la publicación ni transferir la mascota (`pets.py:500`); `mis-solicitudes` no lo muestra. Decidir: quitarlo o integrarlo
 - [ ] P0 `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba y deja sin salida la aprobación real (:152)
 - [ ] P1 Privacidad: `GET /pets/{id}` público con `adopted_by`, microchip y publicaciones sin aprobar
-- [ ] P1 KYC solo en el cliente; veterinarios bloqueados para adoptar (`solicitar/[id].tsx:32,52`)
-- [ ] P1 Consumidor que publica sin acceso a «Mis publicaciones»; ~~el dueño sin CTA a sus solicitudes~~ ✅ 2026-10-19 («Ver solicitudes recibidas»)
+- [ ] P1 KYC solo en el cliente (sigue: falta validarlo en el backend); ~~veterinarios bloqueados para adoptar~~ ✅ 2026-10-19 (solo admin) (`solicitar/[id].tsx:32,52`)
+- [x] P1 Consumidor que publica sin acceso a «Mis publicaciones» ✅ 2026-10-19 (cabecera de Adopciones: mis solicitudes, mis publicaciones, publicar); el dueño sin CTA a sus solicitudes ✅
 - [ ] P1 Admin → `/adopciones/solicitudes?id=` ignora el parámetro (`admin/moderacion/index.tsx:221`)
-- [ ] P1 «En Vivo» falso y refresh duplicado (`mis-solicitudes.tsx`). Eliminar en adoptadas. Aviso de remoderación al editar
+- [x] P1 «En Vivo» falso y refresh duplicado (`mis-solicitudes.tsx`) ✅ 2026-10-19. Eliminar en adoptadas. Aviso de remoderación al editar
 - [ ] P2 Fusionar las 3 pantallas de solicitudes. N+1 de `useApplications`. Query keys unificadas. `RoleGuard` en `refugio/*`. Skeleton en lugar de `LoadingOverlay` (5 pantallas), tokens, `FormField`/`KeyboardScreen` en `nuevo`
 
 ---
@@ -1044,12 +1044,12 @@ Pantallas con más deuda: `(tabs)/index` (605 l.), `adopciones/solicitar/[id]`, 
 ### Revisión de P0 abiertos (en código)
 - [x] Directorio: cancelar cita ya manda `{cancellation_reason}`; `vet_id` ya viaja al agendar desde el especialista.
 - [x] Perfil: `paleta` y `kyc` ya no existen; Carnet: `recordatorios` ya no existe.
-- [ ] **P0 Paseadores**: el modal arranca con `walkDate = ''` → `new Date('T12:00:00')` = *Invalid Date* en el selector (`paseadores/[id].tsx:199`).
-- [ ] **P0 Cuidadores**: filtros y etiquetas usan `daycare`/`boarding`, el backend usa `hosting`/`visiting`/`both` → los filtros no devuelven nada (`cuidadores/index.tsx:77,151`).
-- [ ] **P0 Adopciones**: el modal de `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba (`APPROVED` = «pre-aprobada»), muestra el estado en inglés («Solicitud APPROVED») y no lleva a la aprobación final, que solo existe en `solicitud/[id]`.
+- [x] **P0 Paseadores** ✅ 2026-10-19: el modal arranca con `walkDate = ''` → `new Date('T12:00:00')` = *Invalid Date* en el selector (`paseadores/[id].tsx:199`).
+- [x] **P0 Cuidadores** ✅ 2026-10-19: filtros y etiquetas usan `daycare`/`boarding`, el backend usa `hosting`/`visiting`/`both` → los filtros no devuelven nada (`cuidadores/index.tsx:77,151`).
+- [x] **P0 Adopciones** ✅ 2026-10-19: el modal de `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba (`APPROVED` = «pre-aprobada»), muestra el estado en inglés («Solicitud APPROVED») y no lleva a la aprobación final, que solo existe en `solicitud/[id]`.
 
 ### Funcional (P1 de privacidad, siguen abiertos)
-- [ ] `GET /reports/` de Perdidas expone tracker en vivo y contactos sin sesión; `GET /pets/{id}` de Adopciones expone `adopted_by`, microchip y no aprobadas.
+- [x] `GET /reports/` de Perdidas expone tracker en vivo y contactos sin sesión; `GET /pets/{id}` de Adopciones expone `adopted_by`, microchip y no aprobadas. ✅ 2026-10-19
 - [ ] Cupón de establecimientos público y canje que marca el reclamo de otro cliente.
 - [ ] Un estilista ve reportes de otros estilistas en el historial de la mascota.
 

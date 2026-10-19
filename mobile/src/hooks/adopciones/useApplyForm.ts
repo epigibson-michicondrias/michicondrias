@@ -16,6 +16,7 @@ export function useApplyForm() {
     const queryClient = useQueryClient();
 
     const [step, setStep] = useState(1);
+    const [errors, setErrors] = useState<Partial<Record<'applicant_name' | 'hours_alone' | 'landlord_permission' | 'reason' | 'financial_commitment', string>>>({});
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [form, setForm] = useState<AdoptionRequestCreate>({
@@ -38,8 +39,8 @@ export function useApplyForm() {
         queryFn: () => getListing(id as string),
     });
 
-    // Security checks
-    const isAdminOrVet = user?.role_name === 'admin' || user?.role_name === 'veterinario';
+    // Un admin modera las adopciones; no postula desde el portal público
+    const isAdmin = user?.role_name === 'admin';
     const isVerified = user?.verification_status === 'VERIFIED';
     const isPending = user?.verification_status === 'PENDING';
 
@@ -48,43 +49,42 @@ export function useApplyForm() {
         value: AdoptionRequestCreate[K]
     ) => {
         setForm(prev => ({ ...prev, [field]: value }));
+        if (errors[field as keyof typeof errors]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
 
     const handleNext = () => {
         if (step === 1) {
-            if (!form.applicant_name?.trim()) {
-                showAlert({ type: 'error', title: 'Falta tu nombre', message: 'Tu nombre es obligatorio.' });
-                return;
+            const next: typeof errors = {};
+            if (!form.applicant_name?.trim()) next.applicant_name = 'Escribe tu nombre completo.';
+            if (form.own_or_rent === 'Renta' && !form.landlord_permission) {
+                next.landlord_permission = 'Si rentas, necesitas el permiso de tu arrendador para tener mascotas.';
             }
-            setStep(2);
+            setErrors(next);
+            if (Object.keys(next).length === 0) setStep(2);
         } else if (step === 2) {
             const h = Number(form.hours_alone);
-            if (form.hours_alone === undefined || form.hours_alone === null || !Number.isFinite(h) || h < 0 || h > 24) {
-                showAlert({ type: 'error', title: 'Horas inválidas', message: 'Indica cuántas horas al día pasará solo (entre 0 y 24).' });
+            if (!Number.isFinite(h) || h < 0 || h > 24) {
+                setErrors({ hours_alone: 'Entre 0 y 24 horas.' });
                 return;
             }
-            if (form.own_or_rent === 'Renta' && !form.landlord_permission) {
-                showAlert({ type: 'error', title: 'Permiso del arrendador', message: 'Si rentas, necesitas el permiso de tu arrendador para tener mascotas.' });
-                return;
-            }
+            setErrors({});
             setStep(3);
         }
     };
 
     const handleBack = () => {
+        setErrors({});
         if (step > 1) setStep(step - 1);
-        else router.back();
+        else if (router.canGoBack()) router.back();
+        else router.replace(`/adopciones/${id}`);
     };
 
     const handleSubmit = async () => {
-        if (!form.reason?.trim()) {
-            showAlert({ type: 'error', title: 'Falta el motivo', message: 'Cuéntanos por qué deseas adoptar.' });
-            return;
-        }
-        if (!form.financial_commitment) {
-            showAlert({ type: 'error', title: 'Compromiso necesario', message: 'Debes aceptar el compromiso financiero para continuar.' });
-            return;
-        }
+        const next: typeof errors = {};
+        if (!form.reason?.trim()) next.reason = 'Cuéntanos por qué quieres adoptar.';
+        if (!form.financial_commitment) next.financial_commitment = 'Acepta el compromiso para continuar.';
+        setErrors(next);
+        if (Object.keys(next).length > 0) return;
 
         setLoading(true);
         try {
@@ -96,8 +96,8 @@ export function useApplyForm() {
         } catch (error) {
             showAlert({
                 type: 'error',
-                title: 'Error',
-                message: (error as Error).message || 'No se pudo enviar la solicitud.',
+                title: 'No se pudo enviar la solicitud',
+                message: (error as Error).message || 'Inténtalo de nuevo en unos minutos.',
             });
         } finally {
             setLoading(false);
@@ -114,18 +114,18 @@ export function useApplyForm() {
         loadingListing,
         form,
         step,
+        errors,
         loading,
         success,
         user,
 
         // Security
-        isAdminOrVet,
+        isAdmin,
         isVerified,
         isPending,
 
         // Actions
         updateField,
-        setForm,
         handleNext,
         handleBack,
         handleSubmit,

@@ -1,110 +1,81 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { Plus, Pencil, Trash2, PawPrint, Heart, MapPin, Inbox } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Plus, MessageSquare, Edit3, Trash2, PawPrint, Heart } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
+import { MediaRow } from '@/src/components/MediaCard';
+import IconButton from '@/src/components/IconButton';
+import Badge from '@/src/components/Badge';
 import { useMyListings } from '@/src/hooks/adopciones/useMyListings';
 import type { Listing } from '@/src/types/adopciones';
-import { font, spacing } from '@/constants/design';
+import { capitalize, formatAge } from '@/src/utils/formatters';
+import { layout, spacing } from '@/constants/design';
 
 export default function MisPublicacionesScreen() {
-    const router = useRouter();
     const { theme } = useTheme();
-    const {
-        listings,
-        isLoading,
-        isRefetching,
-        refetch,
-        goToNewListing,
-        goToRequests,
-        goToEditListing,
-        handleDelete,
-        isDeleting,
-    } = useMyListings();
+    const { listings, isLoading, isRefetching, refetch, goToNewListing, goToRequests, goToEditListing, handleDelete, deletingId } = useMyListings();
 
-    const renderItem = ({ item }: { item: Listing }) => (
-        <View style={[styles.card, { backgroundColor: theme.surface }]}>
-            {item.photo_url ? (
-                <Image source={{ uri: item.photo_url }} style={styles.image} />
-            ) : (
-                <View style={[styles.image, { backgroundColor: theme.overlay, alignItems: 'center', justifyContent: 'center' }]}>
-                    <PawPrint size={32} color={theme.textMuted} />
-                </View>
-            )}
-            <View style={styles.info}>
-                <View style={styles.nameHeader}>
-                    <Text style={[styles.name, { color: theme.text }]}>{item.name}</Text>
-                    <View style={[styles.statusBadge, { backgroundColor: item.status?.toLowerCase() === 'adoptado' ? theme.info : item.is_approved ? theme.success : theme.warning }]}>
-                        <Text style={styles.statusText}>{item.status?.toLowerCase() === 'adoptado' ? 'Adoptado' : item.is_approved ? 'Publicado' : 'En revisión'}</Text>
-                    </View>
-                </View>
-                <Text style={[styles.breed, { color: theme.textMuted }]}>{item.breed || item.species}</Text>
+    const statusBadge = (item: Listing) => {
+        if (item.status?.toLowerCase() === 'adoptado') return <Badge label="Adoptado" color={theme.accent} size="sm" />;
+        if (item.status?.toLowerCase() === 'en_proceso') return <Badge label="En proceso" color={theme.warning} size="sm" />;
+        if (!item.is_approved) return <Badge label="En revisión" color={theme.info} size="sm" />;
+        return <Badge label="Publicado" color={theme.success} size="sm" />;
+    };
 
-                <View style={styles.actions}>
-                    <TouchableOpacity
-                        accessibilityRole="button"
-                        accessibilityLabel={`Ver solicitudes de ${item.name}`}
-                        style={[styles.actionBtn, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => goToRequests(item.id)}
-                    >
-                        <MessageSquare size={16} color={theme.primary} />
-                        <Text style={[styles.actionBtnText, { color: theme.primary }]}>Solicitudes</Text>
-                    </TouchableOpacity>
-
-                    <View style={styles.miniActions}>
-                        {item.status?.toLowerCase() !== 'adoptado' && (
-                        <TouchableOpacity
-                            style={styles.iconBtn}
-                            accessibilityRole="button"
-                            accessibilityLabel="Editar publicación"
-                            onPress={() => goToEditListing(item.id)}
-                        >
-                            <Edit3 size={18} color={theme.textMuted} />
-                        </TouchableOpacity>
-                        )}
-                        <TouchableOpacity
-                            style={styles.iconBtn}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Eliminar publicación de ${item.name}`}
+    const renderItem = ({ item }: { item: Listing }) => {
+        const adopted = item.status?.toLowerCase() === 'adoptado';
+        return (
+            <MediaRow
+                imageUrl={item.photo_url}
+                fallbackIcon={PawPrint}
+                title={item.name}
+                trailing={statusBadge(item)}
+                lines={[
+                    { text: [capitalize(item.breed || item.species), item.age_months ? formatAge(item.age_months) : null].filter(Boolean).join(' · ') },
+                    ...(item.location ? [{ text: item.location, icon: MapPin }] : []),
+                    { text: 'Ver solicitudes', icon: Inbox },
+                ]}
+                onPress={() => goToRequests(item.id)}
+                accessibilityLabel={`${item.name}: ver solicitudes`}
+                actions={adopted ? undefined : (
+                    <>
+                        <IconButton icon={Pencil} accessibilityLabel={`Editar ${item.name}`} onPress={() => goToEditListing(item.id)} size="sm" />
+                        <IconButton
+                            icon={Trash2}
+                            accessibilityLabel={`Eliminar la publicación de ${item.name}`}
                             onPress={() => handleDelete(item.id, item.name)}
-                            disabled={isDeleting}
-                        >
-                            {isDeleting ? (
-                                <ActivityIndicator size={18} color={theme.error} />
-                            ) : (
-                                <Trash2 size={18} color={theme.error} />
-                            )}
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
-        </View>
-    );
+                            loading={deletingId === item.id}
+                            color={theme.error}
+                            size="sm"
+                        />
+                    </>
+                )}
+            />
+        );
+    };
 
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="Mis Publicaciones"
-                actionIcon={Plus}
-                actionLabel="Publicar mascota"
-                onAction={goToNewListing}
+                title="Mis publicaciones"
+                subtitle={listings.length > 0 ? `${listings.length} ${listings.length === 1 ? 'mascota' : 'mascotas'}` : undefined}
+                actions={[{ icon: Plus, label: 'Dar en adopción', onPress: goToNewListing }]}
             />
-
             <DataList
                 data={listings}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
                 isLoading={isLoading}
+                skeleton
                 onRefresh={refetch}
                 isRefreshing={isRefetching}
-                contentStyle={styles.list}
-                emptyIcon={<Heart size={48} color={theme.textMuted} strokeWidth={1.5} />}
+                emptyIcon={<Heart size={layout.icon.xl} color={theme.textMuted} strokeWidth={1.5} />}
                 emptyTitle="No has publicado mascotas"
-                emptySubtitle="Si tienes un michi o lomito buscando hogar, ¡publícalo aquí!"
-                emptyActionLabel="Publicar"
+                emptySubtitle="Si tienes un michi o lomito buscando hogar, publícalo y recibe solicitudes."
+                emptyActionLabel="Dar en adopción"
                 onEmptyAction={goToNewListing}
             />
         </ScreenContainer>
@@ -112,75 +83,5 @@ export default function MisPublicacionesScreen() {
 }
 
 const styles = StyleSheet.create({
-    list: {
-        padding: spacing.xl,
-        gap: spacing.lg,
-    },
-    card: {
-        flexDirection: 'row',
-        borderRadius: 20,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    image: {
-        width: 100,
-        height: 120,
-    },
-    info: {
-        flex: 1,
-        padding: spacing.md,
-        justifyContent: 'center',
-    },
-    nameHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: spacing.xs,
-    },
-    name: {
-        fontSize: font.xl,
-        fontWeight: '800',
-    },
-    statusBadge: {
-        paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.xxs,
-        borderRadius: 6,
-    },
-    statusText: {
-        color: '#fff',
-        fontSize: font.xs,
-        fontWeight: '700',
-    },
-    breed: {
-        fontSize: font.md,
-        marginBottom: spacing.md,
-    },
-    actions: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    actionBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: spacing.md,
-        paddingVertical: spacing.sm,
-        borderRadius: 10,
-        gap: spacing.sm,
-        justifyContent: 'center',
-    },
-    actionBtnText: {
-        fontSize: font.md,
-        fontWeight: '800',
-    },
-    miniActions: {
-        flexDirection: 'row',
-        gap: spacing.md,
-    },
-    iconBtn: {
-        padding: spacing.xs,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+    separator: { height: spacing.sm },
 });

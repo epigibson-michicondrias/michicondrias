@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Heart, MapPin, Plus, Dog, Cat, PawPrint, LayoutGrid, List } from 'lucide-react-native';
+import { Heart, MapPin, Plus, Dog, Cat, PawPrint, LayoutGrid, List, ClipboardList, FolderHeart } from 'lucide-react-native';
 import { useListings } from '@/src/hooks/adopciones/useListings';
 import { useGridCell, useViewMode } from '@/src/hooks/useViewMode';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -102,9 +102,11 @@ export default function AdopcionesScreen() {
             <ScreenHeader
                 title="Adopciones"
                 subtitle="Encuentra a tu nuevo mejor amigo"
-                actionIcon={Plus}
-                actionLabel="Publicar mascota"
-                onAction={() => router.push('/adopciones/nuevo')}
+                actions={[
+                    { icon: ClipboardList, label: 'Mis solicitudes para adoptar', onPress: () => router.push('/adopciones/mis-solicitudes') },
+                    { icon: FolderHeart, label: 'Mis publicaciones', onPress: () => router.push('/adopciones/mis-publicaciones') },
+                    { icon: Plus, label: 'Dar en adopción', onPress: () => router.push('/adopciones/nuevo') },
+                ]}
             />
 
             <DataList

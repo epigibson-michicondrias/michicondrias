@@ -6,6 +6,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { useInFormSection } from '@/src/components/forms/FormSection';
 import { font, spacing } from '@/constants/design';
 
 interface FormSwitchProps {
@@ -26,11 +27,13 @@ export default function FormSwitch({
     variant = 'checkbox',
 }: FormSwitchProps) {
     const { theme } = useTheme();
+    const inSection = useInFormSection();
 
     return (
         <TouchableOpacity
             style={[
                 styles.container,
+                inSection && styles.inSection,
                 {
                     backgroundColor: value ? theme.primaryLight : theme.inputBg,
                     borderColor: value ? theme.primary : theme.inputBorder,
@@ -75,6 +78,7 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         marginBottom: spacing.md,
     },
+    inSection: { marginBottom: 0 },
     content: {
         flex: 1,
         marginRight: spacing.md,
