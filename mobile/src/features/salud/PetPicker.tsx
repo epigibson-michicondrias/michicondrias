@@ -81,11 +81,12 @@ const styles = StyleSheet.create({
     chip: {
         flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
         paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 999, borderWidth: 1, maxWidth: '100%',
+        justifyContent: 'center',
     },
     chipText: { fontSize: font.base, fontWeight: '700', flexShrink: 1 },
     empty: { padding: spacing.lg, borderRadius: 14, borderWidth: 1, gap: spacing.md, alignItems: 'flex-start' },
     emptyText: { fontSize: font.base },
-    emptyBtn: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 10 },
+    emptyBtn: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
     emptyBtnText: { color: '#fff', fontWeight: '700', fontSize: font.base },
     link: { fontSize: font.base, fontWeight: '700' },
 });

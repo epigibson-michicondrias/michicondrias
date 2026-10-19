@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.md,
         borderRadius: 12,
         borderWidth: 1,
+        justifyContent: 'center',
     },
     difficultyText: {
         fontSize: font.base,

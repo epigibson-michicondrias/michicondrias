@@ -662,5 +662,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.xl,
         paddingVertical: spacing.md,
         borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

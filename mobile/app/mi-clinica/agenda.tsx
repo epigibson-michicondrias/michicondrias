@@ -239,7 +239,7 @@ export default function AgendaClinicaScreen() {
 const styles = StyleSheet.create({
     tabsRow: { marginBottom: spacing.md },
     tabsScroll: { paddingHorizontal: spacing.xl, gap: spacing.sm },
-    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1 },
+    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     tabText: { fontSize: font.base, fontWeight: '600' },
     list: { padding: spacing.xl, paddingBottom: spacing.huge },
     card: { borderRadius: 28, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },

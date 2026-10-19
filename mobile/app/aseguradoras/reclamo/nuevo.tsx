@@ -316,6 +316,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         borderWidth: 1,
         gap: spacing.sm,
+        justifyContent: 'center',
     },
     petChipEmoji: {
         fontSize: font.h3,

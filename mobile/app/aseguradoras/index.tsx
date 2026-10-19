@@ -227,6 +227,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.xs,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     speciesText: {
         fontSize: font.md,
@@ -239,6 +241,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.xs,
         borderRadius: 8,
         gap: spacing.xs,
+        justifyContent: 'center',
     },
     activeText: {
         fontSize: font.sm,

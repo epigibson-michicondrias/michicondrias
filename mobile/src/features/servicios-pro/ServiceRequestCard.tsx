@@ -219,6 +219,6 @@ const styles = StyleSheet.create({
     price: { fontSize: font.xxl, fontWeight: '800' },
     priceLabel: { fontSize: font.sm },
     actions: { flexDirection: 'row', gap: spacing.sm, flexShrink: 1, flexWrap: 'wrap', justifyContent: 'flex-end' },
-    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, minHeight: 44, borderRadius: radius.md, borderWidth: 1 },
+    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, minHeight: 44, borderRadius: radius.md, borderWidth: 1, justifyContent: 'center' },
     actionText: { fontSize: font.base, fontWeight: '800' },
 });

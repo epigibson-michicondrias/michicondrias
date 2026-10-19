@@ -129,6 +129,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.md,
         borderRadius: 14,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     tabText: {
         fontSize: font.base,
@@ -236,6 +237,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.sm,
         paddingVertical: spacing.xs,
         borderRadius: 8,
+        justifyContent: 'center',
     },
     tagText: {
         fontSize: font.xs,

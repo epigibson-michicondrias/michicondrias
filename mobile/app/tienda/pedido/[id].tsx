@@ -248,6 +248,8 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.md,
         borderRadius: 14,
         marginTop: spacing.lg,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     backButtonText: {
         color: '#fff',

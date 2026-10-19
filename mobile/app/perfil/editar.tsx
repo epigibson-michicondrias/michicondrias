@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         borderRadius: radius.pill,
         borderWidth: 1,
+        justifyContent: 'center',
     },
     save: {
         marginTop: spacing.sm,

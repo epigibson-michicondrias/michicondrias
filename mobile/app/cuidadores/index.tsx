@@ -289,6 +289,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.xs,
         borderRadius: 6,
         gap: spacing.xs,
+        justifyContent: 'center',
     },
     serviceText: {
         fontSize: font.sm,
@@ -323,6 +324,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         borderRadius: 8,
         gap: spacing.sm,
+        justifyContent: 'center',
     },
     contactButtonText: {
         color: '#fff',

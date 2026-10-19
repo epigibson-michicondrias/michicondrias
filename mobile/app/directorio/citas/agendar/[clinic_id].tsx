@@ -363,6 +363,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.xl,
         paddingVertical: spacing.md,
         borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     retryBtnText: {
         color: '#fff',
@@ -379,6 +381,8 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.md,
         borderRadius: 14,
         borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     slotChip: {
         minWidth: 76,
@@ -387,6 +391,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.md,
         borderRadius: 14,
         borderWidth: 1,
+        justifyContent: 'center',
     },
     chipText: {
         fontSize: font.base,
@@ -459,6 +464,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
         borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     featureText: {
         fontSize: font.md,

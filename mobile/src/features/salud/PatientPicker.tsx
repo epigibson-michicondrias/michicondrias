@@ -79,5 +79,5 @@ const styles = StyleSheet.create({
     label: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
     search: { height: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, marginBottom: spacing.sm },
     row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-    chip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 999, borderWidth: 1, maxWidth: '100%' },
+    chip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 999, borderWidth: 1, maxWidth: '100%', justifyContent: 'center' },
 });

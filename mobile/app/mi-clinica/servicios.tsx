@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     priceBox: { alignItems: 'flex-end' },
     priceText: { fontSize: font.xxl, fontWeight: '900' },
     actions: { flexDirection: 'row', marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: 1, gap: spacing.lg },
-    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs },
+    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs, justifyContent: 'center' },
     actionText: { fontSize: font.base, fontWeight: '700' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     empty: { paddingTop: 100, alignItems: 'center', gap: spacing.xl },

@@ -228,6 +228,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     backErrorBtnText: {
         color: '#fff',

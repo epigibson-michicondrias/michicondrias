@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: spacing.md,
         borderWidth: 1,
+        justifyContent: 'center',
     },
     iconBox: {
         width: 54,

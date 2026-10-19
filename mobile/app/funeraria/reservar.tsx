@@ -222,6 +222,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.xs,
         borderRadius: 6,
         gap: spacing.xs,
+        justifyContent: 'center',
     },
     tagText: {
         fontSize: font.md,

@@ -317,6 +317,7 @@ const styles = StyleSheet.create({
     cancelButton: {
         alignItems: 'center',
         paddingVertical: spacing.md,
+        justifyContent: 'center',
     },
     cancelButtonText: {
         fontSize: font.base,

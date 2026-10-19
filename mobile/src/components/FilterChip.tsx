@@ -51,5 +51,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: spacing.xs,
         minHeight: 36,
+        justifyContent: 'center',
     },
 });

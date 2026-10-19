@@ -356,6 +356,8 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.sm,
         borderRadius: 12,
         borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     filterText: {
         fontSize: font.md,

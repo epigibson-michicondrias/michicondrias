@@ -256,6 +256,8 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.lg,
         borderRadius: 14,
         marginTop: spacing.sm,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     exploreButtonText: {
         color: '#fff',

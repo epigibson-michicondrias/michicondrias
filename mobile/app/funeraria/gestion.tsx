@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     sectionTitle: { fontSize: font.xxl, fontWeight: '800', marginBottom: spacing.md },
     svcRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: 14, borderWidth: 1, marginBottom: spacing.md },
     actionsRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg, flexWrap: 'wrap' },
-    actionBtn: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 10, borderWidth: 1 },
+    actionBtn: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     notes: {
         fontSize: font.base,
         lineHeight: 19,

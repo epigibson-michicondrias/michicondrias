@@ -178,7 +178,7 @@ export default function VendedorOrdenesScreen() {
 const styles = StyleSheet.create({
     tabsContainer: { marginBottom: spacing.lg },
     tabsScroll: { paddingHorizontal: layout.screenPadding, gap: spacing.md },
-    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1 },
+    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     tabText: { fontSize: font.base, fontWeight: '600' },
     list: { padding: spacing.xxl, paddingBottom: 100 },
     orderCard: { borderRadius: 24, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1 },
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     infoText: { fontSize: font.base, fontWeight: '600' },
     orderFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing.lg, borderTopWidth: 1 },
     totalAmount: { fontSize: font.lg, fontWeight: '800' },
-    shipBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12 },
+    shipBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12, justifyContent: 'center' },
     shipBtnText: { color: '#fff', fontSize: font.md, fontWeight: '800' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

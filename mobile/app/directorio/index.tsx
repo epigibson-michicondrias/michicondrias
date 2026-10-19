@@ -6,6 +6,7 @@ import { useClinicsAndVets } from '@/src/hooks/directorio/useClinicsAndVets';
 import type { Clinic, Vet } from '@/src/types/directorio';
 import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building, Clock, Navigation, Star } from 'lucide-react-native';
 import DataList from '@/src/components/data/DataList';
+import FilterChip from '@/src/components/FilterChip';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
 import { font, spacing, layout } from '@/constants/design';
@@ -255,58 +256,34 @@ export default function DirectorioIndexScreen() {
                             { key: '24h', label: '24 Horas' },
                             { key: 'emergencia', label: 'Urgencias' },
                         ].map(f => (
-                            <TouchableOpacity
+                            <FilterChip
                                 key={f.key}
-                                accessibilityRole="button"
-                                accessibilityState={{ selected: filterService === f.key }}
-                                style={[styles.filterChip, {
-                                    backgroundColor: filterService === f.key ? theme.primary : theme.surface,
-                                    borderColor: filterService === f.key ? theme.primary : theme.border,
-                                }]}
+                                label={f.label}
+                                active={filterService === f.key}
                                 onPress={() => setFilterService(f.key)}
-                            >
-                                <Text style={[styles.filterText, { color: filterService === f.key ? '#fff' : theme.text }]}>{f.label}</Text>
-                            </TouchableOpacity>
+                            />
                         ))}
                         {cities.length > 1 && (
-                            <TouchableOpacity
-                                accessibilityRole="button"
-                                accessibilityState={{ selected: filterCity !== 'all' }}
-                                style={[styles.filterChip, {
-                                    backgroundColor: filterCity !== 'all' ? theme.primary : theme.surface,
-                                    borderColor: filterCity !== 'all' ? theme.primary : theme.border,
-                                }]}
+                            <FilterChip
+                                label={filterCity === 'all' ? 'Ciudad' : filterCity}
+                                active={filterCity !== 'all'}
+                                icon={<MapPin size={layout.icon.sm} color={filterCity !== 'all' ? theme.onPrimary : theme.textMuted} />}
                                 onPress={() => {
                                     const idx = cities.indexOf(filterCity);
                                     setFilterCity(cities[(idx + 1) % cities.length]);
                                 }}
-                            >
-                                <MapPin size={14} color={filterCity !== 'all' ? '#fff' : theme.textMuted} />
-                                <Text style={[styles.filterText, { color: filterCity !== 'all' ? '#fff' : theme.text }]}>
-                                    {filterCity === 'all' ? 'Ciudad' : filterCity}
-                                </Text>
-                            </TouchableOpacity>
+                            />
                         )}
                     </>
                 ) : (
-                    <>
-                        {specialties.map(s => (
-                            <TouchableOpacity
-                                key={s}
-                                accessibilityRole="button"
-                                accessibilityState={{ selected: filterSpecialty === s }}
-                                style={[styles.filterChip, {
-                                    backgroundColor: filterSpecialty === s ? theme.primary : theme.surface,
-                                    borderColor: filterSpecialty === s ? theme.primary : theme.border,
-                                }]}
-                                onPress={() => setFilterSpecialty(s)}
-                            >
-                                <Text style={[styles.filterText, { color: filterSpecialty === s ? '#fff' : theme.text }]}>
-                                    {s === 'all' ? 'Todas las especialidades' : s}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </>
+                    specialties.map(s => (
+                        <FilterChip
+                            key={s}
+                            label={s === 'all' ? 'Todas las especialidades' : s}
+                            active={filterSpecialty === s}
+                            onPress={() => setFilterSpecialty(s)}
+                        />
+                    ))
                 )}
             </ScrollView>
 
@@ -394,7 +371,7 @@ export default function DirectorioIndexScreen() {
 
 const styles = StyleSheet.create({
     filterScroll: { flexGrow: 0, marginBottom: spacing.sm },
-    resultCount: { fontSize: font.md, fontWeight: '600', paddingHorizontal: layout.screenPadding, marginBottom: spacing.sm },
+    resultCount: { fontSize: font.md, fontWeight: '600', marginBottom: spacing.sm },
     container: { flex: 1 },
     headerTop: {
         flexDirection: 'row',
@@ -403,7 +380,6 @@ const styles = StyleSheet.create({
     },
     tabsContainer: {
         flexDirection: 'row',
-        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.lg,
         gap: spacing.md,
     },
@@ -421,7 +397,6 @@ const styles = StyleSheet.create({
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.md,
         paddingHorizontal: spacing.lg,
         height: 50,
@@ -432,19 +407,11 @@ const styles = StyleSheet.create({
     searchInput: { flex: 1, fontSize: font.lg, fontWeight: '500' },
     filterRow: {
         flexDirection: 'row',
-        paddingHorizontal: layout.screenPadding,
+        alignItems: 'center',
         marginBottom: spacing.lg,
         gap: spacing.sm,
     },
-    filterChip: {
-        paddingHorizontal: spacing.lg,
-        paddingVertical: spacing.sm,
-        borderRadius: 10,
-        borderWidth: 1.5,
-    },
-    filterText: { fontSize: font.base, fontWeight: '700' },
     miClinicaBanner: {
-        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.md,
         padding: spacing.lg,
         borderRadius: 18,
@@ -514,6 +481,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.xs,
         borderRadius: 8,
+        justifyContent: 'center',
     },
     tagText: { fontSize: font.sm, fontWeight: '700' },
     description: { fontSize: font.base, lineHeight: 18, marginTop: spacing.md },

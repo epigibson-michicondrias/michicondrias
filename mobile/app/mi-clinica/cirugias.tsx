@@ -319,7 +319,7 @@ export default function CirugiasScreen() {
 const styles = StyleSheet.create({
     tabsRow: { marginBottom: spacing.md },
     tabsScroll: { paddingHorizontal: spacing.xl, gap: spacing.sm },
-    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1 },
+    tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     tabText: { fontSize: font.base, fontWeight: '600' },
     list: { padding: spacing.xl, paddingBottom: 100 },
     card: { borderRadius: 24, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1 },
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     empty: { paddingTop: 100, alignItems: 'center', gap: spacing.xl },
     emptyText: { fontSize: font.xl, fontWeight: '600', textAlign: 'center' },
     statusActions: { flexDirection: 'row', gap: spacing.md, justifyContent: 'flex-end', marginTop: spacing.md },
-    statusBtn: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 10, borderWidth: 1 },
+    statusBtn: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     fab: { position: 'absolute', bottom: 30, right: 24, width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 10 },
     modalOverlay: { flex: 1, justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, height: '85%', padding: spacing.xxl, paddingBottom: 0 },

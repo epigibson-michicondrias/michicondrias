@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     textArea: { height: 120, paddingVertical: spacing.xl, textAlignVertical: 'top' },
     row: { flexDirection: 'row', gap: spacing.lg },
     sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xl, marginTop: spacing.md },
-    addPrescBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 10 },
+    addPrescBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 10, justifyContent: 'center' },
     prescCard: { padding: spacing.xl, borderRadius: 24, marginBottom: spacing.lg, gap: spacing.md, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     prescHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
     prescTitle: { fontSize: font.base, fontWeight: '800', flex: 1 },

@@ -414,6 +414,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
         borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     traitText: {
         fontSize: font.base,

@@ -248,6 +248,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     retryButtonText: {
         color: '#fff',
@@ -308,6 +310,8 @@ const styles = StyleSheet.create({
     },
     shareButton: {
         padding: spacing.sm,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     statsContainer: {
         flexDirection: 'row',
@@ -486,7 +490,7 @@ const styles = StyleSheet.create({
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '85%' },
     modalTitle: { fontSize: font.h2, fontWeight: '800', marginBottom: spacing.xl },
     modalLabel: { fontSize: font.md, fontWeight: '700', marginTop: spacing.lg, marginBottom: spacing.sm },
-    petChip: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12, marginRight: spacing.md, borderWidth: 1 },
+    petChip: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 12, marginRight: spacing.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
     petChipText: { fontSize: font.base, fontWeight: '700' },
     noPetsText: { fontSize: font.base, paddingVertical: spacing.sm },
     modalInput: { borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.lg, height: 80, textAlignVertical: 'top' },

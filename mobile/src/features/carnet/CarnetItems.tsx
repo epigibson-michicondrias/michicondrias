@@ -317,6 +317,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         borderRadius: radius.md,
         borderWidth: 1,
+        justifyContent: 'center',
     },
     iconBox: {
         width: layout.iconBox.md,
@@ -330,6 +331,8 @@ const styles = StyleSheet.create({
         borderRadius: radius.pill,
         paddingHorizontal: spacing.sm,
         paddingVertical: spacing.xxs,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     tagText: {
         letterSpacing: 0.4,

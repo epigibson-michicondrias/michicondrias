@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     reviewComment: { fontSize: type.body.fontSize, lineHeight: 20 },
     reviewForm: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.lg, gap: spacing.md },
     reviewInput: { borderRadius: radius.md, borderWidth: 1, padding: spacing.md, fontSize: type.body.fontSize, minHeight: 80, textAlignVertical: 'top' },
-    submitBtn: { borderRadius: radius.md, paddingVertical: spacing.md, alignItems: 'center' },
+    submitBtn: { borderRadius: radius.md, paddingVertical: spacing.md, alignItems: 'center', justifyContent: 'center' },
     submitBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
     footer: { padding: spacing.lg, paddingBottom: spacing.xl, borderTopWidth: 1 },
     bookBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, minHeight: layout.minTouch + 8, borderRadius: radius.lg },

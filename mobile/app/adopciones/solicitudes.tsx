@@ -257,6 +257,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         marginRight: spacing.sm,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     filterChipText: {
         fontSize: font.base,
@@ -290,6 +292,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.sm,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     viewAllText: {
         fontSize: font.base,
@@ -386,6 +390,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.md,
         borderRadius: 8,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     actionButtonText: {
         color: '#fff',

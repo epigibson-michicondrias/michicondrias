@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         marginTop: spacing.xxl, 
         elevation: 6,
+        justifyContent: 'center',
     },
     submitBtnText: { 
         color: '#fff', 

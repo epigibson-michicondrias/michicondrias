@@ -339,6 +339,7 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
+        justifyContent: 'center',
     },
     catText: {
         fontSize: font.base,

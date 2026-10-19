@@ -169,6 +169,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         borderRadius: 10,
         borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     notes: {
         fontSize: font.base,

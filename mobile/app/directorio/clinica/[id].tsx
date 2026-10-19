@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     badge: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.pill, borderWidth: 1 },
     badgeText: { fontSize: type.caption.fontSize, fontWeight: '700' },
     quickActions: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.lg },
-    actionBtn: { flex: 1, alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.md, borderRadius: radius.lg, borderWidth: 1 },
+    actionBtn: { flex: 1, alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.md, borderRadius: radius.lg, borderWidth: 1, flexDirection: 'row', justifyContent: 'center' },
     actionLabel: { fontSize: type.caption.fontSize, fontWeight: '600' },
     scrollContent: { paddingHorizontal: spacing.lg, paddingBottom: 100 },
     description: { fontSize: type.body.fontSize, lineHeight: 22 },

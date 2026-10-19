@@ -255,6 +255,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.sm,
         paddingVertical: spacing.xxs,
         borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     tabBadgeText: {
         fontSize: font.md,

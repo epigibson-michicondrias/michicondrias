@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
         paddingVertical: spacing.sm,
         borderRadius: 10,
         gap: spacing.sm,
+        justifyContent: 'center',
     },
     actionBtnText: {
         fontSize: font.md,
@@ -179,5 +180,7 @@ const styles = StyleSheet.create({
     },
     iconBtn: {
         padding: spacing.xs,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

@@ -290,6 +290,8 @@ const styles = StyleSheet.create({
     },
     deleteBtn: {
         padding: spacing.xs,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     footer: {
         padding: spacing.xl,

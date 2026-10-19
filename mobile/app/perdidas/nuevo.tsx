@@ -421,6 +421,8 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         borderWidth: 1,
         borderColor: 'transparent',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     optionText: {
         fontSize: font.base,

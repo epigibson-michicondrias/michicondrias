@@ -198,6 +198,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.sm,
         borderRadius: 12,
+        justifyContent: 'center',
     },
     statChipText: {
         fontSize: font.base,

@@ -222,7 +222,8 @@ const styles = StyleSheet.create({
     actionsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     addBtn: {
         flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
-        paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 12
+        paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 12,
+        justifyContent: 'center',
     },
     addBtnText: { fontSize: font.md, fontWeight: '800' },
     itemCard: {

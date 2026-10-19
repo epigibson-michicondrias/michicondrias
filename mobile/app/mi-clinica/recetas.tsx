@@ -264,6 +264,6 @@ const styles = StyleSheet.create({
     petPickerName: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.xxs },
     petPickerBreed: { fontSize: font.base, fontWeight: '500' },
     statusActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
-    statusBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: 12, alignItems: 'center' },
+    statusBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
     statusBtnText: { fontSize: font.base, fontWeight: '800' },
 });

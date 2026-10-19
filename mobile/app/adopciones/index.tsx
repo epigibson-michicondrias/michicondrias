@@ -208,6 +208,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.sm,
         paddingVertical: spacing.xxs,
         borderRadius: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     speciesTagText: {
         fontSize: font.xs,

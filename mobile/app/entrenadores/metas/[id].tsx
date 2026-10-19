@@ -512,6 +512,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.md,
         borderRadius: 12,
+        justifyContent: 'center',
     },
     reviewBtnText: {
         color: '#fff',

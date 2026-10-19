@@ -391,6 +391,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         borderWidth: 1.5,
         gap: spacing.sm,
+        justifyContent: 'center',
     },
     filterEmoji: {
         fontSize: font.base,
@@ -440,6 +441,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.xs,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     statusText: {
         fontSize: font.sm,

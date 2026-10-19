@@ -171,6 +171,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     retryButtonText: {
         color: '#fff',
