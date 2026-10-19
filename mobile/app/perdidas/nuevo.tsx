@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { Camera, MapPin, AlertCircle, Check, Search } from 'lucide-react-native';
 
@@ -186,38 +187,17 @@ export default function NuevoReporteScreen() {
 
                     <View style={styles.formContainer}>
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>Nombre o Identificador</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Ej. Firulais / Perro salchicha café"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.pet_name}
-                                onChangeText={(t) => setForm({ ...form, pet_name: t })}
-                            />
+                            <FormField label="Nombre o Identificador" value={form.pet_name} onChangeText={(t) => setForm({ ...form, pet_name: t })} />
                         </View>
 
                         {renderSelector("Especie", form.species, ['perro', 'gato', 'otro'], 'species')}
 
                         <View style={styles.row}>
                             <View style={[styles.inputGroup, { flex: 1 }]}>
-                                <Text style={[styles.label, { color: theme.text }]}>Raza</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej. Husky"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={form.breed}
-                                    onChangeText={(t) => setForm({ ...form, breed: t })}
-                                />
+                                <FormField label="Raza" value={form.breed} onChangeText={(t) => setForm({ ...form, breed: t })} />
                             </View>
                             <View style={[styles.inputGroup, { flex: 1 }]}>
-                                <Text style={[styles.label, { color: theme.text }]}>Color</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej. Blanco / Negro"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={form.color}
-                                    onChangeText={(t) => setForm({ ...form, color: t })}
-                                />
+                                <FormField label="Color" value={form.color} onChangeText={(t) => setForm({ ...form, color: t })} />
                             </View>
                         </View>
 
@@ -227,14 +207,7 @@ export default function NuevoReporteScreen() {
                         <Separator color={theme.border} />
 
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>¿Dónde se vió por última vez?</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Ej. Parque México"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.last_seen_location}
-                                onChangeText={(t) => setForm({ ...form, last_seen_location: t })}
-                            />
+                            <FormField label="¿Dónde se vió por última vez?" value={form.last_seen_location} onChangeText={(t) => setForm({ ...form, last_seen_location: t })} />
                         </View>
 
                         <Text style={[styles.label, { color: theme.text }]}>Punto en el mapa</Text>
@@ -270,28 +243,11 @@ export default function NuevoReporteScreen() {
                         </TouchableOpacity>
 
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>Teléfono de Contacto</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Tus 10 dígitos"
-                                keyboardType="phone-pad"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.contact_phone}
-                                onChangeText={(t) => setForm({ ...form, contact_phone: t })}
-                            />
+                            <FormField label="Teléfono de Contacto" value={form.contact_phone} onChangeText={(t) => setForm({ ...form, contact_phone: t })} />
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>Detalles Extra</Text>
-                            <TextInput
-                                style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Comportamiento, señas particulares, si responde a su nombre..."
-                                placeholderTextColor={theme.textMuted}
-                                multiline
-                                numberOfLines={4}
-                                value={form.description}
-                                onChangeText={(t) => setForm({ ...form, description: t })}
-                            />
+                            <FormField label="Detalles Extra" value={form.description} onChangeText={(t) => setForm({ ...form, description: t })} />
                         </View>
                     </View>
                 </ScrollView>

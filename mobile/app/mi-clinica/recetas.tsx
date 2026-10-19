@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, FlatList } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { usePrescriptions } from '@/src/hooks/clinica/usePrescriptions';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -144,68 +145,28 @@ export default function RecetasScreen() {
 
                             <Text style={[styles.inputLabel, { color: theme.text, marginTop: 24, fontSize: 14 }]}>Medicamento 1</Text>
                             
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Nombre *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newPresc.medications[0].name}
-                                onChangeText={t => setNewPresc({
+                            <FormField label="Nombre *" value={newPresc.medications[0].name} onChangeText={t => setNewPresc({
                                     ...newPresc, 
-                                    medications: [{ ...newPresc.medications[0], name: t }]
-                                })}
-                                placeholder="Ej. Amoxicilina 500mg"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                                    medications: [{ ...newPresc.medications[0], name: t }] })} />
 
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Dosis</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        value={newPresc.medications[0].dosage}
-                                        onChangeText={t => setNewPresc({
+                                    <FormField label="Dosis" value={newPresc.medications[0].dosage} onChangeText={t => setNewPresc({
                                             ...newPresc, 
-                                            medications: [{ ...newPresc.medications[0], dosage: t }]
-                                        })}
-                                        placeholder="1 tableta"
-                                        placeholderTextColor={theme.textMuted}
-                                    />
+                                            medications: [{ ...newPresc.medications[0], dosage: t }] })} />
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Frecuencia</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        value={newPresc.medications[0].frequency}
-                                        onChangeText={t => setNewPresc({
+                                    <FormField label="Frecuencia" value={newPresc.medications[0].frequency} onChangeText={t => setNewPresc({
                                             ...newPresc, 
-                                            medications: [{ ...newPresc.medications[0], frequency: t }]
-                                        })}
-                                        placeholder="Cada 8 horas"
-                                        placeholderTextColor={theme.textMuted}
-                                    />
+                                            medications: [{ ...newPresc.medications[0], frequency: t }] })} />
                                 </View>
                             </View>
 
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Duración</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newPresc.medications[0].duration}
-                                onChangeText={t => setNewPresc({
+                            <FormField label="Duración" value={newPresc.medications[0].duration} onChangeText={t => setNewPresc({
                                     ...newPresc, 
-                                    medications: [{ ...newPresc.medications[0], duration: t }]
-                                })}
-                                placeholder="Por 7 días"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                                    medications: [{ ...newPresc.medications[0], duration: t }] })} />
 
-                            <Text style={[styles.inputLabel, { color: theme.text, marginTop: 24 }]}>Notas Adicionales</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 80 }]}
-                                value={newPresc.notes}
-                                onChangeText={t => setNewPresc({...newPresc, notes: t})}
-                                placeholder="Tomar con alimentos..."
-                                placeholderTextColor={theme.textMuted}
-                                multiline
-                            />
+                            <FormField label="Notas Adicionales" value={newPresc.notes ?? ''} onChangeText={t => setNewPresc({...newPresc, notes: t})} />
                             <View style={{ height: 40 }} />
                         </KeyboardScreen>
 

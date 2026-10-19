@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { useProductForm } from '@/src/hooks/ecommerce/useProductForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -51,38 +52,15 @@ export default function VendedorProductoFormScreen() {
                     <View style={styles.content}>
                         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                             <View style={styles.inputGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Nombre del producto *</Text>
-                                <TextInput
-                                    style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                    value={formData.name}
-                                    onChangeText={(val) => updateField('name', val)}
-                                    placeholder="Ej: Correa Retráctil Pro"
-                                    placeholderTextColor={theme.textMuted}
-                                />
+                                <FormField label="Nombre del producto *" value={formData.name} onChangeText={(val) => updateField('name', val)} />
                             </View>
 
                             <View style={styles.row}>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={[styles.label, { color: theme.textMuted }]}>Precio (MXN) *</Text>
-                                    <TextInput
-                                        style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                        value={formData.price}
-                                        onChangeText={(val) => updateField('price', val)}
-                                        keyboardType="decimal-pad"
-                                        placeholder="0.00"
-                                        placeholderTextColor={theme.textMuted}
-                                    />
+                                    <FormField label="Precio (MXN) *" value={formData.price} onChangeText={(val) => updateField('price', val)} />
                                 </View>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <Text style={[styles.label, { color: theme.textMuted }]}>{isEditing ? 'Stock disponible *' : 'Stock inicial *'}</Text>
-                                    <TextInput
-                                        style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                        value={formData.stock}
-                                        onChangeText={(val) => updateField('stock', val)}
-                                        keyboardType="number-pad"
-                                        placeholder="10"
-                                        placeholderTextColor={theme.textMuted}
-                                    />
+                                    <FormField label="{isEditing ? 'Stock disponible *' : 'Stock inicial *'}" value={formData.stock} onChangeText={(val) => updateField('stock', val)} />
                                 </View>
                             </View>
                         </View>
@@ -126,28 +104,10 @@ export default function VendedorProductoFormScreen() {
                         <Text style={[styles.groupTitle, { color: theme.textMuted }]}>DESCRIPCIÓN DETALLADA</Text>
                         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                             <View style={styles.inputGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Descripción corta</Text>
-                                <TextInput
-                                    style={[styles.input, styles.textArea, { color: theme.text, borderColor: theme.border }]}
-                                    value={formData.description}
-                                    onChangeText={(val) => updateField('description', val)}
-                                    multiline
-                                    numberOfLines={4}
-                                    placeholder="Describe las ventajas de tu producto..."
-                                    placeholderTextColor={theme.textMuted}
-                                />
+                                <FormField label="Descripción corta" value={formData.description} onChangeText={(val) => updateField('description', val)} />
                             </View>
                             <View style={styles.inputGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Especificaciones Técnicas</Text>
-                                <TextInput
-                                    style={[styles.input, styles.textArea, { color: theme.text, borderColor: theme.border }]}
-                                    value={formData.specifications}
-                                    onChangeText={(val) => updateField('specifications', val)}
-                                    multiline
-                                    numberOfLines={3}
-                                    placeholder="Materiales, dimensiones, etc."
-                                    placeholderTextColor={theme.textMuted}
-                                />
+                                <FormField label="Especificaciones Técnicas" value={formData.specifications} onChangeText={(val) => updateField('specifications', val)} />
                             </View>
                         </View>
                     </View>

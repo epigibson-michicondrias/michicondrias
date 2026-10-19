@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { useLaboratory } from '@/src/hooks/clinica/useLaboratory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -133,33 +134,11 @@ export default function LaboratorioScreen() {
                         <KeyboardScreen>
                             <PatientPicker value={newTest.patientId} onChange={(id) => setNewTest({ ...newTest, patientId: id })} />
 
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Tipo de Prueba *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newTest.testType}
-                                onChangeText={t => setNewTest({...newTest, testType: t})}
-                                placeholder="Sangre, Orina, Genética..."
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Tipo de Prueba *" value={newTest.testType} onChangeText={t => setNewTest({...newTest, testType: t})} />
 
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Nombre del Examen *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newTest.testName}
-                                onChangeText={t => setNewTest({...newTest, testName: t})}
-                                placeholder="Ej. Hemograma Completo"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Nombre del Examen *" value={newTest.testName} onChangeText={t => setNewTest({...newTest, testName: t})} />
 
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Notas / Descripción</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 80 }]}
-                                value={newTest.description}
-                                onChangeText={t => setNewTest({...newTest, description: t})}
-                                placeholder="Instrucciones adicionales"
-                                placeholderTextColor={theme.textMuted}
-                                multiline
-                            />
+                            <FormField label="Notas / Descripción" value={newTest.description ?? ''} onChangeText={t => setNewTest({...newTest, description: t})} />
                         </KeyboardScreen>
 
                         <View style={styles.modalActions}>
@@ -179,25 +158,9 @@ export default function LaboratorioScreen() {
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Ingresar Resultados</Text>
                         
                         <KeyboardScreen>
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Resultados *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 100 }]}
-                                value={resultData.results}
-                                onChangeText={t => setResultData({...resultData, results: t})}
-                                placeholder="Ingresa los resultados del examen..."
-                                placeholderTextColor={theme.textMuted}
-                                multiline
-                            />
+                            <FormField label="Resultados *" value={resultData.results} onChangeText={t => setResultData({...resultData, results: t})} />
 
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Notas Adicionales</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border, height: 80 }]}
-                                value={resultData.notes}
-                                onChangeText={t => setResultData({...resultData, notes: t})}
-                                placeholder="Observaciones..."
-                                placeholderTextColor={theme.textMuted}
-                                multiline
-                            />
+                            <FormField label="Notas Adicionales" value={resultData.notes} onChangeText={t => setResultData({...resultData, notes: t})} />
                         </KeyboardScreen>
 
                         <View style={styles.modalActions}>

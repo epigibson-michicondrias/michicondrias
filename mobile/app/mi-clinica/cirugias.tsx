@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import { useSurgeries } from '@/src/hooks/clinica/useSurgeries';
 import PatientPicker from '@/src/features/salud/PatientPicker';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -239,14 +240,7 @@ export default function CirugiasScreen() {
 
                         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.text }]}>Nombre del Procedimiento *</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej: Ovariohisterectomía, Profilaxis..."
-                                    placeholderTextColor={theme.textMuted}
-                                    value={surgName}
-                                    onChangeText={setSurgName}
-                                />
+                                <FormField label="Nombre del Procedimiento *" value={surgName} onChangeText={setSurgName} />
                             </View>
 
                             <View style={styles.formGroup}>
@@ -294,27 +288,12 @@ export default function CirugiasScreen() {
                                     />
                                 </View>
                                 <View style={[styles.formGroup, { flex: 1 }]}>
-                                    <Text style={[styles.label, { color: theme.text }]}>Duración (min)</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        placeholder="60"
-                                        keyboardType="numeric"
-                                        placeholderTextColor={theme.textMuted}
-                                        value={surgDuration}
-                                        onChangeText={setSurgDuration}
-                                    />
+                                    <FormField label="Duración (min)" value={surgDuration} onChangeText={setSurgDuration} />
                                 </View>
                             </View>
 
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.text }]}>Quirófano</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej: Quirófano 1 (opcional)"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={surgRoom}
-                                    onChangeText={setSurgRoom}
-                                />
+                                <FormField label="Quirófano" value={surgRoom} onChangeText={setSurgRoom} />
                             </View>
 
                             <View style={{ height: 40 }} />

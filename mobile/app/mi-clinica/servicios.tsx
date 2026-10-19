@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { useClinicServices } from '@/src/hooks/clinica/useClinicServices';
 import { ClinicServiceItem } from '@/src/services/directorio';
@@ -108,26 +109,11 @@ export default function ServiciosClinicaScreen() {
 
                         <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Nombre del Servicio *</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej: Consulta General"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={name}
-                                    onChangeText={setName}
-                                />
+                                <FormField label="Nombre del Servicio *" value={name} onChangeText={setName} />
                             </View>
 
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Descripción</Text>
-                                <TextInput
-                                    style={[styles.input, styles.textArea, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Detalles sobre lo que incluye el servicio..."
-                                    placeholderTextColor={theme.textMuted}
-                                    multiline={true}
-                                    value={description}
-                                    onChangeText={setDescription}
-                                />
+                                <FormField label="Descripción" value={description} onChangeText={setDescription} />
                             </View>
 
                             <View style={styles.row}>
@@ -158,14 +144,7 @@ export default function ServiciosClinicaScreen() {
                             </View>
 
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Categoría</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej: Cirugía, Estética, Vacuna..."
-                                    placeholderTextColor={theme.textMuted}
-                                    value={category}
-                                    onChangeText={setCategory}
-                                />
+                                <FormField label="Categoría" value={category} onChangeText={setCategory} />
                             </View>
 
                             <Button label={editingService ? 'Actualizar Servicio' : 'Crear Servicio'} onPress={handleSave} loading={loadingAction} />

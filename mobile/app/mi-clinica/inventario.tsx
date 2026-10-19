@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { useInventory } from '@/src/hooks/clinica/useInventory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -133,53 +134,20 @@ export default function InventarioScreen() {
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Nuevo Producto</Text>
                         
                         <ScrollView showsVerticalScrollIndicator={false}>
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Nombre del Producto *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newItem.name}
-                                onChangeText={t => setNewItem({...newItem, name: t})}
-                                placeholder="Ej. Amoxicilina 500mg"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Nombre del Producto *" value={newItem.name} onChangeText={t => setNewItem({...newItem, name: t})} />
 
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Categoría</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newItem.category}
-                                onChangeText={t => setNewItem({...newItem, category: t})}
-                                placeholder="Ej. Antibióticos"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Categoría" value={newItem.category ?? ''} onChangeText={t => setNewItem({...newItem, category: t})} />
 
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Stock Inicial</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        value={newItem.currentStock?.toString()}
-                                        onChangeText={t => setNewItem({...newItem, currentStock: parseInt(t) || 0})}
-                                        keyboardType="numeric"
-                                    />
+                                    <FormField label="Stock Inicial" value={newItem.currentStock?.toString() ?? ''} onChangeText={t => setNewItem({...newItem, currentStock: parseInt(t) || 0})} />
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Stock Mínimo</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        value={newItem.minStock?.toString()}
-                                        onChangeText={t => setNewItem({...newItem, minStock: parseInt(t) || 0})}
-                                        keyboardType="numeric"
-                                    />
+                                    <FormField label="Stock Mínimo" value={newItem.minStock?.toString() ?? ''} onChangeText={t => setNewItem({...newItem, minStock: parseInt(t) || 0})} />
                                 </View>
                             </View>
 
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Unidad de medida *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={newItem.unit}
-                                onChangeText={t => setNewItem({...newItem, unit: t})}
-                                placeholder="ml, mg, frasco, caja..."
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Unidad de medida *" value={newItem.unit ?? ''} onChangeText={t => setNewItem({...newItem, unit: t})} />
                         </ScrollView>
 
                         <View style={styles.modalActions}>
@@ -198,47 +166,17 @@ export default function InventarioScreen() {
                     <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Editar Producto</Text>
                         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Nombre *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={editingItem?.name || ''}
-                                onChangeText={t => setEditingItem({ ...editingItem, name: t })}
-                                placeholderTextColor={theme.textMuted}
-                            />
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Categoría</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={editingItem?.category || ''}
-                                onChangeText={t => setEditingItem({ ...editingItem, category: t })}
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Nombre *" value={editingItem?.name || ''} onChangeText={t => setEditingItem({ ...editingItem, name: t })} />
+                            <FormField label="Categoría" value={editingItem?.category || ''} onChangeText={t => setEditingItem({ ...editingItem, category: t })} />
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Stock actual</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        value={String(editingItem?.currentStock ?? 0)}
-                                        onChangeText={t => setEditingItem({ ...editingItem, currentStock: Math.max(0, parseInt(t) || 0) })}
-                                        keyboardType="numeric"
-                                    />
+                                    <FormField label="Stock actual" value={String(editingItem?.currentStock ?? 0)} onChangeText={t => setEditingItem({ ...editingItem, currentStock: Math.max(0, parseInt(t) || 0) })} />
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Stock mínimo</Text>
-                                    <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                        value={String(editingItem?.minStock ?? 0)}
-                                        onChangeText={t => setEditingItem({ ...editingItem, minStock: Math.max(0, parseInt(t) || 0) })}
-                                        keyboardType="numeric"
-                                    />
+                                    <FormField label="Stock mínimo" value={String(editingItem?.minStock ?? 0)} onChangeText={t => setEditingItem({ ...editingItem, minStock: Math.max(0, parseInt(t) || 0) })} />
                                 </View>
                             </View>
-                            <Text style={[styles.inputLabel, { color: theme.text }]}>Unidad de medida</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={editingItem?.unit || ''}
-                                onChangeText={t => setEditingItem({ ...editingItem, unit: t })}
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Unidad de medida" value={editingItem?.unit || ''} onChangeText={t => setEditingItem({ ...editingItem, unit: t })} />
                             <TouchableOpacity
                                 accessibilityRole="button"
                                 accessibilityLabel="Eliminar producto del inventario"

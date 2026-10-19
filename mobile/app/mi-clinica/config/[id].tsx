@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { useClinicConfig } from '@/src/hooks/clinica/useClinicConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -62,23 +63,11 @@ export default function ConfigClinicaScreen() {
                         <Text style={[styles.sectionLabel, { color: theme.text }]}>Información General</Text>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Nombre de la Clínica *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={form.name}
-                                onChangeText={(v) => updateField('name', v)}
-                            />
+                            <FormField label="Nombre de la Clínica *" value={form.name} onChangeText={(v) => updateField('name', v)} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Descripción</Text>
-                            <TextInput
-                                style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={form.description || ''}
-                                onChangeText={(v) => updateField('description', v)}
-                                multiline
-                                numberOfLines={4}
-                            />
+                            <FormField label="Descripción" value={form.description || ''} onChangeText={(v) => updateField('description', v)} />
                         </View>
 
                         {/* Contact Info */}
@@ -98,12 +87,7 @@ export default function ConfigClinicaScreen() {
 
                         <View style={styles.row}>
                             <View style={[styles.formGroup, { flex: 1 }]}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Ciudad</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    value={form.city || ''}
-                                    onChangeText={(v) => updateField('city', v)}
-                                />
+                                <FormField label="Ciudad" value={form.city || ''} onChangeText={(v) => updateField('city', v)} />
                             </View>
                             <View style={[styles.formGroup, { flex: 1 }]}>
                                 <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono</Text>

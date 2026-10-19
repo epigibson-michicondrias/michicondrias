@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSelect from '@/src/components/forms/FormSelect';
@@ -66,14 +67,7 @@ export default function EditarReporteScreen() {
 
                 <View style={styles.formContainer}>
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Nombre o Identificador</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. Firulais"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.pet_name}
-                            onChangeText={(t) => updateField('pet_name', t)}
-                        />
+                        <FormField label="Nombre o Identificador" value={form.pet_name} onChangeText={(t) => updateField('pet_name', t)} />
                     </View>
 
                     <FormSelect
@@ -85,24 +79,10 @@ export default function EditarReporteScreen() {
 
                     <View style={styles.row}>
                         <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.text }]}>Raza</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Ej. Husky"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.breed}
-                                onChangeText={(t) => updateField('breed', t)}
-                            />
+                            <FormField label="Raza" value={form.breed} onChangeText={(t) => updateField('breed', t)} />
                         </View>
                         <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.text }]}>Color</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Ej. Blanco"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.color}
-                                onChangeText={(t) => updateField('color', t)}
-                            />
+                            <FormField label="Color" value={form.color} onChangeText={(t) => updateField('color', t)} />
                         </View>
                     </View>
 
@@ -121,39 +101,15 @@ export default function EditarReporteScreen() {
                     />
 
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Última ubicación conocida</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. Parque México"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.last_seen_location}
-                            onChangeText={(t) => updateField('last_seen_location', t)}
-                        />
+                        <FormField label="Última ubicación conocida" value={form.last_seen_location} onChangeText={(t) => updateField('last_seen_location', t)} />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Teléfono de Contacto</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Tus 10 dígitos"
-                            keyboardType="phone-pad"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.contact_phone}
-                            onChangeText={(t) => updateField('contact_phone', t)}
-                        />
+                        <FormField label="Teléfono de Contacto" value={form.contact_phone} onChangeText={(t) => updateField('contact_phone', t)} />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Detalles Extra</Text>
-                        <TextInput
-                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Comportamiento, señas particulares..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            numberOfLines={4}
-                            value={form.description}
-                            onChangeText={(t) => updateField('description', t)}
-                        />
+                        <FormField label="Detalles Extra" value={form.description} onChangeText={(t) => updateField('description', t)} />
                     </View>
                 </View>
             </ScrollView>

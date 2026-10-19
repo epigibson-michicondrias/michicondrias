@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, Switch } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import { useBranches } from '@/src/hooks/clinica/useBranches';
 import { Clinic } from '@/src/services/directorio';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -148,86 +149,32 @@ export default function SucursalesScreen() {
 
                     <KeyboardScreen style={{ padding: 24 }}>
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Nombre de la Clínica *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={name}
-                                onChangeText={setName}
-                                placeholder="Hospital Veterinario Central"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Nombre de la Clínica *" value={name} onChangeText={setName} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Dirección</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={address}
-                                onChangeText={setAddress}
-                                placeholder="Calle Falsa 123"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Dirección" value={address} onChangeText={setAddress} />
                         </View>
 
                         <View style={styles.row}>
                             <View style={[styles.formGroup, { flex: 1 }]}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Ciudad</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    value={city}
-                                    onChangeText={setCity}
-                                    placeholder="CDMX"
-                                    placeholderTextColor={theme.textMuted}
-                                />
+                                <FormField label="Ciudad" value={city} onChangeText={setCity} />
                             </View>
                             <View style={[styles.formGroup, { flex: 1 }]}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Estado</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    value={state}
-                                    onChangeText={setState}
-                                    placeholder="CDMX"
-                                    placeholderTextColor={theme.textMuted}
-                                />
+                                <FormField label="Estado" value={state} onChangeText={setState} />
                             </View>
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={phone}
-                                onChangeText={setPhone}
-                                placeholder="+52 55 1234 5678"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="phone-pad"
-                            />
+                            <FormField label="Teléfono" value={phone} onChangeText={setPhone} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Correo Electrónico</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={email}
-                                onChangeText={setEmail}
-                                placeholder="contacto@clinica.com"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
+                            <FormField label="Correo Electrónico" value={email} onChangeText={setEmail} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Sitio Web</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={website}
-                                onChangeText={setWebsite}
-                                placeholder="https://clinica.com"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="url"
-                                autoCapitalize="none"
-                            />
+                            <FormField label="Sitio Web" value={website} onChangeText={setWebsite} />
                         </View>
 
                         <View style={styles.formGroup}>

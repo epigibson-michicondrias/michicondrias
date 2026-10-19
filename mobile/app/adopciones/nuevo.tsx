@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { Camera, Dog, Cat, Heart, MapPin } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -55,14 +56,7 @@ export default function NuevaAdopcionScreen() {
                     </TouchableOpacity>
 
                     <View style={styles.form}>
-                        <Text style={[styles.label, { color: theme.text }]}>Nombre del Michi o Lomito</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
-                            placeholder="Ej. Bolita"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.name}
-                            onChangeText={(t) => updateField('name', t)}
-                        />
+                        <FormField label="Nombre del Michi o Lomito" value={form.name} onChangeText={(t) => updateField('name', t)} />
 
                         <Text style={[styles.label, { color: theme.text }]}>Especie</Text>
                         <View style={styles.speciesRow}>
@@ -82,26 +76,11 @@ export default function NuevaAdopcionScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        <Text style={[styles.label, { color: theme.text }]}>Raza (Opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
-                            placeholder="Ej. Mestizo"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.breed}
-                            onChangeText={(t) => updateField('breed', t)}
-                        />
+                        <FormField label="Raza (Opcional)" value={form.breed} onChangeText={(t) => updateField('breed', t)} />
 
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
-                                <Text style={[styles.label, { color: theme.text }]}>Edad (Meses)</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
-                                    placeholder="Ej. 6"
-                                    placeholderTextColor={theme.textMuted}
-                                    keyboardType="numeric"
-                                    value={form.age_months}
-                                    onChangeText={(t) => updateField('age_months', t)}
-                                />
+                                <FormField label="Edad (Meses)" value={form.age_months} onChangeText={(t) => updateField('age_months', t)} />
                             </View>
                             <View style={{ width: 20 }} />
                             <View style={{ flex: 1 }}>
@@ -162,14 +141,7 @@ export default function NuevaAdopcionScreen() {
                             onChangeText={(t) => updateField('description', t)}
                         />
 
-                        <Text style={[styles.label, { color: theme.text }]}>Temperamento / Rasgos</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text }]}
-                            placeholder="Ej. Juguetón, Tranquilo, Miedoso..."
-                            placeholderTextColor={theme.textMuted}
-                            value={form.temperament}
-                            onChangeText={(t) => updateField('temperament', t)}
-                        />
+                        <FormField label="Temperamento / Rasgos" value={form.temperament} onChangeText={(t) => updateField('temperament', t)} />
 
                         <Text style={[styles.label, { color: theme.text }]}>Nivel de Energía</Text>
                         <View style={styles.sizeRow}>

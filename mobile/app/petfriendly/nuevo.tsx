@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import { Camera, Check, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
@@ -145,14 +146,7 @@ export default function NuevoLugarScreen() {
                     </TouchableOpacity>
 
                     <View style={styles.form}>
-                        <Text style={[styles.label, { color: theme.text }]}>Nombre del Establecimiento</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. El Michi Café"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.name}
-                            onChangeText={(t) => setForm({ ...form, name: t })}
-                        />
+                        <FormField label="Nombre del Establecimiento" value={form.name} onChangeText={(t) => setForm({ ...form, name: t })} />
 
                         <Text style={[styles.label, { color: theme.text }]}>Categoría</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
@@ -201,44 +195,13 @@ export default function NuevoLugarScreen() {
                             <Text style={{ color: theme.primary, fontWeight: '800' }}>{location ? 'Actualizar mi ubicación' : 'Usar mi ubicación actual'}</Text>
                         </TouchableOpacity>
 
-                        <Text style={[styles.label, { color: theme.text }]}>Ciudad</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. Ciudad de México"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.city}
-                            onChangeText={(t) => setForm({ ...form, city: t })}
-                        />
+                        <FormField label="Ciudad" value={form.city} onChangeText={(t) => setForm({ ...form, city: t })} />
 
-                        <Text style={[styles.label, { color: theme.text }]}>Teléfono (Opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="10 dígitos"
-                            placeholderTextColor={theme.textMuted}
-                            keyboardType="phone-pad"
-                            value={form.phone}
-                            onChangeText={(t) => setForm({ ...form, phone: t })}
-                        />
+                        <FormField label="Teléfono (Opcional)" value={form.phone} onChangeText={(t) => setForm({ ...form, phone: t })} />
 
-                        <Text style={[styles.label, { color: theme.text }]}>Sitio web (Opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="https://..."
-                            placeholderTextColor={theme.textMuted}
-                            autoCapitalize="none"
-                            keyboardType="url"
-                            value={form.website}
-                            onChangeText={(t) => setForm({ ...form, website: t })}
-                        />
+                        <FormField label="Sitio web (Opcional)" value={form.website} onChangeText={(t) => setForm({ ...form, website: t })} />
 
-                        <Text style={[styles.label, { color: theme.text }]}>Dirección (Opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. Calle 123, Col. Centro"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.address}
-                            onChangeText={(t) => setForm({ ...form, address: t })}
-                        />
+                        <FormField label="Dirección (Opcional)" value={form.address} onChangeText={(t) => setForm({ ...form, address: t })} />
 
                         <Text style={[styles.label, { color: theme.text }]}>Servicios Petfriendly</Text>
                         <View style={styles.amenitiesGrid}>
@@ -277,16 +240,7 @@ export default function NuevoLugarScreen() {
                             ))}
                         </View>
 
-                        <Text style={[styles.label, { color: theme.text }]}>Descripción y Tips</Text>
-                        <TextInput
-                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Cosas que otros dueños deberían saber..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            numberOfLines={4}
-                            value={form.description}
-                            onChangeText={(t) => setForm({ ...form, description: t })}
-                        />
+                        <FormField label="Descripción y Tips" value={form.description} onChangeText={(t) => setForm({ ...form, description: t })} />
                     </View>
                 </ScrollView>
 

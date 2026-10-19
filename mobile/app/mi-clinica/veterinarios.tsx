@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import { useVeterinarians } from '@/src/hooks/clinica/useVeterinarians';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -196,61 +197,23 @@ export default function VeterinariosClinicaScreen() {
 
                     <KeyboardScreen style={{ paddingHorizontal: 24 }}>
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Nombre Completo *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={name}
-                                onChangeText={setName}
-                                placeholder="Dr. Juan Pérez"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Nombre Completo *" value={name} onChangeText={setName} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Email *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={email}
-                                onChangeText={setEmail}
-                                placeholder="email@clinica.com"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                            />
+                            <FormField label="Email *" value={email} onChangeText={setEmail} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={phone}
-                                onChangeText={setPhone}
-                                placeholder="+52 55 1234 5678"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="phone-pad"
-                            />
+                            <FormField label="Teléfono" value={phone} onChangeText={setPhone} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Especialidad *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={specialty}
-                                onChangeText={setSpecialty}
-                                placeholder="Medicina General"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Especialidad *" value={specialty} onChangeText={setSpecialty} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Número de Cédula</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={licenseNumber}
-                                onChangeText={setLicenseNumber}
-                                placeholder="VET-12345"
-                                placeholderTextColor={theme.textMuted}
-                            />
+                            <FormField label="Número de Cédula" value={licenseNumber} onChangeText={setLicenseNumber} />
                         </View>
 
                         <View style={styles.formGroup}>
