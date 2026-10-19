@@ -418,9 +418,9 @@ Backend: rol en `POST /clinics/` (veterinario/hospital/admin). `GET /clinics/{id
 Arreglos:
 - [x] P0 La clínica no puede cancelar citas: `directorio.cancelAppointment` sin cuerpo → 422 (`services/directorio.ts` cancel, `useAgenda.ts:86`). Usar el cuerpo `{cancellation_reason}`
 - [x] P0 La cita agendada desde el especialista no queda asignada a él: `vet_id` ignorado (`especialista/[id].tsx:55`, `useBookAppointment.ts:102`)
-- [ ] P1 Citas canceladas invisibles y motivo de cancelación nunca mostrado (`useAppointments.ts:104`). Acciones en citas pasadas
-- [ ] P1 Promesa de emergencias sin respaldo (`agendar/[clinic_id].tsx:322`)
-- [ ] P1 Formulario de reseña visible para el dueño o el propio veterinario (403) en clínica y especialista. Reseñas sin autor
+- [x] P1 ✅ 2026-10-19 (filtro «Canceladas» con motivo) Citas canceladas invisibles y motivo de cancelación nunca mostrado (`useAppointments.ts:104`). Acciones en citas pasadas
+- [x] P1 ✅ 2026-10-19 (texto honesto: llamar o ir directo) Promesa de emergencias sin respaldo (`agendar/[clinic_id].tsx:322`)
+- [x] P1 ✅ 2026-10-19 (solo si no eres el dueño/veterinario) Formulario de reseña visible para el dueño o el propio veterinario (403) en clínica y especialista. Reseñas sin autor
 - [ ] P1 `/directorio/nuevo`: sin rol en app ni en backend. Service y `queryClient` en la pantalla
 - [ ] P1 Quitar «Mi Clínica»/«Registrar» del directorio. Una sola acción por tarjeta. Escudo verde con «Cédula sin registrar»
 - [ ] P2 Unificar `citas.ts`/`directorio.ts` (borrar `MOCK_SERVICES`, `types/citas.ts` y la query duplicada). Skeleton, `ScreenContainer`, `SearchBar`/`FilterChip`, tokens (0 imports de `constants/design`), partir `especialista/[id]` (809 l.), `clinica/[id]` (631 l.) y `agendar` (561 l.)

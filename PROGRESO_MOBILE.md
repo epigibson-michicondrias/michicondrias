@@ -841,4 +841,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   actual al editar, ubicación automática silenciosa al crear. Nueva pantalla **Mis reportes** (`/perdidas/mis-reportes`,
   `GET /reports/mine`) con editar y eliminar con confirmación; acceso desde la cabecera de Perdidas. Borrados
   `useEditReport` y `useReportActions` (sin uso).
+- **2026-10-19** — **Paso 5a: Directorio y citas**. Mis citas (filtros desplazables con conteo, tarjetas con
+  `Card`/`Badge`, motivo de cancelación, estados con tonos del tema), agendar (`FormSection`, servicios como tarjetas,
+  horarios con `FilterChip` y skeleton, botón fijo con la hora elegida, sin emojis, aviso de urgencia honesto) y
+  detalle de clínica (encabezado dentro del scroll con `DetailTopBar` fijo, contacto rápido solo con lo registrado,
+  `ReviewsSection` sin formulario para el dueño, sin favorito falso, compartir real; acciones en `useClinicDetail`).
+  Especialista: sin formulario de reseña para el propio veterinario.
 

@@ -19,7 +19,7 @@ import { spacing, radius, type, layout, shadow } from '@/constants/design';
 export default function SpecialistDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const { vetId, specialist, isLoading, isError, refetch, clinic, services } = useVetDetail();
+    const { vetId, specialist, isLoading, isError, refetch, clinic, services, canReview } = useVetDetail();
     const { rating, reviews, handleCreateReview, isCreatingReview } = useVetReviews(vetId);
     const [isFavorite, setIsFavorite] = useState(false);
 
@@ -189,7 +189,7 @@ export default function SpecialistDetailScreen() {
                 )}
 
                 {/* Servicios */}
-                <ProviderSection title={specialist.clinic_id ? 'Servicios Disponibles' : 'Consultorio Virtual'}>
+                <ProviderSection title={specialist.clinic_id ? 'Servicios disponibles' : 'Consultorio Virtual'}>
                     {services.length === 0 ? (
                         <Text style={{ color: theme.textMuted }}>
                             {specialist.clinic_id
@@ -223,7 +223,7 @@ export default function SpecialistDetailScreen() {
                 {/* Reseñas */}
                 <ProviderSection title="Reseñas y Opiniones">
                     <ProviderReviews reviews={reviews.map((r: any) => ({ id: r.id, user_name: 'Usuario', rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
-                    <ProviderReviewForm onSubmit={(rating, comment) => { handleCreateReview(rating, comment || undefined); }} isSubmitting={isCreatingReview} />
+                    {canReview ? <ProviderReviewForm onSubmit={(rating, comment) => { handleCreateReview(rating, comment || undefined); }} isSubmitting={isCreatingReview} /> : null}
                 </ProviderSection>
             </ScrollView>
 

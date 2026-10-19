@@ -10,6 +10,8 @@ export interface Appointment {
     status: string; // scheduled, confirmed, completed, cancelled
     is_emergency: boolean;
     notes: string | null;
+    /** Motivo cuando la clínica o el dueño cancela. */
+    cancellation_reason?: string | null;
     created_at: string;
     updated_at: string;
     

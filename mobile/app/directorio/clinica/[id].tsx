@@ -1,216 +1,199 @@
 /**
- * Detalle de clínica — estilo Doctoralia.
- * Hero con logo + rating + badges · acciones rápidas · servicios con precio · reseñas · CTA fijo.
- * Diferenciadores: 24h, urgencias, mapa, teléfono, web.
+ * Detalle de clínica: datos, contacto rápido, servicios (cada uno agenda directo) y reseñas.
  */
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, Linking, TextInput, ActivityIndicator, Dimensions } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MapPin, Phone, Globe, Clock, Star, AlertTriangle, Calendar, Hospital, Share2, MessageCircle, Navigation, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicDetail } from '@/src/hooks/directorio/useClinicDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import BackButton from '@/src/components/BackButton';
-import { MapPin, Phone, Globe, Clock, Star, Info, Calendar, Hospital, Share2, Heart, MessageCircle, Navigation } from 'lucide-react-native';
-import { ProviderSection, ProviderReviews, ProviderReviewForm, ProviderFooter, ProviderLocation } from '@/src/features/proveedor/ProviderProfile';
-import { spacing, radius, type, layout, shadow } from '@/constants/design';
+import { DetailTopBar, DetailFooter } from '@/src/components/layout/DetailLayout';
+import IconButton, { type IconComponent } from '@/src/components/IconButton';
+import Button from '@/src/components/Button';
+import Badge from '@/src/components/Badge';
+import { Skeleton } from '@/src/components/Skeleton';
+import ReviewsSection from '@/src/components/reviews/ReviewsSection';
+import { ProviderSection } from '@/src/features/proveedor/ProviderProfile';
+import { formatCurrency } from '@/src/utils/formatters';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
 
-const { width } = Dimensions.get('window');
+function QuickAction({ icon: Icon, label, color, onPress }: { icon: IconComponent; label: string; color: string; onPress: () => void }) {
+    const { theme } = useTheme();
+    return (
+        <TouchableOpacity
+            style={[styles.quick, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+            onPress={onPress}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={label}
+        >
+            <Icon size={layout.icon.md} color={color} />
+            <Text style={[type.caption, styles.quickLabel, { color: theme.text }]}>{label}</Text>
+        </TouchableOpacity>
+    );
+}
 
 export default function ClinicDetailScreen() {
-    const router = useRouter();
     const { theme } = useTheme();
-    const { clinic, isLoading, services, rating, reviews, handleCreateReview, isCreatingReview } = useClinicDetail();
-    const [isFavorite, setIsFavorite] = useState(false);
+    const insets = useSafeAreaInsets();
+    const c = useClinicDetail();
+    const { clinic, rating, services, reviews } = c;
 
-    const callClinic = () => {
-        if (clinic?.phone) {
-            Linking.openURL(`tel:${clinic.phone}`).catch(() => {});
-        }
-    };
-    const openWebsite = () => {
-        if (clinic?.website) {
-            Linking.openURL(clinic.website).catch(() => {});
-        }
-    };
-    const openMap = () => {
-        const query = encodeURIComponent([clinic?.name, clinic?.address, clinic?.city].filter(Boolean).join(', '));
-        Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${query}`).catch(() => {});
-    };
-    const openWhatsApp = () => {
-        if (clinic?.phone) {
-            const phone = clinic.phone.replace(/[^0-9]/g, '');
-            Linking.openURL(`https://wa.me/52${phone}`).catch(() => {});
-        }
-    };
-    const shareClinic = () => {
-        const text = `${clinic?.name || 'Clínica'} — ${[clinic?.address, clinic?.city].filter(Boolean).join(', ')}`;
-        if (typeof navigator !== 'undefined' && navigator.share) {
-            navigator.share({ title: clinic?.name || 'Clínica', text }).catch(() => {});
-        }
-    };
+    const topBar = (
+        <DetailTopBar
+            onBack={c.goBack}
+            actions={clinic ? <IconButton icon={Share2} accessibilityLabel="Compartir clínica" onPress={c.share} variant="surface" size="sm" /> : undefined}
+        />
+    );
 
-    if (isLoading || !clinic) {
+    if (c.isLoading || !clinic) {
         return (
             <ScreenContainer>
-                <ScreenHeader title={isLoading ? 'Cargando...' : 'Clínica'} />
-                <View style={styles.loadingBox}><ActivityIndicator size="large" color={theme.primary} /></View>
+                <View style={[styles.content, { paddingTop: insets.top + spacing.huge }]}>
+                    <Skeleton width={72} height={72} borderRadius={radius.lg} style={styles.center} />
+                    <Skeleton width="60%" height={24} style={styles.center} />
+                    <Skeleton height={56} />
+                    <Skeleton height={160} />
+                </View>
+                {topBar}
             </ScreenContainer>
         );
     }
 
+    const place = [clinic.address, clinic.city].filter(Boolean).join(', ');
+    const total = rating?.total_reviews ?? 0;
+
     return (
         <ScreenContainer>
-            {/* Hero */}
-            <View style={[styles.hero, { backgroundColor: theme.primary + '08' }]}>
-                <BackButton onPress={() => router.back()} style={styles.backBtn} />
-                <TouchableOpacity style={styles.shareBtn} onPress={shareClinic} accessibilityRole="button" accessibilityLabel="Compartir clínica">
-                    <Share2 size={20} color={theme.textMuted} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.favBtn} onPress={() => setIsFavorite((v) => !v)} accessibilityRole="button" accessibilityLabel={isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}>
-                    <Heart size={20} color={isFavorite ? theme.error : theme.textMuted} fill={isFavorite ? theme.error : 'transparent'} />
-                </TouchableOpacity>
-
-                <View style={[styles.heroIcon, { backgroundColor: theme.primary + '15' }]}>
-                    {clinic.logo_url ? (
-                        <Image source={{ uri: clinic.logo_url }} style={styles.heroLogo} />
-                    ) : (
-                        <Hospital size={40} color={theme.primary} />
-                    )}
-                </View>
-                <Text style={[styles.heroName, { color: theme.text }]}>{clinic.name}</Text>
-                <View style={styles.heroRating}>
-                    <Star size={16} color={theme.warning} fill={theme.warning} />
-                    <Text style={[styles.heroRatingText, { color: theme.text }]}>
-                        {rating?.average_rating ? rating.average_rating.toFixed(1) : 'Nuevo'}
-                    </Text>
-                    <Text style={[styles.heroRatingCount, { color: theme.textMuted }]}>
-                        ({rating?.total_reviews || 0} reseña{rating?.total_reviews === 1 ? '' : 's'})
-                    </Text>
-                </View>
-                <View style={styles.heroLocation}>
-                    <MapPin size={14} color={theme.textMuted} />
-                    <Text style={[styles.heroLocationText, { color: theme.textMuted }]}>
-                        {[clinic.address, clinic.city].filter(Boolean).join(', ') || 'Dirección no registrada'}
-                    </Text>
-                </View>
-
-                {/* Badges */}
-                <View style={styles.badgesRow}>
-                    {clinic.is_24_hours && (
-                        <View style={[styles.badge, { backgroundColor: theme.info + '15', borderColor: theme.info + '30' }]}>
-                            <Clock size={12} color={theme.info} />
-                            <Text style={[styles.badgeText, { color: theme.info }]}>24 Horas</Text>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.huge }]}>
+                {/* Encabezado */}
+                <View style={styles.hero}>
+                    <View style={[styles.logo, { backgroundColor: theme.primary + tint.faint }]}>
+                        {clinic.logo_url
+                            ? <Image source={{ uri: clinic.logo_url }} style={styles.fill} accessibilityLabel={`Logo de ${clinic.name}`} />
+                            : <Hospital size={layout.icon.xl} color={theme.primary} />}
+                    </View>
+                    <Text style={[type.h1, styles.centerText, { color: theme.text }]}>{clinic.name}</Text>
+                    <View style={styles.meta}>
+                        <Star size={layout.icon.sm} color={theme.accent} fill={total > 0 ? theme.accent : 'transparent'} />
+                        <Text style={[type.bodyStrong, { color: theme.text }]}>{total > 0 ? rating!.average_rating.toFixed(1) : 'Nueva'}</Text>
+                        <Text style={[type.caption, { color: theme.textMuted }]}>· {total} {total === 1 ? 'reseña' : 'reseñas'}</Text>
+                    </View>
+                    {place ? (
+                        <View style={styles.meta}>
+                            <MapPin size={layout.icon.xs} color={theme.textMuted} />
+                            <Text style={[type.caption, styles.centerText, { color: theme.textMuted }]}>{place}</Text>
                         </View>
-                    )}
-                    {clinic.has_emergency && (
-                        <View style={[styles.badge, { backgroundColor: theme.error + '15', borderColor: theme.error + '30' }]}>
-                            <Info size={12} color={theme.error} />
-                            <Text style={[styles.badgeText, { color: theme.error }]}>Urgencias</Text>
+                    ) : null}
+                    {clinic.is_24_hours || clinic.has_emergency ? (
+                        <View style={styles.badges}>
+                            {clinic.is_24_hours ? <Badge label="24 horas" color={theme.info} size="sm" icon={<Clock size={layout.icon.xs} color={theme.info} />} /> : null}
+                            {clinic.has_emergency ? <Badge label="Urgencias" color={theme.error} size="sm" icon={<AlertTriangle size={layout.icon.xs} color={theme.error} />} /> : null}
                         </View>
-                    )}
+                    ) : null}
                 </View>
-            </View>
 
-            {/* Quick Actions */}
-            <View style={styles.quickActions}>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]} onPress={callClinic} accessibilityRole="button" accessibilityLabel="Llamar">
-                    <Phone size={20} color={theme.primary} />
-                    <Text style={[styles.actionLabel, { color: theme.text }]}>Llamar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]} onPress={openWhatsApp} accessibilityRole="button" accessibilityLabel="WhatsApp">
-                    <MessageCircle size={20} color={theme.success} />
-                    <Text style={[styles.actionLabel, { color: theme.text }]}>WhatsApp</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]} onPress={openMap} accessibilityRole="button" accessibilityLabel="Cómo llegar">
-                    <Navigation size={20} color={theme.info} />
-                    <Text style={[styles.actionLabel, { color: theme.text }]}>Llegar</Text>
-                </TouchableOpacity>
-                {clinic.website && (
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.borderLight }]} onPress={openWebsite} accessibilityRole="button" accessibilityLabel="Sitio web">
-                        <Globe size={20} color={theme.accent} />
-                        <Text style={[styles.actionLabel, { color: theme.text }]}>Web</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
+                {/* Contacto rápido: solo lo que la clínica tiene registrado */}
+                <View style={styles.quickRow}>
+                    {c.call ? <QuickAction icon={Phone} label="Llamar" color={theme.primary} onPress={c.call} /> : null}
+                    {c.whatsapp ? <QuickAction icon={MessageCircle} label="WhatsApp" color={theme.success} onPress={c.whatsapp} /> : null}
+                    <QuickAction icon={Navigation} label="Cómo llegar" color={theme.info} onPress={c.directions} />
+                    {c.website ? <QuickAction icon={Globe} label="Sitio web" color={theme.accent} onPress={c.website} /> : null}
+                </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                {/* Descripción */}
-                {!!clinic.description && (
+                {clinic.description ? (
                     <ProviderSection title="Sobre la clínica">
-                        <Text style={[styles.description, { color: theme.textMuted }]}>{clinic.description}</Text>
+                        <Text style={[type.body, { color: theme.textMuted }]}>{clinic.description}</Text>
                     </ProviderSection>
-                )}
+                ) : null}
 
-                {/* Servicios */}
-                <ProviderSection title="Servicios Disponibles">
+                <ProviderSection title="Servicios">
                     {services.length === 0 ? (
-                        <Text style={{ color: theme.textMuted }}>No hay servicios listados actualmente.</Text>
+                        <Text style={[type.body, { color: theme.textMuted }]}>Aún no hay servicios para agendar en línea. Puedes llamar a la clínica.</Text>
                     ) : (
-                        services.map((service) => (
-                            <TouchableOpacity
-                                key={service.id}
-                                style={[styles.serviceItem, { backgroundColor: theme.background, borderColor: theme.borderLight }]}
-                                accessibilityRole="button"
-                                accessibilityLabel={`Agendar ${service.name}`}
-                                onPress={() => router.push({ pathname: '/directorio/citas/agendar/[clinic_id]', params: { clinic_id: clinic.id, service_id: service.id } } as any)}
-                            >
-                                <View style={{ flex: 1 }}>
-                                    <Text style={[styles.serviceName, { color: theme.text }]}>{service.name}</Text>
-                                    <Text style={[styles.serviceDuration, { color: theme.textMuted }]}>{service.duration_minutes} min</Text>
-                                </View>
-                                <View style={styles.serviceRight}>
-                                    <Text style={[styles.servicePrice, { color: theme.primary }]}>
-                                        {service.price ? Number(service.price).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }) : 'Consultar'}
+                        <View style={styles.services}>
+                            {services.map((service) => (
+                                <TouchableOpacity
+                                    key={service.id}
+                                    style={[styles.service, { borderColor: theme.cardBorder }]}
+                                    onPress={() => c.book(service.id)}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`Agendar ${service.name}`}
+                                >
+                                    <View style={styles.flex}>
+                                        <Text style={[type.bodyStrong, { color: theme.text }]}>{service.name}</Text>
+                                        <Text style={[type.caption, { color: theme.textMuted }]}>{service.duration_minutes} min</Text>
+                                    </View>
+                                    <Text style={[type.bodyStrong, { color: theme.primary }]}>
+                                        {service.price ? formatCurrency(Number(service.price)) : 'Consultar'}
                                     </Text>
-                                    <Calendar size={18} color={theme.primary} />
-                                </View>
-                            </TouchableOpacity>
-                        ))
+                                    <ChevronRight size={layout.icon.sm} color={theme.textMuted} />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     )}
                 </ProviderSection>
 
-                {/* Reseñas */}
-                <ProviderSection title="Reseñas y Opiniones">
-                    <ProviderReviews reviews={reviews.map((r: any) => ({ id: r.id, user_name: 'Usuario', rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
-                    <ProviderReviewForm onSubmit={(rating, comment) => { handleCreateReview(rating, comment || undefined); }} isSubmitting={isCreatingReview} />
-                </ProviderSection>
+                <ReviewsSection
+                    title="Opiniones"
+                    average={rating?.average_rating ?? 0}
+                    count={total}
+                    reviews={reviews.map((r) => ({ id: r.id, rating: r.rating, comment: r.comment, created_at: r.created_at, author_name: 'Cliente' }))}
+                    canReview={c.canReview}
+                    submitting={c.isCreatingReview}
+                    onSubmit={(value, comment) => c.handleCreateReview(value, comment || undefined)}
+                    formPrompt="¿Cómo te atendieron?"
+                    style={styles.reviews}
+                />
             </ScrollView>
 
-            <ProviderFooter
-                label="Agendar Cita"
-                onPress={() => router.push({ pathname: '/directorio/citas/agendar/[clinic_id]', params: { clinic_id: clinic.id } } as any)}
-                icon={<Calendar size={20} color={theme.onPrimary} />}
-            />
+            <DetailFooter>
+                <Button label="Agendar cita" icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />} onPress={() => c.book()} size="lg" style={styles.flex} />
+            </DetailFooter>
+            {topBar}
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    hero: { alignItems: 'center', paddingTop: spacing.xl + 40, paddingBottom: spacing.xl, paddingHorizontal: spacing.xl },
-    backBtn: { position: 'absolute', top: spacing.lg, left: spacing.lg },
-    shareBtn: { position: 'absolute', top: spacing.lg, right: spacing.xl + 36, width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    favBtn: { position: 'absolute', top: spacing.lg, right: spacing.lg, width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    heroIcon: { width: 80, height: 80, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.md },
-    heroLogo: { width: 80, height: 80, borderRadius: 20 },
-    heroName: { fontSize: type.h1.fontSize, fontWeight: '900', textAlign: 'center', marginBottom: spacing.sm },
-    heroRating: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
-    heroRatingText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
-    heroRatingCount: { fontSize: type.caption.fontSize },
-    heroLocation: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.md },
-    heroLocationText: { fontSize: type.caption.fontSize },
-    badgesRow: { flexDirection: 'row', gap: spacing.sm },
-    badge: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: radius.pill, borderWidth: 1 },
-    badgeText: { fontSize: type.caption.fontSize, fontWeight: '700' },
-    quickActions: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.lg },
-    actionBtn: { flex: 1, alignItems: 'center', gap: spacing.xs, paddingVertical: spacing.md, borderRadius: radius.lg, borderWidth: 1, flexDirection: 'row', justifyContent: 'center' },
-    actionLabel: { fontSize: type.caption.fontSize, fontWeight: '600' },
-    scrollContent: { paddingHorizontal: spacing.lg, paddingBottom: 100 },
-    description: { fontSize: type.body.fontSize, lineHeight: 22 },
-    serviceItem: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, borderRadius: radius.md, borderWidth: 1, marginBottom: spacing.sm },
-    serviceName: { fontSize: type.subtitle.fontSize, fontWeight: '700' },
-    serviceDuration: { fontSize: type.caption.fontSize, marginTop: spacing.xxs },
-    serviceRight: { alignItems: 'flex-end', gap: spacing.xs },
-    servicePrice: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
+    flex: { flex: 1 },
+    fill: { width: '100%', height: '100%' },
+    center: { alignSelf: 'center' },
+    centerText: { textAlign: 'center' },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
+    hero: { alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
+    logo: {
+        width: layout.iconBox.lg * 1.6,
+        height: layout.iconBox.lg * 1.6,
+        borderRadius: radius.lg,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: spacing.sm,
+    },
+    meta: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    badges: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+    quickRow: { flexDirection: 'row', gap: spacing.sm },
+    quick: {
+        flex: 1,
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingVertical: spacing.md,
+        minHeight: layout.minTouch,
+        borderRadius: radius.md,
+        borderWidth: 1,
+    },
+    quickLabel: { fontWeight: '600' },
+    services: { gap: spacing.sm },
+    service: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
+        padding: spacing.md,
+        minHeight: layout.minTouch,
+        borderRadius: radius.md,
+        borderWidth: 1,
+    },
+    reviews: { marginHorizontal: 0, marginBottom: 0 },
 });

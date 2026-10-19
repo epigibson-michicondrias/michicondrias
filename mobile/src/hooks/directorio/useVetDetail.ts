@@ -3,10 +3,12 @@
  * Fetches the vet matching the route param
  */
 import { useLocalSearchParams } from 'expo-router';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { getVet, getClinic, getClinicServices } from '@/src/services/directorio';
 
 export function useVetDetail() {
+    const { user } = useAuth();
     const { id } = useLocalSearchParams();
     const vetId = id as string;
 
@@ -31,6 +33,8 @@ export function useVetDetail() {
 
     return {
         vetId,
+        /** El propio veterinario no se reseña a sí mismo (el backend responde 403). */
+        canReview: !!user && !!specialist && specialist.user_id !== user.id,
         specialist,
         isLoading,
         isError,
