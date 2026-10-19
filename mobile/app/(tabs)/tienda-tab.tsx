@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ScrollView, View, Text } from 'react-native';
+import { StyleSheet, ScrollView, View, Text, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Package, ShoppingBag, ArrowUpDown, LayoutGrid, List, SearchX, Heart } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -69,7 +69,9 @@ export default function TiendaTabScreen() {
 
       <View style={styles.toolbar}>
         <Text style={[type.caption, styles.count, { color: theme.textMuted }]}>
-          {shop.isLoading ? 'Cargando…' : `${shop.products.length} ${shop.products.length === 1 ? 'producto' : 'productos'}`}
+          {shop.isLoading || shop.isUpdating
+            ? 'Buscando…'
+            : `${shop.hasMore ? 'Más de ' : ''}${shop.products.length} ${shop.products.length === 1 ? 'producto' : 'productos'}`}
         </Text>
         <OptionMenu icon={ArrowUpDown} title="Ordenar por" value={shop.sort} onChange={shop.setSort} options={SHOP_SORTS} />
         <ViewModeToggle value={shop.viewMode} onChange={shop.setViewMode} options={VIEW_OPTIONS} />
@@ -132,6 +134,9 @@ export default function TiendaTabScreen() {
         onRefresh={shop.refetch}
         isRefreshing={shop.isRefetching}
         keyboardShouldPersistTaps="handled"
+        onEndReached={shop.loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={shop.isLoadingMore ? <ActivityIndicator color={theme.primary} style={styles.footerLoader} /> : null}
         contentStyle={{ paddingBottom: CART_BAR_SPACE + spacing.lg }}
         {...emptyProps}
       />
@@ -148,4 +153,5 @@ const styles = StyleSheet.create({
   chips: { gap: spacing.sm, paddingHorizontal: layout.screenPadding, alignItems: 'center' },
   toolbar: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   count: { flex: 1, fontWeight: '700' },
+  footerLoader: { paddingVertical: spacing.lg },
 });

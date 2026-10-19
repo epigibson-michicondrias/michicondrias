@@ -1,13 +1,14 @@
 /**
  * useShopTab — Pestaña Tienda: catálogo con categorías, favoritos, búsqueda, orden y forma de ver.
- * La búsqueda y el orden son locales sobre el catálogo de la categoría (el backend no ofrece `q` ni `sort`).
+ * Búsqueda, orden y paginación los hace el backend (`GET /products/?q=&sort=&skip=&limit=`).
  */
 import { useState, useEffect, useMemo } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useLocalSearchParams } from 'expo-router';
 import { Sparkles, Package, Star, HeartPulse, Tag, Shirt, Bath, Heart } from 'lucide-react-native';
-import { getProducts, getCategories } from '@/src/services/ecommerce';
+import { getProducts, getCategories, PRODUCTS_PAGE_SIZE, type ProductSort } from '@/src/services/ecommerce';
+import { useDebouncedValue } from '@/src/hooks/useDebouncedValue';
 import { useCart } from '@/src/contexts/CartContext';
 import { useFavorites } from '@/src/hooks/useFavorites';
 import { useViewMode } from '@/src/hooks/useViewMode';
@@ -25,7 +26,7 @@ export interface ShopCategory {
 /** Filtro especial: productos guardados en favoritos. */
 export const FAVORITES = 'favorites';
 
-export type ShopSort = 'relevance' | 'price_asc' | 'price_desc' | 'rating';
+export type ShopSort = ProductSort;
 export const SHOP_SORTS: { value: ShopSort; label: string }[] = [
   { value: 'relevance', label: 'Relevancia' },
   { value: 'price_asc', label: 'Menor precio' },
@@ -46,18 +47,6 @@ function categoryStyle(name: string): Pick<ShopCategory, 'icon' | 'color'> {
   if (n.includes('higiene') || n.includes('baño')) return { icon: Bath, color: accents.teal };
   if (n.includes('ropa') || n.includes('moda')) return { icon: Shirt, color: accents.orchid };
   return { icon: Package, color: accents.neutral };
-}
-
-function sortProducts(list: Product[], sort: ShopSort): Product[] {
-  // Agotados al final en cualquier orden
-  const byStock = (a: Product, b: Product) => Number(b.stock > 0) - Number(a.stock > 0);
-  const sorted = [...list];
-  switch (sort) {
-    case 'price_asc': return sorted.sort((a, b) => byStock(a, b) || a.price - b.price);
-    case 'price_desc': return sorted.sort((a, b) => byStock(a, b) || b.price - a.price);
-    case 'rating': return sorted.sort((a, b) => byStock(a, b) || b.average_rating - a.average_rating || b.review_count - a.review_count);
-    default: return sorted.sort(byStock);
-  }
 }
 
 export function useShopTab() {
@@ -92,19 +81,36 @@ export function useShopTab() {
   }, [selectedCategory, favoriteIds.length]);
 
   const categoryParam = selectedCategory === 'all' || selectedCategory === FAVORITES ? undefined : selectedCategory;
-  const { data: catalog = [], isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ['store-products', categoryParam ?? 'all'],
-    queryFn: () => getProducts(categoryParam),
-    // Al cambiar de categoría se queda lo anterior en pantalla hasta que llega lo nuevo (sin parpadeo)
+  // Se busca al dejar de escribir (no en cada tecla)
+  const q = useDebouncedValue(searchQuery.trim(), 350);
+  const favoritesOnly = selectedCategory === FAVORITES;
+  const {
+    data, isLoading, refetch, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage, isPlaceholderData,
+  } = useInfiniteQuery({
+    queryKey: ['store-products', 'catalog', categoryParam ?? 'all', q, sort, favoritesOnly ? favoriteIds : null],
+    queryFn: ({ pageParam }) => getProducts({
+      category: categoryParam,
+      q,
+      sort,
+      ids: favoritesOnly ? favoriteIds : undefined,
+      skip: pageParam,
+      limit: PRODUCTS_PAGE_SIZE,
+    }),
+    initialPageParam: 0,
+    getNextPageParam: (last, all) => (last.length < PRODUCTS_PAGE_SIZE ? undefined : all.reduce((n, p) => n + p.length, 0)),
+    // Al cambiar de filtro se queda lo anterior en pantalla hasta que llega lo nuevo (sin parpadeo)
     placeholderData: keepPreviousData,
   });
 
-  const products = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    let list = selectedCategory === FAVORITES ? catalog.filter((p) => favoriteIds.includes(p.id)) : catalog;
-    if (q) list = list.filter((p) => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q));
-    return sortProducts(list, sort);
-  }, [catalog, searchQuery, sort, selectedCategory, favoriteIds]);
+  // Sin duplicados si el catálogo cambia entre páginas (la paginación es por offset)
+  const products = useMemo(
+    () => [...new Map((data?.pages.flat() ?? []).map((p) => [p.id, p])).values()],
+    [data],
+  );
+
+  const loadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  };
 
   const hasFilters = searchQuery.trim().length > 0 || selectedCategory !== 'all';
   const clearFilters = () => {
@@ -126,6 +132,12 @@ export function useShopTab() {
     clearFilters,
 
     products,
+    /** Hay más páginas por cargar (el total exacto no se conoce). */
+    hasMore: !!hasNextPage,
+    loadMore,
+    isLoadingMore: isFetchingNextPage,
+    /** Llega un resultado nuevo (búsqueda/orden/categoría) mientras se muestra el anterior. */
+    isUpdating: isPlaceholderData || searchQuery.trim() !== q,
     isLoading,
     refetch,
     isRefetching,

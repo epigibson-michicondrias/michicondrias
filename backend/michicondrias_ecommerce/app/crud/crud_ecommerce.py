@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session, joinedload
 import logging
 import uuid
-from sqlalchemy import func, text
+from sqlalchemy import case, func, or_, text
 from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
 from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate, OrderCreate
 
@@ -48,8 +48,23 @@ def get_product(db: Session, product_id: str):
     product = db.query(Product).filter(Product.id == product_id).first()
     return _attach_rating_info(db, product)
 
+PRODUCT_SORTS = ("relevance", "price_asc", "price_desc", "rating")
+
+# Búsqueda sin acentos ni mayúsculas ("raton" encuentra "Ratón") sin depender de la extensión unaccent
+_ACCENTED = "áéíóúüñàèìòù"
+_PLAIN = "aeiouunaeiou"
+
+
+def _fold(expr):
+    return func.translate(func.lower(expr), _ACCENTED, _PLAIN)
+
+
+def _fold_text(value: str) -> str:
+    return value.lower().translate(str.maketrans(_ACCENTED, _PLAIN))
+
+
 def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None,
-                 include_unpublished: bool = False):
+                 include_unpublished: bool = False, q: str = None, sort: str = "relevance", ids: list = None):
     query = db.query(Product)
     # La vista pública (también filtrada por vendedor) solo muestra activos Y aprobados; el propio vendedor
     # (`/products/seller/me`) pide `include_unpublished` para ver también los ocultos y los pendientes.
@@ -59,6 +74,39 @@ def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = N
         query = query.filter(Product.category_id == category) # Fixed category_id
     if seller_id:
         query = query.filter(Product.seller_id == seller_id)
+    if ids is not None:
+        query = query.filter(Product.id.in_(ids))
+
+    # Cada palabra debe aparecer en el nombre o la descripción
+    words = [w for w in _fold_text(q or "").split() if w][:8]
+    for w in words:
+        pattern = f"%{w.replace('%', '').replace('_', '')}%"
+        query = query.filter(or_(_fold(Product.name).like(pattern), _fold(func.coalesce(Product.description, "")).like(pattern)))
+
+    # Calificación agregada (subconsulta) para ordenar por ella sin N+1
+    ratings = (
+        db.query(Review.product_id.label("pid"), func.avg(Review.rating).label("avg"), func.count(Review.id).label("cnt"))
+        .group_by(Review.product_id)
+        .subquery()
+    )
+    query = query.outerjoin(ratings, ratings.c.pid == Product.id)
+    avg = func.coalesce(ratings.c.avg, 0)
+    cnt = func.coalesce(ratings.c.cnt, 0)
+    in_stock = case((Product.stock > 0, 0), else_=1)  # los agotados siempre al final
+
+    if sort == "price_asc":
+        order = [in_stock, Product.price.asc()]
+    elif sort == "price_desc":
+        order = [in_stock, Product.price.desc()]
+    elif sort == "rating":
+        order = [in_stock, avg.desc(), cnt.desc()]
+    else:
+        # Relevancia: si hay búsqueda, primero los que la tienen en el nombre; luego los más opinados y mejor calificados
+        order = [in_stock]
+        if words:
+            order.append(case((_fold(Product.name).like(f"%{words[0]}%"), 0), else_=1))
+        order += [cnt.desc(), avg.desc()]
+    query = query.order_by(*order, Product.name.asc(), Product.id.asc())
 
     products = query.offset(skip).limit(limit).all()
     return _batch_attach_ratings(db, products)

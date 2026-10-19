@@ -13,7 +13,7 @@ export function useAdminProducts() {
 
     const { data: products = [], isLoading, isFetching, refetch } = useQuery({
         queryKey: ['admin-products'],
-        queryFn: () => getProducts(),
+        queryFn: () => getProducts({ limit: 100 }),
     });
 
     return {

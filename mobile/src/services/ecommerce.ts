@@ -6,10 +6,34 @@ import type {
 export type { Category, Product, Review, ReviewCreate, ReviewEligibility, OrderItem, Order, OrderCreate, Donation };
 
 // PRODUCTS
-export async function getProducts(category?: string, sellerId?: string): Promise<Product[]> {
+export type ProductSort = "relevance" | "price_asc" | "price_desc" | "rating";
+
+export interface ProductQuery {
+    category?: string;
+    sellerId?: string;
+    /** Búsqueda en nombre y descripción (el backend ignora acentos y exige cada palabra). */
+    q?: string;
+    sort?: ProductSort;
+    /** Solo estos productos (p. ej. favoritos). Lista vacía = ninguno. */
+    ids?: string[];
+    skip?: number;
+    limit?: number;
+}
+
+/** Página del catálogo en la pestaña Tienda. */
+export const PRODUCTS_PAGE_SIZE = 24;
+
+/** Catálogo público (activos y aprobados) con búsqueda, orden y paginación en el backend. */
+export async function getProducts({ category, sellerId, q, sort, ids, skip, limit }: ProductQuery = {}): Promise<Product[]> {
+    if (ids && ids.length === 0) return [];
     const params = new URLSearchParams();
     if (category) params.append("category", category);
     if (sellerId) params.append("seller_id", sellerId);
+    if (q?.trim()) params.append("q", q.trim());
+    if (sort && sort !== "relevance") params.append("sort", sort);
+    if (ids) params.append("ids", ids.join(","));
+    if (skip) params.append("skip", String(skip));
+    if (limit) params.append("limit", String(limit));
 
     const qs = params.toString() ? `?${params.toString()}` : "";
     return apiFetch<Product[]>("ecommerce", `/products/${qs}`);

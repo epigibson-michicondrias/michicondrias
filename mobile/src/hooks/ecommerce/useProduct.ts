@@ -43,18 +43,17 @@ export function useProduct() {
         meta: { silentError: true },
     });
 
-    // «También te puede gustar»: misma categoría (comparte caché con la pestaña Tienda), con existencias primero
+    // «También te puede gustar»: misma categoría, mejor calificados y con existencias primero (orden del backend)
     const categoryKey = product?.category_id ?? 'all';
     const { data: sameCategory = [] } = useQuery({
-        queryKey: ['store-products', categoryKey],
-        queryFn: () => getProducts(product?.category_id ?? undefined),
+        queryKey: ['store-products', 'related', categoryKey],
+        queryFn: () => getProducts({ category: product?.category_id ?? undefined, sort: 'rating', limit: 12 }),
         enabled: !!product,
         meta: { silentError: true },
     });
     const related = useMemo(
         () => sameCategory
             .filter((p) => p.id !== id)
-            .sort((a, b) => Number(b.stock > 0) - Number(a.stock > 0) || b.average_rating - a.average_rating)
             .slice(0, 8),
         [sameCategory, id],
     );
