@@ -183,3 +183,9 @@ export function capitalize(text: string | undefined | null): string {
     // `\b\w` no entiende acentos ("siamés" → "SiaméS"): se capitaliza al inicio de cada palabra separada por espacio o guion
     return text.replace(/(^|[\s-])([a-záéíóúüñ])/g, (_, sep, c) => sep + c.toUpperCase());
 }
+
+/** Solo la primera letra en mayúscula ("gris y blanco" → "Gris y blanco"), para valores sueltos y frases. */
+export function sentenceCase(text: string | undefined | null): string {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}

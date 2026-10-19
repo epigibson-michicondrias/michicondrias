@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     MapPin, Phone, AlertTriangle, Share2, CheckCircle2, Info, Scale, Fingerprint, Calendar, PawPrint, Eye, Pencil, Clock,
 } from 'lucide-react-native';
@@ -9,7 +8,7 @@ import WebMapView, { MapMarker } from '@/src/components/WebMapView';
 import { useReportDetail } from '@/src/hooks/perdidas/useReportDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import BackButton from '@/src/components/BackButton';
+import { DetailPhoto, DetailTopBar, DetailFooter, useDetailPhotoHeight } from '@/src/components/layout/DetailLayout';
 import IconButton from '@/src/components/IconButton';
 import Button from '@/src/components/Button';
 import Badge from '@/src/components/Badge';
@@ -18,7 +17,7 @@ import EmptyState from '@/src/components/EmptyState';
 import { Skeleton } from '@/src/components/Skeleton';
 import { TrackerCard, SightingForm } from '@/src/features/perdidas/ReportDetailSections';
 import { shareContent } from '@/src/utils/share';
-import { capitalize, getTimeAgo } from '@/src/utils/formatters';
+import { sentenceCase, getTimeAgo } from '@/src/utils/formatters';
 import { layout, radius, spacing, tint, type } from '@/constants/design';
 
 // Si la última señal del collar tiene más de este tiempo se considera "sin señal"
@@ -27,14 +26,12 @@ const TRACKER_STALE_MS = 15 * 60 * 1000;
 export default function PerdidasDetailScreen() {
     const { theme } = useTheme();
     const router = useRouter();
-    const insets = useSafeAreaInsets();
-    const { width } = useWindowDimensions();
     const {
         report, isLoading, error, isOwner, isActive, sightings, matches,
         isResolving, isSendingSighting, hasContact,
         refetch, handleResolve, handleCall, submitSighting, goBack, goEdit,
     } = useReportDetail();
-    const photoHeight = Math.min(width, 360);
+    const photoHeight = useDetailPhotoHeight();
 
     const isLost = report?.report_type !== 'found';
     const share = () => report && shareContent(
@@ -44,17 +41,17 @@ export default function PerdidasDetailScreen() {
 
     // Botones flotantes fijos sobre la foto (no se van con el scroll)
     const topBar = (
-        <View style={[styles.topBar, { top: insets.top + spacing.sm }]} pointerEvents="box-none">
-            <BackButton onPress={goBack} variant="surface" size="sm" />
-            {report ? (
-                <View style={styles.topActions}>
+        <DetailTopBar
+            onBack={goBack}
+            actions={report ? (
+                <>
                     {isOwner && isActive ? (
                         <IconButton icon={Pencil} accessibilityLabel="Editar reporte" onPress={goEdit} variant="surface" size="sm" />
                     ) : null}
                     <IconButton icon={Share2} accessibilityLabel="Compartir reporte" onPress={share} variant="surface" size="sm" />
-                </View>
-            ) : null}
-        </View>
+                </>
+            ) : undefined}
+        />
     );
 
     if (isLoading) return (
@@ -142,7 +139,7 @@ export default function PerdidasDetailScreen() {
                 onPress={handleResolve}
                 loading={isResolving}
                 size="lg"
-                fullWidth
+                style={styles.flex}
             />
         ) : null
         : isActive ? (
@@ -153,23 +150,14 @@ export default function PerdidasDetailScreen() {
                 disabled={!hasContact}
                 variant={isLost ? 'danger' : 'primary'}
                 size="lg"
-                fullWidth
+                style={styles.flex}
             />
         ) : null;
 
     return (
         <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                <View style={[styles.photo, { height: photoHeight, backgroundColor: theme.backgroundSecondary }]}>
-                    {report.image_url ? (
-                        <Image source={{ uri: report.image_url }} style={styles.photoImage} resizeMode="cover" accessibilityLabel={`Foto de ${report.pet_name}`} />
-                    ) : (
-                        <>
-                            <PawPrint size={layout.icon.xl * 2} color={theme.textMuted} strokeWidth={1.25} />
-                            <Text style={[type.caption, { color: theme.textMuted }]}>Sin foto</Text>
-                        </>
-                    )}
-                </View>
+                <DetailPhoto images={[report.image_url]} fallbackIcon={PawPrint} fallbackLabel="Sin foto" accessibilityLabel={`Foto de ${report.pet_name}`} />
 
                 <View style={styles.content}>
                     <View style={styles.titleBlock}>
@@ -207,7 +195,7 @@ export default function PerdidasDetailScreen() {
                                 <Icon size={layout.icon.sm} color={theme.primary} />
                                 <View style={styles.flex}>
                                     <Text style={[type.caption, { color: theme.textMuted }]}>{label}</Text>
-                                    <Text style={[type.bodyStrong, { color: theme.text }]} numberOfLines={1}>{value ? capitalize(value) : 'No especificado'}</Text>
+                                    <Text style={[type.bodyStrong, { color: theme.text }]} numberOfLines={1}>{value ? sentenceCase(value) : 'No especificado'}</Text>
                                 </View>
                             </View>
                         ))}
@@ -286,9 +274,7 @@ export default function PerdidasDetailScreen() {
             </ScrollView>
 
             {footerAction ? (
-                <View style={[styles.footer, { borderTopColor: theme.border, backgroundColor: theme.surface, paddingBottom: insets.bottom + spacing.md }]}>
-                    {footerAction}
-                </View>
+                <DetailFooter>{footerAction}</DetailFooter>
             ) : null}
 
             {topBar}
@@ -300,24 +286,6 @@ const styles = StyleSheet.create({
     center: { justifyContent: 'center' },
     flex: { flex: 1 },
     scroll: { paddingBottom: spacing.xxl },
-    photo: {
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: spacing.sm,
-        borderBottomLeftRadius: radius.xxl,
-        borderBottomRightRadius: radius.xxl,
-        overflow: 'hidden',
-    },
-    photoImage: { width: '100%', height: '100%' },
-    topBar: {
-        position: 'absolute',
-        left: layout.screenPadding,
-        right: layout.screenPadding,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    topActions: { flexDirection: 'row', gap: spacing.sm },
     content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.xl },
     titleBlock: { gap: spacing.xs },
     badges: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.xs },
@@ -343,9 +311,4 @@ const styles = StyleSheet.create({
     },
     section: { gap: spacing.sm },
     map: { height: 200, borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1 },
-    footer: {
-        paddingHorizontal: layout.screenPadding,
-        paddingTop: spacing.md,
-        borderTopWidth: 1,
-    },
 });

@@ -812,4 +812,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   (foto con esquinas redondeadas, volver/editar/compartir flotantes y fijos en la safe area, datos debajo). Una sola
   acción principal abajo: «Contactar al dueño» o, para el dueño, «Ya regresó a casa» (editar pasa arriba). Tokens y
   componentes base (0 hex); `TrackerCard` y `SightingForm` en `src/features/perdidas/ReportDetailSections.tsx`.
+- **2026-10-19** — **Detalle de Adopciones rediseñado** y piezas comunes en `src/components/layout/DetailLayout.tsx`
+  (`DetailPhoto`, `DetailTopBar`, `DetailFooter`), usadas también por Producto y Perdidas. En Adopciones la foto era
+  cabecera pegajosa (`stickyHeaderIndices`) y tapaba el texto al hacer scroll; los botones estaban a 60 px fijos. Ahora:
+  skeleton, galería deslizable (`photo_url` + `gallery`), datos con energía, salud y convivencia con ✓/–, personalidad,
+  y una acción principal (adoptar / ver mi solicitud / **ver solicitudes recibidas** para quien publicó). `Badge` acepta
+  `accessibilityLabel`; nuevo `sentenceCase` para valores sueltos ("Gris y blanco").
 

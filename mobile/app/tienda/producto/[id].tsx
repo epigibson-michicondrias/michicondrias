@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ShoppingBag, Truck, ShieldCheck, Package, Edit3, Heart, ChevronLeft, PackageX, Star } from 'lucide-react-native';
+import { ShoppingBag, Truck, ShieldCheck, Package, Edit3, Heart, PackageX, Star } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProduct } from '@/src/hooks/ecommerce/useProduct';
 import { formatCurrency } from '@/src/utils/formatters';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import { DetailPhoto, DetailTopBar, DetailFooter, useDetailPhotoHeight } from '@/src/components/layout/DetailLayout';
 import IconButton from '@/src/components/IconButton';
 import Button from '@/src/components/Button';
 import Badge from '@/src/components/Badge';
@@ -16,7 +16,7 @@ import QuantityStepper from '@/src/components/QuantityStepper';
 import { Skeleton } from '@/src/components/Skeleton';
 import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import { ProductGridCard, LOW_STOCK } from '@/src/features/tienda/ProductCard';
-import { layout, radius, shadow, spacing, tint, type } from '@/constants/design';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
 
 /** Ancho de las tarjetas del carrusel «También te puede gustar». */
 const RELATED_WIDTH = 150;
@@ -24,8 +24,6 @@ const RELATED_WIDTH = 150;
 export default function ProductDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const insets = useSafeAreaInsets();
-    const { width } = useWindowDimensions();
     const p = useProduct();
     const { product } = p;
     const [quantity, setQuantity] = useState(1);
@@ -34,7 +32,7 @@ export default function ProductDetailScreen() {
     const soldOut = stock <= 0;
     // Lo que ya está en la bolsa cuenta contra las existencias
     const available = Math.max(0, stock - p.inCart);
-    const photoHeight = Math.min(width, 380);
+    const photoHeight = useDetailPhotoHeight();
 
     const handleAddToCart = () => {
         if (!product) return;
@@ -56,10 +54,10 @@ export default function ProductDetailScreen() {
 
     // Botones flotantes sobre la foto
     const topBar = (
-        <View style={[styles.topBar, { top: insets.top + spacing.sm }]} pointerEvents="box-none">
-            <IconButton icon={ChevronLeft} accessibilityLabel="Volver" onPress={p.goBack} variant="surface" size="sm" strokeWidth={2.5} />
-            {product ? (
-                <View style={styles.topActions}>
+        <DetailTopBar
+            onBack={p.goBack}
+            actions={product ? (
+                <>
                     <IconButton
                         icon={Heart}
                         accessibilityLabel={p.isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}
@@ -76,9 +74,9 @@ export default function ProductDetailScreen() {
                         size="sm"
                         badge={p.cartCount}
                     />
-                </View>
-            ) : null}
-        </View>
+                </>
+            ) : undefined}
+        />
     );
 
     if (p.isLoading) {
@@ -121,13 +119,7 @@ export default function ProductDetailScreen() {
     return (
         <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                <View style={[styles.photo, { height: photoHeight, backgroundColor: theme.backgroundSecondary }]}>
-                    {product.image_url ? (
-                        <Image source={{ uri: product.image_url }} style={styles.photoImage} resizeMode="contain" accessibilityLabel={product.name} />
-                    ) : (
-                        <Package size={layout.icon.xl * 2.5} color={theme.textMuted} strokeWidth={1.25} />
-                    )}
-                </View>
+                <DetailPhoto images={[product.image_url]} fallbackIcon={Package} resizeMode="contain" accessibilityLabel={product.name} />
 
                 <View style={styles.content}>
                     {/* Nombre, precio, calificación y existencias */}
@@ -210,7 +202,7 @@ export default function ProductDetailScreen() {
             </ScrollView>
 
             {/* Acción principal */}
-            <View style={[styles.footer, { borderTopColor: theme.border, backgroundColor: theme.surface, paddingBottom: insets.bottom + spacing.md }]}>
+            <DetailFooter>
                 {p.isOwner ? (
                     <Button
                         label="Editar mi producto"
@@ -250,7 +242,7 @@ export default function ProductDetailScreen() {
                         />
                     </>
                 )}
-            </View>
+            </DetailFooter>
 
             {topBar}
         </ScreenContainer>
@@ -261,23 +253,6 @@ const styles = StyleSheet.create({
     center: { justifyContent: 'center' },
     flex: { flex: 1 },
     scroll: { paddingBottom: spacing.xxl },
-    photo: {
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderBottomLeftRadius: radius.xxl,
-        borderBottomRightRadius: radius.xxl,
-        overflow: 'hidden',
-    },
-    photoImage: { width: '100%', height: '100%' },
-    topBar: {
-        position: 'absolute',
-        left: layout.screenPadding,
-        right: layout.screenPadding,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    topActions: { flexDirection: 'row', gap: spacing.sm },
     content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.xl },
     titleBlock: { gap: spacing.xs },
     priceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md, marginTop: spacing.xs },
@@ -298,13 +273,4 @@ const styles = StyleSheet.create({
     reviews: { marginHorizontal: 0, marginBottom: 0 },
     relatedTitle: { paddingHorizontal: layout.screenPadding, marginTop: spacing.xl },
     related: { gap: spacing.md, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.sm },
-    footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        paddingHorizontal: layout.screenPadding,
-        paddingTop: spacing.md,
-        borderTopWidth: 1,
-        ...shadow.raised,
-    },
 });

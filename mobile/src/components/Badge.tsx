@@ -10,9 +10,11 @@ interface BadgeProps {
     /** `filled`: tinte suave · `outlined`: solo borde · `solid`: fondo pleno (sobre fotos). */
     variant?: 'filled' | 'outlined' | 'solid';
     size?: 'sm' | 'md';
+    /** Para lectores de pantalla cuando el ícono agrega significado (p. ej. sí/no). */
+    accessibilityLabel?: string;
 }
 
-export default function Badge({ label, color, icon, variant = 'filled', size = 'md' }: BadgeProps) {
+export default function Badge({ label, color, icon, variant = 'filled', size = 'md', accessibilityLabel }: BadgeProps) {
     const { theme } = useTheme();
     const badgeColor = color || theme.primary;
     const isFilled = variant === 'filled';
@@ -20,6 +22,8 @@ export default function Badge({ label, color, icon, variant = 'filled', size = '
 
     return (
         <View
+            accessible={!!accessibilityLabel}
+            accessibilityLabel={accessibilityLabel}
             style={[
                 styles.badge,
                 size === 'sm' && styles.badgeSm,

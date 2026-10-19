@@ -32,10 +32,14 @@ export function useListingDetail() {
     const myRequest = myRequests.find((r) => r.listing_id === id && r.status !== 'REJECTED');
     const isOwner = !!user?.id && user.id === listing?.published_by;
 
-    const goBack = () => router.back();
-    const goToMyRequests = () => router.push('/adopciones/mis-solicitudes' as any);
+    const goBack = () => (router.canGoBack() ? router.back() : router.replace('/adopciones'));
+    const goToMyRequests = () => router.push('/adopciones/mis-solicitudes');
+    /** Para quien publicó: las solicitudes recibidas de esta mascota. */
+    const goToRequests = () => {
+        if (id) router.push(`/adopciones/ver-solicitudes/${id}`);
+    };
     const goToSolicitar = () => {
-        if (id) router.push(`/adopciones/solicitar/${id}` as any);
+        if (id) router.push(`/adopciones/solicitar/${id}`);
     };
 
     return {
@@ -46,6 +50,7 @@ export function useListingDetail() {
         goBack,
         goToSolicitar,
         goToMyRequests,
+        goToRequests,
         myRequest,
         isOwner,
     };

@@ -13,6 +13,7 @@ de la ruta con `useScreenAccent`.
 |---|---|
 | `layout/ScreenContainer` | Contenedor de **toda** pantalla. Incluye `QueryErrorBanner` (reintentar) |
 | `layout/ScreenHeader` | Cabecera estándar: volver + título/subtítulo + `actions` (lista de botones de ícono con `loading`). Hero por defecto, con el color que deduce la ruta (módulo o rol, ver `useScreenAccent`); `variant="plain"` para casos raros. `module`/`accent` solo para forzar otro color |
+| `layout/DetailLayout` | Detalle con foto (producto, adopción, perdidas): `DetailPhoto` (una o varias fotos, deslizable con puntos; ícono si no hay), `DetailTopBar` (volver + acciones flotando fijas en la safe area; va al final de la pantalla), `DetailFooter` (acción principal fija abajo) y `useDetailPhotoHeight`. El texto va debajo de la foto, nunca encima |
 | `layout/HeroBackground` | Fondo de degradado con esquinas redondeadas; toma el color de `module`/`accent` o de la ruta y pone la barra de estado en claro. Encima: textos `theme.onHero` e `IconButton variant="glass"` |
 | `KeyboardScreen` | Formularios con scroll y teclado (campos sin tapar) |
 | `AuthShell` | Esqueleto de las pantallas de `(auth)`: degradado, teclado y scroll (lo usa U3) |
