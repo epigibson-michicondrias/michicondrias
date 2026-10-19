@@ -187,17 +187,17 @@ export default function NuevoReporteScreen() {
 
                     <View style={styles.formContainer}>
                         <View style={styles.inputGroup}>
-                            <FormField label="Nombre o Identificador" value={form.pet_name} onChangeText={(t) => setForm({ ...form, pet_name: t })} />
+                            <FormField label="Nombre o Identificador" value={form.pet_name} onChangeText={(t) => setForm({ ...form, pet_name: t })} placeholder="Ej. Firulais / Perro salchicha café" />
                         </View>
 
                         {renderSelector("Especie", form.species, ['perro', 'gato', 'otro'], 'species')}
 
                         <View style={styles.row}>
                             <View style={[styles.inputGroup, { flex: 1 }]}>
-                                <FormField label="Raza" value={form.breed} onChangeText={(t) => setForm({ ...form, breed: t })} />
+                                <FormField label="Raza" value={form.breed} onChangeText={(t) => setForm({ ...form, breed: t })} placeholder="Ej. Husky" />
                             </View>
                             <View style={[styles.inputGroup, { flex: 1 }]}>
-                                <FormField label="Color" value={form.color} onChangeText={(t) => setForm({ ...form, color: t })} />
+                                <FormField label="Color" value={form.color} onChangeText={(t) => setForm({ ...form, color: t })} placeholder="Ej. Blanco / Negro" />
                             </View>
                         </View>
 
@@ -207,7 +207,7 @@ export default function NuevoReporteScreen() {
                         <Separator color={theme.border} />
 
                         <View style={styles.inputGroup}>
-                            <FormField label="¿Dónde se vió por última vez?" value={form.last_seen_location} onChangeText={(t) => setForm({ ...form, last_seen_location: t })} />
+                            <FormField label="¿Dónde se vió por última vez?" value={form.last_seen_location} onChangeText={(t) => setForm({ ...form, last_seen_location: t })} placeholder="Ej. Parque México" />
                         </View>
 
                         <Text style={[styles.label, { color: theme.text }]}>Punto en el mapa</Text>
@@ -243,11 +243,11 @@ export default function NuevoReporteScreen() {
                         </TouchableOpacity>
 
                         <View style={styles.inputGroup}>
-                            <FormField label="Teléfono de Contacto" value={form.contact_phone} onChangeText={(t) => setForm({ ...form, contact_phone: t })} />
+                            <FormField label="Teléfono de Contacto" value={form.contact_phone} onChangeText={(t) => setForm({ ...form, contact_phone: t })} placeholder="Tus 10 dígitos" keyboardType="phone-pad" />
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <FormField label="Detalles Extra" value={form.description} onChangeText={(t) => setForm({ ...form, description: t })} />
+                            <FormField label="Detalles Extra" value={form.description} onChangeText={(t) => setForm({ ...form, description: t })} placeholder="Comportamiento, señas particulares, si responde a su nombre..." multiline numberOfLines={4} />
                         </View>
                     </View>
                 </ScrollView>

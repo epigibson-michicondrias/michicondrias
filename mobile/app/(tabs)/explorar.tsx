@@ -7,10 +7,11 @@ import {
   Text,
   Dimensions,
 } from 'react-native';
-import { useTheme, useHeroStatusBar } from '@/src/hooks/useTheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useExplore } from '@/src/hooks/home/useExplore';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import HeroStatusBar from '@/src/components/layout/HeroStatusBar';
 import { Search, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -24,7 +25,6 @@ const CARD_WIDTH = (SCREEN_WIDTH - CARD_HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 export default function ExplorarScreen() {
   const router = useRouter();
   const { theme, isDark } = useTheme();
-  useHeroStatusBar();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
 
@@ -39,6 +39,7 @@ export default function ExplorarScreen() {
 
   return (
     <ScreenContainer>
+      <HeroStatusBar />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

@@ -38,7 +38,7 @@ export default function ProgramDetailScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Programa" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Programa" />
                 <SkeletonList count={4} />
             </ScreenContainer>
         );
@@ -47,7 +47,7 @@ export default function ProgramDetailScreen() {
     if (error || !program) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Programa" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Programa" />
                 <View style={styles.errorContainer}>
                     <Text style={[styles.errorText, { color: theme.textMuted }]}>
                         No pudimos cargar la información del programa.
@@ -66,7 +66,7 @@ export default function ProgramDetailScreen() {
     return (
         <ScreenContainer>
             <ScrollView style={{ flex: 1 }}>
-                <ScreenHeader title="Detalle del Programa" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Detalle del Programa" />
 
                 {/* Program Header */}
                 <View style={styles.programHeader}>
@@ -146,9 +146,6 @@ export default function ProgramDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: {
-        width: 24,
-    },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',

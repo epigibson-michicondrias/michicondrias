@@ -66,6 +66,7 @@ export default function ServiciosClinicaScreen() {
                 title="Servicios"
                 subtitle="Catálogo de prestaciones"
                 actionIcon={Plus}
+                actionLabel="Nuevo servicio"
                 onAction={openCreateModal}
             />
 
@@ -109,11 +110,11 @@ export default function ServiciosClinicaScreen() {
 
                         <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
                             <View style={styles.formGroup}>
-                                <FormField label="Nombre del Servicio *" value={name} onChangeText={setName} />
+                                <FormField label="Nombre del Servicio *" value={name} onChangeText={setName} placeholder="Ej: Consulta General" />
                             </View>
 
                             <View style={styles.formGroup}>
-                                <FormField label="Descripción" value={description} onChangeText={setDescription} />
+                                <FormField label="Descripción" value={description} onChangeText={setDescription} placeholder="Detalles sobre lo que incluye el servicio..." multiline={true} />
                             </View>
 
                             <View style={styles.row}>
@@ -144,7 +145,7 @@ export default function ServiciosClinicaScreen() {
                             </View>
 
                             <View style={styles.formGroup}>
-                                <FormField label="Categoría" value={category} onChangeText={setCategory} />
+                                <FormField label="Categoría" value={category} onChangeText={setCategory} placeholder="Ej: Cirugía, Estética, Vacuna..." />
                             </View>
 
                             <Button label={editingService ? 'Actualizar Servicio' : 'Crear Servicio'} onPress={handleSave} loading={loadingAction} />

@@ -39,7 +39,6 @@ export default function CertificadoScreen() {
             <ScreenHeader
                 title="Certificado"
                 subtitle="Certificado de defunción"
-                gradient={['#1e1b4b', '#312e81', '#4338ca']}
             />
 
             <View style={styles.content}>

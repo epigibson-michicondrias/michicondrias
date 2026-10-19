@@ -5,8 +5,8 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlan } from '../../src/services/insurance';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { Shield, Info, CheckCircle2 } from 'lucide-react-native';
-import BackButton from '@/src/components/BackButton';
+import { Info, CheckCircle2 } from 'lucide-react-native';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 export default function NuevoPlanScreen() {
     const router = useRouter();
@@ -61,16 +61,7 @@ export default function NuevoPlanScreen() {
 
     return (
         <KeyboardScreen style={[styles.container, { backgroundColor: theme.background }]}>
-            <View style={styles.header}>
-                <BackButton onPress={() => router.back()} />
-                <View style={styles.headerInfo}>
-                    <View style={[styles.iconContainer, { backgroundColor: theme.primary + '20' }]}>
-                        <Shield size={28} color={theme.primary} />
-                    </View>
-                    <Text style={[styles.title, { color: theme.text }]}>Nuevo Plan</Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Crea un plan de seguro para mascotas</Text>
-                </View>
-            </View>
+            <ScreenHeader title="Nuevo plan" subtitle="Crea un plan de seguro para mascotas" />
 
             <View style={styles.content}>
                 <View style={styles.inputGroup}>
@@ -199,30 +190,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
 
-    headerInfo: {
-        gap: 8,
-    },
-    iconContainer: {
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '800',
-    },
-    subtitle: {
-        fontSize: 14,
-    },
     content: {
         padding: 24,
         gap: 20,

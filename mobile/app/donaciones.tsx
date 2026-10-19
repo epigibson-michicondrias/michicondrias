@@ -5,14 +5,14 @@ import { showAlert } from '@/src/components/AppAlert';
 import { createDonationCheckout, getDonation } from '../src/services/ecommerce';
 import { openStripeUrl } from '@/src/utils/payments';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Heart, DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
-import BackButton from '../src/components/BackButton';
+import { DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 const AMOUNTS = [50, 100, 200, 500];
 
 export default function DonacionesScreen() {
     const router = useRouter();
-    const { theme, isDark } = useTheme();
+    const { theme } = useTheme();
 
     const [amount, setAmount] = useState<string>('100');
     const [message, setMessage] = useState('');
@@ -91,21 +91,10 @@ export default function DonacionesScreen() {
             style={[styles.container, { backgroundColor: theme.background }]}
         >
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={[styles.hero, { backgroundColor: theme.primary + '15' }]}>
-                    <View style={styles.heroHeader}>
-                        <BackButton onPress={() => router.back()} style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }} />
-                    </View>
-
-                    <View style={styles.heroContent}>
-                        <View style={[styles.heartIcon, { backgroundColor: theme.primary }]}>
-                            <Heart size={40} color="#fff" fill="#fff" />
-                        </View>
-                        <Text style={[styles.title, { color: theme.text }]}>Huellas de Amor</Text>
-                        <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                            Ayúdanos a seguir rescatando y cuidando a los michis que más lo necesitan.
-                        </Text>
-                    </View>
-                </View>
+                <ScreenHeader
+                    title="Donaciones"
+                    subtitle="Ayúdanos a seguir rescatando y cuidando a los michis que más lo necesitan"
+                />
 
                 <View style={styles.content}>
                     {payState !== 'idle' && (
@@ -220,44 +209,6 @@ export default function DonacionesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    hero: {
-        paddingTop: 60,
-        paddingBottom: 40,
-        borderBottomLeftRadius: 40,
-        borderBottomRightRadius: 40,
-    },
-    heroHeader: {
-        paddingHorizontal: 24,
-        marginBottom: 8,
-    },
-    heroContent: {
-        alignItems: 'center',
-        paddingHorizontal: 40,
-    },
-    heartIcon: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-        shadowColor: '#7c3aed',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
-        elevation: 8,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    subtitle: {
-        fontSize: 14,
-        textAlign: 'center',
-        lineHeight: 20,
     },
     content: {
         padding: 24,

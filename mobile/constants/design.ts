@@ -107,6 +107,19 @@ export const accents = {
     gold: '#c99a45',
     neutral: '#7c8698',
     danger: '#e2605e',
+    // Tonos de identidad por módulo/rol (ver `src/constants/modules.ts`): repartidos en la rueda de color para que
+    // ningún módulo comparta tono.
+    orange: '#e8743b',
+    brown: '#b07a4f',
+    yellow: '#d9b526',
+    lime: '#8db33a',
+    green: '#46a85a',
+    cyan: '#1fa5c4',
+    indigo: '#5b6ee8',
+    purple: '#9a5be0',
+    orchid: '#c45cc4',
+    rose: '#e0507f',
+    slate: '#5f6675',
 } as const;
 
 export type AccentKey = keyof typeof accents;
@@ -118,12 +131,28 @@ function darken(hex: string, amount: number): string {
     return `#${[16, 8, 0].map((s) => channel(s).toString(16).padStart(2, '0')).join('')}`;
 }
 
+/** Luminancia relativa WCAG de un color hex (#rrggbb): 0 = negro, 1 = blanco. */
+function luminance(hex: string): number {
+    const n = parseInt(hex.slice(1, 7), 16);
+    const lin = (shift: number) => {
+        const c = ((n >> shift) & 255) / 255;
+        return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * lin(16) + 0.7152 * lin(8) + 0.0722 * lin(0);
+}
+
+/** Luminancia máxima del inicio del degradado: el texto blanco (y el 70 % de `onHeroMuted`) se lee con holgura. */
+const HERO_MAX_LUMINANCE = 0.12;
+
 /**
- * Degradado de cabecera a partir del acento de un módulo (p. ej. `accents.danger` → rojo profundo). Se oscurece lo
- * suficiente para que el texto blanco (`theme.onHero`) tenga buen contraste en ambos temas.
+ * Degradado de cabecera a partir del acento de un módulo (p. ej. `accents.danger` → rojo profundo). Cada acento se
+ * oscurece lo necesario para que el texto blanco (`theme.onHero`) tenga buen contraste: los tonos claros (amarillo,
+ * lima) bajan más que los medios.
  */
 export function accentGradient(accent: string): readonly [string, string] {
-    return [darken(accent, 0.25), darken(accent, 0.6)];
+    let amount = 0.25;
+    while (amount < 0.6 && luminance(darken(accent, amount)) > HERO_MAX_LUMINANCE) amount += 0.05;
+    return [darken(accent, amount), darken(accent, Math.max(0.6, amount + 0.25))];
 }
 
 /** Duraciones de animación (ms). */

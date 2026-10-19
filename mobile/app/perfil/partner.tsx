@@ -126,7 +126,7 @@ export default function PartnerOnboardingScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🚀 Conviértete en Partner"
+                title="Cuenta profesional"
                 subtitle="Desbloquea herramientas profesionales y genera ingresos con Michicondrias"
             />
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>

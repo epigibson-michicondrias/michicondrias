@@ -111,6 +111,7 @@ export default function GestionScreen() {
                 title="Gestión"
                 subtitle="Reservas de clientes"
                 actionIcon={Plus}
+                actionLabel="Nuevo servicio funerario"
                 onAction={() => router.push('/funeraria/nuevo-servicio')}
             />
 

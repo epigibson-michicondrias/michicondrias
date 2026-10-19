@@ -13,7 +13,6 @@ import {
     MapPin,
     Hospital,
     XCircle,
-    ClipboardList,
     PawPrint,
     AlertCircle,
     ShoppingBag,
@@ -272,12 +271,6 @@ export default function AdminModerationScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Moderación"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                rightElement={
-                    <View style={styles.headerAction}>
-                        <ClipboardList size={22} color="#fff" style={{ opacity: 0.8 }} />
-                    </View>
-                }
             />
 
             {/* Tabs */}
@@ -325,14 +318,7 @@ export default function AdminModerationScreen() {
 }
 
 const styles = StyleSheet.create({
-    headerAction: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     tabsContainer: { 
-        marginTop: -12, 
         marginBottom: 16,
         zIndex: 20,
     },

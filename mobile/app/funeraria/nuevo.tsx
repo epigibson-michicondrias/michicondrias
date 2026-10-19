@@ -6,7 +6,7 @@ import { createFuneraryService, CREMATION_OPTIONS } from '../../src/services/fun
 import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Heart, Info, CheckCircle2 } from 'lucide-react-native';
-import BackButton from '@/src/components/BackButton';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 export default function NuevaFunerariaScreen() {
     const router = useRouter();
@@ -53,11 +53,7 @@ export default function NuevaFunerariaScreen() {
 
     return (
         <KeyboardScreen style={{ backgroundColor: theme.background }}>
-            <View style={styles.header}>
-                <BackButton onPress={() => router.back()} />
-                <Text style={[styles.title, { color: theme.text }]}>Nuevo Servicio</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>Registra un servicio funerario</Text>
-            </View>
+            <ScreenHeader title="Nuevo servicio" subtitle="Registra un servicio funerario" />
 
             <View style={styles.content}>
                 <View style={styles.inputGroup}>
@@ -147,20 +143,7 @@ export default function NuevaFunerariaScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
 
-    title: {
-        fontSize: 28,
-        fontWeight: '800',
-    },
-    subtitle: {
-        fontSize: 14,
-        marginTop: 4,
-    },
     content: {
         padding: 24,
         gap: 20,

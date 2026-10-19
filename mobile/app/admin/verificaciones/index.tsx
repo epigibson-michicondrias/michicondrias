@@ -97,12 +97,6 @@ export default function AdminVerificacionesScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Verificaciones"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                rightElement={
-                    <View style={styles.headerAction}>
-                        <ShieldCheck size={22} color="#fff" style={{ opacity: 0.8 }} />
-                    </View>
-                }
             />
 
             <DataList
@@ -123,12 +117,6 @@ export default function AdminVerificacionesScreen() {
 }
 
 const styles = StyleSheet.create({
-    headerAction: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     list: { 
         padding: 20, 
         paddingBottom: 100,

@@ -1,38 +1,26 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { type StyleProp, type ViewStyle } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
-import { useTheme } from '@/src/hooks/useTheme';
-import { radius, layout } from '@/constants/design';
+import IconButton, { type IconButtonVariant } from '@/src/components/IconButton';
 
 interface BackButtonProps {
     onPress?: () => void;
     color?: string;
+    variant?: IconButtonVariant;
     style?: StyleProp<ViewStyle>;
 }
 
-export default function BackButton({ onPress, color, style }: BackButtonProps) {
-    const { theme } = useTheme();
-
+/** Botón "Volver" estándar: un `IconButton` con chevron. */
+export default function BackButton({ onPress, color, variant, style }: BackButtonProps) {
     return (
-        <TouchableOpacity
-            style={[styles.btn, { backgroundColor: theme.overlayHover }, style]}
-            onPress={onPress}
-            activeOpacity={0.7}
-            accessibilityRole="button"
+        <IconButton
+            icon={ChevronLeft}
             accessibilityLabel="Volver"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-            <ChevronLeft size={layout.icon.lg - 2} color={color || theme.text} strokeWidth={2.5} />
-        </TouchableOpacity>
+            onPress={onPress}
+            variant={variant}
+            color={color}
+            strokeWidth={2.5}
+            style={style}
+        />
     );
 }
-
-const styles = StyleSheet.create({
-    btn: {
-        width: layout.minTouch,
-        height: layout.minTouch,
-        borderRadius: radius.md,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});

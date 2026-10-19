@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import FormField from '@/src/components/FormField';
@@ -8,7 +8,7 @@ import { useClinicConfig } from '@/src/hooks/clinica/useClinicConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
-import { Save, MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react-native';
+import { MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react-native';
 
 export default function ConfigClinicaScreen() {
     const { id } = useLocalSearchParams();
@@ -33,17 +33,6 @@ export default function ConfigClinicaScreen() {
                     <ScreenHeader
                         title="Configuración"
                         subtitle="Perfil de tu clínica"
-                        rightElement={
-                            <TouchableOpacity
-                                accessibilityRole="button"
-                                accessibilityLabel="Guardar cambios"
-                                style={[styles.saveTopBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSave}
-                                disabled={loading}
-                            >
-                                {loading ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
-                            </TouchableOpacity>
-                        }
                     />
 
                     <View style={styles.content}>
@@ -67,7 +56,7 @@ export default function ConfigClinicaScreen() {
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Descripción" value={form.description || ''} onChangeText={(v) => updateField('description', v)} />
+                            <FormField label="Descripción" value={form.description || ''} onChangeText={(v) => updateField('description', v)} multiline numberOfLines={4} />
                         </View>
 
                         {/* Contact Info */}
@@ -164,7 +153,6 @@ export default function ConfigClinicaScreen() {
 
 const styles = StyleSheet.create({
     center: { justifyContent: 'center', alignItems: 'center' },
-    saveTopBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     content: { paddingHorizontal: 24 },
     logoSection: { alignItems: 'center', marginVertical: 32, gap: 12 },
     logoContainer: { position: 'relative' },

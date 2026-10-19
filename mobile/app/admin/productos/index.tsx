@@ -7,7 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
-import { Plus, ShoppingCart, Box } from 'lucide-react-native';
+import { ShoppingCart, Box } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 
 export default function AdminProductosScreen() {
@@ -67,9 +67,6 @@ export default function AdminProductosScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Productos"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                actionIcon={Plus}
-                onAction={() => showAlert({ type: 'info', title: 'Nuevo Producto', message: 'Formulario de alta' })}
             />
 
             <DataList

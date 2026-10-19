@@ -53,8 +53,8 @@ export default function AdminCategoriasScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Categorías"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
                 actionIcon={Plus}
+                actionLabel="Nueva categoría"
                 onAction={() => handleAction()}
             />
 

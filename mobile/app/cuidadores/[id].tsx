@@ -9,6 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 
 import { MapPin, Star, Clock, Home, Users, Calendar, Shield, Share2, Dog, Cat, CheckCircle, Sun, Moon } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
+import { ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice, ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter } from '@/src/features/proveedor/ProviderProfile';
 import DatePicker from '@/src/components/DatePicker';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
 
@@ -60,7 +61,7 @@ export default function SitterDetailScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Cuidador" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Cuidador" />
                 <View style={styles.loadingContainer}>
                     <LoadingOverlay message="Cargando información..." />
                 </View>
@@ -71,7 +72,7 @@ export default function SitterDetailScreen() {
     if (error || !sitter) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Cuidador" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Cuidador" />
                 <View style={styles.errorContainer}>
                     <Text style={[styles.errorText, { color: theme.textMuted }]}>
                         No pudimos cargar la información del cuidador.
@@ -94,67 +95,26 @@ export default function SitterDetailScreen() {
                     title="Perfil del Cuidador"
                 />
 
-                {/* Profile Header */}
-                <View style={styles.profileHeader}>
-                    <View style={[styles.avatarContainer, { backgroundColor: theme.secondary + '20' }]}>
-                        {sitter.photo_url ? (
-                            <Image source={{ uri: sitter.photo_url }} style={styles.avatar} />
-                        ) : (
-                            <Text style={[styles.avatarText, { color: theme.secondary }]}>
-                                {sitter.display_name.charAt(0).toUpperCase()}
-                            </Text>
-                        )}
-                    </View>
-                    
-                    <View style={styles.profileInfo}>
-                        <Text style={[styles.profileName, { color: theme.text }]}>{sitter.display_name}</Text>
-                        <View style={styles.ratingRow}>
-                            <Star size={16} color={theme.warning} fill={theme.warning} />
-                            <Text style={[styles.ratingText, { color: theme.text }]}>
-                                {sitter.rating ? sitter.rating.toFixed(1) : 'Nuevo'} ({sitter.total_sits} cuidados)
-                            </Text>
-                        </View>
-                        
-                        {sitter.is_verified && (
-                            <View style={styles.verifiedBadge}>
-                                <Shield size={14} color={theme.success} />
-                                <Text style={styles.verifiedText}>Verificado</Text>
-                            </View>
-                        )}
-                    </View>
+                <ProviderHero
+                    photoUrl={sitter.photo_url}
+                    name={sitter.display_name}
+                    subtitle={sitter.is_verified ? 'Cuidador verificado' : undefined}
+                    rating={sitter.rating}
+                    reviewCount={sitter.total_sits}
+                    accent={theme.secondary}
+                />
 
-                    <TouchableOpacity accessibilityRole="button" style={styles.shareButton} onPress={() => shareContent('Cuidador', `${sitter.display_name} es cuidador en Michicondrias 🐾`)}>
-                        <Share2 size={20} color={theme.textMuted} />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Quick Stats */}
-                <View style={[styles.statsContainer, { backgroundColor: theme.surface }]}>
-                    <View style={styles.statItem}>
-                        <Home size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{sitter.total_sits}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Cuidados</Text>
-                    </View>
-                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-                    <View style={styles.statItem}>
-                        <Clock size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{sitter.experience_years ?? 0}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Años</Text>
-                    </View>
-                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-                    <View style={styles.statItem}>
-                        <Users size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{sitter.max_pets}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Mascotas</Text>
-                    </View>
-                </View>
+                <ProviderStats items={[
+                    { value: String(sitter.total_sits), label: 'Cuidados' },
+                    { value: String(sitter.experience_years ?? 0), label: 'Años' },
+                    { value: String(sitter.max_pets ?? 0), label: 'Mascotas' },
+                ]} />
 
                 {/* Bio */}
                 {sitter.bio && (
-                    <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Sobre mí</Text>
-                        <Text style={[styles.bioText, { color: theme.textMuted }]}>{sitter.bio}</Text>
-                    </View>
+                    <ProviderSection title="Sobre mí">
+                        <ProviderBio text={sitter.bio} />
+                    </ProviderSection>
                 )}
 
                 {/* Services */}
@@ -248,276 +208,24 @@ export default function SitterDetailScreen() {
                     )}
                 </View>
 
-                {/* Reseñas y Opiniones */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Reseñas y Opiniones</Text>
-
-                    {/* Resumen de Calificación */}
-                    <View style={[styles.ratingSummaryCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                        <View style={styles.summaryLeft}>
-                            <Text style={[styles.bigRating, { color: theme.text }]}>
-                                {sitter.rating ? sitter.rating.toFixed(1) : '—'}
-                            </Text>
-                            <View style={styles.starsRow}>
-                                {[1, 2, 3, 4, 5].map((s) => {
-                                    const isFilled = s <= Math.round(sitter.rating || 0);
-                                    return <Star key={s} size={16} color={theme.warning} fill={isFilled ? theme.warning : "transparent"} />;
-                                })}
-                            </View>
-                            <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
-                                {reviews.length} {reviews.length === 1 ? 'opinión' : 'opiniones'}
-                            </Text>
-                        </View>
-                        <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
-                        <View style={styles.summaryRight}>
-                            <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
-                                Calificación de la comunidad sobre la calidad del servicio, amabilidad y trato de este cuidador.
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* Formulario para Calificar */}
+                <ProviderSection title="Reseñas y Opiniones">
+                    <ProviderRatingSummary rating={sitter.rating || 0} count={reviews.length} />
                     {unreviewedCompletedRequests.length > 0 && (
-                        <View style={[styles.writeReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar tu servicio reciente</Text>
-                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>
-                                Selecciona estrellas y escribe tu reseña para tu cuidado con {sitter.display_name}.
-                            </Text>
-
-                            <View style={styles.interactiveStars}>
-                                {[1, 2, 3, 4, 5].map((starVal) => (
-                                    <TouchableOpacity accessibilityRole="button"
-                                        key={starVal}
-                                        onPress={() => setFormRating(starVal)}
-                                        style={styles.starTouch}
-                                    >
-                                        <Star
-                                            size={32}
-                                            color={theme.warning}
-                                            fill={starVal <= formRating ? theme.warning : "transparent"}
-                                        />
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-
-                            <TextInput
-                                style={[
-                                    styles.commentInput,
-                                    {
-                                        backgroundColor: theme.surface,
-                                        borderColor: theme.border,
-                                        color: theme.text,
-                                    },
-                                ]}
-                                placeholder="Escribe tu opinión aquí (opcional)..."
-                                placeholderTextColor={theme.textMuted}
-                                value={formComment}
-                                onChangeText={setFormComment}
-                                multiline
-                                numberOfLines={3}
-                            />
-
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => {
-                                    const latestRequest = unreviewedCompletedRequests[0];
-                                    handleCreateReview(latestRequest.id, {
-                                        rating: formRating,
-                                        comment: formComment.trim() || '',
-                                    });
-                                }}
-                                disabled={isCreatingReview}
-                            >
-                                {isCreatingReview ? (
-                                    <ActivityIndicator size="small" color="#fff" />
-                                ) : (
-                                    <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
-                                )}
-                            </TouchableOpacity>
-                        </View>
+                        <ProviderReviewForm onSubmit={(rating, comment) => { const req = unreviewedCompletedRequests[0]; if (req) handleCreateReview(req.id, { rating, comment }); }} isSubmitting={isCreatingReview} />
                     )}
-
-                    {/* Nota cuando no se puede calificar */}
-                    {unreviewedCompletedRequests.length === 0 && (
-                        <View style={[styles.infoReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                            <Text style={[styles.infoReviewText, { color: theme.textMuted }]}>
-                                Solo puedes dejar una reseña si has completado un cuidado con este cuidador.
-                            </Text>
-                        </View>
-                    )}
-
-                    {/* Listado de Opiniones */}
-                    <View style={styles.reviewsList}>
-                        {reviewsLoading ? (
-                            <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 20 }} />
-                        ) : reviews.length === 0 ? (
-                            <Text style={[styles.emptyReviewsText, { color: theme.textMuted }]}>
-                                Este cuidador aún no tiene opiniones de otros clientes.
-                            </Text>
-                        ) : (
-                            reviews.map((review) => (
-                                <View
-                                    key={review.id}
-                                    style={[styles.reviewItemCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}
-                                >
-                                    <View style={styles.reviewItemHeader}>
-                                        <View style={[styles.reviewAvatar, { backgroundColor: theme.primary + '15' }]}>
-                                            <Text style={[styles.reviewAvatarText, { color: theme.primary }]}>
-                                                C
-                                            </Text>
-                                        </View>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.reviewUserName, { color: theme.text }]}>Cliente</Text>
-                                            <View style={styles.reviewStarsRow}>
-                                                {[1, 2, 3, 4, 5].map((s) => (
-                                                    <Star
-                                                        key={s}
-                                                        size={12}
-                                                        color={theme.warning}
-                                                        fill={s <= review.rating ? theme.warning : "transparent"}
-                                                    />
-                                                ))}
-                                            </View>
-                                        </View>
-                                        <Text style={[styles.reviewDate, { color: theme.textMuted }]}>
-                                            {review.created_at
-                                                ? new Date(review.created_at).toLocaleDateString('es-MX', {
-                                                      day: 'numeric',
-                                                      month: 'short',
-                                                  })
-                                                : ''}
-                                        </Text>
-                                    </View>
-                                    {review.comment && (
-                                        <Text style={[styles.reviewCommentText, { color: theme.textMuted }]}>
-                                            {review.comment}
-                                        </Text>
-                                    )}
-                                </View>
-                            ))
-                        )}
-                    </View>
-                </View>
+                    <ProviderReviews reviews={reviews.map((r: any) => ({ id: r.id, user_name: r.user_name, rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
+                </ProviderSection>
             </ScrollView>
 
-            {/* Action Buttons (Sticky Footer) */}
             {!isOwnProfile && (
-            <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
-<TouchableOpacity accessibilityRole="button"
-                    style={[styles.bookButton, { backgroundColor: theme.primary }]}
-                    onPress={() => handleBook(getServiceName(sitter.service_type))}
-                >
-                    <Calendar size={20} color="#fff" />
-                    <Text style={styles.bookButtonText}>Reservar Cuidado</Text>
-                </TouchableOpacity>
-            </View>
+                <ProviderFooter label="Reservar Cuidado" onPress={() => handleBook('boarding')} icon={<Calendar size={20} color={theme.onPrimary} />} />
             )}
-
-            {/* Sit Request Modal */}
-            <Modal visible={sitModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-                        <Text style={[styles.modalTitle, { color: theme.text }]}>Solicitar Cuidado</Text>
-                        
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Selecciona tu mascota</Text>
-                        {myPets.length === 0 ? (
-                            <Text style={[styles.noPetsText, { color: theme.textMuted }]}>No tienes mascotas registradas</Text>
-                        ) : (
-                            <FlatList
-                                data={myPets}
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                keyExtractor={p => p.id}
-                                renderItem={({ item: pet }) => (
-                                    <TouchableOpacity accessibilityRole="button"
-                                        style={[
-                                            styles.petChip,
-                                            { backgroundColor: theme.surface, borderColor: selectedPetId === pet.id ? theme.primary : theme.border },
-                                            selectedPetId === pet.id && { borderWidth: 2 }
-                                        ]}
-                                        onPress={() => setSelectedPetId(pet.id)}
-                                    >
-                                        <Text style={[styles.petChipText, { color: selectedPetId === pet.id ? theme.primary : theme.text }]}>
-                                            {pet.name}
-                                        </Text>
-                                    </TouchableOpacity>
-                                )}
-                            />
-                        )}
-
-                        {sitter.service_type === 'both' && (
-                            <>
-                                <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Tipo de servicio</Text>
-                                <View style={{ flexDirection: 'row', gap: 12 }}>
-                                    {([['hosting', 'Hospedaje'], ['visiting', 'Visitas']] as const).map(([val, label]) => (
-                                        <TouchableOpacity
-                                            key={val}
-                                            style={[styles.petChip, { flex: 1, alignItems: 'center', backgroundColor: sitServiceType === val ? theme.primary : theme.surface, borderColor: theme.border }]}
-                                            onPress={() => setSitServiceType(val)}
-                                            accessibilityRole="button"
-                                            accessibilityState={{ selected: sitServiceType === val }}
-                                        >
-                                            <Text style={[styles.petChipText, { color: sitServiceType === val ? '#fff' : theme.text }]}>{label}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            </>
-                        )}
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha de inicio</Text>
-                        <DatePicker
-                            value={new Date(startDate + 'T12:00:00')}
-                            onChange={(d) => {
-                                const iso = toLocalIsoDate(d);
-                                setStartDate(iso);
-                                if (endDate < iso) setEndDate(iso);
-                            }}
-                            minimumDate={new Date()}
-                        />
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha de fin</Text>
-                        <DatePicker
-                            value={new Date(endDate + 'T12:00:00')}
-                            onChange={(d) => setEndDate(toLocalIsoDate(d))}
-                            minimumDate={new Date(startDate + 'T12:00:00')}
-                        />
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Notas (opcional)</Text>
-                        <TextInput
-                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            value={sitNotes}
-                            onChangeText={setSitNotes}
-                            placeholder="Instrucciones especiales..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                        />
-
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity accessibilityRole="button" style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} onPress={() => setSitModalVisible(false)}>
-                                <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSubmitSitRequest}
-                                disabled={isRequestingSit}
-                            >
-                                {isRequestingSit ? <ActivityIndicator color="#fff" size="small" /> : (
-                                    <Text style={styles.modalSubmitText}>Enviar Solicitud</Text>
-                                )}
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
 
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    placeholder: {
-        width: 24,
-    },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',

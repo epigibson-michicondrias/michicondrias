@@ -117,6 +117,7 @@ export default function GestionScreen() {
                 title="Gestión de Planes"
                 subtitle="Administra tus planes de seguro"
                 actionIcon={showCreateForm ? X : Plus}
+                actionLabel={showCreateForm ? 'Cerrar formulario' : 'Nuevo plan'}
                 onAction={() => setShowCreateForm(!showCreateForm)}
             />
 

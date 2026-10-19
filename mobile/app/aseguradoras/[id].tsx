@@ -20,7 +20,7 @@ export default function PlanDetailScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Detalle del Plan" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Detalle del Plan" />
                 <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
             </ScreenContainer>
         );
@@ -29,7 +29,7 @@ export default function PlanDetailScreen() {
     if (!plan) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Plan no encontrado" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Plan no encontrado" />
                 <View style={styles.errorContainer}>
                     <Shield size={64} color={theme.textMuted} style={{ marginBottom: 16 }} />
                     <Text style={[styles.errorText, { color: theme.textMuted }]}>

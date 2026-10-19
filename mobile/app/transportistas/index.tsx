@@ -78,7 +78,7 @@ export default function TransportistasScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🚗 Transportistas"
+                title="Transportistas"
                 subtitle="Transporte seguro para tu mascota"
             />
 

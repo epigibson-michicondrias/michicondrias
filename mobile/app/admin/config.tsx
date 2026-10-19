@@ -5,7 +5,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminConfig } from '@/src/hooks/admin/useAdminConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { ChevronLeft, Settings, ShieldCheck, Zap, Globe, Bell, Database, HardDrive, Cpu, Cloud, Lock } from 'lucide-react-native';
+import { ChevronLeft, ShieldCheck, Zap, Globe, Bell, Database, HardDrive, Cpu, Cloud, Lock } from 'lucide-react-native';
 
 export default function AdminConfigScreen() {
     const { theme } = useTheme();
@@ -29,12 +29,6 @@ export default function AdminConfigScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Configuración"
-                gradient={['#64748b', '#64748bE6', '#64748bCC']}
-                rightElement={
-                    <View style={styles.headerAction}>
-                        <Settings size={22} color="#fff" style={{ opacity: 0.8 }} />
-                    </View>
-                }
             />
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
@@ -158,12 +152,6 @@ function ActionRow({ icon: Icon, label, theme, color, isLast, onPress, loading }
 const styles = StyleSheet.create({
     center: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
         justifyContent: 'center',
         alignItems: 'center',
     },

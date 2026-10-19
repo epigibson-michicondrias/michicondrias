@@ -6,8 +6,7 @@ import { useAdminClinics, type Clinic } from '@/src/hooks/admin/useAdminClinics'
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
-import { Plus, MapPin, Phone, Hospital } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
+import { MapPin, Phone, Hospital } from 'lucide-react-native';
 
 export default function AdminClinicasScreen() {
     const router = useRouter();
@@ -57,9 +56,6 @@ export default function AdminClinicasScreen() {
             <ScreenHeader
                 title="Clínicas"
                 subtitle="Red Veterinaria"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                actionIcon={Plus}
-                onAction={() => showAlert({ type: 'info', title: 'Nueva Clínica', message: 'Abre el formulario de registro' })}
             />
 
             <DataList

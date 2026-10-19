@@ -61,8 +61,8 @@ export default function AdminRolesScreen() {
             <ScreenHeader
                 title="Roles"
                 subtitle="Gestión de Permisos"
-                gradient={['#ef4444', '#ef4444E6', '#ef4444CC']}
                 actionIcon={Plus}
+                actionLabel="Nuevo rol"
                 onAction={() => handleAction()}
             />
 

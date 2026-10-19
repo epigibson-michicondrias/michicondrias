@@ -22,7 +22,7 @@ export default function EnrollPetScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Inscribir Mascota" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Inscribir Mascota" />
                 <SkeletonList count={4} />
             </ScreenContainer>
         );
@@ -31,7 +31,7 @@ export default function EnrollPetScreen() {
     return (
         <ScreenContainer>
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-                <ScreenHeader title="Inscribir Mascota" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Inscribir Mascota" />
 
                 {/* Program Info Card */}
                 {program && (
@@ -151,7 +151,6 @@ export default function EnrollPetScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',

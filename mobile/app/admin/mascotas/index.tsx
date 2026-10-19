@@ -7,8 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
-import { ChevronLeft, Bone, Plus, Shield } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
+import { ChevronLeft, Bone, Shield } from 'lucide-react-native';
 
 const SPECIES_COLORS: Record<string, string> = {
     Perro: '#3b82f6',
@@ -77,9 +76,6 @@ export default function AdminMascotasScreen() {
             <ScreenHeader
                 title="Mascotas"
                 subtitle="Censo Global"
-                gradient={['#f59e0b', '#f59e0bE6', '#f59e0bCC']}
-                actionIcon={Plus}
-                onAction={() => showAlert({ type: 'info', title: 'Nueva Mascota', message: 'Formulario de registro' })}
             />
 
             <DataList

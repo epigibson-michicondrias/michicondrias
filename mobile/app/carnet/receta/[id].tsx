@@ -6,7 +6,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { usePrescriptionDetail } from '@/src/hooks/carnet/usePrescriptionDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import BackButton from '@/src/components/BackButton';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ShoppingBag, Share2, Bell, BellOff } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
@@ -67,11 +67,7 @@ export default function PrescriptionDetailScreen() {
 
     return (
         <ScreenContainer style={{ backgroundColor: theme.background }}>
-            <View style={styles.header}>
-                <BackButton onPress={() => router.back()} />
-                <Text style={[styles.headerTitle, { color: theme.text }]}>Receta Médica</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            <ScreenHeader title="Receta médica" />
 
             <ScrollView 
                 style={styles.scroll}
@@ -235,18 +231,6 @@ const styles = StyleSheet.create({
     backErrorBtnText: {
         color: '#fff',
         fontWeight: 'bold',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        paddingBottom: 16,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '800',
     },
     scroll: {
         flex: 1,

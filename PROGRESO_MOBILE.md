@@ -302,6 +302,14 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
      módulo, cuando se toquen; en la Fase 2 no se borran los archivos de `src/types/` marcados por knip.
 - **2026-10-07** — Las tareas 🚨 de la Fase 4 que no dependen de la navegación (F1 sesión, F2 caché, F3 login web) se
   adelantan antes de la Fase 2.
+- **2026-10-18** — Cabecera hero por módulo: `ScreenHeader module="…"` pinta el degradado con el mismo color
+  del ícono del módulo en Explorar; el color vive solo en `src/constants/modules.ts`.
+- **2026-10-19** — Cabecera hero en **todas** las pantallas con `ScreenHeader` (incluidos formularios y pantallas
+  internas). El color se deduce de la ruta (`useScreenAccent`): zona de rol (`ROUTE_ACCESS`) → color del rol; módulo →
+  color del módulo; si no, azul de la marca. Cada módulo tiene un tono propio (14 distintos); cada rol usa el de su
+  módulo y admin (bronce), vendedor (esmeralda) y patrocinador (lima) llevan uno propio. Acciones de cabecera solo con
+  `actions` (nada de botones armados a mano en `rightElement`). Fuera: detalles con foto (`[id]` con hero de imagen),
+  pestañas y `(auth)`.
 
 ## Bitácora
 
@@ -713,3 +721,41 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   que existen y puede controlarlos). **R-03:** el especialista sin clínica ya no bloquea — ofrece «Agendar
   videoconsulta» (el schema `Consultation` ya permitía `clinic_id` opcional). Commit `ee75ca6`. Detalle en
   [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Auditoría de módulos restantes** (Perfil, Tienda, IA, Ayuda, Búsqueda, Notificaciones, Pago,
+  Carnet): **12 OK · 0 FAIL**. Perfil completo (editar, verificación, 2FA, partner, eliminar cuenta), Tienda
+  (producto, carrito, compras, pago exitoso/cancelado), Diagnóstico IA, Ayuda (FAQ + contacto), Búsqueda,
+  Notificaciones, Directorio (clínica), Ficha de mascota (3 pestañas), formularios de vacuna y consulta. Los 10
+  WARN eran falsos positivos por etiquetas («Pago recibido» vs «éxito», «PREGUNTAS FRECUENTES» vs «FAQ», etc.).
+  Detalle en [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-18** — `ScreenHeader` rehecho: prop `accent` (degradado del color del módulo), botones volver/acción de
+  44 px iguales (reusa `BackButton`), subtítulo a 2 líneas, título que se ajusta (`type.screenTitle`), tokens en vez de
+  valores sueltos, barra de estado clara sobre la variante hero. Piloto en `perdidas/index.tsx` con `accents.danger`.
+  Archivos: `src/components/layout/ScreenHeader.tsx`, `constants/design.ts`, `app/perdidas/index.tsx`.
+- **2026-10-18** — Cabecera separada en piezas reutilizables: `IconButton` (4 variantes, 44 px), `BackButton` (ahora
+  un `IconButton`), `layout/HeroBackground` (degradado + barra de estado) y `src/constants/modules.ts`
+  (`MODULE_ACCENTS`, fuente única del color por módulo; Explorar lo consume). `ScreenHeader` las compone y recibe
+  `module="…"`. Perdidas migrado a `module="perdidas"`.
+- **2026-10-19** — Homologación de cabeceras y mejoras de Perdidas.
+  - Paleta: 11 acentos nuevos en `design.ts`; `MODULE_ACCENTS`/`ROLE_ACCENTS`/`SEGMENT_ROLES` en `modules.ts`;
+    `roles.ts` toma el color de ahí (sin hex). Hook `useScreenAccent`.
+  - `ScreenHeader` hero por defecto + `actions`; quitada la prop `gradient` (22 pantallas); 31 `rightElement`
+    migrados a `actions` o eliminados (placeholders, íconos decorativos de admin, «Actualizar» de Mis solicitudes y
+    «Guardar» de configuración de clínica —duplicados—, «+» falso de Admin › Servicios). 7 pantallas con cabecera
+    propia migradas (Directorio, Donaciones, Aseguradoras/Funeraria/Patrocinadores nuevo, Verificación, Receta).
+    Títulos sin emoji y más cortos. Quitados márgenes negativos que encimaban contenido sobre la cabecera vieja.
+  - Perdidas: cifras como filtro (`StatTile`, incluye «Reunidos»), cifras que ya no dependen del filtro, `SkeletonGrid`,
+    `AppRefreshControl`, sin error duplicado, banner del tracker solo en el mapa, `ReportCard` en
+    `src/features/perdidas/`, `Badge variant="solid"`.
+  - Repuestos placeholders/teclados/multilínea que perdió la migración a `FormField` (commit 4f0e6ef) en 13 pantallas.
+  - Verificado: `tsc` limpio, ESLint sin errores en los 92 archivos tocados, barrido de 108 rutas por rol a 375 px
+    (claro) y Perdidas/Donaciones/Funeraria/Adopciones/Directorio en oscuro.
+- **2026-10-19** — Correcciones tras la revisión (`code-reviewer`):
+  - Barra de estado: nuevo `layout/HeroStatusBar` (monta `<StatusBar style="light" />` solo con la pantalla enfocada;
+    no depende del orden de eventos de foco). Sustituye a `useHeroStatusBar` (eliminado) en las pestañas y en
+    `HeroBackground`.
+  - `useScreenAccent` fija la ruta del primer render: la pantalla de abajo en la pila ya no toma el color de la de encima.
+  - `accentGradient` oscurece según luminancia (amarillo y lima bajan más) para que el subtítulo tenga contraste.
+  - «Guardar» como botón primario abajo (no ícono en la cabecera) en Nueva consulta, Perfil profesional, Producto y
+    Horarios. Etiquetas explícitas en las 14 cabeceras con `actionIcon`. Quitados los «+» falsos de Admin › Mascotas,
+    Productos y Clínicas. Perdidas: carga propia del filtro «Reunidos», «Quitar filtros» en el vacío, reunidos en verde
+    en el mapa.

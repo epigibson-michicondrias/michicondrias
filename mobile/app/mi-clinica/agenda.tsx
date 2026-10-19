@@ -119,11 +119,7 @@ export default function AgendaClinicaScreen() {
             <ScreenHeader
                 title="Agenda"
                 subtitle="Control de citas recibidas"
-                rightElement={
-                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={showSearch ? 'Cerrar búsqueda' : 'Buscar cita'} style={styles.filterBtn} onPress={toggleSearch}>
-                        {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
-                    </TouchableOpacity>
-                }
+                actions={[{ icon: showSearch ? X : Search, label: showSearch ? 'Cerrar búsqueda' : 'Buscar cita', onPress: toggleSearch }]}
             />
 
             {showSearch && (
@@ -240,7 +236,6 @@ export default function AgendaClinicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    filterBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
     tabsRow: { marginBottom: 10 },
     tabsScroll: { paddingHorizontal: 20, gap: 8 },
     tab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1 },

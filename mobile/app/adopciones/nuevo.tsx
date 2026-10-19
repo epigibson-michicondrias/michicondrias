@@ -56,7 +56,7 @@ export default function NuevaAdopcionScreen() {
                     </TouchableOpacity>
 
                     <View style={styles.form}>
-                        <FormField label="Nombre del Michi o Lomito" value={form.name} onChangeText={(t) => updateField('name', t)} />
+                        <FormField label="Nombre del Michi o Lomito" value={form.name} onChangeText={(t) => updateField('name', t)} placeholder="Ej. Bolita" />
 
                         <Text style={[styles.label, { color: theme.text }]}>Especie</Text>
                         <View style={styles.speciesRow}>
@@ -76,11 +76,11 @@ export default function NuevaAdopcionScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        <FormField label="Raza (Opcional)" value={form.breed} onChangeText={(t) => updateField('breed', t)} />
+                        <FormField label="Raza (Opcional)" value={form.breed} onChangeText={(t) => updateField('breed', t)} placeholder="Ej. Mestizo" />
 
                         <View style={styles.row}>
                             <View style={{ flex: 1 }}>
-                                <FormField label="Edad (Meses)" value={form.age_months} onChangeText={(t) => updateField('age_months', t)} />
+                                <FormField label="Edad (Meses)" value={form.age_months} onChangeText={(t) => updateField('age_months', t)} placeholder="Ej. 6" keyboardType="numeric" />
                             </View>
                             <View style={{ width: 20 }} />
                             <View style={{ flex: 1 }}>
@@ -141,7 +141,7 @@ export default function NuevaAdopcionScreen() {
                             onChangeText={(t) => updateField('description', t)}
                         />
 
-                        <FormField label="Temperamento / Rasgos" value={form.temperament} onChangeText={(t) => updateField('temperament', t)} />
+                        <FormField label="Temperamento / Rasgos" value={form.temperament} onChangeText={(t) => updateField('temperament', t)} placeholder="Ej. Juguetón, Tranquilo, Miedoso..." />
 
                         <Text style={[styles.label, { color: theme.text }]}>Nivel de Energía</Text>
                         <View style={styles.sizeRow}>

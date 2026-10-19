@@ -5,7 +5,7 @@ import { useAuth } from '../../src/contexts/AuthContext';
 import { useKYC } from '@/src/hooks/perfil/useKYC';
 import { useTheme } from '@/src/hooks/useTheme';
 import { ShieldCheck, FileText, Camera, Images, CheckCircle2, AlertCircle, Info, ArrowRight } from 'lucide-react-native';
-import BackButton from '@/src/components/BackButton';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 const DOC_HINTS: Record<string, string> = {
     id_front: 'INE, Pasaporte o Cédula',
@@ -53,13 +53,7 @@ export default function VerificationScreen() {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.header}>
-                    <View style={styles.headerRow}>
-                        <BackButton onPress={() => router.back()} />
-                        <Text style={[styles.title, { color: theme.text }]}>Seguridad y KYC</Text>
-                    </View>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>Centro de verificación de identidad</Text>
-                </View>
+                <ScreenHeader title="Verificación" subtitle="Confirma quién eres para usar las funciones profesionales" />
 
                 <View style={styles.content}>
                     {renderStatus()}
@@ -144,20 +138,6 @@ export default function VerificationScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
-    headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 6 },
-    title: {
-        fontSize: 28,
-        fontWeight: '900',
-    },
-    subtitle: {
-        fontSize: 14,
-        marginTop: 4,
     },
     content: {
         padding: 24,

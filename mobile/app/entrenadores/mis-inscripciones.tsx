@@ -94,7 +94,7 @@ export default function MyEnrollmentsScreen() {
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Mis Inscripciones" rightElement={<View style={styles.placeholder} />} />
+            <ScreenHeader title="Mis Inscripciones" />
 
             {isEnrollmentsLoading ? (
                 <SkeletonList count={4} />
@@ -132,7 +132,6 @@ export default function MyEnrollmentsScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',

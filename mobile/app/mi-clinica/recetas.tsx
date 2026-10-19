@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, FlatList } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
@@ -10,7 +10,7 @@ import SearchBar from '@/src/components/SearchBar';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { FileText, PlusCircle, AlertCircle, X } from 'lucide-react-native';
+import { FileText, Plus, AlertCircle, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 
 export default function RecetasScreen() {
@@ -35,14 +35,7 @@ export default function RecetasScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Recetas Médicas"
-                rightElement={
-                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Emitir receta"
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
-                        onPress={() => setModalVisible(true)}
-                    >
-                        <PlusCircle size={20} color="#fff" />
-                    </TouchableOpacity>
-                }
+                actions={[{ icon: Plus, label: 'Emitir receta', onPress: () => setModalVisible(true) }]}
             />
 
             <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>
@@ -147,26 +140,26 @@ export default function RecetasScreen() {
                             
                             <FormField label="Nombre *" value={newPresc.medications[0].name} onChangeText={t => setNewPresc({
                                     ...newPresc, 
-                                    medications: [{ ...newPresc.medications[0], name: t }] })} />
+                                    medications: [{ ...newPresc.medications[0], name: t }] })} placeholder="Ej. Amoxicilina 500mg" />
 
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={{ flex: 1 }}>
                                     <FormField label="Dosis" value={newPresc.medications[0].dosage} onChangeText={t => setNewPresc({
                                             ...newPresc, 
-                                            medications: [{ ...newPresc.medications[0], dosage: t }] })} />
+                                            medications: [{ ...newPresc.medications[0], dosage: t }] })} placeholder="1 tableta" />
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <FormField label="Frecuencia" value={newPresc.medications[0].frequency} onChangeText={t => setNewPresc({
                                             ...newPresc, 
-                                            medications: [{ ...newPresc.medications[0], frequency: t }] })} />
+                                            medications: [{ ...newPresc.medications[0], frequency: t }] })} placeholder="Cada 8 horas" />
                                 </View>
                             </View>
 
                             <FormField label="Duración" value={newPresc.medications[0].duration} onChangeText={t => setNewPresc({
                                     ...newPresc, 
-                                    medications: [{ ...newPresc.medications[0], duration: t }] })} />
+                                    medications: [{ ...newPresc.medications[0], duration: t }] })} placeholder="Por 7 días" />
 
-                            <FormField label="Notas Adicionales" value={newPresc.notes ?? ''} onChangeText={t => setNewPresc({...newPresc, notes: t})} />
+                            <FormField label="Notas Adicionales" value={newPresc.notes ?? ''} onChangeText={t => setNewPresc({...newPresc, notes: t})} placeholder="Tomar con alimentos..." multiline />
                             <View style={{ height: 40 }} />
                         </KeyboardScreen>
 
@@ -269,7 +262,6 @@ const styles = StyleSheet.create({
     petPickerInfo: { flex: 1 },
     petPickerName: { fontSize: 16, fontWeight: '800', marginBottom: 2 },
     petPickerBreed: { fontSize: 13, fontWeight: '500' },
-    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     statusActions: { flexDirection: 'row', gap: 10, marginTop: 12 },
     statusBtn: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
     statusBtnText: { fontSize: 13, fontWeight: '800' },

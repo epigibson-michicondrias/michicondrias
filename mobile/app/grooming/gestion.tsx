@@ -246,7 +246,6 @@ export default function GestionGroomingScreen() {
             <ScreenHeader
                 title="Gestión de Citas"
                 subtitle="Panel del estilista"
-                gradient={[theme.primary, theme.secondary]}
             />
 
             <DataList

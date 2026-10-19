@@ -122,7 +122,7 @@ export default function FormularioCompatibilidadScreen() {
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Formulario de Compatibilidad" onBack={prevStep} />
+            <ScreenHeader title="Compatibilidad" onBack={prevStep} />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {renderStepIndicator()}

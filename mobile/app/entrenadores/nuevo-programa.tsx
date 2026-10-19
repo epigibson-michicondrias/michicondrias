@@ -19,7 +19,7 @@ export default function CreateProgramScreen() {
     return (
         <ScreenContainer>
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-                <ScreenHeader title="Nuevo Programa" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Nuevo Programa" />
 
                 {/* Header Illustration */}
                 <View style={styles.illustrationContainer}>
@@ -131,7 +131,6 @@ export default function CreateProgramScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     illustrationContainer: {
         alignItems: 'center',
         paddingVertical: 20,

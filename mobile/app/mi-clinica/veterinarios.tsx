@@ -135,6 +135,7 @@ export default function VeterinariosClinicaScreen() {
             <ScreenHeader
                 title="Veterinarios"
                 actionIcon={Plus}
+                actionLabel="Agregar veterinario"
                 onAction={openCreateModal}
             />
 
@@ -197,23 +198,23 @@ export default function VeterinariosClinicaScreen() {
 
                     <KeyboardScreen style={{ paddingHorizontal: 24 }}>
                         <View style={styles.formGroup}>
-                            <FormField label="Nombre Completo *" value={name} onChangeText={setName} />
+                            <FormField label="Nombre Completo *" value={name} onChangeText={setName} placeholder="Dr. Juan Pérez" />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Email *" value={email} onChangeText={setEmail} />
+                            <FormField label="Email *" value={email} onChangeText={setEmail} placeholder="email@clinica.com" keyboardType="email-address" autoCapitalize="none" />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Teléfono" value={phone} onChangeText={setPhone} />
+                            <FormField label="Teléfono" value={phone} onChangeText={setPhone} placeholder="+52 55 1234 5678" keyboardType="phone-pad" />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Especialidad *" value={specialty} onChangeText={setSpecialty} />
+                            <FormField label="Especialidad *" value={specialty} onChangeText={setSpecialty} placeholder="Medicina General" />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Número de Cédula" value={licenseNumber} onChangeText={setLicenseNumber} />
+                            <FormField label="Número de Cédula" value={licenseNumber} onChangeText={setLicenseNumber} placeholder="VET-12345" />
                         </View>
 
                         <View style={styles.formGroup}>

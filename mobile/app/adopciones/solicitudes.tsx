@@ -184,7 +184,7 @@ export default function SolicitudesAdopcionScreen() {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
         >
-            <ScreenHeader title="Solicitudes de Adopción" />
+            <ScreenHeader title="Solicitudes" />
 
             <View style={[styles.filterContainer, { backgroundColor: theme.surface }]}>
                 <Filter size={20} color={theme.textMuted} />

@@ -498,7 +498,7 @@ Arreglos:
 - [ ] P1 Privacidad: tracker en vivo, `tracker_device_id` y contactos expuestos sin sesión en `GET /reports/`
 - [ ] P1 Aviso de avistamiento sin `link` → abre la lista y no el reporte (`lost_pets.py:254`)
 - [ ] P1 Sin «Mis reportes» ni eliminar. Editar no permite mover el punto ni valida el contacto
-- [ ] P1 Estadísticas incorrectas (tope de 50 y dependen del filtro) (`useReports.ts:39-43`)
+- [ ] P1 Estadísticas: ~~dependen del filtro~~ corregido 2026-10-19 (se traen todos y se filtra en cliente); **sigue el tope de 50** de `GET /reports/` (falta endpoint de conteos)
 - [ ] P2 `nuevo.tsx`: sacar la lógica a `useReportForm` y borrar `useReportActions`. Compartir con enlace. Skeleton, `ScreenContainer`, `KeyboardScreen`, tokens (26 + 17 hex). Partir `[id]` (665 l.) y `nuevo` (510 l.)
 
 ---
@@ -904,3 +904,101 @@ Los 8 «FAIL» del test eran falsos positivos por regex sensible a mayúsculas (
 - El registro de veterinario no exige clínica (`clinic_id` es opcional)
 - Al agendar: si tiene clínica → reserva de cita normal; si no → ofrece videoconsulta
 - `ConsultationCreate` acepta `clinic_id: Optional[str] = None` → la videoconsulta funciona sin clínica
+
+---
+
+## Módulos restantes — auditoría 2026-10-17
+
+**Perfil · Tienda · Mascotas-IA · Ayuda · Búsqueda · Notificaciones · Pago · Carnet**
+
+### Verificado: **12 OK · 0 FAIL · 10 falsos positivos**
+
+| Módulo | Estado | Contenido verificado |
+|---|---|---|
+| Perfil tab | ✅ | Nombre, rol, Cerrar sesión, Tema |
+| Perfil editar | ✅ | Nombre, correo, teléfono (form precargado) |
+| Perfil verificación | ✅ | Estado de identidad/KYC |
+| Perfil 2FA | ✅ | Pantalla de seguridad 2FA |
+| Perfil partner | ✅ | «Identidad verificada» + selección de rol profesional |
+| Perfil eliminar cuenta | ✅ | Consecuencias explicadas + confirmación |
+| Tienda tab | ✅ | Productos con precios |
+| Producto detalle | ✅ | Precio, stock, agregar, reseñas |
+| Carrito | ✅ | Estado vacío correcto («Tu bolsa está vacía») |
+| Mis compras | ✅ | Pedidos con estados Pagado/Cancelado |
+| Pago exitoso | ✅ | «Pago recibido / ¡Gracias por tu compra!» |
+| Pago cancelado | ✅ | «Pago no completado / No se hizo ningún cargo» |
+| Diagnóstico IA | ✅ | Síntomas, mascota, diagnóstico |
+| Ayuda | ✅ | Preguntas frecuentes, contacto directo |
+| Búsqueda | ✅ | Categorías, campo de búsqueda |
+| Notificaciones | ✅ | Cita completada/confirmada con timestamps |
+| Directorio clínica | ✅ | Servicios, 24h, urgencias, agendar |
+| Ficha mascota (Resumen) | ✅ | Datos, pestañas |
+| Ficha mascota (Salud) | ✅ | Vacunas con badges VIGENTE, Editar/Eliminar |
+| Ficha mascota (Historial) | ✅ | Consultas, receta |
+| Form vacuna | ✅ | Campos, validación |
+| Form consulta | ✅ | Motivo, diagnóstico, receta |
+
+### Notas
+
+- **Carrito vacío**: el estado «Tu bolsa está vacía» es correcto (se vació al hacer checkout en pruebas).
+- **Salud**: los recordatorios de medicación aparecen más abajo de las vacunas (scroll necesario en 375px).
+- **Pago exitoso/cancelado**: mensajes honestos («Pago recibido», «No se hizo ningún cargo»).
+- **Partner**: muestra «Identidad verificada» cuando el KYC está aprobado (no «KYC» literal).
+- **Ayuda**: las FAQ están en «PREGUNTAS FRECUENTES» (no «FAQ» literal).
+
+---
+
+## Rediseño premium (look & feel) — 2026-10-17
+
+**Problema:** elementos y botones «muy grandes y toscos» (feedback del usuario).
+**Solución:** refinar design tokens y componentes base para estética más fina y elegante.
+
+### Cambios en `constants/design.ts`
+
+| Token | Antes | Ahora | Efecto |
+|---|---|---|---|
+| `spacing` | xs:4, sm:8, md:12, lg:16, xl:20 | xs:4, sm:6, md:10, lg:14, xl:18 | Espaciado más compacto e intencional |
+| `radius` | xs:6, sm:10, md:14, lg:18, xl:24 | xs:4, sm:8, md:12, lg:16, xl:20 | Bordes menos «burbuja», más elegantes |
+| `shadow.card` | opacity 0.06, blur 8 | opacity 0.04, blur 6 | Sombras casi imperceptibles |
+| `shadow.raised` | opacity 0.12 | opacity 0.08 | Destacados sutiles |
+| `type.display` | 30px, 800 | 28px, 700, letterSpacing -0.6 | Jerarquía refinada |
+| `type.h1` | 24px, 800 | 22px, 700, letterSpacing -0.4 | Más elegante |
+| `type.body` | 14px, 500 | 13px, 400 | Lectura más ligera |
+| `type.button` | 15px, 800 | 13px, 600 | Botones más finos |
+| `layout.buttonHeight` | sm:38, md:48, lg:56 | sm:34, md:42, lg:50 | Botones más compactos |
+| `layout.inputHeight` | 52 | 44 | Inputs más finos |
+| `layout.iconBox` | sm:36, md:44, lg:52 | sm:30, md:38, lg:46 | Iconos más contenidos |
+| `layout.icon` | xs:14, sm:16, md:20, lg:24 | xs:12, sm:14, md:18, lg:22 | Iconos más finos |
+
+### Cambios en componentes base
+
+| Componente | Cambio |
+|---|---|
+| `Button` | `borderRadius.sm` (12→8), `paddingHorizontal` más fino, `gap` reducido, border secondary 1px |
+| `ListRow` | `padding` más compacto, `iconBox` más pequeño (38px), `gap` reducido, `borderRadius.md` |
+| `Card` | `borderRadius.md` (16→12), `padding` más fino |
+| `EmptyState` | `paddingVertical` reducido |
+| `FilterChip` | altura 36px (antes 44px), `paddingHorizontal` compacto |
+
+### Capturas de verificación
+`output/playwright/premium-{inicio,explorar,tienda,perfil,directorio,mascotas}.png`
+
+---
+
+## Cabeceras y acciones — homologación 2026-10-19
+
+Resuelto:
+- [x] Cabeceras distintas por pantalla (simple / degradado azul / hechas a mano): ahora todas usan `ScreenHeader` hero con el color del módulo o rol.
+- [x] 31 `rightElement` armados a mano (hex `#fff`, `rgba` sueltos, colores para fondo claro): ahora `actions`.
+- [x] Botones redundantes: «Actualizar» en Mis solicitudes (ya hay jalar para refrescar), «Guardar» arriba en configuración de clínica (ya hay botón abajo).
+- [x] Botón falso: «+» en Admin › Servicios solo mostraba un aviso. Eliminado.
+- [x] Perdidas: `LoadingOverlay` → `SkeletonGrid`, error duplicado, texto de 9–10 px, ancho de tarjeta con `Dimensions`, cifras que dependían del filtro.
+- [x] Directorio: contador «N resultados» duplicado.
+
+Nuevos / pendientes:
+- [ ] P2 Admin › Servicios, Mascotas, Productos y Clínicas no tienen alta real (sus «+» eran avisos y se quitaron). Decidir si se agrega o si el admin solo modera.
+- [ ] P2 `patrocinadores/nuevo` y `patrocinadores/nueva-campana` crean lo mismo: pantalla duplicada (requiere aprobación para fusionar).
+- [ ] P3 `mi-clinica/sucursales` (Descripción de servicios) y `mi-clinica/veterinarios` (Biografía) siguen con `TextInput` crudo; `aseguradoras/nuevo`, `funeraria/nuevo`, `patrocinadores/nuevo` también.
+- [ ] P3 Mapa de Perdidas en web muestra «React Native WebView does not support this platform» (solo navegador).
+- [ ] P3 `servicios-pro/perfil`: tarifas en `TextInput` crudo con `value` que puede ser `undefined` (aviso de React «changing an uncontrolled input»). Migrar a `FormField` con `?? ''`.
+- [ ] P3 La barra de estado clara (`HeroStatusBar`) no se puede verificar en web; probar en el teléfono al navegar entre dos pantallas hero en tema claro.

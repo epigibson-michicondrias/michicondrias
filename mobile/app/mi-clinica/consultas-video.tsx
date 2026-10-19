@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Modal, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import Button from '@/src/components/Button';
 import { useVideoConsultations } from '@/src/hooks/clinica/useVideoConsultations';
@@ -126,20 +126,7 @@ export default function ConsultasVideoScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Videoconsultas"
-                rightElement={
-                    !isVet ? (
-                        <TouchableOpacity
-                            accessibilityRole="button"
-                            accessibilityLabel="Agendar videoconsulta"
-                            style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                            onPress={openBookingModal}
-                        >
-                            <Plus size={20} color="#fff" />
-                        </TouchableOpacity>
-                    ) : (
-                        <View style={{ width: 44 }} />
-                    )
-                }
+                actions={!isVet ? [{ icon: Plus, label: 'Agendar videoconsulta', onPress: openBookingModal }] : undefined}
             />
 
             <View style={styles.content}>
@@ -295,7 +282,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(128,128,128,0.08)',
     },
     disabledRoomText: { fontSize: 12, fontWeight: '700' },
-    addBtn: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     modalContainer: { flex: 1 },
     modalHeader: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

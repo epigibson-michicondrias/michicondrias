@@ -97,7 +97,7 @@ export default function GoalManagementScreen() {
     return (
         <ScreenContainer>
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-                <ScreenHeader title="Metas" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Metas" />
 
                 {/* Progress Overview */}
                 <View style={[styles.progressCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
@@ -385,7 +385,6 @@ export default function GoalManagementScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     enrollActions: { flexDirection: 'row', gap: 12, marginHorizontal: 24, marginBottom: 16 },
     enrollActionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 14 },
     enrollActionText: { color: '#fff', fontSize: 13, fontWeight: '800' },

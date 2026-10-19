@@ -74,7 +74,6 @@ export default function MemorialScreen() {
             <ScreenHeader
                 title="Memorial"
                 subtitle="Recuerdos y mensajes de amor"
-                gradient={['#4a1a6b', '#7c3aed', '#a855f7']}
                 actionIcon={Plus}
                 onAction={() => router.push({ pathname: '/funeraria/memorial/nuevo', params: { petId } } as any)}
             />

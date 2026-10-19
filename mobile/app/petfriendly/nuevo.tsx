@@ -146,7 +146,7 @@ export default function NuevoLugarScreen() {
                     </TouchableOpacity>
 
                     <View style={styles.form}>
-                        <FormField label="Nombre del Establecimiento" value={form.name} onChangeText={(t) => setForm({ ...form, name: t })} />
+                        <FormField label="Nombre del Establecimiento" value={form.name} onChangeText={(t) => setForm({ ...form, name: t })} placeholder="Ej. El Michi Café" />
 
                         <Text style={[styles.label, { color: theme.text }]}>Categoría</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
@@ -195,13 +195,13 @@ export default function NuevoLugarScreen() {
                             <Text style={{ color: theme.primary, fontWeight: '800' }}>{location ? 'Actualizar mi ubicación' : 'Usar mi ubicación actual'}</Text>
                         </TouchableOpacity>
 
-                        <FormField label="Ciudad" value={form.city} onChangeText={(t) => setForm({ ...form, city: t })} />
+                        <FormField label="Ciudad" value={form.city} onChangeText={(t) => setForm({ ...form, city: t })} placeholder="Ej. Ciudad de México" />
 
-                        <FormField label="Teléfono (Opcional)" value={form.phone} onChangeText={(t) => setForm({ ...form, phone: t })} />
+                        <FormField label="Teléfono (Opcional)" value={form.phone} onChangeText={(t) => setForm({ ...form, phone: t })} placeholder="10 dígitos" keyboardType="phone-pad" />
 
-                        <FormField label="Sitio web (Opcional)" value={form.website} onChangeText={(t) => setForm({ ...form, website: t })} />
+                        <FormField label="Sitio web (Opcional)" value={form.website} onChangeText={(t) => setForm({ ...form, website: t })} placeholder="https://..." autoCapitalize="none" keyboardType="url" />
 
-                        <FormField label="Dirección (Opcional)" value={form.address} onChangeText={(t) => setForm({ ...form, address: t })} />
+                        <FormField label="Dirección (Opcional)" value={form.address} onChangeText={(t) => setForm({ ...form, address: t })} placeholder="Ej. Calle 123, Col. Centro" />
 
                         <Text style={[styles.label, { color: theme.text }]}>Servicios Petfriendly</Text>
                         <View style={styles.amenitiesGrid}>
@@ -240,7 +240,7 @@ export default function NuevoLugarScreen() {
                             ))}
                         </View>
 
-                        <FormField label="Descripción y Tips" value={form.description} onChangeText={(t) => setForm({ ...form, description: t })} />
+                        <FormField label="Descripción y Tips" value={form.description} onChangeText={(t) => setForm({ ...form, description: t })} placeholder="Cosas que otros dueños deberían saber..." multiline numberOfLines={4} />
                     </View>
                 </ScrollView>
 

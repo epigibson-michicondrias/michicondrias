@@ -64,14 +64,7 @@ export default function ServiciosProScreen() {
             <ScreenHeader
                 title="Servicios Pro"
                 subtitle="Expertos al cuidado de tu mascota"
-                rightElement={
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.profileBtn, { backgroundColor: theme.surface }]}
-                        onPress={() => router.push('/servicios-pro/perfil' as any)}
-                    >
-                        <User size={24} color={theme.text} />
-                    </TouchableOpacity>
-                }
+                actions={[{ icon: User, label: 'Mi perfil profesional', onPress: () => router.push('/servicios-pro/perfil' as any) }]}
             />
 
             <View style={styles.tabsContainer}>
@@ -124,13 +117,6 @@ export default function ServiciosProScreen() {
 }
 
 const styles = StyleSheet.create({
-    profileBtn: {
-        width: 52,
-        height: 52,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     tabsContainer: {
         flexDirection: 'row',
         paddingHorizontal: 24,

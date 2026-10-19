@@ -106,7 +106,7 @@ export default function AdopcionesScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="Mascotas en Adopción"
+                title="Adopciones"
                 subtitle="Encuentra a tu nuevo mejor amigo"
                 actionIcon={Plus}
                 actionLabel="Publicar mascota"

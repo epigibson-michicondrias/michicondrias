@@ -104,6 +104,7 @@ export default function SucursalesScreen() {
             <ScreenHeader
                 title="Mis Clínicas"
                 actionIcon={Plus}
+                actionLabel="Agregar sucursal"
                 onAction={openCreateModal}
             />
 
@@ -149,32 +150,32 @@ export default function SucursalesScreen() {
 
                     <KeyboardScreen style={{ padding: 24 }}>
                         <View style={styles.formGroup}>
-                            <FormField label="Nombre de la Clínica *" value={name} onChangeText={setName} />
+                            <FormField label="Nombre de la Clínica *" value={name} onChangeText={setName} placeholder="Hospital Veterinario Central" />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Dirección" value={address} onChangeText={setAddress} />
+                            <FormField label="Dirección" value={address} onChangeText={setAddress} placeholder="Calle Falsa 123" />
                         </View>
 
                         <View style={styles.row}>
                             <View style={[styles.formGroup, { flex: 1 }]}>
-                                <FormField label="Ciudad" value={city} onChangeText={setCity} />
+                                <FormField label="Ciudad" value={city} onChangeText={setCity} placeholder="CDMX" />
                             </View>
                             <View style={[styles.formGroup, { flex: 1 }]}>
-                                <FormField label="Estado" value={state} onChangeText={setState} />
+                                <FormField label="Estado" value={state} onChangeText={setState} placeholder="CDMX" />
                             </View>
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Teléfono" value={phone} onChangeText={setPhone} />
+                            <FormField label="Teléfono" value={phone} onChangeText={setPhone} placeholder="+52 55 1234 5678" keyboardType="phone-pad" />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Correo Electrónico" value={email} onChangeText={setEmail} />
+                            <FormField label="Correo Electrónico" value={email} onChangeText={setEmail} placeholder="contacto@clinica.com" keyboardType="email-address" autoCapitalize="none" />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <FormField label="Sitio Web" value={website} onChangeText={setWebsite} />
+                            <FormField label="Sitio Web" value={website} onChangeText={setWebsite} placeholder="https://clinica.com" keyboardType="url" autoCapitalize="none" />
                         </View>
 
                         <View style={styles.formGroup}>

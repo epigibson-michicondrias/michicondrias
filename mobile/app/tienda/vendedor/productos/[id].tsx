@@ -1,13 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { useProductForm } from '@/src/hooks/ecommerce/useProductForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { spacing } from '@/constants/design';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { Save } from 'lucide-react-native';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
 
 export default function VendedorProductoFormScreen() {
@@ -42,22 +42,17 @@ export default function VendedorProductoFormScreen() {
                     <ScreenHeader
                         title={isEditing ? 'Editar Producto' : 'Nuevo Producto'}
                         subtitle={isEditing ? 'Actualiza los detalles' : 'Añade un artículo a tu tienda'}
-                        rightElement={
-                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guardar" onPress={handleSave}>
-                                {saving ? <ActivityIndicator size="small" color={theme.primary} /> : <Save size={20} color={theme.primary} />}
-                            </TouchableOpacity>
-                        }
                     />
 
                     <View style={styles.content}>
                         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                             <View style={styles.inputGroup}>
-                                <FormField label="Nombre del producto *" value={formData.name} onChangeText={(val) => updateField('name', val)} />
+                                <FormField label="Nombre del producto *" value={formData.name} onChangeText={(val) => updateField('name', val)} placeholder="Ej: Correa Retráctil Pro" />
                             </View>
 
                             <View style={styles.row}>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
-                                    <FormField label="Precio (MXN) *" value={formData.price} onChangeText={(val) => updateField('price', val)} />
+                                    <FormField label="Precio (MXN) *" value={formData.price} onChangeText={(val) => updateField('price', val)} keyboardType="decimal-pad" placeholder="0.00" />
                                 </View>
                                 <View style={[styles.inputGroup, { flex: 1 }]}>
                                     <FormField label="{isEditing ? 'Stock disponible *' : 'Stock inicial *'}" value={formData.stock} onChangeText={(val) => updateField('stock', val)} />
@@ -104,13 +99,14 @@ export default function VendedorProductoFormScreen() {
                         <Text style={[styles.groupTitle, { color: theme.textMuted }]}>DESCRIPCIÓN DETALLADA</Text>
                         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                             <View style={styles.inputGroup}>
-                                <FormField label="Descripción corta" value={formData.description} onChangeText={(val) => updateField('description', val)} />
+                                <FormField label="Descripción corta" value={formData.description} onChangeText={(val) => updateField('description', val)} multiline numberOfLines={4} placeholder="Describe las ventajas de tu producto..." />
                             </View>
                             <View style={styles.inputGroup}>
-                                <FormField label="Especificaciones Técnicas" value={formData.specifications} onChangeText={(val) => updateField('specifications', val)} />
+                                <FormField label="Especificaciones Técnicas" value={formData.specifications} onChangeText={(val) => updateField('specifications', val)} multiline numberOfLines={3} placeholder="Materiales, dimensiones, etc." />
                             </View>
                         </View>
                     </View>
+                    <Button label="Guardar producto" onPress={handleSave} loading={saving} fullWidth style={styles.saveBtn} />
                 </ScrollView>
             </ScreenContainer>
         </KeyboardAvoidingView>
@@ -118,7 +114,7 @@ export default function VendedorProductoFormScreen() {
 }
 
 const styles = StyleSheet.create({
-    saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+    saveBtn: { marginTop: spacing.xl },
     content: { padding: 24, paddingBottom: 100 },
     section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1 },
     groupTitle: { fontSize: 12, fontWeight: '800', marginBottom: 12, marginLeft: 12, letterSpacing: 1 },

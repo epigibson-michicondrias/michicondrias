@@ -25,12 +25,6 @@ export default function AdminStatsScreen() {
             <ScreenHeader
                 title="Estadísticas"
                 subtitle="Métricas en Tiempo Real"
-                gradient={['#3b82f6', '#3b82f6E6', '#3b82f6CC']}
-                rightElement={
-                    <View style={styles.headerAction}>
-                        <TrendingUp size={22} color="#fff" style={{ opacity: 0.8 }} />
-                    </View>
-                }
             />
 
             <ScrollView contentContainerStyle={styles.scroll}>
@@ -117,12 +111,6 @@ const styles = StyleSheet.create({
         fontSize: 14, 
         fontWeight: '700', 
         letterSpacing: 0.5 
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     scroll: { 
         padding: 20, 

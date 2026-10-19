@@ -141,11 +141,7 @@ export default function CirugiasScreen() {
             <ScreenHeader
                 title="Quirófano"
                 subtitle="Gestión de Cirugías"
-                rightElement={
-                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Buscar cirugía" style={styles.filterBtn} onPress={toggleSearch}>
-                        {showSearch ? <X size={20} color={theme.textMuted} /> : <Search size={20} color={theme.textMuted} />}
-                    </TouchableOpacity>
-                }
+                actions={[{ icon: showSearch ? X : Search, label: showSearch ? 'Cerrar búsqueda' : 'Buscar cirugía', onPress: toggleSearch }]}
             />
 
             {showSearch && (
@@ -240,7 +236,7 @@ export default function CirugiasScreen() {
 
                         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                             <View style={styles.formGroup}>
-                                <FormField label="Nombre del Procedimiento *" value={surgName} onChangeText={setSurgName} />
+                                <FormField label="Nombre del Procedimiento *" value={surgName} onChangeText={setSurgName} placeholder="Ej: Ovariohisterectomía, Profilaxis..." />
                             </View>
 
                             <View style={styles.formGroup}>
@@ -288,12 +284,12 @@ export default function CirugiasScreen() {
                                     />
                                 </View>
                                 <View style={[styles.formGroup, { flex: 1 }]}>
-                                    <FormField label="Duración (min)" value={surgDuration} onChangeText={setSurgDuration} />
+                                    <FormField label="Duración (min)" value={surgDuration} onChangeText={setSurgDuration} placeholder="60" keyboardType="numeric" />
                                 </View>
                             </View>
 
                             <View style={styles.formGroup}>
-                                <FormField label="Quirófano" value={surgRoom} onChangeText={setSurgRoom} />
+                                <FormField label="Quirófano" value={surgRoom} onChangeText={setSurgRoom} placeholder="Ej: Quirófano 1 (opcional)" />
                             </View>
 
                             <View style={{ height: 40 }} />
@@ -320,7 +316,6 @@ export default function CirugiasScreen() {
 }
 
 const styles = StyleSheet.create({
-    filterBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
     tabsRow: { marginBottom: 10 },
     tabsScroll: { paddingHorizontal: 20, gap: 8 },
     tab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1 },

@@ -1,8 +1,9 @@
 import React from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Image, View, Text } from 'react-native';
-import { useTheme, useHeroStatusBar } from '@/src/hooks/useTheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import { useHome, STATUS_COLORS, STATUS_LABELS, formatDate } from '@/src/hooks/home/useHome';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import HeroStatusBar from '@/src/components/layout/HeroStatusBar';
 import { Plus, Bell, Bone, Activity, Sparkles, ChevronRight, Calendar, ShieldCheck, Zap, Handshake, XCircle } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,7 +26,6 @@ const getPetPlaceholder = (species: string) => {
 // ── Component ─────────────────────────────────────────────────────
 export default function DashboardScreen() {
   const { theme } = useTheme();
-  useHeroStatusBar();
   const insets = useSafeAreaInsets();
   const {
     user,
@@ -46,6 +46,7 @@ export default function DashboardScreen() {
   // ── Render ──
   return (
     <ScreenContainer>
+      <HeroStatusBar />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

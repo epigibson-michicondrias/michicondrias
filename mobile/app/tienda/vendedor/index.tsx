@@ -42,7 +42,6 @@ export default function VendedorDashboardScreen() {
             <ScreenHeader
                 title="Mi Tienda"
                 subtitle="Panel de Vendedor"
-                gradient={['#10b981', '#059669', '#047857']}
             />
 
             <ScrollView style={styles.contentScroll} showsVerticalScrollIndicator={false}>

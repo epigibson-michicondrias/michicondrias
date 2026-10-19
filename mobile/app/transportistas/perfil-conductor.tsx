@@ -33,7 +33,7 @@ export default function PerfilConductorScreen() {
   if (isLoading) {
     return (
       <ScreenContainer>
-        <ScreenHeader title="👤 Perfil Conductor" subtitle="Administra tu perfil de conductor" />
+        <ScreenHeader title="Perfil de conductor" subtitle="Administra tu perfil de conductor" />
         <LoadingOverlay message="Cargando perfil..." />
       </ScreenContainer>
     );
@@ -42,7 +42,7 @@ export default function PerfilConductorScreen() {
   return (
     <ScreenContainer>
       <ScreenHeader
-        title="👤 Perfil Conductor"
+        title="Perfil de conductor"
         subtitle={isExistingProfile ? 'Edita tu perfil de conductor' : 'Crea tu perfil de conductor'}
       />
 

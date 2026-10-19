@@ -7,7 +7,8 @@ interface BadgeProps {
     label: string;
     color?: string;
     icon?: React.ReactNode;
-    variant?: 'filled' | 'outlined';
+    /** `filled`: tinte suave · `outlined`: solo borde · `solid`: fondo pleno (sobre fotos). */
+    variant?: 'filled' | 'outlined' | 'solid';
     size?: 'sm' | 'md';
 }
 
@@ -15,19 +16,22 @@ export default function Badge({ label, color, icon, variant = 'filled', size = '
     const { theme } = useTheme();
     const badgeColor = color || theme.primary;
     const isFilled = variant === 'filled';
+    const isSolid = variant === 'solid';
 
     return (
         <View
             style={[
                 styles.badge,
                 size === 'sm' && styles.badgeSm,
-                isFilled
-                    ? { backgroundColor: badgeColor + tint.medium }
-                    : { borderColor: badgeColor, borderWidth: 1 },
+                isSolid
+                    ? { backgroundColor: badgeColor }
+                    : isFilled
+                        ? { backgroundColor: badgeColor + tint.medium }
+                        : { borderColor: badgeColor, borderWidth: 1 },
             ]}
         >
             {icon ? <View style={styles.icon}>{icon}</View> : null}
-            <Text style={[type.caption, styles.label, { color: badgeColor }]}>{label}</Text>
+            <Text style={[type.caption, styles.label, { color: isSolid ? theme.onPrimary : badgeColor }]}>{label}</Text>
         </View>
     );
 }

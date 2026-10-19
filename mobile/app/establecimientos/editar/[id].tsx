@@ -27,7 +27,7 @@ export default function EditarEstablecimientoScreen() {
     if (isLoadingVenue) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Editar Establecimiento" />
+                <ScreenHeader title="Editar local" />
                 <LoadingOverlay message="Cargando establecimiento..." />
             </ScreenContainer>
         );
@@ -36,7 +36,7 @@ export default function EditarEstablecimientoScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="Editar Establecimiento"
+                title="Editar local"
                 subtitle="Actualiza la información de tu negocio"
             />
 

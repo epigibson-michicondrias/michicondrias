@@ -121,10 +121,10 @@ export default function SolicitarAdopcionScreen() {
                     subtitle={listing?.name}
                     onBack={handleBack}
                     rightElement={
-                        <View style={[styles.stepBadge, { backgroundColor: theme.primary + '15' }]}>
-                            <Text style={[styles.stepBadgeText, { color: theme.primary }]}>{step}/3</Text>
-                        </View>
-                    }
+                    <View style={[styles.stepBadge, { backgroundColor: theme.heroGlass, borderColor: theme.heroGlassBorder }]}>
+                        <Text style={[styles.stepBadgeText, { color: theme.onHero }]}>{step}/3</Text>
+                    </View>
+                }
                 />
 
                 <View style={styles.progressBar}>

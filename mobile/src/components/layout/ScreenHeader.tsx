@@ -1,36 +1,60 @@
 /**
- * ScreenHeader — Standardized header for all screens
- * Replaces the repeated header pattern across 100+ screens
+ * ScreenHeader — Cabecera estándar de pantalla: volver a la izquierda, título (+ subtítulo) y acciones a la derecha.
+ *
+ * Variantes:
+ * - `hero` (por defecto): `HeroBackground` con el color de la pantalla (módulo o rol, deducido de la ruta) y botones
+ *   de vidrio. No hace falta pasar color: `/perdidas/*` sale rojo, `/mi-clinica/*` con el color del veterinario, etc.
+ * - `plain`: sin fondo, sobre `theme.background` (para casos excepcionales, p. ej. dentro de un modal).
+ *
+ * Acciones: `actions` (lista de `IconButton`) o, para un solo botón, `actionIcon` + `onAction`. `rightElement` queda
+ * para contenido que no sea un botón de ícono.
+ *
+ * Piezas reutilizables por separado: `IconButton`, `BackButton`, `layout/HeroBackground`, `src/constants/modules.ts`.
  */
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
-import { useTheme } from '@/src/hooks/useTheme';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/src/hooks/useTheme';
+import BackButton from '@/src/components/BackButton';
+import IconButton, { type IconComponent } from '@/src/components/IconButton';
+import HeroBackground from '@/src/components/layout/HeroBackground';
+import type { ModuleKey } from '@/src/constants/modules';
+import { spacing, type } from '@/constants/design';
+
+export interface HeaderAction {
+    icon: IconComponent;
+    /** Texto para lectores de pantalla. */
+    label: string;
+    onPress: () => void;
+    loading?: boolean;
+    disabled?: boolean;
+}
 
 interface ScreenHeaderProps {
-    /** Screen title */
     title: string;
-    /** Optional subtitle below the title */
     subtitle?: string;
-    /** Show back button (default: true) */
+    /** Muestra el botón volver (por defecto sí). */
     showBack?: boolean;
-    /** Custom back handler (default: router.back()) */
+    /** Acción de volver (por defecto `router.back()`). */
     onBack?: () => void;
-    /** Right-side action icon component (e.g., Plus from lucide) */
-    actionIcon?: React.ComponentType<{ size: number; color: string }>;
-    /** Handler for action button */
+    /** Botones de ícono a la derecha (máx. 2 recomendado). */
+    actions?: HeaderAction[];
+    /** Atajo para una sola acción: ícono de lucide. */
+    actionIcon?: IconComponent;
     onAction?: () => void;
-    /** Optional custom right element (overrides actionIcon) */
-    rightElement?: React.ReactNode;
-    /** Optional custom left element (overrides back button) */
-    leftElement?: React.ReactNode;
-    /** Optional gradient colors for premium headers */
-    gradient?: string[];
-    /** Etiqueta para lectores de pantalla del botón de acción (por defecto "Acción principal") */
+    /** Etiqueta para lectores de pantalla de `actionIcon` (por defecto, según el ícono). */
     actionLabel?: string;
+    /** Contenido libre a la derecha (reemplaza las acciones). */
+    rightElement?: React.ReactNode;
+    /** Contenido libre a la izquierda (reemplaza el botón volver). */
+    leftElement?: React.ReactNode;
+    /** `hero` (por defecto) o `plain`. */
+    variant?: 'hero' | 'plain';
+    /** Fuerza el color de un módulo distinto al de la ruta. */
+    module?: ModuleKey;
+    /** Fuerza un acento suelto distinto al de la ruta. */
+    accent?: string;
 }
 
 /** Etiqueta por defecto del botón de acción según su ícono, para lectores de pantalla. */
@@ -49,100 +73,90 @@ const ACTION_ICON_LABELS: Record<string, string> = {
     ShoppingCart: 'Carrito',
 };
 
+/** Espacio superior de la variante simple (por debajo de la barra de estado). */
+const PLAIN_TOP_PADDING = 60;
+
 export default function ScreenHeader({
     title,
     subtitle,
     showBack = true,
     onBack,
-    actionIcon: ActionIcon,
+    actions,
+    actionIcon,
     onAction,
+    actionLabel,
     rightElement,
     leftElement,
-    gradient,
-    actionLabel,
+    variant = 'hero',
+    module,
+    accent,
 }: ScreenHeaderProps) {
     const router = useRouter();
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
+    const isHero = variant === 'hero';
 
-    const handleBack = () => {
-        if (onBack) {
-            onBack();
-        } else {
-            router.back();
-        }
-    };
+    const allActions: HeaderAction[] = actions ?? (actionIcon && onAction
+        ? [{
+            icon: actionIcon,
+            onPress: onAction,
+            label: actionLabel || ACTION_ICON_LABELS[(actionIcon as any).displayName] || 'Acción principal',
+        }]
+        : []);
 
-    const textColor = gradient ? theme.onHero : theme.text;
-    const subtitleColor = gradient ? theme.onHeroMuted : theme.textMuted;
-    const backBtnStyle = gradient
-        ? { backgroundColor: theme.heroGlass, borderColor: theme.heroGlassBorder }
-        : { backgroundColor: theme.surface, borderColor: theme.cardBorder, borderWidth: 1 };
-    const actionBtnStyle = gradient
-        ? { backgroundColor: theme.heroGlass, borderWidth: 1, borderColor: theme.heroGlassBorder }
-        : { backgroundColor: theme.primary };
-
-    const headerContent = (
-        <View style={[
-            styles.header,
-            gradient ? { paddingTop: insets.top + 12 } : undefined,
-        ]}>
+    const content = (
+        <View style={[styles.header, { paddingTop: isHero ? insets.top + spacing.lg : PLAIN_TOP_PADDING }]}>
             <View style={styles.headerLeft}>
                 {leftElement ? (
                     leftElement
                 ) : showBack ? (
-                    <TouchableOpacity
-                        onPress={handleBack}
-                        accessibilityRole="button"
-                        accessibilityLabel="Volver"
-                        style={[styles.backBtn, backBtnStyle]}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                        <ChevronLeft size={22} color={textColor} />
-                    </TouchableOpacity>
+                    <BackButton onPress={onBack ?? (() => router.back())} variant={isHero ? 'glass' : 'surface'} />
                 ) : null}
                 <View style={styles.titleContainer}>
-                    <Text accessibilityRole="header" style={[styles.title, { color: textColor }]} numberOfLines={1}>
+                    <Text
+                        accessibilityRole="header"
+                        style={[styles.title, { color: isHero ? theme.onHero : theme.text }]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.7}
+                    >
                         {title}
                     </Text>
                     {subtitle ? (
-                        <Text style={[styles.subtitle, { color: subtitleColor }]} numberOfLines={1}>
+                        <Text
+                            style={[styles.subtitle, { color: isHero ? theme.onHeroMuted : theme.textMuted }]}
+                            numberOfLines={2}
+                        >
                             {subtitle}
                         </Text>
                     ) : null}
                 </View>
             </View>
 
-            <View style={styles.headerRight}>
-                {rightElement ? (
-                    rightElement
-                ) : ActionIcon && onAction ? (
-                    <TouchableOpacity
-                        onPress={onAction}
-                        accessibilityRole="button"
-                        accessibilityLabel={actionLabel || ACTION_ICON_LABELS[(ActionIcon as any).displayName] || 'Acción principal'}
-                        style={[styles.actionBtn, actionBtnStyle]}
-                    >
-                        <ActionIcon size={24} color={theme.onHero} />
-                    </TouchableOpacity>
-                ) : null}
-            </View>
+            {rightElement || allActions.length > 0 ? (
+                <View style={styles.headerRight}>
+                    {rightElement ??
+                        allActions.map((a) => (
+                            <IconButton
+                                key={a.label}
+                                icon={a.icon}
+                                accessibilityLabel={a.label}
+                                onPress={a.onPress}
+                                loading={a.loading}
+                                disabled={a.disabled}
+                                variant={isHero ? 'glass' : 'primary'}
+                            />
+                        ))}
+                </View>
+            ) : null}
         </View>
     );
 
-    if (gradient) {
-        return (
-            // Todas las cabeceras con degradado comparten el heroGradient del tema (identidad homogénea).
-            <LinearGradient
-                colors={theme.heroGradient as any}
-                style={styles.gradientWrapper}
-            >
-                {headerContent}
-            </LinearGradient>
-        );
+    if (isHero) {
+        return <HeroBackground module={module} accent={accent} style={styles.hero}>{content}</HeroBackground>;
     }
 
-    return headerContent;
+    return content;
 }
 
 const styles = StyleSheet.create({
@@ -150,53 +164,32 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
+        paddingHorizontal: spacing.xxl,
+        paddingBottom: spacing.xl,
+        gap: spacing.md,
+    },
+    // Separa el contenido de la pantalla del borde redondeado de la cabecera
+    hero: {
+        marginBottom: spacing.lg,
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
         flex: 1,
     },
     headerRight: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-    },
-    backBtn: {
-        width: 42,
-        height: 42,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
+        gap: spacing.sm,
     },
     titleContainer: {
         flex: 1,
     },
-    title: {
-        fontSize: 26,
-        fontWeight: '800',
-        letterSpacing: -0.4,
-    },
+    title: type.screenTitle,
     subtitle: {
-        fontSize: 13,
+        ...type.body,
         fontWeight: '500',
-        marginTop: 2,
-    },
-    actionBtn: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    gradientWrapper: {
-        borderBottomLeftRadius: 28,
-        borderBottomRightRadius: 28,
-        borderBottomWidth: 1,
-        borderColor: 'rgba(233,200,131,0.25)',
+        marginTop: spacing.xxs,
     },
 });

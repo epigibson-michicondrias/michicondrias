@@ -6,7 +6,7 @@ import { createCampaign } from '../../src/services/sponsors';
 import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Megaphone, Link, Info } from 'lucide-react-native';
-import BackButton from '@/src/components/BackButton';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 export default function NuevoPatrocinadorScreen() {
     const router = useRouter();
@@ -49,11 +49,7 @@ export default function NuevoPatrocinadorScreen() {
 
     return (
         <KeyboardScreen style={{ backgroundColor: theme.background }}>
-            <View style={styles.header}>
-                <BackButton onPress={() => router.back()} />
-                <Text style={[styles.title, { color: theme.text }]}>Nueva Campaña</Text>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>Crea una campaña de patrocinio</Text>
-            </View>
+            <ScreenHeader title="Nueva campaña" subtitle="Crea una campaña de patrocinio" />
 
             <View style={styles.content}>
                 <View style={styles.inputGroup}>
@@ -130,20 +126,7 @@ export default function NuevoPatrocinadorScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 20,
-    },
 
-    title: {
-        fontSize: 28,
-        fontWeight: '800',
-    },
-    subtitle: {
-        fontSize: 14,
-        marginTop: 4,
-    },
     content: {
         padding: 24,
         gap: 20,

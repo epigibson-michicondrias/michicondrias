@@ -1,13 +1,14 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, Modal, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
-import Button from '@/src/components/Button';
 import { useSchedule, type ScheduleDay, type Holiday } from '@/src/hooks/clinica/useSchedule';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { spacing } from '@/constants/design';
+import Button from '@/src/components/Button';
 
-import { Clock, Calendar, Plus, X, Save, Info, Globe } from 'lucide-react-native';
+import { Clock, Calendar, Plus, X, Info, Globe } from 'lucide-react-native';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import DatePicker from '@/src/components/DatePicker';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
@@ -146,11 +147,6 @@ export default function HorariosClinicaScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Horarios"
-                rightElement={
-                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guardar horarios" onPress={handleSaveSchedule} disabled={loading}>
-                        {loading ? <ActivityIndicator size="small" color={theme.primary} /> : <Save size={20} color={theme.primary} />}
-                    </TouchableOpacity>
-                }
             />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -217,7 +213,9 @@ export default function HorariosClinicaScreen() {
                     )}
                 </View>
 
-                <View style={styles.footer} />
+                <View style={styles.saveBar}>
+                    <Button label="Guardar horarios" onPress={handleSaveSchedule} loading={loading} fullWidth />
+                </View>
             </ScrollView>
 
             {/* Add Holiday Modal */}
@@ -368,7 +366,7 @@ const styles = StyleSheet.create({
     emergencyContact: { gap: 4 },
     emergencyContactLabel: { fontSize: 13 },
     emergencyPhone: { fontSize: 16, fontWeight: '700' },
-    footer: { height: 40 },
+    saveBar: { paddingHorizontal: spacing.xxl, paddingTop: spacing.xl, paddingBottom: spacing.huge },
     modalContainer: { flex: 1 },
     modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24 },
     modalTitle: { fontSize: 20, fontWeight: '900' },

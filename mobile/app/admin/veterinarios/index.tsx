@@ -74,8 +74,8 @@ export default function AdminVeterinariosScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Veterinarios"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
                 actionIcon={Search}
+                actionLabel="Buscar veterinario"
                 onAction={handleSearch}
             />
 

@@ -125,7 +125,6 @@ export default function AgendarGroomingScreen() {
             <ScreenHeader
                 title="Agendar Cita"
                 subtitle="Spa & Grooming para tu mascota"
-                gradient={[theme.primary, theme.secondary]}
             />
 
             <ScrollView

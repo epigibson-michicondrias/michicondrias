@@ -58,7 +58,7 @@ export default function PetfriendlyScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="Lugares Petfriendly"
+                title="Pet-friendly"
                 onBack={goBack}
                 actionIcon={Plus}
                 onAction={goToNewPlace}

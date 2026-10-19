@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
@@ -10,7 +10,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import PatientPicker from '@/src/features/salud/PatientPicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { FlaskConical, TestTube2, CheckCircle2, Clock, PlusCircle, Edit3 } from 'lucide-react-native';
+import { FlaskConical, TestTube2, CheckCircle2, Clock, Plus, Edit3 } from 'lucide-react-native';
 
 export default function LaboratorioScreen() {
     const { theme } = useTheme();
@@ -33,14 +33,7 @@ export default function LaboratorioScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Laboratorio"
-                rightElement={
-                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Agregar" 
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
-                        onPress={() => setModalVisible(true)}
-                    >
-                        <PlusCircle size={20} color="#fff" />
-                    </TouchableOpacity>
-                }
+                actions={[{ icon: Plus, label: 'Nueva orden de laboratorio', onPress: () => setModalVisible(true) }]}
             />
 
             {/* Glassmorphic Tabs */}
@@ -134,11 +127,11 @@ export default function LaboratorioScreen() {
                         <KeyboardScreen>
                             <PatientPicker value={newTest.patientId} onChange={(id) => setNewTest({ ...newTest, patientId: id })} />
 
-                            <FormField label="Tipo de Prueba *" value={newTest.testType} onChangeText={t => setNewTest({...newTest, testType: t})} />
+                            <FormField label="Tipo de Prueba *" value={newTest.testType} onChangeText={t => setNewTest({...newTest, testType: t})} placeholder="Sangre, Orina, Genética..." />
 
-                            <FormField label="Nombre del Examen *" value={newTest.testName} onChangeText={t => setNewTest({...newTest, testName: t})} />
+                            <FormField label="Nombre del Examen *" value={newTest.testName} onChangeText={t => setNewTest({...newTest, testName: t})} placeholder="Ej. Hemograma Completo" />
 
-                            <FormField label="Notas / Descripción" value={newTest.description ?? ''} onChangeText={t => setNewTest({...newTest, description: t})} />
+                            <FormField label="Notas / Descripción" value={newTest.description ?? ''} onChangeText={t => setNewTest({...newTest, description: t})} placeholder="Instrucciones adicionales" multiline />
                         </KeyboardScreen>
 
                         <View style={styles.modalActions}>
@@ -158,9 +151,9 @@ export default function LaboratorioScreen() {
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Ingresar Resultados</Text>
                         
                         <KeyboardScreen>
-                            <FormField label="Resultados *" value={resultData.results} onChangeText={t => setResultData({...resultData, results: t})} />
+                            <FormField label="Resultados *" value={resultData.results} onChangeText={t => setResultData({...resultData, results: t})} placeholder="Ingresa los resultados del examen..." multiline />
 
-                            <FormField label="Notas Adicionales" value={resultData.notes} onChangeText={t => setResultData({...resultData, notes: t})} />
+                            <FormField label="Notas Adicionales" value={resultData.notes} onChangeText={t => setResultData({...resultData, notes: t})} placeholder="Observaciones..." multiline />
                         </KeyboardScreen>
 
                         <View style={styles.modalActions}>
@@ -219,7 +212,6 @@ const styles = StyleSheet.create({
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
     resultBox: { padding: 12, borderRadius: 12, borderWidth: 1, marginTop: 12 },
-    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     resultBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 10, borderRadius: 12, marginTop: 12 },
     resultBtnText: { fontSize: 13, fontWeight: '800' },
 });

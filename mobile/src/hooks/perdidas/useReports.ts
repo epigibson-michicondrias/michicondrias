@@ -7,7 +7,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getReports } from '@/src/services/perdidas';
 import type { LostPetReport } from '@/src/types/perdidas';
 
-export type FilterType = 'all' | 'lost' | 'found';
+/** `resolved` muestra los casos ya reunidos con su familia. */
+export type FilterType = 'all' | 'lost' | 'found' | 'resolved';
 export type ViewMode = 'map' | 'list';
 
 export function useReports() {
@@ -16,25 +17,28 @@ export function useReports() {
     const [filterType, setFilterType] = useState<FilterType>('all');
     const [filterSpecies, setFilterSpecies] = useState('all');
 
+    // Se traen todos los activos y se filtra aquí: así las cifras de las tarjetas no cambian al filtrar
     const { data: reports = [], isLoading, isError, refetch, isRefetching } = useQuery({
-        queryKey: ['lost-pet-reports', filterType],
-        queryFn: () => getReports(filterType === 'all' ? undefined : filterType),
+        queryKey: ['lost-pet-reports'],
+        queryFn: () => getReports(),
     });
 
     // El listado solo trae reportes activos: los reunidos se cuentan aparte para que la cifra sea real
-    const { data: resolvedReports = [] } = useQuery({
+    const { data: resolvedReports = [], isLoading: isLoadingResolved } = useQuery({
         queryKey: ['lost-pet-resolved'],
         queryFn: () => getReports(undefined, 'resolved'),
     });
 
     const filteredReports = useMemo(() => {
-        return reports.filter(r => {
+        const source = filterType === 'resolved' ? resolvedReports : reports;
+        return source.filter(r => {
+            const matchesType = filterType === 'all' || filterType === 'resolved' || r.report_type === filterType;
             const matchesSpecies = filterSpecies === 'all' || r.species === filterSpecies;
             const matchesSearch = r.pet_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (r.last_seen_location?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-            return matchesSpecies && matchesSearch;
+            return matchesType && matchesSpecies && matchesSearch;
         });
-    }, [reports, searchQuery, filterSpecies]);
+    }, [reports, resolvedReports, filterType, searchQuery, filterSpecies]);
 
     const stats = useMemo(() => ({
         lost: reports.filter(r => r.report_type === 'lost' && !r.is_resolved).length,
@@ -59,6 +63,17 @@ export function useReports() {
         setFilterSpecies(prev => prev === key ? 'all' : key);
     };
 
+    /** Toca una cifra para filtrar; tocarla de nuevo quita el filtro. */
+    const toggleFilterType = (key: FilterType) => {
+        setFilterType(prev => prev === key ? 'all' : key);
+    };
+
+    const clearFilters = () => {
+        setFilterType('all');
+        setFilterSpecies('all');
+        setSearchQuery('');
+    };
+
     const toggleViewMode = () => {
         setViewMode(prev => prev === 'map' ? 'list' : 'map');
     };
@@ -69,7 +84,8 @@ export function useReports() {
         filteredReports,
         stats,
         mapMarkers,
-        isLoading,
+        // Con el filtro «Reunidos» la lista sale de la segunda consulta
+        isLoading: filterType === 'resolved' ? isLoadingResolved : isLoading,
         isError,
         refetch,
         isRefetching,
@@ -78,9 +94,10 @@ export function useReports() {
         searchQuery,
         setSearchQuery,
         filterType,
-        setFilterType,
+        toggleFilterType,
         filterSpecies,
         toggleFilterSpecies,
+        clearFilters,
 
         // View
         viewMode,

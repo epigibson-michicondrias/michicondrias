@@ -72,7 +72,6 @@ export default function DiagnosticoIAScreen() {
             <ScreenHeader
                 title="Michi-IA Asistente"
                 leftElement={undefined}
-                rightElement={<View style={{ width: 44 }} />}
             />
 
             {/* Segmented Control */}

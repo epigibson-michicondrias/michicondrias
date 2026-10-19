@@ -58,7 +58,6 @@ export default function ClinicDetailScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Detalles de Clínica"
-                gradient={[theme.primary, theme.primary + 'CC']}
             />
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>

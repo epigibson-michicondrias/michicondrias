@@ -79,7 +79,6 @@ export default function TrainerDashboardScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Panel Entrenador"
-                rightElement={<View style={styles.placeholder} />}
             />
 
             {/* Quick Actions */}
@@ -148,7 +147,6 @@ export default function TrainerDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',

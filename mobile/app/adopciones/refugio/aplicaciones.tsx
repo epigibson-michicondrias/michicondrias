@@ -120,7 +120,7 @@ export default function RefugeApplicationsScreen() {
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Solicitudes del Refugio" />
+            <ScreenHeader title="Postulaciones" />
 
             <DataList
                 data={applications}

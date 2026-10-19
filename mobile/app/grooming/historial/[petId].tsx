@@ -150,7 +150,6 @@ export default function HistorialGroomingScreen() {
             <ScreenHeader
                 title="Historial"
                 subtitle="Grooming & Cuidado de Piel"
-                gradient={[theme.primary, theme.secondary]}
             />
 
             <DataList

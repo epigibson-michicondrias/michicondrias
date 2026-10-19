@@ -1,17 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Dimensions, ActivityIndicator, Linking, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Linking, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicsAndVets } from '@/src/hooks/directorio/useClinicsAndVets';
 import type { Clinic, Vet } from '@/src/types/directorio';
 import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building, Clock, Navigation, Star } from 'lucide-react-native';
 import DataList from '@/src/components/data/DataList';
-import BackButton from '@/src/components/BackButton';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
-// @ts-ignore
-import { LinearGradient } from 'expo-linear-gradient';
-
-const { width } = Dimensions.get('window');
 
 export default function DirectorioIndexScreen() {
     const router = useRouter();
@@ -208,15 +204,6 @@ export default function DirectorioIndexScreen() {
     const listHeaderComponent = (
         <>
             {/* Header */}
-            <View style={styles.header}>
-                <View style={styles.headerRow}>
-                    <BackButton onPress={() => router.back()} />
-                    <Text accessibilityRole="header" style={[styles.title, { color: theme.text }]}>Directorio Médico</Text>
-                </View>
-                <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                    Encuentra salud de calidad para tu mejor amigo
-                </Text>
-            </View>
 
             {/* Tabs */}
             <View style={styles.tabsContainer}>
@@ -357,18 +344,6 @@ export default function DirectorioIndexScreen() {
                     <Text style={styles.registerButtonText}>Registrar mi Clínica</Text>
                 </TouchableOpacity>
             )}
-
-            {/* Loading */}
-            {isLoading && (
-                <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
-            )}
-
-            {/* Results count */}
-            {!loadingClinics && !loadingVets && (
-                <Text style={[styles.resultsCount, { color: theme.textMuted }]}>
-                    {resultsCount} resultados
-                </Text>
-            )}
         </>
     );
 
@@ -387,12 +362,7 @@ export default function DirectorioIndexScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <LinearGradient
-                colors={[theme.primaryLight, theme.background]}
-                style={StyleSheet.absoluteFillObject}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 0.4 }}
-            />
+            <ScreenHeader title="Directorio médico" subtitle="Encuentra salud de calidad para tu mejor amigo" />
 
             {activeTab === 'clinics' ? (
                 <DataList<Clinic>
@@ -425,24 +395,11 @@ const styles = StyleSheet.create({
     filterScroll: { flexGrow: 0, marginBottom: 8 },
     resultCount: { fontSize: 12, fontWeight: '600', paddingHorizontal: 24, marginBottom: 8 },
     container: { flex: 1 },
-    header: {
-        paddingTop: 60,
-        paddingHorizontal: 24,
-        paddingBottom: 8,
-    },
     headerTop: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 8,
     },
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 6,
-    },
-    title: { fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
-    subtitle: { fontSize: 14, marginTop: 4, fontWeight: '500' },
     tabsContainer: {
         flexDirection: 'row',
         paddingHorizontal: 24,
@@ -517,12 +474,6 @@ const styles = StyleSheet.create({
         borderRadius: 14,
     },
     registerButtonText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    resultsCount: {
-        fontSize: 12,
-        fontWeight: '600',
-        paddingHorizontal: 24,
-        marginBottom: 12,
-    },
     list: { paddingHorizontal: 24, paddingBottom: 100 },
     card: {
         borderRadius: 20,

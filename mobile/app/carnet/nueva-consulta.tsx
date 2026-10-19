@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useConsultationForm } from '@/src/hooks/carnet/useConsultationForm';
 import { useTheme } from '@/src/hooks/useTheme';
-import Button from '@/src/components/Button';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Save, Plus, Trash2, ClipboardList, Weight, Thermometer, ShoppingBag, Info, Activity } from 'lucide-react-native';
+import { spacing } from '@/constants/design';
+import Button from '@/src/components/Button';
+import { Plus, Trash2, ClipboardList, Weight, Thermometer, ShoppingBag, Info, Activity } from 'lucide-react-native';
 
 export default function NuevaConsultaScreen() {
     const { theme } = useTheme();
@@ -33,9 +34,6 @@ export default function NuevaConsultaScreen() {
             <ScreenContainer>
                 <ScreenHeader
                     title={isEditing ? 'Editar Consulta' : 'Nueva Consulta'}
-                    rightElement={
-                        <Button label="Guardar" onPress={handleSave} loading={isSaving} icon={<Save size={18} color={theme.onPrimary} />} />
-                    }
                 />
 
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -210,6 +208,7 @@ export default function NuevaConsultaScreen() {
                             La información registrada será visible para el dueño de la mascota desde su Carnet Digital.
                         </Text>
                     </View>
+                    <Button label="Guardar consulta" onPress={handleSave} loading={isSaving} fullWidth style={styles.saveBtn} />
                 </ScrollView>
             </ScreenContainer>
         </KeyboardAvoidingView>
@@ -217,13 +216,7 @@ export default function NuevaConsultaScreen() {
 }
 
 const styles = StyleSheet.create({
-    saveBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+    saveBtn: { marginTop: spacing.xl },
     scrollContent: {
         padding: 24,
         paddingBottom: 40,

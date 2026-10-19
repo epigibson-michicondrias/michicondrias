@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Scissors, Calendar, Clock, ChevronRight, Sparkles } from 'lucide-react-native';
+import { Scissors, Calendar, Clock, ChevronRight, Plus } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { useGroomingClient } from '@/src/hooks/grooming/useGroomingClient';
@@ -179,8 +179,8 @@ export default function MisCitasGroomingScreen() {
             <ScreenHeader
                 title="Mis Citas"
                 subtitle="Grooming & Estética"
-                gradient={[theme.primary, theme.secondary]}
-                actionIcon={Sparkles}
+                actionIcon={Plus}
+                actionLabel="Agendar cita"
                 onAction={() => router.push('/grooming/agendar' as any)}
             />
 

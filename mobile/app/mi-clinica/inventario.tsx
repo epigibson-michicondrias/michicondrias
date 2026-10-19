@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import FormField from '@/src/components/FormField';
@@ -36,14 +36,7 @@ export default function InventarioScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Inventario Médico"
-                rightElement={
-                    <TouchableOpacity accessibilityRole="button" accessibilityLabel={showSearch ? "Cerrar búsqueda" : "Buscar en el inventario"}
-                        style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
-                        onPress={toggleSearch}
-                    >
-                        {showSearch ? <X size={20} color="#fff" /> : <Search size={20} color="#fff" />}
-                    </TouchableOpacity>
-                }
+                actions={[{ icon: showSearch ? X : Search, label: showSearch ? 'Cerrar búsqueda' : 'Buscar en el inventario', onPress: toggleSearch }]}
             />
 
             {showSearch && (
@@ -134,20 +127,20 @@ export default function InventarioScreen() {
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Nuevo Producto</Text>
                         
                         <ScrollView showsVerticalScrollIndicator={false}>
-                            <FormField label="Nombre del Producto *" value={newItem.name} onChangeText={t => setNewItem({...newItem, name: t})} />
+                            <FormField label="Nombre del Producto *" value={newItem.name} onChangeText={t => setNewItem({...newItem, name: t})} placeholder="Ej. Amoxicilina 500mg" />
 
-                            <FormField label="Categoría" value={newItem.category ?? ''} onChangeText={t => setNewItem({...newItem, category: t})} />
+                            <FormField label="Categoría" value={newItem.category ?? ''} onChangeText={t => setNewItem({...newItem, category: t})} placeholder="Ej. Antibióticos" />
 
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={{ flex: 1 }}>
-                                    <FormField label="Stock Inicial" value={newItem.currentStock?.toString() ?? ''} onChangeText={t => setNewItem({...newItem, currentStock: parseInt(t) || 0})} />
+                                    <FormField label="Stock Inicial" value={newItem.currentStock?.toString() ?? ''} onChangeText={t => setNewItem({...newItem, currentStock: parseInt(t) || 0})} keyboardType="numeric" />
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <FormField label="Stock Mínimo" value={newItem.minStock?.toString() ?? ''} onChangeText={t => setNewItem({...newItem, minStock: parseInt(t) || 0})} />
+                                    <FormField label="Stock Mínimo" value={newItem.minStock?.toString() ?? ''} onChangeText={t => setNewItem({...newItem, minStock: parseInt(t) || 0})} keyboardType="numeric" />
                                 </View>
                             </View>
 
-                            <FormField label="Unidad de medida *" value={newItem.unit ?? ''} onChangeText={t => setNewItem({...newItem, unit: t})} />
+                            <FormField label="Unidad de medida *" value={newItem.unit ?? ''} onChangeText={t => setNewItem({...newItem, unit: t})} placeholder="ml, mg, frasco, caja..." />
                         </ScrollView>
 
                         <View style={styles.modalActions}>
@@ -170,10 +163,10 @@ export default function InventarioScreen() {
                             <FormField label="Categoría" value={editingItem?.category || ''} onChangeText={t => setEditingItem({ ...editingItem, category: t })} />
                             <View style={{ flexDirection: 'row', gap: 12 }}>
                                 <View style={{ flex: 1 }}>
-                                    <FormField label="Stock actual" value={String(editingItem?.currentStock ?? 0)} onChangeText={t => setEditingItem({ ...editingItem, currentStock: Math.max(0, parseInt(t) || 0) })} />
+                                    <FormField label="Stock actual" value={String(editingItem?.currentStock ?? 0)} onChangeText={t => setEditingItem({ ...editingItem, currentStock: Math.max(0, parseInt(t) || 0) })} keyboardType="numeric" />
                                 </View>
                                 <View style={{ flex: 1 }}>
-                                    <FormField label="Stock mínimo" value={String(editingItem?.minStock ?? 0)} onChangeText={t => setEditingItem({ ...editingItem, minStock: Math.max(0, parseInt(t) || 0) })} />
+                                    <FormField label="Stock mínimo" value={String(editingItem?.minStock ?? 0)} onChangeText={t => setEditingItem({ ...editingItem, minStock: Math.max(0, parseInt(t) || 0) })} keyboardType="numeric" />
                                 </View>
                             </View>
                             <FormField label="Unidad de medida" value={editingItem?.unit || ''} onChangeText={t => setEditingItem({ ...editingItem, unit: t })} />
@@ -257,5 +250,4 @@ const styles = StyleSheet.create({
     cancelBtnText: { fontSize: 15, fontWeight: '700' },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     saveBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
 });

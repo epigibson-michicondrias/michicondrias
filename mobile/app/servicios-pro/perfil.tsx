@@ -1,13 +1,13 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TextInput, Switch, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import Button from '@/src/components/Button';
 import { useServiceProfile } from '@/src/hooks/servicios-pro/useServiceProfile';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Save } from 'lucide-react-native';
+import { spacing } from '@/constants/design';
 
 export default function ProfessionalProfileScreen() {
     const router = useRouter();
@@ -37,11 +37,6 @@ export default function ProfessionalProfileScreen() {
                     <ScreenHeader
                         title="Configuración Prof."
                         subtitle="Tus servicios y precios"
-                        rightElement={
-                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guardar" onPress={handleSave}>
-                                {saving ? <ActivityIndicator size="small" color={theme.primary} /> : <Save size={20} color={theme.primary} />}
-                            </TouchableOpacity>
-                        }
                     />
 
                     <View style={styles.content}>
@@ -165,6 +160,7 @@ export default function ProfessionalProfileScreen() {
                             </View>
                         </View>
                     </View>
+                    <Button label="Guardar perfil" onPress={handleSave} loading={saving} fullWidth style={styles.saveBtn} />
                 </ScrollView>
             </ScreenContainer>
         </KeyboardAvoidingView>
@@ -172,7 +168,7 @@ export default function ProfessionalProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-    saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+    saveBtn: { marginTop: spacing.xl },
     content: { padding: 24, paddingBottom: 100 },
     section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1 },
     groupTitle: { fontSize: 12, fontWeight: '800', marginBottom: 12, marginLeft: 12, letterSpacing: 1 },

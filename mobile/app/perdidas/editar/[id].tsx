@@ -67,7 +67,7 @@ export default function EditarReporteScreen() {
 
                 <View style={styles.formContainer}>
                     <View style={styles.inputGroup}>
-                        <FormField label="Nombre o Identificador" value={form.pet_name} onChangeText={(t) => updateField('pet_name', t)} />
+                        <FormField label="Nombre o Identificador" value={form.pet_name} onChangeText={(t) => updateField('pet_name', t)} placeholder="Ej. Firulais" />
                     </View>
 
                     <FormSelect
@@ -79,10 +79,10 @@ export default function EditarReporteScreen() {
 
                     <View style={styles.row}>
                         <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <FormField label="Raza" value={form.breed} onChangeText={(t) => updateField('breed', t)} />
+                            <FormField label="Raza" value={form.breed} onChangeText={(t) => updateField('breed', t)} placeholder="Ej. Husky" />
                         </View>
                         <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <FormField label="Color" value={form.color} onChangeText={(t) => updateField('color', t)} />
+                            <FormField label="Color" value={form.color} onChangeText={(t) => updateField('color', t)} placeholder="Ej. Blanco" />
                         </View>
                     </View>
 
@@ -101,15 +101,15 @@ export default function EditarReporteScreen() {
                     />
 
                     <View style={styles.inputGroup}>
-                        <FormField label="Última ubicación conocida" value={form.last_seen_location} onChangeText={(t) => updateField('last_seen_location', t)} />
+                        <FormField label="Última ubicación conocida" value={form.last_seen_location} onChangeText={(t) => updateField('last_seen_location', t)} placeholder="Ej. Parque México" />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <FormField label="Teléfono de Contacto" value={form.contact_phone} onChangeText={(t) => updateField('contact_phone', t)} />
+                        <FormField label="Teléfono de Contacto" value={form.contact_phone} onChangeText={(t) => updateField('contact_phone', t)} placeholder="Tus 10 dígitos" keyboardType="phone-pad" />
                     </View>
 
                     <View style={styles.inputGroup}>
-                        <FormField label="Detalles Extra" value={form.description} onChangeText={(t) => updateField('description', t)} />
+                        <FormField label="Detalles Extra" value={form.description} onChangeText={(t) => updateField('description', t)} placeholder="Comportamiento, señas particulares..." multiline numberOfLines={4} />
                     </View>
                 </View>
             </ScrollView>

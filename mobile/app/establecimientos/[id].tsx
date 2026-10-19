@@ -106,17 +106,12 @@ export default function VenueDetailScreen() {
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
             <ScreenHeader
-                title="Detalle del Establecimiento"
-                rightElement={
-                    canEdit ? (
-                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Editar establecimiento"
-                            style={[styles.editBtn, { backgroundColor: theme.primary + '20' }]}
-                            onPress={() => router.push({ pathname: '/establecimientos/editar/[id]', params: { id: venue.id } } as any)}
-                        >
-                            <Edit3 size={18} color={theme.primary} />
-                        </TouchableOpacity>
-                    ) : undefined
-                }
+                title="Establecimiento"
+                actions={canEdit ? [{
+                    icon: Edit3,
+                    label: 'Editar establecimiento',
+                    onPress: () => router.push({ pathname: '/establecimientos/editar/[id]', params: { id: venue.id } } as any),
+                }] : undefined}
             />
 
             {/* Venue Header */}
@@ -330,13 +325,6 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
-    },
-    editBtn: {
-        width: 42,
-        height: 42,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     venueHeader: {
         alignItems: 'center',

@@ -114,8 +114,8 @@ export default function AdminUsersScreen() {
             <ScreenHeader
                 title="Usuarios"
                 subtitle={`${users.length} Registrados`}
-                gradient={[theme.primary, theme.primary + 'DD', theme.primary + 'AA']}
                 actionIcon={UserPlus}
+                actionLabel="Nuevo usuario"
                 onAction={openCreateModal}
             />
 
@@ -306,7 +306,6 @@ const styles = StyleSheet.create({
     statsContainer: {
         flexDirection: 'row',
         paddingHorizontal: 20,
-        marginTop: -12,
         gap: 12,
         marginBottom: 20,
     },

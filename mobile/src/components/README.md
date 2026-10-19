@@ -3,13 +3,16 @@
 Piezas base de la app. **Regla de oro:** si un patrón de UI se repite, se extrae aquí y se reutiliza; no se copian
 estilos entre pantallas. Los colores salen de `useTheme()` (`@/src/hooks/useTheme`) y las medidas/tipografía de
 `@/constants/design` (`spacing`, `radius`, `type`, `shadow`, `layout`, `accents`). Nada de `constants/Colors`, hex
-sueltos ni `fontSize` inventados.
+sueltos ni `fontSize` inventados. El color de identidad de cada módulo vive en `src/constants/modules.ts`
+(`MODULE_ACCENTS`, y `ROLE_ACCENTS` por rol): lo usan Explorar, las insignias de rol y las cabeceras hero, que lo deducen
+de la ruta con `useScreenAccent`.
 
 ## Layout
 | Componente | Para qué |
 |---|---|
 | `layout/ScreenContainer` | Contenedor de **toda** pantalla. Incluye `QueryErrorBanner` (reintentar) |
-| `layout/ScreenHeader` | Título con volver. `accent` pinta la cabecera hero con el degradado del color del módulo; `gradient` usa el `heroGradient` azul del tema |
+| `layout/ScreenHeader` | Cabecera estándar: volver + título/subtítulo + `actions` (lista de botones de ícono con `loading`). Hero por defecto, con el color que deduce la ruta (módulo o rol, ver `useScreenAccent`); `variant="plain"` para casos raros. `module`/`accent` solo para forzar otro color |
+| `layout/HeroBackground` | Fondo de degradado con esquinas redondeadas; toma el color de `module`/`accent` o de la ruta y pone la barra de estado en claro. Encima: textos `theme.onHero` e `IconButton variant="glass"` |
 | `KeyboardScreen` | Formularios con scroll y teclado (campos sin tapar) |
 | `AuthShell` | Esqueleto de las pantallas de `(auth)`: degradado, teclado y scroll (lo usa U3) |
 | `RoleGuard` | Protege pantallas pro/admin según `ROUTE_ACCESS` de `roleTools` |
@@ -17,11 +20,14 @@ sueltos ni `fontSize` inventados.
 ## Acciones y contenido
 | Componente | Para qué |
 |---|---|
+| `IconButton` | Botón de solo ícono de 44 px. `variant` subtle/surface/primary/glass · `loading` · `disabled`. En cabeceras se usa vía `actions` de `ScreenHeader` |
+| `StatTile` | Cifra con ícono y etiqueta; con `onPress`/`active` funciona como filtro |
+| `BackButton` | `IconButton` con chevron y etiqueta "Volver" |
 | `Button` | Acción. `variant` primary/secondary/ghost/danger/gold · `size` · `loading` · `icon` · `fullWidth` |
 | `Card` | Tarjeta (`onPress` la hace tocable, `elevated`, `flush`) |
 | `ListRow` | Fila de menú/ajustes: `icon`, `label`, `desc`, `badge`, `destructive` |
 | `SectionHeader` | Título de sección con `overline`/`icon` y acción opcional |
-| `Badge` / `FilterChip` | Etiqueta de estado / chip de filtro |
+| `Badge` / `FilterChip` | Etiqueta de estado (`variant` filled/outlined/solid; `solid` para encima de fotos) / chip de filtro |
 | `EmptyState` | Vacío con `icon`, `title`, `subtitle` y **una** acción |
 | `SearchBar` | Búsqueda con botón de borrar |
 | `LoadingOverlay` | Carga de pantalla completa (para transiciones puntuales) |

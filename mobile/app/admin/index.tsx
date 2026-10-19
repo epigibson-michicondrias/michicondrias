@@ -138,7 +138,6 @@ export default function AdminScreen() {
             <ScreenHeader
                 title="Panel Admin"
                 showBack
-                gradient={[theme.primary, theme.primary + 'CC', theme.primary + '99']}
             />
 
             <ScrollView 
@@ -232,7 +231,6 @@ const styles = StyleSheet.create({
     statsStrip: {
         flexDirection: 'row',
         paddingHorizontal: 24,
-        marginTop: -14,
         gap: 12,
     },
     statItem: {

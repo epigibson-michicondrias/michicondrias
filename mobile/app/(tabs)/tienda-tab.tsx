@@ -4,9 +4,10 @@ import {
   Image, TextInput, Dimensions
 } from 'react-native';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-import { useTheme, useHeroStatusBar } from '@/src/hooks/useTheme';
+import { useTheme } from '@/src/hooks/useTheme';
 import { useShopTab } from '@/src/hooks/ecommerce/useShopTab';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import HeroStatusBar from '@/src/components/layout/HeroStatusBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShoppingBag, Search, ShoppingCart, Package, Star, ArrowRight, X } from 'lucide-react-native';
@@ -16,7 +17,6 @@ const CARD_WIDTH = Math.floor((width - 61) / 2);
 
 export default function TiendaTabScreen() {
   const { theme } = useTheme();
-  useHeroStatusBar();
   const insets = useSafeAreaInsets();
   const {
     selectedCategory,
@@ -38,6 +38,7 @@ export default function TiendaTabScreen() {
 
   return (
     <ScreenContainer>
+      <HeroStatusBar />
 
       <KeyboardScreen contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
