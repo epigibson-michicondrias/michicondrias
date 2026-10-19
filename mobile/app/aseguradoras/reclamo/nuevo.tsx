@@ -28,7 +28,7 @@ import {
     Receipt,
     Sparkles,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevoReclamoScreen() {
     const { theme } = useTheme();
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     section: {

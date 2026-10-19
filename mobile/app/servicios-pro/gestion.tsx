@@ -12,7 +12,7 @@ import FilterChip from '@/src/components/FilterChip';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Clock, ClipboardList, User, Activity } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ProfessionalGestionScreen() {
     const router = useRouter();
@@ -92,5 +92,5 @@ const styles = StyleSheet.create({
     statValue: { fontSize: font.xxl, fontWeight: '800' },
     statLabel: { fontSize: font.sm, fontWeight: '700' },
     chips: { gap: spacing.sm, paddingBottom: spacing.lg },
-    list: { paddingHorizontal: spacing.xxl, paddingTop: spacing.lg, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: 100 },
 });

@@ -7,7 +7,7 @@ import { usePatientHistory } from '@/src/hooks/clinica/usePatientHistory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Plus, Trash2, Stethoscope, Pill, Save } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function GenerarFichaMedicaScreen() {
     const { id, appointment_id } = useLocalSearchParams();
@@ -186,7 +186,7 @@ export default function GenerarFichaMedicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
     infoBanner: { flexDirection: 'row', alignItems: 'center', padding: spacing.xl, borderRadius: 24, gap: spacing.lg, marginBottom: spacing.xxxl },
     bannerTitle: { fontSize: font.xl, fontWeight: '800' },
     bannerSub: { fontSize: font.md, fontWeight: '600' },

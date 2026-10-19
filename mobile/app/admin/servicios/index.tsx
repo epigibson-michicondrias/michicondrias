@@ -10,7 +10,7 @@ import SearchBar from '@/src/components/SearchBar';
 import { Briefcase, CheckCircle2, Layers } from 'lucide-react-native';
 import StatTile from '@/src/components/StatTile';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { spacing, font } from '@/constants/design';
+import { spacing, font, layout } from '@/constants/design';
 
 const CATEGORY_COLORS: Record<string, string> = {
     Médico: '#3b82f6',
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     headerStats: {
         flexDirection: 'row',
         gap: spacing.md,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.md,
     },
     searchBarContainer: { 

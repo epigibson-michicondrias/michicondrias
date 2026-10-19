@@ -7,7 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import { useMyApplications } from '@/src/hooks/adopciones/useMyApplications';
 import type { AdoptionRequest } from '@/src/types/adopciones';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -180,7 +180,7 @@ export default function MisSolicitudesScreen() {
 }
 
 const styles = StyleSheet.create({
-    liveIndicatorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.xxl, marginBottom: spacing.md },
+    liveIndicatorRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: layout.screenPadding, marginBottom: spacing.md },
     liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981' },
     liveText: { fontSize: font.xs, fontWeight: '800', color: '#10b981', textTransform: 'uppercase' },
     list: { padding: spacing.xl, paddingBottom: spacing.huge },

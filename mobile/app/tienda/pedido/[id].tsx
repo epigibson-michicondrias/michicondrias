@@ -11,7 +11,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Package, MapPin, Calendar, CreditCard, ChevronRight, XCircle } from 'lucide-react-native';
 import { SUPPORT_EMAIL } from '@/src/constants/support';
 import { formatCurrency } from '@/src/utils/formatters';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PedidoDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
         fontSize: font.base,
     },
     scrollContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 60,
     },
     ticketCard: {

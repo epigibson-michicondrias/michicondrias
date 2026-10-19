@@ -28,8 +28,8 @@ export default function StatTile({ icon: Icon, value, label, color, onPress, act
     const content = (
         <>
             <View style={styles.top}>
-                <Text style={[type.h2, { color: active ? theme.onPrimary : c }]}>{value}</Text>
-                <Icon size={layout.icon.md} color={active ? theme.onPrimary : c} />
+                <Text style={[type.title, styles.value, { color: active ? theme.onPrimary : c }]}>{value}</Text>
+                <Icon size={layout.icon.sm} color={active ? theme.onPrimary : c} />
             </View>
             <Text style={[type.caption, styles.label, { color: active ? theme.onPrimary : theme.textMuted }]} numberOfLines={1}>
                 {label}
@@ -65,10 +65,12 @@ const styles = StyleSheet.create({
         flex: 1,
         minHeight: layout.minTouch,
         gap: spacing.xxs,
-        padding: spacing.md,
-        borderRadius: radius.lg,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        borderRadius: radius.md,
         borderWidth: 1,
     },
     top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    value: { fontWeight: '800' },
     label: { fontWeight: '700' },
 });

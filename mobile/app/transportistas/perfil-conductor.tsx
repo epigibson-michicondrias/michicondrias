@@ -18,7 +18,7 @@ import {
   Save,
   UserCircle,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PerfilConductorScreen() {
   const { theme } = useTheme();
@@ -185,7 +185,7 @@ export default function PerfilConductorScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     paddingBottom: 100,
   },
   statusBanner: {

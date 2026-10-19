@@ -8,7 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import DatePicker from '@/src/components/DatePicker';
 import { Calendar, MapPin, Stethoscope, Heart, CheckCircle, AlertCircle } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function AgendarCitaScreen() {
     const { theme } = useTheme();
@@ -407,14 +407,14 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     errorText: {
         fontSize: font.xxl,
         textAlign: 'center',
     },
     clinicCard: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.xl,
         padding: spacing.xl,
         borderRadius: 16,
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     card: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.xl,
         padding: spacing.xl,
         borderRadius: 16,
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     buttonContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
     },
     agendarButton: {

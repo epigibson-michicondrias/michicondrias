@@ -35,7 +35,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const FILTERS: { key: ProviderFilter; label: string; icon: string }[] = [
     { key: 'all',         label: 'Todas',       icon: '' },
@@ -370,7 +370,7 @@ function getStatusColor(status: string | undefined, theme: any): { color: string
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
 
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
     modalContent: {
         borderTopLeftRadius: 28,
         borderTopRightRadius: 28,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.xl,
         maxHeight: '90%',
     },

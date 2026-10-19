@@ -12,7 +12,7 @@ import SearchBar from '@/src/components/SearchBar';
 import { Stars } from '@/src/components/reviews/ReviewsSection';
 
 import { useAuth } from '@/src/contexts/AuthContext';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EstilistasScreen() {
     const router = useRouter();
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing.xl,
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     card: {

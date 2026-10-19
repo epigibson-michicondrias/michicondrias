@@ -9,7 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { Plus, Users, Dumbbell, Calendar, ChevronRight } from 'lucide-react-native';
 import type { TrainingEnrollment } from '@/src/services/training';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const statusColorOf = (status: string, theme: any): string =>
     ({ active: theme.success, completed: theme.info, cancelled: theme.error } as Record<string, string>)[status] || theme.warning;
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     },
     actionsRow: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.xl,
     },
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     },
     statsContainer: {
         flexDirection: 'row',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.md,
     },
     sectionTitle: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
         fontWeight: '800',
     },
     listContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
         gap: spacing.md,
     },

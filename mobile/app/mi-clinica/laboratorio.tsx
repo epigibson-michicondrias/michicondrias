@@ -11,7 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import PatientPicker from '@/src/features/salud/PatientPicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { FlaskConical, TestTube2, CheckCircle2, Clock, Plus, Edit3 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function LaboratorioScreen() {
     const { theme } = useTheme();
@@ -171,7 +171,7 @@ export default function LaboratorioScreen() {
 }
 
 const styles = StyleSheet.create({
-    tabsWrapper: { paddingHorizontal: spacing.xxl, paddingVertical: spacing.lg },
+    tabsWrapper: { paddingHorizontal: layout.screenPadding, paddingVertical: spacing.lg },
     tabsContainer: {
         flexDirection: 'row',
         borderRadius: 16,

@@ -13,7 +13,7 @@ import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import FilterChip from '@/src/components/FilterChip';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EstablecimientosScreen() {
     const router = useRouter();
@@ -92,7 +92,7 @@ export default function EstablecimientosScreen() {
                 subtitle="Encuentra los mejores lugares para tu mascota"
             />
 
-            <View style={{ marginHorizontal: spacing.xxl, marginBottom: spacing.xl }}>
+            <View style={{ marginHorizontal: layout.screenPadding, marginBottom: spacing.xl }}>
                 <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -101,7 +101,7 @@ export default function EstablecimientosScreen() {
             </View>
 
             {isVenueOwner && (
-                <View style={{ flexDirection: 'row', gap: spacing.sm, marginHorizontal: spacing.xxl, marginBottom: spacing.md }}>
+                <View style={{ flexDirection: 'row', gap: spacing.sm, marginHorizontal: layout.screenPadding, marginBottom: spacing.md }}>
                     <FilterChip label="Todos" active={!onlyMine} onPress={() => setOnlyMine(false)} />
                     <FilterChip label="Mis locales" active={onlyMine} onPress={() => setOnlyMine(true)} />
                 </View>
@@ -143,7 +143,7 @@ export default function EstablecimientosScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     venueCard: {

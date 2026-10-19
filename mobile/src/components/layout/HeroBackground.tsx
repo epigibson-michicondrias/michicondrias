@@ -44,8 +44,8 @@ export default function HeroBackground({ children, module, accent, style }: Hero
 
 const styles = StyleSheet.create({
     wrapper: {
-        borderBottomLeftRadius: radius.xxl,
-        borderBottomRightRadius: radius.xxl,
+        borderBottomLeftRadius: radius.xl,
+        borderBottomRightRadius: radius.xl,
         paddingBottom: spacing.xs,
         ...shadow.raised,
     },

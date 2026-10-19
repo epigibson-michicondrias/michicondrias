@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GettingStartedCard from '@/src/components/GettingStartedCard';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
-import { spacing, radius, type, font } from '@/constants/design';
+import { spacing, radius, type, font, layout } from '@/constants/design';
 
 // Helper to get beautiful, high-quality placeholders by species
 const getPetPlaceholder = (species: string) => {
@@ -141,7 +141,7 @@ export default function DashboardScreen() {
               activeOpacity={0.85}
               accessibilityRole="button"
               onPress={() => router.push((proOnboarding === 'approved' ? '/perfil/partner' : '/perfil/verificacion') as any)}
-              style={[styles.actionCard, { width: 'auto', alignSelf: 'stretch', flexBasis: 'auto', marginHorizontal: spacing.xxl, flexDirection: 'row', alignItems: 'center', gap: spacing.lg, backgroundColor: theme.surface, borderColor: theme.accent }]}
+              style={[styles.actionCard, { width: 'auto', alignSelf: 'stretch', flexBasis: 'auto', marginHorizontal: layout.screenPadding, flexDirection: 'row', alignItems: 'center', gap: spacing.lg, backgroundColor: theme.surface, borderColor: theme.accent }]}
             >
               <View style={[styles.actionIconBox, { backgroundColor: theme.accentLight, marginBottom: 0 }]}>
                 {proOnboarding === 'approved' ? <Handshake size={24} color={theme.accent} /> : <XCircle size={24} color={theme.error} />}
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     zIndex: 10,
   },
   topBarBtn: {
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   notifBadgeText: { ...type.label, letterSpacing: 0 }, // color: theme.onHero (inline)
 
   /* hero welcome */
-  heroContainer: { paddingHorizontal: spacing.xxl, marginTop: spacing.xxxl },
+  heroContainer: { paddingHorizontal: layout.screenPadding, marginTop: spacing.xxxl },
   glassCard: {
     padding: spacing.xxl,
     borderRadius: 28,
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginBottom: spacing.lg,
   },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   },
   petTagText: { fontSize: font.xs, fontWeight: '800', textTransform: 'uppercase' }, // color: theme.onHero (inline)
   emptyPets: {
-    marginHorizontal: spacing.xxl,
+    marginHorizontal: layout.screenPadding,
     height: 180,
     borderRadius: 32,
     borderWidth: 2,
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   actionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     gap: spacing.lg,
   },
   actionCard: {
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
   actionTitle: { fontSize: font.base, fontWeight: '800' },
 
   /* citas */
-  citasList: { paddingHorizontal: spacing.xxl, gap: spacing.md },
+  citasList: { paddingHorizontal: layout.screenPadding, gap: spacing.md },
   citaCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
   },
   citaStatusText: { fontSize: font.xs, fontWeight: '800' },
   emptyCitas: {
-    marginHorizontal: spacing.xxl,
+    marginHorizontal: layout.screenPadding,
     borderRadius: 28,
     borderWidth: 1,
     padding: spacing.xxxl,
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   emptyCitasDesc: { fontSize: font.base, fontWeight: '500', textAlign: 'center' },
   emptyCitasBtn: {
     marginTop: spacing.sm,
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     paddingVertical: spacing.md,
     borderRadius: 16,
   },

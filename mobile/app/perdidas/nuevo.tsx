@@ -17,7 +17,7 @@ import { createReport, getPerdidasPresignedUrl } from '../../src/services/perdid
 import { useAuth } from '../../src/contexts/AuthContext';
 import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingTop: 60,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.xl,
     },
     title: {

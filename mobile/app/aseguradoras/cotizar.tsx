@@ -24,7 +24,7 @@ import {
     CreditCard,
     ArrowRight,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function CotizarScreen() {
     const { theme } = useTheme();
@@ -253,7 +253,7 @@ export default function CotizarScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     section: {

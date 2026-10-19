@@ -24,7 +24,7 @@ import {
     CheckCircle,
     CheckCircle2,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function GestionScreen() {
     const { theme } = useTheme();
@@ -286,14 +286,14 @@ export default function GestionScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     formContainer: {
         flex: 1,
     },
     formContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     formCard: {

@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export interface ReviewItem {
     id: string;
@@ -121,7 +121,7 @@ export default function ReviewsSection({ title = 'Reseñas', average, count, rev
 }
 
 const styles = StyleSheet.create({
-    card: { marginHorizontal: spacing.xxl, marginBottom: spacing.lg, padding: spacing.xl, borderRadius: 16, borderWidth: 1, gap: spacing.md },
+    card: { marginHorizontal: layout.screenPadding, marginBottom: spacing.lg, padding: spacing.xl, borderRadius: 16, borderWidth: 1, gap: spacing.md },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     title: { fontSize: font.xxl, fontWeight: '700' },
     avgBox: { alignItems: 'flex-end', gap: spacing.xxs },

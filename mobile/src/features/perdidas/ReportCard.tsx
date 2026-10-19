@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         borderWidth: 1,
     },
-    imageBox: { height: 130, width: '100%' },
+    imageBox: { height: 112, width: '100%' },
     image: { width: '100%', height: '100%' },
     noImage: { alignItems: 'center', justifyContent: 'center' },
     badgeLeft: { position: 'absolute', top: spacing.sm, left: spacing.sm },

@@ -8,7 +8,7 @@ import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck
 import DataList from '@/src/components/data/DataList';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function DirectorioIndexScreen() {
     const router = useRouter();
@@ -394,7 +394,7 @@ export default function DirectorioIndexScreen() {
 
 const styles = StyleSheet.create({
     filterScroll: { flexGrow: 0, marginBottom: spacing.sm },
-    resultCount: { fontSize: font.md, fontWeight: '600', paddingHorizontal: spacing.xxl, marginBottom: spacing.sm },
+    resultCount: { fontSize: font.md, fontWeight: '600', paddingHorizontal: layout.screenPadding, marginBottom: spacing.sm },
     container: { flex: 1 },
     headerTop: {
         flexDirection: 'row',
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     },
     tabsContainer: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.lg,
         gap: spacing.md,
     },
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.md,
         paddingHorizontal: spacing.lg,
         height: 50,
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     searchInput: { flex: 1, fontSize: font.lg, fontWeight: '500' },
     filterRow: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.lg,
         gap: spacing.sm,
     },
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     },
     filterText: { fontSize: font.base, fontWeight: '700' },
     miClinicaBanner: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.md,
         padding: spacing.lg,
         borderRadius: 18,
@@ -469,13 +469,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: spacing.sm,
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.lg,
         paddingVertical: spacing.lg,
         borderRadius: 14,
     },
     registerButtonText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
-    list: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
     card: {
         borderRadius: 20,
         padding: spacing.xl,

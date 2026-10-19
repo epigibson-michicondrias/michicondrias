@@ -17,7 +17,7 @@ import {
     AlertTriangle,
     Heart,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     },
     statsStrip: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
     },
     statItem: {
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     },
     groupSection: {
         marginTop: spacing.xxl,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     },
     quickSection: {
         marginTop: spacing.xxxl,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     quickGrid: {
         flexDirection: 'row',

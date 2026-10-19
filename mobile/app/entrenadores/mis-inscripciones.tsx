@@ -8,7 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { BookOpen, PawPrint, Calendar, TrendingUp, ChevronRight } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const STATUS_LABEL: Record<string, string> = { active: 'Activo', completed: 'Completado', cancelled: 'Cancelado', pending: 'Pendiente' };
 const statusColorOf = (status: string, theme: any): string =>
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     },
     loadingText: { fontSize: font.xl },
     listContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
         gap: spacing.lg,
     },

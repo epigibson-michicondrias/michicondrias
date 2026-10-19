@@ -28,7 +28,7 @@ import {
     ClipboardList,
     X,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const STATUS_INFO: Record<string, { label: string; color: string; icon: any }> = {
     pending: { label: 'Pendiente', color: '#f59e0b', icon: ClipboardList },
@@ -386,11 +386,11 @@ export default function GoalManagementScreen() {
 }
 
 const styles = StyleSheet.create({
-    enrollActions: { flexDirection: 'row', gap: spacing.md, marginHorizontal: spacing.xxl, marginBottom: spacing.lg },
+    enrollActions: { flexDirection: 'row', gap: spacing.md, marginHorizontal: layout.screenPadding, marginBottom: spacing.lg },
     enrollActionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.md, borderRadius: 14 },
     enrollActionText: { color: '#fff', fontSize: font.base, fontWeight: '800' },
     progressCard: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     goalsSection: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
     },
     goalsSectionHeader: {

@@ -12,7 +12,7 @@ import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, Clock, DollarSign, Info, Calendar } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ProgramDetailScreen() {
     const router = useRouter();
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.lg,
     },
     errorText: {
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     retryButton: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         borderRadius: 8,
     },
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     },
     programHeader: {
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.xl,
         gap: spacing.md,
     },
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     },
     statsContainer: {
         flexDirection: 'row',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 16,
         marginBottom: spacing.lg,
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
         marginTop: spacing.xs,
     },
     section: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 16,
         marginBottom: spacing.lg,
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     actionContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.xxl,
     },
     enrollButton: {

@@ -12,7 +12,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import FilterChip from '@/src/components/FilterChip';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PetfriendlyScreen() {
     const { theme } = useTheme();
@@ -135,7 +135,7 @@ export default function PetfriendlyScreen() {
 const styles = StyleSheet.create({
     searchWrapper: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         gap: spacing.md,
     },
@@ -146,9 +146,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    chips: { paddingHorizontal: spacing.xxl, gap: spacing.sm, paddingBottom: spacing.sm },
+    chips: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.sm },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
         gap: spacing.md,
     },

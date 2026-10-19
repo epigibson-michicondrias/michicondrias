@@ -8,7 +8,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { Building2, MapPin, Tag, FileText, Plus } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevoEstablecimientoScreen() {
     const { theme } = useTheme();
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
         paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     inputGroup: {
         borderRadius: 14,

@@ -10,7 +10,7 @@ import { Car, Users, Snowflake, Box, CheckCircle2, Plus, Clock, User, Inbox, Rou
 import SearchBar from '@/src/components/SearchBar';
 import { SkeletonList } from '@/src/components/Skeleton';
 import EmptyState from '@/src/components/EmptyState';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function TransportistasScreen() {
     const { theme } = useTheme();
@@ -139,7 +139,7 @@ export default function TransportistasScreen() {
                 )}
             </View>
 
-            <View style={{ marginHorizontal: spacing.xxl, marginBottom: spacing.xl }}>
+            <View style={{ marginHorizontal: layout.screenPadding, marginBottom: spacing.xl }}>
                 <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -148,7 +148,7 @@ export default function TransportistasScreen() {
             </View>
 
             {isLoading ? (
-                <View style={{ paddingHorizontal: spacing.xxl }}>
+                <View style={{ paddingHorizontal: layout.screenPadding }}>
                     <SkeletonList count={3} />
                 </View>
             ) : (
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.lg,
     },
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     card: {

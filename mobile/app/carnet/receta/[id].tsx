@@ -8,7 +8,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ShoppingBag, Share2, Bell, BellOff } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing.lg,
     },
     backErrorBtn: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         borderRadius: 12,
     },
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
         padding: spacing.xxl,
     },
     ticketSection: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.xl,
         paddingTop: spacing.xl,
         borderBottomWidth: 1,
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     cutLineContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginVertical: spacing.xxl,
     },
     scissorsIcon: {
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
         fontSize: font.xs,
         fontWeight: '500',
         textAlign: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     actionButtonsRow: {
         flexDirection: 'row',

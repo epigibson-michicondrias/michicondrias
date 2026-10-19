@@ -8,7 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import { Calendar, Clock, MapPin, PawPrint, AlertCircle, CalendarClock, Ban } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function CitasScreen() {
     const router = useRouter();
@@ -156,7 +156,7 @@ export default function CitasScreen() {
 const styles = StyleSheet.create({
     tabsContainer: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.lg,
         gap: spacing.sm,
     },
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
     },
     tabText: { fontSize: font.base, fontWeight: '700' },
-    list: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
     card: {
         borderRadius: 20,
         marginBottom: spacing.lg,

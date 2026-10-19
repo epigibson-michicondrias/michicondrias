@@ -8,7 +8,7 @@ import { usePartnerUpgrade } from '@/src/hooks/perfil/usePartnerUpgrade';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
 import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     kycCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginTop: spacing.lg,
         padding: spacing.lg,
         borderRadius: 16,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: spacing.lg,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         borderRadius: 12,
         gap: spacing.sm,
     },

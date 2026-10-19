@@ -17,7 +17,7 @@ import {
     FileText,
     ChevronRight,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function MisPolizasScreen() {
     const router = useRouter();
@@ -188,7 +188,7 @@ export default function MisPolizasScreen() {
 const styles = StyleSheet.create({
     statsRow: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.xl,
     },
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     policyCard: {

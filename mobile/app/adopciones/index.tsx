@@ -10,7 +10,7 @@ import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
 import type { Listing } from '@/src/types/adopciones';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 const cardWidth = Math.floor((width - 61) / 2);
@@ -134,7 +134,7 @@ export default function AdopcionesScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
     },
     card: {

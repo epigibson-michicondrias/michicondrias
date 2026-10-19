@@ -9,7 +9,7 @@ import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Building2, MapPin, Tag, FileText, Save, Trash2 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EditarEstablecimientoScreen() {
     const { theme } = useTheme();
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
         paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     inputGroup: {
         borderRadius: 14,

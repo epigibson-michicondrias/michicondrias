@@ -20,7 +20,7 @@ import BackButton from '@/src/components/BackButton';
 import IconButton, { type IconComponent } from '@/src/components/IconButton';
 import HeroBackground from '@/src/components/layout/HeroBackground';
 import type { ModuleKey } from '@/src/constants/modules';
-import { spacing, type } from '@/constants/design';
+import { spacing, type, layout } from '@/constants/design';
 
 export interface HeaderAction {
     icon: IconComponent;
@@ -105,12 +105,12 @@ export default function ScreenHeader({
         : []);
 
     const content = (
-        <View style={[styles.header, { paddingTop: isHero ? insets.top + spacing.lg : PLAIN_TOP_PADDING }]}>
+        <View style={[styles.header, { paddingTop: isHero ? insets.top + spacing.sm : PLAIN_TOP_PADDING }]}>
             <View style={styles.headerLeft}>
                 {leftElement ? (
                     leftElement
                 ) : showBack ? (
-                    <BackButton onPress={onBack ?? (() => router.back())} variant={isHero ? 'glass' : 'surface'} />
+                    <BackButton onPress={onBack ?? (() => router.back())} variant={isHero ? 'glass' : 'surface'} size="sm" />
                 ) : null}
                 <View style={styles.titleContainer}>
                     <Text
@@ -145,6 +145,7 @@ export default function ScreenHeader({
                                 loading={a.loading}
                                 disabled={a.disabled}
                                 variant={isHero ? 'glass' : 'primary'}
+                                size="sm"
                             />
                         ))}
                 </View>
@@ -164,8 +165,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
-        paddingBottom: spacing.xl,
+        paddingHorizontal: layout.screenPadding,
+        paddingBottom: spacing.lg,
         gap: spacing.md,
     },
     // Separa el contenido de la pantalla del borde redondeado de la cabecera
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
     },
     title: type.screenTitle,
     subtitle: {
-        ...type.body,
+        ...type.caption,
         fontWeight: '500',
         marginTop: spacing.xxs,
     },

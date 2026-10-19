@@ -10,7 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function CuidadoresScreen() {
     const router = useRouter();
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     sitterCard: {

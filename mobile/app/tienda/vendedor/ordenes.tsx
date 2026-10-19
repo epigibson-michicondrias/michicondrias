@@ -11,7 +11,7 @@ import { Package, Clock, Truck, CheckCircle, XCircle, CreditCard, User, MapPin }
 import { Order } from '@/src/services/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const STATUS_ICONS: Record<string, any> = {
     pending: Clock,
@@ -177,7 +177,7 @@ export default function VendedorOrdenesScreen() {
 
 const styles = StyleSheet.create({
     tabsContainer: { marginBottom: spacing.lg },
-    tabsScroll: { paddingHorizontal: spacing.xxl, gap: spacing.md },
+    tabsScroll: { paddingHorizontal: layout.screenPadding, gap: spacing.md },
     tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1 },
     tabText: { fontSize: font.base, fontWeight: '600' },
     list: { padding: spacing.xxl, paddingBottom: 100 },

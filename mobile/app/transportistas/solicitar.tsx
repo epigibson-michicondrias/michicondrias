@@ -16,7 +16,7 @@ import Card from '@/src/components/Card';
 import EmptyState from '@/src/components/EmptyState';
 import { SkeletonList } from '@/src/components/Skeleton';
 import { formatMoney } from '@/src/components/rides/rideStatus';
-import { radius, spacing, type, font } from '@/constants/design';
+import { radius, spacing, type, font, layout } from '@/constants/design';
 
 export default function SolicitarTransporteScreen() {
   const { theme } = useTheme();
@@ -322,7 +322,7 @@ export default function SolicitarTransporteScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   pad: { paddingHorizontal: spacing.xl },
-  scrollContent: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
+  scrollContent: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
   selectionRow: { flexDirection: 'row', gap: spacing.md, paddingBottom: spacing.xs },
   selectionCard: { width: 120, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1.5, alignItems: 'center', gap: spacing.sm },
   driverCard: { width: 140, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1.5, alignItems: 'center', gap: spacing.sm },

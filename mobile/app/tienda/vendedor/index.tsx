@@ -11,7 +11,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Package, ShoppingBag, TrendingUp, List, ChevronRight, Activity, Star } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     content: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.xxl,
         paddingBottom: 100,
     },

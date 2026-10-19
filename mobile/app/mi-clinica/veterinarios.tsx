@@ -11,7 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Users, Mail, Phone, Star, Edit, Trash2, X, Stethoscope, ShieldCheck } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function VeterinariosClinicaScreen() {
     const router = useRouter();
@@ -197,7 +197,7 @@ export default function VeterinariosClinicaScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <KeyboardScreen style={{ paddingHorizontal: spacing.xxl }}>
+                    <KeyboardScreen style={{ paddingHorizontal: layout.screenPadding }}>
                         <View style={styles.formGroup}>
                             <FormField label="Nombre Completo *" value={name} onChangeText={setName} placeholder="Dr. Juan Pérez" />
                         </View>
@@ -240,7 +240,7 @@ export default function VeterinariosClinicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { flex: 1, paddingHorizontal: spacing.xxl },
+    content: { flex: 1, paddingHorizontal: layout.screenPadding },
     statsContainer: { flexDirection: 'row', gap: spacing.lg, marginBottom: spacing.xxl },
     statCard: { flex: 1, padding: spacing.xl, borderRadius: 16, alignItems: 'center', gap: spacing.sm, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     statNumber: { fontSize: font.h2, fontWeight: '900' },
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     actionBtn: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.xl },
     modalContainer: { flex: 1 },
-    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: spacing.xxl, paddingBottom: spacing.xxl },
+    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xxl },
     modalTitle: { fontSize: font.h3, fontWeight: '900' },
     saveBtnText: { fontSize: font.xl, fontWeight: '700' },
     formGroup: { marginBottom: spacing.xxl },

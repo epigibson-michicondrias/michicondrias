@@ -9,7 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, ChevronRight, Clock, Package, FlaskConical, FileText, AlertTriangle, DollarSign, BarChart3, Video, MapPin } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -217,7 +217,7 @@ function MenuItem({ icon: Icon, color, label, sub, onPress, theme }: {
 const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.huge },
     contentScroll: { flex: 1 },
-    content: { paddingHorizontal: spacing.xxl, paddingTop: spacing.xxl, paddingBottom: 100 },
+    content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xxl, paddingBottom: 100 },
     profileCard: {
         flexDirection: 'row',
         padding: spacing.lg,

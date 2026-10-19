@@ -89,7 +89,7 @@ export const font = {
 export const type = {
     display: { fontSize: scaled(28), fontWeight: '700', letterSpacing: -0.6 } as TextStyle,
     /** Título de `ScreenHeader`. */
-    screenTitle: { fontSize: scaled(22), fontWeight: '800', letterSpacing: -0.3 } as TextStyle,
+    screenTitle: { fontSize: scaled(19), fontWeight: '800', letterSpacing: -0.3 } as TextStyle,
     h1: { fontSize: scaled(22), fontWeight: '700', letterSpacing: -0.4 } as TextStyle,
     h2: { fontSize: scaled(18), fontWeight: '700', letterSpacing: -0.2 } as TextStyle,
     title: { fontSize: scaled(16), fontWeight: '600', letterSpacing: -0.1 } as TextStyle,

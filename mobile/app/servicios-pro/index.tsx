@@ -8,7 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ServiciosProScreen() {
     const router = useRouter();
@@ -120,7 +120,7 @@ export default function ServiciosProScreen() {
 const styles = StyleSheet.create({
     tabsContainer: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.xl,
     },
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     searchSection: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.xl,
     },
     searchBar: {
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
         fontSize: font.xl,
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     card: {

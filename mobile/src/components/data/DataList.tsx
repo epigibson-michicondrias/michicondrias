@@ -16,7 +16,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'> {
     /** Data array */
@@ -121,7 +121,7 @@ export default function DataList<T>({
 
 const styles = StyleSheet.create({
     listContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
     },
     emptyContainer: {

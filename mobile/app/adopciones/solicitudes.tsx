@@ -11,7 +11,7 @@ import { useApplications } from '@/src/hooks/adopciones/useApplications';
 import type { Listing, AdoptionRequest } from '@/src/types/adopciones';
 import type { ListingWithRequests } from '@/src/hooks/adopciones/useApplications';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function SolicitudesAdopcionScreen() {
     const router = useRouter();
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     filterContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.xl,
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.md,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     listingSection: {

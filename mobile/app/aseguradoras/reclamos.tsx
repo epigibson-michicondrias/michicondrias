@@ -17,7 +17,7 @@ import {
     AlertTriangle,
     Sparkles,
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ReclamosScreen() {
     const { theme } = useTheme();
@@ -163,7 +163,7 @@ export default function ReclamosScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     claimCard: {

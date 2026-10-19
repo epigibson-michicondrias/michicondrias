@@ -7,7 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { formatCurrency } from '@/src/utils/formatters';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Package, ShoppingBag, Clock, TrendingUp, AlertTriangle } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function VendedorAnalyticsScreen() {
   const { theme } = useTheme();
@@ -142,7 +142,7 @@ export default function VendedorAnalyticsScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     paddingBottom: spacing.huge,
   },
   revenueCard: {

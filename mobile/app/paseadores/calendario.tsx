@@ -8,7 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PaseadoresCalendarioScreen() {
   const { theme } = useTheme();
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: spacing.xxl,
+    marginHorizontal: layout.screenPadding,
     marginBottom: spacing.lg,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   requestsSection: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginTop: spacing.xxl,
   },
   sectionTitle: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.md },

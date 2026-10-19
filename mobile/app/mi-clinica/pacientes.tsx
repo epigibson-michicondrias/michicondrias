@@ -12,7 +12,7 @@ import { getMyClinics } from '@/src/services/directorio';
 import { getClinicPatients, ClinicPatient } from '@/src/services/patients';
 import { formatDateMx } from '@/src/features/salud/format';
 import { Users, PawPrint, AlertTriangle } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 type Filter = 'all' | 'upcoming' | 'critical';
 
@@ -83,7 +83,7 @@ export default function PacientesScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader title="Pacientes" subtitle="Mascotas que atiendes" />
-            <View style={{ paddingHorizontal: spacing.xxl, marginBottom: spacing.md }}>
+            <View style={{ paddingHorizontal: layout.screenPadding, marginBottom: spacing.md }}>
                 <TextInput
                     style={[styles.search, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                     placeholder="Buscar por mascota o dueño..."
@@ -124,8 +124,8 @@ export default function PacientesScreen() {
 
 const styles = StyleSheet.create({
     search: { height: 46, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.base },
-    chips: { paddingHorizontal: spacing.xxl, gap: spacing.sm, marginBottom: spacing.md },
-    list: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
+    chips: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, marginBottom: spacing.md },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
     card: { padding: spacing.lg, borderRadius: 18, borderWidth: 1, marginBottom: spacing.md },
     head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     icon: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },

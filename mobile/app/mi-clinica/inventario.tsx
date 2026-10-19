@@ -12,7 +12,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Package, AlertTriangle, PlusCircle, Box, Search, X } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function InventarioScreen() {
     const router = useRouter();
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     stockInfo: { alignItems: 'flex-end' },
     stockValue: { fontSize: font.h3, fontWeight: '900' },
     stockUnit: { fontSize: font.sm, fontWeight: '700', textTransform: 'uppercase' },
-    searchContainer: { marginTop: spacing.lg, paddingHorizontal: spacing.xxl },
+    searchContainer: { marginTop: spacing.lg, paddingHorizontal: layout.screenPadding },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '80%' },
     modalTitle: { fontSize: font.h3, fontWeight: '900', marginBottom: spacing.xl },

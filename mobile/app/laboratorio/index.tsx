@@ -14,7 +14,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { FlaskConical, Calendar, Clock, ChevronRight, X, Info, DollarSign, Activity, PawPrint, CheckCircle } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function LaboratorioScreen() {
     const router = useRouter();
@@ -115,7 +115,7 @@ export default function LaboratorioScreen() {
                 subtitle="Estudios clínicos para tu mascota"
             />
 
-            <View style={{ flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.xxl, marginBottom: spacing.md, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, paddingHorizontal: layout.screenPadding, marginBottom: spacing.md, alignItems: 'center' }}>
                 <FilterChip label="Estudios" active={view === 'estudios'} onPress={() => setView('estudios')} />
                 <FilterChip
                     label={`Mis citas${appointments.length ? ` (${appointments.length})` : ''}`}
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.md,
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.lg,
         padding: spacing.lg,
         borderRadius: 12,
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
         fontSize: font.lg,
     },
     listContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
     },
     emptyList: {

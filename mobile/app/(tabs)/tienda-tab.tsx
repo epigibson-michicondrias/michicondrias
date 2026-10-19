@@ -11,7 +11,7 @@ import HeroStatusBar from '@/src/components/layout/HeroStatusBar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShoppingBag, Search, ShoppingCart, Package, Star, ArrowRight, X } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.floor((width - 61) / 2);
@@ -221,7 +221,7 @@ export default function TiendaTabScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     paddingBottom: spacing.xxxl,
   },
   headerTop: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quickActions: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     gap: spacing.md,
     marginTop: -16,
   },
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginBottom: spacing.lg,
   },
   sectionTitleInline: {
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: font.xxl,
     fontWeight: '900',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginBottom: spacing.lg,
   },
   seeAllBtn: {
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   categoriesList: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     gap: spacing.md,
   },
   categoryChip: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   loadingGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     gap: spacing.md,
   },
   productSkeleton: {
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   emptyState: {
-    marginHorizontal: spacing.xxl,
+    marginHorizontal: layout.screenPadding,
     padding: spacing.huge,
     borderRadius: 28,
     alignItems: 'center',
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
   productsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     gap: spacing.md,
   },
   productCard: {
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   promoSection: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginTop: spacing.xxxl,
   },
   promoBanner: {

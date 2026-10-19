@@ -9,7 +9,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Building2, MapPin, Tag, Star, MessageSquare, Gift, Send, X, Edit3 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function VenueDetailScreen() {
     const router = useRouter();
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.lg,
     },
     errorText: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     retryButton: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         borderRadius: 8,
     },
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     },
     venueHeader: {
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.xl,
         gap: spacing.md,
     },
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
         fontSize: font.base,
     },
     section: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 16,
         marginBottom: spacing.lg,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     actionContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.xxl,
     },
     contactButton: {

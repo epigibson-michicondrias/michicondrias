@@ -11,7 +11,7 @@ import { SurgeryItem } from '@/src/services/directorio';
 import { Plus, MapPin, Clock, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
 import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 type Tone = 'warning' | 'error' | 'success' | 'textMuted' | 'info';
 const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
@@ -356,6 +356,6 @@ const styles = StyleSheet.create({
     modalFooter: { paddingVertical: spacing.xxl, borderTopWidth: 1 },
     submitBtn: { height: 64, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
     submitBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
-    searchContainer: { paddingHorizontal: spacing.xxl, paddingBottom: spacing.lg },
+    searchContainer: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.lg },
     searchInput: { height: 44, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontWeight: '600' }
 });

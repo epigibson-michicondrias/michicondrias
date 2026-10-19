@@ -10,7 +10,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Heart, Feather, Plus, Calendar } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function MemorialScreen() {
     const { theme } = useTheme();
@@ -106,7 +106,7 @@ export default function MemorialScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.xl,
         paddingBottom: 100,
     },

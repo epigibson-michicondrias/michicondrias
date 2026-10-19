@@ -11,7 +11,7 @@ import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PaseadoresScreen() {
     const router = useRouter();
@@ -157,7 +157,7 @@ export default function PaseadoresScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.lg,
     },
@@ -177,11 +177,11 @@ const styles = StyleSheet.create({
         lineHeight: 18,
     },
     searchWrapper: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.xl,
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     walkerCard: {

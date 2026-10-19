@@ -9,7 +9,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import { MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ConfigClinicaScreen() {
     const { id } = useLocalSearchParams();
@@ -154,7 +154,7 @@ export default function ConfigClinicaScreen() {
 
 const styles = StyleSheet.create({
     center: { justifyContent: 'center', alignItems: 'center' },
-    content: { paddingHorizontal: spacing.xxl },
+    content: { paddingHorizontal: layout.screenPadding },
     logoSection: { alignItems: 'center', marginVertical: spacing.xxxl, gap: spacing.md },
     logoContainer: { position: 'relative' },
     logoImage: { width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: '#7c3aed' },

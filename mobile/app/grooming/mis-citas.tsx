@@ -18,7 +18,7 @@ import DataList from '@/src/components/data/DataList';
 import { createAppointmentReview } from '@/src/services/grooming';
 import type { GroomingAppointment } from '@/src/services/grooming';
 import { ReviewForm } from '@/src/components/reviews/ReviewsSection';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
     pending:     { label: 'Programada',  color: '#3b82f6', bg: 'rgba(14,165,233,0.12)' },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
     modalSheet: { padding: spacing.xxl, paddingBottom: spacing.xxxl, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
 

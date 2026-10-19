@@ -2,6 +2,8 @@
  * IconButton — Botón cuadrado de solo ícono (44 px, objetivo táctil mínimo). Base de los botones de cabecera
  * (volver, acción) y de cualquier acción de ícono suelta.
  *
+ * Tamaños: `md` (44 px, por defecto) o `sm` (38 px a la vista; el área táctil sigue en 44 con `hitSlop`).
+ *
  * Variantes:
  * - `subtle`: fondo tenue del tema (por defecto).
  * - `surface`: tarjeta con borde, para fondos claros/oscuros normales.
@@ -30,6 +32,8 @@ interface IconButtonProps {
     disabled?: boolean;
     /** Muestra un indicador en lugar del ícono y bloquea el botón (p. ej. mientras se guarda). */
     loading?: boolean;
+    /** `md` (44 px) o `sm` (38 px, para cabeceras compactas). */
+    size?: 'sm' | 'md';
     style?: StyleProp<ViewStyle>;
 }
 
@@ -42,6 +46,7 @@ export default function IconButton({
     strokeWidth,
     disabled,
     loading,
+    size = 'md',
     style,
 }: IconButtonProps) {
     const { theme } = useTheme();
@@ -54,22 +59,25 @@ export default function IconButton({
     };
     const current = variantStyle[variant];
     const isDisabled = disabled || loading;
+    const isSmall = size === 'sm';
+    // Lo que falte para 44 px se completa con hitSlop
+    const slop = 6 + (isSmall ? (layout.minTouch - layout.iconBox.md) / 2 : 0);
 
     return (
         <TouchableOpacity
-            style={[styles.btn, current.box, disabled && styles.disabled, style]}
+            style={[styles.btn, isSmall && styles.small, current.box, disabled && styles.disabled, style]}
             onPress={onPress}
             disabled={isDisabled}
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={accessibilityLabel}
             accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            hitSlop={{ top: slop, bottom: slop, left: slop, right: slop }}
         >
             {loading ? (
                 <ActivityIndicator size="small" color={color || current.icon} />
             ) : (
-                <Icon size={layout.icon.lg} color={color || current.icon} strokeWidth={strokeWidth} />
+                <Icon size={isSmall ? layout.icon.md : layout.icon.lg} color={color || current.icon} strokeWidth={strokeWidth} />
             )}
         </TouchableOpacity>
     );
@@ -82,6 +90,11 @@ const styles = StyleSheet.create({
         borderRadius: radius.md,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    small: {
+        width: layout.iconBox.md,
+        height: layout.iconBox.md,
+        borderRadius: radius.sm + 2,
     },
     disabled: {
         opacity: 0.5,

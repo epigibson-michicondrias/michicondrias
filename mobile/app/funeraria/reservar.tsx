@@ -12,7 +12,7 @@ import DatePicker from '@/src/components/DatePicker';
 import PetPicker from '@/src/features/salud/PetPicker';
 import { toISODate } from '@/src/features/salud/format';
 import { DollarSign, Check, Heart, Info } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ReservarScreen() {
     const { theme } = useTheme();
@@ -165,12 +165,12 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: font.xxl,
         fontWeight: '800',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginTop: spacing.lg,
         marginBottom: spacing.md,
     },
     servicesList: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
     },
     serviceCard: {
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     },
     inputGroup: {
         gap: spacing.sm,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     label: {
         fontSize: font.base,
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         gap: spacing.md,
         alignItems: 'center',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
     },
     infoText: {
         flex: 1,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
         gap: spacing.md,
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginTop: spacing.md,
         marginBottom: spacing.huge,
     },

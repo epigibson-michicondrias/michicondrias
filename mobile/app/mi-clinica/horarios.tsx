@@ -5,7 +5,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useSchedule, type ScheduleDay, type Holiday } from '@/src/hooks/clinica/useSchedule';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { spacing, font } from '@/constants/design';
+import { spacing, font, layout } from '@/constants/design';
 import Button from '@/src/components/Button';
 
 import { Clock, Calendar, Plus, X, Info, Globe } from 'lucide-react-native';
@@ -235,7 +235,7 @@ export default function HorariosClinicaScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <KeyboardScreen style={{ paddingHorizontal: spacing.xxl }}>
+                    <KeyboardScreen style={{ paddingHorizontal: layout.screenPadding }}>
                         <View style={styles.formGroup}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>Nombre del Festivo *</Text>
                             <TextInput
@@ -326,7 +326,7 @@ export default function HorariosClinicaScreen() {
 const styles = StyleSheet.create({
     saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
     saveBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '700' },
-    content: { flex: 1, paddingHorizontal: spacing.xxl },
+    content: { flex: 1, paddingHorizontal: layout.screenPadding },
     infoCard: { flexDirection: 'row', padding: spacing.lg, borderRadius: 12, gap: spacing.md, marginBottom: spacing.xxl },
     infoText: { flex: 1, fontSize: font.base, fontWeight: '600' },
     sectionTitle: { fontSize: font.xxl, fontWeight: '900', marginBottom: spacing.lg },
@@ -366,9 +366,9 @@ const styles = StyleSheet.create({
     emergencyContact: { gap: spacing.xs },
     emergencyContactLabel: { fontSize: font.base },
     emergencyPhone: { fontSize: font.xl, fontWeight: '700' },
-    saveBar: { paddingHorizontal: spacing.xxl, paddingTop: spacing.xl, paddingBottom: spacing.huge },
+    saveBar: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, paddingBottom: spacing.huge },
     modalContainer: { flex: 1 },
-    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: spacing.xxl, paddingBottom: spacing.xxl },
+    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xxl },
     modalTitle: { fontSize: font.h3, fontWeight: '900' },
     formGroup: { marginBottom: spacing.xxl },
     label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },

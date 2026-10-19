@@ -11,7 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Zap, DollarSign, MapPin, PawPrint, Check } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function BoostAlertaScreen() {
     const { theme } = useTheme();
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
         paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     reportCard: {
         padding: spacing.lg,

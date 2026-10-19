@@ -20,7 +20,7 @@ import {
     FileText
 } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
         zIndex: 20,
     },
     tabsScroll: { 
-        paddingHorizontal: spacing.xxl, 
+        paddingHorizontal: layout.screenPadding, 
         gap: spacing.md,
         paddingBottom: spacing.sm,
     },

@@ -8,7 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { BarChart3, Eye, MousePointerClick, TrendingUp, DollarSign, Megaphone } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EstadisticasScreen() {
     const { theme } = useTheme();
@@ -184,7 +184,7 @@ export default function EstadisticasScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     statsGrid: {

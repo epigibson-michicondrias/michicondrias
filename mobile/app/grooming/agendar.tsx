@@ -13,7 +13,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSection from '@/src/components/forms/FormSection';
 import type { GroomingService } from '@/src/services/grooming';
 import type { Pet } from '@/src/types/mascotas';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function AgendarGroomingScreen() {
     const { theme } = useTheme();
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.xxl,
     },
     loader: {

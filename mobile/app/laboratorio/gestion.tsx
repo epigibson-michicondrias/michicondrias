@@ -10,7 +10,7 @@ import FilterChip from '@/src/components/FilterChip';
 import { showAlert } from '@/src/components/AppAlert';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { FlaskConical, Calendar, AlertTriangle, Plus, X } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 type Tab = 'ordenes' | 'citas' | 'anomalias' | 'catalogo';
 const TABS: { key: Tab; label: string }[] = [
@@ -295,8 +295,8 @@ export default function LaboratorioGestionScreen() {
 }
 
 const styles = StyleSheet.create({
-    tabsRow: { paddingHorizontal: spacing.xxl, gap: spacing.sm, marginBottom: spacing.md },
-    list: { paddingHorizontal: spacing.xxl, paddingBottom: 100 },
+    tabsRow: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, marginBottom: spacing.md },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
     card: { padding: spacing.lg, borderRadius: 16, borderWidth: 1, marginBottom: spacing.md },
     testRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

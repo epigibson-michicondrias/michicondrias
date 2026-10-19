@@ -11,7 +11,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import Button from '@/src/components/Button';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 /** Eliminación de cuenta (requisito de Apple/Google): confirma con la contraseña actual y, si aplica, el código 2FA. */
 export default function EliminarCuentaScreen() {
@@ -117,10 +117,10 @@ export default function EliminarCuentaScreen() {
 }
 
 const styles = StyleSheet.create({
-    warnCard: { flexDirection: 'row', gap: spacing.md, marginHorizontal: spacing.xxl, marginBottom: spacing.xl, padding: spacing.lg, borderRadius: 16, borderWidth: 1 },
+    warnCard: { flexDirection: 'row', gap: spacing.md, marginHorizontal: layout.screenPadding, marginBottom: spacing.xl, padding: spacing.lg, borderRadius: 16, borderWidth: 1 },
     warnTitle: { fontSize: font.lg, fontWeight: '800' },
     warnText: { fontSize: font.base, lineHeight: 20 },
-    form: { paddingHorizontal: spacing.xxl, gap: spacing.sm, paddingBottom: spacing.huge },
+    form: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.huge },
     label: { fontSize: font.base, fontWeight: '600', marginTop: spacing.sm },
     input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.xl },
 });

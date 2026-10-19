@@ -13,7 +13,7 @@ import { Plus, Video, Calendar, Clock, VideoOff, ExternalLink, X } from 'lucide-
 import { Picker } from '@react-native-picker/picker';
 import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ConsultasVideoScreen() {
     const { theme } = useTheme();
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     modalContainer: { flex: 1 },
     modalHeader: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        paddingHorizontal: spacing.xxl, paddingVertical: spacing.xl,
+        paddingHorizontal: layout.screenPadding, paddingVertical: spacing.xl,
         borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.2)',
     },
     modalTitle: { fontSize: font.xxl, fontWeight: '800' },

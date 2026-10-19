@@ -5,7 +5,7 @@ import { useTrainerDashboard } from '@/src/hooks/training/useTrainerDashboard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, FileText, DollarSign, Clock, Sparkles } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 
 export default function CreateProgramScreen() {
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     formSection: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     actionContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.xxl,
     },
     submitButton: {

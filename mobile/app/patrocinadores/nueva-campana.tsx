@@ -7,7 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormSection from '@/src/components/forms/FormSection';
 import { Megaphone, DollarSign, Link2, Type, Image } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevaCampanaScreen() {
     const { theme } = useTheme();
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
         paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     inputGroup: {
         borderRadius: 14,

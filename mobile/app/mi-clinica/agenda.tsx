@@ -9,7 +9,7 @@ import { AppointmentItem } from '@/src/services/directorio';
 import { CheckCircle2, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
 import { statusTone } from '@/src/features/salud/format';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function AgendaClinicaScreen() {
     const router = useRouter();
@@ -270,6 +270,6 @@ const styles = StyleSheet.create({
     modalBtn: { flex: 1, height: 64, justifyContent: 'center', alignItems: 'center' },
     modalBtnText: { fontSize: font.lg, fontWeight: '700' },
     modalBtnTextDanger: { fontSize: font.lg, fontWeight: '800', color: '#fff' },
-    searchContainer: { paddingHorizontal: spacing.xxl, paddingBottom: spacing.lg },
+    searchContainer: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.lg },
     searchInput: { height: 44, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontWeight: '600' }
 });

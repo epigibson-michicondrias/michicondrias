@@ -16,7 +16,7 @@ import { Search, Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_GAP = 12;
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     height: 320,
   },
   headerContainer: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     zIndex: 10,
   },
   headerTitle: {
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   searchContainer: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginTop: spacing.xl,
     zIndex: 10,
   },
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   categoryList: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     paddingTop: spacing.xxl,
     paddingBottom: spacing.sm,
     gap: spacing.md,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginTop: spacing.lg,
     marginBottom: spacing.lg,
   },
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   bannerContainer: {
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: layout.screenPadding,
     marginTop: spacing.xxxl,
   },
   aiBanner: {

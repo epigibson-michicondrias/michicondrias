@@ -9,7 +9,7 @@ import DataList from '@/src/components/data/DataList';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { InsurancePlan } from '@/src/services/insurance';
 import { Shield, Clock, DollarSign, ChevronRight, Plus, CheckCircle } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function AseguradorasScreen() {
     const router = useRouter();
@@ -132,7 +132,7 @@ export default function AseguradorasScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.xl,
     },
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     planCard: {

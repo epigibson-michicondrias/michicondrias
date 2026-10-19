@@ -10,7 +10,7 @@ import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { Calendar, Clock, FileText, Plus } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function MisReservasScreen() {
     const { theme } = useTheme();
@@ -113,7 +113,7 @@ export default function MisReservasScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.sm,
         paddingBottom: 100,
     },

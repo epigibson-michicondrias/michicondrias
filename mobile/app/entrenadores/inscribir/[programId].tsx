@@ -6,7 +6,7 @@ import { useEnrollment } from '@/src/hooks/training/useEnrollment';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, DollarSign, Clock, PawPrint, CheckCircle, ArrowRight } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EnrollPetScreen() {
     const { theme } = useTheme();
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     },
     loadingText: { fontSize: font.xl },
     programCard: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xxl,
         borderRadius: 20,
         borderWidth: 1,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     sectionContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.xxl,
     },
     sectionTitle: {
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     actionContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.xxl,
     },
     enrollButton: {

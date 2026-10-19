@@ -15,7 +15,7 @@ import { shareContent } from '@/src/utils/share';
 import { ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice, ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter } from '@/src/features/proveedor/ProviderProfile';
 import DatePicker from '@/src/components/DatePicker';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.lg,
     },
     errorText: {
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     retryButton: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.md,
         borderRadius: 8,
     },
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     profileHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingVertical: spacing.xl,
         gap: spacing.lg,
     },
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     },
     statsContainer: {
         flexDirection: 'row',
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 16,
         marginBottom: spacing.lg,
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
         marginTop: spacing.xs,
     },
     section: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
         borderRadius: 16,
         marginBottom: spacing.lg,
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     },
     actionContainer: {
         flexDirection: 'row',
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.xxl,
     },

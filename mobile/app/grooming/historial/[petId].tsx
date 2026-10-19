@@ -12,7 +12,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function HistorialGroomingScreen() {
     const { petId } = useLocalSearchParams<{ petId: string }>();
@@ -173,7 +173,7 @@ export default function HistorialGroomingScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
 

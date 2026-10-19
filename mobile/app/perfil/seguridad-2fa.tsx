@@ -6,7 +6,7 @@ import { use2FA } from '@/src/hooks/perfil/use2FA';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Shield, ShieldCheck, ShieldOff, Eye, EyeOff, Smartphone, Copy } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function Seguridad2FAScreen() {
     const { theme } = useTheme();
@@ -204,7 +204,7 @@ export default function Seguridad2FAScreen() {
 const styles = StyleSheet.create({
     content: {
         flex: 1,
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     statusCard: {
         padding: spacing.xxl,

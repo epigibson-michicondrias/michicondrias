@@ -8,7 +8,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { User, Home, Calendar, Clock, CheckCircle, XCircle, Heart, Mail, FileText, AlertCircle } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ProcesarSolicitudScreen() {
     const { theme } = useTheme();
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     statusCard: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.xl,
         padding: spacing.xl,
         borderRadius: 16,
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
         marginTop: spacing.xs,
     },
     card: {
-        marginHorizontal: spacing.xxl,
+        marginHorizontal: layout.screenPadding,
         marginBottom: spacing.xl,
         padding: spacing.xl,
         borderRadius: 16,
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
     },
     actionContainer: {
-        paddingHorizontal: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,
     },
     buttonRow: {
