@@ -8,15 +8,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getListing, getRequest, updateRequestStatus, approveAdoption } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
+import { REQUEST_STATUS } from '@/src/features/adopciones/requestStatus';
 
-export const STATUS_LABELS: Record<string, { label: string; tone: 'warning' | 'info' | 'primary' | 'success' | 'accent' | 'error' }> = {
-    PENDING: { label: "Pendiente", tone: 'warning' },
-    REVIEWING: { label: "En revisión", tone: 'info' },
-    INTERVIEW_SCHEDULED: { label: "Entrevista programada", tone: 'primary' },
-    APPROVED: { label: "Pre-aprobada", tone: 'success' },
-    ADOPTED: { label: "Adoptado", tone: 'accent' },
-    REJECTED: { label: "Rechazada", tone: 'error' },
-};
+export const STATUS_LABELS = REQUEST_STATUS;
 
 export function useApplicationDetail() {
     const { id } = useLocalSearchParams();

@@ -201,7 +201,7 @@ export default function PerdidasDetailScreen() {
                         ))}
                     </View>
 
-                    {report.has_tracker ? (
+                    {report.has_tracker && isOwner ? (
                         <TrackerCard
                             live={trackerLive}
                             lastTrackedAt={report.last_tracked_at}

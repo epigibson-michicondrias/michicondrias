@@ -20,7 +20,8 @@ export function useWalkerDetail() {
     const [walkModalVisible, setWalkModalVisible] = useState(false);
     const [registerModalVisible, setRegisterModalVisible] = useState(false);
     const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
-    const [walkDate, setWalkDate] = useState('');
+    // Hoy por defecto: el selector necesita una fecha válida desde que se abre
+    const [walkDate, setWalkDate] = useState(() => toLocalIsoDate(new Date()));
     const [walkNotes, setWalkNotes] = useState('');
     const [walkDuration, setWalkDuration] = useState(30);
 
@@ -131,7 +132,7 @@ export function useWalkerDetail() {
         }
         requestWalkMutation.mutate({
             pet_id: selectedPetId,
-            requested_date: walkDate || toLocalIsoDate(new Date()),
+            requested_date: walkDate,
             duration_minutes: walkDuration,
             notes: walkNotes || undefined,
         });

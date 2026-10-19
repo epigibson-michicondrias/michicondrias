@@ -5,6 +5,9 @@ from app.core.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.CORE_SERVICE_URL}/api/v1/login/access-token")
 
+# Igual que oauth2_scheme pero sin exigir token (vistas públicas que cambian si hay sesión)
+optional_oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.CORE_SERVICE_URL}/api/v1/login/access-token", auto_error=False)
+
 ALGORITHM = "HS256"
 
 def _decode_token(token: str) -> dict:
@@ -45,3 +48,13 @@ def require_admin(token: str = Depends(oauth2_scheme)) -> str:
             detail="Se requiere rol de administrador",
         )
     return payload["sub"]
+
+
+def get_optional_viewer(token: str = Depends(optional_oauth2_scheme)) -> dict | None:
+    """`{"sub", "role", …}` del usuario con sesión, o None si es anónimo o el token no es válido."""
+    if not token:
+        return None
+    try:
+        return _decode_token(token)
+    except HTTPException:
+        return None

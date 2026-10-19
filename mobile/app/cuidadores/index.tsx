@@ -74,8 +74,8 @@ export default function CuidadoresScreen() {
             <View style={styles.servicesContainer}>
                 <View style={[styles.serviceTag, { backgroundColor: theme.secondary + '10' }]}>
                     <Text style={[styles.serviceText, { color: theme.secondary }]}>
-                        {item.service_type === 'daycare' ? 'Guardería' : 
-                         item.service_type === 'boarding' ? 'Hospedaje' : 'Guardería y hospedaje'}
+                        {item.service_type === 'hosting' ? 'Hospedaje' :
+                         item.service_type === 'visiting' ? 'Visitas a domicilio' : 'Hospedaje y visitas'}
                     </Text>
                 </View>
                 <View style={[styles.serviceTag, { backgroundColor: theme.primary + '10' }]}>
@@ -148,8 +148,8 @@ export default function CuidadoresScreen() {
 
                 <View style={styles.serviceFilterContainer}>
                     <FilterChip label="Todos" active={serviceFilter === ''} onPress={() => setServiceFilter('')} />
-                    <FilterChip label="Guardería" active={serviceFilter === 'daycare'} onPress={() => setServiceFilter('daycare')} />
-                    <FilterChip label="Hospedaje" active={serviceFilter === 'boarding'} onPress={() => setServiceFilter('boarding')} />
+                    <FilterChip label="Hospedaje" active={serviceFilter === 'hosting'} onPress={() => setServiceFilter('hosting')} />
+                    <FilterChip label="Visitas a domicilio" active={serviceFilter === 'visiting'} onPress={() => setServiceFilter('visiting')} />
                 </View>
             </View>
         </>

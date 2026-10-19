@@ -8,19 +8,12 @@ import { useRouter } from 'expo-router';
 import { getMyListings, getListingRequests, updateRequestStatus } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
+import { REQUEST_STATUS } from '@/src/features/adopciones/requestStatus';
 import type { Listing, AdoptionRequest } from '@/src/types/adopciones';
 
 export type ListingWithRequests = Listing & { requests: AdoptionRequest[] };
 
-type Tone = 'warning' | 'info' | 'primary' | 'success' | 'accent' | 'error';
-const STATUS_LABELS: Record<string, { label: string; tone: Tone }> = {
-    PENDING: { label: "Pendiente", tone: 'warning' },
-    REVIEWING: { label: "En revisión", tone: 'info' },
-    INTERVIEW_SCHEDULED: { label: "Entrevista programada", tone: 'primary' },
-    APPROVED: { label: "Pre-aprobada", tone: 'success' },
-    ADOPTED: { label: "Adoptado", tone: 'accent' },
-    REJECTED: { label: "Rechazada", tone: 'error' },
-};
+const STATUS_LABELS = REQUEST_STATUS;
 
 const FILTER_OPTIONS = [
     { key: 'all', label: 'Todas' },

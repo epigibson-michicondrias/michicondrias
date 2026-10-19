@@ -100,8 +100,11 @@ def read_listings(
     skip: int = 0,
     limit: int = 100,
 ) -> Any:
-    """Browse approved adoption listings. Public."""
-    return crud.get_approved_listings(db, skip=skip, limit=limit)
+    """Browse approved adoption listings. Public (sin microchip ni adoptante)."""
+    return [
+        ListingResponse.model_validate(l).model_copy(update={"adopted_by": None, "microchip_number": None})
+        for l in crud.get_approved_listings(db, skip=skip, limit=limit)
+    ]
 
 @router.get("/me", response_model=List[ListingResponse])
 def read_my_listings(
@@ -115,12 +118,22 @@ def read_my_listings(
 def read_listing(
     listing_id: str,
     db: Session = Depends(get_db),
+    viewer: dict | None = Depends(deps.get_optional_viewer),
 ) -> Any:
-    """Read a specific listing by ID. Public."""
+    """Read a specific listing by ID. Public: las no aprobadas solo las ven quien publicó y admin;
+    quién adoptó y el microchip solo los ven quien publicó, el adoptante y admin."""
     listing = crud.get_listing(db, listing_id)
     if not listing:
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
-    return listing
+    viewer_id = viewer.get("sub") if viewer else None
+    is_admin = bool(viewer) and viewer.get("role") == "admin"
+    is_owner = viewer_id is not None and viewer_id == listing.published_by
+    if not listing.is_approved and not (is_owner or is_admin):
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    out = ListingResponse.model_validate(listing)
+    if is_owner or is_admin or (viewer_id is not None and viewer_id == listing.adopted_by):
+        return out
+    return out.model_copy(update={"adopted_by": None, "microchip_number": None})
 
 
 # ========================================
