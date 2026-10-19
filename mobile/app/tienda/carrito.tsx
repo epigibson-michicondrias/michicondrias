@@ -195,7 +195,7 @@ export default function CarritoScreen() {
                             accessibilityState={{ disabled: isCheckingOut, busy: isCheckingOut }}
                         >
                             {isCheckingOut ? (
-                                <ActivityIndicator color="#fff" />
+                                <ActivityIndicator color={theme.onPrimary} />
                             ) : (
                                 <Text style={styles.checkoutBtnText}>Proceder al pago</Text>
                             )}

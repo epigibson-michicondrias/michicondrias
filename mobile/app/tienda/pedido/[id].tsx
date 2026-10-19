@@ -104,9 +104,9 @@ export default function PedidoDetailScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Pagar ahora"
                         >
-                            {isPaying ? <ActivityIndicator color="#fff" /> : (
+                            {isPaying ? <ActivityIndicator color={theme.onPrimary} /> : (
                                 <>
-                                    <CreditCard size={18} color="#fff" />
+                                    <CreditCard size={18} color={theme.onPrimary} />
                                     <Text style={styles.payBtnText}>Pagar ahora · {formatCurrency(order.total_amount)}</Text>
                                 </>
                             )}

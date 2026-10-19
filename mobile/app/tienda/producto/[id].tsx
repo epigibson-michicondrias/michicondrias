@@ -49,7 +49,7 @@ export default function ProductDetailScreen() {
             <Package size={44} color={theme.textMuted} />
             <Text style={{ color: theme.text, fontWeight: '800', fontSize: 16, marginTop: 12 }}>Este producto ya no está disponible</Text>
             <TouchableOpacity onPress={goBack} style={{ marginTop: 16, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: theme.primary }}>
-                <Text style={{ color: '#fff', fontWeight: '800' }}>Volver a la tienda</Text>
+                <Text style={{ color: theme.onPrimary, fontWeight: '800' }}>Volver a la tienda</Text>
             </TouchableOpacity>
         </ScreenContainer>
     );
@@ -263,7 +263,7 @@ export default function ProductDetailScreen() {
                                 accessibilityRole="button"
                                 accessibilityLabel="Publicar reseña"
                             >
-                                {isCreatingReview ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitReviewBtnText}>Publicar reseña</Text>}
+                                {isCreatingReview ? <ActivityIndicator color={theme.onPrimary} /> : <Text style={styles.submitReviewBtnText}>Publicar reseña</Text>}
                             </TouchableOpacity>
                         </View>
                         )}
@@ -279,7 +279,7 @@ export default function ProductDetailScreen() {
                         accessibilityRole="button"
                         accessibilityLabel="Editar mi producto"
                     >
-                        <Edit3 size={20} color="#fff" />
+                        <Edit3 size={20} color={theme.onPrimary} />
                         <Text style={styles.buyBtnText}>Editar mi producto</Text>
                     </TouchableOpacity>
                 ) : (
@@ -291,7 +291,7 @@ export default function ProductDetailScreen() {
                         accessibilityLabel={soldOut ? 'Producto agotado' : 'Agregar a la bolsa'}
                         accessibilityState={{ disabled: soldOut }}
                     >
-                        <ShoppingCart size={20} color="#fff" />
+                        <ShoppingCart size={20} color={theme.onPrimary} />
                         <Text style={styles.buyBtnText}>{soldOut ? 'Agotado' : `Agregar a la bolsa · ${formatCurrency(product.price * quantity)}`}</Text>
                     </TouchableOpacity>
                 )}
