@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session, joinedload
 import logging
 import uuid
 from sqlalchemy import case, func, or_, text
-from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from app.models.ecommerce import Product, ProductFavorite, Donation, Review, Order, OrderItem
 from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate, OrderCreate
 
 def _attach_rating_info(db: Session, product: Product):
@@ -64,7 +65,8 @@ def _fold_text(value: str) -> str:
 
 
 def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None,
-                 include_unpublished: bool = False, q: str = None, sort: str = "relevance", ids: list = None):
+                 include_unpublished: bool = False, q: str = None, sort: str = "relevance", ids: list = None,
+                 favorites_of: str = None):
     query = db.query(Product)
     # La vista pública (también filtrada por vendedor) solo muestra activos Y aprobados; el propio vendedor
     # (`/products/seller/me`) pide `include_unpublished` para ver también los ocultos y los pendientes.
@@ -76,6 +78,10 @@ def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = N
         query = query.filter(Product.seller_id == seller_id)
     if ids is not None:
         query = query.filter(Product.id.in_(ids))
+    if favorites_of is not None:
+        query = query.filter(Product.id.in_(
+            db.query(ProductFavorite.product_id).filter(ProductFavorite.user_id == favorites_of)
+        ))
 
     # Cada palabra debe aparecer en el nombre o la descripción
     words = [w for w in _fold_text(q or "").split() if w][:8]
@@ -384,3 +390,39 @@ def notify_order_paid(db: Session, order: Order) -> None:
     except Exception:
         db.rollback()
         logging.getLogger(__name__).exception("No se pudo notificar el pago del pedido %s", order.id)
+
+# CRUD FAVORITES
+MAX_FAVORITES = 200
+
+def _published(query):
+    return query.filter(Product.is_active == True, Product.is_approved == True)  # noqa: E712
+
+def get_favorite_ids(db: Session, user_id: str) -> list:
+    """IDs de los favoritos del usuario que siguen publicados, el más reciente primero."""
+    rows = _published(
+        db.query(ProductFavorite.product_id).join(Product, Product.id == ProductFavorite.product_id)
+        .filter(ProductFavorite.user_id == user_id)
+    ).order_by(ProductFavorite.created_at.desc()).all()
+    return [r[0] for r in rows]
+
+def add_favorites(db: Session, user_id: str, product_ids: list) -> list:
+    """Agrega favoritos sin duplicar (idempotente y seguro entre dispositivos con ON CONFLICT DO NOTHING).
+    Ignora productos inexistentes o no publicados y respeta el tope por usuario."""
+    wanted = list(dict.fromkeys(product_ids))
+    count = db.query(func.count(ProductFavorite.id)).filter(ProductFavorite.user_id == user_id).scalar() or 0
+    room = MAX_FAVORITES - count
+    if wanted and room > 0:
+        valid = {r[0] for r in _published(db.query(Product.id).filter(Product.id.in_(wanted))).all()}
+        rows = [{"id": str(uuid.uuid4()), "user_id": user_id, "product_id": pid} for pid in wanted if pid in valid][:room]
+        if rows:
+            db.execute(pg_insert(ProductFavorite).values(rows).on_conflict_do_nothing(
+                index_elements=["user_id", "product_id"]
+            ))
+            db.commit()
+    return get_favorite_ids(db, user_id)
+
+def remove_favorite(db: Session, user_id: str, product_id: str) -> None:
+    db.query(ProductFavorite).filter(
+        ProductFavorite.user_id == user_id, ProductFavorite.product_id == product_id
+    ).delete(synchronize_session=False)
+    db.commit()

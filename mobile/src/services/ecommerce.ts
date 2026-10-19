@@ -14,8 +14,10 @@ export interface ProductQuery {
     /** Búsqueda en nombre y descripción (el backend ignora acentos y exige cada palabra). */
     q?: string;
     sort?: ProductSort;
-    /** Solo estos productos (p. ej. favoritos). Lista vacía = ninguno. */
+    /** Solo estos productos. Lista vacía = ninguno. */
     ids?: string[];
+    /** Solo los favoritos del usuario con sesión. */
+    favorites?: boolean;
     skip?: number;
     limit?: number;
 }
@@ -24,7 +26,7 @@ export interface ProductQuery {
 export const PRODUCTS_PAGE_SIZE = 24;
 
 /** Catálogo público (activos y aprobados) con búsqueda, orden y paginación en el backend. */
-export async function getProducts({ category, sellerId, q, sort, ids, skip, limit }: ProductQuery = {}): Promise<Product[]> {
+export async function getProducts({ category, sellerId, q, sort, ids, favorites, skip, limit }: ProductQuery = {}): Promise<Product[]> {
     if (ids && ids.length === 0) return [];
     const params = new URLSearchParams();
     if (category) params.append("category", category);
@@ -32,11 +34,33 @@ export async function getProducts({ category, sellerId, q, sort, ids, skip, limi
     if (q?.trim()) params.append("q", q.trim());
     if (sort && sort !== "relevance") params.append("sort", sort);
     if (ids) params.append("ids", ids.join(","));
+    if (favorites) params.append("favorites", "true");
     if (skip) params.append("skip", String(skip));
     if (limit) params.append("limit", String(limit));
 
     const qs = params.toString() ? `?${params.toString()}` : "";
     return apiFetch<Product[]>("ecommerce", `/products/${qs}`);
+}
+
+// FAVORITOS (guardados en la cuenta)
+export async function getFavoriteProductIds(): Promise<string[]> {
+    return apiFetch<string[]>("ecommerce", "/favorites/me");
+}
+
+export async function addFavoriteProduct(productId: string): Promise<void> {
+    await apiFetch<void>("ecommerce", `/favorites/me/${productId}`, { method: "PUT" });
+}
+
+export async function removeFavoriteProduct(productId: string): Promise<void> {
+    await apiFetch<void>("ecommerce", `/favorites/me/${productId}`, { method: "DELETE" });
+}
+
+/** Sube varios a la vez (los que estaban solo en el teléfono) y devuelve la lista final. */
+export async function mergeFavoriteProducts(productIds: string[]): Promise<string[]> {
+    return apiFetch<string[]>("ecommerce", "/favorites/me/merge", {
+        method: "POST",
+        body: JSON.stringify({ product_ids: productIds }),
+    });
 }
 
 export async function getMyProducts(): Promise<Product[]> {

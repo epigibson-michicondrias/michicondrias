@@ -10,7 +10,7 @@ import { Sparkles, Package, Star, HeartPulse, Tag, Shirt, Bath, Heart } from 'lu
 import { getProducts, getCategories, PRODUCTS_PAGE_SIZE, type ProductSort } from '@/src/services/ecommerce';
 import { useDebouncedValue } from '@/src/hooks/useDebouncedValue';
 import { useCart } from '@/src/contexts/CartContext';
-import { useFavorites } from '@/src/hooks/useFavorites';
+import { useProductFavorites } from '@/src/hooks/ecommerce/useProductFavorites';
 import { useViewMode } from '@/src/hooks/useViewMode';
 import type { IconComponent } from '@/src/components/IconButton';
 import type { Product } from '@/src/types/ecommerce';
@@ -57,7 +57,7 @@ export function useShopTab() {
   const [viewMode, setViewMode] = useViewMode<ShopViewMode>('tienda', SHOP_VIEW_MODES, 'grid');
   const { cartCount, addToCart } = useCart();
   const { user } = useAuth();
-  const { favoriteIds, isFavorite, toggleFavorite } = useFavorites('productos');
+  const { favoriteIds, isFavorite, toggleFavorite } = useProductFavorites();
 
   // Enlaces con ?category=… abren la tienda en esa categoría
   useEffect(() => {
@@ -87,12 +87,12 @@ export function useShopTab() {
   const {
     data, isLoading, refetch, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage, isPlaceholderData,
   } = useInfiniteQuery({
-    queryKey: ['store-products', 'catalog', categoryParam ?? 'all', q, sort, favoritesOnly ? favoriteIds : null],
+    queryKey: ['store-products', 'catalog', categoryParam ?? 'all', q, sort, favoritesOnly ? 'favorites' : null],
     queryFn: ({ pageParam }) => getProducts({
       category: categoryParam,
       q,
       sort,
-      ids: favoritesOnly ? favoriteIds : undefined,
+      favorites: favoritesOnly || undefined,
       skip: pageParam,
       limit: PRODUCTS_PAGE_SIZE,
     }),

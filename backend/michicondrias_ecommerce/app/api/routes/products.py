@@ -30,16 +30,21 @@ def read_products(
     seller_id: Optional[str] = None,
     q: Optional[str] = Query(None, max_length=100, description="Búsqueda en nombre y descripción (sin acentos)"),
     sort: str = Query("relevance", description="relevance | price_asc | price_desc | rating"),
-    ids: Optional[str] = Query(None, max_length=2000, description="IDs separados por coma (p. ej. favoritos)"),
+    ids: Optional[str] = Query(None, max_length=2000, description="IDs separados por coma"),
+    favorites: bool = Query(False, description="Solo los favoritos del usuario autenticado"),
+    viewer_id: Optional[str] = Depends(deps.get_optional_user_id),
 ) -> Any:
     """
     Catálogo público (solo productos activos y aprobados), con búsqueda, orden y paginación.
     """
     if sort not in crud.crud_ecommerce.PRODUCT_SORTS:
         raise HTTPException(status_code=422, detail="Orden no válido")
+    if favorites and not viewer_id:
+        raise HTTPException(status_code=401, detail="Inicia sesión para ver tus favoritos")
     id_list = [i.strip() for i in ids.split(",") if i.strip()][:100] if ids is not None else None
     return crud.crud_ecommerce.get_products(
         db, skip=skip, limit=limit, category=category, seller_id=seller_id, q=q, sort=sort, ids=id_list,
+        favorites_of=viewer_id if favorites else None,
     )
 
 @router.get("/seller/me", response_model=List[ProductResponse])

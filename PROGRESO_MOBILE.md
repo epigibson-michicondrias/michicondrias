@@ -781,7 +781,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   Después: `MediaCard`/`MediaRow` (componentes base de elemento con foto) y `useGridCell`; Adopciones (cuadrícula/lista)
   y Perdidas (cuadrícula/lista/mapa, antes solo cuadrícula↔mapa) usan el mismo selector, recordado por pantalla.
 - **2026-10-19** — **Tienda completa (cliente + vendedor)**. Cliente: pestaña con cabecera hero (bolsa con contador),
-  buscador, categorías con ícono, **favoritos** (`useFavorites`, en el teléfono por usuario), **ordenar**
+  buscador, categorías con ícono, **favoritos** (en la cuenta desde la entrada siguiente), **ordenar**
   (`OptionMenu`), cuadrícula/lista, **agregar rápido** desde la tarjeta y **barra flotante de la bolsa** (`CartBar`);
   producto con botones flotantes en la safe area, existencias, opiniones de compra verificada (`ReviewsSection`),
   «También te puede gustar» y cantidad + agregar fijos; bolsa con `QuantityStepper` de 44 px, dirección con error en
@@ -802,4 +802,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `translate`, cada palabra en nombre o descripción), `sort` (relevance | price_asc | price_desc | rating, agotados
   al final; 422 si no es válido), `ids` (favoritos) y `limit` ≤ 100. La pestaña pide páginas de 24 con scroll
   infinito (`useInfiniteQuery`) y busca al dejar de escribir (`useDebouncedValue`, 350 ms). Probado contra producción.
+- **2026-10-19** — **Favoritos de la tienda en la cuenta**. Tabla `product_favorites` (migración `f2b7c4e91a06`,
+  `ON DELETE CASCADE`, único por usuario+producto, tope 200) y endpoints `GET /favorites/me`, `PUT`/`DELETE
+  /favorites/me/{id}` y `POST /favorites/me/merge`; `GET /products/?favorites=true` filtra en el servidor. En la app
+  `useProductFavorites` (reemplaza a `useFavorites`): corazón optimista con reversión y aviso si falla; los favoritos
+  que estaban solo en el teléfono se suben una vez y se borran de ahí. `apiFetch` acepta respuestas 204.
 

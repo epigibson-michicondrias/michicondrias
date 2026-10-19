@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { getProduct, getProducts, getReviews, getReviewEligibility, createProductReview } from '@/src/services/ecommerce';
 import { useCart } from '@/src/contexts/CartContext';
-import { useFavorites } from '@/src/hooks/useFavorites';
+import { useProductFavorites } from '@/src/hooks/ecommerce/useProductFavorites';
 import { useAuth } from '@/src/contexts/AuthContext';
 import type { Product, Review, ReviewCreate } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
@@ -59,7 +59,7 @@ export function useProduct() {
     );
 
     const { addToCart, cartCount, items } = useCart();
-    const { isFavorite, toggleFavorite } = useFavorites('productos');
+    const { isFavorite, toggleFavorite } = useProductFavorites();
     const inCart = items.find((i) => i.product.id === id)?.quantity ?? 0;
 
     const goBack = () => (router.canGoBack() ? router.back() : router.replace('/(tabs)/tienda-tab'));
