@@ -7,8 +7,8 @@ import { showAlert } from '@/src/components/AppAlert';
 import { usePartnerUpgrade } from '@/src/hooks/perfil/usePartnerUpgrade';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
-import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock, Award, Building2, Car, Coffee, Dog, FlaskConical, Flower2, GraduationCap, Heart, HeartHandshake, Home, Scissors, Shield, ShoppingBag, Stethoscope } from 'lucide-react-native';
+import { font, spacing, layout, radius, tint } from '@/constants/design';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
@@ -28,21 +28,21 @@ export default function PartnerOnboardingScreen() {
     const KycIcon = kycCard.icon;
 
     const roles = [
-        { id: "veterinario", icon: "🩺", title: "Veterinario", desc: "Atiende pacientes, agenda citas y emite recetas.", benefits: ["🏥 Gestión de pacientes", "📅 Sistema de citas", "🎥 Videoconsultas"] },
-        { id: "hospital", icon: "🏥", title: "Clínica u Hospital", desc: "Administra sedes, médicos asociados y agenda.", benefits: ["🏢 Sucursales", "👩‍⚕️ Médicos asociados", "📦 Inventario"] },
-        { id: "vendedor", icon: "🛒", title: "Marca o Vendedor", desc: "Vende alimentos, accesorios o medicinas en la Michi-Shop.", benefits: ["🛍️ Tienda online", "📦 Pedidos", "📊 Análisis de ventas"] },
-        { id: "paseador", icon: "🦮", title: "Paseador", desc: "Ofrece paseos para dueños ocupados.", benefits: ["🚶 Calendario flexible", "📍 Solicitudes", "⭐ Reseñas"] },
-        { id: "cuidador", icon: "🏡", title: "Cuidador / Pensión", desc: "Hospeda y cuida mascotas en tu hogar.", benefits: ["🛏️ Hospedaje", "📅 Calendario", "⭐ Reseñas"] },
-        { id: "refugio", icon: "🏠", title: "Refugio", desc: "Gestiona adopciones y recibe donaciones.", benefits: ["🐾 Adopciones", "💳 Donaciones", "🏆 Insignia de confianza"] },
-        { id: "hogar_temporal", icon: "💛", title: "Hogar temporal", desc: "Cuida mascotas rescatadas mientras encuentran familia.", benefits: ["🐾 Publicaciones", "📋 Solicitudes"] },
-        { id: "aseguradora", icon: "🛡️", title: "Aseguradora", desc: "Publica planes y gestiona reclamos.", benefits: ["📄 Planes", "🧾 Reclamos"] },
-        { id: "laboratorio", icon: "🧪", title: "Laboratorio", desc: "Recibe órdenes y entrega resultados.", benefits: ["🧫 Órdenes", "📑 Resultados"] },
-        { id: "funeraria", icon: "🕊️", title: "Funeraria", desc: "Servicios de despedida y memoriales.", benefits: ["⚱️ Paquetes", "🕯️ Memoriales"] },
-        { id: "entrenador", icon: "🎓", title: "Entrenador", desc: "Ofrece programas de adiestramiento.", benefits: ["📚 Programas", "👥 Alumnos"] },
-        { id: "estilista", icon: "✂️", title: "Estilista", desc: "Agenda citas de estética y grooming.", benefits: ["📅 Agenda", "💈 Servicios"] },
-        { id: "patrocinador", icon: "🏅", title: "Patrocinador", desc: "Crea campañas y apoya alertas de mascotas perdidas.", benefits: ["📣 Campañas", "📊 Estadísticas"] },
-        { id: "transportista", icon: "🚗", title: "Transportista", desc: "Transporta mascotas con seguimiento del viaje.", benefits: ["🧭 Viajes", "📍 Tracking"] },
-        { id: "establecimiento", icon: "☕", title: "Establecimiento pet-friendly", desc: "Registra tu local y atrae clientes con mascotas.", benefits: ["📍 Perfil del local", "🎟️ Cupones"] },
+        { id: "veterinario", icon: Stethoscope, title: "Veterinario", desc: "Atiende pacientes, agenda citas y emite recetas.", benefits: ["Gestión de pacientes", "Sistema de citas", "Videoconsultas"] },
+        { id: "hospital", icon: Building2, title: "Clínica u Hospital", desc: "Administra sedes, médicos asociados y agenda.", benefits: ["Sucursales", "Médicos asociados", "Inventario"] },
+        { id: "vendedor", icon: ShoppingBag, title: "Marca o Vendedor", desc: "Vende alimentos, accesorios o medicinas en la Michi-Shop.", benefits: ["Tienda online", "Pedidos", "Análisis de ventas"] },
+        { id: "paseador", icon: Dog, title: "Paseador", desc: "Ofrece paseos para dueños ocupados.", benefits: ["Calendario flexible", "Solicitudes", "Reseñas"] },
+        { id: "cuidador", icon: Home, title: "Cuidador / Pensión", desc: "Hospeda y cuida mascotas en tu hogar.", benefits: ["Hospedaje", "Calendario", "Reseñas"] },
+        { id: "refugio", icon: HeartHandshake, title: "Refugio", desc: "Gestiona adopciones y recibe donaciones.", benefits: ["Adopciones", "Donaciones", "Insignia de confianza"] },
+        { id: "hogar_temporal", icon: Heart, title: "Hogar temporal", desc: "Cuida mascotas rescatadas mientras encuentran familia.", benefits: ["Publicaciones", "Solicitudes"] },
+        { id: "aseguradora", icon: Shield, title: "Aseguradora", desc: "Publica planes y gestiona reclamos.", benefits: ["Planes", "Reclamos"] },
+        { id: "laboratorio", icon: FlaskConical, title: "Laboratorio", desc: "Recibe órdenes y entrega resultados.", benefits: ["Órdenes", "Resultados"] },
+        { id: "funeraria", icon: Flower2, title: "Funeraria", desc: "Servicios de despedida y memoriales.", benefits: ["Paquetes", "Memoriales"] },
+        { id: "entrenador", icon: GraduationCap, title: "Entrenador", desc: "Ofrece programas de adiestramiento.", benefits: ["Programas", "Alumnos"] },
+        { id: "estilista", icon: Scissors, title: "Estilista", desc: "Agenda citas de estética y grooming.", benefits: ["Agenda", "Servicios"] },
+        { id: "patrocinador", icon: Award, title: "Patrocinador", desc: "Crea campañas y apoya alertas de mascotas perdidas.", benefits: ["Campañas", "Estadísticas"] },
+        { id: "transportista", icon: Car, title: "Transportista", desc: "Transporta mascotas con seguimiento del viaje.", benefits: ["Viajes", "Tracking"] },
+        { id: "establecimiento", icon: Coffee, title: "Establecimiento pet-friendly", desc: "Registra tu local y atrae clientes con mascotas.", benefits: ["Perfil del local", "Cupones"] },
     ];
 
     function handleUpgrade() {
@@ -99,7 +99,9 @@ export default function PartnerOnboardingScreen() {
             onPress={() => setSelectedRole(role.id)}
         >
             <View style={styles.roleHeader}>
-                <Text style={styles.roleIcon}>{role.icon}</Text>
+                <View style={[styles.roleIconBox, { backgroundColor: theme.primary + tint.faint }]}>
+                    <role.icon size={layout.icon.lg} color={theme.primary} />
+                </View>
                 <View style={styles.roleTitleContainer}>
                     <Text style={[styles.roleTitle, { color: theme.text }]}>{role.title}</Text>
                     {selectedRole === role.id && (
@@ -259,8 +261,12 @@ const styles = StyleSheet.create({
         marginBottom: spacing.md,
         gap: spacing.lg,
     },
-    roleIcon: {
-        fontSize: font.display,
+    roleIconBox: {
+        width: layout.iconBox.lg,
+        height: layout.iconBox.lg,
+        borderRadius: radius.md,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     roleTitleContainer: {
         flex: 1,

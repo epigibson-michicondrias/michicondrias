@@ -15,15 +15,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import type { InsurancePlan } from '@/src/services/insurance';
 import type { Pet } from '@/src/types/mascotas';
-import {
-    Shield,
-    DollarSign,
-    CheckCircle,
-    PawPrint,
-    Calculator,
-    CreditCard,
-    ArrowRight,
-} from 'lucide-react-native';
+import { Shield, DollarSign, CheckCircle, PawPrint, Calculator, CreditCard, ArrowRight, Dog, Cat } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function CotizarScreen() {
@@ -86,9 +78,9 @@ export default function CotizarScreen() {
                                 ]}
                                 onPress={() => setSelectedPetId(pet.id)}
                             >
-                                <Text style={styles.petEmoji}>
-                                    {pet.species === 'perro' || pet.species === 'dog' ? '🐕' : '🐈'}
-                                </Text>
+                                {pet.species === 'perro' || pet.species === 'dog'
+                                    ? <Dog size={layout.icon.lg} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />
+                                    : <Cat size={layout.icon.lg} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />}
                                 <Text style={[styles.petName, { color: theme.text }]} numberOfLines={1}>
                                     {pet.name}
                                 </Text>

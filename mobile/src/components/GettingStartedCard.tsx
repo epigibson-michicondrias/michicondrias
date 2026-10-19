@@ -21,7 +21,7 @@ export default function GettingStartedCard() {
 
     return (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Text accessibilityRole="header" style={[styles.title, { color: theme.text }]}>👋 ¡Bienvenido a Michicondrias!</Text>
+            <Text accessibilityRole="header" style={[styles.title, { color: theme.text }]}>¡Bienvenido a Michicondrias!</Text>
             <Text style={[styles.subtitle, { color: theme.textMuted }]}>Empieza por aquí:</Text>
             {STEPS.map((step, i) => {
                 const Icon = step.icon;

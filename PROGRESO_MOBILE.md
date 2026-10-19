@@ -874,4 +874,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   Revisión visual de Mi clínica (12 pantallas: consistentes, deuda solo de código) y Admin (14): Mascotas muestra el
   nombre del dueño en vez de su UUID; Usuarios sin textos encimados (nombre/correo en una línea, insignias que
   saltan de línea, acciones con `IconButton` de 44 px de área).
+  Barrido visual de 15 módulos de cliente: listas de paseadores y cuidadores sin botón anidado (error en web);
+  emojis usados como ícono reemplazados por lucide (Partner con un ícono por rol, Aseguradoras, Transportistas,
+  Diagnóstico IA, «Primeros pasos»).
 

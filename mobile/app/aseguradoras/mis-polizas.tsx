@@ -8,15 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import DataList from '@/src/components/data/DataList';
-import {
-    Shield,
-    ShieldCheck,
-    ShieldX,
-    Calendar,
-    DollarSign,
-    FileText,
-    ChevronRight,
-} from 'lucide-react-native';
+import { Shield, ShieldCheck, ShieldX, Calendar, DollarSign, FileText, ChevronRight, Dog, Cat } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function MisPolizasScreen() {
@@ -34,13 +26,13 @@ export default function MisPolizasScreen() {
     const renderPetPolicy = ({ item }: { item: PetWithPolicy }) => {
         const { pet, policy } = item;
         const hasPolicy = policy !== null;
-        const petEmoji = pet.species === 'perro' || pet.species === 'dog' ? '🐕' : '🐈';
+        const PetIcon = pet.species === 'perro' || pet.species === 'dog' ? Dog : Cat;
 
         return (
             <View style={[styles.policyCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                 {/* Pet Header */}
                 <View style={styles.petHeader}>
-                    <Text style={styles.petEmoji}>{petEmoji}</Text>
+                    <PetIcon size={layout.icon.lg} color={theme.primary} />
                     <View style={styles.petInfo}>
                         <Text style={[styles.petName, { color: theme.text }]}>{pet.name}</Text>
                         <Text style={[styles.petBreed, { color: theme.textMuted }]}>

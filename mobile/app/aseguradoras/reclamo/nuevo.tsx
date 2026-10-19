@@ -17,17 +17,7 @@ import { formatDateMx } from '@/src/features/salud/format';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import type { Pet } from '@/src/types/mascotas';
-import {
-    Shield,
-    FileText,
-    DollarSign,
-    PawPrint,
-    Send,
-    CheckCircle,
-    AlertTriangle,
-    Receipt,
-    Sparkles,
-} from 'lucide-react-native';
+import { Shield, FileText, DollarSign, PawPrint, Send, CheckCircle, AlertTriangle, Receipt, Sparkles, Dog, Cat } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevoReclamoScreen() {
@@ -100,11 +90,9 @@ export default function NuevoReclamoScreen() {
                                     ]}
                                     onPress={() => setSelectedPetId(pet.id)}
                                 >
-                                    <Text style={styles.petChipEmoji}>
-                                        {pet.species === 'perro' || pet.species === 'dog'
-                                            ? '🐕'
-                                            : '🐈'}
-                                    </Text>
+                                    {pet.species === 'perro' || pet.species === 'dog'
+                                        ? <Dog size={layout.icon.md} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />
+                                        : <Cat size={layout.icon.md} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />}
                                     <Text
                                         style={[styles.petChipName, { color: theme.text }]}
                                         numberOfLines={1}

@@ -47,7 +47,6 @@ export default function DiagnosticoIAScreen() {
         ...pets.map((pet) => ({
             label: pet.name,
             value: pet.id,
-            icon: pet.species === 'gato' ? '🐱' : '🐶',
         })),
     ];
 
@@ -56,14 +55,13 @@ export default function DiagnosticoIAScreen() {
         ...pets.map((pet) => ({
             label: pet.name,
             value: pet.id,
-            icon: pet.species === 'gato' ? '🐱' : '🐶',
         })),
     ];
 
     const activityOptions = [
-        { label: 'Bajo (Poco ejercicio)', value: 'bajo', icon: '🛋️' },
-        { label: 'Medio (Normal / Juegos)', value: 'medio', icon: '🎾' },
-        { label: 'Alto (Deportivo / Muy activo)', value: 'alto', icon: '🏃' },
+        { label: 'Bajo (Poco ejercicio)', value: 'bajo' },
+        { label: 'Medio (Normal / Juegos)', value: 'medio' },
+        { label: 'Alto (Deportivo / Muy activo)', value: 'alto' },
     ];
 
     return (

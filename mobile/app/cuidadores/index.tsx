@@ -111,13 +111,11 @@ export default function CuidadoresScreen() {
                     </Text>
                     <Text style={[styles.priceUnit, { color: theme.textMuted }]}>/día</Text>
                 </View>
-                <TouchableOpacity accessibilityRole="button" 
-                    style={[styles.contactButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push({ pathname: '/cuidadores/[id]', params: { id: item.id } } as any)}
-                >
+                {/* Solo indicación visual: toda la tarjeta abre el perfil (un botón dentro de otro falla en web) */}
+                <View style={[styles.contactButton, { backgroundColor: theme.primary }]} accessible={false}>
                     <Text style={styles.contactButtonText}>Ver perfil</Text>
                     <ChevronRight size={16} color={theme.onPrimary} />
-                </TouchableOpacity>
+                </View>
             </View>
         </TouchableOpacity>
     );

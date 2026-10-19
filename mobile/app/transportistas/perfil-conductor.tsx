@@ -68,7 +68,7 @@ export default function PerfilConductorScreen() {
         </View>
 
         {/* Vehicle info */}
-        <FormSection title="🚗 Información del Vehículo">
+        <FormSection title="Información del Vehículo">
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.textMuted }]}>Modelo del Vehículo *</Text>
             <View style={styles.inputWrapper}>
@@ -115,7 +115,7 @@ export default function PerfilConductorScreen() {
         </FormSection>
 
         {/* Features */}
-        <FormSection title="⚙️ Características del Servicio">
+        <FormSection title="Características del Servicio">
           <FormSwitch
             label="Aire Acondicionado"
             description="El vehículo cuenta con A/C funcional"
@@ -132,7 +132,7 @@ export default function PerfilConductorScreen() {
         </FormSection>
 
         {/* Availability */}
-        <FormSection title="📡 Disponibilidad">
+        <FormSection title="Disponibilidad">
           <FormSwitch
             label="Disponible para viajes"
             description="Aparecerás como conductor disponible para los usuarios"

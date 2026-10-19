@@ -75,7 +75,7 @@ export default function SolicitarTransporteScreen() {
       <ScreenHeader title="Solicitar transporte" subtitle="Pide un viaje para tu mascota" />
 
       <KeyboardScreen contentContainerStyle={styles.scrollContent}>
-        <FormSection title="🐾 Selecciona tu mascota">
+        <FormSection title="Selecciona tu mascota">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.selectionRow}>
             {pets.map((pet: Pet) => {
               const isSelected = form.pet_id === pet.id;
@@ -107,7 +107,7 @@ export default function SolicitarTransporteScreen() {
           </ScrollView>
         </FormSection>
 
-        <FormSection title="📍 Direcciones">
+        <FormSection title="Direcciones">
           <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.textMuted }]}>Origen *</Text>
             <View style={styles.inputWrapper}>
@@ -153,7 +153,7 @@ export default function SolicitarTransporteScreen() {
           </View>
         </FormSection>
 
-        <FormSection title="🚙 Conductor (opcional)">
+        <FormSection title="Conductor (opcional)">
           {drivers.length === 0 ? (
             <Text style={[type.body, { color: theme.textMuted }]}>
               Por ahora no hay conductores disponibles; tu solicitud quedará abierta hasta que alguien la acepte.
@@ -213,7 +213,7 @@ export default function SolicitarTransporteScreen() {
           )}
         </FormSection>
 
-        <FormSection title="⚙️ Opciones">
+        <FormSection title="Opciones">
           <FormSwitch
             label="Requiere transportín"
             description="Necesito que el conductor traiga transportín (costo extra)"
@@ -253,7 +253,7 @@ export default function SolicitarTransporteScreen() {
           </View>
         </FormSection>
 
-        <FormSection title="💰 Tarifa estimada">
+        <FormSection title="Tarifa estimada">
           <Button
             label={isEstimating ? 'Calculando...' : 'Calcular tarifa'}
             variant="secondary"
@@ -299,7 +299,7 @@ export default function SolicitarTransporteScreen() {
             {selectedPet && <Text style={[type.body, { color: theme.textMuted }]}>🐾 Mascota: {selectedPet.name}</Text>}
             {selectedDriver && (
               <Text style={[type.body, { color: theme.textMuted }]}>
-                🚙 Conductor sugerido: {selectedDriver.vehicle_model} ({selectedDriver.vehicle_plate})
+                Conductor sugerido: {selectedDriver.vehicle_model} ({selectedDriver.vehicle_plate})
               </Text>
             )}
           </Card>

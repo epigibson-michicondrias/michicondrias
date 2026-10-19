@@ -1063,3 +1063,18 @@ Pantallas con más deuda: `(tabs)/index` (605 l.), `adopciones/solicitar/[id]`, 
 7. Profesionales: Mi clínica, Admin, Aseguradoras, Entrenadores, Funeraria, Patrocinadores, Laboratorio, Transportistas, Estética, Lugares.
 8. **Limpieza**: borrar los 19 archivos sin uso y los exports muertos que reporta Knip.
 - [x] **P0 Cuidadores** ✅ 2026-10-19: «Reservar cuidado» no abría nada (estado de modal sin `Modal` dibujado). Ahora `BottomSheet`.
+
+### Avance del plan — 2026-10-19 (cierre de la jornada)
+- [x] Paso 1: P0 y privacidad. [x] Paso 2: Inicio/Explorar/Panel. [x] Paso 3: Adopciones. [x] Paso 4: Perdidas.
+- [x] Paso 5: Directorio (citas, agendar, clínica) y detalles de Paseadores/Cuidadores. Falta: `directorio/index`,
+  `especialista/[id]`, `directorio/nuevo`, listas y calendarios de paseadores/cuidadores.
+- [x] Paso 6: Mascotas (ficha), Carnet (consulta y vacuna), Auth revisado. Falta: `carnet/receta/[id]`, Perfil
+  (`seguridad-2fa`, `verificacion`, `partner` solo íconos), `donaciones`.
+- [~] Paso 7: pasada global (`LoadingOverlay` → esqueleto, `#fff` → `theme.onPrimary`), Admin (mascotas, usuarios),
+  emojis → lucide, botones anidados. Pendiente: deuda de código (botones/inputs hechos a mano, números sueltos) en
+  Mi clínica, Admin, Aseguradoras, Entrenadores, Funeraria, Patrocinadores, Laboratorio, Transportistas, Estética y
+  Lugares; `/grooming` no tiene pantalla índice (Explorar usa `/estilistas`).
+- [x] Paso 8: 17 archivos sin uso borrados. Pendiente: 5 dependencias (con el próximo APK).
+- Por decidir con el usuario: fusionar `adopciones/solicitudes` y `ver-solicitudes`; KYC de adopción en el backend;
+  si el admin debe ver el collar GPS en Perdidas.
+
