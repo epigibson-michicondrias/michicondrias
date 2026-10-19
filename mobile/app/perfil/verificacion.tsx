@@ -73,7 +73,7 @@ export default function VerificationScreen() {
                         >
                             <View style={styles.ctaRow}>
                                 <Text style={styles.submitBtnText}>Activar cuenta profesional</Text>
-                                <ArrowRight size={20} color="#fff" />
+                                <ArrowRight size={20} color={theme.onPrimary} />
                             </View>
                         </TouchableOpacity>
                     )}
@@ -130,7 +130,7 @@ export default function VerificationScreen() {
                                 activeOpacity={0.85}
                             >
                                 {isSubmitting
-                                    ? <ActivityIndicator color="#fff" />
+                                    ? <ActivityIndicator color={theme.onPrimary} />
                                     : <Text style={styles.submitBtnText}>Enviar para revisión</Text>}
                             </TouchableOpacity>
                         </>

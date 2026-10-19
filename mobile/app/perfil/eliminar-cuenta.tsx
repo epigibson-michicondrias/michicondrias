@@ -102,7 +102,7 @@ export default function EliminarCuentaScreen() {
                     <Button
                         label="Eliminar mi cuenta"
                         variant="danger"
-                        icon={<Trash2 size={18} color="#fff" />}
+                        icon={<Trash2 size={18} color={theme.onPrimary} />}
                         onPress={confirm}
                         loading={busy}
                         disabled={!canSubmit}

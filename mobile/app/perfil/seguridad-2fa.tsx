@@ -35,12 +35,12 @@ export default function Seguridad2FAScreen() {
                 {/* Status Card */}
                 <View style={[styles.statusCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <View style={[styles.statusIcon, {
-                        backgroundColor: is2FAEnabled ? '#10b98120' : '#f59e0b20'
+                        backgroundColor: is2FAEnabled ? theme.success + '20' : theme.warning + '20'
                     }]}>
                         {is2FAEnabled ? (
-                            <ShieldCheck size={32} color="#10b981" />
+                            <ShieldCheck size={32} color={theme.success} />
                         ) : (
-                            <Shield size={32} color="#f59e0b" />
+                            <Shield size={32} color={theme.warning} />
                         )}
                     </View>
                     <Text style={[styles.statusTitle, { color: theme.text }]}>
@@ -68,7 +68,7 @@ export default function Seguridad2FAScreen() {
                             disabled={isSettingUp}
                         >
                             {isSettingUp ? (
-                                <ActivityIndicator color="#fff" size="small" />
+                                <ActivityIndicator color={theme.onPrimary} size="small" />
                             ) : (
                                 <Text style={styles.primaryButtonText}>Iniciar Configuración</Text>
                             )}
@@ -163,16 +163,16 @@ export default function Seguridad2FAScreen() {
 
                         {is2FAEnabled ? (
                             <TouchableOpacity
-                                style={[styles.dangerButton, { backgroundColor: '#ef444420', borderColor: '#ef4444' }]}
+                                style={[styles.dangerButton, { backgroundColor: theme.error + '20', borderColor: theme.error }]}
                                 onPress={handleDisable}
                                 disabled={isDisabling}
                             >
                                 {isDisabling ? (
-                                    <ActivityIndicator color="#ef4444" size="small" />
+                                    <ActivityIndicator color={theme.error} size="small" />
                                 ) : (
                                     <>
-                                        <ShieldOff size={20} color="#ef4444" />
-                                        <Text style={[styles.dangerButtonText, { color: '#ef4444' }]}>
+                                        <ShieldOff size={20} color={theme.error} />
+                                        <Text style={[styles.dangerButtonText, { color: theme.error }]}>
                                             Desactivar 2FA
                                         </Text>
                                     </>
@@ -185,7 +185,7 @@ export default function Seguridad2FAScreen() {
                                 disabled={isEnabling}
                             >
                                 {isEnabling ? (
-                                    <ActivityIndicator color="#fff" size="small" />
+                                    <ActivityIndicator color={theme.onPrimary} size="small" />
                                 ) : (
                                     <Text style={styles.primaryButtonText}>Activar 2FA</Text>
                                 )}

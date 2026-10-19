@@ -165,16 +165,16 @@ export default function PartnerOnboardingScreen() {
                     disabled={!selectedRole || isUpgrading}
                 >
                     {isUpgrading ? (
-                        <ActivityIndicator color="#fff" size="small" />
+                        <ActivityIndicator color={theme.onPrimary} size="small" />
                     ) : (
                         <>
                             <Text style={[
                                 styles.upgradeButtonText, 
-                                { color: selectedRole ? '#fff' : theme.textMuted }
+                                { color: selectedRole ? theme.onPrimary : theme.textMuted }
                             ]}>
                                 {selectedRole ? `Convertirme en ${roles.find(r => r.id === selectedRole)?.title}` : "Selecciona un rol"}
                             </Text>
-                            {selectedRole && <ArrowRight size={20} color="#fff" />}
+                            {selectedRole && <ArrowRight size={20} color={theme.onPrimary} />}
                         </>
                     )}
                 </TouchableOpacity>
