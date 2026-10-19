@@ -807,4 +807,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   /favorites/me/{id}` y `POST /favorites/me/merge`; `GET /products/?favorites=true` filtra en el servidor. En la app
   `useProductFavorites` (reemplaza a `useFavorites`): corazón optimista con reversión y aviso si falla; los favoritos
   que estaban solo en el teléfono se suben una vez y se borran de ahí. `apiFetch` acepta respuestas 204.
+- **2026-10-19** — **Detalle de Perdidas rediseñado** (`app/perdidas/[id].tsx`). La flecha de volver quedaba bajo la
+  foto (no estaba posicionada) y el nombre iba encima de la imagen: ahora sigue el patrón del detalle de producto
+  (foto con esquinas redondeadas, volver/editar/compartir flotantes y fijos en la safe area, datos debajo). Una sola
+  acción principal abajo: «Contactar al dueño» o, para el dueño, «Ya regresó a casa» (editar pasa arriba). Tokens y
+  componentes base (0 hex); `TrackerCard` y `SightingForm` en `src/features/perdidas/ReportDetailSections.tsx`.
 
