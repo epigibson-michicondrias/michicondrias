@@ -73,15 +73,15 @@ export function useVenueReviews(venueId: string | undefined) {
         onSuccess: (data) => {
             showAlert({
                 type: 'success',
-                title: '¡Cupón reclamado!',
-                message: `Tu código de cupón es: ${data.coupon_code}`,
+                title: 'Tu código personal',
+                message: `${data.coupon_code}\n\nMuéstralo al pagar en el establecimiento. Es solo para ti y se usa una vez.`,
             });
         },
         onError: (e) => {
             showAlert({
                 type: 'error',
-                title: 'Error',
-                message: e.message || 'No se pudo reclamar el cupón.',
+                title: 'No se pudo obtener el cupón',
+                message: e.message || 'Inténtalo de nuevo.',
             });
         },
     });

@@ -54,3 +54,13 @@ def require_admin(token: str = Depends(oauth2_scheme)) -> str:
             detail="Se requiere rol de administrador",
         )
     return payload["sub"]
+
+
+def get_optional_user_id(token: str = Depends(oauth2_scheme)) -> str | None:
+    """Usuario con sesión o None (vistas públicas que cambian para el dueño)."""
+    if not token:
+        return None
+    try:
+        return _decode_token(token).get("sub")
+    except HTTPException:
+        return None

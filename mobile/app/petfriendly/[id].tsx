@@ -1,15 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Dimensions, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput } from 'react-native';
 import { usePlaceDetail } from '@/src/hooks/petfriendly/usePlaceDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import BackButton from '@/src/components/BackButton';
+import { DetailPhoto, DetailTopBar } from '@/src/components/layout/DetailLayout';
+import IconButton from '@/src/components/IconButton';
 import { showAlert } from '@/src/components/AppAlert';
 import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2 } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
-import { font, spacing } from '@/constants/design';
-
-const { width } = Dimensions.get('window');
+import { font, layout, spacing } from '@/constants/design';
 
 export default function PetfriendlyDetalleScreen() {
     const { theme } = useTheme();
@@ -57,26 +56,11 @@ export default function PetfriendlyDetalleScreen() {
     }
 
     return (
-        <ScreenContainer noPadding>
+        <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                <View style={styles.imageContainer}>
-                    {place.image_url ? (
-                        <Image source={{ uri: place.image_url }} style={styles.image} accessibilityLabel={`Foto de ${place.name}`} />
-                    ) : (
-                        <View style={[styles.image, { backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Bone size={64} color={theme.textMuted} />
-                        </View>
-                    )}
-                    <View style={styles.topOverlay}>
-                        <BackButton onPress={goBack} color={theme.onHero} style={styles.circleBtn} />
-                        <Text style={styles.headerTitle}>Detalles del Lugar</Text>
-                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir" style={styles.circleBtn} onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)}>
-                            <Share2 size={20} color={theme.onHero} />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                <DetailPhoto images={[place.image_url]} fallbackIcon={Bone} accessibilityLabel={`Foto de ${place.name}`} />
 
-                <View style={[styles.content, { backgroundColor: theme.background }]}>
+                <View style={styles.content}>
                     <View style={styles.placeHeader}>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.placeName, { color: theme.text }]}>{place.name}</Text>
@@ -173,9 +157,10 @@ export default function PetfriendlyDetalleScreen() {
                             </View>
                         </View>
 
-                        {/* Write a Review Card */}
+                        {/* Quien registró el lugar no se reseña a sí mismo (el backend responde 403) */}
+                        {!isOwner && (
                         <View style={[styles.writeReviewCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Escribe tu Opinión</Text>
+                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Escribe tu opinión</Text>
                             <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>¿Qué te pareció el lugar y su trato con las mascotas?</Text>
                             
                             <View style={styles.interactiveStars}>
@@ -213,19 +198,21 @@ export default function PetfriendlyDetalleScreen() {
                                         showAlert({ type: 'error', title: 'Comentario corto', message: 'Por favor escribe un comentario de al menos 5 caracteres.' });
                                         return;
                                     }
-                                    await handleCreateReview(formRating, formComment);
-                                    setFormComment('');
-                                    setFormRating(5);
+                                    if (await handleCreateReview(formRating, formComment)) {
+                                        setFormComment('');
+                                        setFormRating(5);
+                                    }
                                 }}
                                 disabled={isCreatingReview}
                             >
                                 {isCreatingReview ? (
                                     <ActivityIndicator size="small" color={theme.onPrimary} />
                                 ) : (
-                                    <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
+                                    <Text style={styles.submitReviewBtnText}>Publicar reseña</Text>
                                 )}
                             </TouchableOpacity>
                         </View>
+                        )}
 
                         {/* Reviews List */}
                         <View style={styles.reviewsList}>
@@ -275,20 +262,16 @@ export default function PetfriendlyDetalleScreen() {
                     </View>
                 </View>
             </ScrollView>
+            <DetailTopBar
+                onBack={goBack}
+                actions={<IconButton icon={Share2} accessibilityLabel="Compartir lugar" onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)} variant="surface" size="sm" />}
+            />
         </ScreenContainer>
     );
 }
 
 const isYes = (v?: string | null) => ['si', 'sí', 'yes', 'true'].includes((v || '').trim().toLowerCase());
 
-function HourRow({ day, hours, theme, isLast }: any) {
-    return (
-        <View style={[styles.hourRow, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
-            <Text style={[styles.hourDay, { color: theme.text }]}>{day}</Text>
-            <Text style={[styles.hourVal, { color: theme.textMuted }]}>{hours}</Text>
-        </View>
-    );
-}
 
 function ActionBtn({ icon, label, onPress, theme, disabled }: { icon: any, label: string, onPress: any, theme: any, disabled?: boolean }) {
     return (
@@ -321,46 +304,10 @@ const styles = StyleSheet.create({
     scroll: {
         paddingBottom: spacing.huge,
     },
-    imageContainer: {
-        height: 320,
-        width: width,
-        position: 'relative',
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-    topOverlay: {
-        position: 'absolute',
-        top: 60,
-        left: 20,
-        right: 20,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    headerTitle: {
-        fontSize: font.xxl,
-        fontWeight: '900',
-        color: '#fff',
-        textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: { width: -1, height: 1 },
-        textShadowRadius: 10
-    },
-    circleBtn: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     content: {
-        marginTop: -30,
-        backgroundColor: 'transparent',
-        borderTopLeftRadius: 36,
-        borderTopRightRadius: 36,
-        padding: spacing.xxl,
-        gap: spacing.xxxl,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.xl,
+        gap: spacing.xxl,
     },
     placeHeader: {
         flexDirection: 'row',

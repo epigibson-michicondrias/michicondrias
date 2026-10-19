@@ -159,13 +159,15 @@ export default function VenueDetailScreen() {
             )}
 
             {/* Discount + Coupon Claim */}
-            {venue.discount_coupon && (
+            {(venue.has_coupon || venue.discount_coupon) && (
                 <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Descuento Disponible</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Descuento disponible</Text>
                     <View style={[styles.discountCard, { backgroundColor: theme.warningLight }]}>
                         <Tag size={24} color={theme.warning} />
                         <View style={styles.discountInfo}>
-                            <Text style={[styles.discountCode, { color: theme.warning }]}>{venue.discount_coupon}</Text>
+                            <Text style={[styles.discountCode, { color: theme.warning }]}>
+                                {isOwner && venue.discount_coupon ? venue.discount_coupon : 'Cupón de descuento'}
+                            </Text>
                             {venue.discount_description && (
                                 <Text style={[styles.discountDesc, { color: theme.textMuted }]}>{venue.discount_description}</Text>
                             )}
@@ -182,7 +184,7 @@ export default function VenueDetailScreen() {
                         ) : (
                             <>
                                 <Gift size={18} color={theme.onPrimary} />
-                                <Text style={styles.claimButtonText}>Reclamar Cupón</Text>
+                                <Text style={styles.claimButtonText}>Obtener mi código</Text>
                             </>
                         )}
                     </TouchableOpacity>
