@@ -12,6 +12,7 @@ import {
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 
 import { shareContent } from '@/src/utils/share';
+import { ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice, ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter } from '@/src/features/proveedor/ProviderProfile';
 import DatePicker from '@/src/components/DatePicker';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
 
@@ -86,106 +87,37 @@ export default function WalkerDetailScreen() {
             />
 
             <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContainer}>
-                {/* Profile Header */}
-                <View style={styles.profileHeader}>
-                    <View style={[styles.avatarContainer, { backgroundColor: theme.primary + '20' }]}>
-                        {walker.photo_url ? (
-                            <Image source={{ uri: walker.photo_url }} style={styles.avatar} />
-                        ) : (
-                            <Text style={[styles.avatarText, { color: theme.primary }]}>
-                                {walker.display_name.charAt(0).toUpperCase()}
-                            </Text>
-                        )}
-                    </View>
-                    
-                    <View style={styles.profileInfo}>
-                        <Text style={[styles.profileName, { color: theme.text }]}>{walker.display_name}</Text>
-                        <View style={styles.ratingRow}>
-                            <Star size={16} color={theme.warning} fill={theme.warning} />
-                            <Text style={[styles.ratingText, { color: theme.text }]}>
-                                {walker.rating ? walker.rating.toFixed(1) : 'Nuevo'} ({walker.total_walks} paseos)
-                            </Text>
-                        </View>
-                        
-                        {walker.is_verified && (
-                            <View style={styles.verifiedBadge}>
-                                <Shield size={14} color={theme.success} />
-                                <Text style={styles.verifiedText}>Verificado</Text>
-                            </View>
-                        )}
-                    </View>
+                <ProviderHero
+                    photoUrl={walker.photo_url}
+                    name={walker.display_name}
+                    subtitle={walker.is_verified ? 'Paseador verificado' : undefined}
+                    rating={walker.rating}
+                    reviewCount={walker.total_walks}
+                />
 
-                    <TouchableOpacity accessibilityRole="button" style={styles.shareButton} onPress={() => shareContent('Paseador', `${walker.display_name} es paseador en Michicondrias 🐾`)}>
-                        <Share2 size={20} color={theme.textMuted} />
-                    </TouchableOpacity>
-                </View>
+                <ProviderStats items={[
+                    { value: String(walker.total_walks), label: 'Paseos' },
+                    { value: String(walker.experience_years ?? 0), label: 'Años' },
+                    { value: String(walker.max_pets_per_walk), label: 'Mascotas' },
+                ]} />
 
-                {/* Quick Stats */}
-                <View style={[styles.statsContainer, { backgroundColor: theme.surface }]}>
-                    <View style={styles.statItem}>
-                        <Users size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.total_walks}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Paseos</Text>
-                    </View>
-                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-                    <View style={styles.statItem}>
-                        <Clock size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.experience_years ?? 0}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Años</Text>
-                    </View>
-                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-                    <View style={styles.statItem}>
-                        <Dog size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.max_pets_per_walk}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Mascotas</Text>
-                    </View>
-                </View>
-
-                {/* Bio */}
                 {walker.bio && (
-                    <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Sobre mí</Text>
-                        <Text style={[styles.bioText, { color: theme.textMuted }]}>{walker.bio}</Text>
-                    </View>
+                    <ProviderSection title="Sobre mí">
+                        <ProviderBio text={walker.bio} />
+                    </ProviderSection>
                 )}
 
-                {/* Services */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios</Text>
-                    <View style={styles.servicesGrid}>
-                        <View style={[styles.serviceCard, { borderColor: theme.border }, { backgroundColor: walker.accepts_dogs ? theme.primary + '10' : theme.surface }]}>
-                            <Dog size={24} color={walker.accepts_dogs ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.serviceName, { color: walker.accepts_dogs ? theme.primary : theme.textMuted }]}>
-                                Paseo de Perros
-                            </Text>
-                            <CheckCircle size={16} color={walker.accepts_dogs ? theme.success : theme.textMuted} />
-                        </View>
-                        <View style={[styles.serviceCard, { borderColor: theme.border }, { backgroundColor: walker.accepts_cats ? theme.primary + '10' : theme.surface }]}>
-                            <Cat size={24} color={walker.accepts_cats ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.serviceName, { color: walker.accepts_cats ? theme.primary : theme.textMuted }]}>
-                                Paseo de Gatos
-                            </Text>
-                            <CheckCircle size={16} color={walker.accepts_cats ? theme.success : theme.textMuted} />
-                        </View>
-                    </View>
-                </View>
+                <ProviderSection title="Servicios">
+                    <ProviderServices services={[
+                        { name: 'Paseo de Perros', active: walker.accepts_dogs, icon: <Dog size={24} color={walker.accepts_dogs ? theme.primary : theme.textMuted} /> },
+                        { name: 'Paseo de Gatos', active: walker.accepts_cats, icon: <Cat size={24} color={walker.accepts_cats ? theme.primary : theme.textMuted} /> },
+                    ]} />
+                </ProviderSection>
 
-                {/* Location */}
                 {walker.location && (
-                    <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Ubicación</Text>
-                        <View style={styles.locationRow}>
-                            <MapPin size={20} color={theme.primary} />
-                            <Text style={[styles.locationText, { color: theme.textMuted }]}>
-                                {walker.location}
-                            </Text>
-                        </View>
-                        {walker.service_radius_km && (
-                            <Text style={[styles.radiusText, { color: theme.textMuted }]}>
-                                Radio de servicio: {walker.service_radius_km} km
-                            </Text>
-                        )}
-                    </View>
+                    <ProviderSection title="Ubicación">
+                        <ProviderLocation text={walker.location} extra={walker.service_radius_km ? `Radio de servicio: ${walker.service_radius_km} km` : undefined} />
+                    </ProviderSection>
                 )}
 
                 {/* Pricing */}
@@ -207,156 +139,13 @@ export default function WalkerDetailScreen() {
                     )}
                 </View>
 
-                {/* Reseñas y Opiniones */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Reseñas y Opiniones</Text>
-
-                    {/* Resumen de Calificación */}
-                    <View style={[styles.ratingSummaryCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                        <View style={styles.summaryLeft}>
-                            <Text style={[styles.bigRating, { color: theme.text }]}>
-                                {walker.rating ? walker.rating.toFixed(1) : '—'}
-                            </Text>
-                            <View style={styles.starsRow}>
-                                {[1, 2, 3, 4, 5].map((s) => {
-                                    const isFilled = s <= Math.round(walker.rating || 0);
-                                    return <Star key={s} size={16} color={theme.warning} fill={isFilled ? theme.warning : "transparent"} />;
-                                })}
-                            </View>
-                            <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
-                                {reviews.length} {reviews.length === 1 ? 'opinión' : 'opiniones'}
-                            </Text>
-                        </View>
-                        <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
-                        <View style={styles.summaryRight}>
-                            <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
-                                Calificación de la comunidad sobre la calidad del servicio, puntualidad y trato de este paseador.
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* Formulario para Calificar */}
+                <ProviderSection title="Reseñas y Opiniones">
+                    <ProviderRatingSummary rating={walker.rating || 0} count={reviews.length} />
                     {unreviewedCompletedRequests.length > 0 && (
-                        <View style={[styles.writeReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar tu paseo reciente</Text>
-                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>
-                                Selecciona estrellas y escribe tu reseña para tu paseo con {walker.display_name}.
-                            </Text>
-
-                            <View style={styles.interactiveStars}>
-                                {[1, 2, 3, 4, 5].map((starVal) => (
-                                    <TouchableOpacity accessibilityRole="button"
-                                        key={starVal}
-                                        onPress={() => setFormRating(starVal)}
-                                        style={styles.starTouch}
-                                    >
-                                        <Star
-                                            size={32}
-                                            color={theme.warning}
-                                            fill={starVal <= formRating ? theme.warning : "transparent"}
-                                        />
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-
-                            <TextInput
-                                style={[
-                                    styles.commentInput,
-                                    {
-                                        backgroundColor: theme.surface,
-                                        borderColor: theme.border,
-                                        color: theme.text,
-                                    },
-                                ]}
-                                placeholder="Escribe tu opinión aquí (opcional)..."
-                                placeholderTextColor={theme.textMuted}
-                                value={formComment}
-                                onChangeText={setFormComment}
-                                multiline
-                                numberOfLines={3}
-                            />
-
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => {
-                                    const latestRequest = unreviewedCompletedRequests[0];
-                                    handleCreateReview(latestRequest.id, {
-                                        rating: formRating,
-                                        comment: formComment.trim() || '',
-                                    });
-                                }}
-                                disabled={isCreatingReview}
-                            >
-                                {isCreatingReview ? (
-                                    <ActivityIndicator size="small" color="#fff" />
-                                ) : (
-                                    <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
-                                )}
-                            </TouchableOpacity>
-                        </View>
+                        <ProviderReviewForm onSubmit={(rating, comment) => { const req = unreviewedCompletedRequests[0]; if (req) handleCreateReview(req.id, { rating, comment }); }} isSubmitting={isCreatingReview} />
                     )}
-
-                    {/* Nota cuando no se puede calificar */}
-                    {unreviewedCompletedRequests.length === 0 && (
-                        <View style={[styles.infoReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                            <Text style={[styles.infoReviewText, { color: theme.textMuted }]}>
-                                Solo puedes dejar una reseña si has completado un paseo con este paseador.
-                            </Text>
-                        </View>
-                    )}
-
-                    {/* Listado de Opiniones */}
-                    <View style={styles.reviewsList}>
-                        {reviewsLoading ? (
-                            <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 20 }} />
-                        ) : reviews.length === 0 ? (
-                            <Text style={[styles.emptyReviewsText, { color: theme.textMuted }]}>
-                                Este paseador aún no tiene opiniones de otros clientes.
-                            </Text>
-                        ) : (
-                            reviews.map((review) => (
-                                <View
-                                    key={review.id}
-                                    style={[styles.reviewItemCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}
-                                >
-                                    <View style={styles.reviewItemHeader}>
-                                        <View style={[styles.reviewAvatar, { backgroundColor: theme.primary + '15' }]}>
-                                            <Text style={[styles.reviewAvatarText, { color: theme.primary }]}>
-                                                C
-                                            </Text>
-                                        </View>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.reviewUserName, { color: theme.text }]}>Cliente</Text>
-                                            <View style={styles.reviewStarsRow}>
-                                                {[1, 2, 3, 4, 5].map((s) => (
-                                                    <Star
-                                                        key={s}
-                                                        size={12}
-                                                        color={theme.warning}
-                                                        fill={s <= review.rating ? theme.warning : "transparent"}
-                                                    />
-                                                ))}
-                                            </View>
-                                        </View>
-                                        <Text style={[styles.reviewDate, { color: theme.textMuted }]}>
-                                            {review.created_at
-                                                ? new Date(review.created_at).toLocaleDateString('es-MX', {
-                                                      day: 'numeric',
-                                                      month: 'short',
-                                                  })
-                                                : ''}
-                                        </Text>
-                                    </View>
-                                    {review.comment && (
-                                        <Text style={[styles.reviewCommentText, { color: theme.textMuted }]}>
-                                            {review.comment}
-                                        </Text>
-                                    )}
-                                </View>
-                            ))
-                        )}
-                    </View>
-                </View>
+                    <ProviderReviews reviews={reviews.map((r: any) => ({ id: r.id, user_name: r.user_name, rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
+                </ProviderSection>
             </ScrollView>
 
             {/* Action Buttons (Sticky Footer) */}
