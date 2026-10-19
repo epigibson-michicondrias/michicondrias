@@ -123,10 +123,10 @@ export default function EditarEstablecimientoScreen() {
                             disabled={isSubmitting || isDeleting}
                         >
                             {isSubmitting ? (
-                                <ActivityIndicator size="small" color="#fff" />
+                                <ActivityIndicator size="small" color={theme.onPrimary} />
                             ) : (
                                 <>
-                                    <Save size={20} color="#fff" />
+                                    <Save size={20} color={theme.onPrimary} />
                                     <Text style={styles.submitText}>Guardar Cambios</Text>
                                 </>
                             )}

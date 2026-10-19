@@ -78,16 +78,16 @@ export default function EntrenadoresScreen() {
                     style={[styles.actionButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push('/entrenadores/nuevo-programa' as any)}
                 >
-                    <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nuevo Programa</Text>
+                    <Plus size={18} color={theme.onPrimary} />
+                    <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Nuevo Programa</Text>
                 </TouchableOpacity>
             ) : (
                 <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                     onPress={() => router.push('/entrenadores/mis-inscripciones' as any)}
                 >
-                    <Dumbbell size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Inscripciones</Text>
+                    <Dumbbell size={18} color={theme.onPrimary} />
+                    <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis Inscripciones</Text>
                 </TouchableOpacity>
             )}
         </View>

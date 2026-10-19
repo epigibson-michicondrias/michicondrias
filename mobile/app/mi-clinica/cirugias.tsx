@@ -213,7 +213,7 @@ export default function CirugiasScreen() {
                 style={[styles.fab, { backgroundColor: theme.primary }]}
                 onPress={() => setModalVisible(true)}
             >
-                <Plus size={24} color="#fff" />
+                <Plus size={24} color={theme.onPrimary} />
             </TouchableOpacity>
 
             {/* Modal de Agendamiento */}
@@ -303,7 +303,7 @@ export default function CirugiasScreen() {
                                 disabled={isCreating}
                             >
                                 {isCreating ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
                                     <Text style={styles.submitBtnText}>Agendar Intervención</Text>
                                 )}

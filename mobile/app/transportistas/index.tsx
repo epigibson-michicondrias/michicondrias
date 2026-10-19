@@ -92,8 +92,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Ver solicitudes de viaje"
                         >
-                            <Inbox size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitudes</Text>
+                            <Inbox size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Solicitudes</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.actionButton, { backgroundColor: theme.secondary }]}
@@ -101,8 +101,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Mi vehículo"
                         >
-                            <User size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mi vehículo</Text>
+                            <User size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mi vehículo</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.actionButton, { backgroundColor: theme.secondary }]}
@@ -110,8 +110,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Historial de viajes"
                         >
-                            <Clock size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Historial</Text>
+                            <Clock size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Historial</Text>
                         </TouchableOpacity>
                     </>
                 )}
@@ -123,8 +123,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Solicitar transporte"
                         >
-                            <Plus size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitar</Text>
+                            <Plus size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Solicitar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.actionButton, { backgroundColor: theme.secondary }]}
@@ -132,8 +132,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Mis viajes"
                         >
-                            <Route size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis viajes</Text>
+                            <Route size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis viajes</Text>
                         </TouchableOpacity>
                     </>
                 )}

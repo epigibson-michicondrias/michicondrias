@@ -75,16 +75,16 @@ export default function FunerariaScreen() {
                             style={[styles.actionButton, { backgroundColor: theme.primary }]}
                             onPress={() => router.push('/funeraria/nuevo-servicio')}
                         >
-                            <Plus size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Crear Servicio</Text>
+                            <Plus size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Crear Servicio</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             accessibilityRole="button"
                             style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                             onPress={() => router.push('/funeraria/gestion' as any)}
                         >
-                            <Heart size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitudes</Text>
+                            <Heart size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Solicitudes</Text>
                         </TouchableOpacity>
                     </>
                 ) : (
@@ -92,8 +92,8 @@ export default function FunerariaScreen() {
                         style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                         onPress={() => router.push('/funeraria/mis-reservas')}
                     >
-                        <Heart size={18} color="#fff" />
-                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Reservas</Text>
+                        <Heart size={18} color={theme.onPrimary} />
+                        <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis Reservas</Text>
                     </TouchableOpacity>
                 )}
             </View>

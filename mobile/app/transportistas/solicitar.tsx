@@ -308,7 +308,7 @@ export default function SolicitarTransporteScreen() {
         <Button
           label={isSubmitting ? 'Solicitando...' : 'Solicitar viaje'}
           size="lg"
-          icon={<Car size={20} color="#fff" />}
+          icon={<Car size={20} color={theme.onPrimary} />}
           loading={isSubmitting}
           disabled={isSubmitting}
           onPress={handleSubmit}

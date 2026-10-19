@@ -84,7 +84,7 @@ export default function NuevoEstilistaScreen() {
                     disabled={loading}
                     onPress={handleSubmit}
                 >
-                    <Scissors size={20} color="#fff" />
+                    <Scissors size={20} color={theme.onPrimary} />
                     <Text style={styles.submitBtnText}>{loading ? "Registrando..." : "Registrar Servicio"}</Text>
                 </TouchableOpacity>
             </View>

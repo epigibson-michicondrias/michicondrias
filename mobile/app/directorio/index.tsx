@@ -139,7 +139,7 @@ export default function DirectorioIndexScreen() {
                     style={[styles.actionBtn, { backgroundColor: theme.primary }]}
                     onPress={() => router.push(`/directorio/clinica/${item.id}` as any)}
                 >
-                    <Text style={[styles.actionBtnText, { color: '#fff' }]}>Ver Perfil</Text>
+                    <Text style={[styles.actionBtnText, { color: theme.onPrimary }]}>Ver Perfil</Text>
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -318,7 +318,7 @@ export default function DirectorioIndexScreen() {
                     style={[styles.registerButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push('/directorio/nuevo' as any)}
                 >
-                    <Plus size={18} color="#fff" />
+                    <Plus size={18} color={theme.onPrimary} />
                     <Text style={styles.registerButtonText}>Registrar mi Clínica</Text>
                 </TouchableOpacity>
             )}

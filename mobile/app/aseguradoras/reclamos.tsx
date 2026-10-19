@@ -123,10 +123,10 @@ export default function ReclamosScreen() {
                             onPress={() => handleUpdateClaimStatus(item.id, 'approved')}
                         >
                             {isUpdatingClaim ? (
-                                <ActivityIndicator size="small" color="#fff" />
+                                <ActivityIndicator size="small" color={theme.onPrimary} />
                             ) : (
                                 <>
-                                    <CheckCircle size={16} color="#fff" />
+                                    <CheckCircle size={16} color={theme.onPrimary} />
                                     <Text style={styles.approveBtnText}>Aprobar</Text>
                                 </>
                             )}

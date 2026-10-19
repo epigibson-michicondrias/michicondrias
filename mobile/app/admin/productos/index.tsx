@@ -45,7 +45,7 @@ export default function AdminProductosScreen() {
                         style={[styles.manageBtn, { backgroundColor: theme.primary }]}
                         onPress={() => showAlert({ type: 'info', title: 'Producto', message: `Gestionar: ${item.name}` })}
                     >
-                        <Text style={[styles.manageBtnText, { color: '#fff' }]}>Editar</Text>
+                        <Text style={[styles.manageBtnText, { color: theme.onPrimary }]}>Editar</Text>
                     </TouchableOpacity>
                 </View>
             </View>

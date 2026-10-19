@@ -34,7 +34,7 @@ export default function AdminVerificacionesScreen() {
                 >
                     <Image source={{ uri: url }} style={styles.docImage} resizeMode="cover" />
                     <View style={styles.docOverlay}>
-                        <ExternalLink size={18} color="#fff" />
+                        <ExternalLink size={18} color={theme.onHero} />
                     </View>
                 </TouchableOpacity>
             ) : (
@@ -87,8 +87,8 @@ export default function AdminVerificacionesScreen() {
                     onPress={() => handleAction(item.id, item.full_name, 'VERIFIED')}
                     disabled={verifyMutation.isPending}
                 >
-                    <CheckCircle2 size={18} color="#fff" />
-                    <Text style={[styles.btnText, { color: '#fff' }]}>Aprobar</Text>
+                    <CheckCircle2 size={18} color={theme.onPrimary} />
+                    <Text style={[styles.btnText, { color: theme.onPrimary }]}>Aprobar</Text>
                 </TouchableOpacity>
             </View>
         </View>

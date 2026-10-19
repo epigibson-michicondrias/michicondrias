@@ -167,7 +167,7 @@ export default function AdminUsersScreen() {
                             <Text style={[
                                 styles.filterText,
                                 { color: theme.textMuted },
-                                filterRole === role && { color: '#fff' }
+                                filterRole === role && { color: theme.onPrimary }
                             ]}>
                                 {role === 'all' ? 'Todos' : getRoleLabelLocal(role)}
                             </Text>
@@ -287,9 +287,9 @@ export default function AdminUsersScreen() {
                                     onPress={handleSubmit}
                                 >
                                     {(createUserMutation.isPending || updateUserMutation.isPending) ? (
-                                        <ActivityIndicator color="#fff" size="small" />
+                                        <ActivityIndicator color={theme.onPrimary} size="small" />
                                     ) : (
-                                        <Text style={[styles.btnText, { color: '#fff' }]}>
+                                        <Text style={[styles.btnText, { color: theme.onPrimary }]}>
                                             {editingUser ? 'Guardar Cambios' : 'Crear Usuario'}
                                         </Text>
                                     )}

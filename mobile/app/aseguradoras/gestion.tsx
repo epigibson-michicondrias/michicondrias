@@ -253,7 +253,7 @@ export default function GestionScreen() {
                             onPress={handleCreatePlan}
                         >
                             {isCreatingPlan ? (
-                                <ActivityIndicator color="#fff" />
+                                <ActivityIndicator color={theme.onPrimary} />
                             ) : (
                                 <Text style={styles.createBtnText}>Crear Plan</Text>
                             )}

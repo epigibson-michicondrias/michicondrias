@@ -131,7 +131,7 @@ export default function AgendarLaboratorioScreen() {
                             onPress={submit}
                             style={[styles.submit, { backgroundColor: theme.primary }, saving && { opacity: 0.7 }]}
                         >
-                            <Check size={20} color="#fff" />
+                            <Check size={20} color={theme.onPrimary} />
                             <Text style={styles.submitText}>{saving ? 'Enviando...' : 'Solicitar cita'}</Text>
                         </TouchableOpacity>
                     </>

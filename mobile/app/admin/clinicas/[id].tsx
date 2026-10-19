@@ -136,9 +136,9 @@ export default function ClinicDetailScreen() {
                                 disabled={isSaving}
                             >
                                 {isSaving ? (
-                                    <ActivityIndicator size="small" color="#fff" />
+                                    <ActivityIndicator size="small" color={theme.onPrimary} />
                                 ) : (
-                                    <Save size={18} color="#fff" />
+                                    <Save size={18} color={theme.onPrimary} />
                                 )}
                                 <Text style={styles.btnActionText}>Guardar</Text>
                             </TouchableOpacity>

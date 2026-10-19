@@ -169,11 +169,11 @@ export default function ResetPasswordScreen() {
                             accessibilityLabel="Restablecer contraseña"
                         >
                             {isWorking ? (
-                                <ActivityIndicator color="#fff" size="small" />
+                                <ActivityIndicator color={theme.onPrimary} size="small" />
                             ) : (
                                 <>
-                                    <Text style={[styles.submitBtnText, { color: '#fff' }]}>Restablecer contraseña</Text>
-                                    <ArrowRight size={18} color="#fff" />
+                                    <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>Restablecer contraseña</Text>
+                                    <ArrowRight size={18} color={theme.onPrimary} />
                                 </>
                             )}
                         </TouchableOpacity>
@@ -197,8 +197,8 @@ export default function ResetPasswordScreen() {
                             onPress={() => router.replace('/login')}
                             accessibilityRole="button"
                         >
-                            <Text style={[styles.submitBtnText, { color: '#fff' }]}>Ir al Login</Text>
-                            <ArrowRight size={18} color="#fff" />
+                            <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>Ir al Login</Text>
+                            <ArrowRight size={18} color={theme.onPrimary} />
                         </TouchableOpacity>
                     </View>
                 </>

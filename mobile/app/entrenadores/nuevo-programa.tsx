@@ -115,10 +115,10 @@ export default function CreateProgramScreen() {
                         activeOpacity={0.8}
                     >
                         {isCreatingProgram ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Dumbbell size={20} color="#fff" />
+                                <Dumbbell size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitButtonText}>Crear Programa</Text>
                             </>
                         )}

@@ -61,7 +61,7 @@ export function ReviewForm({ prompt, submitting, onSubmit }: { prompt: string; s
                 accessibilityRole="button"
                 accessibilityLabel="Enviar reseña"
             >
-                {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>Enviar reseña</Text>}
+                {submitting ? <ActivityIndicator color={theme.onPrimary} /> : <Text style={styles.submitText}>Enviar reseña</Text>}
             </TouchableOpacity>
         </View>
     );

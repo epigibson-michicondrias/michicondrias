@@ -119,7 +119,7 @@ export default function AdminRolesScreen() {
                                 onPress={handleSubmit}
                             >
                                 {isSaving ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
                                     <Text style={styles.submitBtnText}>
                                         {editingRole ? 'Guardar Cambios' : 'Crear Rol'}

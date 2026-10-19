@@ -118,7 +118,7 @@ export default function NuevoPatrocinadorScreen() {
                     disabled={loading}
                     onPress={handleSubmit}
                 >
-                    <Megaphone size={20} color="#fff" />
+                    <Megaphone size={20} color={theme.onPrimary} />
                     <Text style={styles.submitBtnText}>{loading ? "Creando..." : "Crear Campaña"}</Text>
                 </TouchableOpacity>
             </View>

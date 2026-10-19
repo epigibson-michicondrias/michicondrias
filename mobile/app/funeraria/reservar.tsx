@@ -146,7 +146,7 @@ export default function ReservarScreen() {
                         disabled={isBooking}
                         onPress={handleBooking}
                     >
-                        <Check size={20} color="#fff" />
+                        <Check size={20} color={theme.onPrimary} />
                         <Text style={styles.submitBtnText}>
                             {isBooking ? 'Reservando...' : 'Confirmar Reserva'}
                         </Text>

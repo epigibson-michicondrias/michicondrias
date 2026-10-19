@@ -116,7 +116,7 @@ export default function NuevoServicioScreen() {
                         disabled={isCreatingService}
                         onPress={handleCreateService}
                     >
-                        <Heart size={20} color="#fff" />
+                        <Heart size={20} color={theme.onPrimary} />
                         <Text style={styles.submitBtnText}>
                             {isCreatingService ? 'Registrando...' : 'Registrar Servicio'}
                         </Text>

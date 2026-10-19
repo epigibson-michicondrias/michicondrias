@@ -103,7 +103,7 @@ export default function LaboratorioScreen() {
                 onPress={() => setView('estudios')}
                 style={{ marginTop: spacing.lg, backgroundColor: theme.primary, paddingVertical: spacing.md, paddingHorizontal: spacing.xl, borderRadius: 12 }}
             >
-                <Text style={{ color: '#fff', fontWeight: '800' }}>Ver estudios</Text>
+                <Text style={{ color: theme.onPrimary, fontWeight: '800' }}>Ver estudios</Text>
             </TouchableOpacity>
         </View>
     );

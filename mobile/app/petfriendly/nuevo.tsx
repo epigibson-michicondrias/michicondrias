@@ -212,7 +212,7 @@ export default function NuevoLugarScreen() {
                             >
                                 <Droplets size={20} color={form.has_water_bowls === 'Sí' ? theme.primary : theme.textMuted} />
                                 <Text style={[styles.amenityText, { color: theme.text }]}>Platos con agua</Text>
-                                {form.has_water_bowls === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color="#fff" /></View>}
+                                {form.has_water_bowls === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color={theme.onPrimary} /></View>}
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.amenityBtn, { backgroundColor: theme.surface }, form.has_pet_menu === 'Sí' && { borderColor: theme.primary }]}
@@ -220,7 +220,7 @@ export default function NuevoLugarScreen() {
                             >
                                 <UtensilsCrossed size={20} color={form.has_pet_menu === 'Sí' ? theme.primary : theme.textMuted} />
                                 <Text style={[styles.amenityText, { color: theme.text }]}>Menú para mascotas</Text>
-                                {form.has_pet_menu === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color="#fff" /></View>}
+                                {form.has_pet_menu === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color={theme.onPrimary} /></View>}
                             </TouchableOpacity>
                         </View>
 
@@ -255,7 +255,7 @@ export default function NuevoLugarScreen() {
                             <Text style={styles.saveBtnText}>Registrando...</Text>
                         ) : (
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
-                                <Check size={20} color="#fff" />
+                                <Check size={20} color={theme.onPrimary} />
                                 <Text style={styles.saveBtnText}>Publicar Lugar</Text>
                             </View>
                         )}

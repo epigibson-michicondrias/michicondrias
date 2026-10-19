@@ -266,10 +266,10 @@ export default function NuevoReclamoScreen() {
                                 onPress={handleSubmit}
                             >
                                 {isSubmitting ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
                                     <>
-                                        <Send size={20} color="#fff" />
+                                        <Send size={20} color={theme.onPrimary} />
                                         <Text style={styles.submitBtnText}>Enviar Reclamo</Text>
                                     </>
                                 )}

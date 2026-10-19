@@ -90,7 +90,7 @@ export default function TrainerDashboardScreen() {
                     activeOpacity={0.7}
                 >
                     <View style={[styles.actionIconBg, { backgroundColor: theme.primary }]}>
-                        <Plus size={20} color="#fff" />
+                        <Plus size={20} color={theme.onPrimary} />
                     </View>
                     <Text style={[styles.actionLabel, { color: theme.primary }]}>Nuevo Programa</Text>
                 </TouchableOpacity>

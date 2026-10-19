@@ -118,7 +118,7 @@ export default function AdminCategoriasScreen() {
                                 onPress={handleSubmit}
                             >
                                 {isSaving ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
                                     <Text style={styles.submitBtnText}>
                                         {editingCategory ? 'Guardar Cambios' : 'Crear Categoría'}

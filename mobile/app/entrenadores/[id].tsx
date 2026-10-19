@@ -123,7 +123,7 @@ export default function ProgramDetailScreen() {
                         accessibilityRole="button"
                         accessibilityLabel="Inscribir mascota"
                     >
-                        <Dumbbell size={20} color="#fff" />
+                        <Dumbbell size={20} color={theme.onPrimary} />
                         <Text style={styles.enrollButtonText}>Inscribir Mascota</Text>
                     </TouchableOpacity>
                     )}

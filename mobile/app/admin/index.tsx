@@ -205,7 +205,7 @@ export default function AdminScreen() {
                             style={[styles.quickCard, { backgroundColor: '#ef4444' }]}
                             onPress={() => router.push('/admin/moderacion')}
                         >
-                            <AlertTriangle size={20} color="#fff" />
+                            <AlertTriangle size={20} color={theme.onPrimary} />
                             <Text style={styles.quickCardTitle}>Moderación</Text>
                             <Text style={styles.quickCardDesc}>Pendientes</Text>
                         </TouchableOpacity>
@@ -214,7 +214,7 @@ export default function AdminScreen() {
                             style={[styles.quickCard, { backgroundColor: '#3b82f6' }]}
                             onPress={() => router.push('/admin/verificaciones')}
                         >
-                            <UserCheck size={20} color="#fff" />
+                            <UserCheck size={20} color={theme.onPrimary} />
                             <Text style={styles.quickCardTitle}>Identidad</Text>
                             <Text style={styles.quickCardDesc}>Validar KYC</Text>
                         </TouchableOpacity>

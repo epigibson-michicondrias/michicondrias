@@ -178,10 +178,10 @@ export default function VenueDetailScreen() {
                         disabled={isClaimingCoupon}
                     >
                         {isClaimingCoupon ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Gift size={18} color="#fff" />
+                                <Gift size={18} color={theme.onPrimary} />
                                 <Text style={styles.claimButtonText}>Reclamar Cupón</Text>
                             </>
                         )}
@@ -253,10 +253,10 @@ export default function VenueDetailScreen() {
                             disabled={isSubmittingReview}
                         >
                             {isSubmittingReview ? (
-                                <ActivityIndicator size="small" color="#fff" />
+                                <ActivityIndicator size="small" color={theme.onPrimary} />
                             ) : (
                                 <>
-                                    <Send size={16} color="#fff" />
+                                    <Send size={16} color={theme.onPrimary} />
                                     <Text style={styles.submitReviewText}>Enviar Reseña</Text>
                                 </>
                             )}

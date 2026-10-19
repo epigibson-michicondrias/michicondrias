@@ -39,7 +39,7 @@ export default function PetfriendlyDetalleScreen() {
                     <Text style={{ color: theme.text, fontWeight: '700', marginBottom: spacing.sm }}>No pudimos cargar el lugar</Text>
                     <Text style={{ color: theme.textMuted, marginBottom: spacing.lg, textAlign: 'center' }}>Puede que ya no exista o que no tengas conexión.</Text>
                     <TouchableOpacity onPress={goBack} accessibilityRole="button" style={{ backgroundColor: theme.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: 12 }}>
-                        <Text style={{ color: '#fff', fontWeight: '700' }}>Volver</Text>
+                        <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Volver</Text>
                     </TouchableOpacity>
                 </View>
             </ScreenContainer>
@@ -68,10 +68,10 @@ export default function PetfriendlyDetalleScreen() {
                         </View>
                     )}
                     <View style={styles.topOverlay}>
-                        <BackButton onPress={goBack} color="#fff" style={styles.circleBtn} />
+                        <BackButton onPress={goBack} color={theme.onHero} style={styles.circleBtn} />
                         <Text style={styles.headerTitle}>Detalles del Lugar</Text>
                         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir" style={styles.circleBtn} onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)}>
-                            <Share2 size={20} color="#fff" />
+                            <Share2 size={20} color={theme.onHero} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -220,7 +220,7 @@ export default function PetfriendlyDetalleScreen() {
                                 disabled={isCreatingReview}
                             >
                                 {isCreatingReview ? (
-                                    <ActivityIndicator size="small" color="#fff" />
+                                    <ActivityIndicator size="small" color={theme.onPrimary} />
                                 ) : (
                                     <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
                                 )}

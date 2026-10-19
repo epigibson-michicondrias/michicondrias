@@ -108,7 +108,7 @@ export default function ServiceRequestCard({ kind, request, perspective, busy, o
             );
         }
         if (status === 'completed' && !request.has_review && onReview) {
-            return <ActionButton label="Calificar" tone="primary" icon={<Star size={14} color="#fff" />} onPress={onReview} />;
+            return <ActionButton label="Calificar" tone="primary" icon={<Star size={14} color={theme.onPrimary} />} onPress={onReview} />;
         }
         return null;
     };

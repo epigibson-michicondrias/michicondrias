@@ -1,23 +1,22 @@
 import React from 'react';
-import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, type } from '@/constants/design';
+import { View, StyleSheet } from 'react-native';
+import { Skeleton } from '@/src/components/Skeleton';
+import { layout, radius, spacing } from '@/constants/design';
 
 interface LoadingOverlayProps {
+    /** Solo para lectores de pantalla. */
     message?: string;
 }
 
 /**
- * Indicador de espera para acciones en curso (subir, procesar un pago…). Para cargar el contenido de una pantalla
- * usa `Skeleton`/`SkeletonList` con la forma del contenido (CLAUDE.md §4), no este componente.
+ * Carga genérica de una pantalla: esqueleto de lista a todo el ancho (aunque el contenedor esté centrado).
+ * Si la pantalla tiene una forma propia (detalle con foto, formulario…), mejor un `Skeleton` con esa forma.
  */
 export default function LoadingOverlay({ message }: LoadingOverlayProps) {
-    const { theme } = useTheme();
-
     return (
         <View style={styles.container} accessibilityRole="progressbar" accessibilityLabel={message || 'Cargando'}>
-            <ActivityIndicator size="large" color={theme.primary} />
-            {message ? <Text style={[type.body, { color: theme.textMuted }]}>{message}</Text> : null}
+            <Skeleton height={56} borderRadius={radius.lg} />
+            {[0, 1, 2, 3].map((i) => <Skeleton key={i} height={84} borderRadius={radius.lg} />)}
         </View>
     );
 }
@@ -25,8 +24,9 @@ export default function LoadingOverlay({ message }: LoadingOverlayProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: spacing.lg,
+        alignSelf: 'stretch',
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.lg,
+        gap: spacing.md,
     },
 });

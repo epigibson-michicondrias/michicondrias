@@ -131,7 +131,7 @@ export default function CertificadoScreen() {
                     accessibilityLabel="Descargar certificado en PDF"
                     onPress={handleDownload}
                 >
-                    <Download size={22} color="#fff" />
+                    <Download size={22} color={theme.onPrimary} />
                     <Text style={styles.downloadBtnText}>Descargar Certificado PDF</Text>
                 </TouchableOpacity>
 

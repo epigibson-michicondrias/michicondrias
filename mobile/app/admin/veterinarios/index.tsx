@@ -65,7 +65,7 @@ export default function AdminVeterinariosScreen() {
                     style={[styles.btn, { backgroundColor: theme.primary }]}
                     onPress={handleManage}
                 >
-                    <Text style={[styles.btnText, { color: '#fff' }]}>Gestionar</Text>
+                    <Text style={[styles.btnText, { color: theme.onPrimary }]}>Gestionar</Text>
                 </TouchableOpacity>
             </View>
         </View>

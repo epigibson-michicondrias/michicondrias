@@ -49,7 +49,7 @@ export default function BoostAlertaScreen() {
                     </View>
                     {isSelected && (
                         <View style={[styles.checkIcon, { backgroundColor: theme.primary }]}>
-                            <Check size={14} color="#fff" strokeWidth={3} />
+                            <Check size={14} color={theme.onPrimary} strokeWidth={3} />
                         </View>
                     )}
                 </View>
@@ -139,10 +139,10 @@ export default function BoostAlertaScreen() {
                         disabled={isSubmittingBoost}
                     >
                         {isSubmittingBoost ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Zap size={20} color="#fff" />
+                                <Zap size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitText}>Impulsar Alerta</Text>
                             </>
                         )}

@@ -99,16 +99,16 @@ export default function AseguradorasScreen() {
                         style={[styles.actionButton, { backgroundColor: theme.primary }]}
                         onPress={() => router.push('/aseguradoras/nuevo' as any)}
                     >
-                        <Plus size={18} color="#fff" />
-                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nuevo Plan</Text>
+                        <Plus size={18} color={theme.onPrimary} />
+                        <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Nuevo Plan</Text>
                     </TouchableOpacity>
                 ) : (
                     <TouchableOpacity
                         style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                         onPress={() => router.push('/aseguradoras/mis-polizas' as any)}
                     >
-                        <Shield size={18} color="#fff" />
-                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Pólizas</Text>
+                        <Shield size={18} color={theme.onPrimary} />
+                        <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis Pólizas</Text>
                     </TouchableOpacity>
                 )}
             </View>

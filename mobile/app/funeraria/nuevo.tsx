@@ -135,7 +135,7 @@ export default function NuevaFunerariaScreen() {
                     disabled={loading}
                     onPress={handleSubmit}
                 >
-                    <Heart size={20} color="#fff" />
+                    <Heart size={20} color={theme.onPrimary} />
                     <Text style={styles.submitBtnText}>{loading ? "Registrando..." : "Registrar Servicio"}</Text>
                 </TouchableOpacity>
             </View>

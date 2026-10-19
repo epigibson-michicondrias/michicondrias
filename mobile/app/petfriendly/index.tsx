@@ -77,7 +77,7 @@ export default function PetfriendlyScreen() {
                     style={[styles.mapToggleBtn, { backgroundColor: viewMode === 'map' ? theme.primary : theme.primary + '15' }]}
                     onPress={toggleViewMode}
                 >
-                    {viewMode === 'map' ? <List size={18} color="#fff" /> : <MapIcon size={18} color={theme.primary} />}
+                    {viewMode === 'map' ? <List size={18} color={theme.onPrimary} /> : <MapIcon size={18} color={theme.primary} />}
                 </TouchableOpacity>
             </View>
 

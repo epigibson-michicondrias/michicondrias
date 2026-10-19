@@ -173,7 +173,7 @@ export default function PerfilConductorScreen() {
           onPress={handleSave}
           activeOpacity={0.85}
         >
-          <Save size={20} color="#fff" />
+          <Save size={20} color={theme.onPrimary} />
           <Text style={styles.submitBtnText}>
             {isSaving ? 'Guardando...' : isExistingProfile ? 'Actualizar Perfil' : 'Crear Perfil'}
           </Text>

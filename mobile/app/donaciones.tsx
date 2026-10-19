@@ -194,9 +194,9 @@ export default function DonacionesScreen() {
                         onPress={handleDonation}
                         disabled={loading}
                     >
-                        {loading ? <ActivityIndicator color="#fff" /> : (
+                        {loading ? <ActivityIndicator color={theme.onPrimary} /> : (
                             <>
-                                <HeartPulse size={24} color="#fff" />
+                                <HeartPulse size={24} color={theme.onPrimary} />
                                 <Text style={styles.submitBtnText}>Donar con tarjeta</Text>
                             </>
                         )}

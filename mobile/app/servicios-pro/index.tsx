@@ -28,7 +28,7 @@ export default function ServiciosProScreen() {
                     />
                     {item.is_verified && (
                         <View style={styles.verifiedBadge}>
-                            <ShieldCheck size={12} color="#fff" />
+                            <ShieldCheck size={12} color={theme.onPrimary} />
                         </View>
                     )}
                 </View>

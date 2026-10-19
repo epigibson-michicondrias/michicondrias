@@ -70,7 +70,7 @@ export default function NuevoMemorialScreen() {
                         disabled={isCreating}
                         onPress={handleCreatePost}
                     >
-                        <Send size={20} color="#fff" />
+                        <Send size={20} color={theme.onPrimary} />
                         <Text style={styles.submitBtnText}>
                             {isCreating ? 'Publicando...' : 'Publicar Mensaje'}
                         </Text>

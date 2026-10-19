@@ -84,7 +84,7 @@ export default function AgendarGroomingScreen() {
                 </View>
                 {isActive && (
                     <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
-                        <Check size={14} color="#fff" />
+                        <Check size={14} color={theme.onPrimary} />
                     </View>
                 )}
             </TouchableOpacity>
@@ -114,7 +114,7 @@ export default function AgendarGroomingScreen() {
                 </Text>
                 {isActive && (
                     <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
-                        <Check size={12} color="#fff" />
+                        <Check size={12} color={theme.onPrimary} />
                     </View>
                 )}
             </TouchableOpacity>
@@ -239,10 +239,10 @@ export default function AgendarGroomingScreen() {
                     activeOpacity={0.8}
                 >
                     {isPending ? (
-                        <ActivityIndicator color="#fff" />
+                        <ActivityIndicator color={theme.onPrimary} />
                     ) : (
                         <>
-                            <Sparkles size={20} color="#fff" />
+                            <Sparkles size={20} color={theme.onPrimary} />
                             <Text style={styles.bookBtnText}>Confirmar Cita</Text>
                         </>
                     )}

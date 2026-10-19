@@ -80,16 +80,16 @@ export default function EstilistasScreen() {
                         style={[styles.actionButton, { backgroundColor: theme.primary }]}
                         onPress={() => router.push('/estilistas/nuevo')}
                     >
-                        <Plus size={18} color="#fff" />
-                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Ofrecer Servicios</Text>
+                        <Plus size={18} color={theme.onPrimary} />
+                        <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Ofrecer Servicios</Text>
                     </TouchableOpacity>
                 ) : (
                     <TouchableOpacity accessibilityRole="button"
                         style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                         onPress={() => router.push('/grooming/mis-citas')}
                     >
-                        <Scissors size={18} color="#fff" />
-                        <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Citas</Text>
+                        <Scissors size={18} color={theme.onPrimary} />
+                        <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis Citas</Text>
                     </TouchableOpacity>
                 )}
             </View>

@@ -111,10 +111,10 @@ export default function NuevoEstablecimientoScreen() {
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Plus size={20} color="#fff" />
+                                <Plus size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitText}>Registrar Establecimiento</Text>
                             </>
                         )}

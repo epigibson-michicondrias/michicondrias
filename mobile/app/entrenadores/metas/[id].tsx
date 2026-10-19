@@ -161,7 +161,7 @@ export default function GoalManagementScreen() {
                                 onPress={() => setShowCreateModal(true)}
                                 activeOpacity={0.8}
                             >
-                                <Plus size={18} color="#fff" />
+                                <Plus size={18} color={theme.onPrimary} />
                             </TouchableOpacity>
                         )}
                     </View>
@@ -221,7 +221,7 @@ export default function GoalManagementScreen() {
                                             disabled={isUpdatingGoal}
                                             accessibilityRole="button"
                                         >
-                                            <CheckCircle size={16} color="#fff" />
+                                            <CheckCircle size={16} color={theme.onPrimary} />
                                             <Text style={styles.reviewBtnText}>Lograda</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -235,7 +235,7 @@ export default function GoalManagementScreen() {
                                             onPress={() => openReview(goal)}
                                             activeOpacity={0.8}
                                         >
-                                            <CheckCircle size={16} color="#fff" />
+                                            <CheckCircle size={16} color={theme.onPrimary} />
                                             <Text style={styles.reviewBtnText}>Revisar Video</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -296,7 +296,7 @@ export default function GoalManagementScreen() {
                             activeOpacity={0.8}
                         >
                             {isCreatingGoal ? (
-                                <ActivityIndicator size="small" color="#fff" />
+                                <ActivityIndicator size="small" color={theme.onPrimary} />
                             ) : (
                                 <Text style={styles.modalSubmitText}>Crear Meta</Text>
                             )}
@@ -369,10 +369,10 @@ export default function GoalManagementScreen() {
                                 activeOpacity={0.8}
                             >
                                 {isReviewingVideo ? (
-                                    <ActivityIndicator size="small" color="#fff" />
+                                    <ActivityIndicator size="small" color={theme.onPrimary} />
                                 ) : (
                                     <>
-                                        <CheckCircle size={18} color="#fff" />
+                                        <CheckCircle size={18} color={theme.onPrimary} />
                                         <Text style={styles.approveBtnText}>Aprobar</Text>
                                     </>
                                 )}

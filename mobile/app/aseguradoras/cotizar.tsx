@@ -186,10 +186,10 @@ export default function CotizarScreen() {
                     onPress={handleCalculateQuote}
                 >
                     {isCalculating ? (
-                        <ActivityIndicator color="#fff" />
+                        <ActivityIndicator color={theme.onPrimary} />
                     ) : (
                         <>
-                            <Calculator size={20} color="#fff" />
+                            <Calculator size={20} color={theme.onPrimary} />
                             <Text style={styles.calculateBtnText}>Calcular Cotización</Text>
                         </>
                     )}
@@ -234,11 +234,11 @@ export default function CotizarScreen() {
                             onPress={handleSubscribe}
                         >
                             {isSubscribing ? (
-                                <ActivityIndicator color="#fff" />
+                                <ActivityIndicator color={theme.onPrimary} />
                             ) : (
                                 <>
                                     <Text style={styles.subscribeBtnText}>Contratar Seguro</Text>
-                                    <ArrowRight size={20} color="#fff" />
+                                    <ArrowRight size={20} color={theme.onPrimary} />
                                 </>
                             )}
                         </TouchableOpacity>

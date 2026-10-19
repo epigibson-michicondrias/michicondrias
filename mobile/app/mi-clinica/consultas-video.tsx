@@ -109,7 +109,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnPrimary, { backgroundColor: theme.success }]}
                             onPress={() => launchVideoRoom(item.room_url)}
                         >
-                            <ExternalLink size={16} color="#fff" />
+                            <ExternalLink size={16} color={theme.onPrimary} />
                             <Text style={styles.btnText}>Unirse al Video</Text>
                         </TouchableOpacity>
                     ) : (

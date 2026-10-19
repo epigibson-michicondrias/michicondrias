@@ -105,10 +105,10 @@ export default function NuevaCampanaScreen() {
                         disabled={isSubmittingCampaign}
                     >
                         {isSubmittingCampaign ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Megaphone size={20} color="#fff" />
+                                <Megaphone size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitText}>Crear Campaña</Text>
                             </>
                         )}

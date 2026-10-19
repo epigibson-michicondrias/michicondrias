@@ -867,4 +867,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `usePatients`, `useSubcategories` y 13 tipos viejos de `src/types/`. Quedan 5 dependencias sin uso (`@expo/cli`,
   `@teovilla/react-native-web-maps`, `axios`, `expo-symbols`, `react-native-get-location`): quitarlas junto con el
   próximo APK.
+- **2026-10-19** — **Paso 7 (pasada global)**. `LoadingOverlay` ahora dibuja un esqueleto de lista a todo el ancho
+  (las 35 pantallas que lo usaban para cargar ya no muestran un spinner a pantalla completa). Codemod: 127 `#fff` en
+  JSX → `theme.onPrimary` en 57 archivos (en tema oscuro `onPrimary` es oscuro: el blanco fijo sobre botones claros
+  tenía poco contraste); sobre velos de foto se usa `theme.onHero`.
 

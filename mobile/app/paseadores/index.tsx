@@ -95,7 +95,7 @@ export default function PaseadoresScreen() {
                     onPress={() => router.push({ pathname: '/paseadores/[id]', params: { id: item.id } } as any)}
                 >
                     <Text style={styles.contactButtonText}>Ver perfil</Text>
-                    <ChevronRight size={16} color="#fff" />
+                    <ChevronRight size={16} color={theme.onPrimary} />
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -119,7 +119,7 @@ export default function PaseadoresScreen() {
                     style={[styles.actionButton, { backgroundColor: theme.primary, borderColor: theme.primary }]}
                     onPress={() => router.push('/perfil/partner' as any)}
                 >
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Quiero ser paseador</Text>
+                    <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Quiero ser paseador</Text>
                 </TouchableOpacity>
             </View>
 

@@ -199,11 +199,11 @@ export default function LoginScreen() {
                         accessibilityLabel="Verificar código"
                     >
                         {isVerifying2FA ? (
-                            <ActivityIndicator color="#fff" size="small" />
+                            <ActivityIndicator color={theme.onPrimary} size="small" />
                         ) : (
                             <>
-                                <Text style={[styles.loginBtnText, { color: '#fff' }]}>Verificar</Text>
-                                <ShieldCheck size={20} color="#fff" />
+                                <Text style={[styles.loginBtnText, { color: theme.onPrimary }]}>Verificar</Text>
+                                <ShieldCheck size={20} color={theme.onPrimary} />
                             </>
                         )}
                     </TouchableOpacity>

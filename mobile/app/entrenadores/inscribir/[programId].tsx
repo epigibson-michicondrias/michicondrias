@@ -104,7 +104,7 @@ export default function EnrollPetScreen() {
                                         </View>
                                         {isSelected && (
                                             <View style={[styles.checkCircle, { backgroundColor: theme.primary }]}>
-                                                <CheckCircle size={18} color="#fff" />
+                                                <CheckCircle size={18} color={theme.onPrimary} />
                                             </View>
                                         )}
                                     </TouchableOpacity>
@@ -129,7 +129,7 @@ export default function EnrollPetScreen() {
                         activeOpacity={0.8}
                     >
                         {isEnrolling ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
                                 <Dumbbell size={20} color={selectedPetId ? '#fff' : theme.textMuted} />

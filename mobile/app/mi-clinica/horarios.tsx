@@ -171,7 +171,7 @@ export default function HorariosClinicaScreen() {
                         style={[styles.addHolidayBtn, { backgroundColor: theme.primary }]}
                         onPress={() => setHolidayModalVisible(true)}
                     >
-                        <Plus size={16} color="#fff" />
+                        <Plus size={16} color={theme.onPrimary} />
                         <Text style={styles.addHolidayBtnText}>Agregar</Text>
                     </TouchableOpacity>
                 </View>
@@ -313,7 +313,7 @@ export default function HorariosClinicaScreen() {
                                 style={[styles.timePickerBtn, { backgroundColor: theme.primary }]}
                                 onPress={confirmTimePicker}
                             >
-                                <Text style={[styles.timePickerBtnText, { color: '#fff' }]}>Guardar</Text>
+                                <Text style={[styles.timePickerBtnText, { color: theme.onPrimary }]}>Guardar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

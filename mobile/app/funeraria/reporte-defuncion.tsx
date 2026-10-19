@@ -190,7 +190,7 @@ export default function ReporteDefuncionScreen() {
                         disabled={isSubmitting}
                         onPress={handleSubmitReport}
                     >
-                        <FileText size={20} color="#fff" />
+                        <FileText size={20} color={theme.onPrimary} />
                         <Text style={styles.submitBtnText}>
                             {isSubmitting ? 'Registrando...' : 'Registrar Reporte'}
                         </Text>

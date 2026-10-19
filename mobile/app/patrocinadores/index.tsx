@@ -68,8 +68,8 @@ export default function PatrocinadoresScreen() {
                     style={[styles.actionButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push('/patrocinadores/nuevo')}
                 >
-                    <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nueva campaña</Text>
+                    <Plus size={18} color={theme.onPrimary} />
+                    <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Nueva campaña</Text>
                 </TouchableOpacity>
             </View>
             )}

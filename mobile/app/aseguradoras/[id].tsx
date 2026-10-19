@@ -149,7 +149,7 @@ export default function PlanDetailScreen() {
                         onPress={() => router.push({ pathname: '/aseguradoras/cotizar', params: { plan_id: plan.id } } as any)}
                     >
                         <Text style={styles.ctaButtonText}>Cotizar y Contratar</Text>
-                        <ArrowRight size={20} color="#fff" />
+                        <ArrowRight size={20} color={theme.onPrimary} />
                     </TouchableOpacity>
                 </View>
 
