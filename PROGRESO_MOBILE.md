@@ -798,4 +798,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   igual (`CATALOG_FILTERS`); `addToCart` devuelve las piezas agregadas; el vendedor no ve «agregar» en sus productos;
   `RoleGuard` en `tienda/vendedor/_layout.tsx`. Pendiente: métricas del vendedor limitadas a 50 pedidos (`/orders/seller/me`
   sin paginación).
+- **2026-10-19** — **Búsqueda y orden de la tienda en el backend**. `GET /products/` acepta `q` (sin acentos con
+  `translate`, cada palabra en nombre o descripción), `sort` (relevance | price_asc | price_desc | rating, agotados
+  al final; 422 si no es válido), `ids` (favoritos) y `limit` ≤ 100. La pestaña pide páginas de 24 con scroll
+  infinito (`useInfiniteQuery`) y busca al dejar de escribir (`useDebouncedValue`, 350 ms). Probado contra producción.
 
