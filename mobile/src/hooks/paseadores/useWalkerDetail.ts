@@ -61,7 +61,7 @@ export function useWalkerDetail() {
         onSuccess: () => {
             setWalkModalVisible(false);
             resetWalkForm();
-            showAlert({ type: 'success', title: '¡Solicitud Enviada!', message: 'Tu solicitud de paseo ha sido enviada al paseador.' });
+            showAlert({ type: 'success', title: 'Solicitud enviada', message: 'El paseador la verá en sus solicitudes. Sigue su estado en «Mis solicitudes»' });
             queryClient.invalidateQueries({ queryKey: ['my-walk-requests'] });
             queryClient.invalidateQueries({ queryKey: ['walker-requests'] });
         },
