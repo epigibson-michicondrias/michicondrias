@@ -196,8 +196,8 @@ eliminar cuenta, versión). `perfil/index` → `perfil/editar` (solo el formular
 Backend: `created_at` en `/users/me`; `secret` opcional al desactivar 2FA; portal de facturación sin crear cliente y con
 deep link de vuelta.
 Arreglos:
-- [ ] P0 Pantalla de paleta falsa y sus 2 accesos (`perfil/paleta.tsx`, `perfil/index.tsx:374`, `useMenu.ts:115`)
-- [ ] P0 `perfil/kyc`: no refresca el estado y deja reenviar → eliminarla y apuntar a verificacion (`perfil/index.tsx:299`)
+- [x] P0 Pantalla de paleta falsa y sus 2 accesos (`perfil/paleta.tsx`, `perfil/index.tsx:374`, `useMenu.ts:115`)
+- [x] P0 `perfil/kyc`: no refresca el estado y deja reenviar → eliminarla y apuntar a verificacion (`perfil/index.tsx:299`)
 - [x] P1 2FA: QR, «Abrir en app autenticadora», copiar clave e invalidar `user-profile` (F13)
 - [ ] P1 «Configuración» → `/menu` (`perfil/index.tsx:358`); 2FA, Facturación y Eliminar escondidos en Editar
 - [ ] P1 Etiqueta de rol «Usuario» (`useProfile.ts:128-143`) → `getRoleLabelFor`; foto real en la pestaña
@@ -416,8 +416,8 @@ Propuesta de rediseño (requiere visto bueno):
 
 Backend: rol en `POST /clinics/` (veterinario/hospital/admin). `GET /clinics/{id}` solo aprobadas (salvo dueño o admin). Quitar `owner_user_id`/`user_id` del schema público. Guard de `clinic None` en cancel. Emergencia: marcar `is_emergency` en el aviso a la clínica (o quitar la promesa).
 Arreglos:
-- [ ] P0 La clínica no puede cancelar citas: `directorio.cancelAppointment` sin cuerpo → 422 (`services/directorio.ts` cancel, `useAgenda.ts:86`). Usar el cuerpo `{cancellation_reason}`
-- [ ] P0 La cita agendada desde el especialista no queda asignada a él: `vet_id` ignorado (`especialista/[id].tsx:55`, `useBookAppointment.ts:102`)
+- [x] P0 La clínica no puede cancelar citas: `directorio.cancelAppointment` sin cuerpo → 422 (`services/directorio.ts` cancel, `useAgenda.ts:86`). Usar el cuerpo `{cancellation_reason}`
+- [x] P0 La cita agendada desde el especialista no queda asignada a él: `vet_id` ignorado (`especialista/[id].tsx:55`, `useBookAppointment.ts:102`)
 - [ ] P1 Citas canceladas invisibles y motivo de cancelación nunca mostrado (`useAppointments.ts:104`). Acciones en citas pasadas
 - [ ] P1 Promesa de emergencias sin respaldo (`agendar/[clinic_id].tsx:322`)
 - [ ] P1 Formulario de reseña visible para el dueño o el propio veterinario (403) en clínica y especialista. Reseñas sin autor
@@ -467,7 +467,7 @@ Arreglos:
 - [ ] P0 `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba y deja sin salida la aprobación real (:152)
 - [ ] P1 Privacidad: `GET /pets/{id}` público con `adopted_by`, microchip y publicaciones sin aprobar
 - [ ] P1 KYC solo en el cliente; veterinarios bloqueados para adoptar (`solicitar/[id].tsx:32,52`)
-- [ ] P1 Consumidor que publica sin acceso a «Mis publicaciones»; el dueño sin CTA a sus solicitudes (`[id].tsx:163`)
+- [ ] P1 Consumidor que publica sin acceso a «Mis publicaciones»; ~~el dueño sin CTA a sus solicitudes~~ ✅ 2026-10-19 («Ver solicitudes recibidas»)
 - [ ] P1 Admin → `/adopciones/solicitudes?id=` ignora el parámetro (`admin/moderacion/index.tsx:221`)
 - [ ] P1 «En Vivo» falso y refresh duplicado (`mis-solicitudes.tsx`). Eliminar en adoptadas. Aviso de remoderación al editar
 - [ ] P2 Fusionar las 3 pantallas de solicitudes. N+1 de `useApplications`. Query keys unificadas. `RoleGuard` en `refugio/*`. Skeleton en lugar de `LoadingOverlay` (5 pantallas), tokens, `FormField`/`KeyboardScreen` en `nuevo`
@@ -1005,3 +1005,61 @@ Nuevos / pendientes:
 - [ ] P3 Mapa de Perdidas en web muestra «React Native WebView does not support this platform» (solo navegador).
 - [ ] P3 `servicios-pro/perfil`: tarifas en `TextInput` crudo con `value` que puede ser `undefined` (aviso de React «changing an uncontrolled input»). Migrar a `FormField` con `?? ''`.
 - [ ] P3 La barra de estado clara (`HeroStatusBar`) no se puede verificar en web; probar en el teléfono al navegar entre dos pantallas hero en tema claro.
+
+---
+
+## Auditoría integral — 2026-10-19
+
+Medición automática de las 156 pantallas de `app/` contra §4 de CLAUDE.md, más revisión en código de los P0 abiertos.
+ESLint: **0 errores** en `app/` y `src/`. Knip: 19 archivos sin uso, 75 exports y 64 tipos exportados sin uso, 5 dependencias.
+
+**Deuda** por pantalla = hex×2 + números sueltos en estilos + botones/inputs a mano×2 + carga a pantalla completa×5 +
+cabecera pegajosa×5 + `Dimensions.get`×2 + estilos en línea + 8 si pasa de 400 líneas (no cuenta lo ya extraído a
+`features/`). Sirve para ordenar, no como nota absoluta.
+
+| Módulo | Pant. | Deuda | Hex | Botones a mano | Inputs a mano | Carga pant. completa | Sin skeleton |
+|---|---|---|---|---|---|---|---|
+| mi-clinica | 14 | 658 | 48 | 63 | 25 | 17 | 14 |
+| admin | 14 | 572 | 94 | 46 | 9 | 4 | 10 |
+| adopciones | 12 | 455 | 71 | 44 | 10 | 4 | 11 |
+| directorio | 6 | 291 | 41 | 37 | 8 | 2 | 6 |
+| aseguradoras | 8 | 286 | 32 | 22 | 14 | 2 | 7 |
+| entrenadores | 7 | 263 | 41 | 24 | 7 | 0 | 3 |
+| funeraria | 10 | 249 | 27 | 19 | 11 | 6 | 10 |
+| (tabs) Inicio/Explorar/Herramientas | 5 | 223 | 37 | 22 | 0 | 0 | 5 |
+| petfriendly + establecimientos | 7 | 328 | 44 | 26 | 11 | 5 | 7 |
+| grooming + estilistas | 6 | 210 | 31 | 20 | 5 | 0 | 6 |
+| patrocinadores | 5 | 158 | 33 | 7 | 10 | 3 | 5 |
+| laboratorio | 3 | 150 | 10 | 13 | 11 | 1 | 1 |
+| paseadores + cuidadores | 8 | 265 | 30 | 23 | 1 | 5 | 6 |
+| perdidas | 4 | 138 | 33 | 8 | 0 | 1 | 2 |
+| transportistas | 8 | 136 | 24 | 12 | 7 | 1 | 2 |
+| auth | 4 | 118 | 8 | 16 | 11 | 0 | 4 |
+| carnet · perfil · mascotas | 14 | 228 | 8 | 28 | 20 | 1 | 11 |
+| tienda | 12 | 16 | 0 | 0 | 0 | 0 | 4 (formularios/pagos) |
+
+Pantallas con más deuda: `(tabs)/index` (605 l.), `adopciones/solicitar/[id]`, `perdidas/nuevo`, `entrenadores/metas/[id]`,
+`adopciones/nuevo`, `petfriendly/[id]` (615 l.), `admin/moderacion`, `paseadores/[id]`, `admin/usuarios`, `(tabs)/explorar`.
+
+### Revisión de P0 abiertos (en código)
+- [x] Directorio: cancelar cita ya manda `{cancellation_reason}`; `vet_id` ya viaja al agendar desde el especialista.
+- [x] Perfil: `paleta` y `kyc` ya no existen; Carnet: `recordatorios` ya no existe.
+- [ ] **P0 Paseadores**: el modal arranca con `walkDate = ''` → `new Date('T12:00:00')` = *Invalid Date* en el selector (`paseadores/[id].tsx:199`).
+- [ ] **P0 Cuidadores**: filtros y etiquetas usan `daycare`/`boarding`, el backend usa `hosting`/`visiting`/`both` → los filtros no devuelven nada (`cuidadores/index.tsx:77,151`).
+- [ ] **P0 Adopciones**: el modal de `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba (`APPROVED` = «pre-aprobada»), muestra el estado en inglés («Solicitud APPROVED») y no lleva a la aprobación final, que solo existe en `solicitud/[id]`.
+
+### Funcional (P1 de privacidad, siguen abiertos)
+- [ ] `GET /reports/` de Perdidas expone tracker en vivo y contactos sin sesión; `GET /pets/{id}` de Adopciones expone `adopted_by`, microchip y no aprobadas.
+- [ ] Cupón de establecimientos público y canje que marca el reclamo de otro cliente.
+- [ ] Un estilista ve reportes de otros estilistas en el historial de la mascota.
+
+### Plan propuesto (en orden)
+1. **Bugs P0/P1 rápidos**: los 3 P0 de arriba + aviso de avistamiento sin enlace + privacidad de Perdidas/Adopciones (backend).
+2. **Pestañas** Inicio/Explorar/Herramientas (las ve todo usuario): accesos duplicados, skeletons, tokens.
+3. **Adopciones** completo (11 pantallas restantes; fusionar las 3 de solicitudes requiere aprobación).
+4. **Perdidas** `nuevo`/`editar` y «Mis reportes».
+5. **Directorio y citas**, luego **Paseadores/Cuidadores** con detalle compartido.
+6. **Auth, Carnet, Perfil, Mascotas** (pasadas U3, U5–U7).
+7. Profesionales: Mi clínica, Admin, Aseguradoras, Entrenadores, Funeraria, Patrocinadores, Laboratorio, Transportistas, Estética, Lugares.
+8. **Limpieza**: borrar los 19 archivos sin uso y los exports muertos que reporta Knip.
+

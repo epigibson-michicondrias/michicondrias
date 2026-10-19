@@ -818,4 +818,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   skeleton, galería deslizable (`photo_url` + `gallery`), datos con energía, salud y convivencia con ✓/–, personalidad,
   y una acción principal (adoptar / ver mi solicitud / **ver solicitudes recibidas** para quien publicó). `Badge` acepta
   `accessibilityLabel`; nuevo `sentenceCase` para valores sueltos ("Gris y blanco").
+- **2026-10-19** — **Auditoría integral** (ver `AUDITORIA_MOBILE.md` § Auditoría integral): deuda medida en las 156
+  pantallas, P0 abiertos revisados en código (4 ya resueltos, 3 siguen: fecha del paseo, filtros de cuidadores,
+  aprobación de adopciones), ESLint en 0 errores, Knip con 19 archivos sin uso. Plan de 8 pasos.
 
