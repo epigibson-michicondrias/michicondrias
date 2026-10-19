@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useVideoConsultations } from '@/src/hooks/clinica/useVideoConsultations';
 import { ConsultationItem } from '@/src/services/directorio';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -171,13 +172,7 @@ export default function ConsultasVideoScreen() {
                             <X size={24} color={theme.text} />
                         </TouchableOpacity>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Agendar Consulta</Text>
-                        <TouchableOpacity onPress={handleBook} disabled={loadingAction} accessibilityRole="button" accessibilityLabel="Agendar videoconsulta">
-                            {loadingAction ? (
-                                <ActivityIndicator size="small" color={theme.primary} />
-                            ) : (
-                                <Text style={[styles.saveBtnText, { color: theme.primary }]}>Agendar</Text>
-                            )}
-                        </TouchableOpacity>
+                        <Button label="Agendar Videoconsulta" onPress={handleBook} loading={loadingAction} style={{ minWidth: 140 }} />
                     </View>
 
                     <KeyboardScreen style={{ padding: 24 }}>

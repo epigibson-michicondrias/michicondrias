@@ -3,6 +3,7 @@ import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useServiceProfile } from '@/src/hooks/servicios-pro/useServiceProfile';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -37,12 +38,8 @@ export default function ProfessionalProfileScreen() {
                         title="Configuración Prof."
                         subtitle="Tus servicios y precios"
                         rightElement={
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSave}
-                                disabled={saving}
-                            >
-                                {saving ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guardar" onPress={handleSave}>
+                                {saving ? <ActivityIndicator size="small" color={theme.primary} /> : <Save size={20} color={theme.primary} />}
                             </TouchableOpacity>
                         }
                     />

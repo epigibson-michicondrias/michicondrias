@@ -27,6 +27,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useGroomingProvider } from '@/src/hooks/grooming/useGroomingProvider';
 import type { ProviderFilter } from '@/src/hooks/grooming/useGroomingProvider';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
@@ -333,17 +334,7 @@ export default function GestionGroomingScreen() {
                                 textAlignVertical="top"
                             />
 
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSavePhotos}
-                                disabled={isUpdating}
-                            >
-                                {isUpdating ? (
-                                    <ActivityIndicator color="#fff" />
-                                ) : (
-                                    <Text style={styles.saveBtnText}>Guardar</Text>
-                                )}
-                            </TouchableOpacity>
+                            <Button label="Guardar" onPress={handleSavePhotos} loading={isUpdating} />
 
                             <View style={{ height: 40 }} />
                         </ScrollView>

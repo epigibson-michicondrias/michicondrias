@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useConsultationForm } from '@/src/hooks/carnet/useConsultationForm';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Save, Plus, Trash2, ClipboardList, Weight, Thermometer, ShoppingBag, Info, Activity } from 'lucide-react-native';
@@ -33,15 +34,7 @@ export default function NuevaConsultaScreen() {
                 <ScreenHeader
                     title={isEditing ? 'Editar Consulta' : 'Nueva Consulta'}
                     rightElement={
-                        <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                            onPress={handleSave}
-                            disabled={isSaving}
-                            accessibilityRole="button"
-                            accessibilityLabel="Guardar consulta"
-                        >
-                            {isSaving ? <ActivityIndicator color={theme.onPrimary} size="small" /> : <Save size={20} color={theme.onPrimary} />}
-                        </TouchableOpacity>
+                        <Button label="Guardar" onPress={handleSave} loading={isSaving} icon={<Save size={18} color={theme.onPrimary} />} />
                     }
                 />
 

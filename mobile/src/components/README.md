@@ -9,7 +9,7 @@ sueltos ni `fontSize` inventados.
 | Componente | Para qué |
 |---|---|
 | `layout/ScreenContainer` | Contenedor de **toda** pantalla. Incluye `QueryErrorBanner` (reintentar) |
-| `layout/ScreenHeader` | Título con volver. `onHero`/`gradient` pinta la cabecera con `heroGradient` del tema |
+| `layout/ScreenHeader` | Título con volver. `accent` pinta la cabecera hero con el degradado del color del módulo; `gradient` usa el `heroGradient` azul del tema |
 | `KeyboardScreen` | Formularios con scroll y teclado (campos sin tapar) |
 | `AuthShell` | Esqueleto de las pantallas de `(auth)`: degradado, teclado y scroll (lo usa U3) |
 | `RoleGuard` | Protege pantallas pro/admin según `ROUTE_ACCESS` de `roleTools` |
@@ -54,3 +54,34 @@ Validación: `@/src/utils/validators` (`validateRequired`, `validateEmail`, …)
   estilo propio: son excepciones de legibilidad, no hex de estilo.
 - Si un componente se crea antes de adoptarlo, knip lo marcará. Es el caso de `AuthShell`: U3 es **crear+adoptar**
   juntos (su primer paso es usarlo en las 4 pantallas de `(auth)`).
+
+---
+
+## Principio de reutilización (2026-10-17)
+
+**Regla:** los componentes de `src/components/` son la ÚNICA fuente de estilo para sus elementos.
+Al cambiar un componente, el cambio se refleja en **todas** las pantallas que lo usan.
+
+| Componente | Para qué | En vez de |
+|---|---|---|
+| `Button` | Acciones (guardar, cancelar, enviar, agendar) | `TouchableOpacity` + `styles.saveBtn` |
+| `ListRow` | Filas de lista/menú (icono + título + desc + chevron) | `TouchableOpacity` + fila custom |
+| `Card` | Contenedores con borde y sombra | `View` con `borderRadius` y `borderWidth` |
+| `FormField` | Campos de formulario | `TextInput` + label custom |
+| `FilterChip` | Filtros en fila | `TouchableOpacity` + chip custom |
+| `EmptyState` | Estados vacíos con una acción | `View` + texto + botón custom |
+| `SectionHeader` | Títulos de sección | `Text` con estilo propio |
+
+**Si necesitas un componente nuevo:** créalo en `src/components/`, usa tokens de `constants/design.ts`
+(nunca hex sueltos) y reutilízalo. No copies estilos entre pantallas.
+
+**Ejemplo de migración:**
+```tsx
+// ❌ Antes (estilo suelto, no se actualiza al cambiar Button)
+<TouchableOpacity style={[styles.saveBtn, { backgroundColor: theme.primary }]} onPress={handleSave}>
+  <Text style={styles.saveBtnText}>Guardar</Text>
+</TouchableOpacity>
+
+// ✅ Ahora (reutiliza Button, se actualiza solo)
+<Button label="Guardar" onPress={handleSave} loading={isSaving} />
+```

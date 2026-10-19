@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useLaboratory } from '@/src/hooks/clinica/useLaboratory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -165,13 +166,7 @@ export default function LaboratorioScreen() {
                             <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: theme.surface }]} onPress={() => setModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cancelar">
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSaveTest}
-                                disabled={loadingAction}
-                            >
-                                {loadingAction ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Solicitar</Text>}
-                            </TouchableOpacity>
+                            <Button label="Solicitar" onPress={handleSaveTest} loading={loadingAction} />
                         </View>
                     </View>
                 </View>
@@ -209,13 +204,7 @@ export default function LaboratorioScreen() {
                             <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: theme.surface }]} onPress={() => setResultModalVisible(false)} accessibilityRole="button" accessibilityLabel="Cancelar">
                                 <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancelar</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.saveBtn, { backgroundColor: theme.info }]}
-                                onPress={handleSaveResults}
-                                disabled={isSavingResults}
-                            >
-                                {isSavingResults ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Guardar</Text>}
-                            </TouchableOpacity>
+                            <Button label="Guardar" onPress={handleSaveResults} loading={isSavingResults} />
                         </View>
                     </View>
                 </View>

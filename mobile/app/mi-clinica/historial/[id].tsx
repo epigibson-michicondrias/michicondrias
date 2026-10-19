@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { usePatientHistory } from '@/src/hooks/clinica/usePatientHistory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -175,18 +176,7 @@ export default function GenerarFichaMedicaScreen() {
                             </View>
                         )}
 
-                        <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                            onPress={handleSave}
-                            disabled={loading}
-                        >
-                            {loading ? <ActivityIndicator color="#fff" /> : (
-                                <>
-                                    <Save size={20} color="#fff" />
-                                    <Text style={styles.saveBtnText}>Guardar Expediente</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
+                        <Button label="Guardar Expediente" onPress={handleSave} loading={loading} />
                     </View>
                 </ScrollView>
             </ScreenContainer>

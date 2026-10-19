@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { Camera, Dog, Cat, Heart, MapPin } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -214,20 +215,13 @@ export default function NuevaAdopcionScreen() {
                 </ScrollView>
 
                 <View style={[styles.footer, { borderTopColor: theme.border }]}>
-                    <TouchableOpacity
-                        style={[styles.saveBtn, { backgroundColor: theme.secondary }, loading && { opacity: 0.7 }]}
+                    <Button
+                        label={isEditing ? 'Guardar cambios' : 'Publicar Adopción'}
                         onPress={handleSave}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <Text style={styles.saveBtnText}>Publicando...</Text>
-                        ) : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                                <Heart size={20} color="#fff" />
-                                <Text style={styles.saveBtnText}>{isEditing ? 'Guardar cambios' : 'Publicar Adopción'}</Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
+                        loading={loading}
+                        icon={<Heart size={18} color={theme.onAccent} />}
+                        variant="gold"
+                    />
                 </View>
             </ScreenContainer>
         </KeyboardAvoidingView>

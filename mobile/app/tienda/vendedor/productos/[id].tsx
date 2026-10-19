@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useProductForm } from '@/src/hooks/ecommerce/useProductForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -41,14 +42,8 @@ export default function VendedorProductoFormScreen() {
                         title={isEditing ? 'Editar Producto' : 'Nuevo Producto'}
                         subtitle={isEditing ? 'Actualiza los detalles' : 'Añade un artículo a tu tienda'}
                         rightElement={
-                            <TouchableOpacity
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSave}
-                                disabled={saving}
-                                accessibilityRole="button"
-                                accessibilityLabel="Guardar producto"
-                            >
-                                {saving ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
+                            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guardar" onPress={handleSave}>
+                                {saving ? <ActivityIndicator size="small" color={theme.primary} /> : <Save size={20} color={theme.primary} />}
                             </TouchableOpacity>
                         }
                     />

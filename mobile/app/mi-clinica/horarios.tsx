@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, Modal, TextInput } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, Text, TouchableOpacity, ScrollView, Switch, Modal, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useSchedule, type ScheduleDay, type Holiday } from '@/src/hooks/clinica/useSchedule';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
@@ -146,18 +147,8 @@ export default function HorariosClinicaScreen() {
             <ScreenHeader
                 title="Horarios"
                 rightElement={
-                    <TouchableOpacity
-                        accessibilityRole="button"
-                        accessibilityLabel="Guardar horarios"
-                        style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                        onPress={handleSaveSchedule}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <Text style={styles.saveBtnText}>...</Text>
-                        ) : (
-                            <Save size={20} color="#fff" />
-                        )}
+                    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guardar horarios" onPress={handleSaveSchedule} disabled={loading}>
+                        {loading ? <ActivityIndicator size="small" color={theme.primary} /> : <Save size={20} color={theme.primary} />}
                     </TouchableOpacity>
                 }
             />
