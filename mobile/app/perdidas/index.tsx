@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useReports } from '@/src/hooks/perdidas/useReports';
-import { Plus, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, List } from 'lucide-react-native';
+import { Plus, ClipboardList, AlertCircle, CheckCircle2, Navigation, Wifi, Info, Map as MapIcon, LayoutGrid, List } from 'lucide-react-native';
 import WebMapView from '@/src/components/WebMapView';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
@@ -103,7 +103,10 @@ export default function PerdidasScreen() {
                 <ScreenHeader
                     title="Mascotas perdidas"
                     subtitle="La comunidad te ayuda a reunirte con tu mejor amigo"
-                    actions={[{ icon: Plus, label: 'Reportar mascota', onPress: goToNew }]}
+                    actions={[
+                        { icon: ClipboardList, label: 'Mis reportes', onPress: () => router.push('/perdidas/mis-reportes') },
+                        { icon: Plus, label: 'Reportar mascota', onPress: goToNew },
+                    ]}
                 />
 
                 {/* Cifras: también son el filtro por tipo */}

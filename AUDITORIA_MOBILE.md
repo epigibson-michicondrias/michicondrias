@@ -498,9 +498,9 @@ Propuesta de rediseño (requiere visto bueno):
 
 Backend: `link` `/perdidas/{id}` en `_notify_user` (avistamiento y difusión). Esquema público sin `tracker_device_id`, `reporter_id` ni `current_lat/lng` (solo para el dueño). Contacto solo con sesión. Endpoint de conteos. Decidir si la moderación oculta reportes.
 Arreglos:
-- [ ] P1 Privacidad: tracker en vivo, `tracker_device_id` y contactos expuestos sin sesión en `GET /reports/`
-- [ ] P1 Aviso de avistamiento sin `link` → abre la lista y no el reporte (`lost_pets.py:254`)
-- [ ] P1 Sin «Mis reportes» ni eliminar. Editar no permite mover el punto ni valida el contacto
+- [x] P1 ✅ 2026-10-19 Privacidad: tracker en vivo, `tracker_device_id` y contactos expuestos sin sesión en `GET /reports/`
+- [x] P1 ✅ 2026-10-19 Aviso de avistamiento sin `link` → abre la lista y no el reporte (`lost_pets.py:254`)
+- [x] P1 ✅ 2026-10-19 Sin «Mis reportes» ni eliminar. Editar no permite mover el punto ni valida el contacto
 - [ ] P1 Estadísticas: ~~dependen del filtro~~ corregido 2026-10-19 (se traen todos y se filtra en cliente); **sigue el tope de 50** de `GET /reports/` (falta endpoint de conteos)
 - [ ] P2 `nuevo.tsx`: sacar la lógica a `useReportForm` y borrar `useReportActions`. Compartir con enlace. Skeleton, `ScreenContainer`, `KeyboardScreen`, tokens (26 + 17 hex). Partir `[id]` (665 l.) y `nuevo` (510 l.)
 

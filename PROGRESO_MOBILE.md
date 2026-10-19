@@ -60,7 +60,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
 | P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
 | P2 | Adopciones | 12 | 🔍 | 🟡 | ✅ | U ✅ 2026-10-19. Pendiente: KYC en backend; fusionar `solicitudes` y `ver-solicitudes` (requiere aprobación) |
-| P2 | Perdidas | 4 | ⬜ | ⬜ | ⬜ | |
+| P2 | Perdidas | 5 | 🔍 | ✅ | ✅ | 2026-10-19: detalle, crear/editar, mis reportes; privacidad en backend |
 | P2 | Paseadores / Cuidadores (cliente) | 4+4 | ⬜ | ⬜ | ⬜ | Detalles de 844 y 938 líneas casi gemelos → componente compartido |
 | P2 | Pet-friendly / Establecimientos | 3+4 | ⬜ | ⬜ | ⬜ | Dos módulos de "lugares": ¿solapan? (ambos en Explorar) |
 | P2 | Grooming / Estilistas | 4+2 | ⬜ | ⬜ | ⬜ | Dos nombres para lo mismo |
@@ -836,4 +836,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   (`MediaRow` con editar/eliminar; sin eliminar en adoptadas), compatibilidad y contrato con `Button`/`DetailFooter`.
   La cabecera de Adopciones lleva a mis solicitudes y mis publicaciones. Base: `FormSection` con `gap` (los
   `FormSwitch` dentro no suman margen) y `EmptyState` con la acción centrada.
+- **2026-10-19** — **Paso 4: Perdidas**. Crear y editar comparten `src/features/perdidas/ReportFormScreen.tsx` y
+  `useReportForm` (con `id` = edición): errores en línea, teléfono y correo validados, mover el punto a la ubicación
+  actual al editar, ubicación automática silenciosa al crear. Nueva pantalla **Mis reportes** (`/perdidas/mis-reportes`,
+  `GET /reports/mine`) con editar y eliminar con confirmación; acceso desde la cabecera de Perdidas. Borrados
+  `useEditReport` y `useReportActions` (sin uso).
 

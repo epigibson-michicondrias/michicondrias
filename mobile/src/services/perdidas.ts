@@ -63,6 +63,15 @@ export async function createReport(reportData: Partial<LostPetReport>): Promise<
     });
 }
 
+/** Mis reportes (activos, resueltos y en revisión). */
+export async function getMyReports(): Promise<LostPetReport[]> {
+    return apiFetch<LostPetReport[]>("perdidas", "/reports/mine");
+}
+
+export async function deleteReport(reportId: string): Promise<void> {
+    await apiFetch<unknown>("perdidas", `/reports/${reportId}`, { method: "DELETE" });
+}
+
 export async function resolveReport(reportId: string): Promise<LostPetReport> {
     return apiFetch<LostPetReport>("perdidas", `/reports/${reportId}/resolve`, {
         method: "POST",
