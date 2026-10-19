@@ -119,7 +119,7 @@ export default function CitasScreen() {
                 isRefreshing={isRefetching}
                 onRefresh={refetch}
                 emptyIcon={activeFilter === 'all' ? <Calendar size={layout.icon.xl} color={theme.textMuted} /> : <Clock size={layout.icon.xl} color={theme.textMuted} />}
-                emptyTitle={activeFilter === 'all' ? 'Sin citas próximas' : 'Nada en este filtro'}
+                emptyTitle={activeFilter === 'all' ? 'Aún no tienes citas' : 'Nada en este filtro'}
                 emptySubtitle={activeFilter === 'all'
                     ? 'Busca una clínica o especialista y agenda en minutos.'
                     : 'No tienes citas con este estado.'}

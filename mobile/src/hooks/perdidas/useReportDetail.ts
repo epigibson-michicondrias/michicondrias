@@ -51,6 +51,7 @@ export function useReportDetail() {
         queryClient.invalidateQueries({ queryKey: ['perdidas-report', id] });
         queryClient.invalidateQueries({ queryKey: ['lost-pet-reports'] });
         queryClient.invalidateQueries({ queryKey: ['lost-pet-resolved'] });
+        queryClient.invalidateQueries({ queryKey: ['my-lost-reports'] });
     };
 
     const resolveMutation = useMutation({

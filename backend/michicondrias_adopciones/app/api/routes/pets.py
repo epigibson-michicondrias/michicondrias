@@ -128,7 +128,9 @@ def read_listing(
     viewer_id = viewer.get("sub") if viewer else None
     is_admin = bool(viewer) and viewer.get("role") == "admin"
     is_owner = viewer_id is not None and viewer_id == listing.published_by
-    if not listing.is_approved and not (is_owner or is_admin):
+    # Al editar se vuelve a moderar: quien ya la solicitó la sigue viendo mientras tanto
+    has_request = viewer_id is not None and crud.get_active_request_for(db, listing_id, viewer_id) is not None
+    if not listing.is_approved and not (is_owner or is_admin or has_request):
         raise HTTPException(status_code=404, detail="Mascota no encontrada")
     out = ListingResponse.model_validate(listing)
     if is_owner or is_admin or (viewer_id is not None and viewer_id == listing.adopted_by):

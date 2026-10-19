@@ -30,7 +30,7 @@ export default function BottomSheet({ visible, onClose, title, subtitle, childre
     const insets = useSafeAreaInsets();
     return (
         <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-            <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'web' ? undefined : 'padding'}>
                 {/* Velo igual al de AppAlert: tocar fuera cierra */}
                 <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Cerrar" />
                 <View style={[styles.sheet, { backgroundColor: theme.surface }]}>

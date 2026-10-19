@@ -44,7 +44,7 @@ export default function ProcesarSolicitudScreen() {
     const { theme } = useTheme();
     const {
         request, listing, isLoading, statusInfo, notes, interviewDate,
-        setNotes, setInterviewDate, handleStatusUpdate, handleApprove, isMutating,
+        setNotes, setInterviewDate, handleStatusUpdate, handleApprove, isMutating, isApplicant,
     } = useApplicationDetail();
 
     if (isLoading) {
@@ -74,7 +74,8 @@ export default function ProcesarSolicitudScreen() {
     }
 
     const status = request.status;
-    const isClosed = status === 'ADOPTED' || status === 'REJECTED';
+    // El solicitante (por un enlace) solo consulta: sin acciones de gestión
+    const isClosed = status === 'ADOPTED' || status === 'REJECTED' || isApplicant;
     const canApprove = status === 'REVIEWING' || status === 'INTERVIEW_SCHEDULED' || status === 'APPROVED';
     const statusColor = theme[statusInfo.tone] as string;
     const petName = listing?.name ?? request.pet_name ?? 'la mascota';
@@ -125,7 +126,7 @@ export default function ProcesarSolicitudScreen() {
                             <Badge label={statusInfo.label} color={statusColor} variant="solid" />
                             <Text style={[type.caption, { color: theme.textMuted }]}>Enviada el {formatDate(request.created_at)}</Text>
                         </View>
-                        <Text style={[type.body, { color: theme.text }]}>{NEXT_STEP[status] ?? ''}</Text>
+                        <Text style={[type.body, { color: theme.text }]}>{isApplicant ? 'Te avisaremos cada vez que cambie de estado.' : NEXT_STEP[status] ?? ''}</Text>
                     </View>
                 </Card>
 

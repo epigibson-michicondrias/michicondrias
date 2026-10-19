@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { useInFormSection } from '@/src/components/forms/FormSection';
 import { spacing, radius, type, font } from '@/constants/design';
 
 interface SelectOption {
@@ -24,6 +25,7 @@ interface FormSelectProps {
 
 export default function FormSelect({ label, options, value, onChange, horizontal }: FormSelectProps) {
     const { theme } = useTheme();
+    const inSection = useInFormSection();
 
     const renderOptions = () => (
         <>
@@ -60,7 +62,7 @@ export default function FormSelect({ label, options, value, onChange, horizontal
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, inSection && styles.inSection]}>
             <Text style={[styles.label, { color: theme.textMuted }]}>{label}</Text>
             {horizontal ? (
                 <ScrollView
@@ -81,6 +83,7 @@ const styles = StyleSheet.create({
     container: {
         marginBottom: spacing.xl,
     },
+    inSection: { marginBottom: 0 },
     label: {
         ...type.labelSentence,
         marginBottom: spacing.sm,

@@ -26,6 +26,7 @@ export function useMyReports() {
         onSuccess: (_, id) => {
             queryClient.invalidateQueries({ queryKey: ['my-lost-reports'] });
             queryClient.invalidateQueries({ queryKey: ['lost-pet-reports'] });
+            queryClient.invalidateQueries({ queryKey: ['lost-pet-resolved'] });
             queryClient.removeQueries({ queryKey: ['perdidas-report', id] });
             showAlert({ type: 'success', title: 'Reporte eliminado', message: 'Ya no aparece en el listado ni en el mapa.' });
         },

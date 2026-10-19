@@ -13,6 +13,7 @@ import IconButton, { type IconComponent } from '@/src/components/IconButton';
 import Button from '@/src/components/Button';
 import Badge from '@/src/components/Badge';
 import { Skeleton } from '@/src/components/Skeleton';
+import EmptyState from '@/src/components/EmptyState';
 import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import { ProviderSection } from '@/src/features/proveedor/ProviderProfile';
 import { formatCurrency } from '@/src/utils/formatters';
@@ -46,6 +47,21 @@ export default function ClinicDetailScreen() {
             actions={clinic ? <IconButton icon={Share2} accessibilityLabel="Compartir clínica" onPress={c.share} variant="surface" size="sm" /> : undefined}
         />
     );
+
+    if (!c.isLoading && !clinic) {
+        return (
+            <ScreenContainer style={styles.centerScreen}>
+                <EmptyState
+                    icon={<Hospital size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No encontramos esta clínica"
+                    subtitle="Puede que ya no esté en el directorio o que no tengas conexión."
+                    actionLabel="Ver directorio"
+                    onAction={c.goBack}
+                />
+                {topBar}
+            </ScreenContainer>
+        );
+    }
 
     if (c.isLoading || !clinic) {
         return (
@@ -160,6 +176,7 @@ const styles = StyleSheet.create({
     flex: { flex: 1 },
     fill: { width: '100%', height: '100%' },
     center: { alignSelf: 'center' },
+    centerScreen: { justifyContent: 'center' },
     centerText: { textAlign: 'center' },
     content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl, gap: spacing.md },
     hero: { alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },

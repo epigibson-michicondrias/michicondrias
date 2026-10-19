@@ -7,6 +7,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getListing, getRequest, updateRequestStatus, approveAdoption } from '@/src/services/adopciones';
 import { showAlert } from '@/src/components/AppAlert';
+import { useAuth } from '@/src/contexts/AuthContext';
 import { REQUEST_STATUS } from '@/src/features/adopciones/requestStatus';
 
 export const STATUS_LABELS = REQUEST_STATUS;
@@ -14,6 +15,7 @@ export const STATUS_LABELS = REQUEST_STATUS;
 export function useApplicationDetail() {
     const { id } = useLocalSearchParams();
     const queryClient = useQueryClient();
+    const { user } = useAuth();
 
     const [notes, setNotes] = useState('');
     const [interviewDate, setInterviewDate] = useState('');
@@ -43,6 +45,8 @@ export function useApplicationDetail() {
             queryClient.invalidateQueries({ queryKey: ['listing-requests'] });
             queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
+            queryClient.invalidateQueries({ queryKey: ['adopcion', request?.listing_id] });
+            queryClient.invalidateQueries({ queryKey: ['my-requests'] });
             showAlert({ type: 'success', title: 'Listo', message: 'Le avisamos a quien envió la solicitud.' });
         },
         onError: (e: Error) => {
@@ -58,6 +62,8 @@ export function useApplicationDetail() {
             queryClient.invalidateQueries({ queryKey: ['listing-requests'] });
             queryClient.invalidateQueries({ queryKey: ['adopciones-listings'] });
             queryClient.invalidateQueries({ queryKey: ['my-adopciones'] });
+            queryClient.invalidateQueries({ queryKey: ['adopcion', request?.listing_id] });
+            queryClient.invalidateQueries({ queryKey: ['my-requests'] });
             queryClient.invalidateQueries({ queryKey: ['my-adoption-requests'] });
             queryClient.invalidateQueries({ queryKey: ['user-pets'] });
             showAlert({ type: 'success', title: 'Adopción aprobada', message: 'La mascota ya aparece en la cuenta del adoptante.' });
@@ -112,6 +118,8 @@ export function useApplicationDetail() {
         notes,
         interviewDate,
 
+        /** Quien envió la solicitud la puede ver, pero no gestionarla. */
+        isApplicant: !!user && request?.user_id === user.id,
         isMutating: statusMutation.isPending || approveMutation.isPending,
 
         // Actions

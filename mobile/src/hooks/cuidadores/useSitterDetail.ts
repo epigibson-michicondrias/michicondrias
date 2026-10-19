@@ -183,7 +183,8 @@ export function useSitterDetail() {
         selectedPetId,
         setSelectedPetId,
         startDate,
-        setStartDate,
+        // Si «Desde» pasa a «Hasta», se recorre «Hasta» para no dejar un rango inválido
+        setStartDate: (iso: string) => { setStartDate(iso); if (endDate < iso) setEndDate(iso); },
         endDate,
         setEndDate,
         sitNotes,

@@ -856,4 +856,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   fijos; sin emojis: ícono de huella, `Satellite`, `Scissors`, `Flower2`), `ListRow` para Michi-Tracker y servicios,
   `EmptyState` en errores. Vacunas y consultas con editar/eliminar como íconos compactos. `DetailPhoto` sin foto usa
   55 % de alto. Auth revisado (ya premium; «Crear cuenta» en tipo oración).
+  Carnet: nueva consulta y nueva vacuna con `FormSection`/`FormField`, errores en línea (motivo, peso, temperatura) y
+  botón fijo. **Revisión (`code-reviewer`) de los pasos 1–5 aplicada**: «Mis reportes» se refresca al resolver o
+  borrar; Inicio muestra las citas `pending` futuras; al aprobar una adopción se refresca la publicación; quien ya
+  solicitó sigue viendo una publicación en remoderación (backend); el solicitante no ve botones de gestión;
+  moderación → `ver-solicitudes/{id}`; reportes `expired` = «Vencido»; clínica inexistente con `EmptyState`;
+  `FormSelect`/`FormImagePicker` sin margen doble dentro de `FormSection`; `BottomSheet` con `padding` en Android;
+  «Hasta» se recorre si «Desde» lo rebasa.
 

@@ -218,7 +218,7 @@ export default function AdminModerationScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity accessibilityRole="button"
                         style={[styles.btnActionSquare, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => router.push(`/adopciones/solicitudes?id=${item.listing_id}` as any)}
+                        onPress={() => router.push(`/adopciones/ver-solicitudes/${item.listing_id}`)}
                     >
                         <FileText size={18} color={theme.primary} />
                     </TouchableOpacity>

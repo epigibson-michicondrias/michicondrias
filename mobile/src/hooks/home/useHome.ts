@@ -34,6 +34,7 @@ const OWNER_ACTIONS: QuickAction[] = [
 ];
 
 export const STATUS_COLORS: Record<string, string> = {
+  pending: accents.warning,
   scheduled: accents.warning,
   confirmed: accents.health,
   completed: accents.info,
@@ -41,7 +42,8 @@ export const STATUS_COLORS: Record<string, string> = {
 };
 
 export const STATUS_LABELS: Record<string, string> = {
-  scheduled: 'Programada',
+  pending: 'Por confirmar',
+  scheduled: 'Por confirmar',
   confirmed: 'Confirmada',
   completed: 'Completada',
   cancelled: 'Cancelada',
@@ -74,11 +76,11 @@ export function useHome() {
     enabled: !!user?.id,
   });
 
-  // Only upcoming (scheduled / confirmed), sorted soonest first, max 3
+  // Próximas (por confirmar o confirmadas, de hoy en adelante), la más cercana primero, máximo 3
   const upcomingAppointments = useMemo(
     () =>
       appointments
-        .filter((a) => a.status === 'scheduled' || a.status === 'confirmed')
+        .filter((a) => ['pending', 'scheduled', 'confirmed'].includes(a.status) && new Date(a.appointment_date).getTime() >= Date.now() - 60 * 60 * 1000)
         .sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime())
         .slice(0, 3),
     [appointments],

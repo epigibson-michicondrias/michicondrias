@@ -19,7 +19,7 @@ export default function MisReportesScreen() {
 
     const statusBadge = (item: LostPetReport) => {
         if (item.is_resolved) return <Badge label={item.report_type === 'lost' ? 'Reunido' : 'Devuelto'} color={theme.success} size="sm" />;
-        if (item.status !== 'active') return <Badge label="En revisión" color={theme.info} size="sm" />;
+        if (item.status === 'expired') return <Badge label="Vencido" color={theme.textMuted} size="sm" />;
         return <Badge label={item.report_type === 'lost' ? 'Perdido' : 'Encontrado'} color={item.report_type === 'lost' ? theme.error : theme.info} size="sm" />;
     };
 

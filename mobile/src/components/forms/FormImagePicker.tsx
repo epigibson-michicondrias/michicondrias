@@ -7,6 +7,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, X } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { useInFormSection } from '@/src/components/forms/FormSection';
 import { font, spacing } from '@/constants/design';
 
 interface FormImagePickerProps {
@@ -35,6 +36,7 @@ export default function FormImagePicker({
     circular,
 }: FormImagePickerProps) {
     const { theme } = useTheme();
+    const inSection = useInFormSection();
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -50,7 +52,7 @@ export default function FormImagePicker({
     };
 
     return (
-        <View style={[styles.container, circular && { alignSelf: 'center' }]}>
+        <View style={[styles.container, inSection && styles.inSection, circular && { alignSelf: 'center' }]}>
             {label ? (
                 <Text style={[styles.label, { color: theme.textMuted, textAlign: circular ? 'center' : 'left' }]}>{label}</Text>
             ) : null}
@@ -123,6 +125,7 @@ const styles = StyleSheet.create({
     container: {
         marginBottom: spacing.xl,
     },
+    inSection: { marginBottom: 0 },
     label: {
         fontSize: font.base,
         fontWeight: '700',
