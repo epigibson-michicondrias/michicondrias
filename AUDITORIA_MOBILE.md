@@ -611,8 +611,8 @@ Propuesta de rediseño (requiere visto bueno) — **fusionar en un solo módulo 
 Backend: migración aditiva en perdidas (columnas + `place_coupons`), `GET /places?mine=1` y paginación, lugares en la
 búsqueda global, y no permitir reseñar al autor desde la UI.
 Arreglos:
-- [ ] P1 Cupón público y canje que marca el reclamo de otro cliente (`venues.py:121-161,215-250`, `establecimientos/[id].tsx:166-172`)
-- [ ] P1 Formulario de reseña visible al autor (403) y que se limpia aunque falle (`petfriendly/[id].tsx:174-226`, `usePlaceDetail.ts:47-51`)
+- [x] ✅ 2026-10-19 P1 Cupón público y canje que marca el reclamo de otro cliente (`venues.py:121-161,215-250`, `establecimientos/[id].tsx:166-172`)
+- [x] ✅ 2026-10-19 P1 Formulario de reseña visible al autor (403) y que se limpia aunque falle (`petfriendly/[id].tsx:174-226`, `usePlaceDetail.ts:47-51`)
 - [ ] P1 `/establecimientos/nuevo|editar` fuera de `ROUTE_ACCESS` y sin `RoleGuard`
 - [ ] P1 Alta solo con el GPS del momento (`petfriendly/nuevo.tsx:51-70`). Sin editar lugar (existe el PUT)
 - [ ] P2 Fusión (arriba). `nuevo.tsx`: hook + `useMutation` + `FormField`/`KeyboardScreen`. Skeletons, tokens, amenidades legibles, borrar `src/types/{petfriendly,venues}.ts`
@@ -659,11 +659,11 @@ Backend: `PATCH /files/{pet_id}` (dueño o estilista con cita) para la ficha, o 
 crearla. Historial filtrado por estilista cuando no es el dueño. `service_id` y `price` en la cita (migración aditiva).
 Horarios que respeten la hora actual y la duración. Notificaciones de cita nueva y de cambio de estado. Estilistas en la búsqueda global.
 Arreglos:
-- [ ] P1 El servicio nuevo no aparece en el catálogo (`useGroomingForm.ts`: `useMutation` + invalidar `grooming-services`)
+- [x] ✅ 2026-10-19 P1 El servicio nuevo no aparece en el catálogo (`useGroomingForm.ts`: `useMutation` + invalidar `grooming-services`)
 - [ ] P1 El estilista no puede ver, editar ni pausar sus servicios (endpoints listos, sin UI). Catálogo sin nombre del estilista
-- [ ] P1 Horarios pasados ofrecidos hoy (`grooming.py:329-354`). Ficha de estética imposible de llenar (`historial/[petId].tsx:30-60`)
-- [ ] P1 Privacidad: un estilista ve los reportes de otros estilistas en el historial de la mascota (`grooming.py:198-210`)
-- [ ] P1 `RoleGuard` en `grooming/gestion` y `estilistas/nuevo`. Invalidar cliente e historial al guardar fotos
+- [x] ✅ 2026-10-19 P1 Horarios pasados ofrecidos hoy (`grooming.py:329-354`). Ficha de estética imposible de llenar (`historial/[petId].tsx:30-60`)
+- [x] ✅ 2026-10-19 P1 Privacidad: un estilista ve los reportes de otros estilistas en el historial de la mascota (`grooming.py:198-210`)
+- [x] ✅ 2026-10-19 P1 `RoleGuard` en `grooming/gestion` y `estilistas/nuevo`. Invalidar cliente e historial al guardar fotos
 - [ ] P2 Fusión de carpetas y nombre único «Estética». Reseña de mis-citas a un hook. Skeleton en agendar. `FormField`. Tokens. Borrar `src/types/grooming.ts` y los exports muertos
 
 ---

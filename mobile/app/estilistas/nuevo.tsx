@@ -1,156 +1,63 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { Scissors, Info } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useGroomingForm } from '@/src/hooks/grooming/useGroomingForm';
-
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import FormSection from '@/src/components/forms/FormSection';
+import { DetailFooter } from '@/src/components/layout/DetailLayout';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import { Scissors, Info } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import FormField from '@/src/components/FormField';
+import FormSection from '@/src/components/forms/FormSection';
+import Button from '@/src/components/Button';
+import RoleGuard from '@/src/components/RoleGuard';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
 
 export default function NuevoEstilistaScreen() {
     const { theme } = useTheme();
-    const { form, loading, updateField, handleSubmit } = useGroomingForm();
+    const { form, errors, loading, updateField, handleSubmit } = useGroomingForm();
 
     return (
-        <KeyboardScreen style={{ backgroundColor: theme.background }}>
-            <ScreenHeader
-                title="Nuevo Servicio"
-                subtitle="Ofrece tus servicios de grooming"
-            />
-
-            <View style={styles.content}>
-                <FormSection>
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Nombre del Servicio *</Text>
-                        <TextInput
-                            style={[styles.input, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
-                            placeholder="Ej. Baño y corte básico"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.name}
-                            onChangeText={(val) => updateField('name', val)}
-                        />
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Descripción</Text>
-                        <TextInput
-                            style={[styles.textArea, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
-                            placeholder="Describe tu servicio..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            numberOfLines={4}
-                            value={form.description}
-                            onChangeText={(val) => updateField('description', val)}
-                        />
-                    </View>
-
-                    <View style={styles.row}>
-                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.text }]}>Precio ($) *</Text>
-                            <TextInput
-                                style={[styles.input, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
-                                placeholder="Ej. 250"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="numeric"
-                                value={form.price}
-                                onChangeText={(val) => updateField('price', val)}
-                            />
-                        </View>
-                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.text }]}>Duración (min)</Text>
-                            <TextInput
-                                style={[styles.input, { borderColor: theme.border }, { backgroundColor: theme.surface, color: theme.text }]}
-                                placeholder="Ej. 30"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="numeric"
-                                value={form.duration_minutes}
-                                onChangeText={(val) => updateField('duration_minutes', val)}
-                            />
-                        </View>
-                    </View>
-                </FormSection>
-
-                <View style={[styles.infoBox, { backgroundColor: theme.primary + '10' }]}>
-                    <Info size={18} color={theme.primary} />
-                    <Text style={[styles.infoText, { color: theme.textMuted }]}>
-                        Al registrar tu servicio, los clientes podrán verlo y agendar citas contigo.
-                    </Text>
-                </View>
-
-                <TouchableOpacity accessibilityRole="button"
-                    style={[styles.submitBtn, { backgroundColor: theme.primary }, loading && { opacity: 0.7 }]}
-                    disabled={loading}
-                    onPress={handleSubmit}
+        <RoleGuard roles={['estilista']}>
+            <ScreenContainer>
+                <ScreenHeader title="Nuevo servicio" subtitle="Los clientes lo verán en el catálogo de estética" />
+                <KeyboardScreen
+                    contentContainerStyle={styles.content}
+                    footer={(
+                        <DetailFooter>
+                            <Button label="Publicar servicio" icon={<Scissors size={layout.icon.sm} color={theme.onPrimary} />} onPress={handleSubmit} loading={loading} size="lg" style={styles.flex} />
+                        </DetailFooter>
+                    )}
                 >
-                    <Scissors size={20} color={theme.onPrimary} />
-                    <Text style={styles.submitBtnText}>{loading ? "Registrando..." : "Registrar Servicio"}</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardScreen>
+                    <FormSection title="Servicio">
+                        <FormField label="Nombre *" value={form.name} onChangeText={(v) => updateField('name', v)} placeholder="Ej. Baño y corte higiénico" maxLength={80} error={errors.name} />
+                        <FormField label="Descripción" value={form.description} onChangeText={(v) => updateField('description', v)} placeholder="Qué incluye, productos que usas…" multiline />
+                    </FormSection>
+                    <FormSection title="Precio y duración">
+                        <View style={styles.row}>
+                            <View style={styles.flex}>
+                                <FormField label="Precio (MXN) *" value={form.price} onChangeText={(v) => updateField('price', v)} placeholder="0.00" keyboardType="decimal-pad" error={errors.price} />
+                            </View>
+                            <View style={styles.flex}>
+                                <FormField label="Duración (min) *" value={form.duration_minutes} onChangeText={(v) => updateField('duration_minutes', v.replace(/\D/g, ''))} placeholder="30" keyboardType="number-pad" maxLength={3} error={errors.duration_minutes} />
+                            </View>
+                        </View>
+                    </FormSection>
+                    <View style={[styles.note, { backgroundColor: theme.primary + tint.faint }]}>
+                        <Info size={layout.icon.sm} color={theme.primary} />
+                        <Text style={[type.caption, styles.flex, { color: theme.text }]}>
+                            Los clientes podrán agendar este servicio contigo en los horarios libres de tu agenda.
+                        </Text>
+                    </View>
+                </KeyboardScreen>
+            </ScreenContainer>
+        </RoleGuard>
     );
 }
 
 const styles = StyleSheet.create({
-    content: {
-        padding: spacing.xxl,
-        gap: spacing.xl,
-    },
-    inputGroup: {
-        gap: spacing.sm,
-        marginBottom: spacing.lg,
-    },
-    row: {
-        flexDirection: 'row',
-        gap: spacing.lg,
-    },
-    label: {
-        fontSize: font.base,
-        fontWeight: '700',
-        marginLeft: spacing.xs,
-    },
-    input: {
-        height: 56,
-        borderRadius: 16,
-        paddingHorizontal: spacing.lg,
-        fontSize: font.xl,
-        borderWidth: 1,
-    },
-    textArea: {
-        height: 120,
-        borderRadius: 16,
-        paddingHorizontal: spacing.lg,
-        paddingVertical: spacing.lg,
-        fontSize: font.xl,
-        textAlignVertical: 'top',
-        borderWidth: 1,
-    },
-    infoBox: {
-        flexDirection: 'row',
-        padding: spacing.lg,
-        borderRadius: 16,
-        gap: spacing.md,
-        alignItems: 'center',
-    },
-    infoText: {
-        flex: 1,
-        fontSize: font.md,
-        lineHeight: 18,
-    },
-    submitBtn: {
-        height: 64,
-        borderRadius: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: spacing.md,
-        marginTop: spacing.md,
-        marginBottom: spacing.huge,
-    },
-    submitBtnText: {
-        color: '#fff',
-        fontSize: font.xxl,
-        fontWeight: '800',
-    },
+    flex: { flex: 1 },
+    content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+    row: { flexDirection: 'row', gap: spacing.md },
+    note: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
 });

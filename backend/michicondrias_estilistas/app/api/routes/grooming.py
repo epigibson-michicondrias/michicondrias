@@ -1,3 +1,5 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import bindparam, func, text
@@ -195,7 +197,8 @@ def read_grooming_history(
     """
     Historial de estilismo de una mascota. Solo su dueño, un estilista con una cita de esa mascota, o un admin.
     """
-    if role != "admin" and _pet_owner_id(db, pet_id) != current_user_id:
+    is_groomer_view = role != "admin" and _pet_owner_id(db, pet_id) != current_user_id
+    if is_groomer_view:
         attended = db.query(GroomingAppointment).filter(
             GroomingAppointment.pet_id == pet_id, GroomingAppointment.groomer_id == current_user_id
         ).first()
@@ -203,6 +206,9 @@ def read_grooming_history(
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes acceso al historial de esta mascota")
     file = crud_grooming.get_or_create_grooming_file(db, pet_id=pet_id)
     appointments = crud_grooming.get_appointments_by_pet(db, pet_id=pet_id)
+    if is_groomer_view:
+        # Un estilista solo ve sus propias citas y reportes de la mascota, no los de otros estilistas
+        appointments = [a for a in appointments if a.groomer_id == current_user_id]
     return {
         "file": file,
         "appointments": _appointments_out(db, appointments)
@@ -343,10 +349,17 @@ def read_available_slots(
     ).all()
     
     taken_hours = {appt.time.strftime("%H:%M") for appt in appointments}
-    
+
     # 9:00 AM to 5:00 PM standard business hours
     all_hours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
     available = [h for h in all_hours if h not in taken_hours]
+
+    # Nada en días pasados; hoy, solo las horas que aún no llegan (hora de México)
+    now = datetime.now(ZoneInfo("America/Mexico_City"))
+    if target_date < now.date():
+        return []
+    if target_date == now.date():
+        available = [h for h in available if h > now.strftime("%H:%M")]
     return available
 
 

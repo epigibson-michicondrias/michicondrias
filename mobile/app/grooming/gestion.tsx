@@ -2,6 +2,7 @@
  * Gestión Grooming — Provider appointment management
  * Appointment list, filter by status, photo upload (before/after), status management
  */
+import RoleGuard from '@/src/components/RoleGuard';
 import React, { useState } from 'react';
 import {
     StyleSheet,
@@ -55,6 +56,14 @@ const STATUS_ACTIONS: Record<string, { next: string; label: string }> = {
 const CANCELLABLE = ['scheduled', 'pending', 'confirmed', 'in_progress'];
 
 export default function GestionGroomingScreen() {
+    return (
+        <RoleGuard roles={['estilista']}>
+            <GestionGrooming />
+        </RoleGuard>
+    );
+}
+
+function GestionGrooming() {
     const { theme } = useTheme();
     const {
         appointments,
