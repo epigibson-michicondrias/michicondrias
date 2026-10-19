@@ -1,14 +1,16 @@
+/**
+ * Forgot Password — adopta AuthShell (U3). Envío de código de 6 dígitos.
+ */
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, View, Text } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Mail, ArrowRight, Send, KeyRound, CheckCircle } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-
 import { usePasswordReset } from '@/src/hooks/auth/usePasswordReset';
 import { showAlert } from '@/src/components/AppAlert';
+import AuthShell from '@/src/components/AuthShell';
+import { spacing, radius, type, layout, shadow } from '@/constants/design';
 
 export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
@@ -16,247 +18,157 @@ export default function ForgotPasswordScreen() {
 
     const { requestReset, isRequesting } = usePasswordReset();
     const router = useRouter();
-    const { theme, colorScheme } = useTheme();
-    const isDark = colorScheme === 'dark';
+    const { theme } = useTheme();
 
     const handleSend = () => {
         const cleanEmail = email.trim();
         if (!cleanEmail) {
-            showAlert({ type: 'warning', title: 'Campo requerido', message: 'Ingresa tu correo electrónico' });
+            showAlert({ type: 'warning', title: 'Campo requerido', message: 'Ingresa tu correo electrónico.' });
             return;
         }
         requestReset(cleanEmail, {
             onSuccess: () => setSent(true),
             onError: (error) => {
-                showAlert({
-                    type: 'error',
-                    title: 'Error de envío',
-                    message: error.message || 'No se pudo enviar el correo de recuperación. Inténtalo de nuevo.'
-                });
+                showAlert({ type: 'error', title: 'Error de envío', message: error.message || 'No se pudo enviar el correo. Inténtalo de nuevo.' });
             },
         });
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar style={isDark ? 'light' : 'dark'} />
-            <LinearGradient
-                colors={isDark
-                    ? ['#1c2f6b', '#101c3d', '#0b0e17']
-                    : ['#fef3c7', '#fffbeb', '#fffdf5']
-                }
-                style={StyleSheet.absoluteFillObject}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 1 }}
-            />
+        <AuthShell>
+            <BackButton onPress={() => router.back()} style={styles.backBtn} />
 
-            <View style={[styles.decoCircle1, { backgroundColor: isDark ? 'rgba(245,158,11,0.08)' : 'rgba(245,158,11,0.06)' }]} />
-            <View style={[styles.decoCircle2, { backgroundColor: isDark ? 'rgba(234,179,8,0.06)' : 'rgba(234,179,8,0.05)' }]} />
-
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}
-            >
-                <ScrollView
-                    contentContainerStyle={styles.scroll}
-                    showsVerticalScrollIndicator={false}
-                    bounces={false}
-                >
-                    {/* Back button */}
-                    <BackButton
-                        onPress={() => router.back()}
-                        style={styles.backBtn}
-                    />
-
-                    {!sent ? (
-                        <>
-                            {/* Header */}
-                            <View style={styles.headerSection}>
-                                <View style={[styles.iconCircle, { backgroundColor: isDark ? 'rgba(245,158,11,0.15)' : 'rgba(245,158,11,0.1)' }]}>
-                                    <KeyRound size={28} color={theme.accent} />
-                                </View>
-                                <Text style={[styles.title, { color: isDark ? '#fff' : '#78350f' }]}>¿Olvidaste tu contraseña?</Text>
-                                <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.55)' : '#92400e' }]}>
-                                    No te preocupes, te enviaremos un código de 6 dígitos para restablecerla
-                                </Text>
-                            </View>
-
-                            {/* Card */}
-                            <View style={[styles.card, {
-                                backgroundColor: isDark ? 'rgba(15,36,56,0.9)' : 'rgba(255,255,255,0.95)',
-                                borderColor: isDark ? 'rgba(245,158,11,0.15)' : 'rgba(245,158,11,0.12)',
-                                shadowColor: isDark ? '#f59e0b' : '#f59e0b',
-                            }]}>
-                                <Text style={[styles.cardTitle, { color: isDark ? '#fff' : '#78350f' }]}>Restablecer contraseña</Text>
-                                <Text style={[styles.cardSubtitle, { color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }]}>
-                                    Ingresa el email asociado a tu cuenta y te enviaremos el código de verificación
-                                </Text>
-
-                                {/* Email */}
-                                <View style={styles.field}>
-                                    <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Email</Text>
-                                    <View style={[styles.inputRow, {
-                                        backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fffbeb',
-                                        borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#fef3c7',
-                                    }]}>
-                                        <Mail size={18} color={theme.accent} />
-                                        <TextInput
-                                            style={[styles.input, { color: isDark ? '#fff' : '#0f172a' }]}
-                                            placeholder="tu@email.com"
-                                            placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
-                                            value={email}
-                                            onChangeText={setEmail}
-                                            autoCapitalize="none"
-                                            keyboardType="email-address"
-                                            textContentType="emailAddress"
-                                        />
-                                    </View>
-                                </View>
-
-                                {/* Send button */}
-                                <TouchableOpacity
-                                    style={[styles.sendBtn, { backgroundColor: theme.accent }, isRequesting && { opacity: 0.7 }]}
-                                    onPress={handleSend}
-                                    disabled={isRequesting}
-                                    activeOpacity={0.85}
-                                >
-                                    <Text style={styles.sendBtnText}>Enviar código</Text>
-                                    <Send size={18} color="#fff" />
-                                </TouchableOpacity>
-                            </View>
-                        </>
-                    ) : (
-                        <>
-                            {/* Success state */}
-                            <View style={styles.headerSection}>
-                                <View style={[styles.iconCircle, { backgroundColor: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)' }]}>
-                                    <CheckCircle size={32} color="#10b981" />
-                                </View>
-                                <Text style={[styles.title, { color: isDark ? '#fff' : '#064e3b' }]}>¡Revisa tu correo!</Text>
-                                <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.55)' : '#059669' }]}>
-                                    Si existe una cuenta con <Text style={{ fontWeight: '700', color: isDark ? '#fff' : '#064e3b' }}>{email}</Text>, recibirás un código de 6 dígitos (y un enlace) para restablecer tu contraseña.
-                                </Text>
-                            </View>
-
-                            <View style={[styles.card, {
-                                backgroundColor: isDark ? 'rgba(15,36,56,0.9)' : 'rgba(255,255,255,0.95)',
-                                borderColor: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.12)',
-                            }]}>
-                                <View style={styles.tipsContainer}>
-                                    <View style={styles.tipItem}>
-                                        <View style={[styles.tipDot, { backgroundColor: '#10b981' }]} />
-                                        <Text style={[styles.tipText, { color: isDark ? 'rgba(255,255,255,0.6)' : '#475569' }]}>
-                                            Revisa tu carpeta de spam o correo no deseado
-                                        </Text>
-                                    </View>
-                                    <View style={styles.tipItem}>
-                                        <View style={[styles.tipDot, { backgroundColor: '#f59e0b' }]} />
-                                        <Text style={[styles.tipText, { color: isDark ? 'rgba(255,255,255,0.6)' : '#475569' }]}>
-                                            El código expira en 30 minutos
-                                        </Text>
-                                    </View>
-                                    <View style={styles.tipItem}>
-                                        <View style={[styles.tipDot, { backgroundColor: '#0ea5e9' }]} />
-                                        <Text style={[styles.tipText, { color: isDark ? 'rgba(255,255,255,0.6)' : '#475569' }]}>
-                                            El código es de un solo uso; si lo pierdes, pide otro aquí
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <TouchableOpacity
-                                    style={[styles.sendBtn, { backgroundColor: theme.accent }]}
-                                    onPress={() => router.replace('/login')}
-                                    activeOpacity={0.85}
-                                >
-                                    <Text style={styles.sendBtnText}>Volver al Login</Text>
-                                    <ArrowRight size={18} color="#fff" />
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={[styles.secondaryBtn, {
-                                        borderColor: isDark ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.2)',
-                                    }]}
-                                    onPress={() => router.push('/reset-password')}
-                                    activeOpacity={0.85}
-                                >
-                                    <Text style={[styles.secondaryBtnText, { color: theme.accent }]}>¿Ya tienes el código? Restablecer aquí</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </>
-                    )}
-
-                    {/* Footer */}
-                    <View style={styles.footer}>
-                        <Text style={[styles.footerLabel, { color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }]}>
-                            ¿Recordaste tu contraseña?
+            {!sent ? (
+                <>
+                    <View style={styles.headerSection}>
+                        <View style={[styles.iconCircle, { backgroundColor: theme.warning + '15' }]}>
+                            <KeyRound size={28} color={theme.warning} />
+                        </View>
+                        <Text style={[styles.title, { color: theme.onHero }]}>¿Olvidaste tu contraseña?</Text>
+                        <Text style={[styles.subtitle, { color: theme.onHeroMuted }]}>
+                            Te enviaremos un código de 6 dígitos para restablecerla
                         </Text>
-                        <TouchableOpacity onPress={() => router.replace('/login')} activeOpacity={0.7}>
-                            <Text style={[styles.footerLink, { color: theme.accent }]}> Inicia sesión</Text>
+                    </View>
+
+                    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight, ...shadow.card }]}>
+                        <Text style={[styles.cardTitle, { color: theme.text }]}>Restablecer contraseña</Text>
+                        <Text style={[styles.cardSubtitle, { color: theme.textMuted }]}>
+                            Ingresa el email asociado a tu cuenta.
+                        </Text>
+
+                        <View style={styles.field}>
+                            <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Email</Text>
+                            <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                                <Mail size={18} color={theme.warning} />
+                                <TextInput
+                                    style={[styles.input, { color: theme.text }]}
+                                    placeholder="tu@email.com"
+                                    placeholderTextColor={theme.textMuted}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                    textContentType="emailAddress"
+                                    autoComplete="email"
+                                    returnKeyType="go"
+                                    onSubmitEditing={handleSend}
+                                />
+                            </View>
+                        </View>
+
+                        <TouchableOpacity
+                            style={[styles.sendBtn, { backgroundColor: theme.warning }, isRequesting && { opacity: 0.7 }]}
+                            onPress={handleSend}
+                            disabled={isRequesting}
+                            activeOpacity={0.85}
+                            accessibilityRole="button"
+                            accessibilityLabel="Enviar código"
+                        >
+                            <Text style={[styles.sendBtnText, { color: theme.onPrimary }]}>Enviar código</Text>
+                            <Send size={18} color={theme.onPrimary} />
                         </TouchableOpacity>
                     </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </View>
+                </>
+            ) : (
+                <>
+                    <View style={styles.headerSection}>
+                        <View style={[styles.iconCircle, { backgroundColor: theme.success + '15' }]}>
+                            <CheckCircle size={32} color={theme.success} />
+                        </View>
+                        <Text style={[styles.title, { color: theme.onHero }]}>¡Revisa tu correo!</Text>
+                        <Text style={[styles.subtitle, { color: theme.onHeroMuted }]}>
+                            Si existe una cuenta con <Text style={{ fontWeight: '700' }}>{email}</Text>, recibirás un código de 6 dígitos.
+                        </Text>
+                    </View>
+
+                    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+                        <View style={styles.tipsContainer}>
+                            <View style={styles.tipItem}>
+                                <View style={[styles.tipDot, { backgroundColor: theme.success }]} />
+                                <Text style={[styles.tipText, { color: theme.textMuted }]}>Revisa tu carpeta de spam.</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <View style={[styles.tipDot, { backgroundColor: theme.warning }]} />
+                                <Text style={[styles.tipText, { color: theme.textMuted }]}>El código expira en 30 minutos.</Text>
+                            </View>
+                            <View style={styles.tipItem}>
+                                <View style={[styles.tipDot, { backgroundColor: theme.info }]} />
+                                <Text style={[styles.tipText, { color: theme.textMuted }]}>El código es de un solo uso.</Text>
+                            </View>
+                        </View>
+
+                        <TouchableOpacity
+                            style={[styles.sendBtn, { backgroundColor: theme.primary }]}
+                            onPress={() => router.replace('/login')}
+                            accessibilityRole="button"
+                        >
+                            <Text style={[styles.sendBtnText, { color: theme.onPrimary }]}>Volver al Login</Text>
+                            <ArrowRight size={18} color={theme.onPrimary} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.secondaryBtn, { borderColor: theme.warning + '40' }]}
+                            onPress={() => router.push('/reset-password')}
+                            accessibilityRole="button"
+                        >
+                            <Text style={[styles.secondaryBtnText, { color: theme.warning }]}>¿Ya tienes el código? Restablecer aquí</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+            )}
+
+            <View style={styles.footer}>
+                <Text style={[styles.footerLabel, { color: theme.onHeroMuted }]}>¿Recordaste tu contraseña?</Text>
+                <TouchableOpacity onPress={() => router.replace('/login')} accessibilityRole="button">
+                    <Text style={[styles.footerLink, { color: theme.primary }]}> Inicia sesión</Text>
+                </TouchableOpacity>
+            </View>
+        </AuthShell>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    decoCircle1: {
-        position: 'absolute', top: -60, right: -80,
-        width: 220, height: 220, borderRadius: 110,
-    },
-    decoCircle2: {
-        position: 'absolute', bottom: 100, left: -60,
-        width: 160, height: 160, borderRadius: 80,
-    },
-    scroll: {
-        flexGrow: 1, paddingHorizontal: 28, paddingTop: 60, paddingBottom: 48,
-    },
-    backBtn: {
-        marginBottom: 20,
-    },
-    headerSection: { alignItems: 'center', marginBottom: 28 },
-    iconCircle: {
-        width: 72, height: 72, borderRadius: 36,
-        justifyContent: 'center', alignItems: 'center', marginBottom: 20,
-    },
-    title: { fontSize: 26, fontWeight: '900', letterSpacing: -0.5, textAlign: 'center' },
-    subtitle: { fontSize: 14, fontWeight: '500', marginTop: 8, textAlign: 'center', lineHeight: 20 },
-    card: {
-        borderRadius: 28, padding: 28, borderWidth: 1,
-        shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12,
-        shadowRadius: 24, elevation: 8,
-    },
-    cardTitle: { fontSize: 20, fontWeight: '800', marginBottom: 6 },
-    cardSubtitle: { fontSize: 13, fontWeight: '500', marginBottom: 24, lineHeight: 20 },
-    field: { marginBottom: 24 },
-    fieldLabel: {
-        fontSize: 13, fontWeight: '700', marginBottom: 8, marginLeft: 4,
-    },
-    inputRow: {
-        flexDirection: 'row', alignItems: 'center',
-        borderRadius: 16, paddingHorizontal: 16,
-        borderWidth: 1.5, height: 54, gap: 12,
-    },
-    input: { flex: 1, fontSize: 15, fontWeight: '500' },
-    sendBtn: {
-        height: 56, borderRadius: 16, flexDirection: 'row',
-        alignItems: 'center', justifyContent: 'center', gap: 10,
-    },
-    sendBtnText: { color: '#fff', fontSize: 17, fontWeight: '800' },
-    tipsContainer: { gap: 14, marginBottom: 28 },
-    tipItem: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    backBtn: { marginBottom: spacing.lg },
+    headerSection: { alignItems: 'center', marginBottom: spacing.xl },
+    iconCircle: { width: 72, height: 72, borderRadius: 36, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.lg },
+    title: { fontSize: type.h1.fontSize, fontWeight: '900', letterSpacing: -0.5, textAlign: 'center' },
+    subtitle: { fontSize: type.body.fontSize, fontWeight: '500', marginTop: spacing.sm, textAlign: 'center', lineHeight: 20 },
+    card: { borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1 },
+    cardTitle: { fontSize: type.h2.fontSize, fontWeight: '800', marginBottom: spacing.xs },
+    cardSubtitle: { fontSize: type.caption.fontSize, fontWeight: '500', marginBottom: spacing.xl, lineHeight: 20 },
+    field: { marginBottom: spacing.xl },
+    fieldLabel: { fontSize: type.label.fontSize, fontWeight: '700', marginBottom: spacing.sm, marginLeft: spacing.xs },
+    inputRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, paddingHorizontal: spacing.lg, borderWidth: 1, minHeight: layout.minTouch + 4, gap: spacing.sm },
+    input: { flex: 1, fontSize: type.body.fontSize, fontWeight: '500' },
+    sendBtn: { minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    sendBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
+    tipsContainer: { gap: spacing.md, marginBottom: spacing.xl },
+    tipItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     tipDot: { width: 8, height: 8, borderRadius: 4 },
-    tipText: { flex: 1, fontSize: 13, fontWeight: '500', lineHeight: 18 },
-    footer: {
-        flexDirection: 'row', justifyContent: 'center', marginTop: 28,
-    },
-    footerLabel: { fontSize: 14, fontWeight: '500' },
-    footerLink: { fontSize: 14, fontWeight: '800' },
-    secondaryBtn: {
-        height: 48, borderRadius: 16, borderWidth: 1.5,
-        alignItems: 'center', justifyContent: 'center', marginTop: 12,
-    },
-    secondaryBtnText: { fontSize: 14, fontWeight: '700' },
+    tipText: { flex: 1, fontSize: type.caption.fontSize, fontWeight: '500', lineHeight: 18 },
+    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl },
+    footerLabel: { fontSize: type.body.fontSize, fontWeight: '500' },
+    footerLink: { fontSize: type.body.fontSize, fontWeight: '800' },
+    secondaryBtn: { minHeight: layout.minTouch, borderRadius: radius.lg, borderWidth: 1, alignItems: 'center', justifyContent: 'center', marginTop: spacing.md },
+    secondaryBtnText: { fontSize: type.body.fontSize, fontWeight: '700' },
 });
