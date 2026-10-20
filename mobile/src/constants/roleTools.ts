@@ -187,6 +187,8 @@ export const ROUTE_ACCESS: { prefix: string; roles: string[] }[] = [
     { prefix: '/entrenadores/gestion', roles: ['entrenador'] },
     { prefix: '/entrenadores/nuevo-programa', roles: ['entrenador'] },
     { prefix: '/directorio/nuevo', roles: ['veterinario', 'hospital', 'admin'] },
+    { prefix: '/establecimientos/nuevo', roles: ['establecimiento'] },
+    { prefix: '/establecimientos/editar', roles: ['establecimiento'] },
     { prefix: '/grooming/gestion', roles: ['estilista'] },
     { prefix: '/estilistas/nuevo', roles: ['estilista'] },
     { prefix: '/laboratorio/gestion', roles: ['laboratorio'] },

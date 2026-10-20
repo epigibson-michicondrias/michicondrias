@@ -464,11 +464,11 @@ Propuesta de rediseño (requiere visto bueno):
 Backend: esquema público sin `adopted_by`/`microchip_number`. `GET /pets/{id}` solo aprobadas y abiertas (salvo dueño o admin). Exigir `verification_status == VERIFIED` en `POST /{id}/request`. `GET /admin/{listing_id}/requests` ya permite al admin. Idempotencia en `approve` (no crear la mascota si ya existe `adopted_from_listing_id`).
 Arreglos:
 - [ ] P0 Flujo B roto de punta a punta: formulario inalcanzable; el contrato promete «aprobada» sin cerrar la publicación ni transferir la mascota (`pets.py:500`); `mis-solicitudes` no lo muestra. Decidir: quitarlo o integrarlo
-- [ ] P0 `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba y deja sin salida la aprobación real (:152)
-- [ ] P1 Privacidad: `GET /pets/{id}` público con `adopted_by`, microchip y publicaciones sin aprobar
+- [x] ✅ 2026-10-19 P0 `ver-solicitudes/[id]` «Aprobar» solo pre-aprueba y deja sin salida la aprobación real (:152)
+- [x] ✅ 2026-10-19 P1 Privacidad: `GET /pets/{id}` público con `adopted_by`, microchip y publicaciones sin aprobar
 - [ ] P1 KYC solo en el cliente (sigue: falta validarlo en el backend); ~~veterinarios bloqueados para adoptar~~ ✅ 2026-10-19 (solo admin) (`solicitar/[id].tsx:32,52`)
 - [x] P1 Consumidor que publica sin acceso a «Mis publicaciones» ✅ 2026-10-19 (cabecera de Adopciones: mis solicitudes, mis publicaciones, publicar); el dueño sin CTA a sus solicitudes ✅
-- [ ] P1 Admin → `/adopciones/solicitudes?id=` ignora el parámetro (`admin/moderacion/index.tsx:221`)
+- [x] ✅ 2026-10-19 P1 Admin → `/adopciones/solicitudes?id=` ignora el parámetro (`admin/moderacion/index.tsx:221`)
 - [x] P1 «En Vivo» falso y refresh duplicado (`mis-solicitudes.tsx`) ✅ 2026-10-19. Eliminar en adoptadas. Aviso de remoderación al editar
 - [ ] P2 Fusionar las 3 pantallas de solicitudes. N+1 de `useApplications`. Query keys unificadas. `RoleGuard` en `refugio/*`. Skeleton en lugar de `LoadingOverlay` (5 pantallas), tokens, `FormField`/`KeyboardScreen` en `nuevo`
 
@@ -502,7 +502,7 @@ Arreglos:
 - [x] P1 ✅ 2026-10-19 Aviso de avistamiento sin `link` → abre la lista y no el reporte (`lost_pets.py:254`)
 - [x] P1 ✅ 2026-10-19 Sin «Mis reportes» ni eliminar. Editar no permite mover el punto ni valida el contacto
 - [ ] P1 Estadísticas: ~~dependen del filtro~~ corregido 2026-10-19 (se traen todos y se filtra en cliente); **sigue el tope de 50** de `GET /reports/` (falta endpoint de conteos)
-- [ ] P2 `nuevo.tsx`: sacar la lógica a `useReportForm` y borrar `useReportActions`. Compartir con enlace. Skeleton, `ScreenContainer`, `KeyboardScreen`, tokens (26 + 17 hex). Partir `[id]` (665 l.) y `nuevo` (510 l.)
+- [x] ✅ 2026-10-19 P2 `nuevo.tsx`: sacar la lógica a `useReportForm` y borrar `useReportActions`. Compartir con enlace. Skeleton, `ScreenContainer`, `KeyboardScreen`, tokens (26 + 17 hex). Partir `[id]` (665 l.) y `nuevo` (510 l.)
 
 ---
 
@@ -555,11 +555,11 @@ header y «Quiero ser…» solo para consumidores.
 Backend: notificación a core al crear o cambiar de estado una solicitud (paseo, cuidado), endpoint admin para
 `is_verified` (o derivarlo del KYC verificado de core), paginación en `GET /walkers/` y `/sitters/`.
 Arreglos:
-- [ ] P0 Fecha inicial vacía → «Invalid Date» en el modal de paseo (`useWalkerDetail.ts:23`, `paseadores/[id].tsx:409`)
-- [ ] P0 Tipos de servicio inexistentes `daycare`/`boarding` en la lista de cuidadores (`cuidadores/index.tsx:76,150-151`)
+- [x] ✅ 2026-10-19 P0 Fecha inicial vacía → «Invalid Date» en el modal de paseo (`useWalkerDetail.ts:23`, `paseadores/[id].tsx:409`)
+- [x] ✅ 2026-10-19 P0 Tipos de servicio inexistentes `daycare`/`boarding` en la lista de cuidadores (`cuidadores/index.tsx:76,150-151`)
 - [ ] P1 La solicitud de paseo no lleva hora ni dirección, y la de visitas no lleva dirección (`useWalkerDetail.ts:132`, `useSitterDetail.ts:141`)
 - [ ] P1 Promesas de aviso sin emisor (`useProRequests.ts:33-35`, `useWalkerDetail.ts:63`): emitir notificaciones o quitar los textos
-- [ ] P1 `ROUTE_ACCESS` de `/paseadores/solicitudes` y `/cuidadores/solicitudes` contradice el uso de cliente (`roleTools.ts:178,180`). Sacarlas de `ROUTE_ACCESS` o separar las rutas. `RoleGuard` en los calendarios
+- [x] ✅ 2026-10-19 P1 `ROUTE_ACCESS` de `/paseadores/solicitudes` y `/cuidadores/solicitudes` contradice el uso de cliente (`roleTools.ts:178,180`). Sacarlas de `ROUTE_ACCESS` o separar las rutas. `RoleGuard` en los calendarios
 - [ ] P1 Reseñar la solicitud tocada, no la primera. Autor real en las reseñas. «Agregar mascota» cuando no hay
 - [ ] P1 Insignia «Verificado» inalcanzable (backend sin setter)
 - [ ] P2 Componente compartido (arriba), borrar el código muerto de los hooks (favorito, chat falso, registro) y `src/types/{paseadores,cuidadores}.ts`, Skeleton, tokens, calendario con header en carga y sin canceladas, `service_type` legible
@@ -613,7 +613,7 @@ búsqueda global, y no permitir reseñar al autor desde la UI.
 Arreglos:
 - [x] ✅ 2026-10-19 P1 Cupón público y canje que marca el reclamo de otro cliente (`venues.py:121-161,215-250`, `establecimientos/[id].tsx:166-172`)
 - [x] ✅ 2026-10-19 P1 Formulario de reseña visible al autor (403) y que se limpia aunque falle (`petfriendly/[id].tsx:174-226`, `usePlaceDetail.ts:47-51`)
-- [ ] P1 `/establecimientos/nuevo|editar` fuera de `ROUTE_ACCESS` y sin `RoleGuard`
+- [x] ✅ 2026-10-19 P1 `/establecimientos/nuevo|editar` fuera de `ROUTE_ACCESS` y sin `RoleGuard`
 - [ ] P1 Alta solo con el GPS del momento (`petfriendly/nuevo.tsx:51-70`). Sin editar lugar (existe el PUT)
 - [ ] P2 Fusión (arriba). `nuevo.tsx`: hook + `useMutation` + `FormField`/`KeyboardScreen`. Skeletons, tokens, amenidades legibles, borrar `src/types/{petfriendly,venues}.ts`
 
@@ -1050,8 +1050,8 @@ Pantallas con más deuda: `(tabs)/index` (605 l.), `adopciones/solicitar/[id]`, 
 
 ### Funcional (P1 de privacidad, siguen abiertos)
 - [x] `GET /reports/` de Perdidas expone tracker en vivo y contactos sin sesión; `GET /pets/{id}` de Adopciones expone `adopted_by`, microchip y no aprobadas. ✅ 2026-10-19
-- [ ] Cupón de establecimientos público y canje que marca el reclamo de otro cliente.
-- [ ] Un estilista ve reportes de otros estilistas en el historial de la mascota.
+- [x] ✅ 2026-10-19 Cupón de establecimientos público y canje que marca el reclamo de otro cliente.
+- [x] ✅ 2026-10-19 Un estilista ve reportes de otros estilistas en el historial de la mascota.
 
 ### Plan propuesto (en orden)
 1. **Bugs P0/P1 rápidos**: los 3 P0 de arriba + aviso de avistamiento sin enlace + privacidad de Perdidas/Adopciones (backend).

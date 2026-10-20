@@ -1,3 +1,4 @@
+import RoleGuard from '@/src/components/RoleGuard';
 import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -11,6 +12,14 @@ import { Building2, MapPin, Tag, FileText, Plus } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevoEstablecimientoScreen() {
+    return (
+        <RoleGuard roles={['establecimiento', 'admin']}>
+            <NuevoEstablecimientoScreenContent />
+        </RoleGuard>
+    );
+}
+
+function NuevoEstablecimientoScreenContent() {
     const { theme } = useTheme();
     const {
         formData,
