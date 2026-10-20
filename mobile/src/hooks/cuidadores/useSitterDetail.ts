@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { getSitter, requestSit, registerAsSitter, getSitterReviews, createSitterReview, getMySitRequests, Sitter, SitRequest, SitterReview } from '@/src/services/cuidadores';
+import { getSitter, requestSit, getSitterReviews, createSitterReview, getMySitRequests, Sitter, SitRequest, SitterReview } from '@/src/services/cuidadores';
 import { getUserPets } from '@/src/services/mascotas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
@@ -16,9 +16,7 @@ export function useSitterDetail() {
     const queryClient = useQueryClient();
     const { user } = useAuth();
 
-    const [isFavorite, setIsFavorite] = useState(false);
     const [sitModalVisible, setSitModalVisible] = useState(false);
-    const [registerModalVisible, setRegisterModalVisible] = useState(false);
     const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
     const [startDate, setStartDate] = useState(toLocalIsoDate(new Date()));
     const [endDate, setEndDate] = useState(toLocalIsoDate(new Date()));
@@ -70,16 +68,6 @@ export function useSitterDetail() {
         },
     });
 
-    const registerMutation = useMutation({
-        mutationFn: (data: Partial<Sitter>) => registerAsSitter(data),
-        onSuccess: () => {
-            setRegisterModalVisible(false);
-            showAlert({ type: 'success', title: '¡Registro Exitoso!', message: 'Te has registrado como cuidador. Tu perfil será revisado.' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo completar el registro.' });
-        },
-    });
 
     const createReviewMutation = useMutation({
         mutationFn: ({ requestId, data }: { requestId: string; data: { rating: number; comment: string } }) =>
@@ -103,23 +91,7 @@ export function useSitterDetail() {
         setSitNotes('');
     };
 
-    const toggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-    };
 
-    const handleContact = () => {
-        showAlert({
-            type: 'info',
-            title: 'Contactar Cuidador',
-            message: '¿Cómo deseas contactar a este cuidador?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Mensaje',
-            onButtonPress: () => {
-                showAlert({ type: 'info', title: 'Mensaje', message: 'Abriendro chat con el cuidador...' });
-            },
-        });
-    };
 
     const handleBook = () => {
         setSitModalVisible(true);
@@ -147,9 +119,6 @@ export function useSitterDetail() {
         });
     };
 
-    const handleRegisterAsSitter = (data: Partial<Sitter>) => {
-        registerMutation.mutate(data);
-    };
 
     const handleCreateReview = (requestId: string, data: { rating: number; comment: string }) => {
         createReviewMutation.mutate({ requestId, data });
@@ -172,9 +141,6 @@ export function useSitterDetail() {
         sitter,
         isLoading,
         error,
-        isFavorite,
-        toggleFavorite,
-        handleContact,
         handleBook,
         getServiceName,
         // Sit request
@@ -192,11 +158,6 @@ export function useSitterDetail() {
         myPets,
         handleSubmitSitRequest,
         isRequestingSit: requestSitMutation.isPending,
-        // Registration
-        registerModalVisible,
-        setRegisterModalVisible,
-        handleRegisterAsSitter,
-        isRegistering: registerMutation.isPending,
         // Reviews
         reviews,
         reviewsLoading,
