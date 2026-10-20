@@ -1,24 +1,21 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Linking, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicsAndVets } from '@/src/hooks/directorio/useClinicsAndVets';
 import type { Clinic, Vet } from '@/src/types/directorio';
-import { Search, MapPin, Phone, ChevronRight, Stethoscope, Hospital, ShieldCheck, Plus, Building, Clock, Navigation, Star } from 'lucide-react-native';
+import { Search, MapPin, ChevronRight, Stethoscope, Hospital, ShieldCheck, Clock, Navigation, Star } from 'lucide-react-native';
 import DataList from '@/src/components/data/DataList';
 import FilterChip from '@/src/components/FilterChip';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { showAlert } from '@/src/components/AppAlert';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function DirectorioIndexScreen() {
     const router = useRouter();
-    const { theme, isDark } = useTheme();
+    const { theme } = useTheme();
     const {
         filteredClinics,
         filteredVets,
-        loadingClinics,
-        loadingVets,
         isLoading,
         activeTab,
         setActiveTab,
@@ -33,8 +30,6 @@ export default function DirectorioIndexScreen() {
         specialties,
         cities,
         hasActiveFilters,
-        canRegister,
-        isMounted,
         resultsCount,
     } = useClinicsAndVets();
 
@@ -115,33 +110,6 @@ export default function DirectorioIndexScreen() {
                 )}
             </View>
 
-            <View style={[styles.cardFooter, { borderTopColor: theme.border }]}>
-                {!!item.phone && (
-                    <TouchableOpacity
-                        accessibilityRole="button"
-                        accessibilityLabel={`Llamar a ${item.name}`}
-                        style={[styles.actionBtn, { backgroundColor: theme.overlay, borderColor: theme.border }]}
-                        onPress={() => {
-                            Linking.openURL(`tel:${item.phone}`).catch(() => {
-                                showAlert({
-                                    type: 'error',
-                                    title: 'Error',
-                                    message: 'No se pudo abrir la aplicación de teléfono.'
-                                });
-                            });
-                        }}
-                    >
-                        <Phone size={15} color={theme.text} />
-                        <Text style={[styles.actionBtnText, { color: theme.text }]}>Llamar</Text>
-                    </TouchableOpacity>
-                )}
-                <TouchableOpacity
-                    style={[styles.actionBtn, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push(`/directorio/clinica/${item.id}` as any)}
-                >
-                    <Text style={[styles.actionBtnText, { color: theme.onPrimary }]}>Ver Perfil</Text>
-                </TouchableOpacity>
-            </View>
         </TouchableOpacity>
     );
 
@@ -163,8 +131,8 @@ export default function DirectorioIndexScreen() {
                     </Text>
                     <View style={styles.cardInfoSubrows}>
                         <View style={styles.locationRow}>
-                            <ShieldCheck size={13} color={theme.success} />
-                            <Text style={[styles.cardSubtitle, { color: theme.success, fontWeight: '700' }]}>
+                            <Stethoscope size={13} color={theme.primary} />
+                            <Text style={[styles.cardSubtitle, { color: theme.primary, fontWeight: '700' }]}>
                                 {item.specialty || "Médico Veterinario"}
                             </Text>
                         </View>
@@ -194,12 +162,12 @@ export default function DirectorioIndexScreen() {
                 </Text>
             )}
 
-            <View style={[styles.certificationBox, { backgroundColor: theme.successLight, borderColor: theme.success + '20' }]}>
-                <ShieldCheck size={14} color={theme.success} />
-                <Text style={[styles.certificationText, { color: theme.success }]}>
-                    {item.license_number ? 'Cédula registrada' : 'Cédula sin registrar'}
-                </Text>
-            </View>
+            {item.license_number ? (
+                <View style={[styles.certificationBox, { backgroundColor: theme.successLight, borderColor: theme.success + '20' }]}>
+                    <ShieldCheck size={14} color={theme.success} />
+                    <Text style={[styles.certificationText, { color: theme.success }]}>Cédula registrada</Text>
+                </View>
+            ) : null}
         </TouchableOpacity>
     );
 
@@ -293,50 +261,12 @@ export default function DirectorioIndexScreen() {
                 {hasActiveFilters ? ' · filtros activos' : ''}
             </Text>
 
-            {/* Mi Clínica Banner */}
-            {isMounted && canRegister && (
-                <TouchableOpacity
-                    style={[styles.miClinicaBanner, { backgroundColor: theme.primaryLight, borderColor: theme.primary + '30' }]}
-                    onPress={() => router.push('/mi-clinica' as any)}
-                >
-                    <View style={styles.miClinicaContent}>
-                        <View style={[styles.miClinicaIcon, { backgroundColor: theme.primary + '20' }]}>
-                            <Building size={22} color={theme.primary} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={[styles.miClinicaTitle, { color: theme.primary }]}>Mi Clínica</Text>
-                            <Text style={[styles.miClinicaSubtitle, { color: theme.textMuted }]}>Gestiona tu información</Text>
-                        </View>
-                        <ChevronRight size={20} color={theme.primary} />
-                    </View>
-                </TouchableOpacity>
-            )}
-
-            {/* Register button */}
-            {isMounted && canRegister && activeTab === 'clinics' && (
-                <TouchableOpacity
-                    style={[styles.registerButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push('/directorio/nuevo' as any)}
-                >
-                    <Plus size={18} color={theme.onPrimary} />
-                    <Text style={styles.registerButtonText}>Registrar mi Clínica</Text>
-                </TouchableOpacity>
-            )}
         </>
     );
 
     const emptyTitle = hasActiveFilters ? 'Sin resultados' : (activeTab === 'clinics' ? 'Aún no hay clínicas registradas' : 'Aún no hay especialistas registrados');
     const emptySubtitle = hasActiveFilters ? 'No encontramos lo que buscas. Intenta con otros términos.' : 'Cuando se registren aparecerán aquí.';
 
-    const listEmptyComponent = !loadingClinics && !loadingVets ? (
-        <View style={styles.emptyState}>
-            <Search size={48} color={theme.textMuted} />
-            <Text style={[styles.emptyTitle, { color: theme.text }]}>Sin resultados</Text>
-            <Text style={[styles.emptyText, { color: theme.textMuted }]}>
-                No encontramos lo que buscas. Intenta con otros términos.
-            </Text>
-        </View>
-    ) : null;
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>

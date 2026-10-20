@@ -261,7 +261,7 @@ Arreglos:
 - [x] P0 Promesa de un aviso del refuerzo que no existe (`nueva-vacuna.tsx:102`) — se quitó el texto (el emisor real es F14)
 - [x] P0 Sin fecha de aplicación de la vacuna (`nueva-vacuna.tsx`, `schemas/carnet.py:64`)
 - [ ] P1 `recordatorios.tsx` huérfana; «Modo médico» por UUID; botón anidado; ~~sin editar ni borrar~~ ✅ (F15: editar/eliminar vacunas y consultas con confirmación); guardar solo como ícono
-- [ ] P1 Jerga PATIENT_ID / DIGITAL ID; botón de IA sin texto; invalidación tras vacuna y consulta
+- [x] obsoleto 2026-10-19 (ya no aparece) P1 Jerga PATIENT_ID / DIGITAL ID; botón de IA sin texto; invalidación tras vacuna y consulta
 - [ ] P2 Partir `carnet/[id]` (987 l.), `EmptyState` con acción por pestaña, tokens, `ScreenHeader` en receta, fechas `es-MX`
 
 ---
@@ -422,7 +422,7 @@ Arreglos:
 - [x] P1 ✅ 2026-10-19 (texto honesto: llamar o ir directo) Promesa de emergencias sin respaldo (`agendar/[clinic_id].tsx:322`)
 - [x] P1 ✅ 2026-10-19 (solo si no eres el dueño/veterinario) Formulario de reseña visible para el dueño o el propio veterinario (403) en clínica y especialista. Reseñas sin autor
 - [x] ✅ 2026-10-19 P1 `/directorio/nuevo`: sin rol en app ni en backend. Service y `queryClient` en la pantalla (ahora `useClinicForm`, `RoleGuard`, `ROUTE_ACCESS` y 403 en backend)
-- [ ] P1 Quitar «Mi Clínica»/«Registrar» del directorio. Una sola acción por tarjeta. Escudo verde con «Cédula sin registrar»
+- [x] ✅ 2026-10-19 P1 Quitar «Mi Clínica»/«Registrar» del directorio. Una sola acción por tarjeta. Escudo verde con «Cédula sin registrar»
 - [ ] P2 Unificar `citas.ts`/`directorio.ts` (borrar `MOCK_SERVICES`, `types/citas.ts` y la query duplicada). Skeleton, `ScreenContainer`, `SearchBar`/`FilterChip`, tokens (0 imports de `constants/design`), partir `especialista/[id]` (809 l.), `clinica/[id]` (631 l.) y `agendar` (561 l.)
 
 ---
