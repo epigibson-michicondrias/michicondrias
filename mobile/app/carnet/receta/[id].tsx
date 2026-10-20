@@ -1,29 +1,20 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Share, Switch } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import { usePrescriptionDetail } from '@/src/hooks/carnet/usePrescriptionDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { ShoppingBag, Share2, Bell, BellOff } from 'lucide-react-native';
+import { ShoppingBag, Share2, Bell } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
 
-const { width } = Dimensions.get('window');
 
 export default function PrescriptionDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const { pet, record, loading } = usePrescriptionDetail();
-    const [remindersEnabled, setRemindersEnabled] = React.useState(true);
-
-    const toggleReminders = (value: boolean) => {
-        setRemindersEnabled(value);
-        // Los recordatorios se generan automáticamente al crear la receta.
-        // Este toggle controla si el usuario quiere seguir recibiéndolos.
-        // (El backend los envía por job; aquí solo se persiste la preferencia local.)
-    };
 
     if (loading) {
         return (
@@ -160,19 +151,10 @@ export default function PrescriptionDetailScreen() {
                                 <Text style={[styles.ticketSectionTitle, { color: theme.primary, marginBottom: 0 }]}>
                                     RECORDATORIOS
                                 </Text>
-                                <View style={styles.reminderToggle}>
-                                    <Bell size={16} color={theme.primary} />
-                                    <Switch
-                                        value={remindersEnabled}
-                                        onValueChange={toggleReminders}
-                                        accessibilityLabel="Activar recordatorios de medicación"
-                                    />
-                                </View>
+                                <Bell size={16} color={theme.primary} />
                             </View>
                             <Text style={[styles.barcodeSubText, { color: theme.textMuted, textAlign: 'left', paddingHorizontal: 0 }]}>
-                                {remindersEnabled
-                                    ? 'Recibirás una notificación cuando le toque cada dosis a tu mascota.'
-                                    : 'Activa los recordatorios para recibir avisos de cada dosis.'}
+                                Te avisamos cuando le toque cada dosis. Puedes marcarlas como dadas en la pestaña Salud de {pet?.name ?? 'tu mascota'}.
                             </Text>
                         </View>
                     )}
