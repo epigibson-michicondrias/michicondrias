@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminVerifications } from '@/src/hooks/admin/useAdminVerifications';
@@ -30,7 +30,8 @@ export default function AdminVerificacionesScreen() {
             {url ? (
                 <TouchableOpacity accessibilityRole="button"
                     style={[styles.docPreview, { backgroundColor: theme.background, borderColor: theme.border }]}
-                    onPress={() => showAlert({ type: 'info', title: 'Documento', message: 'Aquí se abriría el visor de documentos a pantalla completa.' })}
+                    onPress={() => Linking.openURL(url).catch(() => showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El enlace del documento venció o no es válido. Recarga la lista.' }))}
+                    accessibilityLabel="Abrir documento"
                 >
                     <Image source={{ uri: url }} style={styles.docImage} resizeMode="cover" />
                     <View style={styles.docOverlay}>
