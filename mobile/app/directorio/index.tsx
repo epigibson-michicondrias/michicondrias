@@ -184,8 +184,8 @@ export default function DirectorioIndexScreen() {
                     }]}
                     onPress={() => setActiveTab('clinics')}
                 >
-                    <Hospital size={18} color={activeTab === 'clinics' ? '#fff' : theme.textMuted} />
-                    <Text style={[styles.tabText, { color: activeTab === 'clinics' ? '#fff' : theme.text }]}>
+                    <Hospital size={18} color={activeTab === 'clinics' ? theme.onPrimary : theme.textMuted} />
+                    <Text style={[styles.tabText, { color: activeTab === 'clinics' ? theme.onPrimary : theme.text }]}>
                         Clínicas
                     </Text>
                 </TouchableOpacity>
@@ -196,8 +196,8 @@ export default function DirectorioIndexScreen() {
                     }]}
                     onPress={() => setActiveTab('vets')}
                 >
-                    <Stethoscope size={18} color={activeTab === 'vets' ? '#fff' : theme.textMuted} />
-                    <Text style={[styles.tabText, { color: activeTab === 'vets' ? '#fff' : theme.text }]}>
+                    <Stethoscope size={18} color={activeTab === 'vets' ? theme.onPrimary : theme.textMuted} />
+                    <Text style={[styles.tabText, { color: activeTab === 'vets' ? theme.onPrimary : theme.text }]}>
                         Especialistas
                     </Text>
                 </TouchableOpacity>
@@ -341,37 +341,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.lg,
         gap: spacing.sm,
     },
-    miClinicaBanner: {
-        marginBottom: spacing.md,
-        padding: spacing.lg,
-        borderRadius: 18,
-        borderWidth: 1,
-    },
-    miClinicaContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-    },
-    miClinicaIcon: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    miClinicaTitle: { fontSize: font.lg, fontWeight: '800' },
-    miClinicaSubtitle: { fontSize: font.md, fontWeight: '500', marginTop: spacing.xxs },
-    registerButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: spacing.sm,
-        marginHorizontal: layout.screenPadding,
-        marginBottom: spacing.lg,
-        paddingVertical: spacing.lg,
-        borderRadius: 14,
-    },
-    registerButtonText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
     list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
     card: {
         borderRadius: 20,
@@ -415,24 +384,6 @@ const styles = StyleSheet.create({
     },
     tagText: { fontSize: font.sm, fontWeight: '700' },
     description: { fontSize: font.base, lineHeight: 18, marginTop: spacing.md },
-    cardFooter: {
-        flexDirection: 'row',
-        marginTop: spacing.lg,
-        paddingTop: spacing.lg,
-        borderTopWidth: 1,
-        gap: spacing.md,
-    },
-    actionBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: spacing.md,
-        borderRadius: 12,
-        gap: spacing.sm,
-        borderWidth: 1,
-    },
-    actionBtnText: { fontSize: font.base, fontWeight: '700' },
     certificationBox: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -443,13 +394,7 @@ const styles = StyleSheet.create({
         marginTop: spacing.md,
     },
     certificationText: { fontSize: font.md, fontWeight: '700' },
-    emptyState: {
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingHorizontal: spacing.huge,
-    },
     emptyTitle: { fontSize: font.xxl, fontWeight: '800', marginTop: spacing.lg, marginBottom: spacing.sm },
-    emptyText: { fontSize: font.base, textAlign: 'center', lineHeight: 20 },
     cardInfoSubrows: {
         marginTop: spacing.xs,
         gap: spacing.xs,

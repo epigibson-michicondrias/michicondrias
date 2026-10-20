@@ -69,11 +69,11 @@ export default function EstablecimientosScreen() {
                 </View>
             )}
 
-            {!!item.discount_coupon && (
+            {(item.has_coupon || !!item.discount_coupon) && (
                 <View style={[styles.discountBanner, { backgroundColor: theme.warningLight }]}>
                     <Tag size={14} color={theme.warning} />
                     <Text style={[styles.discountText, { color: theme.warning }]}>
-                        Cupón: {item.discount_coupon}
+                        {item.discount_coupon ? `Cupón: ${item.discount_coupon}` : 'Cupón disponible'}
                     </Text>
                     {!!item.discount_description && (
                         <Text style={[styles.discountDesc, { color: theme.textMuted }]}>

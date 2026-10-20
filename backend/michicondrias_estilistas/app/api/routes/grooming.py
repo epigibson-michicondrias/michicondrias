@@ -139,8 +139,12 @@ def create_grooming_appointment(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño de la mascota puede agendar su cita")
     if appointment_in.groomer_id == current_user_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No puedes agendar una cita contigo mismo")
-    if appointment_in.date < date.today() - timedelta(days=1):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La fecha de la cita no puede ser en el pasado")
+    # Misma regla que los horarios disponibles: nada en el pasado (hora de México)
+    now_mx = datetime.now(ZoneInfo("America/Mexico_City"))
+    if appointment_in.date < now_mx.date() or (
+        appointment_in.date == now_mx.date() and appointment_in.time.strftime("%H:%M") <= now_mx.strftime("%H:%M")
+    ):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Esa fecha u hora ya pasó. Elige otro horario.")
     taken = db.query(GroomingAppointment).filter(
         GroomingAppointment.groomer_id == appointment_in.groomer_id,
         GroomingAppointment.date == appointment_in.date,

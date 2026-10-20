@@ -11,6 +11,7 @@ import FormField from '@/src/components/FormField';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import Button from '@/src/components/Button';
+import RoleGuard from '@/src/components/RoleGuard';
 import { SkeletonList } from '@/src/components/Skeleton';
 import { layout, spacing } from '@/constants/design';
 
@@ -18,6 +19,14 @@ import { layout, spacing } from '@/constants/design';
 const text = (v: unknown) => (v == null ? '' : String(v));
 
 export default function ProfessionalProfileScreen() {
+    return (
+        <RoleGuard roles={['paseador', 'cuidador']}>
+            <ProfessionalProfile />
+        </RoleGuard>
+    );
+}
+
+function ProfessionalProfile() {
     const { theme } = useTheme();
     const { isWalker, formData, updateField, saving, isLoading, handleSave } = useServiceProfile();
     const money = (v: string) => v.replace(/[^\d.]/g, '');

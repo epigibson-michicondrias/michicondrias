@@ -5,6 +5,7 @@ import { Check, FlaskConical } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useLabOrders } from '@/src/hooks/laboratorio/useLabOrders';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import EmptyState from '@/src/components/EmptyState';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import DatePicker from '@/src/components/DatePicker';
@@ -12,7 +13,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import PetPicker from '@/src/features/salud/PetPicker';
 import { toISODate } from '@/src/features/salud/format';
 import { showAlert } from '@/src/components/AppAlert';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, layout } from '@/constants/design';
 
 const TIME_SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '16:00', '17:00'];
 
@@ -76,7 +77,13 @@ export default function AgendarLaboratorioScreen() {
             <ScreenHeader title="Agendar estudio" subtitle={test?.name || 'Laboratorio'} />
             <KeyboardScreen contentContainerStyle={styles.content}>
                 {!test ? (
-                    <Text style={{ color: theme.textMuted }}>No encontramos ese estudio. Vuelve al catálogo y elige otro.</Text>
+                    <EmptyState
+                        icon={<FlaskConical size={layout.icon.xl} color={theme.textMuted} />}
+                        title="No encontramos ese estudio"
+                        subtitle="Puede que ya no esté disponible. Elige otro en el catálogo."
+                        actionLabel="Ver estudios"
+                        onAction={() => router.replace('/laboratorio')}
+                    />
                 ) : (
                     <>
                         <View style={[styles.summary, { backgroundColor: theme.surface, borderColor: theme.border }]}>

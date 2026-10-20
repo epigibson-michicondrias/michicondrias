@@ -46,8 +46,8 @@ export function useVetDetail() {
         call: phoneDigits ? () => open(`tel:${phoneDigits}`) : undefined,
         whatsapp: phoneDigits ? () => open(`https://wa.me/${phoneDigits.length === 10 ? `52${phoneDigits}` : phoneDigits}`) : undefined,
         share: () => specialist && shareContent(fullName, `${fullName} — ${specialist.specialty || 'Médico veterinario'}. Lo encontré en Michicondrias 🐾`),
-        /** Solo se agenda en línea con quien atiende en una clínica (el backend necesita la clínica). */
-        canBook: !!specialist?.clinic_id,
+        /** Solo se agenda en línea con quien atiende en una clínica con servicios (el backend exige clínica y servicio). */
+        canBook: !!specialist?.clinic_id && services.length > 0,
         book: (serviceId?: string) => specialist?.clinic_id && router.push({
             pathname: '/directorio/citas/agendar/[clinic_id]',
             params: { clinic_id: specialist.clinic_id, vet_id: specialist.id, ...(serviceId ? { service_id: serviceId } : {}) },

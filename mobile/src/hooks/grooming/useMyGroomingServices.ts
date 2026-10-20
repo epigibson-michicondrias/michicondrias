@@ -42,7 +42,8 @@ export function useMyGroomingServices() {
     const saveMutation = useMutation({
         mutationFn: () => updateGroomingService(editing!.id, {
             name: draft.name.trim(),
-            description: draft.description.trim() || undefined,
+            // Vacía se manda como cadena vacía para poder borrarla (PATCH ignora lo que no se envía)
+            description: draft.description.trim(),
             price: parseFloat(draft.price.replace(',', '.')),
             duration_minutes: parseInt(draft.duration_minutes, 10),
         }),

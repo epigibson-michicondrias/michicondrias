@@ -5,6 +5,8 @@ import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import { DetailPhoto, DetailTopBar } from '@/src/components/layout/DetailLayout';
 import IconButton from '@/src/components/IconButton';
+import EmptyState from '@/src/components/EmptyState';
+import { Skeleton } from '@/src/components/Skeleton';
 import { showAlert } from '@/src/components/AppAlert';
 import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2 } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
@@ -33,14 +35,15 @@ export default function PetfriendlyDetalleScreen() {
 
     if (!isLoading && !place) {
         return (
-            <ScreenContainer>
-                <View style={styles.center}>
-                    <Text style={{ color: theme.text, fontWeight: '700', marginBottom: spacing.sm }}>No pudimos cargar el lugar</Text>
-                    <Text style={{ color: theme.textMuted, marginBottom: spacing.lg, textAlign: 'center' }}>Puede que ya no exista o que no tengas conexión.</Text>
-                    <TouchableOpacity onPress={goBack} accessibilityRole="button" style={{ backgroundColor: theme.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: 12 }}>
-                        <Text style={{ color: theme.onPrimary, fontWeight: '700' }}>Volver</Text>
-                    </TouchableOpacity>
-                </View>
+            <ScreenContainer style={styles.centerScreen}>
+                <EmptyState
+                    icon={<MapPin size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No pudimos cargar el lugar"
+                    subtitle="Puede que ya no exista o que no tengas conexión."
+                    actionLabel="Ver lugares"
+                    onAction={goBack}
+                />
+                <DetailTopBar onBack={goBack} />
             </ScreenContainer>
         );
     }
@@ -48,9 +51,13 @@ export default function PetfriendlyDetalleScreen() {
     if (isLoading || !place) {
         return (
             <ScreenContainer>
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                <Skeleton height={200} borderRadius={0} />
+                <View style={styles.skeletonBody}>
+                    <Skeleton width="60%" height={26} />
+                    <Skeleton height={56} />
+                    <Skeleton height={120} />
                 </View>
+                <DetailTopBar onBack={goBack} />
             </ScreenContainer>
         );
     }
@@ -296,6 +303,8 @@ function ServiceItem({ label, active, theme }: { label: string, active: boolean,
 }
 
 const styles = StyleSheet.create({
+    centerScreen: { justifyContent: 'center' },
+    skeletonBody: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.md },
     center: {
         flex: 1,
         justifyContent: 'center',

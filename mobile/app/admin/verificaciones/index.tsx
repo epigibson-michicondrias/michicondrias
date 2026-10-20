@@ -30,7 +30,7 @@ export default function AdminVerificacionesScreen() {
             {url ? (
                 <TouchableOpacity accessibilityRole="button"
                     style={[styles.docPreview, { backgroundColor: theme.background, borderColor: theme.border }]}
-                    onPress={() => Linking.openURL(url).catch(() => showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El enlace del documento venció o no es válido. Recarga la lista.' }))}
+                    onPress={() => (url.startsWith('https://') ? Linking.openURL(url) : Promise.reject()).catch(() => showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El enlace del documento venció o no es válido. Recarga la lista.' }))}
                     accessibilityLabel="Abrir documento"
                 >
                     <Image source={{ uri: url }} style={styles.docImage} resizeMode="cover" />

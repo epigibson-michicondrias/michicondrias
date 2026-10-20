@@ -887,4 +887,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `RoleGuard`), registro en el directorio solo para veterinarios/clínicas (app y backend), `RoleGuard` en
   establecimientos, «Mis solicitudes» de paseos/cuidados abierta a clientes, receta sin interruptor falso, admin abre
   documentos reales, perfil de servicio con componentes base, borrado código muerto de hooks de proveedores.
+  **Revisión de los commits locales aplicada**: cupones en mayúsculas y canje sin distinguir mayúsculas, reclamos
+  viejos con código compartido pasan a código personal al volver a reclamar, campaña reconocida sin comodines LIKE
+  (`PROMO` ≠ `PROMO-VERANO`), lista de establecimientos con «Cupón disponible», el `vet_id` debe pertenecer a la
+  clínica (backend), estética rechaza citas en el pasado (hora de México), `RoleGuard` en perfil de servicio,
+  especialista sin servicios cae a contacto, descripción de estética borrable, admin abre solo enlaces `https`,
+  pet-friendly con skeleton/`EmptyState`, «Mis inscripciones» sin botón anidado, laboratorio con `EmptyState`.
 

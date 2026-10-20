@@ -28,8 +28,9 @@ export default function MyEnrollmentsScreen() {
         const statusInfo = { label: STATUS_LABEL[item.status] || STATUS_LABEL.pending, color: statusColorOf(item.status, theme) };
 
         return (
+            // «Calificar» va como hermano del área tocable (un botón dentro de otro falla en web)
+            <View style={[styles.enrollmentCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
             <TouchableOpacity accessibilityRole="button"
-                style={[styles.enrollmentCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                 onPress={() => router.push(`/entrenadores/metas/${item.id}` as any)}
                 activeOpacity={0.7}
             >
@@ -79,6 +80,7 @@ export default function MyEnrollmentsScreen() {
                     </View>
                     <ChevronRight size={18} color={theme.textMuted} />
                 </View>
+            </TouchableOpacity>
                 {item.status === 'completed' && (
                     <TouchableOpacity
                         onPress={() => router.push(`/entrenadores/${item.program_id}` as any)}
@@ -89,7 +91,7 @@ export default function MyEnrollmentsScreen() {
                         <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Calificar programa</Text>
                     </TouchableOpacity>
                 )}
-            </TouchableOpacity>
+            </View>
         );
     };
 

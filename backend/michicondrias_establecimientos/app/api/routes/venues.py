@@ -1,5 +1,6 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.api import deps
 from app.db.session import get_db
@@ -28,15 +29,28 @@ def _for_viewer(venue, viewer_id: Optional[str]) -> Venue:
     return out
 
 
+def _prefix(base: str) -> str:
+    return f"{base.strip().upper()[:42]}-"
+
+
 def _personal_code(base: str) -> str:
-    """Código único por cliente: `BASE-XXXXXX` (cabe en la columna de 50 caracteres)."""
+    """Código único por cliente: `BASE-XXXXXX` en mayúsculas (cabe en la columna de 50 caracteres)."""
     suffix = "".join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-    return f"{base[:42]}-{suffix}"
+    return f"{_prefix(base)}{suffix}"
+
+
+def _is_shared_code(code: str, base: str) -> bool:
+    """Reclamo de antes de los códigos personales (todos los clientes con el mismo código)."""
+    return code.strip().upper() == base.strip().upper()
 
 
 def _same_campaign(base: str):
-    """Reclamos de la misma campaña: el código base (reclamos viejos) o los personales derivados de él."""
-    return (ClaimedCoupon.coupon_code == base) | (ClaimedCoupon.coupon_code.like(f"{base[:42]}-%"))
+    """Reclamos de esta campaña: el código base (reclamos viejos) o un personal `BASE-XXXXXX` exacto.
+    Sin LIKE con comodines y con largo fijo, para no mezclar campañas como `PROMO` y `PROMO-VERANO`."""
+    code = func.upper(ClaimedCoupon.coupon_code)
+    prefix = _prefix(base)
+    personal = code.startswith(prefix, autoescape=True) & (func.length(ClaimedCoupon.coupon_code) == len(prefix) + 6)
+    return (code == base.strip().upper()) | personal
 
 @router.post("/", response_model=Venue, status_code=status.HTTP_201_CREATED)
 def register_venue(
@@ -48,7 +62,7 @@ def register_venue(
     """
     Register a pet friendly establishment. Requires 'establecimiento' role.
     """
-    return crud_venue.create_venue(db, venue_in=venue_in, owner_id=owner_id)
+    return _for_viewer(crud_venue.create_venue(db, venue_in=venue_in, owner_id=owner_id), owner_id)
 
 @router.get("/search", response_model=List[Venue])
 def search_for_venues(
@@ -115,7 +129,7 @@ def update_existing_venue(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tiene permisos para modificar este establecimiento"
         )
-    return crud_venue.update_venue(db, db_venue=db_venue, venue_in=venue_in)
+    return _for_viewer(crud_venue.update_venue(db, db_venue=db_venue, venue_in=venue_in), owner_id)
 
 @router.delete("/{venue_id}", response_model=dict)
 def delete_existing_venue(
@@ -174,6 +188,11 @@ def claim_venue_coupon(
         ClaimedCoupon.status == "active",
     ).first()
     if existing:
+        # Un reclamo viejo con el código compartido pasa a tener su código personal (si no, no se podría canjear)
+        if _is_shared_code(existing.coupon_code, venue.discount_coupon):
+            existing.coupon_code = _personal_code(venue.discount_coupon)
+            db.commit()
+            db.refresh(existing)
         return existing
     # Un cupón se canjea una sola vez por cliente: si ya usó este mismo código, no puede reclamarlo de nuevo
     if db.query(ClaimedCoupon).filter(
@@ -249,7 +268,7 @@ def redeem_venue_coupon(
     """
     # Solo cupones activos con ese código que pertenezcan a un establecimiento de quien canjea
     candidates = db.query(ClaimedCoupon).filter(
-        ClaimedCoupon.coupon_code == coupon_code,
+        func.upper(ClaimedCoupon.coupon_code) == coupon_code.strip().upper(),
         ClaimedCoupon.status == "active"
     ).all()
     if not candidates:

@@ -157,7 +157,9 @@ export default function SpecialistDetailScreen() {
                     <View style={[styles.note, { backgroundColor: theme.info + tint.faint }]}>
                         <Stethoscope size={layout.icon.sm} color={theme.info} />
                         <Text style={[type.body, styles.flex, { color: theme.text }]}>
-                            Atiende por su cuenta: contáctalo directo para acordar la consulta.
+                            {clinic
+                                ? 'Su clínica aún no tiene servicios para agendar en línea: contáctalo directo.'
+                                : 'Atiende por su cuenta: contáctalo directo para acordar la consulta.'}
                         </Text>
                     </View>
                 )}

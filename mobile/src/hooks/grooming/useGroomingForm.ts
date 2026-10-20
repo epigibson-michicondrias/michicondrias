@@ -59,7 +59,7 @@ export function useGroomingForm() {
         const price = parseFloat(form.price.replace(',', '.'));
         if (!Number.isFinite(price) || price <= 0) next.price = 'Precio mayor a cero.';
         const minutes = parseInt(form.duration_minutes, 10);
-        if (!Number.isInteger(minutes) || minutes < 10 || minutes > 480) next.duration_minutes = 'Entre 10 y 480 minutos.';
+        if (!Number.isInteger(minutes) || minutes < 5 || minutes > 720) next.duration_minutes = 'Entre 5 y 720 minutos.';
         setErrors(next);
         if (Object.keys(next).length === 0) mutation.mutate();
     };
