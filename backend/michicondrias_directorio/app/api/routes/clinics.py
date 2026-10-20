@@ -101,10 +101,13 @@ def create_clinic(
     db: Session = Depends(get_db),
     clinic_in: ClinicCreate,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
-    Create new clinic. (Requires auth)
+    Create new clinic. Solo veterinarios, hospitales y admin (luego un admin la aprueba).
     """
+    if role not in ("veterinario", "hospital", "clinica", "admin"):
+        raise HTTPException(status_code=403, detail="Solo veterinarios y clínicas pueden registrarse en el directorio")
     clinic = crud.crud_clinic.create_clinic(db=db, clinic=clinic_in, owner_user_id=user_id)
     return clinic
 

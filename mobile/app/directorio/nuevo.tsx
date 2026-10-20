@@ -1,288 +1,68 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useQueryClient } from '@tanstack/react-query';
-import { showAlert } from '@/src/components/AppAlert';
-import { createClinic } from '../../src/services/directorio';
+import React from 'react';
+import { StyleSheet, View, Text } from 'react-native';
+import { Info, Send } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { useClinicForm } from '@/src/hooks/directorio/useClinicForm';
+import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Info, CheckCircle2 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { DetailFooter } from '@/src/components/layout/DetailLayout';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
+import FormField from '@/src/components/FormField';
+import FormSection from '@/src/components/forms/FormSection';
+import FormSwitch from '@/src/components/forms/FormSwitch';
+import Button from '@/src/components/Button';
+import RoleGuard from '@/src/components/RoleGuard';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
 
 export default function NuevoRegistroProfesionalScreen() {
-    const router = useRouter();
-    const queryClient = useQueryClient();
-    const { theme, isDark } = useTheme();
-
-    const [loading, setLoading] = useState(false);
-    const [form, setForm] = useState({
-        name: '',
-        address: '',
-        city: '',
-        phone: '',
-        website: '',
-        description: '',
-        is_24_hours: false,
-        has_emergency: false
-    });
-
-    const handleSubmit = async () => {
-        if (!form.name.trim() || !form.city.trim() || !form.phone.trim()) {
-            showAlert({ type: 'error', title: 'Faltan datos', message: 'Completa los campos obligatorios: nombre, ciudad y teléfono.' });
-            return;
-        }
-        if (form.phone.replace(/\D/g, '').length < 10) {
-            showAlert({ type: 'error', title: 'Teléfono inválido', message: 'Escribe un teléfono de 10 dígitos.' });
-            return;
-        }
-        if (form.website.trim() && !/^https?:\/\//i.test(form.website.trim())) {
-            showAlert({ type: 'error', title: 'Sitio web inválido', message: 'El enlace debe empezar con http:// o https://' });
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await createClinic({
-                ...form,
-                name: form.name.trim(),
-                address: form.address.trim() || null,
-                city: form.city.trim(),
-                phone: form.phone.trim(),
-                website: form.website.trim() || null,
-                description: form.description.trim() || null,
-            });
-            queryClient.invalidateQueries({ queryKey: ['my-clinics'] });
-            queryClient.invalidateQueries({ queryKey: ['hospital-clinics'] });
-            showAlert({
-                type: 'success',
-                title: '¡Éxito!',
-                message: 'Tu solicitud ha sido enviada. Un administrador revisará tu información pronto.',
-                onButtonPress: () => router.back(),
-            });
-        } catch (error: any) {
-            showAlert({ type: 'error', title: 'No se pudo registrar', message: error?.message || 'No pudimos procesar tu registro. Inténtalo de nuevo.' });
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { theme } = useTheme();
+    const { form, errors, updateField, handleSubmit, saving } = useClinicForm();
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={[styles.container, { backgroundColor: theme.background }]}
-        >
-            <ScreenHeader title="Registrar Negocio" subtitle="Únete a la red médica de Michicondrias" />
-            <ScrollView showsVerticalScrollIndicator={false}>
-
-                <View style={styles.content}>
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Nombre de la Clínica *</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. Veterinaria San José"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.name}
-                            onChangeText={(val) => setForm(f => ({ ...f, name: val }))}
-                        />
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Dirección</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Calle, número y colonia"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.address}
-                            onChangeText={(val) => setForm(f => ({ ...f, address: val }))}
-                        />
-                    </View>
-
-                    <View style={styles.row}>
-                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.text }]}>Ciudad *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="Ej. CDMX"
-                                placeholderTextColor={theme.textMuted}
-                                value={form.city}
-                                onChangeText={(val) => setForm(f => ({ ...f, city: val }))}
-                            />
+        <RoleGuard roles={['veterinario', 'hospital', 'admin']}>
+            <ScreenContainer>
+                <ScreenHeader title="Registrar en el directorio" subtitle="Tu consultorio o clínica, visible para los dueños" />
+                <KeyboardScreen
+                    contentContainerStyle={styles.content}
+                    footer={(
+                        <DetailFooter>
+                            <Button label="Enviar a revisión" icon={<Send size={layout.icon.sm} color={theme.onPrimary} />} onPress={handleSubmit} loading={saving} size="lg" style={styles.flex} />
+                        </DetailFooter>
+                    )}
+                >
+                    <FormSection title="Datos">
+                        <FormField label="Nombre *" value={form.name} onChangeText={(v) => updateField('name', v)} placeholder="Ej. Veterinaria San José" error={errors.name} />
+                        <FormField label="Dirección" value={form.address} onChangeText={(v) => updateField('address', v)} placeholder="Calle, número y colonia" autoComplete="street-address" />
+                        <View style={styles.row}>
+                            <View style={styles.flex}>
+                                <FormField label="Ciudad *" value={form.city} onChangeText={(v) => updateField('city', v)} placeholder="Ej. CDMX" error={errors.city} />
+                            </View>
+                            <View style={styles.flex}>
+                                <FormField label="Teléfono *" value={form.phone} onChangeText={(v) => updateField('phone', v)} placeholder="10 dígitos" keyboardType="phone-pad" autoComplete="tel" error={errors.phone} />
+                            </View>
                         </View>
-                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                            <Text style={[styles.label, { color: theme.text }]}>Teléfono *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                placeholder="10 dígitos"
-                                placeholderTextColor={theme.textMuted}
-                                keyboardType="phone-pad"
-                                value={form.phone}
-                                onChangeText={(val) => setForm(f => ({ ...f, phone: val }))}
-                            />
-                        </View>
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Sitio Web / Facebook</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="https://..."
-                            placeholderTextColor={theme.textMuted}
-                            autoCapitalize="none"
-                            value={form.website}
-                            onChangeText={(val) => setForm(f => ({ ...f, website: val }))}
-                        />
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <Text style={[styles.label, { color: theme.text }]}>Descripción del Servicio</Text>
-                        <TextInput
-                            style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Cuéntanos sobre tus especialidades y servicios..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            numberOfLines={4}
-                            value={form.description}
-                            onChangeText={(val) => setForm(f => ({ ...f, description: val }))}
-                        />
-                    </View>
-
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios Especiales</Text>
-
-                    <TouchableOpacity
-                        accessibilityRole="switch"
-                        accessibilityLabel="Servicio 24 horas"
-                        accessibilityState={{ checked: form.is_24_hours }}
-                        style={[styles.toggleItem, { backgroundColor: theme.surface }]}
-                        onPress={() => setForm(f => ({ ...f, is_24_hours: !f.is_24_hours }))}
-                    >
-                        <View style={styles.toggleText}>
-                            <Text style={[styles.toggleLabel, { color: theme.text }]}>Servicio 24 Horas</Text>
-                            <Text style={[styles.toggleDesc, { color: theme.textMuted }]}>Atención médica todo el día</Text>
-                        </View>
-                        <CheckCircle2 color={form.is_24_hours ? theme.primary : theme.textMuted} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        accessibilityRole="switch"
-                        accessibilityLabel="Urgencias"
-                        accessibilityState={{ checked: form.has_emergency }}
-                        style={[styles.toggleItem, { backgroundColor: theme.surface }]}
-                        onPress={() => setForm(f => ({ ...f, has_emergency: !f.has_emergency }))}
-                    >
-                        <View style={styles.toggleText}>
-                            <Text style={[styles.toggleLabel, { color: theme.text }]}>Urgencias</Text>
-                            <Text style={[styles.toggleDesc, { color: theme.textMuted }]}>Equipo disponible para emergencias</Text>
-                        </View>
-                        <CheckCircle2 color={form.has_emergency ? theme.primary : theme.textMuted} />
-                    </TouchableOpacity>
-
-                    <View style={[styles.infoBox, { backgroundColor: theme.primary + '10' }]}>
-                        <Info size={18} color={theme.primary} />
-                        <Text style={[styles.infoText, { color: theme.textMuted }]}>
-                            Al registrarte, aceptas que Michicondrias verifique la autenticidad de tu cédula y negocio.
+                        <FormField label="Sitio web o Facebook" value={form.website} onChangeText={(v) => updateField('website', v)} placeholder="https://…" keyboardType="url" autoCapitalize="none" error={errors.website} />
+                        <FormField label="Descripción" value={form.description} onChangeText={(v) => updateField('description', v)} placeholder="Especialidades y servicios" multiline />
+                    </FormSection>
+                    <FormSection title="Atención">
+                        <FormSwitch variant="switch" label="Abierto 24 horas" description="Atención todo el día" value={form.is_24_hours} onChange={(v) => updateField('is_24_hours', v)} />
+                        <FormSwitch variant="switch" label="Urgencias" description="Equipo listo para emergencias" value={form.has_emergency} onChange={(v) => updateField('has_emergency', v)} />
+                    </FormSection>
+                    <View style={[styles.note, { backgroundColor: theme.info + tint.faint }]}>
+                        <Info size={layout.icon.sm} color={theme.info} />
+                        <Text style={[type.caption, styles.flex, { color: theme.text }]}>
+                            Michicondrias verifica tu cédula y el negocio antes de publicarlo.
                         </Text>
                     </View>
-
-                    <TouchableOpacity
-                        style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                        disabled={loading}
-                        onPress={handleSubmit}
-                    >
-                        <Text style={styles.submitBtnText}>{loading ? "Enviando..." : "Enviar Solicitud"}</Text>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
-        </KeyboardAvoidingView>
+                </KeyboardScreen>
+            </ScreenContainer>
+        </RoleGuard>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-
-    content: {
-        padding: spacing.xxl,
-        gap: spacing.xl,
-    },
-    inputGroup: {
-        gap: spacing.sm,
-    },
-    row: {
-        flexDirection: 'row',
-        gap: spacing.lg,
-    },
-    label: {
-        fontSize: font.base,
-        fontWeight: '700',
-        marginLeft: spacing.xs,
-    },
-    input: {
-        height: 56,
-        borderRadius: 16,
-        paddingHorizontal: spacing.lg,
-        fontSize: font.xl,
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    textArea: {
-        height: 120,
-        borderRadius: 16,
-        paddingHorizontal: spacing.lg,
-        paddingVertical: spacing.lg,
-        fontSize: font.xl,
-        textAlignVertical: 'top',
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    sectionTitle: {
-        fontSize: font.xxl,
-        fontWeight: '800',
-        marginTop: spacing.md,
-    },
-    toggleItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: spacing.lg,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: 'rgba(128,128,128,0.2)',
-    },
-    toggleText: {
-        flex: 1,
-    },
-    toggleLabel: {
-        fontSize: font.lg,
-        fontWeight: '700',
-    },
-    toggleDesc: {
-        fontSize: font.md,
-        marginTop: spacing.xxs,
-    },
-    infoBox: {
-        flexDirection: 'row',
-        padding: spacing.lg,
-        borderRadius: 16,
-        gap: spacing.md,
-        alignItems: 'center',
-    },
-    infoText: {
-        flex: 1,
-        fontSize: font.md,
-        lineHeight: 18,
-    },
-    submitBtn: {
-        height: 64,
-        borderRadius: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: spacing.md,
-        marginBottom: spacing.huge,
-    },
-    submitBtnText: {
-        color: '#fff',
-        fontSize: font.xxl,
-        fontWeight: '800',
-    }
+    flex: { flex: 1 },
+    content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+    row: { flexDirection: 'row', gap: spacing.md },
+    note: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
 });
