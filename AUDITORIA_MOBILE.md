@@ -1003,7 +1003,7 @@ Nuevos / pendientes:
 - [ ] P2 `patrocinadores/nuevo` y `patrocinadores/nueva-campana` crean lo mismo: pantalla duplicada (requiere aprobación para fusionar).
 - [ ] P3 `mi-clinica/sucursales` (Descripción de servicios) y `mi-clinica/veterinarios` (Biografía) siguen con `TextInput` crudo; `aseguradoras/nuevo`, `funeraria/nuevo`, `patrocinadores/nuevo` también.
 - [ ] P3 Mapa de Perdidas en web muestra «React Native WebView does not support this platform» (solo navegador).
-- [ ] P3 `servicios-pro/perfil`: tarifas en `TextInput` crudo con `value` que puede ser `undefined` (aviso de React «changing an uncontrolled input»). Migrar a `FormField` con `?? ''`.
+- [x] ✅ 2026-10-19 P3 `servicios-pro/perfil`: tarifas en `TextInput` crudo con `value` que puede ser `undefined` (aviso de React «changing an uncontrolled input»). Migrar a `FormField` con `?? ''`.
 - [ ] P3 La barra de estado clara (`HeroStatusBar`) no se puede verificar en web; probar en el teléfono al navegar entre dos pantallas hero en tema claro.
 
 ---
