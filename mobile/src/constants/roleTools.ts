@@ -102,7 +102,8 @@ export const ROLE_TOOLS: Record<string, RoleTool[]> = {
 
     estilista: [
         t('groom-gestion', 'Gestión estilista', 'Agenda y citas', '/grooming/gestion', accents.shop, Scissors, true),
-        t('groom-nuevo', 'Ofrecer servicio', 'Nuevo tipo de grooming', '/estilistas/nuevo', accents.health, Plus, true),
+        t('groom-servicios', 'Mis servicios', 'Precios, duración y visibilidad', '/estilistas/servicios', accents.health, Scissors, true),
+        t('groom-nuevo', 'Ofrecer servicio', 'Nuevo servicio de estética', '/estilistas/nuevo', accents.info, Plus),
     ],
 
     laboratorio: [
@@ -191,6 +192,7 @@ export const ROUTE_ACCESS: { prefix: string; roles: string[] }[] = [
     { prefix: '/establecimientos/editar', roles: ['establecimiento'] },
     { prefix: '/grooming/gestion', roles: ['estilista'] },
     { prefix: '/estilistas/nuevo', roles: ['estilista'] },
+    { prefix: '/estilistas/servicios', roles: ['estilista'] },
     { prefix: '/laboratorio/gestion', roles: ['laboratorio'] },
     { prefix: '/patrocinadores/nueva-campana', roles: ['patrocinador'] },
     { prefix: '/patrocinadores/boost-alerta', roles: ['patrocinador'] },

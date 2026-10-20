@@ -881,4 +881,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   falso, compartir real, `ReviewsSection`, acciones en `useVetDetail`). **Bugs**: `vet_id` nunca se enviaba al
   agendar (la cita no quedaba asignada al especialista) y el especialista sin clínica mandaba a una ruta inexistente;
   ahora su acción principal es WhatsApp/llamar.
+- **2026-10-19** — Sin push (a pedido del usuario; solo commits locales). Cupones personales en establecimientos
+  (backend), detalle de pet-friendly con `DetailLayout`, Estética (horarios pasados y privacidad del historial en
+  backend, alta con invalidación, **Mis servicios** nuevo con pausar/editar, nombre del estilista en el catálogo,
+  `RoleGuard`), registro en el directorio solo para veterinarios/clínicas (app y backend), `RoleGuard` en
+  establecimientos, «Mis solicitudes» de paseos/cuidados abierta a clientes, receta sin interruptor falso, admin abre
+  documentos reales, perfil de servicio con componentes base, borrado código muerto de hooks de proveedores.
 

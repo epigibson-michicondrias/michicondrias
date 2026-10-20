@@ -199,8 +199,8 @@ Arreglos:
 - [x] P0 Pantalla de paleta falsa y sus 2 accesos (`perfil/paleta.tsx`, `perfil/index.tsx:374`, `useMenu.ts:115`)
 - [x] P0 `perfil/kyc`: no refresca el estado y deja reenviar → eliminarla y apuntar a verificacion (`perfil/index.tsx:299`)
 - [x] P1 2FA: QR, «Abrir en app autenticadora», copiar clave e invalidar `user-profile` (F13)
-- [ ] P1 «Configuración» → `/menu` (`perfil/index.tsx:358`); 2FA, Facturación y Eliminar escondidos en Editar
-- [ ] P1 Etiqueta de rol «Usuario» (`useProfile.ts:128-143`) → `getRoleLabelFor`; foto real en la pestaña
+- [x] obsoleto 2026-10-19 (perfil/index ya no existe; Perfil es la pestaña) P1 «Configuración» → `/menu` (`perfil/index.tsx:358`); 2FA, Facturación y Eliminar escondidos en Editar
+- [x] obsoleto 2026-10-19 (perfil/index ya no existe; Perfil es la pestaña) P1 Etiqueta de rol «Usuario» (`useProfile.ts:128-143`) → `getRoleLabelFor`; foto real en la pestaña
 - [x] P1 partner: estado del KYC antes de elegir; verificacion: CTA «Activar cuenta pro» cuando esté VERIFIED (F13)
 - [ ] P2 Capas (~~partner~~ ✅ F9, ~~verificacion~~ ✅ F13, eliminar-cuenta), código muerto, `perfil/index` 656 líneas → `src/features/perfil/`, hex
 
@@ -660,7 +660,7 @@ crearla. Historial filtrado por estilista cuando no es el dueño. `service_id` y
 Horarios que respeten la hora actual y la duración. Notificaciones de cita nueva y de cambio de estado. Estilistas en la búsqueda global.
 Arreglos:
 - [x] ✅ 2026-10-19 P1 El servicio nuevo no aparece en el catálogo (`useGroomingForm.ts`: `useMutation` + invalidar `grooming-services`)
-- [ ] P1 El estilista no puede ver, editar ni pausar sus servicios (endpoints listos, sin UI). Catálogo sin nombre del estilista
+- [x] ✅ 2026-10-19 (`/estilistas/servicios`; catálogo con «Con {estilista}») P1 El estilista no puede ver, editar ni pausar sus servicios (endpoints listos, sin UI). Catálogo sin nombre del estilista
 - [x] ✅ 2026-10-19 P1 Horarios pasados ofrecidos hoy (`grooming.py:329-354`). Ficha de estética imposible de llenar (`historial/[petId].tsx:30-60`)
 - [x] ✅ 2026-10-19 P1 Privacidad: un estilista ve los reportes de otros estilistas en el historial de la mascota (`grooming.py:198-210`)
 - [x] ✅ 2026-10-19 P1 `RoleGuard` en `grooming/gestion` y `estilistas/nuevo`. Invalidar cliente e historial al guardar fotos

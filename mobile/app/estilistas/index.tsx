@@ -12,7 +12,7 @@ import SearchBar from '@/src/components/SearchBar';
 import { Stars } from '@/src/components/reviews/ReviewsSection';
 
 import { useAuth } from '@/src/contexts/AuthContext';
-import { font, spacing, layout } from '@/constants/design';
+import { font, spacing, layout, type } from '@/constants/design';
 
 export default function EstilistasScreen() {
     const router = useRouter();
@@ -43,6 +43,9 @@ export default function EstilistasScreen() {
                 </View>
                 <View style={styles.cardInfo}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>{item.name}</Text>
+                    {item.groomer_name ? (
+                        <Text style={[type.caption, { color: theme.primary }]} numberOfLines={1}>Con {item.groomer_name}</Text>
+                    ) : null}
                     {item.description && (
                         <Text style={[styles.cardDesc, { color: theme.textMuted }]} numberOfLines={2}>
                             {item.description}

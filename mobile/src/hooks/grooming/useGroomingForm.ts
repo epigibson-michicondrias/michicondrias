@@ -42,6 +42,7 @@ export function useGroomingForm() {
         onSuccess: () => {
             // El catálogo y la gestión del estilista lo muestran de inmediato
             queryClient.invalidateQueries({ queryKey: ['grooming-services'] });
+            queryClient.invalidateQueries({ queryKey: ['grooming-my-services'] });
             showAlert({
                 type: 'success',
                 title: 'Servicio publicado',
