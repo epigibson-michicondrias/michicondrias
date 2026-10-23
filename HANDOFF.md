@@ -88,6 +88,10 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — W4 módulo Mascotas en `web/espejo` (`f5d4f12`): hooks espejo de mascotas + carnet,
+  `FormImagePicker`, utils de S3/upload/Stripe. `/mascotas` (3 vistas), `/mascotas/[id]` (Resumen·Salud·Historial)
+  y `/mascotas/nuevo`. Build verde. Falta editar, IA y carnet fino.
+
 - **2026-10-23 · Mimo** — Web espejo W3 en `web/espejo` (sin producción, **sin commit todavía**): grupos `(auth)` y
   `(app)` con rutas iguales a la app (Inicio en `/inicio` porque `/` es la landing; deep links `/mascotas/[id]`,
   `/tienda/pago-exitoso`, `/reset-password` intactos); `AppShell` (sidebar con `ROLE_TOOLS` ≥768 px, barra inferior de
