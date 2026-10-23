@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring } from "motion/react";
 import shared from "./landing.module.css";
+import { scrollToY } from "./smoothScroll";
+import { Rise } from "./effects";
 import styles from "./Journey.module.css";
 import { STEPS, type JourneyStep } from "./journeySteps";
 
@@ -40,7 +42,7 @@ export default function Journey() {
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY;
     const travel = el.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: top + (travel * (i + 0.5)) / STEPS.length, behavior: "smooth" });
+    scrollToY(top + (travel * (i + 0.5)) / STEPS.length);
   };
 
   return (
@@ -49,9 +51,7 @@ export default function Journey() {
         <div className={styles.sticky}>
           <div className={`${shared.container} ${styles.grid}`}>
             <div>
-              <h2 id="etapas-title" className={shared.sectionTitle}>
-                Contigo en cada etapa
-              </h2>
+              <Rise id="etapas-title" text="Contigo en cada etapa" className={shared.sectionTitle} />
 
               <div className={styles.timeline}>
                 <div className={styles.rail} aria-hidden>

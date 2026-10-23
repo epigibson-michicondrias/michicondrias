@@ -17,6 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import shared from "./landing.module.css";
+import { Rise } from "./effects";
 import styles from "./ProRail.module.css";
 
 /** Oficios con sus herramientas reales (mobile/src/constants/roleTools.ts). */
@@ -59,9 +60,7 @@ export default function ProRail() {
       <div ref={trackRef} className={styles.track}>
         <div className={styles.sticky}>
           <div className={`${shared.container} ${styles.head}`}>
-            <h2 id="pro-title" className={shared.sectionTitle}>
-              ¿Trabajas con mascotas?
-            </h2>
+            <Rise id="pro-title" text="¿Trabajas con mascotas?" className={shared.sectionTitle} />
             <p className={shared.sectionLead}>
               Verifica tu identidad una vez y recibe las herramientas de tu oficio. Tus clientes ya te buscan en la app.
             </p>

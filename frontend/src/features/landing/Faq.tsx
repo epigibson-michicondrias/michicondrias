@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Plus } from "lucide-react";
 import shared from "./landing.module.css";
+import { Rise } from "./effects";
 import styles from "./Faq.module.css";
 
 const QUESTIONS = [
@@ -36,9 +37,7 @@ export default function Faq() {
   return (
     <section id="preguntas" className={styles.section} aria-labelledby="faq-title">
       <div className={`${shared.container} ${styles.grid}`}>
-        <h2 id="faq-title" className={shared.sectionTitle}>
-          Preguntas frecuentes
-        </h2>
+        <Rise id="faq-title" text="Preguntas frecuentes" className={shared.sectionTitle} />
 
         <ul className={styles.list}>
           {QUESTIONS.map((item, i) => {

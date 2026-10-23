@@ -1,0 +1,41 @@
+/* Rise: cada palabra en su recorte */
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+  vertical-align: bottom;
+}
+
+.word {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Peek: el marco recorta; el contenido sube adentro */
+.peek {
+  position: relative;
+  overflow: hidden;
+}
+
+.peekInner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* Curl: trazo dorado */
+.curl {
+  display: block;
+}
+
+.curl svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: none;
+  stroke: var(--mg-gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+}

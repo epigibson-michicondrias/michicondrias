@@ -9,6 +9,7 @@ import styles from "./Nav.module.css";
 
 const LINKS = [
   { href: "#etapas", label: "Cómo funciona" },
+  { href: "#funciones", label: "Funciones" },
   { href: "#profesionales", label: "Profesionales" },
   { href: "#preguntas", label: "Preguntas" },
 ];

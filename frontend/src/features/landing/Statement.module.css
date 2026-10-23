@@ -18,3 +18,23 @@
   display: inline-block;
   will-change: filter, opacity;
 }
+
+.inner {
+  position: relative;
+}
+
+/* Cola de gato que se dibuja junto a la frase */
+.curl {
+  position: absolute;
+  left: max(var(--gutter), calc(50% - 38rem));
+  top: -4rem;
+  width: clamp(4rem, 9vw, 8rem);
+  height: auto;
+  opacity: 0.9;
+}
+
+@media (max-width: 760px) {
+  .curl {
+    top: -5.5rem;
+  }
+}

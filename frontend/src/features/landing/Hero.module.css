@@ -85,49 +85,148 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Avisos de la app flotando sobre la foto */
+/* Carnet de ejemplo flotando sobre la foto */
 
-.notes {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.75rem;
-  padding-bottom: 0.5rem;
+.demo {
+  position: relative;
+  flex: none;
+  width: min(23rem, 34vw);
+  margin-bottom: 1.5rem;
 }
 
-.chip,
-.toast {
+.card {
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1.5rem;
+  background: rgba(19, 24, 38, 0.72);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+.cardHead {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  padding: 0.85rem 1.15rem;
-  border-radius: 1rem;
-  font-size: 0.92rem;
-  font-weight: 500;
-  white-space: nowrap;
+  gap: 0.8rem;
 }
 
-.chip {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(19, 24, 38, 0.6);
-  color: var(--mg-fg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-.chipTick {
+.avatar {
   display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 0.9rem;
+  background: rgba(233, 200, 131, 0.14);
+  color: var(--mg-gold);
+}
+
+.petName {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.petMeta {
+  color: var(--mg-fg-muted);
+  font-size: 0.85rem;
+}
+
+.badge {
+  margin-left: auto;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(62, 207, 154, 0.16);
+  color: var(--mg-success);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.vaccines {
+  list-style: none;
+  margin-top: 0.75rem;
+}
+
+.vaccine {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--mg-divider);
+  font-size: 0.92rem;
+}
+
+.tick,
+.pending {
+  display: grid;
+  flex: none;
   place-items: center;
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
+}
+
+.tick {
   background: var(--mg-success);
   color: var(--mg-ink);
 }
 
+.pending {
+  background: rgba(242, 165, 65, 0.18);
+  color: var(--mg-warning);
+}
+
+.vaccineName {
+  font-weight: 500;
+}
+
+.vaccineDate {
+  margin-left: auto;
+  color: var(--mg-fg-muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.visit {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 1rem;
+  background: rgba(79, 140, 255, 0.14);
+}
+
+.visitIcon {
+  flex: none;
+  color: var(--mg-blue);
+}
+
+.visitTitle {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.visitMeta {
+  color: var(--mg-fg-muted);
+  font-size: 0.82rem;
+}
+
 .toast {
+  position: absolute;
+  left: -2.5rem;
+  bottom: -1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 1rem;
   background: var(--mg-gold);
   color: var(--mg-on-gold);
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
   box-shadow: 0 20px 40px -16px rgba(233, 200, 131, 0.5);
 }
 
@@ -167,7 +266,7 @@
     align-items: stretch;
   }
 
-  .notes {
+  .demo {
     display: none;
   }
 }

@@ -103,3 +103,26 @@
     background: linear-gradient(0deg, rgba(11, 14, 23, 0.95) 0%, rgba(11, 14, 23, 0.6) 55%, rgba(11, 14, 23, 0.2) 100%);
   }
 }
+
+/* Nombre gigante al final, con la cola de gato que se dibuja */
+.wordmark {
+  position: relative;
+  margin-top: clamp(2rem, 6vh, 4rem);
+}
+
+.wordmarkText {
+  color: var(--mg-gold);
+  font-size: clamp(3rem, 12.4vw, 10.75rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+}
+
+.wordmarkCurl {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  width: clamp(4rem, 10vw, 8.5rem);
+  height: auto;
+}

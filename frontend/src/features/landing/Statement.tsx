@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
 import shared from "./landing.module.css";
+import { Curl } from "./effects";
 import styles from "./Statement.module.css";
 
 const TEXT =
@@ -17,7 +18,8 @@ export default function Statement() {
 
   return (
     <section className={styles.section}>
-      <div className={shared.container}>
+      <div className={`${shared.container} ${styles.inner}`}>
+        <Curl className={styles.curl} />
         <p ref={ref} className={styles.text}>
           {reduce
             ? TEXT

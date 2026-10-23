@@ -904,4 +904,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   capturas a 1440 y 375 px. Pendiente web: `NEXT_PUBLIC_API_URL`/rutas de `lib/api.ts` desfasadas (adopciones usa
   `/adopciones/api/v1/adopciones`, el backend sirve `/pets`), error previo de tipos en `Sidebar.tsx` (`getPlaces`),
   `next dev` con Turbopack falla aquí con *Permission denied* (usar `--webpack`), y 6 vulnerabilidades de `npm audit`.
+- **2026-10-23** — Web, landing ampliada (sin quitar nada): fotos de Gemini con gatos al frente (`public/landing/`,
+  prompts en `docs/landing-fotos-prompts.md`); rueda de funciones (port de «works-wheel» de 21st.dev a CSS Modules,
+  girando con el scroll de la página); catálogo de 22 funciones reales; «Un día con tu michi» (carril fijo con cielo y
+  sol); «Lo que cuidamos por ti» (tarjetas que se enderezan); «Así son los michis» (notas a mano, inspirado en
+  Nocturne); títulos que suben por palabras, fotos que se asoman, cola de gato dibujada, footer con revelado y nombre
+  gigante. Scroll suave con `lenis` (helper `scrollToY`). Efectos de la plantilla Sill hechos con `motion`, sin GSAP.
 
