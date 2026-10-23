@@ -311,6 +311,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `actions` (nada de botones armados a mano en `rightElement`). Fuera: detalles con foto (`[id]` con hero de imagen),
   pestañas y `(auth)`.
 
+- **2026-10-22** — Web (`frontend/`): rediseño aparte de la app, con la misma paleta *Midnight & Gold* (tokens `--mg-*`
+  en `globals.css`), fuente Hanken Grotesk (`next/font`) y animaciones con `motion` (nunca `framer-motion`). Orden:
+  landing → login/registro → esqueleto del dashboard → módulos. Referencia de estilo: plantilla Elena Voss de 21st.dev
+  (solo inspiración, sin copiar código ni imágenes).
+
 ## Bitácora
 
 - **2026-10-07** — Fase 0 completa: `CLAUDE.md`, este archivo y `AUDITORIA_MOBILE.md`; ESLint
@@ -893,4 +898,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   clínica (backend), estética rechaza citas en el pasado (hora de México), `RoleGuard` en perfil de servicio,
   especialista sin servicios cae a contacto, descripción de estética borrable, admin abre solo enlaces `https`,
   pet-friendly con skeleton/`EmptyState`, «Mis inscripciones» sin botón anidado, laboratorio con `EmptyState`.
+- **2026-10-22** — Web, landing nueva en `frontend/src/features/landing/` (hero con carnet de ejemplo animado, línea
+  de tiempo fija por etapas, frase que se enfoca con el scroll, carril horizontal de profesionales, FAQ y footer).
+  `page.tsx` pasa a server component; se borra `page.module.css`. Deps: `motion`, `lucide-react`. Revisada con
+  capturas a 1440 y 375 px. Pendiente web: `NEXT_PUBLIC_API_URL`/rutas de `lib/api.ts` desfasadas (adopciones usa
+  `/adopciones/api/v1/adopciones`, el backend sirve `/pets`), error previo de tipos en `Sidebar.tsx` (`getPlaces`),
+  `next dev` con Turbopack falla aquí con *Permission denied* (usar `--webpack`), y 6 vulnerabilidades de `npm audit`.
 

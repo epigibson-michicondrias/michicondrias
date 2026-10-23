@@ -1,0 +1,106 @@
+/* Piezas compartidas de la landing: lienzo, contenedor, botones y títulos de sección. */
+
+.page {
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+  --max: 82rem;
+
+  font-family: var(--font-mg), system-ui, sans-serif;
+  background: var(--mg-ink);
+  color: var(--mg-fg);
+  line-height: 1.55;
+  overflow-x: clip;
+}
+
+.page :focus-visible {
+  outline: 2px solid var(--mg-gold);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: var(--gutter);
+  top: -4rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: var(--mg-gold);
+  color: var(--mg-on-gold);
+  font-weight: 600;
+}
+
+.skip:focus {
+  top: 1rem;
+  color: var(--mg-on-gold);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Botones */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition:
+    background-color 200ms var(--mg-ease-out),
+    color 200ms var(--mg-ease-out),
+    border-color 200ms var(--mg-ease-out);
+}
+
+.btnGold {
+  background: var(--mg-gold);
+  color: var(--mg-on-gold);
+}
+
+.btnGold:hover {
+  background: #f3dba8;
+  color: var(--mg-on-gold);
+}
+
+.btnGhost {
+  border: 1px solid var(--mg-line);
+  color: var(--mg-fg);
+}
+
+.btnGhost:hover {
+  border-color: var(--mg-gold);
+  color: var(--mg-gold);
+}
+
+.btnDot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Títulos de sección */
+
+.sectionTitle {
+  font-size: clamp(2.25rem, 5.5vw, 4.75rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.sectionLead {
+  max-width: 34rem;
+  margin-top: 1.25rem;
+  color: var(--mg-fg-muted);
+  font-size: 1.125rem;
+}

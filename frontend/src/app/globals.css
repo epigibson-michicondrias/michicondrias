@@ -48,6 +48,25 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Midnight & Gold — misma paleta que la app móvil (mobile/constants/palettes.ts, modo oscuro).
+     La landing ya la usa; el dashboard migrará a estos tokens en su rediseño. */
+  --mg-ink: #0b0e17;
+  --mg-ink-2: #0f1320;
+  --mg-surface: #131826;
+  --mg-surface-2: #1a2133;
+  --mg-line: rgba(233, 200, 131, 0.14);
+  --mg-divider: rgba(255, 255, 255, 0.07);
+  --mg-fg: #f5f1e8;
+  --mg-fg-muted: #9aa3b5;
+  --mg-gold: #e9c883;
+  --mg-gold-deep: #b98a3e;
+  --mg-on-gold: #101c3d;
+  --mg-blue: #4f8cff;
+  --mg-navy: #1c2f6b;
+  --mg-success: #3ecf9a;
+  --mg-warning: #f2a541;
+  --mg-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ============================

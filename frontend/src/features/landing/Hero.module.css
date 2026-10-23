@@ -1,0 +1,251 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding-block: 8rem 5rem;
+}
+
+.glowGold,
+.glowNavy {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.glowGold {
+  left: -18vw;
+  bottom: -30vh;
+  width: 70vw;
+  height: 70vw;
+  background: radial-gradient(closest-side, rgba(233, 200, 131, 0.38), rgba(185, 138, 62, 0.12) 55%, transparent);
+  filter: blur(20px);
+}
+
+.glowNavy {
+  right: -20vw;
+  top: -25vh;
+  width: 75vw;
+  height: 75vw;
+  background: radial-gradient(closest-side, rgba(28, 47, 107, 0.9), rgba(16, 28, 61, 0.4) 60%, transparent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  align-items: center;
+  gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+.title {
+  font-size: clamp(2.75rem, 5.6vw, 6.25rem);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.line {
+  display: block;
+}
+
+@media (min-width: 961px) {
+  .line {
+    white-space: nowrap;
+  }
+}
+
+.lead {
+  max-width: 32rem;
+  margin-top: 2rem;
+  color: var(--mg-fg-muted);
+  font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+}
+
+/* Carnet de ejemplo */
+
+.demo {
+  position: relative;
+  justify-self: end;
+  width: 100%;
+  max-width: 25rem;
+}
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid var(--mg-line);
+  border-radius: 1.75rem;
+  background: linear-gradient(160deg, rgba(26, 33, 51, 0.92), rgba(15, 19, 32, 0.92));
+  box-shadow:
+    0 40px 80px -30px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 1rem;
+  background: rgba(233, 200, 131, 0.12);
+  color: var(--mg-gold);
+}
+
+.petName {
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.petMeta {
+  color: var(--mg-fg-muted);
+  font-size: 0.9rem;
+}
+
+.badge {
+  margin-left: auto;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(62, 207, 154, 0.14);
+  color: var(--mg-success);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.cardLabel {
+  margin-top: 1.5rem;
+  color: var(--mg-fg-muted);
+  font-size: 0.85rem;
+}
+
+.vaccines {
+  list-style: none;
+  margin-top: 0.5rem;
+}
+
+.vaccine {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--mg-divider);
+}
+
+.tick,
+.pending {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+}
+
+.tick {
+  background: var(--mg-success);
+  color: var(--mg-ink);
+}
+
+.pending {
+  background: rgba(242, 165, 65, 0.16);
+  color: var(--mg-warning);
+}
+
+.vaccineName {
+  font-weight: 500;
+}
+
+.vaccineDate {
+  margin-left: auto;
+  color: var(--mg-fg-muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.visit {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 1.1rem;
+  background: rgba(79, 140, 255, 0.1);
+}
+
+.visitIcon {
+  flex: none;
+  color: var(--mg-blue);
+}
+
+.visitTitle {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.visitMeta {
+  color: var(--mg-fg-muted);
+  font-size: 0.85rem;
+}
+
+.toast {
+  position: absolute;
+  left: -3rem;
+  bottom: -1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.15rem;
+  border-radius: 1rem;
+  background: var(--mg-gold);
+  color: var(--mg-on-gold);
+  font-size: 0.92rem;
+  font-weight: 500;
+  box-shadow: 0 20px 40px -16px rgba(233, 200, 131, 0.45);
+}
+
+.toastIcon {
+  flex: none;
+}
+
+@media (max-width: 960px) {
+  .hero {
+    padding-block: 7rem 5rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demo {
+    justify-self: start;
+    max-width: 26rem;
+  }
+
+  .toast {
+    left: auto;
+    right: 1rem;
+  }
+}
