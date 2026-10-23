@@ -69,8 +69,8 @@ y sigue donde se quedó el otro.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [ ] W4: faltan P3 (mi-clínica, servicios-pro, tienda vendedor, patrocinadores) y **W4-A consola admin**.
-  **Hechos:** P1 completo, Adopciones, Directorio, Perdidas y todo P2 (servicios profesionales, 2026-10-23). ·
+- [ ] W4: faltan P3 (mi-clínica, tienda vendedor) y **W4-A consola admin**.
+  **Hechos:** P1 completo, Adopciones, Directorio, Perdidas, todo P2, Servicios pro y Patrocinadores. ·
   W5 pulido y merge · W7 permisos.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
@@ -89,6 +89,12 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Claude** — W4 P3 en `web/espejo` (push, sin producción): Servicios pro (`1612641`: listado,
+  perfil profesional, mis tareas) y Patrocinadores (`65897f4`: campañas, nueva campaña, impulso de alerta con aviso
+  de que no hay cobro, estadísticas; `/patrocinadores/nuevo` redirige a `nueva-campana`). `tsc`/ESLint limpios.
+  Permisos de lectura, edición y checks agregados en `.claude/settings.local.json` (el clasificador de auto mode
+  fallaba a ratos). **Siguiente:** Tienda vendedor (5 pantallas), Mi clínica (14) y W4-A.
 
 - **2026-10-23 · Claude** — W4 P2 cerrado en `web/espejo` (`345a2cd`, `a0afcbd`, push, sin producción). Mimo había
   dejado sin commit el port de paseadores, cuidadores, pet-friendly, establecimientos, grooming, estilistas,
