@@ -10,7 +10,7 @@ export default function AuthRedirect() {
 
   useEffect(() => {
     if (isAuthenticated()) {
-      router.replace("/dashboard");
+      router.replace("/inicio");
     }
   }, [router]);
 

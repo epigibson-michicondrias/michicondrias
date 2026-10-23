@@ -1,0 +1,341 @@
+/* Shell de la app: sidebar de escritorio + barra inferior de pestañas en móvil. */
+
+.root {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+/* ── Sidebar (escritorio) ─────────────────────────────────────── */
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: var(--space-xl) var(--space-lg);
+  gap: var(--space-lg);
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+}
+
+.brand,
+.brandSm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+  color: var(--color-text);
+  min-height: 44px;
+}
+
+.brandMark {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-size: var(--font-h3);
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: var(--font-lg);
+  font-weight: 600;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.navLink:hover {
+  background: var(--color-overlay-hover);
+  color: var(--color-text);
+}
+
+.navLinkActive {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.navLinkSm {
+  min-height: 38px;
+  font-size: var(--font-base);
+  font-weight: 500;
+}
+
+.toolDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.badge {
+  margin-left: auto;
+  background: var(--color-error);
+  color: var(--color-on-primary);
+  font-size: var(--font-xs);
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  padding: 2px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.toolsSection {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--space-md);
+}
+
+.toolsTitle {
+  margin: 0 0 var(--space-sm);
+  padding: 0 var(--space-md);
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.sidebarFooter {
+  margin-top: auto;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
+.userLine {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout {
+  color: var(--color-error);
+}
+
+.logout:hover {
+  background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+/* ── Área principal ───────────────────────────────────────────── */
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background: var(--color-overlay-hover);
+  color: var(--color-text);
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) var(--space-huge);
+}
+
+/* ── Barra inferior (móvil) ───────────────────────────────────── */
+
+.tabBar {
+  display: flex;
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-sm) 0 calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 56px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.tabActive {
+  color: var(--color-primary);
+}
+
+.tabIconWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.tabBadge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  background: var(--color-error);
+  color: var(--color-on-primary);
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: var(--radius-pill);
+  padding: 1px 5px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.tabLabel {
+  line-height: 1.1;
+}
+
+/* ── Drawer de herramientas (móvil) ───────────────────────────── */
+
+.drawerBackdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  z-index: 50;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drawer {
+  width: min(320px, 88vw);
+  background: var(--color-surface);
+  height: 100%;
+  padding: var(--space-xl) var(--space-lg);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  box-shadow: var(--shadow-raised);
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.iconClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+
+.iconClose:hover {
+  background: var(--color-overlay-hover);
+  color: var(--color-text);
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
+
+  .tabBar {
+    display: none;
+  }
+
+  .brandSm {
+    display: none;
+  }
+
+  .topbar {
+    justify-content: flex-end;
+    background: transparent;
+    border-bottom: 0;
+    position: static;
+    padding-bottom: 0;
+  }
+
+  .content {
+    padding-bottom: var(--space-xxl);
+  }
+}
+
+@media (max-width: 767px) {
+  .content {
+    padding-bottom: var(--space-xl);
+  }
+}

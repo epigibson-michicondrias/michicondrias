@@ -9,14 +9,14 @@ App de referencia: [`PROGRESO_MOBILE.md`](PROGRESO_MOBILE.md).
 **Dónde se trabaja:** worktree `../michicondrias-web`, rama `web/espejo`. Se fusiona a `main` (producción en Vercel)
 solo con la fase verificada y el visto bueno del usuario.
 
-## Fase actual: **W2 — Núcleo espejo** 🟡 (espejos, api, tokens, contextos Theme/Auth y kit base ✅ · faltan CartContext y el resto del kit)
+## Fase actual: **W4 — Módulos** ⬜ (W3 esqueleto ✅ · W2 kit base ✅)
 
 | # | Fase | Qué | Estado |
 |---|---|---|---|
 | W0 | Cimientos | ESLint/knip/scripts, build en verde, hooks, `frontend/CLAUDE.md`, `web-drift.sh`, docs | ✅ 2026-10-08 |
 | W1 | Auditoría web ↔ app | Mapa pantalla de la app → página web (existe/falta/sobra/difiere) + inventario de guardas de rol del backend | ✅ 2026-10-08 |
-| W2 | Núcleo espejo | types, services, roles/roleTools, api.ts, tokens → CSS, contextos, componentes base | 🟡 |
-| W3 | Navegación y esqueleto | `(auth)` + `(app)`, rutas iguales a la app, shell (sidebar / barra inferior), redirects `/dashboard/*` | ⬜ |
+| W2 | Núcleo espejo | types, services, roles/roleTools, api.ts, tokens → CSS, contextos, componentes base | ✅ (falta `KeyboardScreen`, `DatePicker`, `BottomSheet`, `MediaCard`…: se crean al portar el módulo que los use) |
+| W3 | Navegación y esqueleto | `(auth)` + `(app)`, rutas iguales a la app, shell (sidebar / barra inferior), redirects `/dashboard/*` | ✅ 2026-10-23 |
 | W4 | Módulos (multiagente por lotes) | P1 → **W4-A Consola admin** → P2 → P3 | ⬜ |
 | W4-A | Consola de administración | Admin de la app ampliado a escritorio + matriz de roles/permisos + "ver como rol" | ⬜ |
 | W5 | Pulido de escritorio y cierre | hover/foco/atajos, tablas, SEO de la landing, borrar lo viejo, merge a `main` | ⬜ |
@@ -70,6 +70,14 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Decisiones
 
+- **2026-10-23 (W3)**:
+  - La **landing se conserva en `/`** (es la portada pública, también publicada en su propio dominio). La Inicio
+    de la app vive en **`/inicio`**. El resto de rutas son idénticas a las de la app (`/mascotas/[id]`,
+    `/tienda/pago-exitoso`, `/reset-password`, `/adopciones/solicitudes`…), que es lo que importa para los `link`
+    de las notificaciones y los deep links del backend.
+  - `/dashboard` y `/dashboard/*` redirigen con 301 a `/inicio` y `/*` (`next.config.ts`).
+  - El shell: sidebar con herramientas del rol en ≥768 px; barra inferior de 4–5 pestañas (Inicio, Explorar,
+    Michi-Shop, Perfil y Panel/Admin solo pro) + drawer con `ROLE_TOOLS` en móvil.
 - **2026-10-08**:
   - Se rehace la web en **Next.js** como espejo de la app; Expo Web descartado.
   - El código común (types, services, roles, tokens) se **copia como espejo**, sin paquete compartido por ahora, para
@@ -96,6 +104,19 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-23 — W3 Navegación y esqueleto.**
+  - Rutas iguales a la app en `src/app/(app)/` (sin `/dashboard`): 47 páginas movidas con links reescritos;
+    tabs nuevos `inicio`, `explorar`, `menu`, `notificaciones`, `busqueda`, `ayuda`. `/` sigue siendo la landing.
+  - Auth en `src/app/(auth)/` con `AuthShell` y los hooks espejo `useLogin` / `useRegister` / `usePasswordReset`
+    (login con 2FA, registro con login automático, recuperación con código + deep link `?token=`).
+  - Shell `AppShell`: sidebar con `ROLE_TOOLS` en escritorio, barra inferior de pestañas + drawer en móvil,
+    `CartContext` espejo en `src/contexts/`, guarda de sesión en `(app)/layout.tsx`.
+  - `next.config.ts`: `redirects` de `/dashboard` → `/inicio` y `/dashboard/:path*` → `/:path*`. `AuthRedirect`
+    de la landing ahora apunta a `/inicio`.
+  - Se borró `src/app/dashboard/`. Quedan `Sidebar.tsx` y `MichiExplorer.tsx` sin uso (los borra W5).
+  - Verificado: `npm run typecheck` y `eslint --quiet` limpios en archivos nuevos; `npm run build` en verde (52 páginas).
+  - Siguiente: W4 — portar módulos P1 (auth ya está; pestañas Inicio/Explorar/Tienda/Perfil reales, mascotas, carnet,
+    tienda cliente, notificaciones) sobre este esqueleto.
 - **2026-10-08 — W0 Cimientos.**
   - Worktree `../michicondrias-web` en la rama `web/espejo`.
   - **Build arreglado**, fallaba por dos causas:

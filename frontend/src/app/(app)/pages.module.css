@@ -1,0 +1,93 @@
+/* Páginas de estructura W3 (explorar, menú, búsqueda…): rejilla de tarjetas y barra de búsqueda. */
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 48px;
+  padding: 0 var(--space-lg);
+  margin-bottom: var(--space-xl);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: var(--font-lg);
+}
+
+.searchBar:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.section {
+  margin-bottom: var(--space-xxl);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-md);
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.cardLink:hover {
+  transform: translateY(-1px);
+}
+
+.cardTitle {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-text);
+  font-size: var(--font-xxl);
+  font-weight: 700;
+}
+
+.cardDesc {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-base);
+  line-height: 1.45;
+}
+
+.toolGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-sm);
+}
+
+.toolLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 52px;
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: var(--font-lg);
+  font-weight: 600;
+}
+
+.toolLink:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.toolDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.emptyWrap {
+  padding: var(--space-huge) 0;
+}

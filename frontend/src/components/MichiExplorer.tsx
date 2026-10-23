@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { globalSearch } from "@/lib/legacy/services/search";
 import { useDebounce } from "@/hooks/useDebounce";
-import styles from "@/app/dashboard/dashboard.module.css";
+import styles from "@/app/(app)/dashboard.module.css";
 
 export default function MichiExplorer() {
     const [isOpen, setIsOpen] = useState(false);
@@ -25,9 +25,9 @@ export default function MichiExplorer() {
     });
 
     const flatResults = [
-        ...(results?.pets || []).map(p => ({ ...p, type: 'pet', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 5.172a4 4 0 0 0-5.656 5.656l1.414 1.414L12 18.414l6.242-6.172 1.414-1.414a4 4 0 0 0-5.656-5.656l-1.414 1.414L12 7.586l-1.414-1.414z" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="9" r="1" /></svg>, href: `/dashboard/mascotas/${p.id}` })),
-        ...(results?.clinics || []).map(c => ({ ...c, type: 'clinic', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>, href: `/dashboard/directorio/clinica/${c.id}` })),
-        ...(results?.products || []).map(p => ({ ...p, type: 'product', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>, href: `/dashboard/tienda/producto/${p.id}` }))
+        ...(results?.pets || []).map(p => ({ ...p, type: 'pet', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 5.172a4 4 0 0 0-5.656 5.656l1.414 1.414L12 18.414l6.242-6.172 1.414-1.414a4 4 0 0 0-5.656-5.656l-1.414 1.414L12 7.586l-1.414-1.414z" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="9" r="1" /></svg>, href: `/mascotas/${p.id}` })),
+        ...(results?.clinics || []).map(c => ({ ...c, type: 'clinic', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>, href: `/directorio/clinica/${c.id}` })),
+        ...(results?.products || []).map(p => ({ ...p, type: 'product', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>, href: `/tienda/producto/${p.id}` }))
     ];
 
     // Handle shortcuts
@@ -138,7 +138,7 @@ export default function MichiExplorer() {
                                         return (
                                             <Link
                                                 key={pet.id}
-                                                href={`/dashboard/mascotas/${pet.id}`}
+                                                href={`/mascotas/${pet.id}`}
                                                 className={`${styles["explorer-item"]} ${selectedIndex === idx ? styles["explorer-item--active"] : ""}`}
                                                 onClick={() => setIsOpen(false)}
                                             >
@@ -163,7 +163,7 @@ export default function MichiExplorer() {
                                         return (
                                             <Link
                                                 key={clinic.id}
-                                                href={`/dashboard/directorio/clinica/${clinic.id}`}
+                                                href={`/directorio/clinica/${clinic.id}`}
                                                 className={`${styles["explorer-item"]} ${selectedIndex === idx ? styles["explorer-item--active"] : ""}`}
                                                 onClick={() => setIsOpen(false)}
                                             >
@@ -188,7 +188,7 @@ export default function MichiExplorer() {
                                         return (
                                             <Link
                                                 key={product.id}
-                                                href={`/dashboard/tienda/producto/${product.id}`}
+                                                href={`/tienda/producto/${product.id}`}
                                                 className={`${styles["explorer-item"]} ${selectedIndex === idx ? styles["explorer-item--active"] : ""}`}
                                                 onClick={() => setIsOpen(false)}
                                             >

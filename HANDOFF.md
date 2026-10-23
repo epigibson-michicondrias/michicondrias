@@ -47,7 +47,7 @@ y sigue donde se quedó el otro.
 | App móvil | Fases 0–3 ✅ · Fase 4 🟡 (F1–F27 hechos en P1) · Fase 5 🟡 (U1–U2 ✅, U3–U11 pendientes). Detalle: `PROGRESO_MOBILE.md` |
 | Backend | En producción y desplegando bien. Pendiente de seguridad X1 (abajo) |
 | Web app (`main`) | Código viejo (50 páginas bajo `/dashboard`) + landing nueva en `/`. Build en verde desde `3eb2f9e`. Rastreo y donaciones simulados desactivados |
-| Web espejo (`web/espejo`) | W0 ✅ W1 ✅ · **W2 🟡**: espejos de types/services/roles/tokens ✅, `api.ts` espejo ✅, `tokens.css` ✅; faltan contextos y componentes base. **37 de 156** pantallas de la app tienen página web |
+| Web espejo (`web/espejo`) | W0 ✅ W1 ✅ W2 ✅ **W3 ✅**: rutas iguales a la app (`(auth)`/`(app)`, Inicio en `/inicio`), shell sidebar/barra inferior, AuthShell + login 2FA, redirects `/dashboard/*`. Build 52 páginas en verde. **37 de 156** pantallas de la app tienen página (contenido legacy a portar en W4) |
 | Landing | Publicada (Next.js). 11 secciones, 28 funciones reales, fotos de Gemini con gatos al frente |
 
 ---
@@ -60,8 +60,9 @@ y sigue donde se quedó el otro.
 - [ ] **X2–X8** del backend (admin sin pasar guardas, servicios sin moderación, etc.): tabla en `AUDITORIA_WEB.md` (rama `web/espejo`) y `docs/PERMISOS_BACKEND.md`.
 
 **Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
-- [ ] W2 parte 2: contextos (Auth, Theme, Cart) y componentes base con los mismos nombres y props que la app.
-- [ ] W3: rutas iguales a la app (`(auth)`, `(app)`, sin `/dashboard`), shell con barra lateral / inferior, redirects.
+- [x] W2: espejos, `api.ts`, `tokens.css`, contextos Theme/Auth/Cart y kit base.
+- [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
+  `AppShell`, `AuthShell` con login 2FA / registro / reset, redirects `/dashboard/*`.
 - [ ] W4: portar módulos (119 pantallas faltan) · W4-A consola de admin · W5 pulido y merge a `main` · W7 permisos editables.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 - [ ] Llevar `scripts/sync-mimo.sh` al worktree (llega al fusionar `main` en `web/espejo`).
@@ -82,6 +83,12 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — Web espejo W3: grupos `(auth)` y `(app)` con rutas iguales a la app (Inicio en `/inicio`
+  porque `/` es la landing; deep links intactos); `AppShell` (sidebar `ROLE_TOOLS` + barra inferior + drawer);
+  `AuthShell` + hooks `useLogin`/`useRegister`/`usePasswordReset` (login 2FA, registro con login automático, reset
+  con código y `?token=`); `CartContext` espejo; redirects `/dashboard/*`. 47 páginas movidas con links reescritos.
+  Typecheck + eslint limpios en archivos nuevos, build verde (52 páginas), `web-drift.sh` 52 iguales / 0 difieren.
+  Siguiente: W4 (portar módulos P1).
 - **2026-10-23 · Claude** — Seguridad X1: aseguradoras, cuidadores, paseadores, entrenadores, establecimientos,
   estilistas, funeraria, laboratorio, patrocinadores y transportistas aceptaban el token temporal de 2FA (que ya lleva
   `role`), así que se podía saltar el 2FA. `_decode_token` ahora lo rechaza (403 «Se requiere completar la verificación
