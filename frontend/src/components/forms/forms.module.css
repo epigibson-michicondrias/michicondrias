@@ -87,3 +87,28 @@ textarea.input { min-height: 96px; resize: vertical; }
 .section { margin-bottom: var(--space-xxl); }
 .sectionTitle { margin-bottom: var(--space-md); color: var(--color-text-muted); font-size: var(--font-md); font-weight: 600; }
 .sectionBody { display: grid; gap: var(--space-md); padding: var(--space-lg); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); }
+
+/* FormImagePicker */
+.imagePicker { display: grid; gap: var(--space-sm); }
+.imageRow { display: flex; align-items: center; gap: var(--space-lg); }
+.imageCircle {
+  width: 96px; height: 96px; border-radius: 50%;
+  border: 1.5px dashed var(--color-input-border);
+  background: var(--color-input-bg); color: var(--color-text-muted);
+  display: grid; place-items: center; overflow: hidden; flex: none;
+}
+.imageThumb { width: 100%; height: 100%; object-fit: cover; }
+.imageActions { display: flex; flex-direction: column; gap: var(--space-sm); }
+.imageBtn {
+  min-height: 44px; padding: 0 var(--space-lg);
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-surface); color: var(--color-text); font-weight: 600; cursor: pointer;
+}
+.imageBtn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.imageBtnGhost {
+  display: inline-flex; align-items: center; gap: var(--space-xs);
+  min-height: 44px; padding: 0 var(--space-md);
+  border: 0; background: transparent; color: var(--color-text-muted); cursor: pointer; font-weight: 600;
+}
+.imageBtnGhost:hover { color: var(--color-error); }
+.imageInput { display: none; }

@@ -104,6 +104,15 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-23 — W4 módulo Mascotas.**
+  - `usePets`, `usePetDetail`, `usePetForm` y `usePetHealth` espejo (con `next/navigation`). Utils espejo
+    `helpers`, `upload`, `payments`. `FormImagePicker` nuevo en el kit.
+  - `/mascotas`: lista con 3 modos de vista (cuadrícula, lista, tarjetas), skeleton y vacío con una acción.
+  - `/mascotas/[id]`: ficha con Resumen (edad, peso, vacunas al día calculadas del carnet, Michi-Tracker,
+    descripción), Salud (vacunas + entrada a IA) e Historial (consultas). Compartir carnet con enlace de 24 h.
+  - `/mascotas/nuevo`: formulario con foto, información básica y salud (validación inline).
+  - Verificado: `typecheck` y `eslint` limpios, `npm run build` verde. Falta `editar/[id]`, `diagnostico-ia`
+    y el detalle fino de carnet (`PetHealthTabs`) — van con el módulo carnet.
 - **2026-10-23 — W3 Navegación y esqueleto.**
   - Rutas iguales a la app en `src/app/(app)/` (sin `/dashboard`): 47 páginas movidas con links reescritos;
     tabs nuevos `inicio`, `explorar`, `menu`, `notificaciones`, `busqueda`, `ayuda`. `/` sigue siendo la landing.
