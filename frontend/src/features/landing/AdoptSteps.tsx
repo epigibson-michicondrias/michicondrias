@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
 import shared from "./landing.module.css";
+import { REGISTER_URL } from "./links";
 import styles from "./AdoptSteps.module.css";
 import { Rise } from "./effects";
 
@@ -61,7 +62,7 @@ export default function AdoptSteps() {
         </div>
 
         <div className={styles.ctas}>
-          <Link href="/register" className={`${shared.btn} ${shared.btnGold}`}>
+          <Link href={REGISTER_URL} className={`${shared.btn} ${shared.btnGold}`}>
             Ver michis en adopción
           </Link>
         </div>

@@ -917,3 +917,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   vecinos reciben alertas de perdidas; el backend solo avisa al dueño por avistamientos y busca reportes a 10 km.
 - **2026-10-23** — Web: se quita «Así son los michis» (decorativa, no mostraba ninguna función). Títulos «Tu mascota, en
   tu bolsillo» y «Un día con tu mascota».
+- **2026-10-23** — Landing publicada en https://michicondrias-landing-page.vercel.app/ (repo aparte
+  `michicondrias-landing`, ahora Next.js en vez de Astro; Vercel despliega con cada push a `main`). Fuente de verdad:
+  `frontend/src/features/landing/` del monorepo; se copia al otro repo. Enlaces «Entrar»/«Crear cuenta» centralizados
+  en `links.ts` (`NEXT_PUBLIC_WEB_APP_URL`); sin web app publicada bajan a la sección de la app.
+

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { PawPrint } from "lucide-react";
 import shared from "./landing.module.css";
+import { LOGIN_URL, REGISTER_URL } from "./links";
 import styles from "./Nav.module.css";
 
 const LINKS = [
@@ -43,10 +44,10 @@ export default function Nav() {
         </nav>
 
         <div className={styles.actions}>
-          <Link href="/login" className={styles.login}>
+          <Link href={LOGIN_URL} className={styles.login}>
             Entrar
           </Link>
-          <Link href="/register" className={`${shared.btn} ${shared.btnGold} ${styles.cta}`}>
+          <Link href={REGISTER_URL} className={`${shared.btn} ${shared.btnGold} ${styles.cta}`}>
             Crear cuenta
           </Link>
         </div>

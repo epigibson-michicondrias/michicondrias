@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { PawPrint } from "lucide-react";
 import shared from "./landing.module.css";
+import { LOGIN_URL, REGISTER_URL } from "./links";
 import styles from "./Footer.module.css";
 import { Curl, Rise } from "./effects";
 
@@ -32,7 +33,7 @@ export default function Footer() {
 
           <div className={styles.cta}>
             <Rise text="Empieza hoy con el carnet de tu mascota." className={styles.title} />
-            <Link href="/register" className={`${shared.btn} ${shared.btnGold}`}>
+            <Link href={REGISTER_URL} className={`${shared.btn} ${shared.btnGold}`}>
               Crear cuenta gratis
             </Link>
           </div>
@@ -47,7 +48,7 @@ export default function Footer() {
               <a href="#funciones">Funciones</a>
               <a href="#profesionales">Profesionales</a>
               <a href="#preguntas">Preguntas</a>
-              <Link href="/login">Entrar</Link>
+              <Link href={LOGIN_URL}>Entrar</Link>
             </nav>
           </div>
         </motion.div>

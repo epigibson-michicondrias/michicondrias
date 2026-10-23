@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
 import { Activity, Cat, Heart, Info, ShieldAlert, Sparkles } from "lucide-react";
 import shared from "./landing.module.css";
+import { REGISTER_URL } from "./links";
 import styles from "./AiDemo.module.css";
 import { Rise } from "./effects";
 
@@ -80,7 +81,7 @@ export default function AiDemo() {
               </div>
             </li>
           </ul>
-          <Link href="/register" className={`${shared.btn} ${shared.btnGold}`}>
+          <Link href={REGISTER_URL} className={`${shared.btn} ${shared.btnGold}`}>
             Probar Michi-IA
           </Link>
         </div>

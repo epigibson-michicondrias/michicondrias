@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform, type Variants } from "motion/react";
 import { BellRing, Cat, Check, Clock3, Stethoscope } from "lucide-react";
 import shared from "./landing.module.css";
+import { LOGIN_URL, REGISTER_URL } from "./links";
 import styles from "./Hero.module.css";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -65,10 +66,10 @@ export default function Hero() {
           </motion.p>
 
           <motion.div className={styles.ctas} variants={fade} custom={0.95}>
-            <Link href="/register" className={`${shared.btn} ${shared.btnGold}`}>
+            <Link href={REGISTER_URL} className={`${shared.btn} ${shared.btnGold}`}>
               Crear cuenta gratis
             </Link>
-            <Link href="/login" className={`${shared.btn} ${shared.btnGhost}`}>
+            <Link href={LOGIN_URL} className={`${shared.btn} ${shared.btnGhost}`}>
               Ya tengo cuenta
             </Link>
           </motion.div>

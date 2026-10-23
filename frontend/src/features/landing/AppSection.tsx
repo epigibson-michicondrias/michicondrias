@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { BellRing, Cat, Download, FileHeart, ShoppingBag, Sparkles, Stethoscope } from "lucide-react";
 import shared from "./landing.module.css";
+import { REGISTER_URL } from "./links";
 import styles from "./AppSection.module.css";
 import { Rise } from "./effects";
 
@@ -26,7 +27,7 @@ export default function AppSection() {
   const y = useTransform(scrollYProgress, [0, 1], [80, 0]);
 
   return (
-    <section className={styles.section} aria-labelledby="app-title">
+    <section id="app" className={styles.section} aria-labelledby="app-title">
       <div ref={ref} className={`${shared.container} ${styles.grid}`}>
         <div className={styles.copy}>
           <Rise id="app-title" text="Tu mascota, en tu bolsillo" className={shared.sectionTitle} />
@@ -39,7 +40,7 @@ export default function AppSection() {
                 <Download size={18} strokeWidth={2} /> Descargar la app
               </a>
             )}
-            <Link href="/register" className={`${shared.btn} ${DOWNLOAD_URL ? shared.btnGhost : shared.btnGold}`}>
+            <Link href={REGISTER_URL} className={`${shared.btn} ${DOWNLOAD_URL ? shared.btnGhost : shared.btnGold}`}>
               Crear cuenta gratis
             </Link>
           </div>

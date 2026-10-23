@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import shared from "./landing.module.css";
 import { Rise } from "./effects";
+import { REGISTER_URL } from "./links";
 import styles from "./ProRail.module.css";
 
 /** Oficios con sus herramientas reales (mobile/src/constants/roleTools.ts). */
@@ -97,7 +98,7 @@ export default function ProRail() {
                 </div>
                 <h3 className={styles.cardTitle}>Únete como profesional</h3>
                 <p className={styles.ctaText}>Crea tu cuenta y envía tu verificación desde tu perfil.</p>
-                <Link href="/register" className={styles.ctaLink}>
+                <Link href={REGISTER_URL} className={styles.ctaLink}>
                   Crear cuenta
                   <span className={styles.ctaIcon} aria-hidden>
                     <ArrowUpRight size={18} strokeWidth={2} />
