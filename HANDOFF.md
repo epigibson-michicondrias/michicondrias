@@ -1,4 +1,121 @@
-# HANDOFF — Michicondrias app móvil (para el siguiente agente)
+# HANDOFF — Michicondrias (contexto vivo para Mimo y Claude)
+
+Este archivo es **la memoria compartida** entre los agentes que trabajan en Michicondrias: **Mimo** (Xiaomi, `mimo`) y
+**Claude Code**. El usuario alterna entre los dos cuando a uno se le acaba el uso, así que quien llegue lee esto primero
+y sigue donde se quedó el otro.
+
+> ## ⚠️ Regla obligatoria: actualizar este archivo en CADA cambio
+> Cualquier agente, al terminar cualquier cambio (código, deploy, config, docs, decisión), **antes de cerrar el turno**:
+> 1. Agrega una entrada arriba en **§4 Bitácora compartida**: fecha, agente, qué se hizo, archivos/commits, si se
+>    desplegó y qué quedó a medias.
+> 2. Mueve a hecho (o agrega) lo que corresponda en **§3 Pendientes**.
+> 3. Si cambió algo de §1–§2 (repos, URLs, estado de un frente), actualízalo.
+> 4. Incluye este archivo en el mismo commit del cambio.
+>
+> Los documentos por frente (`PROGRESO_MOBILE.md`, `PROGRESO_WEB.md`, `AUDITORIA_*.md`) siguen teniendo el detalle;
+> aquí va el resumen para no perder el hilo.
+
+**Idioma:** todo en español (UI, commits, docs). Variables y funciones en inglés. Reglas completas: [`CLAUDE.md`](CLAUDE.md)
+(aplica a cualquier agente; los hooks de `.claude/` no corren en Mimo: respeta §3 Intocables a mano y corre los checks).
+
+---
+
+## 1. Mapa: qué hay y dónde vive
+
+| Frente | Dónde | Producción | Cómo se despliega |
+|---|---|---|---|
+| App móvil (Expo) | `mobile/` del monorepo | APK + OTA (`expo-updates`) | OTA para JS; APK nuevo para nativo (ver Anexo A §3) |
+| Backend (17 FastAPI) | `backend/` del monorepo | `https://michicondrias.duckdns.org/<servicio>/api/v1` (VM Oracle) | push a `main` que toque `backend/**` → GitHub Actions `deploy-oracle.yml`. Migraciones: `alembic upgrade head` **a mano antes** |
+| Web app (Next.js 16) | `frontend/` del monorepo | https://michicondrias.vercel.app (Vercel, proyecto `michicondrias`, root `frontend/`) | push a `main` → Vercel. Variable `NEXT_PUBLIC_API_URL=https://michicondrias.duckdns.org` |
+| Rediseño de la web («web espejo») | worktree `../michicondrias-web`, rama `web/espejo` | *preview* de Vercel por rama | se fusiona a `main` solo con fase verificada y visto bueno del usuario. Plan: `PROGRESO_WEB.md` (en esa rama) |
+| Landing pública | repo aparte `../michicondrias-landing` (GitHub `michicondrias-landing-page`) | https://michicondrias-landing-page.vercel.app | push a `main` de ese repo → Vercel. **Fuente:** `frontend/src/features/landing/` + `frontend/public/landing/` del monorepo; se copian allá (sin `AuthRedirect.tsx`) |
+| Docs | proyecto Vercel `michicondrias-docs` | (Vercel) | automático |
+
+- **GitHub:** cuenta `epigibson-michicondrias`. Push: `GH_TOKEN=$(gh auth token --user epigibson-michicondrias) git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin <rama>` (la cuenta activa de `gh` puede ser otra → 403).
+- **Autonomía:** el usuario autoriza desplegar (push a `main`, `alembic` en prod) y borrar código muerto verificado sin pedir permiso por bloque. Sí pregunta antes de rediseños de flujo, borrar pantallas o tocar intocables (Anexo A §6).
+- **Marca:** paleta *Midnight & Gold* (fondo `#0b0e17`, dorado `#e9c883`, azul `#4f8cff`). **Los gatos van primero** en fotos, ejemplos y textos ("gatos y perros"); los paseos son la excepción natural.
+- **Nada inventado en textos públicos:** ni cifras, ni testimonios, ni funciones que la app no tiene. Verificar en el código antes de prometer algo.
+- **Mimo:** `scripts/sync-mimo.sh` le pasa skills de `.claude/skills`, agentes de `.claude/agents` y MCP de `.mcp.json` a `.mimocode/`. Las skills de diseño (UI/UX Pro Max, `motion`) están enlazadas en `~/.agents/skills`.
+- **Local:** `next dev` con Turbopack falla en el monorepo por `postgres_data/` (de otro usuario): usar `next dev --webpack`. En el worktree y en el repo de la landing Turbopack sí funciona.
+
+---
+
+## 2. Estado por frente (al 2026-10-23)
+
+| Frente | Estado |
+|---|---|
+| App móvil | Fases 0–3 ✅ · Fase 4 🟡 (F1–F27 hechos en P1) · Fase 5 🟡 (U1–U2 ✅, U3–U11 pendientes). Detalle: `PROGRESO_MOBILE.md` |
+| Backend | En producción y desplegando bien. Pendiente de seguridad X1 (abajo) |
+| Web app (`main`) | Código viejo (50 páginas bajo `/dashboard`) + landing nueva en `/`. Build en verde desde `3eb2f9e`. Rastreo y donaciones simulados desactivados |
+| Web espejo (`web/espejo`) | W0 ✅ W1 ✅ · **W2 🟡**: espejos de types/services/roles/tokens ✅, `api.ts` espejo ✅, `tokens.css` ✅; faltan contextos y componentes base. **37 de 156** pantallas de la app tienen página web |
+| Landing | Publicada (Next.js). 11 secciones, 28 funciones reales, fotos de Gemini con gatos al frente |
+
+---
+
+## 3. Pendientes (prioridad de arriba hacia abajo)
+
+**Urgentes / seguridad**
+- [x] **Login web** (2026-10-23): el bundle publicado ya usa `https://michicondrias.duckdns.org` (antes el AWS viejo → «NetworkError»).
+- [x] **X1** (2026-10-23) 2FA saltable en 10 servicios: ya rechazan el token temporal (`is_temp`).
+- [ ] **X2–X8** del backend (admin sin pasar guardas, servicios sin moderación, etc.): tabla en `AUDITORIA_WEB.md` (rama `web/espejo`) y `docs/PERMISOS_BACKEND.md`.
+
+**Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
+- [ ] W2 parte 2: contextos (Auth, Theme, Cart) y componentes base con los mismos nombres y props que la app.
+- [ ] W3: rutas iguales a la app (`(auth)`, `(app)`, sin `/dashboard`), shell con barra lateral / inferior, redirects.
+- [ ] W4: portar módulos (119 pantallas faltan) · W4-A consola de admin · W5 pulido y merge a `main` · W7 permisos editables.
+- [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
+- [ ] Llevar `scripts/sync-mimo.sh` al worktree (llega al fusionar `main` en `web/espejo`).
+
+**Landing**
+- [ ] Foto `pro-transporte` (prompt 12 en `docs/landing-fotos-prompts.md`) → `frontend/public/landing/pro-transporte.webp` y conectarla en `ProRail.tsx`.
+- [ ] Enlace de descarga (APK/tienda) → `NEXT_PUBLIC_APP_DOWNLOAD_URL` para mostrar «Descargar la app».
+- [ ] Cada cambio de landing: copiar al repo `michicondrias-landing`, `npx next build`, push.
+
+**App móvil** (detalle con IDs en `PROGRESO_MOBILE.md` → Backlog)
+- [ ] Bloque A (Fase 4 en P1), Bloque B (auditoría P2/P3: A1–A5), Bloque C (U3–U11 y APK único). Ver Anexo A §8.
+
+**Varios**
+- [ ] Mimo: `mimo mcp auth supabase` y `mimo mcp auth expo` (OAuth, una vez).
+- [ ] `npm audit` en `frontend/`: 6 vulnerabilidades (1 crítica) de dependencias viejas.
+
+---
+
+## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Claude** — Seguridad X1: aseguradoras, cuidadores, paseadores, entrenadores, establecimientos,
+  estilistas, funeraria, laboratorio, patrocinadores y transportistas aceptaban el token temporal de 2FA (que ya lleva
+  `role`), así que se podía saltar el 2FA. `_decode_token` ahora lo rechaza (403 «Se requiere completar la verificación
+  2FA», igual que mascotas/core) y `get_optional_user_id` lo trata como sin sesión. Probado con JWT reales en los 10.
+  Sin migraciones. Desplegado con `deploy-oracle.yml`.
+- **2026-10-23 · Claude** — Verificado: tras el redeploy de `c37f2d4`, la web publicada llama a
+  `https://michicondrias.duckdns.org`; el login ya no da «NetworkError».
+- **2026-10-23 · Claude** — Este archivo pasa a ser el contexto vivo para Mimo y Claude (regla: actualizarlo en cada
+  cambio). La web en Vercel tenía `NEXT_PUBLIC_API_URL` apuntando al AWS viejo; el usuario la cambió a
+  `https://michicondrias.duckdns.org` y este commit dispara el redeploy.
+- **2026-10-23 · Claude** — Mimo con las herramientas del proyecto: `scripts/sync-mimo.sh` (skills, agentes, MCP),
+  skills de diseño enlazadas en `~/.agents/skills`, nota en `CLAUDE.md` §7 (`bfe988e`).
+- **2026-10-23 · Claude** — Web espejo W2 parte 1 en `web/espejo` (`bd1831f`, sin producción): `main` fusionado en la
+  rama; código viejo a `src/lib/legacy/`; copias espejo de la app (web-drift: 52 iguales); `src/lib/api.ts` espejo;
+  `scripts/web-tokens.py` → `src/app/tokens.css` (Midnight & Gold claro/oscuro). Auditoría: 37/156 pantallas.
+- **2026-10-23 · Claude** — Producción web (`3eb2f9e`): build de Vercel en verde (fallaba por `Sidebar.tsx:141` y
+  `useSearchParams` sin `Suspense`); rastreo de perdidas (escribía coordenadas aleatorias) y donaciones (sin cobro)
+  ahora dicen «Disponible en la app».
+- **2026-10-23 · Claude** — Landing publicada en `michicondrias-landing-page.vercel.app`: el repo de Astro pasó a
+  Next.js con la landing nueva (`b0826e7`, `a2d587a`); botones a la web app. Monorepo: enlaces centralizados en
+  `links.ts` (`05a0406`).
+- **2026-10-22/23 · Claude** — Landing nueva (`2a94044`, `3bf2a8b`, `3a71ebf`, `8cbd1f2`): Midnight & Gold, Hanken
+  Grotesk, `motion` + `lenis`. Hero con foto y carnet animado; etapas con foto; rueda de funciones (port de works-wheel
+  de 21st.dev); catálogo de 28 funciones reales; Michi-IA (chat con el formato real); así funciona adoptar; un día con
+  tu mascota; promesas; profesionales (12 oficios con foto); app; FAQ; footer con revelado. Fotos generadas con
+  Gemini por el usuario (prompts en `docs/landing-fotos-prompts.md`). Se corrigió que las alertas de perdidas no van a
+  «vecinos»: el backend avisa al dueño por avistamientos y busca reportes a 10 km.
+- **2026-10-22 · Claude** — Push de 16 commits pendientes de la app/backend (clínicas, servicios, establecimientos,
+  estética); `deploy-oracle.yml` en verde, sin migraciones nuevas.
+- **2026-10-08 · Claude** — App móvil: Fases 0–3 y F1–F27, U1–U2 (ver Anexo A). Web: W0 cimientos y W1 auditoría.
+
+---
+
+# Anexo A — App móvil: guía detallada (escrita el 2026-10-08)
 
 Hola, MIMO 👋. Este documento te pasa el proyecto tal como quedó el **2026-10-08**. Está pensado para que trabajes solo,
 sin repetir trabajo ni errores ya resueltos. Léelo completo una vez; después úsalo como checklist.
@@ -15,7 +132,7 @@ sin repetir trabajo ni errores ya resueltos. Léelo completo una vez; después �
    decisiones y bitácora.
 3. [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md): hallazgos detallados por módulo (archivo:línea), con `[x]` en lo resuelto.
 
-> Se ignoran `archivo/`, `.agents/` y `.mimocode/` (son historial de herramientas anteriores).
+> Se ignoran `archivo/` y `.agents/` (historial). `.mimocode/` es la configuración de Mimo: la genera `scripts/sync-mimo.sh`.
 
 ---
 

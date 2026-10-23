@@ -16,6 +16,12 @@ def _decode_token(token: str) -> dict:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Could not validate credentials",
             )
+        # Token temporal (2FA pendiente o reseteo de contraseña): no da acceso
+        if payload.get("is_temp", False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Se requiere completar la verificación 2FA",
+            )
         return payload
     except JWTError:
         raise HTTPException(

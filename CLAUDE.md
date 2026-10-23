@@ -3,7 +3,10 @@
 Guía de trabajo para Claude en este repo. El objetivo actual es **llevar la app móvil a nivel premium**: 100% funcional,
 fácil de usar, visualmente consistente, sin botones ni flujos redundantes, con los servicios ajustados donde haga falta.
 
-> **Antes de cualquier tarea, lee [`PROGRESO_MOBILE.md`](PROGRESO_MOBILE.md).** Ahí está la fase actual, el estado
+> **Antes de cualquier tarea, lee [`HANDOFF.md`](HANDOFF.md) §1–§4** (contexto vivo compartido con Mimo: frentes,
+> pendientes y bitácora) y **actualízalo en cada cambio** antes de cerrar el turno (entrada en la bitácora + pendientes).
+>
+> **Después lee [`PROGRESO_MOBILE.md`](PROGRESO_MOBILE.md).** Ahí está la fase actual, el estado
 > de cada módulo y las decisiones ya tomadas. Los hallazgos detallados están en
 > [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md). **Al terminar, actualiza ambos** (ver §6).
 
@@ -159,6 +162,8 @@ vive en `PROGRESO_MOBILE.md`.
 
 ## 6. Cierre de sesión (siempre)
 
+- `HANDOFF.md`: entrada en §4 Bitácora compartida (fecha, agente, qué, commits, si se desplegó) y §3 Pendientes al día.
+  **En cada cambio, no solo al cerrar la sesión**: es lo que lee Mimo para seguir el trabajo.
 - `PROGRESO_MOBILE.md`: estado de la fase/módulo, entrada en la **Bitácora** (fecha, qué se hizo, archivos clave),
   decisiones nuevas en **Decisiones**, pendientes en **Backlog**.
 - `AUDITORIA_MOBILE.md`: marcar hallazgos resueltos (`[x]`) y agregar los nuevos.
@@ -178,6 +183,9 @@ vive en `PROGRESO_MOBILE.md`.
   - `supabase`: esquema, tablas y tipos. **Configurado en solo lectura y es la base de producción**: solo consultas
     de lectura, nunca datos personales en las respuestas más allá de lo necesario.
   - `expo`: docs y herramientas de Expo/EAS (requiere sesión de Expo).
+- **Mimo** (agente de Xiaomi, `mimo`): hereda este `CLAUDE.md`. `scripts/sync-mimo.sh` le pasa las skills de
+  `.claude/skills`, los agentes de `.claude/agents` y los MCP de `.mcp.json` (a `.mimocode/`); córrelo cuando cambien.
+  Los hooks de `.claude/` **no** corren en Mimo: ahí hay que respetar a mano §3 (intocables) y correr `npm run check`.
 
 ---
 
