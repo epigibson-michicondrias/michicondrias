@@ -175,6 +175,9 @@ vive en `PROGRESO_MOBILE.md`.
   - `supabase`: esquema, tablas y tipos. **Configurado en solo lectura y es la base de producción**: solo consultas
     de lectura, nunca datos personales en las respuestas más allá de lo necesario.
   - `expo`: docs y herramientas de Expo/EAS (requiere sesión de Expo).
+- **Mimo** (agente de Xiaomi, `mimo`): hereda este `CLAUDE.md`. `scripts/sync-mimo.sh` le pasa las skills de
+  `.claude/skills`, los agentes de `.claude/agents` y los MCP de `.mcp.json` (a `.mimocode/`); córrelo cuando cambien.
+  Los hooks de `.claude/` **no** corren en Mimo: ahí hay que respetar a mano §3 (intocables) y correr `npm run check`.
 
 ---
 
