@@ -47,7 +47,7 @@ y sigue donde se quedó el otro.
 | App móvil | Fases 0–3 ✅ · Fase 4 🟡 (F1–F27 hechos en P1) · Fase 5 🟡 (U1–U2 ✅, U3–U11 pendientes). Detalle: `PROGRESO_MOBILE.md` |
 | Backend | En producción y desplegando bien. Pendiente de seguridad X1 (abajo) |
 | Web app (`main`) | Código viejo (50 páginas bajo `/dashboard`) + landing nueva en `/`. Build en verde desde `3eb2f9e`. Rastreo y donaciones simulados desactivados |
-| Web espejo (`web/espejo`) | W0 ✅ W1 ✅ · **W2 🟡**: espejos, `api.ts`, `tokens.css`, contextos Theme/Auth y kit base de 20 componentes ✅ (vitrina en `/kit`); faltan `CartContext` y el resto del kit. **37 de 156** pantallas de la app tienen página web |
+| Web espejo (`web/espejo`) | W0 ✅ W1 ✅ W2 ✅ **W3 ✅**: rutas iguales a la app (`(auth)`/`(app)`, sin `/dashboard`), shell sidebar/barra inferior, AuthShell + login 2FA, redirects. Build 52 páginas en verde. **37 de 156** pantallas de la app tienen página (contenido legacy a portar en W4) |
 | Landing | Publicada (Next.js). 11 secciones, 28 funciones reales, fotos de Gemini con gatos al frente |
 
 ---
@@ -65,9 +65,10 @@ y sigue donde se quedó el otro.
   production --platform android --message "fix: login muestra errores y pide el código 2FA"`.
 
 **Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
-- [x] W2 parte 2 (`f72e123`): contextos Theme y Auth + 20 componentes base con las props de la app.
-- [ ] W2 cierre: `CartContext`, `AuthShell` y el resto del kit (lista en `PROGRESO_WEB.md`), o al portar cada módulo.
-- [ ] W3: rutas iguales a la app (`(auth)`, `(app)`, sin `/dashboard`), shell con barra lateral / inferior, redirects.
+- [x] W2 (`bd1831f`, `f72e123`): espejos, `api.ts`, `tokens.css`, contextos Theme/Auth/Cart y kit base.
+- [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
+  `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
+  redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
 - [ ] W4: portar módulos (119 pantallas faltan) · W4-A consola de admin · W5 pulido y merge a `main` · W7 permisos editables.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
@@ -87,6 +88,14 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — Web espejo W3 en `web/espejo` (sin producción, **sin commit todavía**): grupos `(auth)` y
+  `(app)` con rutas iguales a la app (Inicio en `/inicio` porque `/` es la landing; deep links `/mascotas/[id]`,
+  `/tienda/pago-exitoso`, `/reset-password` intactos); `AppShell` (sidebar con `ROLE_TOOLS` ≥768 px, barra inferior de
+  pestañas + drawer en móvil); `AuthShell` + hooks espejo `useLogin`/`useRegister`/`usePasswordReset` (login 2FA,
+  registro con login automático, reset con código y `?token=`); `CartContext` espejo; redirects `/dashboard/*`. 47
+  páginas movidas de `dashboard/` a `(app)/` con links reescritos; tabs nuevos `explorar`, `menu`, `notificaciones`,
+  `busqueda`, `ayuda`. `typecheck` + `eslint` limpios en archivos nuevos; `npm run build` verde (52 páginas);
+  `web-drift.sh` 52 iguales / 0 difieren. Siguiente: W4 (portar módulos P1 sobre este esqueleto).
 - **2026-10-23 · Claude** — App: regresión del login (`a994753`, U3) — sin mensaje con contraseña incorrecta y las
   cuentas con 2FA no podían entrar (no pasaba al paso del código). Se restauran `onSuccess` (temp_token → paso 2FA) y
   `onError` en `login.tsx`. Commit en `main`; **falta publicar la OTA** (ver §3, no pude leer `.env`). Aviso: Mimo tiene
