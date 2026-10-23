@@ -14,7 +14,6 @@ import {
   HeartPulse,
   LayoutGrid,
   PawPrint,
-  Pencil,
   Plus,
   Share2,
   Syringe,
@@ -30,6 +29,7 @@ import { showAlert } from "@/components/AppAlert";
 import { usePetDetail, type PetTab } from "@/hooks/mascotas/usePetDetail";
 import { usePetHealth } from "@/hooks/carnet/usePetHealth";
 import { copyText } from "@/utils/helpers";
+import { RecordItem, VaccineItem } from "@/features/carnet/CarnetItems";
 import s from "../mascotas.module.css";
 
 function formatAge(months: number | null): string {
@@ -116,9 +116,6 @@ function PetDetailContent() {
             <button type="button" className={s.iconAction} onClick={openShare} aria-label="Compartir carnet">
               <Share2 size={20} />
             </button>
-            <Link href={`/mascotas/${pet.id}`} className={s.iconAction} aria-label="Editar mascota" title="Editar (pronto)">
-              <Pencil size={20} />
-            </Link>
           </div>
         )}
       </div>
@@ -190,7 +187,7 @@ function PetDetailContent() {
           <SectionHeader
             title="Vacunas"
             actionLabel={health.canEdit ? "Agregar" : undefined}
-            onAction={health.canEdit ? () => router.push(`/carnet/nuevo?vacuna=1&pet_id=${pet.id}`) : undefined}
+            onAction={health.canEdit ? () => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}`) : undefined}
           />
           {health.isLoadingVaccines ? (
             <Skeleton height={64} borderRadius={12} />
@@ -199,16 +196,12 @@ function PetDetailContent() {
           ) : (
             <div className={s.itemList}>
               {health.vaccines.map((v) => (
-                <div key={v.id} className={s.item}>
-                  <Syringe size={18} aria-hidden />
-                  <div>
-                    <p className={s.itemTitle}>{v.name}</p>
-                    <p className={s.itemMeta}>
-                      {v.date_administered?.slice(0, 10)}
-                      {v.next_due_date ? ` · refuerzo ${v.next_due_date.slice(0, 10)}` : ""}
-                    </p>
-                  </div>
-                </div>
+                <VaccineItem
+                  key={v.id}
+                  vaccine={v}
+                  onEdit={health.canEdit ? () => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}&id=${v.id}`) : undefined}
+                  onDelete={health.canEdit ? () => health.deleteVaccine(v.id) : undefined}
+                />
               ))}
             </div>
           )}
@@ -227,7 +220,7 @@ function PetDetailContent() {
           <SectionHeader
             title="Consultas"
             actionLabel={health.canEdit ? "Registrar" : undefined}
-            onAction={health.canEdit ? () => router.push(`/carnet/nuevo?pet_id=${pet.id}`) : undefined}
+            onAction={health.canEdit ? () => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}`) : undefined}
           />
           {health.isLoadingRecords ? (
             <Skeleton height={64} borderRadius={12} />
@@ -237,18 +230,18 @@ function PetDetailContent() {
               title="Sin consultas"
               subtitle="Las visitas al veterinario, con diagnóstico y receta, aparecerán aquí."
               actionLabel={health.canEdit ? "Registrar consulta" : undefined}
-              onAction={health.canEdit ? () => router.push(`/carnet/nuevo?pet_id=${pet.id}`) : undefined}
+              onAction={health.canEdit ? () => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}`) : undefined}
             />
           ) : (
             <div className={s.itemList}>
               {health.records.map((r) => (
-                <div key={r.id} className={s.item}>
-                  <ClipboardList size={18} aria-hidden />
-                  <div>
-                    <p className={s.itemTitle}>{r.diagnosis || "Consulta"}</p>
-                    <p className={s.itemMeta}>{r.date?.slice(0, 10)}</p>
-                  </div>
-                </div>
+                <RecordItem
+                  key={r.id}
+                  record={r}
+                  petId={pet.id}
+                  onEdit={health.canEdit ? () => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}&id=${r.id}`) : undefined}
+                  onDelete={health.canEdit ? () => health.deleteRecord(r.id) : undefined}
+                />
               ))}
             </div>
           )}

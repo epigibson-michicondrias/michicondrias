@@ -104,6 +104,16 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-23 — W4 módulos Carnet y Perfil.**
+  - **Carnet:** `useVaccineForm`, `useConsultationForm`, `usePrescriptionDetail`. `/carnet` (lista de carnets),
+    `/carnet/[pet_id]` → redirect a `mascotas/[id]?tab=salud`, `/carnet/nueva-vacuna`, `/carnet/nueva-consulta`
+    (con receta), `/carnet/receta/[id]` (ticket). `features/carnet/CarnetItems` (`VaccineItem`, `RecordItem`)
+    conectados en la ficha de mascota con editar/eliminar.
+  - **Perfil:** `useProfile`, `useAccount`, `use2FA` + `constants/support`. `/perfil` (cuenta, actividad,
+    apariencia, legal), `/perfil/editar`, `/perfil/seguridad-2fa` (clave + enlace otpauth, sin lib de QR),
+    `/perfil/eliminar-cuenta` (confirmación + 2FA si está activo). Quedan legacy `partner` y `verificacion`
+    (W4 los rehace con `useKYC`/`usePartnerUpgrade`).
+  - Verificado: `typecheck` y `eslint` limpios en archivos nuevos; `npm run build` verde.
 - **2026-10-23 — W4 módulo Mascotas.**
   - `usePets`, `usePetDetail`, `usePetForm` y `usePetHealth` espejo (con `next/navigation`). Utils espejo
     `helpers`, `upload`, `payments`. `FormImagePicker` nuevo en el kit.

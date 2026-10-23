@@ -1,0 +1,161 @@
+/* Piezas del carnet (VaccineItem, RecordItem). */
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.iconBox {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.iconOk {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.iconBad {
+  background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-xxs);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-lg);
+  font-weight: 600;
+}
+
+.meta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xxs);
+}
+
+.tag {
+  display: inline-flex;
+  padding: 2px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  font-weight: 700;
+}
+
+.tagOk {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.tagBad {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.expandBtn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+}
+
+.details {
+  grid-column: 1 / -1;
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px dashed var(--color-border);
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.detailLine {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-base);
+  line-height: 1.5;
+}
+
+.recetaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--font-base);
+  text-decoration: none;
+  min-height: 44px;
+}
+
+.recetaLink:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.actionBtn:hover {
+  background: var(--color-overlay-hover);
+  color: var(--color-text);
+}
+
+.actionDanger:hover {
+  background: var(--color-error-light);
+  color: var(--color-error);
+}

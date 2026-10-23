@@ -83,6 +83,15 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — W4 Carnet + Perfil en `web/espejo`:
+  - **Carnet:** hooks `useVaccineForm`/`useConsultationForm`/`usePrescriptionDetail`, `CarnetItems`, páginas
+    `/carnet`, `/carnet/nueva-vacuna`, `/carnet/nueva-consulta`, `/carnet/receta/[id]` y redirect `/carnet/[pet_id]`.
+  - **Perfil:** hooks `useProfile`/`useAccount`/`use2FA`, páginas `/perfil`, `/perfil/editar`,
+    `/perfil/seguridad-2fa`, `/perfil/eliminar-cuenta`. Legacy sin portar: `partner`, `verificacion` (usan
+    `useKYC`/`usePartnerUpgrade` que aún no están en el espejo).
+  - Build verde. **Siguiente para Claude:** rehacer `perfil/partner` y `perfil/verificacion`; luego Tienda cliente,
+    Inicio/Explorar reales, Notificaciones/Búsqueda/Ayuda y Admin (W4-A).
+
 - **2026-10-23 · Mimo** — W4 módulo Mascotas en `web/espejo`: hooks espejo `usePets`/`usePetDetail`/`usePetForm`/
   `usePetHealth`, `FormImagePicker`, utils `helpers`/`upload`/`payments`. Páginas `/mascotas` (3 vistas),
   `/mascotas/[id]` (Resumen·Salud·Historial) y `/mascotas/nuevo`. Build verde. Falta editar, IA y carnet fino.
