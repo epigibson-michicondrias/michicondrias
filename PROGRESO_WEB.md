@@ -54,14 +54,14 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 | P2 | Directorio y citas | `directorio/` 6 | 6 | 🔍 | ⬜ | ⬜ |
 | P2 | Adopciones | 12 | 7 | 🔍 | ⬜ | ⬜ |
 | P2 | Perdidas | 4 | 3 | 🔍 | ⬜ | ⬜ |
-| P2 | Paseadores / Cuidadores | 4+4 | 4+4 | 🔍 | ⬜ | ⬜ |
-| P2 | Pet-friendly / Establecimientos | 3+4 | 3 / — | 🔍 | ⬜ | ⬜ |
-| P2 | Grooming / Estilistas | 4+2 | — | 🔍 | ⬜ | ⬜ |
-| P2 | Entrenadores | 7 | — | 🔍 | ⬜ | ⬜ |
-| P2 | Transportistas | 8 | — | 🔍 | ⬜ | ⬜ |
-| P2 | Aseguradoras | 8 | — | 🔍 | ⬜ | ⬜ |
-| P2 | Laboratorio | 3 | — | 🔍 | ⬜ | ⬜ |
-| P2 | Funeraria | 10 | — | 🔍 | ⬜ | ⬜ |
+| P2 | Paseadores / Cuidadores | 4+4 | 4+4 | 🔍 | ✅ | ⬜ |
+| P2 | Pet-friendly / Establecimientos | 3+4 | 3 / — | 🔍 | ✅ | ⬜ |
+| P2 | Grooming / Estilistas | 4+2 | — | 🔍 | ✅ | ⬜ |
+| P2 | Entrenadores | 7 | — | 🔍 | ✅ | ⬜ |
+| P2 | Transportistas | 8 | — | 🔍 | ✅ | ⬜ |
+| P2 | Aseguradoras | 8 | — | 🔍 | ✅ | ⬜ |
+| P2 | Laboratorio | 3 | — | 🔍 | ✅ | ⬜ |
+| P2 | Funeraria | 10 | — | 🔍 | ✅ | ⬜ |
 | P2 | Donaciones | 1 | 1 | 🔍 | ⬜ | ⬜ |
 | P3 | Mi clínica | 14 | `directorio/mi-clinica` (con datos *mock*) | 🔍 | ⬜ | ⬜ |
 | P3 | Servicios pro | 3 | `paseadores/registro`, `cuidadores/registro` | 🔍 | ⬜ | ⬜ |
@@ -113,7 +113,9 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
     `walker_id` en `paseadores/solicitudes` y lo cerró.
   - Verificado: `tsc` limpio, `next build` verde, ESLint limpio en lo nuevo (los 27 errores restantes son legacy:
     `admin/*`, `cuidadores/registro`, `cuidadores/solicitudes`).
-  - **Siguiente:** portar `cuidadores/registro` y `cuidadores/solicitudes`, luego P3 y W4-A.
+  - Claude portó `cuidadores/registro` (campos según tipo de servicio), `cuidadores/solicitudes` y
+    `cuidadores/calendario` con los hooks de Mimo. P2 completo.
+  - **Siguiente:** P3 (mi-clínica, servicios-pro, tienda vendedor, patrocinadores) y W4-A.
 
 - **2026-10-23 — W4 port multiagente: Adopciones, Directorio, Perdidas, Notificaciones, Búsqueda, Ayuda.**
   - Varios agentes en paralelo por módulo (solo en sus carpetas). Quedaron hooks y features por módulo
