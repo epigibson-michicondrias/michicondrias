@@ -1,0 +1,165 @@
+/* Estilos del módulo Entrenadores — solo variables CSS del design system. */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+  padding: var(--space-xl) 0;
+}
+
+.heroIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  color: var(--color-accent);
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: var(--font-xxl);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.heroSub {
+  margin: 0;
+  font-size: var(--font-md);
+  color: var(--color-text-muted);
+}
+
+.statsRow {
+  display: flex;
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  overflow: hidden;
+  margin-bottom: var(--space-lg);
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+}
+
+.statDivider {
+  width: 1px;
+  background: var(--color-border);
+}
+
+.statValue {
+  margin: 0;
+  font-size: var(--font-xl);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.statLabel {
+  margin: 0;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-md);
+}
+
+.detailLabel {
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
+.detailValue {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.progressWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.progressHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.progressBg {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-overlay-hover, rgba(128, 128, 128, 0.2));
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--color-primary);
+  transition: width 0.2s ease;
+}
+
+.goalCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.goalTop {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.goalTitle {
+  margin: 0;
+  font-size: var(--font-md);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.goalNotes {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.goalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+}
+
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.videoLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-sm);
+  color: var(--color-primary);
+  font-weight: 600;
+}

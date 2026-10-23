@@ -1,256 +1,220 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createPlace } from "@/lib/legacy/services/perdidas";
-import { getMascotasPresignedUrl } from "@/lib/legacy/services/mascotas";
-import { toast } from "react-hot-toast";
-import dashStyles from "../../dashboard.module.css";
-import styles from "../../modules.module.css";
+/**
+ * Registrar lugar pet-friendly (`/petfriendly/nuevo`).
+ * Espejo de `mobile/app/petfriendly/nuevo.tsx`.
+ */
+import { useRef } from "react";
+import { Camera, Check, Coffee, Droplets, ShoppingBag, TreePine, Utensils, UtensilsCrossed } from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Button from "@/components/Button";
+import FormField from "@/components/FormField";
+import FormSection from "@/components/forms/FormSection";
+import { usePlaceForm } from "@/hooks/petfriendly/usePlaceForm";
+import local from "../petfriendly.module.css";
 
 const CATEGORIES = [
-    "Restaurante", "Cafetería", "Parque", "Hotel",
-    "Centro Comercial", "Playa", "Veterinaria", "Tienda"
+  { id: "Restaurante", icon: Utensils },
+  { id: "Cafetería", icon: Coffee },
+  { id: "Parque", icon: TreePine },
+  { id: "Tienda", icon: ShoppingBag },
 ];
 
-const PET_SIZES = [
-    { id: "pequeños", label: "Pequeños" },
-    { id: "medianos", label: "Medianos" },
-    { id: "grandes", label: "Grandes" },
-    { id: "todos", label: "Todos" }
-];
+const SIZES = ["Pequeño", "Mediano", "Grande", "Todos"];
 
 export default function NuevoLugarPage() {
-    const router = useRouter();
-    const [loading, setLoading] = useState(false);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { form, image, loading, location, locating, updateField, setImageFile, locate, handleSave } =
+    usePlaceForm();
+  const fileRef = useRef<HTMLInputElement>(null);
 
-    const [formData, setFormData] = useState({
-        name: "",
-        category: "Restaurante",
-        description: "",
-        address: "",
-        city: "",
-        phone: "",
-        website: "",
-        pet_sizes_allowed: "todos",
-        has_water_bowls: "no",
-        has_pet_menu: "no",
-        rating: 5,
-    });
+  return (
+    <ScreenContainer>
+      <ScreenHeader title="Registrar lugar" subtitle="Pet friendly" />
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) {
-            const file = e.target.files[0];
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-
-        try {
-            let photoUrl = "";
-
-            if (imageFile) {
-                const ext = imageFile.name.split(".").pop() || "jpg";
-                const { url, object_key } = await getMascotasPresignedUrl(ext);
-
-                await fetch(url, {
-                    method: "PUT",
-                    body: imageFile,
-                    headers: { "Content-Type": imageFile.type }
-                });
-
-                photoUrl = object_key;
-            }
-
-            await createPlace({
-                ...formData,
-                image_url: photoUrl || undefined,
-            });
-
-            toast.success("¡Lugar registrado exitosamente!");
-            router.push("/petfriendly");
-        } catch (error: any) {
-            toast.error(error.message || "Error al registrar el lugar");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className={dashStyles.container}>
-            <div className={dashStyles["page-header"]}>
-                <div>
-                    <h1 className={dashStyles["page-title"]}>🆕 Agregar Nuevo Lugar</h1>
-                    <p className={dashStyles["page-subtitle"]}>Ayuda a la comunidad a descubrir espacios aptos para mascotas</p>
-                </div>
-            </div>
-
-            <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-                <form onSubmit={handleSubmit} className={styles["registro-form"]}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2.5rem" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                            <h3 style={{ borderLeft: "4px solid var(--secondary)", paddingLeft: "1rem", marginBottom: "0.5rem" }}>Datos Generales</h3>
-
-                            <div className={styles["form-group"]}>
-                                <label>Nombre del Lugar</label>
-                                <input
-                                    required
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    placeholder="Ej. El Michi Café"
-                                />
-                            </div>
-
-                            <div className={styles["form-group"]}>
-                                <label>Categoría</label>
-                                <select
-                                    value={formData.category}
-                                    onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                >
-                                    {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                </select>
-                            </div>
-
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                                <div className={styles["form-group"]}>
-                                    <label>Teléfono (Opcional)</label>
-                                    <input
-                                        value={formData.phone}
-                                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                        placeholder="55 1234 5678"
-                                    />
-                                </div>
-                                <div className={styles["form-group"]}>
-                                    <label>Website (Opcional)</label>
-                                    <input
-                                        value={formData.website}
-                                        onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                        placeholder="https://..."
-                                    />
-                                </div>
-                            </div>
-
-                            <div className={styles["form-group"]}>
-                                <label>Ciudad</label>
-                                <input
-                                    required
-                                    value={formData.city}
-                                    onChange={e => setFormData({ ...formData, city: e.target.value })}
-                                    placeholder="Ej. Querétaro"
-                                />
-                            </div>
-
-                            <div className={styles["form-group"]}>
-                                <label>Dirección Completa</label>
-                                <textarea
-                                    required
-                                    value={formData.address}
-                                    onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                    placeholder="Calle, número, colonia..."
-                                    rows={2}
-                                />
-                            </div>
-                        </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                            <h3 style={{ borderLeft: "4px solid var(--secondary)", paddingLeft: "1rem", marginBottom: "0.5rem" }}>Detalles Petfriendly</h3>
-
-                            <div className={styles["form-group"]}>
-                                <label>Tamaños Permitidos</label>
-                                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
-                                    {PET_SIZES.map(size => (
-                                        <button
-                                            key={size.id}
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, pet_sizes_allowed: size.id })}
-                                            style={{
-                                                padding: "0.5rem 1rem", borderRadius: "10px", border: "none",
-                                                background: formData.pet_sizes_allowed === size.id ? "var(--secondary)" : "rgba(255,255,255,0.05)",
-                                                color: "#fff", cursor: "pointer", transition: "all 0.2s"
-                                            }}
-                                        >
-                                            {size.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                                <div className={styles["form-group"]}>
-                                    <label>¿Tienen bebederos?</label>
-                                    <select
-                                        value={formData.has_water_bowls}
-                                        onChange={e => setFormData({ ...formData, has_water_bowls: e.target.value })}
-                                    >
-                                        <option value="no">No</option>
-                                        <option value="si">Sí</option>
-                                        <option value="bajo pedido">Bajo pedido</option>
-                                    </select>
-                                </div>
-                                <div className={styles["form-group"]}>
-                                    <label>¿Tienen menú pet?</label>
-                                    <select
-                                        value={formData.has_pet_menu}
-                                        onChange={e => setFormData({ ...formData, has_pet_menu: e.target.value })}
-                                    >
-                                        <option value="no">No</option>
-                                        <option value="si">Sí</option>
-                                        <option value="premios">Solo premios</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className={styles["form-group"]}>
-                                <label>Foto del Lugar</label>
-                                <div
-                                    onClick={() => document.getElementById("photo-upload")?.click()}
-                                    style={{
-                                        height: "140px", background: "rgba(255,255,255,0.03)",
-                                        borderRadius: "20px", border: "2px dashed rgba(255,255,255,0.1)",
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                        overflow: "hidden", cursor: "pointer"
-                                    }}
-                                >
-                                    {imagePreview ? (
-                                        <img src={imagePreview} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                    ) : (
-                                        <div style={{ textAlign: "center", opacity: 0.5 }}>
-                                            <p style={{ fontSize: "1.5rem", margin: 0 }}>📸</p>
-                                            <p style={{ fontSize: "0.8rem" }}>Click para subir foto</p>
-                                        </div>
-                                    )}
-                                </div>
-                                <input id="photo-upload" type="file" hidden accept="image/*" onChange={handleFileChange} />
-                            </div>
-
-                            <div className={styles["form-group"]}>
-                                <label>Descripción / Tips de la comunidad</label>
-                                <textarea
-                                    value={formData.description}
-                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    placeholder="Cuéntanos por qué es un buen lugar (ej. tienen terraza techada, son muy amables...)"
-                                    rows={3}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ marginTop: "2.5rem", display: "flex", gap: "1rem" }}>
-                        <button type="button" onClick={() => router.back()} className="btn btn-secondary" style={{ flex: 1 }}>
-                            Cancelar
-                        </button>
-                        <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 2 }}>
-                            {loading ? "Registrando..." : "Publicar Lugar 🚀"}
-                        </button>
-                    </div>
-                </form>
-            </div>
+      <form
+        className={local.form}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSave();
+        }}
+      >
+        <div className={local.imageSelector}>
+          <button
+            type="button"
+            className={local.imageBox}
+            onClick={() => fileRef.current?.click()}
+            aria-label="Elegir foto de portada"
+          >
+            {image ? (
+              // eslint-disable-next-line @next/next/no-img-element -- previsualización de blob local
+              <img src={image.preview} alt="Portada del lugar" />
+            ) : (
+              <>
+                <Camera size={32} aria-hidden />
+                Subir Foto de Portada
+              </>
+            )}
+          </button>
+          <input
+            ref={fileRef}
+            className={local.imageInput}
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+          />
         </div>
-    );
+
+        <FormSection title="Datos del lugar">
+          <FormField
+            label="Nombre del Establecimiento"
+            value={form.name}
+            onChangeText={(v) => updateField("name", v)}
+            placeholder="Ej. El Michi Café"
+          />
+
+          <p className={local.label}>Categoría</p>
+          <div className={local.catRow} role="radiogroup" aria-label="Categoría">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const active = form.category === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  className={`${local.catBtn} ${active ? local.catBtnOn : ""}`}
+                  onClick={() => updateField("category", cat.id)}
+                >
+                  <Icon size={18} aria-hidden />
+                  {cat.id}
+                </button>
+              );
+            })}
+          </div>
+        </FormSection>
+
+        <FormSection title="Ubicación">
+          <p className={local.noteText}>
+            Se usa tu posición actual: regístralo estando en el lugar.
+          </p>
+          <div className={local.locationBox}>
+            <p className={local.locationText}>
+              {location
+                ? `Ubicación capturada: ${location.latitude.toFixed(5)}, ${location.longitude.toFixed(5)}`
+                : "Aún no se ha capturado tu ubicación."}
+            </p>
+            <button type="button" className={local.linkBtn} onClick={locate} disabled={locating}>
+              {locating
+                ? "Obteniendo ubicación..."
+                : location
+                  ? "Actualizar mi ubicación"
+                  : "Usar mi ubicación actual"}
+            </button>
+          </div>
+
+          <FormField
+            label="Ciudad"
+            value={form.city}
+            onChangeText={(v) => updateField("city", v)}
+            placeholder="Ej. Ciudad de México"
+          />
+          <div className={local.row}>
+            <FormField
+              label="Teléfono (Opcional)"
+              value={form.phone}
+              onChangeText={(v) => updateField("phone", v)}
+              placeholder="10 dígitos"
+              keyboardType="phone-pad"
+              autoComplete="tel"
+            />
+            <FormField
+              label="Sitio web (Opcional)"
+              value={form.website}
+              onChangeText={(v) => updateField("website", v)}
+              placeholder="https://..."
+              keyboardType="url"
+              autoCapitalize="none"
+            />
+          </div>
+          <FormField
+            label="Dirección (Opcional)"
+            value={form.address}
+            onChangeText={(v) => updateField("address", v)}
+            placeholder="Ej. Calle 123, Col. Centro"
+            autoComplete="street-address"
+          />
+        </FormSection>
+
+        <FormSection title="Servicios Petfriendly">
+          <div className={local.amenitiesGrid}>
+            <button
+              type="button"
+              className={`${local.amenityBtn} ${form.has_water_bowls === "Sí" ? local.amenityBtnOn : ""}`}
+              aria-pressed={form.has_water_bowls === "Sí"}
+              onClick={() => updateField("has_water_bowls", form.has_water_bowls === "Sí" ? "No" : "Sí")}
+            >
+              <Droplets size={20} aria-hidden />
+              Platos con agua
+              {form.has_water_bowls === "Sí" && (
+                <span className={local.checkBadge} aria-hidden>
+                  <Check size={10} />
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              className={`${local.amenityBtn} ${form.has_pet_menu === "Sí" ? local.amenityBtnOn : ""}`}
+              aria-pressed={form.has_pet_menu === "Sí"}
+              onClick={() => updateField("has_pet_menu", form.has_pet_menu === "Sí" ? "No" : "Sí")}
+            >
+              <UtensilsCrossed size={20} aria-hidden />
+              Menú para mascotas
+              {form.has_pet_menu === "Sí" && (
+                <span className={local.checkBadge} aria-hidden>
+                  <Check size={10} />
+                </span>
+              )}
+            </button>
+          </div>
+        </FormSection>
+
+        <FormSection title="Detalles">
+          <p className={local.label}>Tamaños Permitidos</p>
+          <div className={local.sizeRow} role="radiogroup" aria-label="Tamaños permitidos">
+            {SIZES.map((size) => (
+              <button
+                key={size}
+                type="button"
+                role="radio"
+                aria-checked={form.pet_sizes_allowed === size}
+                className={`${local.sizeBtn} ${form.pet_sizes_allowed === size ? local.sizeBtnOn : ""}`}
+                onClick={() => updateField("pet_sizes_allowed", size)}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+
+          <FormField
+            label="Descripción y Tips"
+            value={form.description}
+            onChangeText={(v) => updateField("description", v)}
+            placeholder="Cosas que otros dueños deberían saber..."
+            multiline
+            numberOfLines={4}
+          />
+        </FormSection>
+
+        <Button
+          label={loading ? "Registrando..." : "Publicar Lugar"}
+          icon={<Check size={18} />}
+          loading={loading}
+          size="lg"
+          type="submit"
+        />
+      </form>
+    </ScreenContainer>
+  );
 }

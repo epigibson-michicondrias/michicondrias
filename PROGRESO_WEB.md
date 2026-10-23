@@ -104,6 +104,17 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-23 — W4 P2: servicios profesionales (Mimo, cierre de Claude).**
+  - Mimo portó paseadores (lista, ficha, registro, solicitudes, calendario), cuidadores (lista, ficha),
+    pet-friendly, establecimientos, grooming, estilistas, entrenadores, transportistas, aseguradoras,
+    laboratorio y funeraria, con hooks por módulo (`hooks/{paseadores,cuidadores,petfriendly,venues,grooming,
+    training,rides,insurance,laboratorio,funerary}`) y piezas compartidas en `features/servicios-pro`
+    (`ServiceRequestCard`, `ProviderProfile`, `CalendarBoard`). Quedó sin commit; Claude corrigió el tipo de
+    `walker_id` en `paseadores/solicitudes` y lo cerró.
+  - Verificado: `tsc` limpio, `next build` verde, ESLint limpio en lo nuevo (los 27 errores restantes son legacy:
+    `admin/*`, `cuidadores/registro`, `cuidadores/solicitudes`).
+  - **Siguiente:** portar `cuidadores/registro` y `cuidadores/solicitudes`, luego P3 y W4-A.
+
 - **2026-10-23 — W4 port multiagente: Adopciones, Directorio, Perdidas, Notificaciones, Búsqueda, Ayuda.**
   - Varios agentes en paralelo por módulo (solo en sus carpetas). Quedaron hooks y features por módulo
     (`hooks/adopciones`, `hooks/directorio`, `hooks/perdidas`, `hooks/notifications`, `hooks/search` y

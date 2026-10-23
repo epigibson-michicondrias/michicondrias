@@ -1,181 +1,121 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { registerAsWalker } from "@/lib/legacy/services/paseadores";
-import dashStyles from "../../dashboard.module.css";
-import styles from "../../modules.module.css";
-import { toast } from "react-hot-toast";
+/**
+ * Registro como paseador (`/paseadores/registro`).
+ * Espejo del formulario legacy con el design system del espejo web.
+ */
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Button from "@/components/Button";
+import FormField from "@/components/FormField";
+import FormSection from "@/components/forms/FormSection";
+import FormSelect from "@/components/forms/FormSelect";
+import FormSwitch from "@/components/forms/FormSwitch";
+import FormImagePicker from "@/components/forms/FormImagePicker";
+import { useWalkerRegistration, SCHEDULE_OPTIONS } from "@/hooks/paseadores/useWalkerRegistration";
 
 export default function RegistroPaseadorPage() {
-    const router = useRouter();
-    const [loading, setLoading] = useState(false);
-    const [form, setForm] = useState({
-        display_name: "",
-        bio: "",
-        location: "",
-        price_per_walk: "",
-        price_per_hour: "",
-        experience_years: "",
-        accepts_dogs: true,
-        accepts_cats: false,
-        max_pets_per_walk: 3,
-        service_radius_km: 5,
-        schedule_preference: "Flexible",
-    });
+  const { form, errors, image, saving, updateField, setImage, handleSave } = useWalkerRegistration();
 
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+  return (
+    <ScreenContainer>
+      <ScreenHeader
+        title="Registrarme como paseador"
+        subtitle="Crea tu perfil y empieza a ofrecer paseos"
+        module="paseadores"
+      />
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
-        }
-    };
+      <FormImagePicker
+        label="Foto de perfil"
+        preview={image ? URL.createObjectURL(image) : null}
+        onChange={setImage}
+      />
 
-    async function handleSubmit(e: FormEvent) {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            let finalPhotoUrl = null;
+      <div style={{ display: "grid", gap: "var(--space-xxl)", paddingBottom: "var(--space-xxl)" }}>
+        <FormSection title="Información personal">
+          <FormField
+            label="Nombre para mostrar *"
+            value={form.display_name}
+            onChangeText={(v) => updateField("display_name", v)}
+            placeholder="Tu nombre público"
+            error={errors.display_name}
+          />
+          <FormField
+            label="Ubicación"
+            value={form.location}
+            onChangeText={(v) => updateField("location", v)}
+            placeholder="CDMX, Polanco"
+          />
+          <FormField
+            label="Biografía / Presentación"
+            value={form.bio}
+            onChangeText={(v) => updateField("bio", v)}
+            placeholder="Cuéntanos sobre ti y tu experiencia con mascotas..."
+            multiline
+          />
+        </FormSection>
 
-            if (imageFile) {
-                const ext = imageFile.name.substring(imageFile.name.lastIndexOf('.'));
-                const presigned = await import("@/lib/legacy/services/paseadores").then(m => m.getPaseadoresPresignedUrl(ext));
+        <FormSection title="Precios y servicio">
+          <FormField
+            label="Precio por paseo (MXN)"
+            value={form.price_per_walk}
+            onChangeText={(v) => updateField("price_per_walk", v)}
+            placeholder="150"
+            keyboardType="decimal-pad"
+            error={errors.price_per_walk}
+          />
+          <FormField
+            label="Precio por hora (MXN)"
+            value={form.price_per_hour}
+            onChangeText={(v) => updateField("price_per_hour", v)}
+            placeholder="100"
+            keyboardType="decimal-pad"
+            error={errors.price_per_hour}
+          />
+          <FormField
+            label="Años de experiencia"
+            value={form.experience_years}
+            onChangeText={(v) => updateField("experience_years", v)}
+            placeholder="2"
+            keyboardType="numeric"
+          />
+          <FormField
+            label="Máximo de mascotas por paseo"
+            value={form.max_pets_per_walk}
+            onChangeText={(v) => updateField("max_pets_per_walk", v)}
+            keyboardType="numeric"
+          />
+          <FormField
+            label="Radio de servicio (km)"
+            value={form.service_radius_km}
+            onChangeText={(v) => updateField("service_radius_km", v)}
+            keyboardType="decimal-pad"
+          />
+          <FormSelect
+            label="Horario preferido"
+            options={SCHEDULE_OPTIONS}
+            value={form.schedule_preference}
+            onChange={(v) => updateField("schedule_preference", v)}
+          />
+        </FormSection>
 
-                const uploadRes = await fetch(presigned.url, {
-                    method: "PUT",
-                    body: imageFile,
-                    headers: {
-                        "Content-Type": imageFile.type,
-                    },
-                });
+        <FormSection title="Acepta">
+          <FormSwitch
+            label="Perros"
+            value={form.accepts_dogs}
+            onChange={(v) => updateField("accepts_dogs", v)}
+            variant="checkbox"
+          />
+          <FormSwitch
+            label="Gatos"
+            value={form.accepts_cats}
+            onChange={(v) => updateField("accepts_cats", v)}
+            variant="checkbox"
+          />
+        </FormSection>
 
-                if (!uploadRes.ok) throw new Error("Error al subir la imagen a S3");
-                finalPhotoUrl = presigned.object_key;
-            }
-
-            await registerAsWalker({
-                display_name: form.display_name,
-                bio: form.bio || undefined,
-                location: form.location || undefined,
-                photo_url: finalPhotoUrl || undefined,
-                price_per_walk: form.price_per_walk ? Number(form.price_per_walk) : undefined,
-                price_per_hour: form.price_per_hour ? Number(form.price_per_hour) : undefined,
-                experience_years: form.experience_years ? Number(form.experience_years) : 0,
-                accepts_dogs: form.accepts_dogs,
-                accepts_cats: form.accepts_cats,
-                max_pets_per_walk: form.max_pets_per_walk,
-                service_radius_km: form.service_radius_km,
-                schedule_preference: form.schedule_preference || undefined,
-            });
-            toast.success("🎉 ¡Te registraste como paseador!");
-            router.push("/paseadores");
-        } catch (err: any) {
-            toast.error(err.message || "Error al registrar");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    return (
-        <>
-            <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>🚶 Registrarme como Paseador</h1>
-                <p className={dashStyles["page-subtitle"]}>
-                    Crea tu perfil y empieza a ofrecer paseos
-                </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className={styles["create-form"]}>
-                <p className={styles["form-section-title"]}>Información Personal</p>
-                <div className={styles["form-row"]}>
-                    <div className={styles["form-group"]}>
-                        <label>Nombre para mostrar</label>
-                        <input required value={form.display_name} onChange={e => setForm({ ...form, display_name: e.target.value })} placeholder="Tu nombre público" />
-                    </div>
-                    <div className={styles["form-group"]}>
-                        <label>Ubicación</label>
-                        <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="CDMX, Polanco" />
-                    </div>
-                </div>
-
-                <div className={styles["form-group"]}>
-                    <label>Biografía / Presentación</label>
-                    <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} placeholder="Cuéntanos sobre ti y tu experiencia con mascotas..." style={{ minHeight: "100px" }} />
-                </div>
-
-                <div className={styles["form-group"]}>
-                    <label>Foto de Perfil / Acción</label>
-                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                        {imagePreview && (
-                            <img src={imagePreview} alt="Preview" style={{ width: "80px", height: "80px", borderRadius: "12px", objectFit: "cover" }} />
-                        )}
-                        <input type="file" accept="image/*" onChange={handleFileChange} />
-                    </div>
-                </div>
-
-                <div className={styles["form-divider"]} />
-                <p className={styles["form-section-title"]}>💰 Precios y Servicio</p>
-                <div className={styles["form-row"]}>
-                    <div className={styles["form-group"]}>
-                        <label>Precio por paseo (MXN)</label>
-                        <input type="number" value={form.price_per_walk} onChange={e => setForm({ ...form, price_per_walk: e.target.value })} placeholder="150" />
-                    </div>
-                    <div className={styles["form-group"]}>
-                        <label>Precio por hora (MXN)</label>
-                        <input type="number" value={form.price_per_hour} onChange={e => setForm({ ...form, price_per_hour: e.target.value })} placeholder="100" />
-                    </div>
-                </div>
-
-                <div className={styles["form-row"]}>
-                    <div className={styles["form-group"]}>
-                        <label>Años de experiencia</label>
-                        <input type="number" value={form.experience_years} onChange={e => setForm({ ...form, experience_years: e.target.value })} placeholder="2" />
-                    </div>
-                    <div className={styles["form-group"]}>
-                        <label>Max mascotas por paseo</label>
-                        <input type="number" value={form.max_pets_per_walk} onChange={e => setForm({ ...form, max_pets_per_walk: Number(e.target.value) })} />
-                    </div>
-                </div>
-
-                <div className={styles["form-row"]}>
-                    <div className={styles["form-group"]}>
-                        <label>Radio de servicio (km)</label>
-                        <input type="number" step="0.5" value={form.service_radius_km} onChange={e => setForm({ ...form, service_radius_km: Number(e.target.value) })} />
-                    </div>
-                    <div className={styles["form-group"]}>
-                        <label>Horario preferido</label>
-                        <select value={form.schedule_preference} onChange={e => setForm({ ...form, schedule_preference: e.target.value })} style={{ padding: "0.75rem", borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
-                            <option value="Mañanas">🌅 Mañanas</option>
-                            <option value="Tardes">🌇 Tardes</option>
-                            <option value="Flexible">🕐 Flexible</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div className={styles["form-divider"]} />
-                <p className={styles["form-section-title"]}>🐾 Acepta</p>
-                <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", color: "#fff" }}>
-                        <input type="checkbox" checked={form.accepts_dogs} onChange={e => setForm({ ...form, accepts_dogs: e.target.checked })} /> 🐕 Perros
-                    </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", color: "#fff" }}>
-                        <input type="checkbox" checked={form.accepts_cats} onChange={e => setForm({ ...form, accepts_cats: e.target.checked })} /> 🐈 Gatos
-                    </label>
-                </div>
-
-                <div className={styles["form-actions"]}>
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                        {loading ? "Registrando..." : "✨ Publicar mi Perfil de Paseador"}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={() => router.push("/paseadores")}>
-                        Cancelar
-                    </button>
-                </div>
-            </form>
-        </>
-    );
+        <Button label="Publicar mi perfil de paseador" onPress={handleSave} loading={saving} disabled={saving} />
+      </div>
+    </ScreenContainer>
+  );
 }

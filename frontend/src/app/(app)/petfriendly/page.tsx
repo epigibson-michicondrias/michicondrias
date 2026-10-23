@@ -1,158 +1,136 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getPlaces, PetfriendlyPlace } from "@/lib/legacy/services/perdidas";
-import Link from "next/link";
-import dashStyles from "../dashboard.module.css";
-import styles from "../modules.module.css";
-
-const CATEGORIES = [
-    "Restaurante", "Cafetería", "Parque", "Hotel",
-    "Centro Comercial", "Playa", "Veterinaria", "Tienda"
-];
+/**
+ * Pet-friendly — lista de lugares con búsqueda y categorías.
+ * Espejo de `mobile/app/petfriendly/index.tsx` (sin vista de mapa).
+ */
+import Image from "next/image";
+import { MapPin, Plus, Star } from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Card from "@/components/Card";
+import EmptyState from "@/components/EmptyState";
+import SearchBar from "@/components/SearchBar";
+import FilterChip from "@/components/FilterChip";
+import { Skeleton } from "@/components/Skeleton";
+import { usePlaces } from "@/hooks/petfriendly/usePlaces";
+import local from "./petfriendly.module.css";
 
 export default function PetfriendlyPage() {
-    const [search, setSearch] = useState("");
-    const [categoryFilter, setCategoryFilter] = useState("");
+  const {
+    places,
+    isLoading,
+    categories,
+    category,
+    setCategory,
+    searchQuery,
+    setSearchQuery,
+    hasActiveFilters,
+    goToPlace,
+    goToNewPlace,
+  } = usePlaces();
 
-    const { data: places = [], isLoading } = useQuery({
-        queryKey: ["petfriendly-places", categoryFilter],
-        queryFn: () => getPlaces(categoryFilter || undefined),
-    });
+  return (
+    <ScreenContainer>
+      <ScreenHeader
+        title="Pet-friendly"
+        subtitle="Lugares que aceptan mascotas"
+        showBack={false}
+        actionIcon={Plus}
+        actionLabel="Agregar lugar"
+        onAction={goToNewPlace}
+      />
 
-    const filtered = places.filter(place =>
-        place.name.toLowerCase().includes(search.toLowerCase()) ||
-        (place.address?.toLowerCase().includes(search.toLowerCase())) ||
-        (place.city?.toLowerCase().includes(search.toLowerCase()))
-    );
+      <div className={local.filters}>
+        <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder="Buscar lugares..." />
+        {categories.length > 0 && (
+          <div className={local.chipsRow}>
+            <FilterChip label="Todos" active={!category} onPress={() => setCategory(null)} />
+            {categories.map((c) => (
+              <FilterChip
+                key={c}
+                label={c}
+                active={category === c}
+                onPress={() => setCategory(category === c ? null : c)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-    return (
-        <div className={dashStyles.container}>
-            <div className={dashStyles["page-header"]}>
-                <div>
-                    <h1 className={dashStyles["page-title"]}>📍 Lugares Petfriendly</h1>
-                    <p className={dashStyles["page-subtitle"]}>
-                        Descubre los mejores lugares para ir con tu mejor amigo
-                    </p>
-                </div>
-                <Link href="/petfriendly/nuevo" className="btn btn-primary">
-                    ➕ Agregar Lugar
-                </Link>
-            </div>
-
-            <div className={dashStyles["filters-bar"]}>
-                <div className={dashStyles["search-container"]}>
-                    <input
-                        type="text"
-                        placeholder="Buscar por nombre, dirección o ciudad..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className={dashStyles["search-input"]}
+      {isLoading ? (
+        <div style={{ display: "grid", gap: "var(--space-md)" }}>
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} height={100} borderRadius={16} />
+          ))}
+        </div>
+      ) : places.length === 0 ? (
+        <EmptyState
+          icon={<MapPin size={28} />}
+          title={hasActiveFilters ? "Sin resultados" : "Aún no hay lugares"}
+          subtitle={
+            hasActiveFilters
+              ? "Prueba con otra búsqueda o categoría."
+              : "Sé el primero en agregar un lugar pet friendly con el botón +."
+          }
+          actionLabel={hasActiveFilters ? "Quitar filtros" : "Agregar lugar"}
+          onAction={
+            hasActiveFilters
+              ? () => {
+                  setSearchQuery("");
+                  setCategory(null);
+                }
+              : goToNewPlace
+          }
+        />
+      ) : (
+        <div style={{ display: "grid", gap: "var(--space-md)", paddingBottom: "var(--space-xl)" }}>
+          {places.map((item) => (
+            <Card
+              key={item.id}
+              flush
+              onPress={() => goToPlace(item.id)}
+              accessibilityLabel={`${item.name}, ${item.category}`}
+            >
+              <div className={local.placeCard}>
+                <div className={local.placeVisual}>
+                  {item.image_url ? (
+                    <Image
+                      src={item.image_url}
+                      alt={item.name}
+                      width={100}
+                      height={100}
+                      className={local.placePhoto}
                     />
-                </div>
-                <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", paddingBottom: "0.5rem" }}>
-                    <button
-                        onClick={() => setCategoryFilter("")}
-                        style={{
-                            padding: "0.5rem 1rem", borderRadius: "12px", border: "none",
-                            background: categoryFilter === "" ? "var(--secondary)" : "rgba(255,255,255,0.05)",
-                            color: "#fff", cursor: "pointer", whiteSpace: "nowrap"
-                        }}
-                    >
-                        Todos
-                    </button>
-                    {CATEGORIES.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setCategoryFilter(cat)}
-                            style={{
-                                padding: "0.5rem 1rem", borderRadius: "12px", border: "none",
-                                background: categoryFilter === cat ? "var(--secondary)" : "rgba(255,255,255,0.05)",
-                                color: "#fff", cursor: "pointer", whiteSpace: "nowrap"
-                            }}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {isLoading ? (
-                <div className={dashStyles["loading-container"]}><p>Buscando lugares increíbles...</p></div>
-            ) : filtered.length === 0 ? (
-                <div className={dashStyles["empty-state"]} style={{ padding: "4rem" }}>
-                    <h2>No encontramos lugares</h2>
-                    <p style={{ opacity: 0.6 }}>Sé el primero en recomendar un lugar petfriendly en esta categoría.</p>
-                </div>
-            ) : (
-                <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-                    gap: "1.5rem"
-                }}>
-                    {filtered.map((place) => (
-                        <PlaceCard key={place.id} place={place} />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
-
-function PlaceCard({ place }: { place: PetfriendlyPlace }) {
-    const defaultImage = "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=600";
-
-    return (
-        <div className={styles.card} style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-            <div style={{
-                height: "180px", width: "100%", borderRadius: "16px", overflow: "hidden", position: "relative"
-            }}>
-                <img
-                    src={place.image_url || defaultImage}
-                    alt={place.name}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-                <div style={{
-                    position: "absolute", top: "12px", right: "12px",
-                    background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
-                    padding: "4px 12px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: 700
-                }}>
-                    {place.category}
-                </div>
-                {(place.has_water_bowls === "si" || place.has_pet_menu === "si") && (
-                    <div style={{
-                        position: "absolute", bottom: "12px", left: "12px", display: "flex", gap: "4px"
-                    }}>
-                        {place.has_water_bowls === "si" && (
-                            <span title="Tienen bebederos" style={{ background: "var(--secondary)", padding: "4px", borderRadius: "50%", fontSize: "0.8rem", width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>💧</span>
-                        )}
-                        {place.has_pet_menu === "si" && (
-                            <span title="Tienen menú pet" style={{ background: "var(--secondary)", padding: "4px", borderRadius: "50%", fontSize: "0.8rem", width: "24px", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>🍖</span>
-                        )}
+                  ) : (
+                    <div className={local.placeFallback}>
+                      <MapPin size={28} aria-hidden />
                     </div>
-                )}
-            </div>
-            <div style={{ padding: "1.2rem", flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                    <h3 style={{ margin: 0, fontSize: "1.2rem" }}>{place.name}</h3>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "#fbbf24" }}>
-                        <span>⭐</span>
-                        <span style={{ fontWeight: 800 }}>{place.rating.toFixed(1)}</span>
-                    </div>
+                  )}
                 </div>
-                <p style={{ fontSize: "0.85rem", opacity: 0.6, marginBottom: "1rem" }}>📍 {place.address || "Dirección no disponible"}</p>
-                <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", flexGrow: 1 }}>
-                    {place.description ? (place.description.length > 80 ? place.description.substring(0, 80) + "..." : place.description) : "Sin descripción disponible."}
-                </p>
-
-                <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.7rem", opacity: 0.4 }}>Aceptan: {place.pet_sizes_allowed}</span>
-                    <Link href={`/petfriendly/${place.id}`} className="btn btn-secondary" style={{ marginLeft: "auto", fontSize: "0.85rem", padding: "0.4rem 1rem" }}>
-                        Ver Detalles
-                    </Link>
+                <div className={local.placeBody}>
+                  <div className={local.placeTop}>
+                    <p className={local.placeName}>{item.name}</p>
+                    {item.rating > 0 && (
+                      <span className={local.placeRating}>
+                        <Star size={12} fill="var(--color-warning)" color="var(--color-warning)" aria-hidden />
+                        {item.rating.toFixed(1)}
+                      </span>
+                    )}
+                  </div>
+                  <p className={local.placeCategory}>{item.category}</p>
+                  {item.address ? (
+                    <p className={local.placeAddress}>
+                      <MapPin size={12} aria-hidden />
+                      <span>{item.address}</span>
+                    </p>
+                  ) : null}
                 </div>
-            </div>
+              </div>
+            </Card>
+          ))}
         </div>
-    );
+      )}
+    </ScreenContainer>
+  );
 }
