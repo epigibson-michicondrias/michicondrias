@@ -1,195 +1,132 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getCurrentUser, getKYCPresignedUrls, finalizeKYC, User, KYCPresignedUrl } from "@/lib/legacy/auth";
-import { toast } from "react-hot-toast";
-import dashStyles from "../../dashboard.module.css";
-import styles from "./verificacion.module.css";
+/**
+ * Verificación KYC — espejo de `mobile/app/perfil/verificacion.tsx`.
+ */
+import { AlertCircle, Camera, CheckCircle, Clock, ShieldCheck, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Card from "@/components/Card";
+import Button from "@/components/Button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useKYC } from "@/hooks/perfil/useKYC";
+import type { VerificationStatus } from "@/types/auth";
+import s from "../perfil.module.css";
+
+const STATE_COPY: Record<VerificationStatus, {
+  icon: typeof CheckCircle;
+  tone: "ok" | "warn" | "bad" | "muted";
+  title: string;
+  desc: string;
+  action?: string;
+  route?: string;
+}> = {
+  UNVERIFIED: {
+    icon: ShieldCheck,
+    tone: "muted",
+    title: "Cuenta no verificada",
+    desc: "Sube tus documentos para poder ofrecer servicios profesionales.",
+  },
+  PENDING: {
+    icon: Clock,
+    tone: "warn",
+    title: "Verificación en curso",
+    desc: "Un administrador revisa tus documentos. Suele tomar de 24 a 48 horas.",
+  },
+  VERIFIED: {
+    icon: CheckCircle,
+    tone: "ok",
+    title: "Cuenta verificada",
+    desc: "Tu identidad está confirmada. Ya puedes activar tu cuenta profesional.",
+    action: "Activar cuenta profesional",
+    route: "/perfil/partner",
+  },
+  REJECTED: {
+    icon: AlertCircle,
+    tone: "bad",
+    title: "Verificación rechazada",
+    desc: "Vuelve a subir tus documentos para poder continuar.",
+    action: "Reintentar",
+    route: "/perfil/verificacion",
+  },
+};
 
 export default function VerificacionPage() {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
+  const status = (user?.verification_status || "UNVERIFIED") as VerificationStatus;
+  const copy = STATE_COPY[status];
+  const Icon = copy.icon;
+  const { documents, setDocumentFile, allDocumentsSelected, handleSubmit, isSubmitting, uploadProgress } = useKYC();
+  const showForm = status === "UNVERIFIED" || status === "REJECTED";
 
-    const [files, setFiles] = useState<{
-        id_front: File | null;
-        id_back: File | null;
-        proof_of_address: File | null;
-    }>({
-        id_front: null,
-        id_back: null,
-        proof_of_address: null,
-    });
+  return (
+    <ScreenContainer>
+      <ScreenHeader title="Verificación" subtitle="Confirma tu identidad" />
 
-    useEffect(() => {
-        loadUser();
-    }, []);
-
-    async function loadUser() {
-        try {
-            const u = await getCurrentUser();
-            setUser(u);
-        } catch (err) {
-            console.error("Error loading user", err);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: keyof typeof files) => {
-        if (e.target.files && e.target.files[0]) {
-            setFiles((prev) => ({ ...prev, [type]: e.target.files![0] }));
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!files.id_front || !files.id_back || !files.proof_of_address) {
-            toast.error("Por favor, sube los 3 documentos requeridos.");
-            return;
-        }
-
-        setUploading(true);
-
-        try {
-            // 1. Get presigned URLs with correct extensions
-            const extensions = {
-                id_front: files.id_front.name.split(".").pop() || "jpg",
-                id_back: files.id_back.name.split(".").pop() || "jpg",
-                proof_of_address: files.proof_of_address.name.split(".").pop() || "pdf",
-            };
-
-            const { urls } = await getKYCPresignedUrls(extensions);
-
-            // 2. Upload to S3 directly
-            const uploadPromises = urls.map(async (u: KYCPresignedUrl) => {
-                const file = files[u.key as keyof typeof files];
-                if (!file) {
-                    console.error(`File missing for key: ${u.key}`);
-                    return;
-                }
-
-                const res = await fetch(u.url, {
-                    method: "PUT",
-                    body: file,
-                    headers: {
-                        "Content-Type": file.type || "application/octet-stream",
-                    },
-                });
-
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    console.error(`S3 Upload Error for ${u.key}:`, errorText);
-                    throw new Error(`Error al subir ${u.key} a S3`);
-                }
-            });
-
-            await Promise.all(uploadPromises);
-
-            // 3. Finalize on backend
-            const id_front_url = urls.find((u: KYCPresignedUrl) => u.key === "id_front")?.object_key || "";
-            const id_back_url = urls.find((u: KYCPresignedUrl) => u.key === "id_back")?.object_key || "";
-            const proof_url = urls.find((u: KYCPresignedUrl) => u.key === "proof_of_address")?.object_key || "";
-
-            const updatedUser = await finalizeKYC({
-                id_front_url,
-                id_back_url,
-                proof_of_address_url: proof_url
-            });
-
-            setUser(updatedUser);
-            toast.success("Documentos enviados con éxito. Un administrador los revisará pronto.", { duration: 5000 });
-        } catch (err: any) {
-            console.error("KYC Upload Error:", err);
-            toast.error(err.message || "Error al subir los documentos");
-        } finally {
-            setUploading(false);
-        }
-    };
-
-    if (loading) return <p className={dashStyles["loading-text"]}>Cargando perfil de seguridad...</p>;
-    if (!user) return <p>Error al cargar el usuario. Por favor, inicia sesión de nuevo.</p>;
-
-    const getStatusIcon = () => {
-        switch (user.verification_status) {
-            case "VERIFIED": return "✅";
-            case "PENDING": return "⏳";
-            case "REJECTED": return "❌";
-            default: return "🛡️";
-        }
-    };
-
-    const getStatusTitle = () => {
-        switch (user.verification_status) {
-            case "VERIFIED": return "Cuenta Verificada";
-            case "PENDING": return "Verificación en Proceso";
-            case "REJECTED": return "Verificación Rechazada";
-            default: return "Cuenta No Verificada";
-        }
-    };
-
-    const getStatusDesc = () => {
-        switch (user.verification_status) {
-            case "VERIFIED": return "¡Felicidades! Tienes acceso total al proceso de adopción formal.";
-            case "PENDING": return "Estamos revisando tus documentos. Te notificaremos pronto.";
-            case "REJECTED": return "Hubo un problema con tus documentos. Por favor, intenta de nuevo.";
-            default: return "Para garantizar la seguridad de nuestros animalitos, necesitamos verificar tu identidad.";
-        }
-    };
-
-    return (
-        <div className={styles["verification-container"]}>
-            <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>🛡️ Centro de Seguridad KYC</h1>
-                <p className={dashStyles["page-subtitle"]}>Verifica tu identidad para iniciar un proceso de adopción seguro</p>
-            </div>
-
-            <div className={styles["status-card"]}>
-                <div className={styles["status-icon"]}>{getStatusIcon()}</div>
-                <div className={styles["status-info"]}>
-                    <h2>{getStatusTitle()}</h2>
-                    <p>{getStatusDesc()}</p>
-                </div>
-            </div>
-
-            {(user.verification_status === "UNVERIFIED" || user.verification_status === "REJECTED") && (
-                <form className={styles["kyc-form"]} onSubmit={handleSubmit}>
-                    <div className={styles["upload-card"]}>
-                        <i>🪪</i>
-                        <h3>Identificación (Frente)</h3>
-                        <p>Sube una foto clara de tu INE o Pasaporte (Anverso)</p>
-                        <input type="file" className={styles["file-input"]} accept="image/*" onChange={(e) => handleFileChange(e, "id_front")} required />
-                        {files.id_front && <span className={styles["file-preview"]}>✓ {files.id_front.name}</span>}
-                    </div>
-
-                    <div className={styles["upload-card"]}>
-                        <i>🪪</i>
-                        <h3>Identificación (Reverso)</h3>
-                        <p>Sube una foto clara de tu INE o Pasaporte (Reverso)</p>
-                        <input type="file" className={styles["file-input"]} accept="image/*" onChange={(e) => handleFileChange(e, "id_back")} required />
-                        {files.id_back && <span className={styles["file-preview"]}>✓ {files.id_back.name}</span>}
-                    </div>
-
-                    <div className={`${styles["upload-card"]} ${styles["full-width"]}`}>
-                        <i>🏠</i>
-                        <h3>Comprobante de Domicilio</h3>
-                        <p>Recibo de luz, agua o teléfono (no mayor a 3 meses)</p>
-                        <input type="file" className={styles["file-input"]} accept="image/*,application/pdf" onChange={(e) => handleFileChange(e, "proof_of_address")} required />
-                        {files.proof_of_address && <span className={styles["file-preview"]}>✓ {files.proof_of_address.name}</span>}
-                    </div>
-
-                    <button type="submit" className={styles["submit-btn"]} disabled={uploading}>
-                        {uploading ? "SUBIENDO DOCUMENTOS..." : "🚀 ENVIAR PARA VERIFICACIÓN"}
-                    </button>
-                </form>
-            )}
-
-            {user.verification_status === "PENDING" && (
-                <div className={dashStyles["empty-state"]}>
-                    <span style={{ fontSize: "4rem" }}>📅</span>
-                    <p>Tu solicitud fue recibida el {new Date().toLocaleDateString()}. Nuestro equipo administrativo responderá en un plazo máximo de 48 horas.</p>
-                </div>
-            )}
+      <Card>
+        <div className={s.account}>
+          <div className={`${s.avatar} ${copy.tone === "ok" ? s.avatarOk : ""}`} aria-hidden>
+            <Icon size={24} />
+          </div>
+          <div className={s.accountBody}>
+            <p className={s.accountName}>{copy.title}</p>
+            <p className={s.accountEmail}>{copy.desc}</p>
+          </div>
         </div>
-    );
+        {copy.action && copy.route && (
+          <Button
+            label={copy.action}
+            variant="secondary"
+            onPress={() => router.push(copy.route!)}
+          />
+        )}
+      </Card>
+
+      {showForm && (
+        <>
+          <section className={s.docSection}>
+            <h2 className={s.docTitle}>Documentos requeridos</h2>
+            {documents.map((doc) => (
+              <div key={doc.key} className={s.docCard}>
+                <div className={s.docInfo}>
+                  <Camera size={20} aria-hidden />
+                  <div>
+                    <p className={s.docLabel}>{doc.label}</p>
+                    <p className={s.accountEmail}>{doc.hint}</p>
+                  </div>
+                </div>
+                <label className={s.docBtn}>
+                  <Upload size={16} aria-hidden />
+                  {doc.file ? "Cambiar" : "Subir"}
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    className={s.docInput}
+                    onChange={(e) => setDocumentFile(doc.key, e.target.files?.[0] ?? null)}
+                  />
+                </label>
+                {doc.preview && (
+                  // eslint-disable-next-line @next/next/no-img-element -- previsualización local
+                  <img src={doc.preview} alt={doc.label} className={s.docPreview} />
+                )}
+              </div>
+            ))}
+          </section>
+
+          <p className={s.accountEmail}>
+            Tus datos están protegidos y solo se usan para verificar tu identidad.
+          </p>
+
+          <Button
+            label={isSubmitting ? `Enviando… ${Math.round(uploadProgress * 100)}%` : "Enviar para revisión"}
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={!allDocumentsSelected}
+          />
+        </>
+      )}
+    </ScreenContainer>
+  );
 }

@@ -278,3 +278,107 @@
 @media (max-width: 480px) {
   .formRow { grid-template-columns: 1fr; }
 }
+
+/* Verificación KYC y Partner */
+.docSection {
+  display: grid;
+  gap: var(--space-md);
+  margin: var(--space-lg) 0;
+}
+.docTitle {
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text);
+  font-size: var(--font-h3);
+  font-weight: 800;
+}
+.docCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+.docInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex: 1;
+  min-width: 180px;
+  color: var(--color-text-muted);
+}
+.docLabel {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-lg);
+  font-weight: 700;
+}
+.docBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.docBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.docInput { display: none; }
+.docPreview {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.roleCard {
+  position: relative;
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  text-align: left;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+.roleCard:hover { border-color: var(--color-primary); }
+.roleCardOn {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.roleBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-xs);
+  font-weight: 800;
+}
+.benefits {
+  margin: var(--space-sm) 0 0;
+  padding-left: 18px;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  line-height: 1.5;
+}
