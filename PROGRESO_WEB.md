@@ -9,7 +9,7 @@ App de referencia: [`PROGRESO_MOBILE.md`](PROGRESO_MOBILE.md).
 **Dónde se trabaja:** worktree `../michicondrias-web`, rama `web/espejo`. Se fusiona a `main` (producción en Vercel)
 solo con la fase verificada y el visto bueno del usuario.
 
-## Fase actual: **W2 — Núcleo espejo** 🟡 (espejos, api y tokens ✅ · faltan contextos y componentes base)
+## Fase actual: **W2 — Núcleo espejo** 🟡 (espejos, api, tokens, contextos Theme/Auth y kit base ✅ · faltan CartContext y el resto del kit)
 
 | # | Fase | Qué | Estado |
 |---|---|---|---|
@@ -126,4 +126,16 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
   - Tokens: `scripts/web-tokens.py` genera `src/app/tokens.css` (42 colores claro/oscuro, espacios, radios, letra)
     desde los espejos. `--radius-lg` pasa de 20 a 16 px también en las páginas viejas.
   - Siguiente: contextos (Auth, Theme, Cart) y componentes base con los mismos nombres y props que la app.
+- **2026-10-23 — W2 parte 2 (kit base).**
+  - Contextos: `ThemeContext` (claro/oscuro/sistema con `data-theme` y `useSyncExternalStore`) y `AuthContext` (misma
+    lógica que la app); `useTheme`, `useScreenAccent`; `lib/prefs`, `sessionStorage`, `cartStorage` con `localStorage`.
+  - Componentes con los mismos nombres y props que la app: `Button`, `IconButton`, `Card`, `Badge`, `FilterChip`,
+    `SectionHeader`, `ListRow`, `EmptyState`, `SearchBar`, `SegmentedControl`, `Skeleton`/`SkeletonList`/`SkeletonGrid`,
+    `FormField`, `forms/FormSection|FormSelect|FormSwitch`, `layout/ScreenContainer|ScreenHeader`, `QueryErrorBanner`,
+    `RoleGuard`, `AppAlert` (`showAlert`), `AppProviders`. Estilos solo con variables de `tokens.css`.
+  - `/kit` (noindex): vitrina revisada a 1280 y 375 px, claro y oscuro, sin errores. Tipos y lint limpios.
+  - Falta del kit: `CartContext`, `DetailLayout`, `HeroBackground`, `KeyboardScreen`, `AuthShell`, `BottomSheet`,
+    `DatePicker`, `MediaCard`, `StatTile`, `SummaryCard`, `MiniBarChart`, `OptionMenu`, `QuantityStepper`,
+    `ViewModeToggle`, `DataList`, `FormImagePicker`, `WebMapView`, reseñas y viajes. Se agregan al portar el módulo que
+    los use (W4) o en W3 si son de estructura (`AuthShell`, `CartContext`).
 
