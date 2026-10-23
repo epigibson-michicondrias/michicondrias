@@ -9,9 +9,12 @@ import {
   Car,
   Coffee,
   FlaskConical,
+  Flower2,
   Footprints,
   HeartHandshake,
+  Megaphone,
   Scissors,
+  ShieldCheck,
   Stethoscope,
   Store,
   type LucideIcon,
@@ -26,10 +29,13 @@ const ROLES: { icon: LucideIcon; title: string; tools: string[]; photo?: string 
   { icon: Scissors, title: "Estilistas y entrenadores", tools: ["Catálogo de servicios", "Agenda de citas", "Cursos y alumnos"], photo: "/landing/pro-estilistas.webp" },
   { icon: HeartHandshake, title: "Refugios y hogares temporales", tools: ["Publicar en adopción", "Revisar postulaciones", "Recibir donaciones"], photo: "/landing/pro-refugios.webp" },
   { icon: Footprints, title: "Paseadores y cuidadores", tools: ["Solicitudes entrantes", "Calendario", "Tarifas y zonas"], photo: "/landing/pro-paseadores.webp" },
-  { icon: Store, title: "Tiendas", tools: ["Catálogo de productos", "Pedidos con pago en línea", "Analíticas de ventas"] },
-  { icon: Coffee, title: "Lugares pet-friendly", tools: ["Ficha de tu local", "Cupones", "Reseñas de clientes"] },
-  { icon: FlaskConical, title: "Laboratorios", tools: ["Órdenes de estudio", "Registro de resultados"] },
+  { icon: Store, title: "Tiendas", tools: ["Catálogo de productos", "Pedidos con pago en línea", "Analíticas de ventas"], photo: "/landing/pro-tiendas.webp" },
+  { icon: Coffee, title: "Lugares pet-friendly", tools: ["Ficha de tu local", "Cupones", "Reseñas de clientes"], photo: "/landing/pro-petfriendly.webp" },
+  { icon: FlaskConical, title: "Laboratorios", tools: ["Órdenes de estudio", "Registro de resultados"], photo: "/landing/pro-laboratorios.webp" },
   { icon: Car, title: "Transporte de mascotas", tools: ["Solicitudes de viaje", "Perfil de conductor", "Historial de viajes"] },
+  { icon: ShieldCheck, title: "Aseguradoras", tools: ["Planes y pólizas", "Cotizaciones", "Atención de reclamos"], photo: "/landing/pro-aseguradoras.webp" },
+  { icon: Flower2, title: "Funerarias", tools: ["Paquetes de servicio", "Reservas", "Memoriales y certificados"], photo: "/landing/pro-funerarias.webp" },
+  { icon: Megaphone, title: "Patrocinadores", tools: ["Campañas", "Impulso de alertas de perdidas", "Estadísticas de impacto"], photo: "/landing/pro-patrocinadores.webp" },
 ];
 
 /**
@@ -86,6 +92,9 @@ export default function ProRail() {
                 </li>
               ))}
               <li className={`${styles.card} ${styles.cardCta}`}>
+                <div className={styles.cardPhoto}>
+                  <Image src="/landing/pro-unete.webp" alt="" fill sizes="22rem" className={styles.cardImg} />
+                </div>
                 <h3 className={styles.cardTitle}>Únete como profesional</h3>
                 <p className={styles.ctaText}>Crea tu cuenta y envía tu verificación desde tu perfil.</p>
                 <Link href="/register" className={styles.ctaLink}>

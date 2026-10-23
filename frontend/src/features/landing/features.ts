@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Bell,
+  BellRing,
   BrainCircuit,
   Car,
   Coffee,
@@ -9,11 +10,16 @@ import {
   FlaskConical,
   Footprints,
   HandHeart,
+  KeyRound,
   Heart,
   Home,
   MapPinned,
+  Megaphone,
   Package,
+  PawPrint,
+  QrCode,
   Satellite,
+  ScanSearch,
   Scissors,
   Search,
   ShieldCheck,
@@ -78,7 +84,7 @@ export const WHEEL_ITEMS: WheelItem[] = [
   },
   {
     title: "Mascotas perdidas",
-    text: "Reporte con foto y última ubicación. La comunidad cercana recibe la alerta y avisa si la ve.",
+    text: "Reporte con foto y última ubicación. Quien la vea registra un avistamiento y te llega el aviso.",
     image: "/landing/perdidas-calle.webp",
     alt: "Un perrito solo en una calle empedrada al anochecer",
   },
@@ -118,8 +124,9 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     features: [
       { icon: FileHeart, title: "Carnet digital", text: "Vacunas, desparasitaciones, consultas, recetas y peso. Compártelo con tu veterinario." },
       { icon: Bell, title: "Recordatorios", text: "Avisos antes de cada vacuna, dosis o cita para que nada se te pase." },
+      { icon: QrCode, title: "Pasaporte con QR", text: "Comparte su carnet con un enlace o código QR, sin pasar papeles." },
       { icon: BrainCircuit, title: "Orientación con IA", text: "Describe sus síntomas y recibe qué tan urgente es. Si es grave, te lo dice claro.", badge: "IA" },
-      { icon: Utensils, title: "Plan de dieta", text: "Una dieta sugerida con base en los datos de tu mascota." },
+      { icon: Utensils, title: "Plan de dieta", text: "Calorías e hidratación diarias según su actividad, con una dieta sugerida." },
       { icon: Stethoscope, title: "Citas con veterinario", text: "Busca clínicas y especialistas, elige horario y agenda." },
       { icon: Video, title: "Videoconsultas", text: "Atención por video con tu veterinario, sin traslados." },
       { icon: FlaskConical, title: "Laboratorio", text: "Agenda estudios clínicos y consulta los resultados en la app." },
@@ -132,8 +139,9 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
     lead: "Para encontrar un hogar, volver a casa y ayudar a quien lo necesita.",
     features: [
       { icon: Heart, title: "Adopciones", text: "Formulario de compatibilidad, solicitud y contrato de adopción en línea." },
-      { icon: Search, title: "Mascotas perdidas", text: "Reporta con foto y ubicación. Los vecinos reciben la alerta y registran avistamientos." },
+      { icon: Search, title: "Mascotas perdidas", text: "Reporta con foto y ubicación, recibe avistamientos y ve reportes parecidos a menos de 10 km." },
       { icon: Satellite, title: "Michi-Tracker Pro", text: "Localizador GPS en tiempo real con suscripción mensual.", badge: "Pro" },
+      { icon: Megaphone, title: "Alertas impulsadas", text: "Patrocinadores amplían el alcance de los reportes de mascotas perdidas." },
       { icon: HandHeart, title: "Donaciones", text: "Apoya refugios con pagos seguros con tarjeta." },
       { icon: Coffee, title: "Lugares pet-friendly", text: "Cafés, restaurantes, parques y hoteles que reciben mascotas, con cupones y reseñas." },
     ],
@@ -159,6 +167,17 @@ export const FEATURE_GROUPS: FeatureGroup[] = [
       { icon: ShoppingBag, title: "Tienda", text: "Alimento, arena, juguetes y accesorios con carrito y pago en línea." },
       { icon: Package, title: "Mis pedidos", text: "Sigue cada compra y califica lo que recibiste." },
       { icon: MapPinned, title: "Comercios cercanos", text: "Encuentra comercios pet-friendly cerca de ti y aprovecha sus cupones." },
+    ],
+  },
+  {
+    id: "cuenta",
+    title: "Tu cuenta",
+    lead: "Todas tus mascotas y todo lo que buscas, protegido.",
+    features: [
+      { icon: PawPrint, title: "Perfiles de tus mascotas", text: "Registra a todas tus mascotas con su foto, sus datos y su carnet." },
+      { icon: ScanSearch, title: "Búsqueda global", text: "Encuentra mascotas en adopción o perdidas, clínicas, servicios y productos desde un solo lugar." },
+      { icon: BellRing, title: "Notificaciones", text: "Te avisamos de tus citas, solicitudes y avistamientos." },
+      { icon: KeyRound, title: "Verificación en dos pasos", text: "Protege tu cuenta con un código extra al iniciar sesión." },
     ],
   },
 ];

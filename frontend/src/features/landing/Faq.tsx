@@ -26,7 +26,7 @@ const QUESTIONS = [
   },
   {
     q: "¿Qué hago si mi mascota se pierde?",
-    a: "Publica un reporte con su foto y el último lugar donde la viste. Las personas cerca de ti reciben la alerta y pueden avisarte si la encuentran.",
+    a: "Publica un reporte con su foto y el último lugar donde la viste. Quien la vea puede registrar un avistamiento y te avisamos al momento. También te mostramos reportes parecidos a menos de 10 km.",
   },
 ];
 

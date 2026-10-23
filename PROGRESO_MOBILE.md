@@ -907,7 +907,13 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - **2026-10-23** — Web, landing ampliada (sin quitar nada): fotos de Gemini con gatos al frente (`public/landing/`,
   prompts en `docs/landing-fotos-prompts.md`); rueda de funciones (port de «works-wheel» de 21st.dev a CSS Modules,
   girando con el scroll de la página); catálogo de 22 funciones reales; «Un día con tu michi» (carril fijo con cielo y
-  sol); «Lo que cuidamos por ti» (tarjetas que se enderezan); «Así son los michis» (notas a mano, inspirado en
-  Nocturne); títulos que suben por palabras, fotos que se asoman, cola de gato dibujada, footer con revelado y nombre
+  sol); «Lo que cuidamos por ti» (tarjetas que se enderezan); títulos que suben por palabras, fotos que se asoman, cola de gato dibujada, footer con revelado y nombre
   gigante. Scroll suave con `lenis` (helper `scrollToY`). Efectos de la plantilla Sill hechos con `motion`, sin GSAP.
-
+- **2026-10-23** — Web, landing: 7 fotos más en profesionales (falta `pro-transporte`), oficios aseguradoras, funerarias y
+  patrocinadores; catálogo a 28 funciones (QR, alertas impulsadas, bloque «Tu cuenta»). Secciones nuevas con ideas de
+  la landing vieja de Vercel (Astro), sin sus cifras, testimonios ni marcas inventadas: chat de ejemplo de Michi-IA con
+  el formato real (urgencia, resumen, plan, aviso), «Así funciona adoptar» (4 pasos reales) y «Tu michi, en tu
+  bolsillo» (botón de descarga solo si existe `NEXT_PUBLIC_APP_DOWNLOAD_URL`). Corregido: la landing decía que los
+  vecinos reciben alertas de perdidas; el backend solo avisa al dueño por avistamientos y busca reportes a 10 km.
+- **2026-10-23** — Web: se quita «Así son los michis» (decorativa, no mostraba ninguna función). Títulos «Tu mascota, en
+  tu bolsillo» y «Un día con tu mascota».

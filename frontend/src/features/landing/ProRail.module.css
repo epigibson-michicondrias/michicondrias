@@ -4,7 +4,7 @@
 }
 
 .track {
-  height: 320svh;
+  height: 420svh;
 }
 
 .sticky {
@@ -127,9 +127,21 @@
 }
 
 .cardCta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   border-color: transparent;
   background: linear-gradient(135deg, var(--mg-gold) 0%, var(--mg-gold-deep) 100%);
   color: var(--mg-on-gold);
+}
+
+/* En la tarjeta dorada la foto se funde hacia el dorado en lugar de hacia el negro */
+.cardCta .cardPhoto::after {
+  background: linear-gradient(180deg, rgba(233, 200, 131, 0) 20%, rgba(233, 200, 131, 0.85) 55%, var(--mg-gold) 75%);
+}
+
+.cardCta:hover .cardImg {
+  transform: scale(1.05);
 }
 
 .cardCta:hover {

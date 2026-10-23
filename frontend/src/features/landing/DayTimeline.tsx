@@ -60,7 +60,7 @@ export default function DayTimeline() {
     <section ref={sectionRef} className={styles.section} data-static={!!reduce} aria-labelledby="dia-title">
       <div className={styles.sticky}>
         <div className={`${shared.container} ${styles.head}`}>
-          <Rise id="dia-title" text="Un día con tu michi" className={shared.sectionTitle} />
+          <Rise id="dia-title" text="Un día con tu mascota" className={shared.sectionTitle} />
           <p className={shared.sectionLead}>Lo que pasa de la mañana a la noche, y la parte de la app que te ayuda.</p>
         </div>
 

@@ -10,7 +10,9 @@ import { WHEEL_ITEMS } from "./features";
 import Statement from "./Statement";
 import DayTimeline from "./DayTimeline";
 import Promises from "./Promises";
-import MichiNotes from "./MichiNotes";
+import AiDemo from "./AiDemo";
+import AdoptSteps from "./AdoptSteps";
+import AppSection from "./AppSection";
 import SmoothScroll from "./smoothScroll";
 import ProRail from "./ProRail";
 import Faq from "./Faq";
@@ -31,11 +33,13 @@ export default function Landing() {
           <Journey />
           <FeatureWheel items={WHEEL_ITEMS} label="Michicondrias" />
           <FeatureCatalog />
+          <AiDemo />
+          <AdoptSteps />
           <DayTimeline />
           <Statement />
-          <MichiNotes />
           <Promises />
           <ProRail />
+          <AppSection />
           <Faq />
         </main>
         <Footer />

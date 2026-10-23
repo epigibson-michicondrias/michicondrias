@@ -1,0 +1,126 @@
+.section {
+  padding-block: clamp(6rem, 14vh, 10rem);
+  background: var(--mg-ink-2);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 3rem;
+  margin-bottom: 4rem;
+}
+
+.head p {
+  margin-top: 0;
+}
+
+.wrap {
+  position: relative;
+}
+
+.list {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+  list-style: none;
+}
+
+/* Línea que une los números; se llena con el scroll */
+.line {
+  position: absolute;
+  left: 1.6rem;
+  right: calc(25% - 1.6rem);
+  top: 1.6rem;
+  height: 2px;
+  background: var(--mg-divider);
+}
+
+.lineFill {
+  display: block;
+  height: 100%;
+  background: var(--mg-gold);
+  transform-origin: left;
+}
+
+.lineV {
+  position: absolute;
+  left: 1.6rem;
+  top: 1.6rem;
+  bottom: 1.6rem;
+  display: none;
+  width: 2px;
+  background: var(--mg-divider);
+}
+
+.lineFillV {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--mg-gold);
+  transform-origin: top;
+}
+
+.step {
+  position: relative;
+}
+
+.num {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  border: 1px solid var(--mg-line);
+  border-radius: 50%;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.title {
+  margin-top: 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.text {
+  margin-top: 0.5rem;
+  color: var(--mg-fg-muted);
+}
+
+.ctas {
+  margin-top: 3.5rem;
+}
+
+@media (max-width: 860px) {
+  .list {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  /* En móvil la línea va en vertical */
+  .line {
+    display: none;
+  }
+
+  .lineV {
+    display: block;
+  }
+
+  .step {
+    padding-left: 4.5rem;
+  }
+
+  .num {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .title {
+    margin-top: 0.6rem;
+  }
+}

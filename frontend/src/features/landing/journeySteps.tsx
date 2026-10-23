@@ -104,7 +104,7 @@ function LostVisual() {
       </span>
       <div>
         <p className={styles.vTitle}>Vieron a Simón</p>
-        <p className={styles.vMuted}>Hace 20 minutos cerca del Parque México. Tres vecinos avisaron.</p>
+        <p className={styles.vMuted}>Avistamiento hace 20 minutos cerca del Parque México.</p>
       </div>
     </div>
   );
@@ -149,7 +149,7 @@ export const STEPS: JourneyStep[] = [
   },
   {
     title: "Si se pierde",
-    text: "Publica su foto y la última ubicación. La comunidad de tu zona recibe la alerta y puede avisarte si lo ve.",
+    text: "Publica su foto y la última ubicación. Quien lo vea registra un avistamiento y te avisamos al momento.",
     photo: "/landing/perdido.webp",
     alt: "Un gato naranja sentado sobre una barda en una calle de noche",
     Visual: LostVisual,
