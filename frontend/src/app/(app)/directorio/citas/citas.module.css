@@ -1,0 +1,100 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.body {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.iconBox {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  flex-shrink: 0;
+}
+
+.headInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.clinicName {
+  margin: 0;
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.serviceName {
+  margin: 0;
+  font-size: var(--font-md);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lines {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.line {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.lineText {
+  flex: 1;
+  font-size: var(--font-base);
+  color: var(--color-text);
+  line-height: 1.45;
+}
+
+.lineMuted {
+  flex: 1;
+  font-size: var(--font-base);
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-error-light);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.actions > * {
+  flex: 1;
+}

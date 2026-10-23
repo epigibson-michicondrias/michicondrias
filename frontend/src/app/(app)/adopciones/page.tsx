@@ -1,274 +1,152 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCurrentUser } from "@/lib/legacy/auth";
-import { getListings, Listing } from "@/lib/legacy/services/adopciones";
-import dashStyles from "../dashboard.module.css";
-import styles from "./adopciones.module.css";
-
-const SPECIES_EMOJI: Record<string, string> = {
-    perro: "🐕",
-    gato: "🐈",
-    ave: "🐦",
-    otro: "🐾",
-};
-
-const SPECIES_LABEL: Record<string, string> = {
-    perro: "Perro",
-    gato: "Gato",
-    ave: "Ave",
-    otro: "Otro",
-};
+/**
+ * Adopciones — listado de mascotas en adopción con filtros.
+ * Espejo de `mobile/app/adopciones/index.tsx`.
+ */
+import { useRouter } from "next/navigation";
+import { Heart, LayoutGrid, List, Plus, FolderHeart, ClipboardList } from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import EmptyState from "@/components/EmptyState";
+import SearchBar from "@/components/SearchBar";
+import FilterChip from "@/components/FilterChip";
+import { Skeleton } from "@/components/Skeleton";
+import ListingCard from "@/features/adopciones/ListingCard";
+import { useListings } from "@/hooks/adopciones/useListings";
+import local from "@/features/adopciones/adopciones.module.css";
 
 export default function AdopcionesPage() {
-    const queryClient = useQueryClient();
-    const [isMounted, setIsMounted] = useState(false);
-    const [viewMode, setViewMode] = useState<"grid" | "list" | "compact">("grid");
+  const router = useRouter();
+  const {
+    listings,
+    isLoading,
+    search,
+    setSearch,
+    speciesFilter,
+    setSpeciesFilter,
+    sizeFilter,
+    setSizeFilter,
+    viewMode,
+    setViewMode,
+    hasActiveFilters,
+  } = useListings();
 
-    // Filters & Search
-    const [searchQuery, setSearchQuery] = useState("");
-    const [filterSpecies, setFilterSpecies] = useState<string>("all");
-    const [filterSize, setFilterSize] = useState<string>("all");
+  return (
+    <ScreenContainer>
+      <ScreenHeader
+        title="Adopciones"
+        subtitle="Encuentra a tu nuevo mejor amigo"
+        showBack={false}
+        actions={[
+          {
+            icon: ClipboardList,
+            label: "Mis solicitudes para adoptar",
+            onPress: () => router.push("/adopciones/mis-solicitudes"),
+          },
+          {
+            icon: FolderHeart,
+            label: "Solicitudes recibidas",
+            onPress: () => router.push("/adopciones/solicitudes"),
+          },
+          {
+            icon: Plus,
+            label: "Dar en adopción",
+            onPress: () => router.push("/adopciones/nuevo"),
+          },
+        ]}
+      />
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    const { data: user } = useQuery({
-        queryKey: ["current-user"],
-        queryFn: getCurrentUser
-    });
-
-    const role = user?.role_name || "consumidor";
-    const isAdmin = role === "admin";
-
-    const { data: listings = [], isLoading: loading } = useQuery({
-        queryKey: ["listings", role],
-        queryFn: async () => {
-            const data = await getListings();
-            return isAdmin ? data : data.filter(d => d.is_approved);
-        },
-        staleTime: 1000 * 60 * 5, // 5 minutes fresh
-    });
-
-    // Computed filtered list
-    const filteredListings = listings.filter((listing) => {
-        const matchesSearch = listing.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (listing.breed?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-        const matchesSpecies = filterSpecies === "all" || listing.species === filterSpecies;
-        const matchesSize = filterSize === "all" || listing.size === filterSize;
-        return matchesSearch && matchesSpecies && matchesSize;
-    });
-
-    return (
-        <div className={styles.container}>
-            <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>🐾 Adopciones</h1>
-                <p className={dashStyles["page-subtitle"]}>
-                    Encuentra a tu compañero ideal en Michicondrias
-                </p>
-            </div>
-
-            <div className={dashStyles["module-page__toolbar"]} style={{ marginBottom: "2.5rem" }}>
-                <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", flex: 1 }}>
-                        <input
-                            type="text"
-                            placeholder="🔍 Buscar por nombre o raza..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className={styles["search-input"]}
-                        />
-                        <select
-                            value={filterSpecies}
-                            onChange={(e) => setFilterSpecies(e.target.value)}
-                            className={styles["filter-select"]}
-                        >
-                            <option value="all">Todas las especies</option>
-                            <option value="perro">🐕 Perros</option>
-                            <option value="gato">🐈 Gatos</option>
-                            <option value="ave">🐦 Aves</option>
-                            <option value="otro">🐾 Otros</option>
-                        </select>
-                        <select
-                            value={filterSize}
-                            onChange={(e) => setFilterSize(e.target.value)}
-                            className={styles["filter-select"]}
-                        >
-                            <option value="all">Todos los tamaños</option>
-                            <option value="pequeño">Pequeño</option>
-                            <option value="mediano">Mediano</option>
-                            <option value="grande">Grande</option>
-                        </select>
-
-                        {/* View Toggles */}
-                        <div className={styles["view-toggles"]}>
-                            <button
-                                onClick={() => setViewMode("grid")}
-                                className={`${styles["view-btn"]} ${viewMode === "grid" ? styles["view-btn--active"] : ""}`}
-                                title="Vista Cuadrícula"
-                            >
-                                ⊞
-                            </button>
-                            <button
-                                onClick={() => setViewMode("list")}
-                                className={`${styles["view-btn"]} ${viewMode === "list" ? styles["view-btn--active"] : ""}`}
-                                title="Vista Lista Amplia"
-                            >
-                                ☰
-                            </button>
-                            <button
-                                onClick={() => setViewMode("compact")}
-                                className={`${styles["view-btn"]} ${viewMode === "compact" ? styles["view-btn--active"] : ""}`}
-                                title="Vista Compacta"
-                            >
-                                ≡
-                            </button>
-                        </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "1rem" }}>
-                        {isMounted && isAdmin && (
-                            <Link href="/adopciones/pendientes" className="btn btn-secondary" style={{ borderRadius: "16px", padding: "0.85rem 1.5rem" }}>
-                                📋 Moderación
-                            </Link>
-                        )}
-                        <Link href="/adopciones/nueva" className={styles["pet-card__adopt-btn"]} style={{ textDecoration: "none", minWidth: "220px" }}>
-                            ✨ Publicar en adopción
-                        </Link>
-                    </div>
-                </div>
-            </div>
-
-            {loading ? (
-                <div className={dashStyles["loading-container"]}>
-                    <p style={{ color: "var(--text-secondary)", padding: "2rem" }}>Cargando michis...</p>
-                </div>
-            ) : filteredListings.length === 0 ? (
-                <div className={dashStyles["empty-state"]} style={{ padding: "5rem 2rem", background: "rgba(15,15,26,0.4)", borderRadius: "32px", border: "1px dashed rgba(255,255,255,0.1)" }}>
-                    <span style={{ fontSize: "5rem", display: "block", marginBottom: "1rem" }}>🏜️</span>
-                    <h3 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "800" }}>
-                        {listings.length === 0 ? "¡Silencio por aquí!" : "¡Ups! No hay resultados"}
-                    </h3>
-                    <p style={{ color: "var(--text-secondary)" }}>
-                        {listings.length === 0
-                            ? "No hay mascotas publicadas por ahora. ¡Anímate a publicar una!"
-                            : "Prueba ajustando tus filtros de búsqueda."}
-                    </p>
-                </div>
-            ) : (
-                <div className={`${styles[`${viewMode === "grid" ? "adopciones-grid" : viewMode + "-view"}`]}`}>
-                    {filteredListings.map((listing) => {
-                        const speciesEmoji = SPECIES_EMOJI[listing.species] || SPECIES_EMOJI.otro;
-                        return (
-                            <div key={listing.id} className={styles["pet-card"]}>
-                                <div className={styles["pet-card__visual"]}>
-                                    {listing.photo_url ? (
-                                        <Image
-                                            src={listing.photo_url}
-                                            alt={listing.name}
-                                            fill
-                                            style={{ objectFit: "cover" }}
-                                        />
-                                    ) : (
-                                        <span className={styles["pet-card__emoji"]}>
-                                            {speciesEmoji}
-                                        </span>
-                                    )}
-                                    <span className={styles["pet-card__status"] + " " + styles["pet-card__status--disponible"]}>
-                                        Disponible
-                                    </span>
-                                </div>
-
-                                <div className={styles["pet-card__body"]}>
-                                    <div className={styles["pet-card__name"]}>
-                                        {listing.name}
-                                        <span className={styles["pet-card__species-tag"]}>
-                                            {SPECIES_LABEL[listing.species] || listing.species}
-                                        </span>
-                                    </div>
-
-                                    <div className={styles["pet-card__chips"]}>
-                                        {listing.breed && (
-                                            <span className={styles["pet-card__chip"]}>
-                                                🏷️ {listing.breed}
-                                            </span>
-                                        )}
-                                        {listing.age_months != null && viewMode !== "compact" && (
-                                            <span className={styles["pet-card__chip"]}>
-                                                📅 {listing.age_months} meses
-                                            </span>
-                                        )}
-                                        {listing.size && viewMode !== "compact" && (
-                                            <span className={styles["pet-card__chip"]}>
-                                                📏 {listing.size}
-                                            </span>
-                                        )}
-                                        {listing.is_sterilized && (viewMode !== "compact") && (
-                                            <span className={styles["pet-card__chip"]} style={{ border: "1px solid rgba(139, 92, 246, 0.3)", color: "var(--primary-light)" }}>
-                                                ✂️ Esterilizado
-                                            </span>
-                                        )}
-                                        {listing.is_vaccinated && (viewMode !== "compact") && (
-                                            <span className={styles["pet-card__chip"]} style={{ border: "1px solid rgba(74, 222, 128, 0.3)", color: "#4ade80" }}>
-                                                💉 Vacunado
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {listing.description && viewMode !== "compact" && (
-                                        <p className={styles["pet-card__desc"]}>{listing.description}</p>
-                                    )}
-                                </div>
-
-                                <div className={styles["pet-card__actions"]} style={{ flexDirection: "column" }}>
-                                    {!isAdmin ? (
-                                        <Link
-                                            href={`/adopciones/mascota/${listing.id}`}
-                                            className={styles["pet-card__adopt-btn"]}
-                                            style={{ textDecoration: "none", textAlign: 'center' }}
-                                            onMouseEnter={() => {
-                                                queryClient.prefetchQuery({
-                                                    queryKey: ["listing", listing.id],
-                                                    queryFn: () => import("@/lib/legacy/services/adopciones").then(m => m.getListing(listing.id))
-                                                });
-                                            }}
-                                        >
-                                            {viewMode === "compact" ? "Adoptar" : "Leer Historia y Adoptar 👈"}
-                                        </Link>
-                                    ) : (
-                                        <div style={{ display: "flex", gap: "0.75rem", width: "100%" }}>
-                                            <Link
-                                                href={`/adopciones/mascota/${listing.id}`}
-                                                className={styles["pet-card__adopt-btn"]}
-                                                style={{ textDecoration: "none", flex: 1, textAlign: 'center' }}
-                                                onMouseEnter={() => {
-                                                    queryClient.prefetchQuery({
-                                                        queryKey: ["listing", listing.id],
-                                                        queryFn: () => import("@/lib/legacy/services/adopciones").then(m => m.getListing(listing.id))
-                                                    });
-                                                }}
-                                            >
-                                                {viewMode === "compact" ? "👁️" : "Ver Detalle"}
-                                            </Link>
-                                            <Link
-                                                href={`/adopciones/solicitudes?id=${listing.id}`}
-                                                className={styles["pet-card__adopt-btn"] + " " + styles["admin-btn"]}
-                                                style={{ textDecoration: "none", flex: 1, textAlign: 'center' }}
-                                            >
-                                                {viewMode === "compact" ? "🕵️" : "Solicitudes"}
-                                            </Link>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+      <div className={local.filters}>
+        <SearchBar value={search} onChangeText={setSearch} placeholder="Busca por nombre, raza..." />
+        <div className={local.chipsRow}>
+          <FilterChip
+            label="Todos"
+            active={speciesFilter === "all" && sizeFilter === "all"}
+            onPress={() => {
+              setSpeciesFilter("all");
+              setSizeFilter("all");
+            }}
+          />
+          <FilterChip
+            label="Perros"
+            active={speciesFilter === "perro"}
+            onPress={() => setSpeciesFilter(speciesFilter === "perro" ? "all" : "perro")}
+          />
+          <FilterChip
+            label="Gatos"
+            active={speciesFilter === "gato"}
+            onPress={() => setSpeciesFilter(speciesFilter === "gato" ? "all" : "gato")}
+          />
+          <FilterChip
+            label="Grandes"
+            active={sizeFilter === "grande"}
+            onPress={() => setSizeFilter(sizeFilter === "grande" ? "all" : "grande")}
+          />
         </div>
-    );
+      </div>
+
+      {isLoading ? (
+        <div className={local.grid}>
+          {[0, 1, 2, 3].map((i) => (
+            <Skeleton key={i} height={240} borderRadius={16} />
+          ))}
+        </div>
+      ) : listings.length === 0 ? (
+        <EmptyState
+          icon={<Heart size={28} />}
+          title={hasActiveFilters ? "Sin resultados" : "Aún no hay mascotas en adopción"}
+          subtitle={
+            hasActiveFilters
+              ? "Prueba con otra búsqueda o quita los filtros."
+              : "Cuando un refugio publique una mascota aparecerá aquí."
+          }
+          actionLabel={hasActiveFilters ? "Quitar filtros" : "Dar en adopción"}
+          onAction={
+            hasActiveFilters
+              ? () => {
+                  setSearch("");
+                  setSpeciesFilter("all");
+                  setSizeFilter("all");
+                }
+              : () => router.push("/adopciones/nuevo")
+          }
+        />
+      ) : (
+        <>
+          <div className={local.toolbar}>
+            <p className={local.count}>
+              {listings.length} {listings.length === 1 ? "mascota" : "mascotas"}
+            </p>
+            <div className={local.viewToggle} role="group" aria-label="Modo de vista">
+              <button
+                type="button"
+                className={`${local.viewBtn} ${viewMode === "grid" ? local.viewBtnActive : ""}`}
+                onClick={() => setViewMode("grid")}
+                aria-label="Ver en cuadrícula"
+                aria-pressed={viewMode === "grid"}
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button
+                type="button"
+                className={`${local.viewBtn} ${viewMode === "list" ? local.viewBtnActive : ""}`}
+                onClick={() => setViewMode("list")}
+                aria-label="Ver como lista"
+                aria-pressed={viewMode === "list"}
+              >
+                <List size={18} />
+              </button>
+            </div>
+          </div>
+
+          <div className={viewMode === "list" ? local.list : local.grid}>
+            {listings.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} compact={viewMode === "list"} />
+            ))}
+          </div>
+        </>
+      )}
+    </ScreenContainer>
+  );
 }

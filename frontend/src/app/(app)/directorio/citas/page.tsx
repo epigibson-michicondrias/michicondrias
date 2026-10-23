@@ -1,165 +1,189 @@
 "use client";
 
-import { useEffect, useState } from "react";
+/**
+ * Mis citas — listado con filtros, cancelar y reagendar.
+ * Espejo de `mobile/app/directorio/citas/index.tsx`.
+ */
 import { useRouter } from "next/navigation";
-import { getMyAppointments, cancelAppointment, AppointmentItem } from "@/lib/legacy/services/directorio";
-import dashStyles from "../../dashboard.module.css";
-import { toast } from "react-hot-toast";
-import ConfirmModal from "@/components/ui/ConfirmModal";
+import {
+  AlertTriangle,
+  Ban,
+  Building2,
+  Calendar,
+  CalendarClock,
+  Clock,
+  FileText,
+  Info,
+  PawPrint,
+  RefreshCw,
+} from "lucide-react";
+import type { ComponentType } from "react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Card from "@/components/Card";
+import Badge from "@/components/Badge";
+import Button from "@/components/Button";
+import FilterChip from "@/components/FilterChip";
+import EmptyState from "@/components/EmptyState";
+import { SkeletonList } from "@/components/Skeleton";
+import {
+  useAppointments,
+  STATUS_CONFIG,
+  FILTER_TABS,
+  formatDateTime,
+} from "@/hooks/directorio/useAppointments";
+import type { Appointment } from "@/services/citas";
+import s from "./citas.module.css";
 
-const STATUS_MAP: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
-    pending: { label: "Pendiente", emoji: "⏳", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    confirmed: { label: "Confirmada", emoji: "✅", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
-    completed: { label: "Completada", emoji: "🎉", color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
-    cancelled: { label: "Cancelada", emoji: "❌", color: "#ef4444", bg: "rgba(239,68,68,0.12)" },
-    no_show: { label: "No Asistió", emoji: "👻", color: "#6b7280", bg: "rgba(107,114,128,0.12)" },
-    rescheduled: { label: "Reagendada (Historial)", emoji: "🔄", color: "#6b7280", bg: "rgba(107,114,128,0.12)" }
-};
+function Line({ icon: Icon, text, muted }: { icon: ComponentType<{ size?: number; color?: string }>; text: string; muted?: boolean }) {
+  return (
+    <div className={s.line}>
+      <Icon size={15} color="var(--color-text-muted)" />
+      <span className={muted ? s.lineMuted : s.lineText}>{text}</span>
+    </div>
+  );
+}
 
-export default function MisCitasPage() {
-    const router = useRouter();
-    const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<string>("all");
-    const [cancelModal, setCancelModal] = useState<{ isOpen: boolean; apptId: string | null }>({ isOpen: false, apptId: null });
+function AppointmentCard({
+  item,
+  onCancel,
+  onReschedule,
+  cancelling,
+}: {
+  item: Appointment;
+  onCancel: (a: Appointment) => void;
+  onReschedule: (a: Appointment) => void;
+  cancelling: boolean;
+}) {
+  const status = STATUS_CONFIG[item.status] || STATUS_CONFIG.scheduled;
+  const color = `var(--color-${status.tone})`;
+  const { date, time } = formatDateTime(item.appointment_date);
+  const isActive = !["cancelled", "completed", "rescheduled"].includes(item.status);
 
-    useEffect(() => {
-        loadAppointments();
-    }, []);
-
-    async function loadAppointments() {
-        try {
-            const data = await getMyAppointments();
-            setAppointments(data);
-        } catch (err) {
-            toast.error("Error cargando tus citas");
-        } finally { setLoading(false); }
-    }
-
-    async function handleCancel(reason?: string) {
-        if (!cancelModal.apptId) return;
-        const id = cancelModal.apptId;
-        try {
-            const updated = await cancelAppointment(id, reason || undefined);
-            setAppointments(prev => prev.map(a => a.id === id ? updated : a));
-            toast.success("Cita cancelada correctamente");
-        } catch (err: any) {
-            toast.error(err.message || "Error al cancelar");
-        } finally {
-            setCancelModal({ isOpen: false, apptId: null });
-        }
-    }
-
-    // Ocultamos las "rescheduled" de la vista principal del usuario para evitar basura visual
-    const displayAppointments = appointments.filter(a => a.status !== "rescheduled");
-    const filtered = filter === "all" ? displayAppointments : displayAppointments.filter(a => a.status === filter);
-    const upcoming = displayAppointments.filter(a => ["pending", "confirmed"].includes(a.status));
-    const past = displayAppointments.filter(a => ["completed", "cancelled", "no_show"].includes(a.status));
-
-    return (
-        <div style={{ animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }}>
-            <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>📅 Mis Citas Veterinarias</h1>
-                <p className={dashStyles["page-subtitle"]}>Gestiona tus citas médicas, reagenda o cancela según necesites</p>
-            </div>
-
-            {/* Stats */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
-                {[
-                    { label: "Próximas", count: upcoming.length, emoji: "📋", color: "#a78bfa" },
-                    { label: "Completadas", count: past.filter(a => a.status === "completed").length, emoji: "✅", color: "#10b981" },
-                    { label: "Canceladas", count: past.filter(a => a.status === "cancelled").length, emoji: "❌", color: "#ef4444" },
-                    { label: "Total", count: displayAppointments.length, emoji: "📊", color: "#3b82f6" },
-                ].map(stat => (
-                    <div key={stat.label} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "18px", padding: "1.25rem", textAlign: "center" }}>
-                        <div style={{ fontSize: "1.5rem" }}>{stat.emoji}</div>
-                        <p style={{ margin: "0.3rem 0 0 0", color: stat.color, fontSize: "1.8rem", fontWeight: 900 }}>{stat.count}</p>
-                        <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "0.8rem" }}>{stat.label}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Filter Tabs */}
-            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-                {[
-                    { key: "all", label: "Todas" },
-                    { key: "pending", label: "⏳ Pendientes" },
-                    { key: "confirmed", label: "✅ Confirmadas" },
-                    { key: "completed", label: "🎉 Completadas" },
-                    { key: "cancelled", label: "❌ Canceladas" },
-                ].map(tab => (
-                    <button key={tab.key} onClick={() => setFilter(tab.key)} style={{
-                        padding: "0.5rem 1.25rem", borderRadius: "12px", cursor: "pointer", fontSize: "0.85rem", fontWeight: 600, transition: "all 0.2s",
-                        background: filter === tab.key ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.03)",
-                        border: `1px solid ${filter === tab.key ? "rgba(139,92,246,0.4)" : "rgba(255,255,255,0.06)"}`,
-                        color: filter === tab.key ? "#a78bfa" : "var(--text-secondary)",
-                    }}>{tab.label}</button>
-                ))}
-            </div>
-
-            {/* Appointments List */}
-            {loading ? (
-                <div style={{ display: "flex", justifyContent: "center", padding: "4rem" }}><div className={dashStyles["loading-spinner-premium"]} /></div>
-            ) : filtered.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "4rem 2rem", background: "rgba(255,255,255,0.02)", borderRadius: "24px", border: "1px dashed rgba(255,255,255,0.1)" }}>
-                    <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.5 }}>📅</div>
-                    <h3 style={{ color: "#fff", marginBottom: "0.5rem" }}>No tienes citas {filter !== "all" ? `con este filtro` : ``}</h3>
-                    <p style={{ color: "var(--text-secondary)", marginBottom: "2rem" }}>Busca una clínica en el directorio para agendar tu primera cita</p>
-                    <button className="btn btn-primary" onClick={() => router.push("/directorio")} style={{ borderRadius: "16px", padding: "1rem 2.5rem" }}>Buscar Clínicas →</button>
-                </div>
-            ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    {filtered.map(appt => {
-                        const s = STATUS_MAP[appt.status] || STATUS_MAP.pending;
-                        return (
-                            <div key={appt.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "20px", padding: "1.5rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
-                                {/* Date Badge */}
-                                <div style={{ width: "70px", textAlign: "center", flexShrink: 0 }}>
-                                    <div style={{ background: "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.3))", borderRadius: "14px", padding: "0.75rem 0.5rem" }}>
-                                        <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 900, color: "#a78bfa" }}>{appt.date ? new Date(appt.date + "T12:00").getDate() : "?"}</p>
-                                        <p style={{ margin: 0, fontSize: "0.7rem", color: "var(--text-secondary)", textTransform: "uppercase" }}>{appt.date ? new Date(appt.date + "T12:00").toLocaleDateString("es-MX", { month: "short" }) : ""}</p>
-                                    </div>
-                                </div>
-
-                                {/* Details */}
-                                <div style={{ flex: 1, minWidth: "200px" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.3rem" }}>
-                                        <p style={{ margin: 0, color: "#fff", fontWeight: 700, fontSize: "1.05rem" }}>{appt.service_name || "Servicio"}</p>
-                                        <span style={{ padding: "0.2rem 0.7rem", borderRadius: "20px", fontSize: "0.7rem", fontWeight: 700, color: s.color, background: s.bg }}>{s.emoji} {s.label}</span>
-                                    </div>
-                                    <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "0.85rem" }}>
-                                        🏥 {appt.clinic_name || "Clínica"} · 🕐 {appt.start_time} - {appt.end_time}
-                                    </p>
-                                </div>
-
-                                {/* Actions */}
-                                <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
-                                    {["pending", "confirmed"].includes(appt.status) && (
-                                        <>
-                                            <button onClick={() => router.push(`/directorio/citas/agendar/${appt.clinic_id}?service_id=${appt.service_id}&reschedule_id=${appt.id}&pet_id=${appt.pet_id}`)} className="btn btn-secondary" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem" }}>🔄 Reagendar</button>
-                                            <button onClick={() => setCancelModal({ isOpen: true, apptId: appt.id })} className="btn btn-outline" style={{ borderRadius: "10px", padding: "0.5rem 1rem", fontSize: "0.8rem", borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}>❌ Cancelar</button>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
-
-            {/* Cancel Modal */}
-            <ConfirmModal
-                isOpen={cancelModal.isOpen}
-                title="Cancelar Cita"
-                message="¿Estás seguro que deseas cancelar esta cita? Por favor, déjanos conocer el motivo."
-                confirmText="Sí, Cancelar"
-                cancelText="Mantener Cita"
-                isDanger={true}
-                requireInput={true}
-                inputPlaceholder="Motivo de cancelación (opcional)"
-                onConfirm={handleCancel}
-                onCancel={() => setCancelModal({ isOpen: false, apptId: null })}
-            />
+  return (
+    <Card>
+      <div className={s.body}>
+        <div className={s.head}>
+          <div className={s.iconBox}>
+            <Building2 size={20} color="var(--color-primary)" />
+          </div>
+          <div className={s.headInfo}>
+            <p className={s.clinicName}>{item.clinic_name || "Clínica"}</p>
+            {item.service_name ? <p className={s.serviceName}>{item.service_name}</p> : null}
+          </div>
+          <Badge label={status.label} color={color} size="sm" />
         </div>
-    );
+
+        <div className={s.lines}>
+          <Line icon={Calendar} text={`${date}${time ? ` · ${time}` : ""}`} />
+          <Line icon={PawPrint} text={item.pet_name || "Mascota"} />
+          {item.reason ? <Line icon={FileText} text={item.reason} muted /> : null}
+        </div>
+
+        {item.is_emergency ? (
+          <Badge label="Emergencia" color="var(--color-error)" size="sm" icon={<AlertTriangle size={12} />} />
+        ) : null}
+
+        {item.status === "cancelled" && item.cancellation_reason ? (
+          <div className={s.note}>
+            <Info size={15} color="var(--color-error)" />
+            <span className={s.lineText}>Motivo: {item.cancellation_reason}</span>
+          </div>
+        ) : null}
+
+        {isActive ? (
+          <div className={s.actions}>
+            <Button
+              label="Reagendar"
+              variant="secondary"
+              size="sm"
+              icon={<CalendarClock size={15} />}
+              onPress={() => onReschedule(item)}
+              accessibilityLabel={`Reagendar la cita en ${item.clinic_name || "la clínica"}`}
+            />
+            <Button
+              label="Cancelar"
+              variant="secondary"
+              size="sm"
+              icon={<Ban size={15} color="var(--color-error)" />}
+              onPress={() => onCancel(item)}
+              disabled={cancelling}
+              accessibilityLabel={`Cancelar la cita en ${item.clinic_name || "la clínica"}`}
+            />
+          </div>
+        ) : null}
+      </div>
+    </Card>
+  );
+}
+
+export default function CitasPage() {
+  const router = useRouter();
+  const {
+    appointments,
+    countFor,
+    isLoading,
+    isRefetching,
+    refetch,
+    activeFilter,
+    setActiveFilter,
+    handleCancel,
+    handleReschedule,
+    cancelMutation,
+  } = useAppointments();
+
+  return (
+    <ScreenContainer>
+      <ScreenHeader
+        title="Mis citas"
+        subtitle={countFor("all") > 0 ? `${countFor("all")} ${countFor("all") === 1 ? "cita" : "citas"}` : undefined}
+        actions={[{ icon: RefreshCw, label: "Actualizar citas", onPress: () => refetch(), loading: isRefetching }]}
+      />
+
+      <div className={s.chips} role="group" aria-label="Filtrar citas">
+        {FILTER_TABS.map((tab) => {
+          const count = countFor(tab.key);
+          return (
+            <FilterChip
+              key={tab.key}
+              label={tab.label}
+              count={tab.key === "all" || count === 0 ? undefined : count}
+              active={activeFilter === tab.key}
+              onPress={() => setActiveFilter(tab.key)}
+            />
+          );
+        })}
+      </div>
+
+      {isLoading ? (
+        <SkeletonList count={3} />
+      ) : appointments.length === 0 ? (
+        <EmptyState
+          icon={activeFilter === "all" ? <Calendar size={28} /> : <Clock size={28} />}
+          title={activeFilter === "all" ? "Aún no tienes citas" : "Nada en este filtro"}
+          subtitle={
+            activeFilter === "all"
+              ? "Busca una clínica o especialista y agenda en minutos."
+              : "No tienes citas con este estado."
+          }
+          actionLabel={activeFilter === "all" ? "Buscar veterinario" : "Ver todas"}
+          onAction={
+            activeFilter === "all" ? () => router.push("/directorio") : () => setActiveFilter("all")
+          }
+        />
+      ) : (
+        <div className={s.list}>
+          {appointments.map((item) => (
+            <AppointmentCard
+              key={item.id}
+              item={item}
+              onCancel={handleCancel}
+              onReschedule={handleReschedule}
+              cancelling={cancelMutation.isPending}
+            />
+          ))}
+        </div>
+      )}
+    </ScreenContainer>
+  );
 }

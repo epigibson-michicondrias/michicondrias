@@ -1,0 +1,33 @@
+.content {
+  display: grid;
+  gap: var(--space-xl);
+  padding-bottom: var(--space-xl);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+@media (max-width: 520px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-info-light);
+}
+
+.noteText {
+  margin: 0;
+  font-size: var(--font-md);
+  line-height: 1.5;
+  color: var(--color-text);
+}

@@ -1,311 +1,152 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { getListing, Listing } from "@/lib/legacy/services/adopciones";
-import { getUserRole } from "@/lib/legacy/auth";
-import dashStyles from "../../../dashboard.module.css";
-import styles from "./mascota.module.css";
+/**
+ * Detalle de mascota en adopción (`/adopciones/mascota/[id]`).
+ * Espejo de `mobile/app/adopciones/[id].tsx`.
+ */
+import Image from "next/image";
+import {
+  PawPrint, MapPin, Heart, ClipboardList, Send, Home, Trees, Baby, Clock, Wallet, Thermometer, Zap,
+} from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Button from "@/components/Button";
+import Badge from "@/components/Badge";
+import Card from "@/components/Card";
+import EmptyState from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
+import { useListingDetail } from "@/hooks/adopciones/useListingDetail";
+import { getSpeciesLabel, getGenderLabel, formatAge, capitalize } from "@/utils/formatters";
+import local from "@/features/adopciones/adopciones.module.css";
 
-const SPECIES_EMOJI: Record<string, string> = {
-    perro: "🐕",
-    gato: "🐈",
-    ave: "🐦",
-    otro: "🐾",
-};
+function Fact({ icon: Icon, label, value }: { icon: typeof Home; label: string; value: string }) {
+  return (
+    <div className={local.fact}>
+      <Icon size={16} className={local.factIcon} aria-hidden />
+      <span>{label}</span>
+      <span className={local.factValue}>{value}</span>
+    </div>
+  );
+}
 
-export default function MascotaDetailPage(props: { params: Promise<{ id: string }> }) {
-    const router = useRouter();
-    const [listing, setListing] = useState<Listing | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
+export default function MascotaAdopcionPage() {
+  const { listing, isLoading, goBack, goToApply, goToMyRequests, goToRequests, myRequest, isOwner } =
+    useListingDetail();
 
-    // Unwrap params in Next.js 15
-    const { id } = React.use(props.params);
-
-    useEffect(() => {
-        const role = localStorage.getItem("user_role");
-        setIsAdmin(role === "admin" || role === "veterinario");
-
-        async function load() {
-            try {
-                const data = await getListing(id);
-                setListing(data);
-            } catch (err) {
-                console.error("Error cargando perfil de la mascota", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-    }, [id]);
-
-    if (loading) {
-        return (
-            <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>Cargando Perfil...</h1>
-            </div>
-        );
-    }
-
-    if (!listing) {
-        return (
-            <div className={dashStyles["empty-state"]}>
-                <span style={{ fontSize: "4rem" }}>😢</span>
-                <p>No logramos encontrar a esta mascota.</p>
-                <button onClick={() => router.push("/adopciones")} className="btn btn-secondary" style={{ marginTop: "1rem" }}>
-                    Volver a la galería
-                </button>
-            </div>
-        );
-    }
-
-    const emoji = SPECIES_EMOJI[listing.species] || "🐾";
-
+  if (isLoading) {
     return (
-        <div className={styles["profile-container"]}>
-            {/* Header Visual */}
-            <div className={`${styles["visual-header"]} ${styles[`visual-header--${listing.species}`]}`}>
-                {listing.photo_url ? (
-                    <img src={listing.photo_url} alt={listing.name} className={styles["hero-image"]} />
-                ) : (
-                    <div className={styles["emoji-placeholder"]}>{emoji}</div>
-                )}
-
-                <div className={styles["hero-overlay"]}>
-                    <button
-                        onClick={() => router.back()}
-                        className={dashStyles["back-button-premium"]}
-                        style={{ margin: '1.5rem' }}
-                        title="Volver a la Galería"
-                    >
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <div className={styles["hero-tags"]} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        <span className={styles["status-badge"]}>
-                            {listing.status === "abierto" ? "☀️ Disponible para Adopción" : "En proceso..."}
-                        </span>
-                        {listing.is_emergency && (
-                            <span className={styles["emergency-banner"]}>
-                                🚨 CASO URGENTE
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Información Principal */}
-            <div className={styles["profile-body"]}>
-                <div className={styles["main-info"]}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
-                        <div>
-                            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                <h1 className={styles["pet-name"]}>{listing.name}</h1>
-                                {listing.gender && (
-                                    <span className={`${styles["gender-icon"]} ${styles[`gender-${listing.gender.toLowerCase()}`]}`}>
-                                        {listing.gender.toLowerCase() === 'macho' ? '♂️' : '♀️'}
-                                    </span>
-                                )}
-                            </div>
-                            <p className={styles["pet-metadata"]}>
-                                {listing.breed || "Mestizo"} • {listing.species.charAt(0).toUpperCase() + listing.species.slice(1)} • {listing.location || "Ubicación pendiente"}
-                            </p>
-
-                            {/* Health Badges */}
-                            <div className={styles["health-grid"]}>
-                                <div className={`${styles["health-badge"]} ${listing.is_vaccinated ? styles["health-badge--true"] : ""}`}>
-                                    {listing.is_vaccinated ? "✅ Vacunado" : "⏳ Vacunas pendientes"}
-                                </div>
-                                <div className={`${styles["health-badge"]} ${listing.is_sterilized ? styles["health-badge--true"] : ""}`}>
-                                    {listing.is_sterilized ? "✅ Esterilizado" : "⏳ No esterilizado"}
-                                </div>
-                                <div className={`${styles["health-badge"]} ${listing.is_dewormed ? styles["health-badge--true"] : ""}`}>
-                                    {listing.is_dewormed ? "✅ Desparasitado" : "⏳ Pendiente desparasitación"}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Call to action principal */}
-                        <div className={styles["action-box"]}>
-                            {!isAdmin ? (
-                                <Link href={`/adopciones/solicitud?id=${listing.id}`} className={styles["adopt-btn-large"]}>
-                                    💛 Enviar Solicitud de Adopción
-                                </Link>
-                            ) : (
-                                <Link href={`/adopciones/solicitudes?id=${listing.id}`} className={styles["adopt-btn-large"]} style={{ background: "rgba(124, 58, 237, 0.2)", border: "1px solid rgba(124, 58, 237, 0.4)", color: "#fff" }}>
-                                    🕵️ Ver Solicitudes Recibidas
-                                </Link>
-                            )}
-                            <p className={styles["action-disclaimer"]}>El proceso requiere validación de identidad (KYC)</p>
-                        </div>
-                    </div>
-
-                    {/* Fila de Datos Rápidos */}
-                    <div className={styles["quick-stats"]}>
-                        <div className={styles["stat-card"]}>
-                            <span className={styles["stat-icon"]}>📅</span>
-                            <div className={styles["stat-text"]}>
-                                <span className={styles["stat-label"]}>Edad aproximada</span>
-                                <span className={styles["stat-value"]}>{listing.age_months != null ? `${listing.age_months} meses` : "Desconocida"}</span>
-                            </div>
-                        </div>
-                        <div className={styles["stat-card"]}>
-                            <span className={styles["stat-icon"]}>📏</span>
-                            <div className={styles["stat-text"]}>
-                                <span className={styles["stat-label"]}>Tamaño proyectado</span>
-                                <span className={styles["stat-value"]}>{listing.size ? listing.size.charAt(0).toUpperCase() + listing.size.slice(1) : "No especificado"}</span>
-                            </div>
-                        </div>
-                        {listing.weight_kg && (
-                            <div className={styles["stat-card"]}>
-                                <span className={styles["stat-icon"]}>⚖️</span>
-                                <div className={styles["stat-text"]}>
-                                    <span className={styles["stat-label"]}>Peso actual</span>
-                                    <span className={styles["stat-value"]}>{listing.weight_kg} kg</span>
-                                </div>
-                            </div>
-                        )}
-                        <div className={styles["stat-card"]}>
-                            <span className={styles["stat-icon"]}>⚡</span>
-                            <div className={styles["stat-text"]}>
-                                <span className={styles["stat-label"]}>Nivel de Energía</span>
-                                <span className={styles["stat-value"]}>{listing.energy_level || "No especificado"}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={dashStyles["form-divider"]} style={{ margin: "2.5rem 0" }} />
-
-                    {/* Historia */}
-                    <h3 className={styles["section-title"]}>📖 Su Historia</h3>
-                    <div className={styles["description-box"]}>
-                        {listing.description ? (
-                            <p>{listing.description}</p>
-                        ) : (
-                            <p style={{ fontStyle: "italic", opacity: 0.6 }}>No hay una descripción detallada disponible para esta mascota.</p>
-                        )}
-                    </div>
-
-                    {/* Personalidad y Socialización */}
-                    <div className={styles["traits-section"]}>
-                        <div className={styles["trait-group"]}>
-                            <h3 className={styles["section-title"]}>🧠 Sus Rasgos</h3>
-                            <div>
-                                {listing.temperament ? (
-                                    listing.temperament.split(",").map((trait, i) => (
-                                        <span key={i} className={styles["personality-tag"]}>
-                                            {trait.trim()}
-                                        </span>
-                                    ))
-                                ) : (
-                                    <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>No se han especificado rasgos específicos.</p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className={styles["trait-group"]}>
-                            <h3 className={styles["section-title"]}>👨‍👩‍👧‍👦 Socialización</h3>
-                            <div className={styles["social-list"]}>
-                                <div className={`${styles["social-item"]} ${listing.social_dogs ? styles["social-item--true"] : ""}`}>
-                                    <span>🐕</span> {listing.social_dogs ? "Convive bien con otros perros" : "Prefiere ser hijo único (perros)"}
-                                </div>
-                                <div className={`${styles["social-item"]} ${listing.social_cats ? styles["social-item--true"] : ""}`}>
-                                    <span>🐈</span> {listing.social_cats ? "Apto para vivir con gatos" : "No apto para hogares con gatos"}
-                                </div>
-                                <div className={`${styles["social-item"]} ${listing.social_children ? styles["social-item--true"] : ""}`}>
-                                    <span>👶</span> {listing.social_children ? "Excelente con niños" : "Se recomienda hogar sin niños pequeños"}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Photo Gallery */}
-                    {listing.gallery && listing.gallery.length > 0 && (
-                        <>
-                            <div className={dashStyles["form-divider"]} style={{ margin: "2.5rem 0" }} />
-                            <h3 className={styles["section-title"]}>📸 Galería de Fotos</h3>
-                            <div style={{
-                                display: "grid",
-                                gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-                                gap: "1rem",
-                                marginBottom: "1rem",
-                            }}>
-                                {listing.gallery.map((url: string, i: number) => (
-                                    <div key={i} style={{
-                                        position: "relative",
-                                        borderRadius: "16px",
-                                        overflow: "hidden",
-                                        aspectRatio: "1",
-                                        border: "1px solid rgba(255,255,255,0.06)",
-                                        cursor: "pointer",
-                                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                                    }}
-                                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "scale(1.03)"; (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 30px rgba(0,0,0,0.4)"; }}
-                                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "scale(1)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
-                                    >
-                                        <img
-                                            src={url}
-                                            alt={`${listing.name} foto ${i + 1}`}
-                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
-
-                    <div className={dashStyles["form-divider"]} style={{ margin: "2.5rem 0" }} />
-
-                    {/* Share Button */}
-                    <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
-                        <button
-                            onClick={() => {
-                                const shareData = {
-                                    title: `Adopta a ${listing.name} en Michicondrias 🐾`,
-                                    text: `¡Conoce a ${listing.name}! ${listing.breed || listing.species} buscando un hogar amoroso. ${listing.description?.substring(0, 100) || ""}`,
-                                    url: window.location.href,
-                                };
-                                if (navigator.share) {
-                                    navigator.share(shareData).catch(() => { });
-                                } else {
-                                    navigator.clipboard.writeText(window.location.href);
-                                    import("react-hot-toast").then(({ toast }) => toast.success("🔗 Link copiado al portapapeles"));
-                                }
-                            }}
-                            style={{
-                                background: "linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.15))",
-                                border: "1px solid rgba(124, 58, 237, 0.3)",
-                                color: "#fff",
-                                padding: "0.85rem 2rem",
-                                borderRadius: "16px",
-                                fontWeight: 700,
-                                fontSize: "0.95rem",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                transition: "all 0.3s ease",
-                            }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(6, 182, 212, 0.3))"; }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 182, 212, 0.15))"; }}
-                        >
-                            🔗 Compartir Perfil de Adopción
-                        </button>
-                    </div>
-
-                    {/* Compromisos */}
-                    <h3 className={styles["section-title"]} style={{ marginTop: "2rem" }}>🤝 Compromisos Requeridos</h3>
-                    <ul className={styles["commitment-list"]}>
-                        <li>Espacio seguro y protegido para sus necesidades de vida.</li>
-                        <li>Entrevista y revisión de tu historial preventivo con mascotas.</li>
-                        <li>Aceptación de gastos veterinarios y de buena alimentación por el resto de su vida.</li>
-                        {listing.microchip_number && <li>Registro del número de microchip ({listing.microchip_number}) a tu nombre.</li>}
-                    </ul>
-                </div>
-            </div>
+      <ScreenContainer>
+        <ScreenHeader title="Mascota" />
+        <Skeleton height={220} borderRadius={16} />
+        <div style={{ marginTop: "var(--space-lg)", display: "grid", gap: "var(--space-md)" }}>
+          <Skeleton height={28} width="60%" />
+          <Skeleton height={14} />
+          <Skeleton height={14} width="80%" />
+          <Skeleton height={120} borderRadius={12} />
         </div>
+      </ScreenContainer>
     );
+  }
+
+  if (!listing) {
+    return (
+      <ScreenContainer>
+        <ScreenHeader title="Mascota" />
+        <EmptyState
+          icon={<Heart size={28} />}
+          title="No encontramos esta mascota"
+          subtitle="Puede que se haya retirado o que no tengas acceso."
+        />
+      </ScreenContainer>
+    );
+  }
+
+  const species = listing.species.toLowerCase();
+  const gender = getGenderLabel(listing.gender);
+
+  return (
+    <ScreenContainer>
+      <ScreenHeader
+        title={listing.name}
+        subtitle={`${getSpeciesLabel(species)}${listing.breed ? ` · ${capitalize(listing.breed)}` : ""}`}
+        onBack={goBack}
+      />
+
+      <div className={local.detailHero}>
+        {listing.photo_url ? (
+          <Image
+            src={listing.photo_url}
+            alt={listing.name}
+            fill
+            className={local.detailPhoto}
+            sizes="(max-width: 768px) 100vw, 800px"
+            priority
+          />
+        ) : (
+          <div className={local.detailFallback}>
+            <PawPrint size={64} strokeWidth={1.2} aria-hidden />
+          </div>
+        )}
+      </div>
+
+      <div className={local.badgeRow}>
+        {listing.is_emergency ? <Badge label="Urgente" color="var(--error)" variant="solid" /> : null}
+        {listing.is_sterilized ? <Badge label="Esterilizado" color="var(--primary)" /> : null}
+        {listing.is_vaccinated ? <Badge label="Vacunado" color="var(--success)" /> : null}
+        {listing.is_dewormed ? <Badge label="Desparasitado" color="var(--info)" /> : null}
+      </div>
+
+      <p className={local.detailMeta}>
+        {gender} · {formatAge(listing.age_months)}
+        {listing.weight_kg ? ` · ${listing.weight_kg} kg` : ""}
+        {listing.location ? ` · ${listing.location}` : ""}
+      </p>
+
+      {listing.description ? (
+        <div className={local.section}>
+          <h2 className={local.sectionTitle}>Su historia</h2>
+          <p className={local.desc}>{listing.description}</p>
+        </div>
+      ) : null}
+
+      <div className={local.section}>
+        <h2 className={local.sectionTitle}>Sobre él/ella</h2>
+        <Card>
+          <div className={local.facts}>
+            <Fact icon={Home} label="Tamaño" value={listing.size ? capitalize(listing.size) : "Sin dato"} />
+            <Fact icon={Trees} label="Patio" value={listing.social_dogs ? "Convive con perros" : "Prefiere ser único"} />
+            <Fact icon={Baby} label="Niños" value={listing.social_children ? "Sí" : "No"} />
+            <Fact icon={Clock} label="Energía" value={listing.energy_level || "Sin dato"} />
+            <Fact icon={Thermometer} label="Temperamento" value={listing.temperament || "Sin dato"} />
+            <Fact icon={Zap} label="Con gatos" value={listing.social_cats ? "Sí" : "No"} />
+            <Fact icon={Wallet} label="Con perros" value={listing.social_dogs ? "Sí" : "No"} />
+          </div>
+        </Card>
+      </div>
+
+      <div className={local.actions}>
+        {isOwner ? (
+          <Button
+            label="Ver solicitudes"
+            icon={<ClipboardList size={18} />}
+            onPress={goToRequests}
+          />
+        ) : myRequest ? (
+          <>
+            <Button label="Ver mi solicitud" icon={<ClipboardList size={18} />} onPress={goToMyRequests} />
+            <p className={local.detailMeta} style={{ textAlign: "center" }}>
+              Ya enviaste una solicitud para esta mascota.
+            </p>
+          </>
+        ) : (
+          <Button
+            label="Solicitar adopción"
+            icon={<Send size={18} />}
+            onPress={goToApply}
+            disabled={listing.status === "adoptado"}
+          />
+        )}
+      </div>
+    </ScreenContainer>
+  );
 }

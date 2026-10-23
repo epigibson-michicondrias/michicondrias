@@ -1,0 +1,451 @@
+/* Estilos del módulo Perdidas — solo variables CSS del design system. */
+
+/* ── Cifras del listado ── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.statTile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  background: var(--color-card);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  min-height: var(--min-touch);
+}
+
+.statTileActive {
+  border-color: var(--c, var(--color-primary));
+  background: var(--color-tint);
+  color: var(--color-on-primary);
+}
+
+.statTileActive .statValue,
+.statTileActive .statLabel {
+  color: var(--color-on-primary);
+}
+
+.statValue {
+  font-size: var(--font-h1);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.statLabel {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── Barra de filtros ── */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.count {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── Tarjeta de reporte ── */
+.reportCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  text-align: left;
+  width: 100%;
+  overflow: hidden;
+}
+
+.reportVisual {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--color-background-secondary);
+  overflow: hidden;
+}
+
+.reportPhoto {
+  object-fit: cover;
+}
+
+.reportPhotoFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+
+.reportBadges {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.reportName {
+  margin: 0;
+  font-size: var(--font-xxl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.reportMeta {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.reportDesc {
+  margin: 0;
+  font-size: var(--font-base);
+  color: var(--color-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.reportRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-md);
+  background: var(--color-card);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  min-height: var(--min-touch);
+}
+
+.reportRowBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.reportRowName {
+  margin: 0;
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reportRowMeta {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reportThumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--color-background-secondary);
+  flex-shrink: 0;
+}
+
+.reportThumbFallback {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--color-background-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Detalle ── */
+.detailPhoto {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--color-background-secondary);
+  overflow: hidden;
+}
+
+.detailPhotoImg {
+  object-fit: cover;
+}
+
+.detailPhotoFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  color: var(--color-text-muted);
+}
+
+.detailContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  padding: var(--space-xl) var(--screen-padding) var(--space-huge);
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.detailName {
+  margin: 0;
+  font-size: var(--font-display);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-base);
+  color: var(--color-text-muted);
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-size: var(--font-base);
+}
+
+.alertLost {
+  background: var(--color-error-light);
+  border-color: var(--color-error);
+  color: var(--color-text);
+}
+
+.factGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-sm);
+}
+
+.factItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-md);
+}
+
+.factIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.factBody {
+  min-width: 0;
+}
+
+.factLabel {
+  margin: 0;
+  font-size: var(--font-xs);
+  color: var(--color-text-muted);
+}
+
+.factValue {
+  margin: 0;
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.sectionText {
+  margin: 0;
+  font-size: var(--font-base);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* ── Michi-Tracker ── */
+.trackerCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-success);
+  background: var(--color-success-light);
+}
+
+.trackerTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0;
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.trackerMeta {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.trackerCoords {
+  margin: 0;
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.trackerEmpty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+/* ── Formulario de avistamiento ── */
+.sightingForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.footerAction {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--screen-padding) var(--space-xxl);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-background);
+}
+
+/* ── Donaciones ── */
+.amountsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+.amountBtn {
+  min-height: var(--min-touch);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  background: var(--color-surface);
+  font-size: var(--font-xxl);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.amountBtnActive {
+  border-color: var(--color-primary);
+  border-width: 2px;
+  color: var(--color-primary);
+}
+
+.statusBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  text-align: center;
+}
+
+.statusBoxPending {
+  background: var(--color-surface);
+}
+
+.statusBoxOk {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+}
+
+.statusBoxError {
+  background: var(--color-error-light);
+  border-color: var(--color-error);
+}
+
+.statusTitle {
+  margin: 0;
+  font-size: var(--font-xl);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.statusText {
+  margin: 0;
+  font-size: var(--font-base);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.trustBox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--color-success-light);
+}
+
+.trustText {
+  margin: 0;
+  flex: 1;
+  font-size: var(--font-md);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}

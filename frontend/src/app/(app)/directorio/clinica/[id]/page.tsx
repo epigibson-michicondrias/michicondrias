@@ -1,410 +1,197 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getClinic, Clinic, getVets, Vet, createVet, getClinicReviews, createClinicReview, getClinicRating, ClinicReview, ClinicRating, getClinicServices, ClinicServiceItem } from "@/lib/legacy/services/directorio";
-import { getCurrentUser, User } from "@/lib/legacy/auth";
-import dashStyles from "../../../dashboard.module.css";
-import styles from "./clinica.module.css";
-import { toast } from "react-hot-toast";
+/**
+ * Detalle de clínica: datos, contacto rápido, servicios (cada uno agenda directo) y reseñas.
+ * Espejo de `mobile/app/directorio/clinica/[id].tsx`.
+ */
+import Link from "next/link";
+import Image from "next/image";
+import {
+  AlertTriangle,
+  Calendar,
+  ChevronRight,
+  Clock,
+  Globe,
+  Hospital,
+  MapPin,
+  MessageCircle,
+  Navigation,
+  Phone,
+  Share2,
+  Star,
+} from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Button from "@/components/Button";
+import Badge from "@/components/Badge";
+import EmptyState from "@/components/EmptyState";
+import { Skeleton } from "@/components/Skeleton";
+import ContactActions from "@/features/directorio/ContactActions";
+import ReviewsSection from "@/features/directorio/ReviewsSection";
+import { useClinicDetail } from "@/hooks/directorio/useClinicDetail";
+import { formatCurrency } from "@/utils/formatters";
+import s from "./clinica.module.css";
 
-export default function ClinicaDetailPage(props: { params: Promise<{ id: string }> }) {
-    const router = useRouter();
-    const [clinic, setClinic] = useState<Clinic | null>(null);
-    const [vets, setVets] = useState<Vet[]>([]);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [services, setServices] = useState<ClinicServiceItem[]>([]);
+export default function ClinicDetailPage() {
+  const c = useClinicDetail();
+  const { clinic, rating, services, reviews } = c;
 
-    const [showModal, setShowModal] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
-    const [formData, setFormData] = useState({
-        first_name: "", last_name: "", specialty: "",
-        license_number: "", phone: "", email: "", bio: ""
-    });
-    const [reviews, setReviews] = useState<ClinicReview[]>([]);
-    const [rating, setRating] = useState<ClinicRating>({ average_rating: 0, total_reviews: 0 });
-    const [reviewText, setReviewText] = useState("");
-    const [reviewRating, setReviewRating] = useState(5);
-    const [submittingReview, setSubmittingReview] = useState(false);
-
-    const { id } = React.use(props.params);
-
-    useEffect(() => {
-        async function load() {
-            try {
-                const [data, vetsData, user, reviewsData, ratingData, servicesData] = await Promise.all([
-                    getClinic(id),
-                    getVets(id),
-                    getCurrentUser(),
-                    getClinicReviews(id).catch(() => []),
-                    getClinicRating(id).catch(() => ({ average_rating: 0, total_reviews: 0 })),
-                    getClinicServices(id).catch(() => []),
-                ]);
-                setClinic(data);
-                setVets(vetsData);
-                setCurrentUser(user);
-                setReviews(reviewsData);
-                setRating(ratingData);
-                setServices(servicesData);
-            } catch (err) {
-                console.error("Error cargando perfil de clínica", err);
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-    }, [id]);
-
-    const isOwnerOrAdmin = currentUser?.role_name === "admin" || (clinic && currentUser && clinic.owner_user_id === currentUser.id);
-
-    const handleAddVet = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitting(true);
-        try {
-            const added = await createVet({ ...formData, clinic_id: id, photo_url: null });
-            setVets([...vets, added]);
-            setShowModal(false);
-            setFormData({ first_name: "", last_name: "", specialty: "", license_number: "", phone: "", email: "", bio: "" });
-            toast.success("Especialista añadido correctamente a la clínica");
-        } catch (err: any) {
-            toast.error(err.message || "Error al añadir especialista");
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const handleSubmitReview = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmittingReview(true);
-        try {
-            const newReview = await createClinicReview(id, reviewRating, reviewText);
-            setReviews([newReview, ...reviews]);
-            setRating({ average_rating: 0, total_reviews: rating.total_reviews + 1 });
-            setReviewText("");
-            setReviewRating(5);
-            toast.success("¡Gracias por tu reseña! 🌟");
-            // Refresh rating
-            const updated = await getClinicRating(id);
-            setRating(updated);
-        } catch (err: any) {
-            toast.error(err.message || "Error al enviar reseña");
-        } finally {
-            setSubmittingReview(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>Cargando Clínica...</h1>
-            </div>
-        );
-    }
-
-    if (!clinic) {
-        return (
-            <div className={dashStyles["empty-state"]}>
-                <span style={{ fontSize: "4rem" }}>😢</span>
-                <p>No logramos encontrar esta clínica.</p>
-                <button onClick={() => router.push("/directorio")} className="btn btn-secondary" style={{ marginTop: "1rem" }}>
-                    Volver al Directorio
-                </button>
-            </div>
-        );
-    }
-
+  if (!c.isLoading && !clinic) {
     return (
-        <div className={styles["profile-container"]}>
-            <div className={styles["visual-header"]}>
-                <div className={styles["hero-overlay"]}>
-                    <button
-                        onClick={() => router.back()}
-                        className={dashStyles["back-button-premium"]}
-                        style={{ margin: '1.5rem', zIndex: 100, position: 'relative' }}
-                        title="Volver al Directorio"
-                    >
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M19 12H5M12 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                </div>
-                <div className={styles["avatar-large"]}>
-                    {clinic.name.charAt(0).toUpperCase()}
-                </div>
-            </div>
-
-            <div className={styles["profile-body"]}>
-                <div className={styles["main-info"]}>
-                    <div className={styles["header-row"]}>
-                        <div>
-                            <h1 className={styles["clinic-name"]}>{clinic.name}</h1>
-                            <p className={styles["clinic-metadata"]}>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
-                                </svg>
-                                {clinic.address ? `${clinic.address}, ` : ""}{clinic.city || "Ciudad Desconocida"}, {clinic.state || "MX"}
-                            </p>
-                        </div>
-                        <div className={styles["tags-box"]}>
-                            {clinic.is_24_hours && (
-                                <span className={`${styles.tag} ${styles["tag-blue"]}`}>
-                                    🕒 Abierto 24 Horas
-                                </span>
-                            )}
-                            {clinic.has_emergency && (
-                                <span className={`${styles.tag} ${styles["tag-red"]}`}>
-                                    🚨 Urgencias Mayores
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className={styles["quick-stats"]}>
-                        <div className={styles["stat-card"]}>
-                            <div className={styles["stat-icon"]} style={{ color: '#3b82f6' }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                                </svg>
-                            </div>
-                            <div className={styles["stat-text"]}>
-                                <span className={styles["stat-label"]}>Teléfono Principal</span>
-                                <span className={styles["stat-value"]}>{clinic.phone || "No listado"}</span>
-                            </div>
-                        </div>
-                        <div className={styles["stat-card"]}>
-                            <div className={styles["stat-icon"]} style={{ color: '#8b5cf6' }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                                </svg>
-                            </div>
-                            <div className={styles["stat-text"]}>
-                                <span className={styles["stat-label"]}>Correo Electrónico</span>
-                                <span className={styles["stat-value"]}>{clinic.email || "No listado"}</span>
-                            </div>
-                        </div>
-                        <div className={styles["stat-card"]}>
-                            <div className={styles["stat-icon"]} style={{ color: '#06b6d4' }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                                </svg>
-                            </div>
-                            <div className={styles["stat-text"]}>
-                                <span className={styles["stat-label"]}>Sitio Web / Redes</span>
-                                <span className={styles["stat-value"]}>
-                                    {clinic.website ? (
-                                        <a href={clinic.website} target="_blank" rel="noreferrer" style={{ color: "var(--primary-light)", textDecoration: 'none' }}>
-                                            Visitar Enlace oficial
-                                        </a>
-                                    ) : "No disponible"}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={dashStyles["form-divider"]} style={{ margin: "4rem 0" }} />
-
-                    <h3 className={styles["section-title"]}>Acerca de la Clínica</h3>
-                    <div className={styles["description-box"]} style={{ marginBottom: "3rem" }}>
-                        {clinic.description ? (
-                            <p>{clinic.description}</p>
-                        ) : (
-                            <p style={{ fontStyle: "italic", opacity: 0.6 }}>Clínica registrada en la red de veterinarios Michicondrias sin descripción adicional.</p>
-                        )}
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                        <h3 className={styles["section-title"]} style={{ marginBottom: 0 }}>Nuestros Especialistas Médicos</h3>
-                        {isOwnerOrAdmin && (
-                            <button className="btn btn-secondary" onClick={() => setShowModal(true)} style={{ padding: '0.6rem 1.25rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M5 12h14M12 5v14" />
-                                </svg>
-                                Añadir Especialista
-                            </button>
-                        )}
-                    </div>
-
-                    {vets.length === 0 ? (
-                        <div className={styles["description-box"]} style={{ textAlign: "center", padding: "3rem", background: 'rgba(255,255,255,0.01)', borderStyle: 'dashed' }}>
-                            <div style={{ fontSize: "2.5rem", marginBottom: '1rem', opacity: 0.4 }}>🧑‍⚕️</div>
-                            <p style={{ margin: 0, opacity: 0.7 }}>Aún no hay especialistas listados públicamente en esta clínica.</p>
-                        </div>
-                    ) : (
-                        <div className={styles["specialists-grid"]}>
-                            {vets.map(vet => (
-                                <div key={vet.id} className={styles["vet-card"]}>
-                                    <div className={styles["vet-avatar"]}>
-                                        {vet.first_name.charAt(0)}
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <p style={{ fontWeight: 800, margin: 0, fontSize: "1.1rem", color: "#fff", letterSpacing: '-0.01em' }}>{vet.first_name} {vet.last_name}</p>
-                                        <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.9rem", color: "var(--primary-light)", fontWeight: 600 }}>{vet.specialty || "Médico General"}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* --- Services Catalog Section --- */}
-                    <div style={{ marginTop: "3rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                            <h3 className={styles["section-title"]} style={{ marginBottom: 0 }}>Servicios Disponibles</h3>
-                        </div>
-                        {services.length === 0 ? (
-                            <div className={styles["description-box"]} style={{ textAlign: "center", padding: "2.5rem", background: 'rgba(255,255,255,0.01)', borderStyle: 'dashed' }}>
-                                <div style={{ fontSize: "2rem", marginBottom: '0.5rem', opacity: 0.4 }}>🏷️</div>
-                                <p style={{ margin: 0, opacity: 0.7 }}>Esta clínica aún no ha publicado sus servicios.</p>
-                            </div>
-                        ) : (
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-                                {services.map(svc => (
-                                    <div key={svc.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "18px", padding: "1.5rem", display: "flex", flexDirection: "column" }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.5rem" }}>
-                                            <div>
-                                                <p style={{ margin: 0, color: "#fff", fontWeight: 700, fontSize: "1.05rem" }}>{svc.name}</p>
-                                                {svc.category && <span style={{ fontSize: "0.7rem", color: "#a78bfa", background: "rgba(139,92,246,0.1)", padding: "0.15rem 0.5rem", borderRadius: "6px" }}>{svc.category}</span>}
-                                            </div>
-                                            <span style={{ color: "#10b981", fontWeight: 800, fontSize: "1.1rem" }}>{svc.price ? `$${svc.price}` : "Consultar"}</span>
-                                        </div>
-                                        {svc.description && <p style={{ margin: "0 0 0.5rem 0", color: "var(--text-secondary)", fontSize: "0.85rem", flex: 1 }}>{svc.description}</p>}
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: "1rem" }}>
-                                            <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>⏱️ {svc.duration_minutes} min</span>
-                                            {currentUser?.role_name === "consumidor" && (
-                                                <button onClick={() => router.push(`/directorio/citas/agendar/${id}?service_id=${svc.id}`)} className="btn btn-primary" style={{ padding: "0.5rem 1rem", borderRadius: "10px", fontSize: "0.8rem", background: "linear-gradient(135deg, #10b981, #059669)" }}>
-                                                    📅 Agendar Cita
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* --- Reviews & Ratings Section --- */}
-                    <div style={{ marginTop: "4rem" }}>
-                        <div className={dashStyles["form-divider"]} style={{ margin: "0 0 3rem 0" }} />
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                            <h3 className={styles["section-title"]} style={{ marginBottom: 0 }}>
-                                ⭐ Reseñas y Calificaciones
-                                {rating.total_reviews > 0 && (
-                                    <span style={{ marginLeft: "1rem", fontSize: "0.9rem", color: "#fbbf24", fontWeight: 700 }}>
-                                        {rating.average_rating}/5 ({rating.total_reviews} reseña{rating.total_reviews !== 1 ? "s" : ""})
-                                    </span>
-                                )}
-                            </h3>
-                        </div>
-
-                        {/* Review Form */}
-                        {currentUser && (
-                            <form onSubmit={handleSubmitReview} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "20px", padding: "1.5rem", marginBottom: "2rem" }}>
-                                <p style={{ margin: "0 0 1rem 0", color: "#fff", fontWeight: 700 }}>Deja tu opinión</p>
-                                <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-                                    {[1, 2, 3, 4, 5].map(star => (
-                                        <button
-                                            key={star}
-                                            type="button"
-                                            onClick={() => setReviewRating(star)}
-                                            style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.8rem", filter: star <= reviewRating ? "none" : "grayscale(1) opacity(0.3)", transition: "all 0.2s" }}
-                                        >
-                                            ⭐
-                                        </button>
-                                    ))}
-                                </div>
-                                <textarea
-                                    className="form-input"
-                                    rows={3}
-                                    placeholder="¿Qué tal fue tu experiencia en esta clínica?"
-                                    value={reviewText}
-                                    onChange={e => setReviewText(e.target.value)}
-                                    style={{ marginBottom: "1rem" }}
-                                />
-                                <button type="submit" className="btn btn-primary" disabled={submittingReview} style={{ borderRadius: "12px" }}>
-                                    {submittingReview ? "Enviando..." : "Publicar Reseña"}
-                                </button>
-                            </form>
-                        )}
-
-                        {/* Review List */}
-                        {reviews.length === 0 ? (
-                            <div style={{ textAlign: "center", padding: "2rem", background: "rgba(255,255,255,0.01)", borderRadius: "16px", border: "1px dashed rgba(255,255,255,0.06)" }}>
-                                <p style={{ margin: 0, opacity: 0.6 }}>Aún no hay reseñas para esta clínica. ¡Sé el primero!</p>
-                            </div>
-                        ) : (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                                {reviews.map(review => (
-                                    <div key={review.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "16px", padding: "1.25rem" }}>
-                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                                            <div style={{ display: "flex", gap: "0.25rem" }}>
-                                                {Array.from({ length: 5 }, (_, i) => (
-                                                    <span key={i} style={{ fontSize: "1rem", filter: i < review.rating ? "none" : "grayscale(1) opacity(0.2)" }}>⭐</span>
-                                                ))}
-                                            </div>
-                                            <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
-                                                {review.created_at ? new Date(review.created_at).toLocaleDateString("es-MX") : ""}
-                                            </span>
-                                        </div>
-                                        {review.comment && (
-                                            <p style={{ margin: 0, color: "var(--text-secondary)", lineHeight: 1.6 }}>{review.comment}</p>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* MODAL para añadir Veterinario */}
-            {showModal && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-                    <div style={{ background: "var(--bg-glass)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-lg)", padding: "2rem", width: "100%", maxWidth: "550px", maxHeight: "90vh", overflowY: "auto" }}>
-                        <h2 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", color: "#fff" }}>Nuevo Especialista</h2>
-
-                        <form onSubmit={handleAddVet} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            <div style={{ display: "flex", gap: "1rem" }}>
-                                <div style={{ flex: 1 }}>
-                                    <label>Nombre(s) *</label>
-                                    <input type="text" className="form-input" required value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <label>Apellidos *</label>
-                                    <input type="text" className="form-input" required value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label>Especialidad</label>
-                                <input type="text" className="form-input" placeholder="Ej. Cardiólogo, Cirujano, Médico General..." value={formData.specialty} onChange={e => setFormData({ ...formData, specialty: e.target.value })} />
-                            </div>
-
-                            <div style={{ display: "flex", gap: "1rem" }}>
-                                <div style={{ flex: 1 }}>
-                                    <label>Cédula Profesional</label>
-                                    <input type="text" className="form-input" value={formData.license_number} onChange={e => setFormData({ ...formData, license_number: e.target.value })} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <label>Tel. de Contacto</label>
-                                    <input type="text" className="form-input" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label>Biografía breve</label>
-                                <textarea className="form-input" rows={3} value={formData.bio} onChange={e => setFormData({ ...formData, bio: e.target.value })}></textarea>
-                            </div>
-
-                            <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-                                <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Cancelar</button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={submitting}>
-                                    {submitting ? "Guardando..." : "Guardar Profesional"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
+      <ScreenContainer>
+        <ScreenHeader title="Clínica" />
+        <EmptyState
+          icon={<Hospital size={28} />}
+          title="No encontramos esta clínica"
+          subtitle="Puede que ya no esté en el directorio o que no tengas conexión."
+          actionLabel="Ver directorio"
+          onAction={c.goBack}
+        />
+      </ScreenContainer>
     );
+  }
+
+  if (c.isLoading || !clinic) {
+    return (
+      <ScreenContainer>
+        <ScreenHeader title="Clínica" />
+        <div className={s.content}>
+          <Skeleton width={72} height={72} borderRadius={16} style={{ margin: "0 auto" }} />
+          <Skeleton width="60%" height={24} style={{ margin: "0 auto" }} />
+          <Skeleton height={56} />
+          <Skeleton height={160} />
+        </div>
+      </ScreenContainer>
+    );
+  }
+
+  const place = [clinic.address, clinic.city].filter(Boolean).join(", ");
+  const total = rating?.total_reviews ?? 0;
+
+  return (
+    <ScreenContainer>
+      <ScreenHeader
+        title={clinic.name}
+        subtitle={place || undefined}
+        actions={[{ icon: Share2, label: "Compartir clínica", onPress: c.share }]}
+      />
+
+      <div className={s.content}>
+        {/* Encabezado */}
+        <div className={s.hero}>
+          <div className={s.logo}>
+            {clinic.logo_url ? (
+              <Image src={clinic.logo_url} alt={`Logo de ${clinic.name}`} fill className={s.logoImg} />
+            ) : (
+              <Hospital size={36} color="var(--color-primary)" aria-hidden />
+            )}
+          </div>
+          <h2 className={s.name}>{clinic.name}</h2>
+          <div className={s.meta}>
+            <Star
+              size={16}
+              color="var(--color-accent)"
+              fill={total > 0 ? "var(--color-accent)" : "transparent"}
+              aria-hidden
+            />
+            <span className={s.metaStrong}>{total > 0 ? rating!.average_rating.toFixed(1) : "Nueva"}</span>
+            <span className={s.metaMuted}>
+              · {total} {total === 1 ? "reseña" : "reseñas"}
+            </span>
+          </div>
+          {place ? (
+            <div className={s.meta}>
+              <MapPin size={13} color="var(--color-text-muted)" aria-hidden />
+              <span className={s.metaMuted}>{place}</span>
+            </div>
+          ) : null}
+          {clinic.is_24_hours || clinic.has_emergency ? (
+            <div className={s.badges}>
+              {clinic.is_24_hours ? (
+                <Badge label="24 horas" color="var(--color-info)" size="sm" icon={<Clock size={12} />} />
+              ) : null}
+              {clinic.has_emergency ? (
+                <Badge label="Urgencias" color="var(--color-error)" size="sm" icon={<AlertTriangle size={12} />} />
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Contacto rápido: solo lo que la clínica tiene registrado */}
+        <ContactActions
+          actions={[
+            c.call ? { icon: Phone, label: "Llamar", color: "var(--color-primary)", onPress: c.call } : null,
+            c.whatsapp
+              ? { icon: MessageCircle, label: "WhatsApp", color: "var(--color-success)", onPress: c.whatsapp }
+              : null,
+            { icon: Navigation, label: "Cómo llegar", color: "var(--color-info)", onPress: c.directions },
+            c.website ? { icon: Globe, label: "Sitio web", color: "var(--color-accent)", onPress: c.website } : null,
+          ]}
+        />
+
+        {clinic.description ? (
+          <section className={s.section}>
+            <h3 className={s.sectionTitle}>Sobre la clínica</h3>
+            <p className={s.body}>{clinic.description}</p>
+          </section>
+        ) : null}
+
+        <section className={s.section}>
+          <h3 className={s.sectionTitle}>Servicios</h3>
+          {services.length === 0 ? (
+            <p className={s.body}>
+              Aún no hay servicios para agendar en línea. Puedes llamar a la clínica.
+            </p>
+          ) : (
+            <div className={s.services}>
+              {services.map((service) => (
+                <button
+                  key={service.id}
+                  type="button"
+                  className={s.service}
+                  onClick={() => c.book(service.id)}
+                  aria-label={`Agendar ${service.name}`}
+                >
+                  <span className={s.serviceInfo}>
+                    <span className={s.serviceName}>{service.name}</span>
+                    <span className={s.serviceMeta}>{service.duration_minutes} min</span>
+                  </span>
+                  <span className={s.servicePrice}>
+                    {service.price ? formatCurrency(Number(service.price)) : "Consultar"}
+                  </span>
+                  <ChevronRight size={16} color="var(--color-text-muted)" aria-hidden />
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <ReviewsSection
+          title="Opiniones"
+          average={rating?.average_rating ?? 0}
+          count={total}
+          reviews={reviews.map((r) => ({
+            id: r.id,
+            rating: r.rating,
+            comment: r.comment,
+            created_at: r.created_at,
+            author_name: "Cliente",
+          }))}
+          canReview={c.canReview}
+          submitting={c.isCreatingReview}
+          onSubmit={(value, comment) => c.handleCreateReview(value, comment || undefined)}
+          formPrompt="¿Cómo te atendieron?"
+        />
+      </div>
+
+      <div className={s.footer}>
+        <Button
+          label="Agendar cita"
+          icon={<Calendar size={18} />}
+          onPress={() => c.book()}
+          size="lg"
+        />
+      </div>
+    </ScreenContainer>
+  );
 }
