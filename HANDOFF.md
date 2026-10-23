@@ -83,6 +83,13 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — W4 multiagente en `web/espejo` (`a4e7d4e`): Adopciones, Directorio/citas,
+  Perdidas/reportes, Notificaciones, Búsqueda y Ayuda portados con hooks y features por módulo. Build
+  verde. Donaciones = aviso «en la app» (sin cobro simulado). **Siguiente para Claude:** P2 restantes
+  (paseadores, cuidadores, estilistas, entrenadores, transportistas, aseguradoras, laboratorio, funeraria,
+  pet-friendly, establecimientos), P3 (mi-clínica, servicios-pro, tienda vendedor, patrocinadores) y W4-A
+  (consola admin). Luego W5 (pulido + merge a `main`) y el OTA del login móvil (§3).
+
 - **2026-10-23 · Mimo** — W4 Tienda cliente + Inicio/Explorar en `web/espejo`:
   - Tienda: catálogo (categorías, orden, favoritos), bolsa con checkout Stripe, mis compras, producto,
     pedido con tracking y `PagoResultado` (pago-exitoso/cancelado). Hooks ecommerce espejo.

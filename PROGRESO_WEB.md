@@ -104,6 +104,18 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-23 — W4 port multiagente: Adopciones, Directorio, Perdidas, Notificaciones, Búsqueda, Ayuda.**
+  - Varios agentes en paralelo por módulo (solo en sus carpetas). Quedaron hooks y features por módulo
+    (`hooks/adopciones`, `hooks/directorio`, `hooks/perdidas`, `hooks/notifications`, `hooks/search` y
+    `features/adopciones|directorio|perdidas`).
+  - Rutas nuevas: `/adopciones/{nuevo,solicitar/[id],solicitud/[id]}`, `/directorio/especialista/[id]`,
+    `/perdidas/{reportar,rastreo/[id]}`, además de Notificaciones/Búsqueda/Ayuda reales.
+  - Donaciones queda «Disponible en la app» (sin cobro simulado). Perdidas no inventa coordenadas.
+  - Verificado: `typecheck`, `eslint` y `npm run build` limpios.
+  - **Siguiente para Claude:** módulos P2 restantes (paseadores/cuidadores, estilistas, entrenadores,
+    transportistas, aseguradoras, laboratorio, funeraria, pet-friendly/establecimientos), P3 (mi-clínica
+    completa, servicios-pro, tienda vendedor, patrocinadores) y **W4-A consola de admin**. Luego W5 (pulido
+    y merge a `main`) y el OTA del login móvil.
 - **2026-10-23 — W4 Tienda cliente + Inicio/Explorar.**
   - **Tienda:** hooks `useShopTab`, `useProduct`, `useCheckout`, `useCartProducts`, `usePurchases`,
     `useOrderDetail`, `useProductFavorites` + `features/tienda/orderStatus` y `PagoResultado`. Páginas
