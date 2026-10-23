@@ -64,9 +64,9 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 | P2 | Funeraria | 10 | — | 🔍 | ✅ | ⬜ |
 | P2 | Donaciones | 1 | 1 | 🔍 | ⬜ | ⬜ |
 | P3 | Mi clínica | 14 | `directorio/mi-clinica` (con datos *mock*) | 🔍 | ⬜ | ⬜ |
-| P3 | Servicios pro | 3 | `paseadores/registro`, `cuidadores/registro` | 🔍 | ⬜ | ⬜ |
+| P3 | Servicios pro | 3 | `paseadores/registro`, `cuidadores/registro` | 🔍 | ✅ | ⬜ |
 | P3 | Tienda vendedor | 5 | dentro de `/dashboard/tienda` | 🔍 | ⬜ | ⬜ |
-| P3 | Patrocinadores | 5 | — | 🔍 | ⬜ | ⬜ |
+| P3 | Patrocinadores | 5 | — | 🔍 | ✅ | ⬜ |
 
 ## Decisiones
 
@@ -103,6 +103,17 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
   `GET /users/{id}`, `users_count` en roles y borrado seguro de roles (ver `AUDITORIA_WEB.md`).
 
 ## Bitácora
+
+- **2026-10-23 — W4 P3: Servicios pro y Patrocinadores (Claude, `1612641`, `65897f4`).**
+  - Servicios pro: `/servicios-pro` (paseadores/cuidadores con `SegmentedControl` + `ProviderCard`),
+    `/servicios-pro/perfil` (formulario desde el perfil guardado, sin `setState` en efecto; estado vacío con salida
+    a registro) y `/servicios-pro/gestion` (mis tareas). Hooks en `hooks/servicios-pro`.
+  - Patrocinadores: listado (banner + clic registrado), `nueva-campana` con validación por campo, `boost-alerta`
+    (aviso explícito: el cobro y la difusión ampliada aún no se procesan) y `estadisticas`. `/patrocinadores/nuevo`
+    **redirige** a `nueva-campana` (en la app es una pantalla duplicada). Hooks en `hooks/sponsors`, estilos en
+    `features/patrocinadores`.
+  - Verificado: `tsc` y ESLint limpios en lo nuevo.
+  - **Siguiente:** Tienda vendedor (5), Mi clínica (14) y W4-A.
 
 - **2026-10-23 — W4 P2: servicios profesionales (Mimo, cierre de Claude).**
   - Mimo portó paseadores (lista, ficha, registro, solicitudes, calendario), cuidadores (lista, ficha),
