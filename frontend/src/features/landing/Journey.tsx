@@ -1,10 +1,25 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring } from "motion/react";
 import shared from "./landing.module.css";
 import styles from "./Journey.module.css";
-import { STEPS } from "./journeySteps";
+import { STEPS, type JourneyStep } from "./journeySteps";
+
+/** Foto de la etapa con la maqueta de la app flotando encima. */
+function Scene({ step }: { step: JourneyStep }) {
+  return (
+    <div className={styles.scene}>
+      <div className={styles.frame}>
+        <Image src={step.photo} alt={step.alt} fill sizes="(max-width: 960px) 92vw, 34rem" className={styles.photo} />
+      </div>
+      <div className={styles.float}>
+        <step.Visual />
+      </div>
+    </div>
+  );
+}
 
 /**
  * Las etapas de la vida de una mascota. En escritorio la sección se queda fija y el scroll avanza de etapa;
@@ -27,8 +42,6 @@ export default function Journey() {
     const travel = el.offsetHeight - window.innerHeight;
     window.scrollTo({ top: top + (travel * (i + 0.5)) / STEPS.length, behavior: "smooth" });
   };
-
-  const ActiveVisual = STEPS[active].Visual;
 
   return (
     <section id="etapas" className={styles.section} aria-labelledby="etapas-title">
@@ -54,7 +67,7 @@ export default function Journey() {
                       </button>
                       <p className={styles.stepText}>{step.text}</p>
                       <div className={styles.inlineVisual}>
-                        <step.Visual />
+                        <Scene step={step} />
                       </div>
                     </li>
                   ))}
@@ -72,7 +85,7 @@ export default function Journey() {
                   exit={{ opacity: 0, y: -16, filter: "blur(6px)" }}
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <ActiveVisual />
+                  <Scene step={STEPS[active]} />
                 </motion.div>
               </AnimatePresence>
             </div>

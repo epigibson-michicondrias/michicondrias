@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useMotionValue, useReducedMotion, useScroll, useTransform } from "motion/react";
 import {
@@ -13,16 +14,17 @@ import {
   Scissors,
   Stethoscope,
   Store,
+  type LucideIcon,
 } from "lucide-react";
 import shared from "./landing.module.css";
 import styles from "./ProRail.module.css";
 
 /** Oficios con sus herramientas reales (mobile/src/constants/roleTools.ts). */
-const ROLES = [
-  { icon: Stethoscope, title: "Veterinarios y clínicas", tools: ["Agenda y citas", "Expediente de pacientes", "Recetas y cirugías", "Videoconsultas"] },
-  { icon: HeartHandshake, title: "Refugios y hogares temporales", tools: ["Publicar en adopción", "Revisar postulaciones", "Recibir donaciones"] },
-  { icon: Footprints, title: "Paseadores y cuidadores", tools: ["Solicitudes entrantes", "Calendario", "Tarifas y zonas"] },
-  { icon: Scissors, title: "Estilistas y entrenadores", tools: ["Catálogo de servicios", "Agenda de citas", "Cursos y alumnos"] },
+const ROLES: { icon: LucideIcon; title: string; tools: string[]; photo?: string }[] = [
+  { icon: Stethoscope, title: "Veterinarios y clínicas", tools: ["Agenda y citas", "Expediente de pacientes", "Recetas y cirugías", "Videoconsultas"], photo: "/landing/pro-veterinarios.webp" },
+  { icon: Scissors, title: "Estilistas y entrenadores", tools: ["Catálogo de servicios", "Agenda de citas", "Cursos y alumnos"], photo: "/landing/pro-estilistas.webp" },
+  { icon: HeartHandshake, title: "Refugios y hogares temporales", tools: ["Publicar en adopción", "Revisar postulaciones", "Recibir donaciones"], photo: "/landing/pro-refugios.webp" },
+  { icon: Footprints, title: "Paseadores y cuidadores", tools: ["Solicitudes entrantes", "Calendario", "Tarifas y zonas"], photo: "/landing/pro-paseadores.webp" },
   { icon: Store, title: "Tiendas", tools: ["Catálogo de productos", "Pedidos con pago en línea", "Analíticas de ventas"] },
   { icon: Coffee, title: "Lugares pet-friendly", tools: ["Ficha de tu local", "Cupones", "Reseñas de clientes"] },
   { icon: FlaskConical, title: "Laboratorios", tools: ["Órdenes de estudio", "Registro de resultados"] },
@@ -68,8 +70,14 @@ export default function ProRail() {
           <div className={styles.viewport}>
             <motion.ul ref={railRef} className={styles.rail} style={reduce ? undefined : { x }}>
               {ROLES.map((role) => (
-                <li key={role.title} className={styles.card}>
-                  <role.icon size={30} strokeWidth={1.25} className={styles.cardIcon} aria-hidden />
+                <li key={role.title} className={styles.card} data-photo={!!role.photo}>
+                  {role.photo ? (
+                    <div className={styles.cardPhoto}>
+                      <Image src={role.photo} alt="" fill sizes="22rem" className={styles.cardImg} />
+                    </div>
+                  ) : (
+                    <role.icon size={30} strokeWidth={1.25} className={styles.cardIcon} aria-hidden />
+                  )}
                   <h3 className={styles.cardTitle}>{role.title}</h3>
                   <ul className={styles.tools}>
                     {role.tools.map((tool) => (

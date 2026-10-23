@@ -71,6 +71,39 @@
   color: var(--mg-gold);
 }
 
+.card[data-photo="true"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: transparent;
+}
+
+.cardPhoto {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.cardPhoto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 14, 23, 0) 25%, rgba(11, 14, 23, 0.75) 60%, rgba(11, 14, 23, 0.95) 100%);
+}
+
+.cardImg {
+  object-fit: cover;
+  transition: transform 700ms var(--mg-ease-out);
+}
+
+.card[data-photo="true"]:hover .cardImg {
+  transform: scale(1.05);
+}
+
+.card[data-photo="true"] .tools {
+  color: rgba(245, 241, 232, 0.78);
+}
+
 .cardTitle {
   font-size: 1.6rem;
   font-weight: 400;

@@ -11,60 +11,64 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 5rem;
-  min-height: 28rem;
-  padding: clamp(1.75rem, 4vw, 3.25rem);
+  gap: 4rem;
+  min-height: clamp(30rem, 70vh, 40rem);
+  padding: clamp(1.75rem, 4vw, 3.5rem);
   border: 1px solid var(--mg-line);
   border-radius: 2rem;
   background: var(--mg-ink-2);
 }
 
-.glow {
+.photo {
+  z-index: -2;
+  object-fit: cover;
+  object-position: 70% 50%;
+}
+
+.shade {
   position: absolute;
-  inset: 30% -20% -60% -10%;
+  inset: 0;
   z-index: -1;
   background:
-    radial-gradient(45% 60% at 78% 55%, rgba(233, 200, 131, 0.75), transparent 70%),
-    radial-gradient(45% 60% at 25% 80%, rgba(28, 47, 107, 0.95), transparent 70%);
-  filter: blur(30px);
-}
-
-.top {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 2.5rem;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  height: fit-content;
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
-  font-weight: 500;
-  letter-spacing: -0.035em;
-}
-
-.mark {
-  color: var(--mg-gold);
+    linear-gradient(90deg, rgba(11, 14, 23, 0.9) 0%, rgba(11, 14, 23, 0.55) 40%, rgba(11, 14, 23, 0) 70%),
+    linear-gradient(0deg, rgba(11, 14, 23, 0.8) 0%, rgba(11, 14, 23, 0) 35%);
 }
 
 .cta {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 1.75rem;
-  max-width: 34rem;
-  text-align: right;
+  max-width: 32rem;
 }
 
 .title {
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(2.25rem, 4.5vw, 3.75rem);
   font-weight: 300;
-  line-height: 1.05;
+  line-height: 1.02;
   letter-spacing: -0.035em;
   text-wrap: balance;
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.mark {
+  color: var(--mg-gold);
 }
 
 .links {
@@ -91,8 +95,11 @@
 }
 
 @media (max-width: 720px) {
-  .cta {
-    align-items: flex-start;
-    text-align: left;
+  .photo {
+    object-position: 48% 50%;
+  }
+
+  .shade {
+    background: linear-gradient(0deg, rgba(11, 14, 23, 0.95) 0%, rgba(11, 14, 23, 0.6) 55%, rgba(11, 14, 23, 0.2) 100%);
   }
 }
