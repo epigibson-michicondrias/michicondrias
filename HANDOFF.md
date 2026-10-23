@@ -69,7 +69,8 @@ y sigue donde se quedó el otro.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [ ] W4: portar módulos (119 pantallas faltan) · W4-A consola de admin · W5 pulido y merge a `main` · W7 permisos editables.
+- [ ] W4: faltan Tienda cliente, Inicio/Explorar reales, Notificaciones/Búsqueda/Ayuda, partner+verificacion,
+  y P2/P3. **Hechos en W4:** Mascotas, Carnet, Perfil. · W4-A consola admin · W5 pulido y merge · W7 permisos.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
 **Landing**
@@ -87,6 +88,11 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Mimo** — W4 Carnet + Perfil en `web/espejo` (ver `PROGRESO_WEB.md`): hooks y páginas de carnet
+  (vacunas, consultas, receta ticket, `CarnetItems` en la ficha) y de perfil (cuenta, editar, 2FA, eliminar
+  cuenta). Build verde. Queda legacy `perfil/partner` y `perfil/verificacion` por portar. Siguiente módulo:
+  Tienda cliente o Inicio/Explorar reales.
 
 - **2026-10-23 · Mimo** — W4 módulo Mascotas en `web/espejo` (`f5d4f12`): hooks espejo de mascotas + carnet,
   `FormImagePicker`, utils de S3/upload/Stripe. `/mascotas` (3 vistas), `/mascotas/[id]` (Resumen·Salud·Historial)
