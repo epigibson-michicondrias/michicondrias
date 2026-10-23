@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProducts, Product, createProduct, getCategories, Category, getEcommercePresignedUrl } from "@/lib/services/ecommerce";
-import { getCurrentUser, User, hasRole } from "@/lib/auth";
+import { getProducts, Product, createProduct, getCategories, Category, getEcommercePresignedUrl } from "@/lib/legacy/services/ecommerce";
+import { getCurrentUser, User, hasRole } from "@/lib/legacy/auth";
 import dashStyles from "../dashboard.module.css";
 import modStyles from "../modules.module.css";
 import styles from "./tienda.module.css";
@@ -200,7 +200,7 @@ export default function TiendaPage() {
                                 onMouseEnter={() => {
                                     queryClient.prefetchQuery({
                                         queryKey: ["product", product.id],
-                                        queryFn: () => import("@/lib/services/ecommerce").then(m => m.getProduct(product.id))
+                                        queryFn: () => import("@/lib/legacy/services/ecommerce").then(m => m.getProduct(product.id))
                                     });
                                 }}
                             >

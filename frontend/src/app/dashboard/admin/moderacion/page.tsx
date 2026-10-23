@@ -18,9 +18,9 @@ import {
     getPendingProducts,
     approveProduct,
     rejectProduct
-} from "@/lib/services/moderacion";
-import { Listing, AdoptionRequest } from "@/lib/services/adopciones";
-import { LostPetReport } from "@/lib/services/perdidas";
+} from "@/lib/legacy/services/moderacion";
+import { Listing, AdoptionRequest } from "@/lib/legacy/services/adopciones";
+import { LostPetReport } from "@/lib/legacy/services/perdidas";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import styles from "./moderacion.module.css";
 import dashStyles from "../../dashboard.module.css";

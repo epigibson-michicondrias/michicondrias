@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { listWalkers, Walker, getWalker } from "@/lib/services/paseadores";
+import { listWalkers, Walker, getWalker } from "@/lib/legacy/services/paseadores";
 import Link from "next/link";
 import dashStyles from "../dashboard.module.css";
 

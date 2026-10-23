@@ -6,7 +6,7 @@ import {
     getListing, Listing,
     getListingRequests, AdoptionRequest,
     updateRequestStatus, approveAdoption,
-} from "@/lib/services/adopciones";
+} from "@/lib/legacy/services/adopciones";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import dashStyles from "../../dashboard.module.css";

@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/legacy/auth";
 import Sidebar from "@/components/Sidebar";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import styles from "./dashboard.module.css";

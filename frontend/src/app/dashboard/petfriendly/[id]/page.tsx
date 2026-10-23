@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { getPlaceById } from "@/lib/services/perdidas";
+import { getPlaceById } from "@/lib/legacy/services/perdidas";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 import Link from "next/link";

@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createListing, getAdopcionesPresignedUrl } from "@/lib/services/adopciones";
+import { createListing, getAdopcionesPresignedUrl } from "@/lib/legacy/services/adopciones";
 import CustomSelect from "@/components/ui/CustomSelect";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";

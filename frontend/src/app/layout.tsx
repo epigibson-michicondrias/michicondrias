@@ -6,6 +6,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import OfflineBanner from "@/components/ui/OfflineBanner";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
+import "./tokens.css";
 
 const hanken = Hanken_Grotesk({
   subsets: ["latin"],

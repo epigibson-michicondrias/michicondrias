@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createLostPet } from "@/lib/services/mascotas";
+import { createLostPet } from "@/lib/legacy/services/mascotas";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 

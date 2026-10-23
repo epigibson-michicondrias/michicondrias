@@ -4,7 +4,7 @@ import { useCart } from "@/lib/contexts/CartContext";
 import styles from "./CartDrawer.module.css";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { createCheckoutSession } from "@/lib/services/ecommerce";
+import { createCheckoutSession } from "@/lib/legacy/services/ecommerce";
 
 import { useRouter } from "next/navigation";
 

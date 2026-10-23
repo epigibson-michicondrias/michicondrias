@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { registerAsWalker } from "@/lib/services/paseadores";
+import { registerAsWalker } from "@/lib/legacy/services/paseadores";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 import { toast } from "react-hot-toast";
@@ -43,7 +43,7 @@ export default function RegistroPaseadorPage() {
 
             if (imageFile) {
                 const ext = imageFile.name.substring(imageFile.name.lastIndexOf('.'));
-                const presigned = await import("@/lib/services/paseadores").then(m => m.getPaseadoresPresignedUrl(ext));
+                const presigned = await import("@/lib/legacy/services/paseadores").then(m => m.getPaseadoresPresignedUrl(ext));
 
                 const uploadRes = await fetch(presigned.url, {
                     method: "PUT",

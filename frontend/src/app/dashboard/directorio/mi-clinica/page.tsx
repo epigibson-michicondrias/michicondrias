@@ -9,9 +9,9 @@ import {
     getClinicSchedule, setClinicSchedule, ClinicScheduleItem,
     getClinicAppointments, confirmAppointment, completeAppointment, AppointmentItem,
     getClinicSurgeries, createSurgery, SurgeryItem, SurgeryCreate
-} from "@/lib/services/directorio";
-import { createRecord, MedicalRecordCreate, Prescription } from "@/lib/services/carnet";
-import { hasRole } from "@/lib/auth";
+} from "@/lib/legacy/services/directorio";
+import { createRecord, MedicalRecordCreate, Prescription } from "@/lib/legacy/services/carnet";
+import { hasRole } from "@/lib/legacy/auth";
 import dashStyles from "../../dashboard.module.css";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";

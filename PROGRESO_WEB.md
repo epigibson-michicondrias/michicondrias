@@ -9,13 +9,13 @@ App de referencia: [`PROGRESO_MOBILE.md`](PROGRESO_MOBILE.md).
 **Dónde se trabaja:** worktree `../michicondrias-web`, rama `web/espejo`. Se fusiona a `main` (producción en Vercel)
 solo con la fase verificada y el visto bueno del usuario.
 
-## Fase actual: **W1 — Auditoría** ✅ → siguiente **W2 — Núcleo espejo**
+## Fase actual: **W2 — Núcleo espejo** 🟡 (espejos, api y tokens ✅ · faltan contextos y componentes base)
 
 | # | Fase | Qué | Estado |
 |---|---|---|---|
 | W0 | Cimientos | ESLint/knip/scripts, build en verde, hooks, `frontend/CLAUDE.md`, `web-drift.sh`, docs | ✅ 2026-10-08 |
 | W1 | Auditoría web ↔ app | Mapa pantalla de la app → página web (existe/falta/sobra/difiere) + inventario de guardas de rol del backend | ✅ 2026-10-08 |
-| W2 | Núcleo espejo | types, services, roles/roleTools, api.ts, tokens → CSS, contextos, componentes base | ⬜ |
+| W2 | Núcleo espejo | types, services, roles/roleTools, api.ts, tokens → CSS, contextos, componentes base | 🟡 |
 | W3 | Navegación y esqueleto | `(auth)` + `(app)`, rutas iguales a la app, shell (sidebar / barra inferior), redirects `/dashboard/*` | ⬜ |
 | W4 | Módulos (multiagente por lotes) | P1 → **W4-A Consola admin** → P2 → P3 | ⬜ |
 | W4-A | Consola de administración | Admin de la app ampliado a escritorio + matriz de roles/permisos + "ver como rol" | ⬜ |
@@ -36,7 +36,7 @@ solo con la fase verificada y el visto bueno del usuario.
 | knip exports / tipos sin uso | 7 / 4 | 0 / 0 |
 | `tsc` | limpio (tras arreglar `Sidebar.tsx:141`) | limpio |
 | `next build` | **verde** (antes fallaba: ver bitácora) | verde |
-| `scripts/web-drift.sh` | 65 espejos faltan | 0 difieren / 0 faltan |
+| `scripts/web-drift.sh` | 65 espejos faltan → **52 iguales, 0 difieren, 0 faltan** (2026-10-23) | 0 difieren / 0 faltan |
 
 ## Módulos
 
@@ -83,10 +83,10 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Backlog
 
-- [ ] **V1** Confirmar con el usuario la configuración de Vercel: root dir `frontend`, rama de producción, variable
+- [x] **V1** (2026-10-23: proyecto `michicondrias`, root `frontend/`, producción desde `main`; fallaba por `Sidebar.tsx:141`, ya corregido) Confirmar con el usuario la configuración de Vercel: root dir `frontend`, rama de producción, variable
   `NEXT_PUBLIC_API_URL`, si hay *previews* por rama y desde cuándo falla el build en producción.
 - [ ] **V2** Agregar en el `launch.json` de la raíz una entrada que apunte al worktree, para usar `preview_start`.
-- [ ] **V3** 🚨 Hotfix en producción: la web publicada escribe **ubicaciones aleatorias** en reportes de perdidas
+- [x] **V3** (2026-10-23, `3eb2f9e` en `main`) 🚨 Hotfix en producción: la web publicada escribe **ubicaciones aleatorias** en reportes de perdidas
   (`perdidas/rastreo/[id]/page.tsx:60-74`) y registra **donaciones sin cobro** (`donaciones/page.tsx:51`). Hay que
   desactivar las dos páginas en `main` sin esperar a W3 (requiere el visto bueno del usuario: sale a Vercel).
 - [ ] **V4** Pasar a la otra sesión la tabla X1–X8 de `AUDITORIA_WEB.md`. **X1 (2FA saltable en 10 servicios) es de
@@ -114,3 +114,16 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
     Stripe, S3, Recharts, visor KYC).
   - Hallazgos urgentes: tracker falso y donaciones sin cobro en la web publicada (V3); 2FA saltable en 10 servicios
     del backend (X1).
+- **2026-10-23 — Producción y W2 (parte 1).**
+  - En `main` (`3eb2f9e`): build de Vercel en verde otra vez (getPlaces + Suspense, mismos arreglos de W0) y V3 hecho:
+    rastreo de perdidas y donaciones muestran «Disponible en la app» en vez de datos simulados. La landing nueva ya
+    estaba en `/` y también se publica sola en `michicondrias-landing-page.vercel.app` (repo aparte).
+  - `main` fusionado en `web/espejo` (82 commits de la app + landing).
+  - Auditoría web ↔ app actualizada (ver `AUDITORIA_WEB.md`, sección 2026-10-23): **37 de 156** pantallas tienen página.
+  - W2: el código viejo pasa a `src/lib/legacy/` (api, services, auth) sin cambios de lógica; copias espejo de la app en
+    `src/types`, `src/services`, `src/constants` (roles, roleTools, modules, design, palettes) y `src/utils`;
+    `src/lib/api.ts` espejo (token en `localStorage`), `src/lib/rnShim.ts` y `src/lib/uiScale.ts` para lo nativo.
+  - Tokens: `scripts/web-tokens.py` genera `src/app/tokens.css` (42 colores claro/oscuro, espacios, radios, letra)
+    desde los espejos. `--radius-lg` pasa de 20 a 16 px también en las páginas viejas.
+  - Siguiente: contextos (Auth, Theme, Cart) y componentes base con los mismos nombres y props que la app.
+

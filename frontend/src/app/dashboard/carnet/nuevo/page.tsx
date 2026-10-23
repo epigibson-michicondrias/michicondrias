@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createRecord } from "@/lib/services/carnet";
+import { createRecord } from "@/lib/legacy/services/carnet";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 

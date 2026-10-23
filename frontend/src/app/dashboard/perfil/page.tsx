@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getCurrentUser, User, getUserRole } from "@/lib/auth";
+import { getCurrentUser, User, getUserRole } from "@/lib/legacy/auth";
 import dashStyles from "../dashboard.module.css";
 import styles from "./perfil.module.css";
 

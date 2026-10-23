@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getClinic, Clinic, getVets, Vet, createVet, getClinicReviews, createClinicReview, getClinicRating, ClinicReview, ClinicRating, getClinicServices, ClinicServiceItem } from "@/lib/services/directorio";
-import { getCurrentUser, User } from "@/lib/auth";
+import { getClinic, Clinic, getVets, Vet, createVet, getClinicReviews, createClinicReview, getClinicRating, ClinicReview, ClinicRating, getClinicServices, ClinicServiceItem } from "@/lib/legacy/services/directorio";
+import { getCurrentUser, User } from "@/lib/legacy/auth";
 import dashStyles from "../../../dashboard.module.css";
 import styles from "./clinica.module.css";
 import { toast } from "react-hot-toast";

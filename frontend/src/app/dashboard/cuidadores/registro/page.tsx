@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { registerAsSitter } from "@/lib/services/cuidadores";
+import { registerAsSitter } from "@/lib/legacy/services/cuidadores";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 import { toast } from "react-hot-toast";
@@ -44,7 +44,7 @@ export default function RegistroCuidadorPage() {
 
             if (imageFile) {
                 const ext = imageFile.name.substring(imageFile.name.lastIndexOf('.'));
-                const presigned = await import("@/lib/services/cuidadores").then(m => m.getCuidadoresPresignedUrl(ext));
+                const presigned = await import("@/lib/legacy/services/cuidadores").then(m => m.getCuidadoresPresignedUrl(ext));
 
                 const uploadRes = await fetch(presigned.url, {
                     method: "PUT",

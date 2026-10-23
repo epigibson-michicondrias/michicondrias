@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createClinic } from "@/lib/services/directorio";
+import { createClinic } from "@/lib/legacy/services/directorio";
 import CustomSelect from "@/components/ui/CustomSelect";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";

@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { getWalker, getWalkerReviews, requestWalk, Walker } from "@/lib/services/paseadores";
-import { getUserPets, Pet } from "@/lib/services/mascotas";
-import { getCurrentUser } from "@/lib/auth";
+import { getWalker, getWalkerReviews, requestWalk, Walker } from "@/lib/legacy/services/paseadores";
+import { getUserPets, Pet } from "@/lib/legacy/services/mascotas";
+import { getCurrentUser } from "@/lib/legacy/auth";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 import { toast } from "react-hot-toast";

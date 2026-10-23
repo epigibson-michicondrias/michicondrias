@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMyOrders, Order } from "@/lib/services/ecommerce";
+import { getMyOrders, Order } from "@/lib/legacy/services/ecommerce";
 import { toast } from "react-hot-toast";
 import styles from "./Compras.module.css";
 import dashStyles from "../../dashboard.module.css";

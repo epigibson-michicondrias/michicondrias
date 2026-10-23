@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getListing, Listing } from "@/lib/services/adopciones";
-import { getUserRole } from "@/lib/auth";
+import { getListing, Listing } from "@/lib/legacy/services/adopciones";
+import { getUserRole } from "@/lib/legacy/auth";
 import dashStyles from "../../../dashboard.module.css";
 import styles from "./mascota.module.css";
 

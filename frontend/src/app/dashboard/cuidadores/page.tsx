@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { listSitters, Sitter, getSitter } from "@/lib/services/cuidadores";
+import { listSitters, Sitter, getSitter } from "@/lib/legacy/services/cuidadores";
 import Link from "next/link";
 import dashStyles from "../dashboard.module.css";
 

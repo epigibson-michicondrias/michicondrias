@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getCurrentUser } from "@/lib/auth";
-import { getListings, Listing } from "@/lib/services/adopciones";
+import { getCurrentUser } from "@/lib/legacy/auth";
+import { getListings, Listing } from "@/lib/legacy/services/adopciones";
 import dashStyles from "../dashboard.module.css";
 import styles from "./adopciones.module.css";
 
@@ -233,7 +233,7 @@ export default function AdopcionesPage() {
                                             onMouseEnter={() => {
                                                 queryClient.prefetchQuery({
                                                     queryKey: ["listing", listing.id],
-                                                    queryFn: () => import("@/lib/services/adopciones").then(m => m.getListing(listing.id))
+                                                    queryFn: () => import("@/lib/legacy/services/adopciones").then(m => m.getListing(listing.id))
                                                 });
                                             }}
                                         >
@@ -248,7 +248,7 @@ export default function AdopcionesPage() {
                                                 onMouseEnter={() => {
                                                     queryClient.prefetchQuery({
                                                         queryKey: ["listing", listing.id],
-                                                        queryFn: () => import("@/lib/services/adopciones").then(m => m.getListing(listing.id))
+                                                        queryFn: () => import("@/lib/legacy/services/adopciones").then(m => m.getListing(listing.id))
                                                     });
                                                 }}
                                             >

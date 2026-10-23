@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPlace } from "@/lib/services/perdidas";
-import { getMascotasPresignedUrl } from "@/lib/services/mascotas";
+import { createPlace } from "@/lib/legacy/services/perdidas";
+import { getMascotasPresignedUrl } from "@/lib/legacy/services/mascotas";
 import { toast } from "react-hot-toast";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";

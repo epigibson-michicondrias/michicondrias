@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { logout, getUserRole, getCurrentUser } from "@/lib/auth";
+import { logout, getUserRole, getCurrentUser } from "@/lib/legacy/auth";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { getUserPets } from "@/lib/services/mascotas";
+import { getUserPets } from "@/lib/legacy/services/mascotas";
 import styles from "./Sidebar.module.css";
 
 interface MenuItem {
@@ -127,18 +127,18 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                 if (item.href === "/dashboard/mascotas") {
                                     const user = await queryClient.ensureQueryData({
                                         queryKey: ["current-user"],
-                                        queryFn: () => import("@/lib/auth").then(m => m.getCurrentUser())
+                                        queryFn: () => import("@/lib/legacy/auth").then(m => m.getCurrentUser())
                                     });
                                     if (user?.id) {
                                         queryClient.prefetchQuery({
                                             queryKey: ["user-pets", user.id],
-                                            queryFn: () => import("@/lib/services/mascotas").then(m => m.getUserPets(user.id))
+                                            queryFn: () => import("@/lib/legacy/services/mascotas").then(m => m.getUserPets(user.id))
                                         });
                                     }
                                 } else if (item.href === "/dashboard/petfriendly") {
                                     queryClient.prefetchQuery({
                                         queryKey: ["petfriendly-places", ""],
-                                        queryFn: () => import("@/lib/services/petfriendly").then(m => m.getPlaces())
+                                        queryFn: () => import("@/lib/legacy/services/petfriendly").then(m => m.getPlaces())
                                     });
                                 }
                             }}

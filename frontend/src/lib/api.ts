@@ -1,92 +1,131 @@
+/**
+ * Cliente HTTP espejo de `mobile/src/lib/api.ts`: mismos servicios, `ApiError`, `sessionExpired` y timeout.
+ * El código viejo de la web sigue en `lib/legacy/api.ts` hasta que cada módulo se porte.
+ */
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://michicondrias.duckdns.org";
 
 const API_URLS = {
     core: `${BASE_URL}/core/api/v1`,
-    adopciones: `${BASE_URL}/adopciones/api/v1/adopciones`,
-    directorio: `${BASE_URL}/directorio/api/v1/directorio`,
+    adopciones: `${BASE_URL}/adopciones/api/v1`,
+    directorio: `${BASE_URL}/directorio/api/v1`,
     carnet: `${BASE_URL}/carnet/api/v1`,
     ecommerce: `${BASE_URL}/ecommerce/api/v1`,
     mascotas: `${BASE_URL}/mascotas/api/v1`,
     perdidas: `${BASE_URL}/perdidas/api/v1`,
     paseadores: `${BASE_URL}/paseadores/api/v1`,
     cuidadores: `${BASE_URL}/cuidadores/api/v1`,
+    aseguradoras: `${BASE_URL}/aseguradoras/api/v1/insurance`,
+    entrenadores: `${BASE_URL}/entrenadores/api/v1/training`,
+    establecimientos: `${BASE_URL}/establecimientos/api/v1/venues`,
+    estilistas: `${BASE_URL}/estilistas/api/v1/grooming`,
+    funeraria: `${BASE_URL}/funeraria/api/v1/funerary`,
+    patrocinadores: `${BASE_URL}/patrocinadores/api/v1/sponsors`,
+    transportistas: `${BASE_URL}/transportistas/api/v1/rides`,
+    laboratorio: `${BASE_URL}/laboratorio/api/v1`,
 };
 
-type ServiceName = keyof typeof API_URLS;
+export type ServiceName = keyof typeof API_URLS;
 
-function getToken(): string | null {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem("access_token");
+const TOKEN_KEY = 'access_token';
+
+/** Error HTTP del backend. `sessionExpired` indica que el token ya no sirve y hay que volver a iniciar sesión. */
+export class ApiError extends Error {
+    constructor(message: string, public status: number, public sessionExpired = false) {
+        super(message);
+        this.name = 'ApiError';
+    }
 }
 
-function setToken(token: string) {
-    localStorage.setItem("access_token", token);
+// AuthContext se registra aquí para enterarse cuando el backend rechaza el token (sesión vencida o inválida).
+let unauthorizedHandler: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+    unauthorizedHandler = handler;
 }
 
-function removeToken() {
-    localStorage.removeItem("access_token");
+/** El token vive en `localStorage` (la app usa SecureStore). Misma interfaz asíncrona que la app. */
+export async function getToken(): Promise<string | null> {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(TOKEN_KEY);
 }
 
-async function apiFetch<T>(
+export async function setToken(token: string) {
+    localStorage.setItem(TOKEN_KEY, token);
+}
+
+export async function removeToken() {
+    localStorage.removeItem(TOKEN_KEY);
+}
+
+export async function apiFetch<T>(
     service: ServiceName,
     endpoint: string,
     options: RequestInit = {}
 ): Promise<T> {
+    // Sin caché propia: React Query ya cachea por query y decide cuándo volver a pedir (refresh, polling, invalidación).
     const url = `${API_URLS[service]}${endpoint}`;
-    const token = getToken();
+
+    const token = await getToken();
 
     const headers: Record<string, string> = {
         ...(options.headers as Record<string, string> || {}),
     };
 
-    // Only set application/json if not sending FormData
     if (!(options.body instanceof FormData) && !headers["Content-Type"]) {
         headers["Content-Type"] = "application/json";
     }
 
     if (token) {
-        (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+        headers["Authorization"] = `Bearer ${token}`;
     }
 
-    let res: Response;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+
     try {
-        res = await fetch(url, {
+        const res = await fetch(url, {
             ...options,
             headers,
+            signal: controller.signal,
         });
-    } catch (error: any) {
-        // Handle Network/CORS/Offline errors gracefully
-        if (error.name === "TypeError" && error.message.includes("fetch")) {
-            throw new Error("No hay conexión con el servidor. Verifica tu internet.");
-        }
-        throw new Error(error.message || "Error de conexión inesperado.");
-    }
 
-    if (res.status === 401 || res.status === 403) {
-        removeToken();
-        if (typeof window !== "undefined") {
-            window.location.href = "/login";
-        }
-        throw new Error("No autorizado");
-    }
+        clearTimeout(timeout);
 
-    if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        const errorMessage = errorData.detail || `Error ${res.status}`;
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            const detail = typeof errorData.detail === 'string' ? errorData.detail : '';
 
-        // If the user was deleted from DB (like a Neon migration reset), force logout
-        if (res.status === 404 && (errorMessage === "User not found" || errorMessage === "Usuario no encontrado")) {
-            removeToken();
-            if (typeof window !== "undefined") {
-                window.location.href = "/login";
+            // El backend responde 403 "Could not validate credentials" cuando el token venció o es inválido,
+            // y 403 con otros mensajes cuando el usuario no tiene permiso para esa acción.
+            const sessionExpired =
+                res.status === 401 ||
+                (res.status === 403 && /could not validate credentials|not authenticated|2fa|dos factores/i.test(detail));
+            if (sessionExpired) {
+                // Una respuesta tardía con un token viejo no debe cerrar la sesión que se abrió después
+                if (token && (await getToken()) === token) {
+                    await removeToken();
+                    unauthorizedHandler?.();
+                }
+                throw new ApiError("Tu sesión expiró. Inicia sesión de nuevo.", res.status, true);
             }
+            if (res.status === 403) {
+                throw new ApiError(detail || "No tienes permiso para realizar esta acción", res.status);
+            }
+            const message = Array.isArray(errorData.detail)
+                // Pydantic antepone "Value error, " a los mensajes de los validadores propios
+                ? errorData.detail.map((d: any) => String(d?.msg ?? '').replace(/^Value error, /, '')).filter(Boolean).join('. ')
+                : detail;
+            throw new ApiError(message || `Error ${res.status}`, res.status);
         }
 
-        throw new Error(errorMessage);
+        // 204 Sin contenido (p. ej. PUT/DELETE de favoritos)
+        if (res.status === 204) return undefined as T;
+        return await res.json();
+    } catch (error: any) {
+        clearTimeout(timeout);
+        if (error.name === 'AbortError') {
+            throw new Error("Tiempo de espera agotado. Verifica tu conexión.");
+        }
+        throw error;
     }
-
-    return res.json();
 }
-
-export { apiFetch, getToken, setToken, removeToken, API_URLS };
-export type { ServiceName };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getMyRequests } from "@/lib/services/adopciones";
+import { getMyRequests } from "@/lib/legacy/services/adopciones";
 import dashStyles from "../../dashboard.module.css";
 import styles from "./mis-solicitudes.module.css";
 

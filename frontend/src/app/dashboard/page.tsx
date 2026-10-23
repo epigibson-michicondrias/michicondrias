@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getCurrentUser, User, getUserRole } from "@/lib/auth";
-import { getAdminAnalytics, AnalyticsMetrics } from "@/lib/services/analytics";
+import { getCurrentUser, User, getUserRole } from "@/lib/legacy/auth";
+import { getAdminAnalytics, AnalyticsMetrics } from "@/lib/legacy/services/analytics";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";
 import dashStyles from "./dashboard.module.css";
 import styles from "./home.module.css";

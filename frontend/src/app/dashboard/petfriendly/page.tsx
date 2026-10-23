@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getPlaces, PetfriendlyPlace } from "@/lib/services/perdidas";
+import { getPlaces, PetfriendlyPlace } from "@/lib/legacy/services/perdidas";
 import Link from "next/link";
 import dashStyles from "../dashboard.module.css";
 import styles from "../modules.module.css";

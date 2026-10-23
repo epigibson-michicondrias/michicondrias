@@ -11,7 +11,7 @@ import {
     createRole,
     updateRole,
     deleteRole
-} from "@/lib/services/roles";
+} from "@/lib/legacy/services/roles";
 
 export default function AdminRolesPage() {
     const [roles, setRoles] = useState<Role[]>([]);

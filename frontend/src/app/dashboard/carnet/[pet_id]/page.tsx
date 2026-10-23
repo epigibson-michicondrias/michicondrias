@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { getPetById, Pet } from "@/lib/services/mascotas";
-import { getRecordsByPet, getVaccinesByPet, createRecord, createVaccine, MedicalRecord, Vaccine } from "@/lib/services/carnet";
-import { getCurrentUser, User, hasRole } from "@/lib/auth";
+import { getPetById, Pet } from "@/lib/legacy/services/mascotas";
+import { getRecordsByPet, getVaccinesByPet, createRecord, createVaccine, MedicalRecord, Vaccine } from "@/lib/legacy/services/carnet";
+import { getCurrentUser, User, hasRole } from "@/lib/legacy/auth";
 import dashStyles from "../../dashboard.module.css";
 import styles from "./expediente.module.css";
 import petStyles from "../../mascotas/mascotas.module.css";

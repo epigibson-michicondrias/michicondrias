@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getClinic, Clinic, getClinicServices, ClinicServiceItem, getAvailableSlots, AvailableSlot, createAppointment, rescheduleAppointment } from "@/lib/services/directorio";
-import { getCurrentUser } from "@/lib/auth";
-import { getUserPets } from "@/lib/services/mascotas";
+import { getClinic, Clinic, getClinicServices, ClinicServiceItem, getAvailableSlots, AvailableSlot, createAppointment, rescheduleAppointment } from "@/lib/legacy/services/directorio";
+import { getCurrentUser } from "@/lib/legacy/auth";
+import { getUserPets } from "@/lib/legacy/services/mascotas";
 import dashStyles from "../../../../dashboard.module.css";
 import { toast } from "react-hot-toast";
 

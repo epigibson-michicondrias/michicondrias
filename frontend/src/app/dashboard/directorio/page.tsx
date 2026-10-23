@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { hasRole } from "@/lib/auth";
-import { getClinics, Clinic, getVets, Vet } from "@/lib/services/directorio";
+import { hasRole } from "@/lib/legacy/auth";
+import { getClinics, Clinic, getVets, Vet } from "@/lib/legacy/services/directorio";
 import dashStyles from "../dashboard.module.css";
 import styles from "./directorio.module.css";
 import modStyles from "../modules.module.css";

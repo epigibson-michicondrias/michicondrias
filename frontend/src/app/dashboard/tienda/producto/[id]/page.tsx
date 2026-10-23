@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { getProduct, getReviews, createReview, Product, Review } from "@/lib/services/ecommerce";
-import { getCurrentUser, User } from "@/lib/auth";
+import { getProduct, getReviews, createReview, Product, Review } from "@/lib/legacy/services/ecommerce";
+import { getCurrentUser, User } from "@/lib/legacy/auth";
 import { toast } from "react-hot-toast";
 import { useCart } from "@/lib/contexts/CartContext";
 import styles from "../../producto.module.css";

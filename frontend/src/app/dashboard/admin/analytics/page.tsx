@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
-import { getProducts } from "@/lib/services/ecommerce";
-import { getReports } from "@/lib/services/perdidas";
-import { getPlaces } from "@/lib/services/petfriendly";
-import { getDonations } from "@/lib/services/ecommerce";
+import { apiFetch } from "@/lib/legacy/api";
+import { getProducts } from "@/lib/legacy/services/ecommerce";
+import { getReports } from "@/lib/legacy/services/perdidas";
+import { getPlaces } from "@/lib/legacy/services/petfriendly";
+import { getDonations } from "@/lib/legacy/services/ecommerce";
 import dashStyles from "../../dashboard.module.css";
 import styles from "./analytics.module.css";
 

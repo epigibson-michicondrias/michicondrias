@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { apiFetch, API_URLS } from "@/lib/api";
-import { User } from "@/lib/auth";
+import { apiFetch, API_URLS } from "@/lib/legacy/api";
+import { User } from "@/lib/legacy/auth";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import dashStyles from "../../dashboard.module.css";

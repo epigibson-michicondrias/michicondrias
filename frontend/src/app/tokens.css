@@ -1,0 +1,177 @@
+/* Generado por scripts/web-tokens.py desde las copias espejo de la app. No editar a mano. */
+
+:root {
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 6px;
+  --space-md: 10px;
+  --space-lg: 14px;
+  --space-xl: 18px;
+  --space-xxl: 22px;
+  --space-xxxl: 28px;
+  --space-huge: 40px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-xxl: 28px;
+  --radius-pill: 999px;
+  --font-xs: 10px;
+  --font-sm: 11px;
+  --font-md: 12px;
+  --font-base: 13px;
+  --font-lg: 14px;
+  --font-xl: 15px;
+  --font-xxl: 16px;
+  --font-h3: 18px;
+  --font-h2: 20px;
+  --font-h1: 22px;
+  --font-display: 26px;
+  --min-touch: 44px;
+  --screen-padding: 18px;
+  --shadow-card: 0 1px 6px rgba(0, 0, 0, 0.04);
+  --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-floating: 0 8px 20px rgba(0, 0, 0, 0.14);
+
+  /* Midnight & Gold — claro */
+  --color-text: #141824;
+  --color-text-muted: #667085;
+  --color-background: #faf8f4;
+  --color-tint: #1f3a8a;
+  --color-tab-icon-default: #a0a7b8;
+  --color-tab-icon-selected: #1f3a8a;
+  --color-surface: #ffffff;
+  --color-border: #ebe5d8;
+  --color-border-light: #f3efe6;
+  --color-error: #d64545;
+  --color-error-light: #fde8e8;
+  --color-primary: #2f5fd0;
+  --color-on-primary: #ffffff;
+  --color-on-accent: #101c3d;
+  --color-primary-light: #e8eefc;
+  --color-secondary: #6a5ae0;
+  --color-secondary-light: #eeebfd;
+  --color-accent: #b8893a;
+  --color-accent-light: #f7edd6;
+  --color-background-secondary: #f3efe6;
+  --color-card: #ffffff;
+  --color-card-border: #ebe5d8;
+  --color-overlay: rgba(20,24,36,0.04);
+  --color-overlay-hover: rgba(20,24,36,0.07);
+  --color-glass-bg: rgba(255,255,255,0.8);
+  --color-glass-border: rgba(184, 137, 58, 0.18);
+  --color-divider: #ebe5d8;
+  --color-input-bg: #ffffff;
+  --color-input-border: #ddd5c3;
+  --color-badge-bg: #f7edd6;
+  --color-badge-text: #7a5a1e;
+  --color-success: #16a36e;
+  --color-success-light: #dcf5ea;
+  --color-warning: #c46a0c;
+  --color-warning-light: #fdf0e1;
+  --color-info: #2f6fd0;
+  --color-info-light: #e8f0fc;
+  --color-on-hero: #ffffff;
+  --color-on-hero-muted: rgba(255, 255, 255, 0.75);
+  --color-hero-glass: rgba(255, 255, 255, 0.14);
+  --color-hero-glass-border: rgba(255, 255, 255, 0.2);
+  --color-hero-gradient: linear-gradient(135deg, #1f3a8a, #14275e);
+  color-scheme: light;
+}
+
+/* Oscuro: lo pide el sistema, salvo que el usuario haya elegido claro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-text: #f5f1e8;
+    --color-text-muted: #9aa3b5;
+    --color-background: #0b0e17;
+    --color-tint: #e9c883;
+    --color-tab-icon-default: #5b6478;
+    --color-tab-icon-selected: #e9c883;
+    --color-surface: #131826;
+    --color-border: rgba(233, 200, 131, 0.14);
+    --color-border-light: rgba(255, 255, 255, 0.05);
+    --color-error: #f0716f;
+    --color-error-light: rgba(240, 113, 111, 0.14);
+    --color-primary: #4f8cff;
+    --color-on-primary: #08101f;
+    --color-on-accent: #101c3d;
+    --color-primary-light: rgba(79, 140, 255, 0.14);
+    --color-secondary: #8b7cf6;
+    --color-secondary-light: rgba(139, 124, 246, 0.14);
+    --color-accent: #e9c883;
+    --color-accent-light: rgba(233, 200, 131, 0.14);
+    --color-background-secondary: #0f1320;
+    --color-card: #131826;
+    --color-card-border: rgba(233, 200, 131, 0.12);
+    --color-overlay: rgba(255,255,255,0.03);
+    --color-overlay-hover: rgba(255,255,255,0.06);
+    --color-glass-bg: rgba(19, 24, 38, 0.85);
+    --color-glass-border: rgba(233, 200, 131, 0.16);
+    --color-divider: rgba(255, 255, 255, 0.06);
+    --color-input-bg: rgba(255,255,255,0.045);
+    --color-input-border: rgba(233, 200, 131, 0.2);
+    --color-badge-bg: rgba(233, 200, 131, 0.14);
+    --color-badge-text: #e9c883;
+    --color-success: #3ecf9a;
+    --color-success-light: rgba(62, 207, 154, 0.14);
+    --color-warning: #f2a541;
+    --color-warning-light: rgba(242, 165, 65, 0.14);
+    --color-info: #5aa9ff;
+    --color-info-light: rgba(90, 169, 255, 0.14);
+    --color-on-hero: #ffffff;
+    --color-on-hero-muted: rgba(255, 255, 255, 0.7);
+    --color-hero-glass: rgba(255, 255, 255, 0.14);
+    --color-hero-glass-border: rgba(255, 255, 255, 0.2);
+    --color-hero-gradient: linear-gradient(135deg, #1c2f6b, #101c3d);
+    color-scheme: dark;
+  }
+}
+
+/* Oscuro elegido a mano (ThemeContext) */
+:root[data-theme="dark"] {
+  --color-text: #f5f1e8;
+  --color-text-muted: #9aa3b5;
+  --color-background: #0b0e17;
+  --color-tint: #e9c883;
+  --color-tab-icon-default: #5b6478;
+  --color-tab-icon-selected: #e9c883;
+  --color-surface: #131826;
+  --color-border: rgba(233, 200, 131, 0.14);
+  --color-border-light: rgba(255, 255, 255, 0.05);
+  --color-error: #f0716f;
+  --color-error-light: rgba(240, 113, 111, 0.14);
+  --color-primary: #4f8cff;
+  --color-on-primary: #08101f;
+  --color-on-accent: #101c3d;
+  --color-primary-light: rgba(79, 140, 255, 0.14);
+  --color-secondary: #8b7cf6;
+  --color-secondary-light: rgba(139, 124, 246, 0.14);
+  --color-accent: #e9c883;
+  --color-accent-light: rgba(233, 200, 131, 0.14);
+  --color-background-secondary: #0f1320;
+  --color-card: #131826;
+  --color-card-border: rgba(233, 200, 131, 0.12);
+  --color-overlay: rgba(255,255,255,0.03);
+  --color-overlay-hover: rgba(255,255,255,0.06);
+  --color-glass-bg: rgba(19, 24, 38, 0.85);
+  --color-glass-border: rgba(233, 200, 131, 0.16);
+  --color-divider: rgba(255, 255, 255, 0.06);
+  --color-input-bg: rgba(255,255,255,0.045);
+  --color-input-border: rgba(233, 200, 131, 0.2);
+  --color-badge-bg: rgba(233, 200, 131, 0.14);
+  --color-badge-text: #e9c883;
+  --color-success: #3ecf9a;
+  --color-success-light: rgba(62, 207, 154, 0.14);
+  --color-warning: #f2a541;
+  --color-warning-light: rgba(242, 165, 65, 0.14);
+  --color-info: #5aa9ff;
+  --color-info-light: rgba(90, 169, 255, 0.14);
+  --color-on-hero: #ffffff;
+  --color-on-hero-muted: rgba(255, 255, 255, 0.7);
+  --color-hero-glass: rgba(255, 255, 255, 0.14);
+  --color-hero-glass-border: rgba(255, 255, 255, 0.2);
+  --color-hero-gradient: linear-gradient(135deg, #1c2f6b, #101c3d);
+  color-scheme: dark;
+}

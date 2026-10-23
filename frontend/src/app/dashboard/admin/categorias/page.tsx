@@ -15,7 +15,7 @@ import {
     createSubcategory,
     updateSubcategory,
     deleteSubcategory
-} from "@/lib/services/categories";
+} from "@/lib/legacy/services/categories";
 
 export default function AdminCategoriesPage() {
     const [categories, setCategories] = useState<Category[]>([]);

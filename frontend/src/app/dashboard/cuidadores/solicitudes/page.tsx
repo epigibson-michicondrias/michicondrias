@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getIncomingSitRequests, getMySitRequests, updateSitRequestStatus, createSitReview } from "@/lib/services/cuidadores";
+import { getIncomingSitRequests, getMySitRequests, updateSitRequestStatus, createSitReview } from "@/lib/legacy/services/cuidadores";
 import { useState } from "react";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";

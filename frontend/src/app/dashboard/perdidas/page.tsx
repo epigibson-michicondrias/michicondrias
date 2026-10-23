@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getReports, createReport, resolveReport, LostPetReport, LostPetReportCreate } from "@/lib/services/perdidas";
-import { getCurrentUser, User } from "@/lib/auth";
+import { getReports, createReport, resolveReport, LostPetReport, LostPetReportCreate } from "@/lib/legacy/services/perdidas";
+import { getCurrentUser, User } from "@/lib/legacy/auth";
 import dashStyles from "../dashboard.module.css";
 import modStyles from "../modules.module.css";
 import styles from "./perdidas.module.css";

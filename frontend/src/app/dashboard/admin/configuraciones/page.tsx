@@ -11,7 +11,7 @@ import {
     createSetting,
     updateSetting,
     deleteSetting
-} from "@/lib/services/settings";
+} from "@/lib/legacy/services/settings";
 
 export default function AdminSettingsPage() {
     const [settings, setSettings] = useState<GlobalSetting[]>([]);

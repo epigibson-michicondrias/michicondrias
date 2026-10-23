@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getIncomingWalkRequests, getMyWalkRequests, updateWalkRequestStatus, createWalkReview } from "@/lib/services/paseadores";
+import { getIncomingWalkRequests, getMyWalkRequests, updateWalkRequestStatus, createWalkReview } from "@/lib/legacy/services/paseadores";
 import { useState } from "react";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";

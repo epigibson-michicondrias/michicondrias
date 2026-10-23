@@ -2,8 +2,8 @@
 
 import { useState, FormEvent, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getCurrentUser, User } from "@/lib/auth";
-import { requestAdoption, getListings, Listing } from "@/lib/services/adopciones";
+import { getCurrentUser, User } from "@/lib/legacy/auth";
+import { requestAdoption, getListings, Listing } from "@/lib/legacy/services/adopciones";
 import CustomSelect from "@/components/ui/CustomSelect";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";

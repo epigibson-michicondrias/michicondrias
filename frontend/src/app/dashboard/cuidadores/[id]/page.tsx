@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getSitter, getSitterReviews, requestSit, Sitter } from "@/lib/services/cuidadores";
-import { getUserPets, Pet } from "@/lib/services/mascotas";
-import { getCurrentUser } from "@/lib/auth";
+import { getSitter, getSitterReviews, requestSit, Sitter } from "@/lib/legacy/services/cuidadores";
+import { getUserPets, Pet } from "@/lib/legacy/services/mascotas";
+import { getCurrentUser } from "@/lib/legacy/auth";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
 import { toast } from "react-hot-toast";

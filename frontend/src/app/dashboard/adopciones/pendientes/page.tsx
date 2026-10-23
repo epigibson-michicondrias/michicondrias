@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getUserRole } from "@/lib/auth";
+import { getUserRole } from "@/lib/legacy/auth";
 import Image from "next/image";
 import {
     getPendingListings,
     approveListing,
     rejectListing,
     Listing,
-} from "@/lib/services/adopciones";
+} from "@/lib/legacy/services/adopciones";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import dashStyles from "../../dashboard.module.css";

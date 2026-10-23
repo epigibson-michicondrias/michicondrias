@@ -221,3 +221,35 @@ imagen/PDF (`admin/verificaciones/page.tsx:94-115`), subcategorías (`admin/cate
 - **Admin:** visor KYC, subcategorías y tabla de roles (arriba).
 - **Búsqueda global:** debounce + React Query en `MichiExplorer.tsx:21-29`.
 - **UI:** `OfflineBanner`, `ConfirmModal`, `ToasterProvider`. Sirven de referencia para `AppAlert`.
+
+## Actualización 2026-10-23 — cobertura pantalla por pantalla
+
+Cruce automático de `mobile/app/**` contra las páginas de `frontend/src/app/**` (sin `/dashboard`). «Tiene página» solo
+significa que la ruta existe: todas son código viejo que se rehace en W4.
+
+**156 pantallas en la app · 37 con página web · 119 faltan.**
+
+| Módulo | Web/App | Faltan |
+|---|---|---|
+| admin | 4/14 | panel, clínicas (+detalle), config, mascotas, productos, servicios, stats, usuarios, veterinarios |
+| adopciones | 3/12 | detalle, contrato, formulario de compatibilidad, mis publicaciones, nuevo, aplicaciones del refugio, solicitar, solicitud, ver solicitudes |
+| aseguradoras | 0/8 | módulo completo |
+| auth | 2/4 | forgot-password, reset-password |
+| carnet | 1/4 | nueva consulta, nueva vacuna, receta |
+| cuidadores / paseadores | 3/4 · 3/4 | calendario |
+| directorio | 5/6 | especialista |
+| entrenadores | 0/7 | módulo completo |
+| establecimientos | 0/4 | módulo completo |
+| estilistas / grooming | 0/3 · 0/4 | módulos completos |
+| funeraria | 0/10 | módulo completo |
+| laboratorio | 0/3 | módulo completo |
+| mascotas | 2/5 | Michi-IA (diagnóstico y dieta), editar, nuevo |
+| mi-clinica | 0/14 | módulo completo (la página vieja usa datos *mock*) |
+| patrocinadores | 0/5 | módulo completo |
+| perdidas | 1/5 | detalle, editar, mis reportes, nuevo |
+| perfil | 3/6 | editar, eliminar cuenta, 2FA |
+| servicios-pro | 0/3 | módulo completo |
+| tienda | 5/12 | carrito, pedido, todo el panel de vendedor |
+| transportistas | 0/8 | módulo completo |
+| pestañas y sueltas | — | explorar, tienda-tab, menú, búsqueda, notificaciones, ayuda |
+| donaciones, petfriendly, inicio, login, register | completos | (rehacer igual en W4) |

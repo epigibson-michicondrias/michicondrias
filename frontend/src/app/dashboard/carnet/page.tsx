@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getCurrentUser, User, hasRole } from "@/lib/auth";
-import { getUserPets, Pet, createPet } from "@/lib/services/mascotas";
+import { getCurrentUser, User, hasRole } from "@/lib/legacy/auth";
+import { getUserPets, Pet, createPet } from "@/lib/legacy/services/mascotas";
 import dashStyles from "../dashboard.module.css";
 import modStyles from "../modules.module.css";
 import styles from "./carnet.module.css";

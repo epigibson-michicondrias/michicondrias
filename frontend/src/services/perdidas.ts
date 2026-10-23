@@ -1,0 +1,124 @@
+import { apiFetch } from "../lib/api";
+
+export interface LostPetReport {
+    id: string;
+    reporter_id: string;
+    pet_name: string;
+    species: string;
+    breed: string | null;
+    color: string | null;
+    size: string | null;
+    age_approx: string | null;
+    description: string | null;
+    image_url: string | null;
+    report_type: "lost" | "found";
+    last_seen_location: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    contact_phone: string | null;
+    contact_email: string | null;
+    status: string;
+    is_resolved: boolean;
+    created_at: string | null;
+
+    // Michi-Tracker Pro fields
+    has_tracker: boolean;
+    tracker_device_id: string | null;
+    current_lat: number | null;
+    current_lng: number | null;
+    last_tracked_at: string | null;
+}
+
+export async function getReports(
+    reportType?: string,
+    status: string = "active"
+): Promise<LostPetReport[]> {
+    const params = new URLSearchParams();
+    if (reportType) params.append("report_type", reportType);
+    if (status) params.append("status", status);
+
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    return apiFetch<LostPetReport[]>("perdidas", `/reports/${qs}`);
+}
+
+export async function getReportById(reportId: string): Promise<LostPetReport> {
+    return apiFetch<LostPetReport>("perdidas", `/reports/${reportId}`);
+}
+
+export async function updateTrackerLocation(reportId: string, lat: number, lng: number): Promise<LostPetReport> {
+    return apiFetch<LostPetReport>("perdidas", `/reports/${reportId}/location`, {
+        method: "PATCH",
+        body: JSON.stringify({ current_lat: lat, current_lng: lng }),
+    });
+}
+
+export async function getPerdidasPresignedUrl(ext: string): Promise<{ url: string; object_key: string }> {
+    return apiFetch<{ url: string; object_key: string }>("perdidas", `/reports/presigned-url?ext=${ext}`);
+}
+
+export async function createReport(reportData: Partial<LostPetReport>): Promise<LostPetReport> {
+    return apiFetch<LostPetReport>("perdidas", `/reports/`, {
+        method: "POST",
+        body: JSON.stringify(reportData)
+    });
+}
+
+/** Mis reportes (activos, resueltos y en revisión). */
+export async function getMyReports(): Promise<LostPetReport[]> {
+    return apiFetch<LostPetReport[]>("perdidas", "/reports/mine");
+}
+
+export async function deleteReport(reportId: string): Promise<void> {
+    await apiFetch<unknown>("perdidas", `/reports/${reportId}`, { method: "DELETE" });
+}
+
+export async function resolveReport(reportId: string): Promise<LostPetReport> {
+    return apiFetch<LostPetReport>("perdidas", `/reports/${reportId}/resolve`, {
+        method: "POST",
+    });
+}
+
+export async function updateReport(reportId: string, reportData: Partial<LostPetReport>): Promise<LostPetReport> {
+    return apiFetch<LostPetReport>("perdidas", `/reports/${reportId}`, {
+        method: "PATCH",
+        body: JSON.stringify(reportData)
+    });
+}
+
+// --- Report Matching & Broadcasting ---
+
+export async function getReportMatches(reportId: string): Promise<LostPetReport[]> {
+    return apiFetch<LostPetReport[]>("perdidas", `/reports/${reportId}/matches`);
+}
+
+export async function broadcastReport(reportId: string): Promise<{ success: boolean }> {
+    return apiFetch<{ success: boolean }>("perdidas", `/reports/${reportId}/broadcast`, {
+        method: "POST",
+    });
+}
+
+// --- Avistamientos ---
+
+export interface Sighting {
+    id: string;
+    report_id: string;
+    location_text: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    note: string | null;
+    created_at: string | null;
+}
+
+export async function getSightings(reportId: string): Promise<Sighting[]> {
+    return apiFetch<Sighting[]>("perdidas", `/reports/${reportId}/sightings`);
+}
+
+export async function createSighting(
+    reportId: string,
+    data: { location_text?: string; latitude?: number; longitude?: number; note?: string }
+): Promise<Sighting> {
+    return apiFetch<Sighting>("perdidas", `/reports/${reportId}/sightings`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}

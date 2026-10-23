@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { globalSearch } from "@/lib/services/search";
+import { globalSearch } from "@/lib/legacy/services/search";
 import { useDebounce } from "@/hooks/useDebounce";
 import styles from "@/app/dashboard/dashboard.module.css";
 

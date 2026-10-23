@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getCurrentUser, getKYCPresignedUrls, finalizeKYC, User, KYCPresignedUrl } from "@/lib/auth";
+import { getCurrentUser, getKYCPresignedUrls, finalizeKYC, User, KYCPresignedUrl } from "@/lib/legacy/auth";
 import { toast } from "react-hot-toast";
 import dashStyles from "../../dashboard.module.css";
 import styles from "./verificacion.module.css";

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
-import { getCurrentUser } from "@/lib/auth";
+import { apiFetch } from "@/lib/legacy/api";
+import { getCurrentUser } from "@/lib/legacy/auth";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import dashStyles from "../../dashboard.module.css";
 import modStyles from "../../modules.module.css";

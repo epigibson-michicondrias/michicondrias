@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api";
+import { apiFetch } from "@/lib/legacy/api";
 
 export interface SearchPetResult {
     id: string;
