@@ -65,7 +65,7 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 | P2 | Donaciones | 1 | 1 | 🔍 | ⬜ | ⬜ |
 | P3 | Mi clínica | 14 | `directorio/mi-clinica` (con datos *mock*) | 🔍 | ⬜ | ⬜ |
 | P3 | Servicios pro | 3 | `paseadores/registro`, `cuidadores/registro` | 🔍 | ✅ | ⬜ |
-| P3 | Tienda vendedor | 5 | dentro de `/dashboard/tienda` | 🔍 | ⬜ | ⬜ |
+| P3 | Tienda vendedor | 5 | dentro de `/dashboard/tienda` | 🔍 | ✅ | ⬜ |
 | P3 | Patrocinadores | 5 | — | 🔍 | ✅ | ⬜ |
 
 ## Decisiones
@@ -103,6 +103,15 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
   `GET /users/{id}`, `users_count` en roles y borrado seguro de roles (ver `AUDITORIA_WEB.md`).
 
 ## Bitácora
+
+- **2026-10-23 — W4 P3: Tienda vendedor (Claude, `3063803`).**
+  - `/tienda/vendedor` (panel con ventas cobradas, avisos y más vendidos), `productos` (catálogo con filtros
+    `?filtro=`, ocultar/publicar y eliminar con confirmación), `productos/[id]` (alta `nuevo` o edición, foto a URL
+    firmada, vista previa lateral en escritorio), `ordenes` (marcar enviado/entregado con confirmación) y
+    `analytics` (tendencia de 8 semanas, pedidos por estado). Hooks `useSeller*` y `useProductForm` en
+    `hooks/ecommerce`; piezas en `features/tienda/SellerKit.tsx`.
+  - Verificado: `tsc`, ESLint y `next build` (106 páginas) en verde.
+  - **Siguiente:** Mi clínica (14) y W4-A.
 
 - **2026-10-23 — W4 P3: Servicios pro y Patrocinadores (Claude, `1612641`, `65897f4`).**
   - Servicios pro: `/servicios-pro` (paseadores/cuidadores con `SegmentedControl` + `ProviderCard`),
