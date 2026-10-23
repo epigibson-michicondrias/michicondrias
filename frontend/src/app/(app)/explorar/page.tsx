@@ -1,65 +1,54 @@
 "use client";
 
 /**
- * Explorar — espejo de `mobile/app/(tabs)/explorar.tsx`. W4 porta el catálogo completo de servicios
- * (Salud / Servicios / Comunidad) y la entrada a búsqueda.
+ * Explorar — espejo de `mobile/app/(tabs)/explorar.tsx`: catálogo de servicios con filtro por categoría.
  */
-import { Compass, Heart, Search, Stethoscope } from "lucide-react";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import SectionHeader from "@/components/SectionHeader";
+import FilterChip from "@/components/FilterChip";
+import { useExplore } from "@/hooks/home/useExplore";
 import s from "../pages.module.css";
 
-const SECTIONS = [
-  {
-    title: "Salud",
-    icon: Stethoscope,
-    items: [
-      { label: "Directorio veterinario", desc: "Clínicas y consultorios cerca de ti", href: "/directorio" },
-      { label: "Carnet clínico", desc: "Vacunas, consultas y recordatorios", href: "/carnet" },
-    ],
-  },
-  {
-    title: "Servicios",
-    icon: Heart,
-    items: [
-      { label: "Paseadores", desc: "Paseos y cuidado a domicilio", href: "/paseadores" },
-      { label: "Cuidadores", desc: "Estancias y cuidado temporal", href: "/cuidadores" },
-      { label: "Pet-friendly", desc: "Lugares que admiten mascotas", href: "/petfriendly" },
-    ],
-  },
-  {
-    title: "Comunidad",
-    icon: Compass,
-    items: [
-      { label: "Adopciones", desc: "Encuentra o publica una mascota", href: "/adopciones" },
-      { label: "Perdidas", desc: "Reportes y red de búsqueda", href: "/perdidas" },
-      { label: "Donaciones", desc: "Apoya refugios y causas", href: "/donaciones" },
-    ],
-  },
-];
-
 export default function ExplorarPage() {
+  const { categories, sections, selectedCategory, handleCategoryPress, clearFilter } = useExplore();
+
   return (
     <ScreenContainer>
       <ScreenHeader title="Explorar" subtitle="Todo lo que ofrece Michicondrias" showBack={false} />
+
       <Link href="/busqueda" className={s.searchBar}>
         <Search size={18} aria-hidden />
         <span>Buscar mascotas, servicios o productos</span>
       </Link>
 
-      {SECTIONS.map((section) => (
-        <section key={section.title} className={s.section}>
-          <SectionHeader title={section.title} icon={<section.icon size={18} />} />
+      <div className={s.chips}>
+        {categories.map((cat) => (
+          <FilterChip
+            key={cat.key}
+            label={cat.label}
+            active={selectedCategory === cat.key}
+            onPress={() => handleCategoryPress(cat.key)}
+            icon={<cat.icon size={14} />}
+          />
+        ))}
+        {selectedCategory && (
+          <FilterChip label="Quitar filtro" active={false} onPress={clearFilter} />
+        )}
+      </div>
+
+      {sections.map((section) => (
+        <section key={section.key} className={s.section}>
+          <SectionHeader title={section.label} icon={<section.icon size={18} />} />
           <div className={s.grid}>
             {section.items.map((item) => (
-              <Link key={item.href} href={item.href} className={s.cardLink}>
-                <div className={s.toolLink}>
-                  <div>
-                    <p className={s.cardTitle}>{item.label}</p>
-                    <p className={s.cardDesc}>{item.desc}</p>
-                  </div>
+              <Link key={item.route + item.title} href={item.route} className={s.toolLink}>
+                <item.icon size={20} color={item.color} />
+                <div>
+                  <p className={s.cardTitle}>{item.title}</p>
+                  <p className={s.cardDesc}>{item.subtitle}</p>
                 </div>
               </Link>
             ))}

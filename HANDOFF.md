@@ -83,6 +83,15 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — W4 Tienda cliente + Inicio/Explorar en `web/espejo`:
+  - Tienda: catálogo (categorías, orden, favoritos), bolsa con checkout Stripe, mis compras, producto,
+    pedido con tracking y `PagoResultado` (pago-exitoso/cancelado). Hooks ecommerce espejo.
+  - Inicio (`/inicio`): mascotas, próximas citas y atajos de `ROLE_TOOLS`. Explorar (`/explorar`): 15
+    servicios con filtro por categoría. Build verde.
+  - **Siguiente para Claude:** portar `perfil/partner` y `perfil/verificacion` (crear `useKYC` y
+    `usePartnerUpgrade`), Notificaciones/Búsqueda/Ayuda, Admin (W4-A), y P2/P3. Luego W5 (pulido y merge
+    a `main`) y recordar el OTA del login móvil (§3).
+
 - **2026-10-23 · Mimo** — W4 Carnet + Perfil en `web/espejo`:
   - **Carnet:** hooks `useVaccineForm`/`useConsultationForm`/`usePrescriptionDetail`, `CarnetItems`, páginas
     `/carnet`, `/carnet/nueva-vacuna`, `/carnet/nueva-consulta`, `/carnet/receta/[id]` y redirect `/carnet/[pet_id]`.

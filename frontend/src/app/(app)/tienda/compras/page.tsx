@@ -1,82 +1,117 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getMyOrders, Order } from "@/lib/legacy/services/ecommerce";
-import { toast } from "react-hot-toast";
-import styles from "./Compras.module.css";
-import dashStyles from "../../dashboard.module.css";
+/**
+ * Mis compras — espejo de `mobile/app/tienda/compras.tsx`.
+ */
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Package, ShoppingBag } from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import FilterChip from "@/components/FilterChip";
+import EmptyState from "@/components/EmptyState";
+import Badge from "@/components/Badge";
+import { Skeleton } from "@/components/Skeleton";
+import Button from "@/components/Button";
+import { usePurchases } from "@/hooks/ecommerce/usePurchases";
+import { getOrderStatus, PURCHASE_FILTERS, type PurchaseFilter } from "@/features/tienda/orderStatus";
+import type { Order } from "@/types/ecommerce";
+import s from "../tienda.module.css";
 
-export default function MisComprasPage() {
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
+function matchesFilter(order: Order, filter: PurchaseFilter): boolean {
+  const def = PURCHASE_FILTERS.find((f) => f.key === filter);
+  if (!def?.statuses) return true;
+  return def.statuses.includes(order.status as never);
+}
 
-    useEffect(() => {
-        async function load() {
-            try {
-                const data = await getMyOrders();
-                setOrders(data);
-            } catch (err) {
-                console.error("Error loading orders", err);
-                toast.error("No pudimos cargar tus pedidos");
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-    }, []);
+export default function ComprasPage() {
+  const { orders, isLoading, loadMore, isLoadingMore, isRefetching, refetch } = usePurchases();
+  const [filter, setFilter] = useState<PurchaseFilter>("all");
+  const router = useRouter();
 
-    if (loading) return <div className={dashStyles["loading-text"]}>Buscando tus michi-pedidos...</div>;
+  const filtered = orders.filter((o) => matchesFilter(o, filter));
+  const counts = {
+    all: orders.length,
+    active: orders.filter((o) => matchesFilter(o, "active")).length,
+    delivered: orders.filter((o) => matchesFilter(o, "delivered")).length,
+    cancelled: orders.filter((o) => matchesFilter(o, "cancelled")).length,
+  };
 
-    return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1>🛍️ Mis Compras</h1>
-                <p>Aquí puedes rastrear tus pedidos y ver tu historial de felicidad michi.</p>
-            </div>
+  return (
+    <ScreenContainer>
+      <ScreenHeader title="Mis compras" subtitle="Seguimiento de tus pedidos" />
 
-            {orders.length === 0 ? (
-                <div className={styles["empty-state"]}>
-                    <span style={{ fontSize: "4rem" }}>📦</span>
-                    <h3>Aún no has realizado ninguna compra</h3>
-                    <p>¡Explora nuestra tienda y encuentra algo especial para tu mascota!</p>
-                    <Link href="/tienda" className="btn btn-primary" style={{ marginTop: "1rem" }}>
-                        Ir a la Tienda
-                    </Link>
-                </div>
-            ) : (
-                <div className={styles["orders-list"]}>
-                    {orders.map((order) => (
-                        <div key={order.id} className={styles["order-card"]}>
-                            <div className={styles["order-header"]}>
-                                <div>
-                                    <span className={styles["order-date"]}>
-                                        {new Date(order.created_at).toLocaleDateString()}
-                                    </span>
-                                    <h4 className={styles["order-id"]}>ID: {order.id.slice(0, 8).toUpperCase()}</h4>
-                                </div>
-                                <div className={styles["order-status-badge"]} data-status={order.status}>
-                                    {order.status === "paid" ? "Pagado ✅" : order.status}
-                                </div>
-                            </div>
+      <div className={s.chips}>
+        {PURCHASE_FILTERS.map((f) => (
+          <FilterChip
+            key={f.key}
+            label={`${f.label} (${counts[f.key]})`}
+            active={filter === f.key}
+            onPress={() => setFilter(f.key)}
+          />
+        ))}
+      </div>
 
-                            <div className={styles["order-items"]}>
-                                {order.items.map((item, idx) => (
-                                    <div key={idx} className={styles["item-row"]}>
-                                        <span>Cantidad: {item.quantity}</span>
-                                        <span className={styles["item-price"]}>${item.price_at_purchase.toFixed(2)} c/u</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className={styles["order-footer"]}>
-                                <div className={styles["total-label"]}>Total Pagado</div>
-                                <div className={styles["total-value"]}>${order.total_amount.toFixed(2)} MXN</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+      {isLoading ? (
+        <>
+          {[0, 1, 2].map((i) => <Skeleton key={i} height={88} borderRadius={12} />)}
+        </>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={<ShoppingBag size={28} />}
+          title={orders.length === 0 ? "Aún no has realizado compras" : "Nada por aquí"}
+          subtitle={orders.length === 0 ? "Cuando compres algo lo verás aquí." : "Prueba con otro filtro."}
+          actionLabel={orders.length === 0 ? "Ir a la tienda" : "Ver todas"}
+          onAction={() => (orders.length === 0 ? router.push("/tienda") : setFilter("all"))}
+        />
+      ) : (
+        <>
+          <div className={s.orderList}>
+            {filtered.map((order) => {
+              const st = getOrderStatus(order.status);
+              const first = order.items?.[0]?.product;
+              const extra = Math.max(0, (order.items?.length ?? 1) - 1);
+              return (
+                <Link key={order.id} href={`/tienda/pedido/${order.id}`} className={s.orderRow}>
+                  <div className={s.orderMedia}>
+                    {first?.image_url ? (
+                      <Image src={first.image_url} alt="" width={56} height={56} className={s.cartImg} />
+                    ) : (
+                      <div className={s.cartImgFallback}><Package size={22} /></div>
+                    )}
+                  </div>
+                  <div className={s.orderBody}>
+                    <p className={s.cardName}>
+                      {first?.name || "Pedido"}{extra > 0 ? ` y ${extra} más` : ""}
+                    </p>
+                    <p className={s.cardMeta}>
+                      ${order.total_amount?.toFixed?.(2) ?? order.total_amount} · {order.items?.length ?? 0} piezas
+                    </p>
+                    <p className={s.cardMeta}>
+                      {order.created_at?.slice(0, 10)} · #{String(order.id).slice(0, 8)}
+                    </p>
+                    {order.status === "pending" && (
+                      <p className={s.orderPending}>Toca para pagar o cancelar</p>
+                    )}
+                  </div>
+                  <Badge label={st.label} color={`var(--color-${st.tone})`} size="sm" />
+                </Link>
+              );
+            })}
+          </div>
+          <Button
+            label={isLoadingMore ? "Cargando…" : "Ver más"}
+            variant="secondary"
+            onPress={loadMore}
+            loading={isLoadingMore || isRefetching}
+          />
+          {isRefetching && (
+            <Button label="Actualizar" variant="ghost" onPress={() => refetch()} />
+          )}
+        </>
+      )}
+    </ScreenContainer>
+  );
 }

@@ -1,238 +1,197 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+/**
+ * Detalle de producto — espejo de `mobile/app/tienda/producto/[id].tsx`.
+ */
+import { Suspense, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { getProduct, getReviews, createReview, Product, Review } from "@/lib/legacy/services/ecommerce";
-import { getCurrentUser, User } from "@/lib/legacy/auth";
-import { toast } from "react-hot-toast";
-import { useCart } from "@/lib/contexts/CartContext";
-import styles from "../../producto.module.css";
-import dashStyles from "../../../dashboard.module.css";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Heart, Package, Plus, ShieldCheck, ShoppingBag, Truck } from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import EmptyState from "@/components/EmptyState";
+import Button from "@/components/Button";
+import Badge from "@/components/Badge";
+import { Skeleton } from "@/components/Skeleton";
+import { useProduct } from "@/hooks/ecommerce/useProduct";
+import s from "../../tienda.module.css";
 
-export default function ProductoDetallePage() {
-    const { id } = useParams();
-    const router = useRouter();
-    const { addToCart } = useCart();
-    const [product, setProduct] = useState<Product | null>(null);
-    const [reviews, setReviews] = useState<Review[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+function ProductoContent() {
+  const {
+    product, reviews, isLoading, canReview, handleCreateReview, isCreatingReview,
+    related, addToCart, cartCount, inCart, isOwner, isFavorite, toggleFavorite,
+  } = useProduct();
+  const [qty, setQty] = useState(1);
+  const router = useRouter();
 
-    // Review form state
-    const [showReviewModal, setShowReviewModal] = useState(false);
-    const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
-    const [submittingReview, setSubmittingReview] = useState(false);
-
-    useEffect(() => {
-        async function load() {
-            if (!id) return;
-            try {
-                const [p, r, u] = await Promise.all([
-                    getProduct(id as string),
-                    getReviews(id as string),
-                    getCurrentUser()
-                ]);
-                setProduct(p);
-                setReviews(r);
-                setCurrentUser(u);
-            } catch (err) {
-                console.error("Error loading product", err);
-                toast.error("No pudimos cargar el producto");
-                router.push("/tienda");
-            } finally {
-                setLoading(false);
-            }
-        }
-        load();
-    }, [id]);
-
-    const handleAddReview = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!id) return;
-        setSubmittingReview(true);
-        try {
-            const added = await createReview(id as string, newReview);
-            setReviews([added, ...reviews]);
-            setShowReviewModal(false);
-            setNewReview({ rating: 5, comment: "" });
-            toast.success("¡Gracias por tu reseña!");
-
-            // Refresh product to get new rating average
-            const updatedProduct = await getProduct(id as string);
-            setProduct(updatedProduct);
-        } catch (err) {
-            toast.error("Error al publicar reseña");
-        } finally {
-            setSubmittingReview(false);
-        }
-    };
-
-    if (loading) return <div className={dashStyles["loading-text"]}>Cargando michi-producto...</div>;
-    if (!product) return null;
-
-    const renderStars = (rating: number) => {
-        return (
-            <div className={styles["star-rating"]}>
-                {[1, 2, 3, 4, 5].map(s => (
-                    <span key={s} style={{ opacity: s <= rating ? 1 : 0.2 }}>⭐</span>
-                ))}
-            </div>
-        );
-    };
-
+  if (isLoading) {
     return (
-        <div className={styles.container}>
-            <Link href="/tienda" className={styles["back-link"]}>
-                ← Volver a la Tienda
-            </Link>
-
-            <div className={styles["product-layout"]}>
-                {/* Visuals */}
-                <div className={styles["gallery-section"]}>
-                    <div className={styles["main-image"]} style={{
-                        backgroundImage: product.image_url ? `url(${product.image_url})` : "none"
-                    }}>
-                        {!product.image_url && "🛍️"}
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className={styles["info-section"]}>
-                    <div className={styles["badge-row"]}>
-                        <span className={styles["category-badge"]}>{product.category?.name || "Categoría"}</span>
-                        {product.stock <= 0 ? (
-                            <span className={styles["stock-badge"]} style={{ color: "#ef4444" }}>🔴 Agotado</span>
-                        ) : product.stock <= 5 ? (
-                            <span className={styles["stock-badge"]} style={{ color: "#f59e0b" }}>🟠 ¡Últimas {product.stock} unidades!</span>
-                        ) : (
-                            <span className={styles["stock-badge"]} style={{ color: "#10b981" }}>🟢 Disponible</span>
-                        )}
-                    </div>
-
-                    <h1 className={styles["product-title"]}>{product.name}</h1>
-
-                    <div className={styles["rating-summary"]}>
-                        {renderStars(Math.round(product.average_rating))}
-                        <span>({product.review_count} reseñas)</span>
-                    </div>
-
-                    <div className={styles["price-tag"]}>
-                        ${product.price.toFixed(2)} <span style={{ fontSize: "1rem", color: "var(--text-secondary)" }}>MXN</span>
-                    </div>
-
-                    <div className={styles["description-box"]}>
-                        <p>{product.description || "Este producto aún no cuenta con una descripción detallada, pero te aseguramos que a tu mascota le encantará."}</p>
-                    </div>
-
-                    {product.specifications && (
-                        <div>
-                            <h3 style={{ fontSize: "1rem", color: "#fff", marginBottom: "1rem" }}>Especificaciones Técnicas</h3>
-                            <div className={styles["specifications-grid"]}>
-                                {product.specifications.split(',').map((spec, i) => {
-                                    const [label, value] = spec.split(':');
-                                    return (
-                                        <div key={i} className={styles["spec-item"]}>
-                                            <span className={styles["spec-label"]}>{label?.trim() || "Dato"}</span>
-                                            <span className={styles["spec-value"]}>{value?.trim() || spec}</span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className={styles["buy-card"]}>
-                        <button
-                            className="btn btn-primary"
-                            style={{ width: "100%", padding: "1rem", fontSize: "1.1rem" }}
-                            disabled={product.stock <= 0}
-                            onClick={() => addToCart(product)}
-                        >
-                            {product.stock <= 0 ? "Producto Agotado" : "Añadir a la Bolsa 🛒"}
-                        </button>
-                        <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textAlign: "center", margin: 0 }}>
-                            💳 Pago seguro y entregas garantizadas por Michicondrias.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Reviews Section */}
-            <div className={styles["reviews-container"]}>
-                <div className={styles["reviews-header"]}>
-                    <h2 style={{ color: "#fff", margin: 0 }}>Michi-reseñas ⭐</h2>
-                    {currentUser && (
-                        <button className="btn btn-outline" onClick={() => setShowReviewModal(true)}>
-                            Escribir Reseña
-                        </button>
-                    )}
-                </div>
-
-                <div style={{ marginTop: "2rem" }}>
-                    {reviews.length === 0 ? (
-                        <p style={{ color: "var(--text-secondary)", textAlign: "center", padding: "3rem", background: "rgba(255,255,255,0.02)", borderRadius: "var(--radius-md)" }}>
-                            Aún no hay reseñas. ¡Sé el primero en compartir tu experiencia!
-                        </p>
-                    ) : (
-                        reviews.map(review => (
-                            <div key={review.id} className={styles["review-card"]}>
-                                <div className={styles["review-meta"]}>
-                                    <span className={styles["review-user"]}>Usuario Michi</span>
-                                    {renderStars(review.rating)}
-                                </div>
-                                <p className={styles["review-comment"]}>"{review.comment || "Sin comentarios, solo calificación."}"</p>
-                                <div className={styles["review-date"]}>
-                                    {new Date(review.created_at).toLocaleDateString()}
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-            </div>
-
-            {/* Review Modal */}
-            {showReviewModal && (
-                <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(5px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "1rem" }}>
-                    <div style={{ background: "var(--bg-glass)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-lg)", padding: "2rem", width: "100%", maxWidth: "500px" }}>
-                        <h2 style={{ color: "#fff", marginTop: 0 }}>¿Qué te pareció el producto?</h2>
-                        <form onSubmit={handleAddReview} className={styles["review-form"]}>
-                            <div>
-                                <label style={{ display: "block", marginBottom: "0.5rem" }}>Calificación</label>
-                                <div className={styles["rating-input"]}>
-                                    {[1, 2, 3, 4, 5].map(star => (
-                                        <button
-                                            key={star}
-                                            type="button"
-                                            className={styles["star-btn"]}
-                                            onClick={() => setNewReview({ ...newReview, rating: star })}
-                                            style={{ filter: star <= newReview.rating ? "none" : "grayscale(1) opacity(0.3)" }}
-                                        >
-                                            ⭐
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div>
-                                <label style={{ display: "block", marginBottom: "0.5rem" }}>Comentario (opcional)</label>
-                                <textarea
-                                    className="form-input"
-                                    rows={4}
-                                    value={newReview.comment}
-                                    onChange={e => setNewReview({ ...newReview, comment: e.target.value })}
-                                    placeholder="Cuéntanos qué tal le pareció a tu michi..."
-                                />
-                            </div>
-                            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                                <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowReviewModal(false)}>Cancelar</button>
-                                <button type="submit" className="btn btn-primary" style={{ flex: 2 }} disabled={submittingReview}>
-                                    {submittingReview ? "Publicando..." : "Publicar Reseña"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-        </div>
+      <ScreenContainer>
+        <Skeleton height={260} borderRadius={16} />
+        <Skeleton height={28} width="60%" />
+        <Skeleton height={22} width="30%" />
+        <Skeleton height={80} borderRadius={12} />
+      </ScreenContainer>
     );
+  }
+
+  if (!product) {
+    return (
+      <ScreenContainer>
+        <EmptyState
+          icon={<Package size={28} />}
+          title="Este producto ya no está disponible"
+          actionLabel="Volver a la tienda"
+          onAction={() => router.push("/tienda")}
+        />
+      </ScreenContainer>
+    );
+  }
+
+  const maxQty = Math.max(0, (product.stock ?? 0) - inCart);
+  const stockLabel =
+    product.stock <= 0
+      ? "Agotado"
+      : product.stock <= 5
+        ? `¡Últimas ${product.stock} piezas!`
+        : "Disponible";
+
+  return (
+    <ScreenContainer>
+      <div className={s.detailTop}>
+        <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda")} aria-label="Volver">
+          <ArrowLeft size={20} />
+        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button type="button" className={`${s.iconBtn} ${isFavorite ? s.favOn : ""}`} onClick={toggleFavorite} aria-label="Favorito">
+            <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
+          </button>
+          <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda/carrito")} aria-label="Abrir bolsa">
+            <ShoppingBag size={20} />
+            {cartCount > 0 && <span className={s.badge}>{cartCount > 99 ? "99+" : cartCount}</span>}
+          </button>
+        </div>
+      </div>
+
+      <div className={s.heroImgWrap}>
+        {product.image_url ? (
+          <Image src={product.image_url} alt={product.name} width={480} height={360} className={s.heroImg} />
+        ) : (
+          <div className={s.cardImgFallback} style={{ height: 240 }}><Package size={48} /></div>
+        )}
+      </div>
+
+      <p className={s.cardMeta}>{product.category?.name || "Productos"}</p>
+      <h1 className={s.productTitle}>{product.name}</h1>
+      <div className={s.priceRow}>
+        <p className={s.productPrice}>${product.price.toFixed(2)}</p>
+        <Badge
+          label={stockLabel}
+          color={product.stock <= 0 ? "var(--color-error)" : product.stock <= 5 ? "var(--color-warning)" : "var(--color-success)"}
+          size="sm"
+        />
+      </div>
+      <p className={s.cardMeta}>
+        {product.review_count > 0
+          ? `${product.average_rating.toFixed(1)} · ${product.review_count} opiniones`
+          : "Sin opiniones aún"}
+      </p>
+
+      <div className={s.benefits}>
+        <span><Truck size={16} aria-hidden /> Envío gratis</span>
+        <span><ShieldCheck size={16} aria-hidden /> Pago seguro con Stripe</span>
+      </div>
+
+      {product.description && (
+        <section>
+          <h2 className={s.sectionTitle}>Descripción</h2>
+          <p className={s.descText}>{product.description}</p>
+        </section>
+      )}
+
+      {product.specifications && (
+        <section>
+          <h2 className={s.sectionTitle}>Especificaciones</h2>
+          <p className={s.descText}>{product.specifications}</p>
+        </section>
+      )}
+
+      <section>
+        <h2 className={s.sectionTitle}>Opiniones</h2>
+        {reviews.length === 0 ? (
+          <p className={s.cardMeta}>Sin opiniones aún.</p>
+        ) : (
+          <div className={s.reviewList}>
+            {reviews.map((r) => (
+              <div key={r.id} className={s.review}>
+                <p className={s.reviewAuthor}>Compra verificada</p>
+                <p className={s.reviewText}>{r.comment || r.rating ? `★ ${r.rating}` : ""}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {canReview && (
+          <Button
+            label={isCreatingReview ? "Enviando…" : "Escribir reseña"}
+            variant="secondary"
+            loading={isCreatingReview}
+            onPress={() => handleCreateReview({ rating: 5, comment: "" })}
+          />
+        )}
+      </section>
+
+      {related.length > 0 && (
+        <section>
+          <h2 className={s.sectionTitle}>También te puede gustar</h2>
+          <div className={s.grid}>
+            {related.map((p) => (
+              <Link key={p.id} href={`/tienda/producto/${p.id}`} className={s.card}>
+                {p.image_url ? (
+                  <Image src={p.image_url} alt={p.name} width={200} height={140} className={s.cardImg} />
+                ) : (
+                  <div className={s.cardImgFallback}><Package size={24} /></div>
+                )}
+                <p className={s.cardName}>{p.name}</p>
+                <p className={s.cardPrice}>${p.price.toFixed(2)}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <div className={s.footerBar}>
+        <div className={s.stepper}>
+          <button type="button" className={s.stepBtn} onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Menos">−</button>
+          <span className={s.stepQty}>{qty}</span>
+          <button type="button" className={s.stepBtn} onClick={() => setQty((q) => Math.min(Math.max(1, maxQty), q + 1))} aria-label="Más">+</button>
+        </div>
+        {product.stock <= 0 ? (
+          <Button label="Agotado" disabled />
+        ) : maxQty <= 0 ? (
+          <Button label="Ya está todo en tu bolsa" variant="secondary" onPress={() => router.push("/tienda/carrito")} />
+        ) : (
+          <Button
+            label={`Agregar · $${(product.price * qty).toFixed(2)}`}
+            icon={<Plus size={18} />}
+            onPress={() => {
+              addToCart(product, qty);
+              setQty(1);
+            }}
+          />
+        )}
+      </div>
+
+      {isOwner && (
+        <p className={s.cardMeta}>Este es tu producto. Gestiónalo desde tu panel de vendedor.</p>
+      )}
+    </ScreenContainer>
+  );
+}
+
+export default function ProductoPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProductoContent />
+    </Suspense>
+  );
 }

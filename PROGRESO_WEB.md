@@ -104,6 +104,17 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-23 — W4 Tienda cliente + Inicio/Explorar.**
+  - **Tienda:** hooks `useShopTab`, `useProduct`, `useCheckout`, `useCartProducts`, `usePurchases`,
+    `useOrderDetail`, `useProductFavorites` + `features/tienda/orderStatus` y `PagoResultado`. Páginas
+    `/tienda` (catálogo con categorías/orden/vistas y favoritos), `/tienda/carrito` (dirección + Stripe),
+    `/tienda/compras` (filtros por estado), `/tienda/producto/[id]`, `/tienda/pedido/[id]` (tracking + pagar
+    o cancelar) y `pago-exitoso`/`pago-cancelado` con `PagoResultado` (vacía la bolsa solo en éxito).
+  - **Inicio:** `useHome` — saludo, mascotas, próximas citas y atajos de `ROLE_TOOLS` (o los del dueño).
+  - **Explorar:** `useExplore` — 15 servicios en Salud/Servicios/Comunidad con filtro por categoría.
+  - Verificado: `typecheck` y `eslint` limpios en archivos nuevos; `npm run build` verde.
+  - **Siguiente para Claude:** `perfil/partner` + `perfil/verificacion` (faltan `useKYC`/`usePartnerUpgrade`),
+    Notificaciones/Búsqueda/Ayuda, Admin (W4-A) y módulos P2/P3.
 - **2026-10-23 — W4 módulos Carnet y Perfil.**
   - **Carnet:** `useVaccineForm`, `useConsultationForm`, `usePrescriptionDetail`. `/carnet` (lista de carnets),
     `/carnet/[pet_id]` → redirect a `mascotas/[id]?tab=salud`, `/carnet/nueva-vacuna`, `/carnet/nueva-consulta`
