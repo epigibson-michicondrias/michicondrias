@@ -69,10 +69,8 @@ y sigue donde se quedó el otro.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [ ] W4: faltan P2 (paseadores, cuidadores, estilistas, entrenadores, transportistas, aseguradoras,
-  laboratorio, funeraria, pet-friendly, establecimientos) y P3 (mi-clínica, servicios-pro, tienda vendedor,
-  patrocinadores) y **W4-A consola admin**. **Hechos:** Mascotas, Carnet, Perfil (+partner/verificacion),
-  Tienda cliente, Inicio, Explorar, Adopciones, Directorio, Perdidas, Notificaciones, Búsqueda, Ayuda. ·
+- [ ] W4: faltan P3 (mi-clínica, servicios-pro, tienda vendedor, patrocinadores) y **W4-A consola admin**.
+  **Hechos:** P1 completo, Adopciones, Directorio, Perdidas y todo P2 (servicios profesionales, 2026-10-23). ·
   W5 pulido y merge · W7 permisos.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
@@ -91,6 +89,14 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Claude** — W4 P2 cerrado en `web/espejo` (`345a2cd`, `a0afcbd`, push, sin producción). Mimo había
+  dejado sin commit el port de paseadores, cuidadores, pet-friendly, establecimientos, grooming, estilistas,
+  entrenadores, transportistas, aseguradoras, laboratorio y funeraria (hooks por módulo + `features/servicios-pro`).
+  Claude corrigió un error de tipos (`walker_id` en `paseadores/solicitudes`) y portó `cuidadores/registro`,
+  `cuidadores/solicitudes` y `cuidadores/calendario`. `tsc` limpio, `next build` verde, ESLint limpio en lo nuevo
+  (quedan errores legacy en `admin/*`). **Siguiente:** P3 (mi-clínica, servicios-pro, tienda vendedor,
+  patrocinadores) y W4-A consola admin.
 
 - **2026-10-23 · Mimo** — W4 multiagente en `web/espejo` (`a4e7d4e`): Adopciones, Directorio/citas,
   Perdidas/reportes, Notificaciones, Búsqueda y Ayuda portados con hooks y features por módulo. Build
