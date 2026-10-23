@@ -55,7 +55,7 @@ y sigue donde se quedó el otro.
 ## 3. Pendientes (prioridad de arriba hacia abajo)
 
 **Urgentes / seguridad**
-- [ ] **Login web:** confirmar que https://michicondrias.vercel.app ya usa `https://michicondrias.duckdns.org` tras el redeploy (antes apuntaba al AWS viejo `kowly51wia...amazonaws.com` → «NetworkError»).
+- [x] **Login web** (2026-10-23): el bundle publicado ya usa `https://michicondrias.duckdns.org` (antes el AWS viejo → «NetworkError»).
 - [ ] **X1** 2FA saltable en 10 servicios del backend (ver `AUDITORIA_WEB.md` tabla X1–X8 en la rama `web/espejo`).
 
 **Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
@@ -81,6 +81,8 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Claude** — Verificado: tras el redeploy de `c37f2d4`, la web publicada llama a
+  `https://michicondrias.duckdns.org`; el login ya no da «NetworkError».
 - **2026-10-23 · Claude** — Este archivo pasa a ser el contexto vivo para Mimo y Claude (regla: actualizarlo en cada
   cambio). La web en Vercel tenía `NEXT_PUBLIC_API_URL` apuntando al AWS viejo; el usuario la cambió a
   `https://michicondrias.duckdns.org` y este commit dispara el redeploy.
