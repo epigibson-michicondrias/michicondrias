@@ -138,7 +138,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                                 } else if (item.href === "/dashboard/petfriendly") {
                                     queryClient.prefetchQuery({
                                         queryKey: ["petfriendly-places", ""],
-                                        queryFn: () => import("@/lib/services/mascotas").then(m => m.getPlaces())
+                                        queryFn: () => import("@/lib/services/petfriendly").then(m => m.getPlaces())
                                     });
                                 }
                             }}

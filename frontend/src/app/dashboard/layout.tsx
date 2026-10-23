@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 import Sidebar from "@/components/Sidebar";
@@ -42,7 +42,7 @@ export default function DashboardLayout({
                             <MichiExplorer />
                             <NotificationBell />
                         </div>
-                        {children}
+                        <Suspense fallback={null}>{children}</Suspense>
                         <CartDrawer />
                     </main>
                 </div>
