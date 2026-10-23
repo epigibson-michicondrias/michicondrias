@@ -56,7 +56,8 @@ y sigue donde se quedó el otro.
 
 **Urgentes / seguridad**
 - [x] **Login web** (2026-10-23): el bundle publicado ya usa `https://michicondrias.duckdns.org` (antes el AWS viejo → «NetworkError»).
-- [ ] **X1** 2FA saltable en 10 servicios del backend (ver `AUDITORIA_WEB.md` tabla X1–X8 en la rama `web/espejo`).
+- [x] **X1** (2026-10-23) 2FA saltable en 10 servicios: ya rechazan el token temporal (`is_temp`).
+- [ ] **X2–X8** del backend (admin sin pasar guardas, servicios sin moderación, etc.): tabla en `AUDITORIA_WEB.md` (rama `web/espejo`) y `docs/PERMISOS_BACKEND.md`.
 
 **Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
 - [ ] W2 parte 2: contextos (Auth, Theme, Cart) y componentes base con los mismos nombres y props que la app.
@@ -81,6 +82,11 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Claude** — Seguridad X1: aseguradoras, cuidadores, paseadores, entrenadores, establecimientos,
+  estilistas, funeraria, laboratorio, patrocinadores y transportistas aceptaban el token temporal de 2FA (que ya lleva
+  `role`), así que se podía saltar el 2FA. `_decode_token` ahora lo rechaza (403 «Se requiere completar la verificación
+  2FA», igual que mascotas/core) y `get_optional_user_id` lo trata como sin sesión. Probado con JWT reales en los 10.
+  Sin migraciones. Desplegado con `deploy-oracle.yml`.
 - **2026-10-23 · Claude** — Verificado: tras el redeploy de `c37f2d4`, la web publicada llama a
   `https://michicondrias.duckdns.org`; el login ya no da «NetworkError».
 - **2026-10-23 · Claude** — Este archivo pasa a ser el contexto vivo para Mimo y Claude (regla: actualizarlo en cada

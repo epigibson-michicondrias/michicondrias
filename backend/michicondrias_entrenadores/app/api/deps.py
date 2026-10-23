@@ -20,6 +20,12 @@ def _decode_token(token: str) -> dict:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="No se pudieron validar las credenciales",
             )
+        # Token temporal (2FA pendiente o reseteo de contraseña): no da acceso
+        if payload.get("is_temp", False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Se requiere completar la verificación 2FA",
+            )
         return payload
     except JWTError:
         raise HTTPException(
@@ -62,6 +68,8 @@ def get_optional_user_id(token: str = Depends(oauth2_scheme)) -> str:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[ALGORITHM]
         )
+        if payload.get("is_temp", False):
+            return None
         user_id: str = payload.get("sub")
         return user_id
     except JWTError:
