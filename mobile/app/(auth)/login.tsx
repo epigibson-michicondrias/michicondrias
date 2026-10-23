@@ -40,20 +40,37 @@ export default function LoginScreen() {
         ]).start();
     };
 
-    const handleLogin = async () => {
+    const handleLogin = () => {
         if (!email.trim() || !password) {
             showAlert({ type: 'warning', title: 'Campos incompletos', message: 'Ingresa tu correo y contraseña.' });
             return;
         }
-        login({ email: email.trim().toLowerCase(), password });
+        login({ email: email.trim().toLowerCase(), password }, {
+            onSuccess: (data) => {
+                // Con 2FA el backend devuelve un token temporal: se pide el código. Sin 2FA el hook ya abrió la sesión.
+                if (data.require_2fa && data.temp_token) {
+                    setTempToken(data.temp_token);
+                    setShow2FA(true);
+                    animateTo2FA();
+                }
+            },
+            onError: (error) => {
+                showAlert({ type: 'error', title: 'No pudimos iniciar sesión', message: error.message || 'Revisa tu correo y contraseña.' });
+            },
+        });
     };
 
-    const handleVerify2FA = async () => {
+    const handleVerify2FA = () => {
         if (!otpCode.trim() || otpCode.trim().length < 6) {
             showAlert({ type: 'warning', title: 'Código inválido', message: 'Ingresa el código de 6 dígitos.' });
             return;
         }
-        await verify2FA({ tempToken, code: otpCode.trim() });
+        verify2FA({ tempToken, code: otpCode.trim() }, {
+            onError: (error) => {
+                showAlert({ type: 'error', title: 'Código inválido', message: error.message || 'El código es incorrecto o ya venció.' });
+                setOtpCode('');
+            },
+        });
     };
 
     const handleBack2FA = () => {

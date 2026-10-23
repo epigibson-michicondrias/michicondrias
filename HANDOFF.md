@@ -59,6 +59,11 @@ y sigue donde se quedó el otro.
 - [x] **X1** (2026-10-23) 2FA saltable en 10 servicios: ya rechazan el token temporal (`is_temp`).
 - [ ] **X2–X8** del backend (admin sin pasar guardas, servicios sin moderación, etc.): tabla en `AUDITORIA_WEB.md` (rama `web/espejo`) y `docs/PERMISOS_BACKEND.md`.
 
+**App móvil — publicar**
+- [ ] **OTA del arreglo del login** (`mobile/app/(auth)/login.tsx`, commit en `main`): confirmar que `mobile/.env` apunta a
+  `https://michicondrias.duckdns.org` y correr `cd mobile && npx eas-cli update --channel production --environment
+  production --platform android --message "fix: login muestra errores y pide el código 2FA"`.
+
 **Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
 - [x] W2 parte 2 (`f72e123`): contextos Theme y Auth + 20 componentes base con las props de la app.
 - [ ] W2 cierre: `CartContext`, `AuthShell` y el resto del kit (lista en `PROGRESO_WEB.md`), o al portar cada módulo.
@@ -82,6 +87,10 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Claude** — App: regresión del login (`a994753`, U3) — sin mensaje con contraseña incorrecta y las
+  cuentas con 2FA no podían entrar (no pasaba al paso del código). Se restauran `onSuccess` (temp_token → paso 2FA) y
+  `onError` en `login.tsx`. Commit en `main`; **falta publicar la OTA** (ver §3, no pude leer `.env`). Aviso: Mimo tiene
+  W3 sin commit en el worktree (`(auth)`, `(app)`, `AppShell`, `AuthShell`, `CartContext`); Claude no lo tocó.
 - **2026-10-23 · Claude** — Web espejo W2 parte 2 en `web/espejo` (`f72e123`, sin producción): `main` fusionado otra
   vez (trae `sync-mimo.sh` y X1); `ThemeContext` (claro/oscuro/sistema) y `AuthContext` espejo; kit base de 20
   componentes con las mismas props que la app (Button, Card, ListRow, FormField, ScreenHeader, AppAlert, RoleGuard…),
