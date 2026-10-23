@@ -69,8 +69,8 @@ y sigue donde se quedó el otro.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [ ] W4: faltan Tienda cliente, Inicio/Explorar reales, Notificaciones/Búsqueda/Ayuda, partner+verificacion,
-  y P2/P3. **Hechos en W4:** Mascotas, Carnet, Perfil. · W4-A consola admin · W5 pulido y merge · W7 permisos.
+- [ ] W4: faltan partner+verificacion (`useKYC`/`usePartnerUpgrade`), Notificaciones/Búsqueda/Ayuda, Admin (W4-A)
+  y P2/P3. **Hechos en W4:** Mascotas, Carnet, Perfil, Tienda cliente, Inicio, Explorar. · W5 pulido y merge · W7 permisos.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
 **Landing**
@@ -88,6 +88,15 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Mimo** — W4 Tienda cliente + Inicio/Explorar en `web/espejo`:
+  - Tienda: catálogo (categorías, orden, favoritos), bolsa con checkout Stripe, mis compras, producto,
+    pedido con tracking y `PagoResultado` (pago-exitoso/cancelado). Hooks ecommerce espejo.
+  - Inicio (`/inicio`): mascotas, próximas citas y atajos de `ROLE_TOOLS`. Explorar (`/explorar`): 15
+    servicios con filtro por categoría. Build verde.
+  - **Siguiente para Claude:** portar `perfil/partner` y `perfil/verificacion` (crear `useKYC` y
+    `usePartnerUpgrade`), Notificaciones/Búsqueda/Ayuda, Admin (W4-A), y P2/P3. Luego W5 (pulido y merge
+    a `main`) y recordar el OTA del login móvil (§3).
 
 - **2026-10-23 · Mimo** — W4 Carnet + Perfil en `web/espejo` (ver `PROGRESO_WEB.md`): hooks y páginas de carnet
   (vacunas, consultas, receta ticket, `CarnetItems` en la ficha) y de perfil (cuenta, editar, 2FA, eliminar
