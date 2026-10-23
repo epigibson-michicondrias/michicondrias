@@ -12,6 +12,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import FilterChip from '@/src/components/FilterChip';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PetfriendlyScreen() {
     const { theme } = useTheme();
@@ -58,7 +59,7 @@ export default function PetfriendlyScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="Lugares Petfriendly"
+                title="Pet-friendly"
                 onBack={goBack}
                 actionIcon={Plus}
                 onAction={goToNewPlace}
@@ -76,7 +77,7 @@ export default function PetfriendlyScreen() {
                     style={[styles.mapToggleBtn, { backgroundColor: viewMode === 'map' ? theme.primary : theme.primary + '15' }]}
                     onPress={toggleViewMode}
                 >
-                    {viewMode === 'map' ? <List size={18} color="#fff" /> : <MapIcon size={18} color={theme.primary} />}
+                    {viewMode === 'map' ? <List size={18} color={theme.onPrimary} /> : <MapIcon size={18} color={theme.primary} />}
                 </TouchableOpacity>
             </View>
 
@@ -134,9 +135,9 @@ export default function PetfriendlyScreen() {
 const styles = StyleSheet.create({
     searchWrapper: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        gap: 10,
+        paddingHorizontal: layout.screenPadding,
+        paddingVertical: spacing.md,
+        gap: spacing.md,
     },
     mapToggleBtn: {
         width: 48,
@@ -145,11 +146,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    chips: { paddingHorizontal: 24, gap: 8, paddingBottom: 8 },
+    chips: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.sm },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
-        gap: 12,
+        gap: spacing.md,
     },
     card: {
         flexDirection: 'row',
@@ -163,47 +164,47 @@ const styles = StyleSheet.create({
     },
     cardInfo: {
         flex: 1,
-        padding: 12,
+        padding: spacing.md,
         justifyContent: 'center',
     },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     placeName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
         flex: 1,
     },
     rating: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     ratingText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
     category: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
         textTransform: 'uppercase',
-        marginBottom: 6,
+        marginBottom: spacing.sm,
     },
     addressRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     address: {
-        fontSize: 11,
+        fontSize: font.sm,
         flex: 1,
     },
     empty: {
         paddingTop: 100,
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
 });

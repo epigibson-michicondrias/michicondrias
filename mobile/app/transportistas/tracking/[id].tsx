@@ -259,8 +259,8 @@ export default function RideDetailScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  pad: { paddingHorizontal: 20 },
-  content: { paddingHorizontal: 20, paddingBottom: 100, gap: spacing.md },
+  pad: { paddingHorizontal: spacing.xl },
+  content: { paddingHorizontal: spacing.xl, paddingBottom: 100, gap: spacing.md },
   statusCard: { gap: spacing.sm },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.sm },
   map: { height: 220, borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1 },

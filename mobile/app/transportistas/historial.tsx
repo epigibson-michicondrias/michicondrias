@@ -98,8 +98,8 @@ export default function HistorialConductorScreen() {
 }
 
 const styles = StyleSheet.create({
-  pad: { paddingHorizontal: 20 },
-  list: { paddingHorizontal: 20, paddingBottom: 100 },
+  pad: { paddingHorizontal: spacing.xl },
+  list: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
   stats: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.xl },
   stat: { flex: 1, alignItems: 'center', gap: spacing.xs, padding: spacing.md, borderRadius: radius.lg },
   statIcon: { width: 36, height: 36, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },

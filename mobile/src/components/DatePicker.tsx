@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Platform, StyleSheet } from 'react-native
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Calendar } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, radius, type } from '@/constants/design';
+import { spacing, radius, type, font } from '@/constants/design';
 
 interface DatePickerProps {
     value: Date;
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     },
     value: {
         flex: 1,
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '500',
     },
 });

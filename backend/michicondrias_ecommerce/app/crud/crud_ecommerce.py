@@ -2,8 +2,9 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session, joinedload
 import logging
 import uuid
-from sqlalchemy import func, text
-from app.models.ecommerce import Product, Donation, Review, Order, OrderItem
+from sqlalchemy import case, func, or_, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from app.models.ecommerce import Product, ProductFavorite, Donation, Review, Order, OrderItem
 from app.schemas.ecommerce import ProductCreate, ProductUpdate, DonationCreate, DonationUpdate, ReviewCreate, OrderCreate
 
 def _attach_rating_info(db: Session, product: Product):
@@ -48,14 +49,71 @@ def get_product(db: Session, product_id: str):
     product = db.query(Product).filter(Product.id == product_id).first()
     return _attach_rating_info(db, product)
 
-def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None):
-    # Public view only shows active AND approved products
-    query = db.query(Product).filter(Product.is_active == True, Product.is_approved == True)
+PRODUCT_SORTS = ("relevance", "price_asc", "price_desc", "rating")
+
+# Búsqueda sin acentos ni mayúsculas ("raton" encuentra "Ratón") sin depender de la extensión unaccent
+_ACCENTED = "áéíóúüñàèìòù"
+_PLAIN = "aeiouunaeiou"
+
+
+def _fold(expr):
+    return func.translate(func.lower(expr), _ACCENTED, _PLAIN)
+
+
+def _fold_text(value: str) -> str:
+    return value.lower().translate(str.maketrans(_ACCENTED, _PLAIN))
+
+
+def get_products(db: Session, skip: int = 0, limit: int = 100, category: str = None, seller_id: str = None,
+                 include_unpublished: bool = False, q: str = None, sort: str = "relevance", ids: list = None,
+                 favorites_of: str = None):
+    query = db.query(Product)
+    # La vista pública (también filtrada por vendedor) solo muestra activos Y aprobados; el propio vendedor
+    # (`/products/seller/me`) pide `include_unpublished` para ver también los ocultos y los pendientes.
+    if not include_unpublished:
+        query = query.filter(Product.is_active == True, Product.is_approved == True)
     if category:
         query = query.filter(Product.category_id == category) # Fixed category_id
     if seller_id:
         query = query.filter(Product.seller_id == seller_id)
-    
+    if ids is not None:
+        query = query.filter(Product.id.in_(ids))
+    if favorites_of is not None:
+        query = query.filter(Product.id.in_(
+            db.query(ProductFavorite.product_id).filter(ProductFavorite.user_id == favorites_of)
+        ))
+
+    # Cada palabra debe aparecer en el nombre o la descripción
+    words = [w for w in _fold_text(q or "").split() if w][:8]
+    for w in words:
+        pattern = f"%{w.replace('%', '').replace('_', '')}%"
+        query = query.filter(or_(_fold(Product.name).like(pattern), _fold(func.coalesce(Product.description, "")).like(pattern)))
+
+    # Calificación agregada (subconsulta) para ordenar por ella sin N+1
+    ratings = (
+        db.query(Review.product_id.label("pid"), func.avg(Review.rating).label("avg"), func.count(Review.id).label("cnt"))
+        .group_by(Review.product_id)
+        .subquery()
+    )
+    query = query.outerjoin(ratings, ratings.c.pid == Product.id)
+    avg = func.coalesce(ratings.c.avg, 0)
+    cnt = func.coalesce(ratings.c.cnt, 0)
+    in_stock = case((Product.stock > 0, 0), else_=1)  # los agotados siempre al final
+
+    if sort == "price_asc":
+        order = [in_stock, Product.price.asc()]
+    elif sort == "price_desc":
+        order = [in_stock, Product.price.desc()]
+    elif sort == "rating":
+        order = [in_stock, avg.desc(), cnt.desc()]
+    else:
+        # Relevancia: si hay búsqueda, primero los que la tienen en el nombre; luego los más opinados y mejor calificados
+        order = [in_stock]
+        if words:
+            order.append(case((_fold(Product.name).like(f"%{words[0]}%"), 0), else_=1))
+        order += [cnt.desc(), avg.desc()]
+    query = query.order_by(*order, Product.name.asc(), Product.id.asc())
+
     products = query.offset(skip).limit(limit).all()
     return _batch_attach_ratings(db, products)
 
@@ -332,3 +390,39 @@ def notify_order_paid(db: Session, order: Order) -> None:
     except Exception:
         db.rollback()
         logging.getLogger(__name__).exception("No se pudo notificar el pago del pedido %s", order.id)
+
+# CRUD FAVORITES
+MAX_FAVORITES = 200
+
+def _published(query):
+    return query.filter(Product.is_active == True, Product.is_approved == True)  # noqa: E712
+
+def get_favorite_ids(db: Session, user_id: str) -> list:
+    """IDs de los favoritos del usuario que siguen publicados, el más reciente primero."""
+    rows = _published(
+        db.query(ProductFavorite.product_id).join(Product, Product.id == ProductFavorite.product_id)
+        .filter(ProductFavorite.user_id == user_id)
+    ).order_by(ProductFavorite.created_at.desc()).all()
+    return [r[0] for r in rows]
+
+def add_favorites(db: Session, user_id: str, product_ids: list) -> list:
+    """Agrega favoritos sin duplicar (idempotente y seguro entre dispositivos con ON CONFLICT DO NOTHING).
+    Ignora productos inexistentes o no publicados y respeta el tope por usuario."""
+    wanted = list(dict.fromkeys(product_ids))
+    count = db.query(func.count(ProductFavorite.id)).filter(ProductFavorite.user_id == user_id).scalar() or 0
+    room = MAX_FAVORITES - count
+    if wanted and room > 0:
+        valid = {r[0] for r in _published(db.query(Product.id).filter(Product.id.in_(wanted))).all()}
+        rows = [{"id": str(uuid.uuid4()), "user_id": user_id, "product_id": pid} for pid in wanted if pid in valid][:room]
+        if rows:
+            db.execute(pg_insert(ProductFavorite).values(rows).on_conflict_do_nothing(
+                index_elements=["user_id", "product_id"]
+            ))
+            db.commit()
+    return get_favorite_ids(db, user_id)
+
+def remove_favorite(db: Session, user_id: str, product_id: str) -> None:
+    db.query(ProductFavorite).filter(
+        ProductFavorite.user_id == user_id, ProductFavorite.product_id == product_id
+    ).delete(synchronize_session=False)
+    db.commit()

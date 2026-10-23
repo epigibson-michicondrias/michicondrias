@@ -14,19 +14,19 @@ export interface ClinicAlert {
 }
 
 export async function getClinicAlerts(clinicId: string): Promise<ClinicAlert[]> {
-    return apiFetch<ClinicAlert[]>("directorio", `/clinics/clinics/${clinicId}/alerts`);
+    return apiFetch<ClinicAlert[]>("directorio", `/clinics/${clinicId}/alerts`);
 }
 
 export async function getEmergencyAlerts(clinicId: string): Promise<ClinicAlert[]> {
-    return apiFetch<ClinicAlert[]>("directorio", `/clinics/clinics/${clinicId}/alerts/emergency`);
+    return apiFetch<ClinicAlert[]>("directorio", `/clinics/${clinicId}/alerts/emergency`);
 }
 
 export async function getInventoryAlerts(clinicId: string): Promise<ClinicAlert[]> {
-    return apiFetch<ClinicAlert[]>("directorio", `/clinics/clinics/${clinicId}/alerts/inventory`);
+    return apiFetch<ClinicAlert[]>("directorio", `/clinics/${clinicId}/alerts/inventory`);
 }
 
 export async function getLaboratoryAlerts(clinicId: string): Promise<ClinicAlert[]> {
-    return apiFetch<ClinicAlert[]>("directorio", `/clinics/clinics/${clinicId}/alerts/laboratory`);
+    return apiFetch<ClinicAlert[]>("directorio", `/clinics/${clinicId}/alerts/laboratory`);
 }
 
 export async function markAlertAsRead(alertId: string): Promise<void> {

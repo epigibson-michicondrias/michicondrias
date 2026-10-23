@@ -10,6 +10,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Heart, Feather, Plus, Calendar } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function MemorialScreen() {
     const { theme } = useTheme();
@@ -55,7 +56,7 @@ export default function MemorialScreen() {
                 <Image
                     source={{ uri: item.photo_url }}
                     accessibilityLabel="Foto del recuerdo"
-                    style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: 14, backgroundColor: theme.border }}
+                    style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: spacing.lg, backgroundColor: theme.border }}
                     resizeMode="cover"
                 />
             )}
@@ -74,7 +75,6 @@ export default function MemorialScreen() {
             <ScreenHeader
                 title="Memorial"
                 subtitle="Recuerdos y mensajes de amor"
-                gradient={['#4a1a6b', '#7c3aed', '#a855f7']}
                 actionIcon={Plus}
                 onAction={() => router.push({ pathname: '/funeraria/memorial/nuevo', params: { petId } } as any)}
             />
@@ -106,21 +106,21 @@ export default function MemorialScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
-        paddingTop: 20,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.xl,
         paddingBottom: 100,
     },
     postCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     postHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 14,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     avatarCircle: {
         width: 40,
@@ -133,36 +133,36 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     postAuthor: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     dateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        marginTop: 2,
+        gap: spacing.xs,
+        marginTop: spacing.xxs,
     },
     postDate: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
     },
     divider: {
         height: 1,
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     postMessage: {
-        fontSize: 15,
+        fontSize: font.lg,
         lineHeight: 24,
         fontStyle: 'italic',
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     postFooter: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     footerText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
 });

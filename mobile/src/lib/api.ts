@@ -127,6 +127,8 @@ export async function apiFetch<T>(
             throw new ApiError(message || `Error ${res.status}`, res.status);
         }
 
+        // 204 Sin contenido (p. ej. PUT/DELETE de favoritos)
+        if (res.status === 204) return undefined as T;
         return await res.json();
     } catch (error: any) {
         clearTimeout(timeout);

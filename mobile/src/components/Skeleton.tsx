@@ -51,9 +51,10 @@ export function SkeletonCard() {
     );
 }
 
-export function SkeletonList({ count = 4 }: { count?: number }) {
+/** `inset`: margen propio alrededor (por defecto). Sin él, para usarla dentro de un contenedor que ya tiene márgenes. */
+export function SkeletonList({ count = 4, inset = true }: { count?: number; inset?: boolean }) {
     return (
-        <View style={{ gap: spacing.md, padding: spacing.xl }} accessibilityLabel="Cargando">
+        <View style={{ gap: spacing.md, padding: inset ? spacing.xl : 0, paddingTop: inset ? spacing.xl : spacing.sm }} accessibilityLabel="Cargando">
             {Array.from({ length: count }).map((_, i) => <SkeletonCard key={i} />)}
         </View>
     );
@@ -61,5 +62,26 @@ export function SkeletonList({ count = 4 }: { count?: number }) {
 
 
 const styles = StyleSheet.create({
+    grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.md },
+    gridCard: { width: '48%', borderRadius: radius.lg, borderWidth: 1, overflow: 'hidden' },
+    gridBody: { padding: spacing.md, gap: spacing.sm },
     card: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1 },
 });
+
+/** Cuadrícula de tarjetas con foto (2 columnas), para listados tipo galería mientras cargan. */
+export function SkeletonGrid({ count = 4 }: { count?: number }) {
+    const { theme } = useTheme();
+    return (
+        <View style={styles.grid} accessibilityLabel="Cargando">
+            {Array.from({ length: count }).map((_, i) => (
+                <View key={i} style={[styles.gridCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <Skeleton height={130} borderRadius={0} />
+                    <View style={styles.gridBody}>
+                        <Skeleton width="70%" height={14} />
+                        <Skeleton width="90%" height={11} />
+                    </View>
+                </View>
+            ))}
+        </View>
+    );
+}

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, StyleSheet, View, Text, TouchableOpacity, Dimensions, Modal } from 'react-native';
 import { CheckCircle, AlertTriangle, XCircle, Info, X } from 'lucide-react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -65,8 +65,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
     const scale = useRef(new Animated.Value(0.8)).current;
     const opacity = useRef(new Animated.Value(0)).current;
     const backdrop = useRef(new Animated.Value(0)).current;
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
+    const { theme } = useTheme();
 
     useEffect(() => {
         globalSetAlert = setAlert;
@@ -87,7 +86,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                 Animated.timing(backdrop, { toValue: 0, duration: 150, useNativeDriver: true }),
             ]).start();
         }
-    }, [alert.visible]);
+    }, [alert.visible, scale, opacity, backdrop]);
 
     const dismiss = () => {
         setAlert(prev => ({ ...prev, visible: false }));
@@ -142,7 +141,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                             activeOpacity={0.85}
                             accessibilityRole="button"
                         >
-                            <Text style={[styles.buttonText, alert.type === 'warning' && { color: '#101c3d' }]}>{alert.buttonText || 'Entendido'}</Text>
+                            <Text style={[styles.buttonText, { color: alert.type === 'warning' ? theme.onAccent : theme.onPrimary }]}>{alert.buttonText || 'Entendido'}</Text>
                         </TouchableOpacity>
                     </Animated.View>
                 </Animated.View>
@@ -157,13 +156,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 32,
+        paddingHorizontal: spacing.xxxl,
     },
     container: {
         width: Math.min(width - 64, 420),
         borderRadius: 28,
         borderWidth: 1,
-        padding: 32,
+        padding: spacing.xxxl,
         alignItems: 'center',
         shadowOffset: { width: 0, height: 16 },
         shadowOpacity: 0.25,
@@ -186,20 +185,20 @@ const styles = StyleSheet.create({
         borderRadius: 36,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     title: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '900',
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     message: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '500',
         textAlign: 'center',
         lineHeight: 20,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     cancelButton: {
         width: '100%',
@@ -208,10 +207,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1.5,
-        marginBottom: 10,
+        marginBottom: spacing.md,
     },
     cancelButtonText: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     button: {
@@ -222,8 +221,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonText: {
-        color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
 });

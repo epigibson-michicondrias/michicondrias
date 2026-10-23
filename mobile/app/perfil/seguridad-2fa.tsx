@@ -6,6 +6,7 @@ import { use2FA } from '@/src/hooks/perfil/use2FA';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Shield, ShieldCheck, ShieldOff, Eye, EyeOff, Smartphone, Copy } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function Seguridad2FAScreen() {
     const { theme } = useTheme();
@@ -35,12 +36,12 @@ export default function Seguridad2FAScreen() {
                 {/* Status Card */}
                 <View style={[styles.statusCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                     <View style={[styles.statusIcon, {
-                        backgroundColor: is2FAEnabled ? '#10b98120' : '#f59e0b20'
+                        backgroundColor: is2FAEnabled ? theme.success + '20' : theme.warning + '20'
                     }]}>
                         {is2FAEnabled ? (
-                            <ShieldCheck size={32} color="#10b981" />
+                            <ShieldCheck size={32} color={theme.success} />
                         ) : (
-                            <Shield size={32} color="#f59e0b" />
+                            <Shield size={32} color={theme.warning} />
                         )}
                     </View>
                     <Text style={[styles.statusTitle, { color: theme.text }]}>
@@ -68,7 +69,7 @@ export default function Seguridad2FAScreen() {
                             disabled={isSettingUp}
                         >
                             {isSettingUp ? (
-                                <ActivityIndicator color="#fff" size="small" />
+                                <ActivityIndicator color={theme.onPrimary} size="small" />
                             ) : (
                                 <Text style={styles.primaryButtonText}>Iniciar Configuración</Text>
                             )}
@@ -163,16 +164,16 @@ export default function Seguridad2FAScreen() {
 
                         {is2FAEnabled ? (
                             <TouchableOpacity
-                                style={[styles.dangerButton, { backgroundColor: '#ef444420', borderColor: '#ef4444' }]}
+                                style={[styles.dangerButton, { backgroundColor: theme.error + '20', borderColor: theme.error }]}
                                 onPress={handleDisable}
                                 disabled={isDisabling}
                             >
                                 {isDisabling ? (
-                                    <ActivityIndicator color="#ef4444" size="small" />
+                                    <ActivityIndicator color={theme.error} size="small" />
                                 ) : (
                                     <>
-                                        <ShieldOff size={20} color="#ef4444" />
-                                        <Text style={[styles.dangerButtonText, { color: '#ef4444' }]}>
+                                        <ShieldOff size={20} color={theme.error} />
+                                        <Text style={[styles.dangerButtonText, { color: theme.error }]}>
                                             Desactivar 2FA
                                         </Text>
                                     </>
@@ -185,7 +186,7 @@ export default function Seguridad2FAScreen() {
                                 disabled={isEnabling}
                             >
                                 {isEnabling ? (
-                                    <ActivityIndicator color="#fff" size="small" />
+                                    <ActivityIndicator color={theme.onPrimary} size="small" />
                                 ) : (
                                     <Text style={styles.primaryButtonText}>Activar 2FA</Text>
                                 )}
@@ -203,14 +204,14 @@ export default function Seguridad2FAScreen() {
 const styles = StyleSheet.create({
     content: {
         flex: 1,
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
     },
     statusCard: {
-        padding: 24,
+        padding: spacing.xxl,
         borderRadius: 16,
         borderWidth: 1,
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     statusIcon: {
         width: 64,
@@ -218,111 +219,111 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     statusTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     statusDescription: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
         lineHeight: 20,
     },
     card: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     cardDescription: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     qrContainer: {
         alignSelf: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     qrActions: {
-        gap: 10,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     qrActionButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: spacing.sm,
         minHeight: 44,
         borderRadius: 12,
         borderWidth: 1.5,
     },
     qrActionText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     secretContainer: {
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     secretLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     secretRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 12,
+        padding: spacing.md,
         borderRadius: 8,
         borderWidth: 1,
     },
     secretText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontFamily: 'monospace',
         flex: 1,
     },
     codeInput: {
         borderWidth: 1,
         borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 28,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.h1,
         fontWeight: '700',
         letterSpacing: 8,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     primaryButton: {
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
     },
     primaryButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     dangerButton: {
         flexDirection: 'row',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     dangerButtonText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     bottomSpacer: {

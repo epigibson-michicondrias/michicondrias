@@ -7,12 +7,13 @@ from datetime import date, datetime, timedelta
 from app.crud.crud_clinic import get_clinic
 from app.crud.dashboard_crud import get_daily_metrics, create_or_update_daily_metrics, calculate_real_time_metrics, clinic_today
 from app.api import deps
+from app.api.clinic_access import is_clinic_staff
 from app.db.session import get_db
 from app.models.dashboard import ClinicMetrics
 
 router = APIRouter()
 
-@router.get("/clinics/{clinic_id}/metrics/daily")
+@router.get("/{clinic_id}/metrics/daily")
 def get_daily_metrics_endpoint(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -21,7 +22,7 @@ def get_daily_metrics_endpoint(
     """Get daily clinical metrics for a clinic dashboard."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     today = clinic_today()
@@ -46,7 +47,7 @@ def get_daily_metrics_endpoint(
         "criticalPatients": metrics.critical_patients
     }
 
-@router.post("/clinics/{clinic_id}/metrics/daily")
+@router.post("/{clinic_id}/metrics/daily")
 def update_daily_metrics(
     clinic_id: str,
     metrics_data: dict,
@@ -56,7 +57,7 @@ def update_daily_metrics(
     """Update daily metrics for a clinic."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     today = clinic_today()
@@ -71,7 +72,7 @@ def update_daily_metrics(
         "updated_at": updated_metrics.updated_at.isoformat() if updated_metrics.updated_at else None
     }
 
-@router.get("/clinics/{clinic_id}/metrics/weekly")
+@router.get("/{clinic_id}/metrics/weekly")
 def get_weekly_metrics(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -80,7 +81,7 @@ def get_weekly_metrics(
     """Get weekly metrics for a clinic."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Obtener métricas de los últimos 7 días
@@ -115,7 +116,7 @@ def get_weekly_metrics(
     return weekly_totals
 
 
-@router.get("/clinics/{clinic_id}/metrics/revenue")
+@router.get("/{clinic_id}/metrics/revenue")
 def get_clinic_revenue(
     clinic_id: str,
     period: str = "daily",
@@ -124,7 +125,7 @@ def get_clinic_revenue(
 ) -> Any:
     """Get revenue metrics for a clinic."""
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     if period == "daily":
@@ -164,7 +165,7 @@ def get_clinic_revenue(
         raise HTTPException(status_code=400, detail="Periodo no válido. Use: daily, weekly, monthly")
 
 
-@router.get("/clinics/{clinic_id}/metrics/occupancy")
+@router.get("/{clinic_id}/metrics/occupancy")
 def get_clinic_occupancy(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -172,7 +173,7 @@ def get_clinic_occupancy(
 ) -> Any:
     """Get occupancy metrics for a clinic."""
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     metrics = get_daily_metrics(db, clinic_id, clinic_today())

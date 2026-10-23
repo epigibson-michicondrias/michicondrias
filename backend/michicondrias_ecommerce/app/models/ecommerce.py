@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, ForeignKey, DateTime, Text, Float, Integer
+from sqlalchemy import Column, String, Boolean, ForeignKey, DateTime, Text, Float, Integer, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.session import Base
@@ -65,6 +65,16 @@ class Review(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     product = relationship("Product", back_populates="reviews")
+
+class ProductFavorite(Base):
+    """Producto guardado en favoritos por un usuario (se sincroniza entre sus dispositivos)."""
+    __tablename__ = "product_favorites"
+    __table_args__ = (UniqueConstraint("user_id", "product_id", name="uq_product_favorites_user_product"),)
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, index=True, nullable=False) # From Core Auth
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Order(Base):
     __tablename__ = "orders"

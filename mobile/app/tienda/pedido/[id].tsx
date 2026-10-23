@@ -1,465 +1,194 @@
 import React from 'react';
-import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Package, MapPin, CreditCard, XCircle, RotateCcw, LifeBuoy, PackageX } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { showAlert } from '@/src/components/AppAlert';
 import { useOrderDetail } from '@/src/hooks/ecommerce/useOrderDetail';
-import { STATUS_MAP } from '@/src/hooks/ecommerce/usePurchases';
+import { useOrderStatus } from '@/src/features/tienda/orderStatus';
+import OrderTracking from '@/src/features/tienda/OrderTracking';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Package, MapPin, Calendar, CreditCard, ChevronRight, XCircle } from 'lucide-react-native';
-import { SUPPORT_EMAIL } from '@/src/constants/support';
+import { SkeletonList } from '@/src/components/Skeleton';
+import EmptyState from '@/src/components/EmptyState';
+import Card from '@/src/components/Card';
+import Button from '@/src/components/Button';
+import ListRow from '@/src/components/ListRow';
+import { MediaRow } from '@/src/components/MediaCard';
 import { formatCurrency } from '@/src/utils/formatters';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
 
 export default function PedidoDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const { theme } = useTheme();
-    const { order, isLoading, error, refetch, payNow, isPaying, confirmCancel, isCancelling } = useOrderDetail(id || '');
+    const statusOf = useOrderStatus();
+    const o = useOrderDetail(id || '');
+    const { order } = o;
 
-    if (isLoading) {
+    if (o.isLoading) {
         return (
-            <ScreenContainer style={{ backgroundColor: theme.background }}>
-                <ScreenHeader title="Detalle de Pedido" />
-                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
+            <ScreenContainer>
+                <ScreenHeader title="Pedido" />
+                <View style={styles.content}><SkeletonList count={4} inset={false} /></View>
             </ScreenContainer>
         );
     }
 
-    if (error || !order) {
+    if (o.error || !order) {
         return (
-            <ScreenContainer style={{ backgroundColor: theme.background }}>
-                <ScreenHeader title="Detalle de Pedido" />
-                <View style={styles.center}>
-                    <Package size={48} color={theme.textMuted} />
-                    <Text style={[styles.errorText, { color: theme.text }]}>No se pudo cargar la información del pedido</Text>
-                    <TouchableOpacity
-                        style={[styles.backButton, { backgroundColor: theme.primary }]}
-                        onPress={() => refetch()}
-                    >
-                        <Text style={styles.backButtonText}>Reintentar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => router.replace('/tienda/compras' as any)}>
-                        <Text style={{ color: theme.textMuted, fontWeight: '700', marginTop: 12 }}>Ir a Mis compras</Text>
-                    </TouchableOpacity>
-                </View>
+            <ScreenContainer>
+                <ScreenHeader title="Pedido" />
+                <EmptyState
+                    icon={<PackageX size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No pudimos cargar este pedido"
+                    subtitle="Revisa tu conexión. Si el problema sigue, búscalo en Mis compras."
+                    actionLabel="Ir a Mis compras"
+                    onAction={() => router.replace('/tienda/compras')}
+                />
             </ScreenContainer>
         );
     }
 
-    const statusInfo = STATUS_MAP[order.status] || { label: order.status, color: theme.textMuted };
+    const status = statusOf(order.status);
+    const StatusIcon = status.icon;
     const isPending = order.status === 'pending';
     const isCancelled = order.status === 'cancelled';
-    const orderDate = new Date(order.created_at).toLocaleDateString('es-MX', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+    const ref = `#${order.id.slice(0, 8).toUpperCase()}`;
+    const date = new Date(order.created_at).toLocaleDateString('es-MX', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
+    const busy = o.isPaying || o.isCancelling;
 
     return (
-        <ScreenContainer style={{ backgroundColor: theme.background }}>
-            <ScreenHeader title="Resumen de Compra" subtitle={`Pedido #${order.id.slice(0, 8).toUpperCase()}`} />
+        <ScreenContainer>
+            <ScreenHeader title="Pedido" subtitle={ref} />
 
-            <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-                {/* Status Ticket Header */}
-                <View style={[styles.ticketCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <View style={styles.ticketRow}>
-                        <View style={styles.iconWrapper}>
-                            <Calendar size={18} color={theme.textMuted} />
+            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+                {/* Estado */}
+                <Card>
+                    <View style={styles.statusHead}>
+                        <View style={[styles.statusIcon, { backgroundColor: status.color + tint.soft }]}>
+                            <StatusIcon size={layout.icon.md} color={status.color} />
                         </View>
-                        <View style={styles.infoWrapper}>
-                            <Text style={[styles.ticketLabel, { color: theme.textMuted }]}>Fecha del pedido</Text>
-                            <Text style={[styles.ticketValue, { color: theme.text }]}>{orderDate}</Text>
+                        <View style={styles.flex}>
+                            <Text style={[type.h2, { color: theme.text }]}>{status.label}</Text>
+                            <Text style={[type.caption, { color: theme.textMuted }]}>Pedido el {date}</Text>
                         </View>
                     </View>
-
-                    <View style={[styles.divider, { backgroundColor: theme.borderLight }]} />
-
-                    <View style={styles.ticketRow}>
-                        <View style={styles.iconWrapper}>
-                            <Package size={18} color={theme.textMuted} />
+                    {!isPending && !isCancelled ? (
+                        <View style={[styles.tracking, { borderTopColor: theme.divider }]}>
+                            <OrderTracking status={order.status} />
                         </View>
-                        <View style={styles.infoWrapper}>
-                            <Text style={[styles.ticketLabel, { color: theme.textMuted }]}>Estado</Text>
-                            <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '15' }]}>
-                                <Text style={[styles.statusText, { color: statusInfo.color }]}>{statusInfo.label.toUpperCase()}</Text>
-                            </View>
-                        </View>
-                    </View>
-                </View>
+                    ) : null}
+                </Card>
 
                 {isPending ? (
-                    <View style={[styles.actionCard, { backgroundColor: theme.warningLight, borderColor: theme.warning }]}>
-                        <Text style={[styles.actionTitle, { color: theme.text }]}>Tu pedido espera el pago</Text>
-                        <Text style={[styles.actionText, { color: theme.textMuted }]}>
-                            Las unidades están apartadas por tiempo limitado. Si ya pagaste, esta pantalla se actualiza sola en unos segundos.
+                    <View style={[styles.pending, { backgroundColor: theme.warning + tint.faint, borderColor: theme.warning + tint.strong }]}>
+                        <Text style={[type.title, { color: theme.text }]}>Tu pedido espera el pago</Text>
+                        <Text style={[type.body, { color: theme.textMuted }]}>
+                            Las piezas están apartadas por tiempo limitado. Si ya pagaste, esta pantalla se actualiza sola en unos segundos.
                         </Text>
-                        <TouchableOpacity
-                            style={[styles.payBtn, { backgroundColor: theme.primary }, isPaying && { opacity: 0.7 }]}
-                            onPress={payNow}
-                            disabled={isPaying || isCancelling}
-                            accessibilityRole="button"
-                            accessibilityLabel="Pagar ahora"
-                        >
-                            {isPaying ? <ActivityIndicator color="#fff" /> : (
-                                <>
-                                    <CreditCard size={18} color="#fff" />
-                                    <Text style={styles.payBtnText}>Pagar ahora · {formatCurrency(order.total_amount)}</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.cancelBtn, { borderColor: theme.error }]}
-                            onPress={confirmCancel}
-                            disabled={isPaying || isCancelling}
-                            accessibilityRole="button"
-                            accessibilityLabel="Cancelar pedido"
-                        >
-                            {isCancelling ? <ActivityIndicator color={theme.error} /> : (
-                                <>
-                                    <XCircle size={16} color={theme.error} />
-                                    <Text style={[styles.cancelBtnText, { color: theme.error }]}>Cancelar pedido</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
+                        <Button
+                            label={`Pagar ahora · ${formatCurrency(order.total_amount)}`}
+                            icon={<CreditCard size={layout.icon.sm} color={theme.onPrimary} />}
+                            onPress={o.payNow}
+                            loading={o.isPaying}
+                            disabled={busy}
+                            fullWidth
+                        />
+                        <Button
+                            label="Cancelar pedido"
+                            variant="ghost"
+                            icon={<XCircle size={layout.icon.sm} color={theme.error} />}
+                            onPress={o.confirmCancel}
+                            loading={o.isCancelling}
+                            disabled={busy}
+                            fullWidth
+                        />
                     </View>
                 ) : null}
 
-                {/* Items Title */}
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Productos Adquiridos</Text>
-
-                {/* Purchased Items List */}
-                <View style={styles.itemsContainer}>
+                {/* Productos */}
+                <View style={styles.section}>
+                    <Text style={[type.title, { color: theme.text }]}>Productos</Text>
                     {order.items && order.items.length > 0 ? (
-                        order.items.map((item) => {
-                            const product = item.product;
-                            const imageUri = product?.image_url;
-
-                            return (
-                                <TouchableOpacity
-                                    key={item.id}
-                                    style={[styles.itemCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
-                                    onPress={() => router.push(`/tienda/producto/${item.product_id}` as any)}
-                                    activeOpacity={0.7}
-                                >
-                                    {imageUri ? (
-                                        <Image source={{ uri: imageUri }} style={styles.itemImage} />
-                                    ) : (
-                                        <View style={[styles.itemImage, { backgroundColor: theme.backgroundSecondary, justifyContent: 'center', alignItems: 'center' }]}>
-                                            <Package size={26} color={theme.textMuted} />
-                                        </View>
-                                    )}
-                                    <View style={styles.itemInfo}>
-                                        <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={2}>
-                                            {product?.name || `Producto ID: ${item.product_id.slice(0, 8)}`}
-                                        </Text>
-                                        <View style={styles.priceQtyRow}>
-                                            <Text style={[styles.itemQty, { color: theme.textMuted }]}>
-                                                Cant. {item.quantity}
-                                            </Text>
-                                            <Text style={[styles.itemPrice, { color: theme.primary }]}>
-                                                {formatCurrency(item.price_at_purchase)} c/u
-                                            </Text>
-                                        </View>
-                                        <Text style={[styles.itemSubtotal, { color: theme.text }]}>
-                                            Subtotal: {formatCurrency(item.price_at_purchase * item.quantity)}
-                                        </Text>
-                                    </View>
-                                    <ChevronRight size={16} color={theme.textMuted} style={styles.arrow} />
-                                </TouchableOpacity>
-                            );
-                        })
+                        order.items.map((item) => (
+                            <MediaRow
+                                key={item.id}
+                                imageUrl={item.product?.image_url}
+                                fallbackIcon={Package}
+                                title={item.product?.name || 'Producto no disponible'}
+                                lines={[{ text: `${item.quantity} × ${formatCurrency(item.price_at_purchase)}` }]}
+                                footer={<Text style={[type.bodyStrong, { color: theme.text }]}>{formatCurrency(item.price_at_purchase * item.quantity)}</Text>}
+                                onPress={() => router.push(`/tienda/producto/${item.product_id}`)}
+                                accessibilityLabel={`${item.product?.name || 'Producto'}, ${item.quantity} piezas`}
+                            />
+                        ))
                     ) : (
-                        <View style={[styles.emptyCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                            <Text style={{ color: theme.textMuted, textAlign: 'center' }}>No se encontraron productos registrados en este pedido.</Text>
-                        </View>
+                        <Text style={[type.body, { color: theme.textMuted }]}>Este pedido no tiene productos registrados.</Text>
                     )}
                 </View>
 
-                {/* Shipping Details */}
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>Detalles de Entrega</Text>
-                <View style={[styles.shippingCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <View style={styles.shippingHeader}>
-                        <MapPin size={18} color={theme.primary} />
-                        <Text style={[styles.shippingTitle, { color: theme.text }]}>Dirección de Envío</Text>
-                    </View>
-                    <Text style={[styles.shippingAddress, { color: theme.textMuted }]}>
-                        {order.shipping_address || 'Sin dirección registrada'}
-                    </Text>
-                </View>
-
-                {/* Payment summary card (Invoice ticket layout) */}
-                <View style={[styles.invoiceCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <View style={styles.invoiceRow}>
-                        <Text style={[styles.invoiceLabel, { color: theme.textMuted }]}>Subtotal</Text>
-                        <Text style={[styles.invoiceValue, { color: theme.text }]}>{formatCurrency(order.total_amount)}</Text>
-                    </View>
-                    <View style={styles.invoiceRow}>
-                        <Text style={[styles.invoiceLabel, { color: theme.textMuted }]}>Envío</Text>
-                        <Text style={[styles.invoiceValue, { color: theme.success, fontWeight: '700' }]}>Gratis</Text>
-                    </View>
-                    <View style={[styles.dottedDivider, { borderColor: theme.border }]} />
-                    <View style={styles.invoiceRow}>
-                        <View style={styles.totalLabelRow}>
-                            <CreditCard size={18} color={theme.primary} />
-                            <Text style={[styles.totalLabel, { color: theme.text }]}>{isPending ? 'Total a pagar' : isCancelled ? 'Total (cancelado)' : 'Total pagado'}</Text>
+                {/* Entrega y pago */}
+                <Card>
+                    <View style={styles.block}>
+                        <View style={styles.blockTitle}>
+                            <MapPin size={layout.icon.sm} color={theme.primary} />
+                            <Text style={[type.bodyStrong, { color: theme.text }]}>Dirección de envío</Text>
                         </View>
-                        <Text style={[styles.totalValue, { color: theme.primary }]}>{formatCurrency(order.total_amount)}</Text>
+                        <Text style={[type.body, { color: theme.textMuted }]}>{order.shipping_address || 'Sin dirección registrada'}</Text>
                     </View>
-                </View>
+                    <View style={[styles.divider, { backgroundColor: theme.divider }]} />
+                    <View style={styles.summaryRow}>
+                        <Text style={[type.body, { color: theme.textMuted }]}>Subtotal</Text>
+                        <Text style={[type.bodyStrong, { color: theme.text }]}>{formatCurrency(order.total_amount)}</Text>
+                    </View>
+                    <View style={styles.summaryRow}>
+                        <Text style={[type.body, { color: theme.textMuted }]}>Envío</Text>
+                        <Text style={[type.bodyStrong, { color: theme.success }]}>Gratis</Text>
+                    </View>
+                    <View style={[styles.summaryRow, styles.totalRow]}>
+                        <Text style={[type.title, { color: theme.text }]}>
+                            {isPending ? 'Total a pagar' : isCancelled ? 'Total (sin cargo)' : 'Total pagado'}
+                        </Text>
+                        <Text style={[type.h2, styles.bold, { color: isCancelled ? theme.textMuted : theme.primary }]}>{formatCurrency(order.total_amount)}</Text>
+                    </View>
+                </Card>
 
-                {/* Help Button */}
-                <TouchableOpacity
-                    style={[styles.helpButton, { borderColor: theme.border }]}
-                    onPress={() => showAlert({ type: 'info', title: 'Soporte', message: `Para dudas sobre esta compra escríbenos a ${SUPPORT_EMAIL} indicando el pedido #${order.id.slice(0, 8).toUpperCase()}.` })}
-                >
-                    <Text style={[styles.helpButtonText, { color: theme.textMuted }]}>¿Necesitas ayuda con este pedido?</Text>
-                </TouchableOpacity>
+                {/* Acciones */}
+                {!isPending ? (
+                    <Button
+                        label="Volver a comprar"
+                        variant="secondary"
+                        icon={<RotateCcw size={layout.icon.sm} color={theme.primary} />}
+                        onPress={o.reorder}
+                        fullWidth
+                    />
+                ) : null}
+                <ListRow
+                    icon={LifeBuoy}
+                    label="¿Necesitas ayuda con este pedido?"
+                    desc={`Escríbenos y menciona el pedido ${ref}`}
+                    color={theme.info}
+                    onPress={o.contactSupport}
+                />
             </ScrollView>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 12,
-        paddingHorizontal: 32,
-    },
-    loadingText: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    errorText: {
-        fontSize: 15,
-        fontWeight: '700',
-        textAlign: 'center',
-        marginTop: 8,
-        lineHeight: 22,
-    },
-    backButton: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 14,
-        marginTop: 16,
-    },
-    backButtonText: {
-        color: '#fff',
-        fontWeight: '800',
-        fontSize: 14,
-    },
-    scrollContainer: {
-        paddingHorizontal: 24,
-        paddingBottom: 60,
-    },
-    ticketCard: {
-        borderRadius: 24,
-        padding: 20,
-        borderWidth: 1,
-        gap: 16,
-        marginBottom: 24,
-    },
-    ticketRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 16,
-    },
-    iconWrapper: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        backgroundColor: 'rgba(107, 114, 128, 0.08)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    infoWrapper: {
-        flex: 1,
-        gap: 4,
-    },
-    ticketLabel: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    ticketValue: {
-        fontSize: 14,
-        fontWeight: '800',
-    },
-    statusBadge: {
-        alignSelf: 'flex-start',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
-    },
-    statusText: {
-        fontSize: 10,
-        fontWeight: '800',
-    },
-    divider: {
-        height: 1,
-        width: '100%',
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: '800',
-        marginBottom: 12,
-    },
-    itemsContainer: {
-        gap: 12,
-        marginBottom: 24,
-    },
-    itemCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 12,
-        borderRadius: 20,
-        borderWidth: 1,
-        gap: 12,
-    },
-    itemImage: {
-        width: 76,
-        height: 76,
-        borderRadius: 14,
-    },
-    itemInfo: {
-        flex: 1,
-        gap: 2,
-    },
-    itemName: {
-        fontSize: 14,
-        fontWeight: '800',
-        lineHeight: 18,
-    },
-    priceQtyRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    itemQty: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    itemPrice: {
-        fontSize: 12,
-        fontWeight: '800',
-    },
-    itemSubtotal: {
-        fontSize: 13,
-        fontWeight: '800',
-        marginTop: 2,
-    },
-    arrow: {
-        marginLeft: 4,
-    },
-    emptyCard: {
-        padding: 20,
-        borderRadius: 20,
-        borderWidth: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    shippingCard: {
-        borderRadius: 24,
-        padding: 20,
-        borderWidth: 1,
-        gap: 10,
-        marginBottom: 24,
-    },
-    shippingHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    shippingTitle: {
-        fontSize: 14,
-        fontWeight: '800',
-    },
-    shippingAddress: {
-        fontSize: 13,
-        fontWeight: '600',
-        lineHeight: 18,
-    },
-    invoiceCard: {
-        borderRadius: 24,
-        padding: 20,
-        borderWidth: 1,
-        gap: 12,
-        marginBottom: 24,
-    },
-    invoiceRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    invoiceLabel: {
-        fontSize: 13,
-        fontWeight: '600',
-    },
-    invoiceValue: {
-        fontSize: 13,
-        fontWeight: '800',
-    },
-    dottedDivider: {
-        borderStyle: 'dashed',
-        borderWidth: 0.5,
-        borderRadius: 1,
-        marginVertical: 4,
-    },
-    totalLabelRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    totalLabel: {
-        fontSize: 14,
-        fontWeight: '800',
-    },
-    totalValue: {
-        fontSize: 18,
-        fontWeight: '800',
-    },
-    actionCard: {
-        borderRadius: 24,
-        padding: 20,
-        borderWidth: 1,
-        gap: 12,
-        marginBottom: 24,
-    },
-    actionTitle: { fontSize: 16, fontWeight: '800' },
-    actionText: { fontSize: 13, fontWeight: '500', lineHeight: 19 },
-    payBtn: {
-        height: 52,
-        borderRadius: 16,
-        flexDirection: 'row',
-        gap: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    payBtnText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    cancelBtn: {
-        height: 46,
-        borderRadius: 14,
-        borderWidth: 1.5,
-        flexDirection: 'row',
-        gap: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    cancelBtnText: { fontSize: 14, fontWeight: '800' },
-    helpButton: {
-        borderWidth: 1.5,
-        borderRadius: 18,
-        paddingVertical: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderStyle: 'dashed',
-    },
-    helpButtonText: {
-        fontSize: 12,
-        fontWeight: '800',
-    },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.huge, gap: spacing.lg },
+    flex: { flex: 1 },
+    bold: { fontWeight: '800' },
+    statusHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    statusIcon: { width: layout.iconBox.lg, height: layout.iconBox.lg, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+    tracking: { borderTopWidth: 1, marginTop: spacing.lg, paddingTop: spacing.lg },
+    pending: { padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1, gap: spacing.sm },
+    section: { gap: spacing.sm },
+    block: { gap: spacing.xs },
+    blockTitle: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    divider: { height: 1, marginVertical: spacing.md },
+    summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.xs },
+    totalRow: { marginTop: spacing.sm },
 });

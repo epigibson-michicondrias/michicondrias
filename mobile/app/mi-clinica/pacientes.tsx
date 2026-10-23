@@ -12,6 +12,7 @@ import { getMyClinics } from '@/src/services/directorio';
 import { getClinicPatients, ClinicPatient } from '@/src/services/patients';
 import { formatDateMx } from '@/src/features/salud/format';
 import { Users, PawPrint, AlertTriangle } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 type Filter = 'all' | 'upcoming' | 'critical';
 
@@ -58,7 +59,7 @@ export default function PacientesScreen() {
                     </View>
                     {critical && (
                         <View style={[styles.badge, { backgroundColor: theme.errorLight }]}>
-                            <Text style={{ color: tone, fontWeight: '800', fontSize: 11 }}>{item.alert_level === 'red' ? 'URGENTE' : 'EN OBSERVACIÓN'}</Text>
+                            <Text style={{ color: tone, fontWeight: '800', fontSize: font.sm }}>{item.alert_level === 'red' ? 'URGENTE' : 'EN OBSERVACIÓN'}</Text>
                         </View>
                     )}
                 </View>
@@ -82,7 +83,7 @@ export default function PacientesScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader title="Pacientes" subtitle="Mascotas que atiendes" />
-            <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
+            <View style={{ paddingHorizontal: layout.screenPadding, marginBottom: spacing.md }}>
                 <TextInput
                     style={[styles.search, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                     placeholder="Buscar por mascota o dueño..."
@@ -99,7 +100,7 @@ export default function PacientesScreen() {
             </ScrollView>
 
             {isLoading ? (
-                <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 40 }} />
+                <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.huge }} />
             ) : (
                 <FlatList
                     data={list}
@@ -122,17 +123,17 @@ export default function PacientesScreen() {
 }
 
 const styles = StyleSheet.create({
-    search: { height: 46, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, fontSize: 14 },
-    chips: { paddingHorizontal: 24, gap: 8, marginBottom: 12 },
-    list: { paddingHorizontal: 24, paddingBottom: 100 },
-    card: { padding: 16, borderRadius: 18, borderWidth: 1, marginBottom: 12 },
-    head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    search: { height: 46, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.base },
+    chips: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, marginBottom: spacing.md },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
+    card: { padding: spacing.lg, borderRadius: 18, borderWidth: 1, marginBottom: spacing.md },
+    head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     icon: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    name: { fontSize: 16, fontWeight: '800' },
-    sub: { fontSize: 12, marginTop: 2 },
-    badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-    stats: { flexDirection: 'row', marginTop: 14, paddingTop: 12, borderTopWidth: 1 },
+    name: { fontSize: font.xl, fontWeight: '800' },
+    sub: { fontSize: font.md, marginTop: spacing.xxs },
+    badge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
+    stats: { flexDirection: 'row', marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: 1 },
     stat: { flex: 1 },
-    statLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-    statValue: { fontSize: 13, fontWeight: '700', marginTop: 3 },
+    statLabel: { fontSize: font.xs, fontWeight: '700', textTransform: 'uppercase' },
+    statValue: { fontSize: font.base, fontWeight: '700', marginTop: spacing.xs },
 });

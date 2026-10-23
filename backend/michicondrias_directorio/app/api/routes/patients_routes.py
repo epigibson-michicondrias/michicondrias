@@ -7,12 +7,13 @@ from datetime import date, datetime, timedelta
 from app.crud.crud_clinic import get_clinic
 from app.crud.dashboard_crud import get_critical_patients, create_medical_record_extended
 from app.api import deps
+from app.api.clinic_access import is_clinic_staff
 from app.db.session import get_db
 from app.models.dashboard import MedicalRecordExtended
 
 router = APIRouter()
 
-@router.get("/clinics/{clinic_id}/patients")
+@router.get("/{clinic_id}/patients")
 def get_clinic_patients(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -20,7 +21,7 @@ def get_clinic_patients(
 ) -> Any:
     """Pacientes reales de la clínica: mascotas con al menos una cita no cancelada, con dueño y última/próxima visita."""
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     rows = db.execute(text(
         "SELECT a.pet_id, p.name, p.species, p.breed, p.owner_id, u.full_name, "
@@ -47,7 +48,7 @@ def get_clinic_patients(
     ]
 
 
-@router.get("/clinics/{clinic_id}/patients/critical")
+@router.get("/{clinic_id}/patients/critical")
 def get_critical_patients_endpoint(
     clinic_id: str,
     db: Session = Depends(get_db),
@@ -56,7 +57,7 @@ def get_critical_patients_endpoint(
     """Get critical patients for a clinic dashboard."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Obtener pacientes críticos desde Supabase
@@ -92,7 +93,7 @@ def get_critical_patients_endpoint(
     
     return result
 
-@router.post("/clinics/{clinic_id}/patients/critical")
+@router.post("/{clinic_id}/patients/critical")
 def create_critical_patient(
     clinic_id: str,
     patient_data: dict,
@@ -102,7 +103,7 @@ def create_critical_patient(
     """Create a new critical patient record."""
     # Verificar permisos
     clinic = get_clinic(db, clinic_id)
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=403, detail="No tienes permisos")
     
     # Agregar clinic_id al registro

@@ -9,6 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { Plus, Users, Dumbbell, Calendar, ChevronRight } from 'lucide-react-native';
 import type { TrainingEnrollment } from '@/src/services/training';
+import { font, spacing, layout } from '@/constants/design';
 
 const statusColorOf = (status: string, theme: any): string =>
     ({ active: theme.success, completed: theme.info, cancelled: theme.error } as Record<string, string>)[status] || theme.warning;
@@ -79,7 +80,6 @@ export default function TrainerDashboardScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Panel Entrenador"
-                rightElement={<View style={styles.placeholder} />}
             />
 
             {/* Quick Actions */}
@@ -90,7 +90,7 @@ export default function TrainerDashboardScreen() {
                     activeOpacity={0.7}
                 >
                     <View style={[styles.actionIconBg, { backgroundColor: theme.primary }]}>
-                        <Plus size={20} color="#fff" />
+                        <Plus size={20} color={theme.onPrimary} />
                     </View>
                     <Text style={[styles.actionLabel, { color: theme.primary }]}>Nuevo Programa</Text>
                 </TouchableOpacity>
@@ -148,7 +148,6 @@ export default function TrainerDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -156,17 +155,17 @@ const styles = StyleSheet.create({
     },
     actionsRow: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 20,
+        paddingHorizontal: layout.screenPadding,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     actionCard: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
     },
     actionIconBg: {
         width: 36,
@@ -176,17 +175,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     actionLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         flex: 1,
     },
     statsContainer: {
         flexDirection: 'row',
-        marginHorizontal: 24,
-        padding: 20,
+        marginHorizontal: layout.screenPadding,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     statItem: {
         flex: 1,
@@ -196,40 +195,40 @@ const styles = StyleSheet.create({
         width: 1,
     },
     statNumber: {
-        fontSize: 24,
+        fontSize: font.h2,
         fontWeight: '800',
     },
     statLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        marginBottom: 12,
+        paddingHorizontal: layout.screenPadding,
+        marginBottom: spacing.md,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     listContent: {
-        paddingHorizontal: 24,
-        paddingBottom: 40,
-        gap: 12,
+        paddingHorizontal: layout.screenPadding,
+        paddingBottom: spacing.huge,
+        gap: spacing.md,
     },
     enrollmentCard: {
         borderRadius: 16,
         borderWidth: 1,
-        padding: 16,
-        gap: 14,
+        padding: spacing.lg,
+        gap: spacing.lg,
     },
     enrollmentHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     enrollmentIcon: {
         width: 40,
@@ -240,19 +239,19 @@ const styles = StyleSheet.create({
     },
     enrollmentInfo: { flex: 1 },
     enrollmentPet: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     enrollmentProgram: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: font.md,
+        marginTop: spacing.xxs,
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        gap: spacing.xs,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     statusDot: {
@@ -261,7 +260,7 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     statusLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     enrollmentFooter: {
@@ -272,30 +271,30 @@ const styles = StyleSheet.create({
     dateInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
-    dateText: { fontSize: 12 },
+    dateText: { fontSize: font.md },
     manageRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     manageText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     emptyContainer: {
         alignItems: 'center',
         paddingTop: 60,
-        gap: 12,
+        gap: spacing.md,
     },
     emptyTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     emptyDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
-        paddingHorizontal: 32,
+        paddingHorizontal: spacing.xxxl,
     },
 });

@@ -1,174 +1,125 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, View, FlatList, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Package, ShoppingBag, CalendarDays, Clock, SearchX } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { usePurchases, STATUS_MAP } from '@/src/hooks/ecommerce/usePurchases';
+import { usePurchases } from '@/src/hooks/ecommerce/usePurchases';
+import { useOrderStatus, PURCHASE_FILTERS, type PurchaseFilter } from '@/src/features/tienda/orderStatus';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { SkeletonList } from '@/src/components/Skeleton';
 import EmptyState from '@/src/components/EmptyState';
-import { Package, ShoppingBag } from 'lucide-react-native';
-import { Order } from '@/src/services/ecommerce';
-import { formatCurrency } from '@/src/utils/formatters';
+import FilterChip from '@/src/components/FilterChip';
+import Badge from '@/src/components/Badge';
+import { MediaRow, type MediaLine } from '@/src/components/MediaCard';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { spacing } from '@/constants/design';
+import type { Order } from '@/src/services/ecommerce';
+import { formatCurrency } from '@/src/utils/formatters';
+import { layout, spacing } from '@/constants/design';
+
+const shortId = (id: string) => `#${id.slice(0, 8).toUpperCase()}`;
 
 export default function ComprasScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const statusOf = useOrderStatus();
     const { orders, isLoading, loadMore, isLoadingMore } = usePurchases();
+    const [filter, setFilter] = useState<PurchaseFilter>('all');
+
+    const counts = useMemo(() => Object.fromEntries(PURCHASE_FILTERS.map((f) => [
+        f.key, f.statuses ? orders.filter((o) => f.statuses!.includes(o.status as never)).length : orders.length,
+    ])) as Record<PurchaseFilter, number>, [orders]);
+
+    const visible = useMemo(() => {
+        const statuses = PURCHASE_FILTERS.find((f) => f.key === filter)?.statuses;
+        return statuses ? orders.filter((o) => statuses.includes(o.status as never)) : orders;
+    }, [orders, filter]);
 
     const renderItem = ({ item }: { item: Order }) => {
-        const statusInfo = STATUS_MAP[item.status] || { label: item.status, color: theme.textMuted };
-        const date = new Date(item.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+        const status = statusOf(item.status);
         const first = item.items?.[0]?.product;
         const units = (item.items || []).reduce((acc, i) => acc + i.quantity, 0);
         const extra = (item.items?.length || 0) - 1;
-        const title = first?.name
-            ? (extra > 0 ? `${first.name} y ${extra} más` : first.name)
-            : `Pedido #${item.id.slice(0, 8).toUpperCase()}`;
+        const title = first?.name ? (extra > 0 ? `${first.name} y ${extra} más` : first.name) : `Pedido ${shortId(item.id)}`;
+        const date = new Date(item.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+        const lines: MediaLine[] = [
+            { text: `${formatCurrency(item.total_amount)}${units > 0 ? ` · ${units} ${units === 1 ? 'pieza' : 'piezas'}` : ''}` },
+            item.status === 'pending'
+                ? { text: 'Toca para pagar o cancelar', icon: Clock, color: theme.warning }
+                : { text: `${date} · ${shortId(item.id)}`, icon: CalendarDays },
+        ];
         return (
-            <TouchableOpacity
-                style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                onPress={() => router.push(`/tienda/pedido/${item.id}` as any)}
-                accessibilityRole="button"
-                accessibilityLabel={`${title}, ${statusInfo.label}, ${formatCurrency(item.total_amount)}`}
-            >
-                {first?.image_url ? (
-                    <Image source={{ uri: first.image_url }} style={styles.itemImagePlaceholder} />
-                ) : (
-                    <View style={[styles.itemImagePlaceholder, { backgroundColor: theme.backgroundSecondary }]}>
-                        <Package size={32} color={theme.textMuted} />
-                    </View>
-                )}
-                <View style={styles.content}>
-                    <View style={styles.cardHeader}>
-                        <Text style={[styles.orderId, { color: theme.textMuted }]}>#{item.id.slice(0, 8).toUpperCase()}</Text>
-                        <View style={[styles.statusBadge, { backgroundColor: statusInfo.color + '22' }]}>
-                            <Text style={[styles.statusText, { color: statusInfo.color }]}>{statusInfo.label}</Text>
-                        </View>
-                    </View>
-                    <Text style={[styles.itemName, { color: theme.text }]} numberOfLines={2}>{title}</Text>
-                    <View style={styles.footerRow}>
-                        <Text style={[styles.price, { color: theme.text }]}>{formatCurrency(item.total_amount)}</Text>
-                        <View style={[styles.dot, { backgroundColor: theme.border }]} />
-                        <Text style={[styles.date, { color: theme.textMuted }]}>{units > 0 ? `${units} ${units === 1 ? 'pieza' : 'piezas'} · ` : ''}{date}</Text>
-                    </View>
-                    {item.status === 'pending' ? (
-                        <Text style={[styles.pendingHint, { color: theme.warning }]}>Pendiente de pago · toca para pagar o cancelar</Text>
-                    ) : null}
-                </View>
-            </TouchableOpacity>
+            <MediaRow
+                imageUrl={first?.image_url}
+                fallbackIcon={Package}
+                title={title}
+                trailing={<Badge label={status.label} color={status.color} size="sm" />}
+                lines={lines}
+                onPress={() => router.push(`/tienda/pedido/${item.id}`)}
+                accessibilityLabel={`${title}, ${status.label}, ${formatCurrency(item.total_amount)}`}
+            />
         );
     };
 
-    if (isLoading) {
-        return (
-            <ScreenContainer>
-                <ScreenHeader title="Mis Compras" />
-                <View style={styles.list}>
-                    <SkeletonList count={5} />
-                </View>
-            </ScreenContainer>
-        );
-    }
+    const header = orders.length > 0 ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
+            {PURCHASE_FILTERS.map((f) => (
+                <FilterChip
+                    key={f.key}
+                    label={f.label}
+                    count={f.key === 'all' ? undefined : counts[f.key]}
+                    active={filter === f.key}
+                    onPress={() => setFilter(f.key)}
+                />
+            ))}
+        </ScrollView>
+    ) : null;
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Mis Compras" />
+            <ScreenHeader title="Mis compras" subtitle={orders.length > 0 ? 'Seguimiento de tus pedidos' : undefined} />
 
-            <FlatList
-                refreshControl={<AppRefreshControl />}
-                data={orders}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={styles.list}
-                onEndReached={loadMore}
-                onEndReachedThreshold={0.4}
-                ListFooterComponent={isLoadingMore ? <ActivityIndicator color={theme.primary} style={styles.footerLoader} /> : null}
-                ListEmptyComponent={
-                    <EmptyState
-                        icon={<ShoppingBag size={40} color={theme.textMuted} strokeWidth={1} />}
-                        title="Aún no has realizado compras"
-                        subtitle="Cuando compres en Michi-Shop verás aquí tus pedidos y su seguimiento."
-                        actionLabel="Ir a la tienda"
-                        onAction={() => router.replace('/(tabs)/tienda-tab' as any)}
-                    />
-                }
-            />
+            {isLoading ? (
+                <View style={styles.list}><SkeletonList count={5} inset={false} /></View>
+            ) : (
+                <FlatList
+                    refreshControl={<AppRefreshControl />}
+                    data={visible}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderItem}
+                    ListHeaderComponent={header}
+                    ItemSeparatorComponent={() => <View style={styles.separator} />}
+                    contentContainerStyle={styles.list}
+                    onEndReached={loadMore}
+                    onEndReachedThreshold={0.4}
+                    ListFooterComponent={isLoadingMore ? <ActivityIndicator color={theme.primary} style={styles.footerLoader} /> : null}
+                    ListEmptyComponent={orders.length > 0 ? (
+                        <EmptyState
+                            icon={<SearchX size={layout.icon.xl} color={theme.textMuted} />}
+                            title="Nada por aquí"
+                            subtitle="No tienes compras con este estado."
+                            actionLabel="Ver todas"
+                            onAction={() => setFilter('all')}
+                        />
+                    ) : (
+                        <EmptyState
+                            icon={<ShoppingBag size={layout.icon.xl} color={theme.textMuted} strokeWidth={1.5} />}
+                            title="Aún no has realizado compras"
+                            subtitle="Cuando compres en Michi-Shop verás aquí tus pedidos y su seguimiento."
+                            actionLabel="Ir a la tienda"
+                            onAction={() => router.replace('/(tabs)/tienda-tab')}
+                        />
+                    )}
+                />
+            )}
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    footerLoader: {
-        paddingVertical: spacing.lg,
-    },
-    list: {
-        paddingHorizontal: 20,
-        paddingBottom: 40,
-    },
-    card: {
-        flexDirection: 'row',
-        padding: 12,
-        borderRadius: 24,
-        gap: 16,
-        marginBottom: 16,
-        borderWidth: 1,
-    },
-    itemImagePlaceholder: {
-        width: 80,
-        height: 80,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    content: {
-        flex: 1,
-        justifyContent: 'center',
-        gap: 4,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 4,
-    },
-    orderId: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
-    statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-    },
-    statusText: {
-        fontSize: 10,
-        fontWeight: '800',
-    },
-    itemName: {
-        fontSize: 15,
-        fontWeight: '800',
-    },
-    footerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginTop: 4,
-    },
-    price: {
-        fontSize: 14,
-        fontWeight: '800',
-    },
-    dot: {
-        width: 4,
-        height: 4,
-        borderRadius: 2,
-    },
-    pendingHint: { fontSize: 11, fontWeight: '700', marginTop: 2 },
-    date: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.huge },
+    chipsScroll: { marginHorizontal: -layout.screenPadding, marginBottom: spacing.md },
+    chips: { gap: spacing.sm, paddingHorizontal: layout.screenPadding, alignItems: 'center' },
+    separator: { height: spacing.sm },
+    footerLoader: { paddingVertical: spacing.lg },
 });

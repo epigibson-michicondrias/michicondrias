@@ -9,6 +9,7 @@ import { useQueryClient, type Query } from '@tanstack/react-query';
 import { NavigationContext } from '@react-navigation/native';
 import { WifiOff, AlertCircle, RefreshCw } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { shadow, font, spacing } from '@/constants/design';
 import { ApiError } from '@/src/lib/api';
 
 const NETWORK_ERROR = /network request failed|failed to fetch|tiempo de espera|timeout|conexi[oó]n/i;
@@ -102,8 +103,8 @@ export default function QueryErrorBanner() {
                     disabled={retrying}
                     style={[styles.retry, { backgroundColor: theme.primary, opacity: retrying ? 0.6 : 1 }]}
                 >
-                    <RefreshCw size={14} color="#fff" />
-                    <Text style={styles.retryText}>{retrying ? 'Cargando…' : 'Reintentar'}</Text>
+                    <RefreshCw size={14} color={theme.onPrimary} />
+                    <Text style={[styles.retryText, { color: theme.onPrimary }]}>{retrying ? 'Cargando…' : 'Reintentar'}</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -115,19 +116,15 @@ const styles = StyleSheet.create({
     banner: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        padding: 12,
+        gap: spacing.md,
+        padding: spacing.md,
         borderRadius: 14,
         borderWidth: 1,
-        elevation: 6,
-        shadowColor: '#000',
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 3 },
+        ...shadow.floating,
     },
     textCol: { flex: 1 },
-    title: { fontSize: 14, fontWeight: '700' },
-    subtitle: { fontSize: 12, marginTop: 2 },
-    retry: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
-    retryText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+    title: { fontSize: font.base, fontWeight: '700' },
+    subtitle: { fontSize: font.md, marginTop: spacing.xxs },
+    retry: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10 },
+    retryText: { fontSize: font.md, fontWeight: '700' },
 });

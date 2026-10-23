@@ -70,7 +70,7 @@ export default function MisViajesScreen() {
 }
 
 const styles = StyleSheet.create({
-  chips: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: 20, marginBottom: spacing.md },
-  pad: { paddingHorizontal: 20 },
-  list: { paddingHorizontal: 20, paddingBottom: 100 },
+  chips: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.xl, marginBottom: spacing.md },
+  pad: { paddingHorizontal: spacing.xl },
+  list: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
 });

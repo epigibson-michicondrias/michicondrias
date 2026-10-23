@@ -212,6 +212,8 @@ class OrderResponse(BaseModel):
     shipping_address: Optional[str] = None
     created_at: datetime
     items: List[OrderItemResponse]
+    # Solo en los pedidos del vendedor: nombre del comprador para el envío
+    buyer_name: Optional[str] = None
 
     class Config:
         from_attributes = True

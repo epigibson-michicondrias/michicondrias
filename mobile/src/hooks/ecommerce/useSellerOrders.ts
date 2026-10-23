@@ -1,19 +1,11 @@
 /**
- * useSellerOrders — Data fetching and mutations for seller order management
+ * useSellerOrders — Pedidos del vendedor: filtros por estado y avance (enviado → entregado) con confirmación.
  */
 import { useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { showAlert } from '@/src/components/AppAlert';
 import { getSellerOrders, updateOrderStatus, Order } from '@/src/services/ecommerce';
-
-export const ORDER_STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: string }> = {
-    pending: { label: 'Esperando pago', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', icon: 'Clock' },
-    paid: { label: 'Pagado', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', icon: 'CreditCard' },
-    confirmed: { label: 'Confirmado', color: '#6366f1', bg: 'rgba(99,102,241,0.12)', icon: 'CheckCircle' },
-    shipped: { label: 'Enviado', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', icon: 'Truck' },
-    delivered: { label: 'Entregado', color: '#10b981', bg: 'rgba(16,185,129,0.12)', icon: 'CheckCircle' },
-    cancelled: { label: 'Cancelado', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', icon: 'XCircle' },
-};
 
 /** Siguiente paso válido para el vendedor (el backend solo acepta estas transiciones). */
 export const SELLER_NEXT_STATUS: Record<string, { status: string; label: string } | undefined> = {
@@ -32,9 +24,21 @@ export function sellerSubtotal(order: Order, sellerId?: string | null): number {
         .reduce((acc, i) => acc + i.price_at_purchase * i.quantity, 0);
 }
 
+/** Filtros de la lista de pedidos; `filtro` en la URL abre uno directo (desde los avisos del panel). */
+export const SELLER_ORDER_FILTERS: { key: string; label: string; match: (status: string) => boolean }[] = [
+    { key: 'all', label: 'Todos', match: () => true },
+    { key: 'todo', label: 'Por enviar', match: (s) => s === 'paid' || s === 'confirmed' },
+    { key: 'shipped', label: 'Enviados', match: (s) => s === 'shipped' },
+    { key: 'delivered', label: 'Entregados', match: (s) => s === 'delivered' },
+    { key: 'pending', label: 'Esperando pago', match: (s) => s === 'pending' },
+    { key: 'cancelled', label: 'Cancelados', match: (s) => s === 'cancelled' },
+];
+
 export function useSellerOrders() {
     const queryClient = useQueryClient();
-    const [filter, setFilter] = useState('all');
+    // `filtro` en la URL abre un filtro directo (desde los avisos del panel)
+    const { filtro } = useLocalSearchParams<{ filtro?: string }>();
+    const [filter, setFilter] = useState(SELLER_ORDER_FILTERS.some((f) => f.key === filtro) ? filtro! : 'all');
 
     const { data: orders = [], isLoading, refetch } = useQuery({
         queryKey: ['seller-orders'],
@@ -52,17 +56,34 @@ export function useSellerOrders() {
         onError: (e: any) => showAlert({ type: 'error', title: 'No se pudo actualizar el estado', message: e?.message || 'Inténtalo de nuevo.' }),
     });
 
-    const filteredOrders = orders.filter(o => filter === 'all' ? true : o.status === filter);
+    const activeFilter = SELLER_ORDER_FILTERS.find((f) => f.key === filter) ?? SELLER_ORDER_FILTERS[0];
+    const filteredOrders = orders.filter((o) => activeFilter.match(o.status));
+    const countFor = (key: string) => orders.filter((o) => (SELLER_ORDER_FILTERS.find((f) => f.key === key) ?? SELLER_ORDER_FILTERS[0]).match(o.status)).length;
 
+    /** Pide confirmación: el comprador ve el cambio y no se puede regresar al estado anterior. */
     const updateStatus = (id: string, status: string) => {
-        statusMutation.mutate({ id, status });
+        const ref = `#${id.slice(0, 8).toUpperCase()}`;
+        const shipped = status === 'shipped';
+        showAlert({
+            type: 'info',
+            title: shipped ? `¿Ya enviaste el pedido ${ref}?` : `¿Se entregó el pedido ${ref}?`,
+            message: shipped
+                ? 'El comprador verá que su pedido va en camino.'
+                : 'Márcalo cuando el comprador ya lo tenga en sus manos.',
+            showCancel: true,
+            cancelText: 'Todavía no',
+            buttonText: shipped ? 'Sí, ya lo envié' : 'Sí, se entregó',
+            onButtonPress: () => statusMutation.mutate({ id, status }),
+        });
     };
 
     return {
         orders,
         filteredOrders,
+        countFor,
         isLoading,
         isUpdating: statusMutation.isPending,
+        updatingId: statusMutation.isPending ? statusMutation.variables?.id : undefined,
         refetch,
         filter,
         setFilter,

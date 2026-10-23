@@ -6,6 +6,8 @@ interface KeyboardScreenProps {
     style?: StyleProp<ViewStyle>;
     contentContainerStyle?: StyleProp<ViewStyle>;
     horizontal?: boolean;
+    /** Barra fija bajo el contenido (p. ej. el botón de pagar); sube junto con el teclado. */
+    footer?: React.ReactNode;
 }
 
 export default function KeyboardScreen({
@@ -13,6 +15,7 @@ export default function KeyboardScreen({
     style,
     contentContainerStyle,
     horizontal = false,
+    footer,
 }: KeyboardScreenProps) {
     return (
         <KeyboardAvoidingView
@@ -31,6 +34,7 @@ export default function KeyboardScreen({
             >
                 {children}
             </ScrollView>
+            {footer}
         </KeyboardAvoidingView>
     );
 }

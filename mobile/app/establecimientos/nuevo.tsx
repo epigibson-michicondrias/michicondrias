@@ -1,3 +1,4 @@
+import RoleGuard from '@/src/components/RoleGuard';
 import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -8,8 +9,17 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { Building2, MapPin, Tag, FileText, Plus } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevoEstablecimientoScreen() {
+    return (
+        <RoleGuard roles={['establecimiento', 'admin']}>
+            <NuevoEstablecimientoScreenContent />
+        </RoleGuard>
+    );
+}
+
+function NuevoEstablecimientoScreenContent() {
     const { theme } = useTheme();
     const {
         formData,
@@ -110,10 +120,10 @@ export default function NuevoEstablecimientoScreen() {
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Plus size={20} color="#fff" />
+                                <Plus size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitText}>Registrar Establecimiento</Text>
                             </>
                         )}
@@ -126,43 +136,43 @@ export default function NuevoEstablecimientoScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 40,
+        paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
     },
     inputGroup: {
         borderRadius: 14,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
         overflow: 'hidden',
     },
     inputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        gap: 12,
+        paddingHorizontal: spacing.lg,
+        gap: spacing.md,
     },
     input: {
         flex: 1,
-        fontSize: 15,
-        paddingVertical: 16,
+        fontSize: font.lg,
+        paddingVertical: spacing.lg,
     },
     submitButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        marginTop: 8,
-        gap: 10,
+        marginTop: spacing.sm,
+        gap: spacing.md,
     },
     submitDisabled: {
         opacity: 0.7,
     },
     submitText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
 });

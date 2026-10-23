@@ -10,6 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function CuidadoresScreen() {
     const router = useRouter();
@@ -73,8 +74,8 @@ export default function CuidadoresScreen() {
             <View style={styles.servicesContainer}>
                 <View style={[styles.serviceTag, { backgroundColor: theme.secondary + '10' }]}>
                     <Text style={[styles.serviceText, { color: theme.secondary }]}>
-                        {item.service_type === 'daycare' ? 'Guardería' : 
-                         item.service_type === 'boarding' ? 'Hospedaje' : 'Guardería y hospedaje'}
+                        {item.service_type === 'hosting' ? 'Hospedaje' :
+                         item.service_type === 'visiting' ? 'Visitas a domicilio' : 'Hospedaje y visitas'}
                     </Text>
                 </View>
                 <View style={[styles.serviceTag, { backgroundColor: theme.primary + '10' }]}>
@@ -110,13 +111,11 @@ export default function CuidadoresScreen() {
                     </Text>
                     <Text style={[styles.priceUnit, { color: theme.textMuted }]}>/día</Text>
                 </View>
-                <TouchableOpacity accessibilityRole="button" 
-                    style={[styles.contactButton, { backgroundColor: theme.primary }]}
-                    onPress={() => router.push({ pathname: '/cuidadores/[id]', params: { id: item.id } } as any)}
-                >
+                {/* Solo indicación visual: toda la tarjeta abre el perfil (un botón dentro de otro falla en web) */}
+                <View style={[styles.contactButton, { backgroundColor: theme.primary }]} accessible={false}>
                     <Text style={styles.contactButtonText}>Ver perfil</Text>
-                    <ChevronRight size={16} color="#fff" />
-                </TouchableOpacity>
+                    <ChevronRight size={16} color={theme.onPrimary} />
+                </View>
             </View>
         </TouchableOpacity>
     );
@@ -134,7 +133,7 @@ export default function CuidadoresScreen() {
                     style={[styles.actionButton, { backgroundColor: theme.primary, borderColor: theme.primary }]}
                     onPress={() => router.push('/perfil/partner' as any)}
                 >
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Quiero ser cuidador</Text>
+                    <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Quiero ser cuidador</Text>
                 </TouchableOpacity>
             </View>
 
@@ -147,8 +146,8 @@ export default function CuidadoresScreen() {
 
                 <View style={styles.serviceFilterContainer}>
                     <FilterChip label="Todos" active={serviceFilter === ''} onPress={() => setServiceFilter('')} />
-                    <FilterChip label="Guardería" active={serviceFilter === 'daycare'} onPress={() => setServiceFilter('daycare')} />
-                    <FilterChip label="Hospedaje" active={serviceFilter === 'boarding'} onPress={() => setServiceFilter('boarding')} />
+                    <FilterChip label="Hospedaje" active={serviceFilter === 'hosting'} onPress={() => setServiceFilter('hosting')} />
+                    <FilterChip label="Visitas a domicilio" active={serviceFilter === 'visiting'} onPress={() => setServiceFilter('visiting')} />
                 </View>
             </View>
         </>
@@ -184,8 +183,8 @@ export default function CuidadoresScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     actionButton: {
         flex: 1,
@@ -194,37 +193,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        paddingHorizontal: 12,
+        paddingHorizontal: spacing.md,
     },
     actionButtonText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         textAlign: 'center',
         lineHeight: 18,
     },
     filtersContainer: {
-        marginBottom: 20,
-        gap: 12,
+        marginBottom: spacing.xl,
+        gap: spacing.md,
     },
     serviceFilterContainer: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     sitterCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     sitterHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 16,
+        marginBottom: spacing.lg,
+        gap: spacing.lg,
     },
     avatarPlaceholder: {
         width: 56,
@@ -234,69 +233,70 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatarText: {
-        fontSize: 24,
+        fontSize: font.h2,
         fontWeight: '800',
     },
     sitterInfo: {
         flex: 1,
     },
     sitterName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     locationText: {
-        fontSize: 14,
+        fontSize: font.base,
     },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     ratingText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     sitterStats: {
         flexDirection: 'row',
-        gap: 16,
-        marginBottom: 16,
+        gap: spacing.lg,
+        marginBottom: spacing.lg,
     },
     statItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     statText: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     servicesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-        marginBottom: 12,
+        gap: spacing.sm,
+        marginBottom: spacing.md,
     },
     serviceTag: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
-        gap: 4,
+        gap: spacing.xs,
+        justifyContent: 'center',
     },
     serviceText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
     bioText: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     sitterFooter: {
         flexDirection: 'row',
@@ -306,26 +306,27 @@ const styles = StyleSheet.create({
     priceContainer: {
         flexDirection: 'row',
         alignItems: 'baseline',
-        gap: 2,
+        gap: spacing.xxs,
     },
     priceText: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     priceUnit: {
-        fontSize: 14,
+        fontSize: font.base,
     },
     contactButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.lg,
         borderRadius: 8,
-        gap: 6,
+        gap: spacing.sm,
+        justifyContent: 'center',
     },
     contactButtonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
 });

@@ -11,6 +11,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import Button from '@/src/components/Button';
+import { font, spacing, layout } from '@/constants/design';
 
 /** Eliminación de cuenta (requisito de Apple/Google): confirma con la contraseña actual y, si aplica, el código 2FA. */
 export default function EliminarCuentaScreen() {
@@ -59,7 +60,7 @@ export default function EliminarCuentaScreen() {
             <KeyboardScreen style={{ backgroundColor: theme.background }}>
                 <View style={[styles.warnCard, { backgroundColor: theme.errorLight, borderColor: theme.borderLight }]}>
                     <AlertTriangle size={22} color={theme.error} />
-                    <View style={{ flex: 1, gap: 6 }}>
+                    <View style={{ flex: 1, gap: spacing.sm }}>
                         <Text style={[styles.warnTitle, { color: theme.text }]}>Qué pasará</Text>
                         <Text style={[styles.warnText, { color: theme.textMuted }]}>
                             {'•'} Se eliminarán tu nombre, correo, foto, teléfono y documentos de verificación.{'\n'}
@@ -102,11 +103,11 @@ export default function EliminarCuentaScreen() {
                     <Button
                         label="Eliminar mi cuenta"
                         variant="danger"
-                        icon={<Trash2 size={18} color="#fff" />}
+                        icon={<Trash2 size={18} color={theme.onPrimary} />}
                         onPress={confirm}
                         loading={busy}
                         disabled={!canSubmit}
-                        style={{ marginTop: 12 }}
+                        style={{ marginTop: spacing.md }}
                     />
                     <Button label="Cancelar" variant="ghost" onPress={() => router.back()} disabled={busy} />
                 </View>
@@ -116,10 +117,10 @@ export default function EliminarCuentaScreen() {
 }
 
 const styles = StyleSheet.create({
-    warnCard: { flexDirection: 'row', gap: 12, marginHorizontal: 24, marginBottom: 20, padding: 16, borderRadius: 16, borderWidth: 1 },
-    warnTitle: { fontSize: 15, fontWeight: '800' },
-    warnText: { fontSize: 13, lineHeight: 20 },
-    form: { paddingHorizontal: 24, gap: 8, paddingBottom: 40 },
-    label: { fontSize: 14, fontWeight: '600', marginTop: 8 },
-    input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16 },
+    warnCard: { flexDirection: 'row', gap: spacing.md, marginHorizontal: layout.screenPadding, marginBottom: spacing.xl, padding: spacing.lg, borderRadius: 16, borderWidth: 1 },
+    warnTitle: { fontSize: font.lg, fontWeight: '800' },
+    warnText: { fontSize: font.base, lineHeight: 20 },
+    form: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.huge },
+    label: { fontSize: font.base, fontWeight: '600', marginTop: spacing.sm },
+    input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.xl },
 });

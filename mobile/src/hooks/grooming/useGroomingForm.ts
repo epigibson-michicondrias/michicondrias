@@ -1,9 +1,9 @@
 /**
- * useGroomingForm — Manages form state and submission for creating a grooming service
- * Extracted from app/estilistas/nuevo.tsx
+ * useGroomingForm — Alta de un servicio de estética (estilista): validación en línea y catálogo actualizado al guardar.
  */
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { showAlert } from '@/src/components/AppAlert';
 import { createGroomingService } from '@/src/services/grooming';
 
@@ -14,9 +14,12 @@ interface GroomingFormState {
     duration_minutes: string;
 }
 
+type Errors = Partial<Record<'name' | 'price' | 'duration_minutes', string>>;
+
 export function useGroomingForm() {
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
+    const [errors, setErrors] = useState<Errors>({});
     const [form, setForm] = useState<GroomingFormState>({
         name: '',
         description: '',
@@ -25,39 +28,46 @@ export function useGroomingForm() {
     });
 
     const updateField = (field: keyof GroomingFormState, value: string) => {
-        setForm(f => ({ ...f, [field]: value }));
+        setForm((f) => ({ ...f, [field]: value }));
+        if (errors[field as keyof Errors]) setErrors((e) => ({ ...e, [field]: undefined }));
     };
 
-    const handleSubmit = async () => {
-        if (!form.name || !form.price) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor completa los campos obligatorios' });
-            return;
-        }
-
-        setLoading(true);
-        try {
-            await createGroomingService({
-                name: form.name,
-                description: form.description || undefined,
-                price: parseFloat(form.price),
-                duration_minutes: parseInt(form.duration_minutes) || 30,
-            });
+    const mutation = useMutation({
+        mutationFn: () => createGroomingService({
+            name: form.name.trim(),
+            description: form.description.trim() || undefined,
+            price: parseFloat(form.price.replace(',', '.')),
+            duration_minutes: parseInt(form.duration_minutes, 10),
+        }),
+        onSuccess: () => {
+            // El catálogo y la gestión del estilista lo muestran de inmediato
+            queryClient.invalidateQueries({ queryKey: ['grooming-services'] });
+            queryClient.invalidateQueries({ queryKey: ['grooming-my-services'] });
             showAlert({
                 type: 'success',
-                title: '¡Éxito!',
-                message: 'Tu servicio de grooming ha sido registrado.',
+                title: 'Servicio publicado',
+                message: 'Ya aparece en el catálogo de estética.',
                 onButtonPress: () => router.back(),
             });
-        } catch (error) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo registrar el servicio.' });
-        } finally {
-            setLoading(false);
-        }
+        },
+        onError: (e: Error) => showAlert({ type: 'error', title: 'No se pudo publicar', message: e.message || 'Inténtalo de nuevo.' }),
+    });
+
+    const handleSubmit = () => {
+        const next: Errors = {};
+        if (!form.name.trim()) next.name = 'Escribe el nombre del servicio.';
+        const price = parseFloat(form.price.replace(',', '.'));
+        if (!Number.isFinite(price) || price <= 0) next.price = 'Precio mayor a cero.';
+        const minutes = parseInt(form.duration_minutes, 10);
+        if (!Number.isInteger(minutes) || minutes < 5 || minutes > 720) next.duration_minutes = 'Entre 5 y 720 minutos.';
+        setErrors(next);
+        if (Object.keys(next).length === 0) mutation.mutate();
     };
 
     return {
         form,
-        loading,
+        errors,
+        loading: mutation.isPending,
         updateField,
         handleSubmit,
     };

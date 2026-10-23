@@ -7,6 +7,8 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, X } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { useInFormSection } from '@/src/components/forms/FormSection';
+import { font, spacing } from '@/constants/design';
 
 interface FormImagePickerProps {
     label?: string;
@@ -34,6 +36,7 @@ export default function FormImagePicker({
     circular,
 }: FormImagePickerProps) {
     const { theme } = useTheme();
+    const inSection = useInFormSection();
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
@@ -49,7 +52,7 @@ export default function FormImagePicker({
     };
 
     return (
-        <View style={[styles.container, circular && { alignSelf: 'center' }]}>
+        <View style={[styles.container, inSection && styles.inSection, circular && { alignSelf: 'center' }]}>
             {label ? (
                 <Text style={[styles.label, { color: theme.textMuted, textAlign: circular ? 'center' : 'left' }]}>{label}</Text>
             ) : null}
@@ -71,14 +74,14 @@ export default function FormImagePicker({
                                 left: 0, 
                                 right: 0, 
                                 borderRadius: 0, 
-                                paddingVertical: 6,
+                                paddingVertical: spacing.sm,
                                 justifyContent: 'center',
                                 backgroundColor: 'rgba(0,0,0,0.4)',
                             }
                         ]}
                         onPress={pickImage}
                     >
-                        <Camera size={14} color={circular ? '#fff' : theme.primary} />
+                        <Camera size={14} color={circular ? theme.onPrimary : theme.primary} />
                         {!circular && <Text style={[styles.changeBtnText, { color: theme.primary }]}>Cambiar</Text>}
                     </TouchableOpacity>
                     {onImageRemoved ? (
@@ -90,7 +93,7 @@ export default function FormImagePicker({
                             ]}
                             onPress={onImageRemoved}
                         >
-                            <X size={14} color="#fff" />
+                            <X size={14} color={theme.onPrimary} />
                         </TouchableOpacity>
                     ) : null}
                 </View>
@@ -109,7 +112,7 @@ export default function FormImagePicker({
                     activeOpacity={0.7}
                 >
                     <Camera size={28} color={theme.textMuted} />
-                    <Text style={[styles.placeholderText, { color: theme.textMuted, fontSize: 12, textAlign: 'center' }]}>
+                    <Text style={[styles.placeholderText, { color: theme.textMuted, fontSize: font.md, textAlign: 'center' }]}>
                         {placeholder}
                     </Text>
                 </TouchableOpacity>
@@ -120,13 +123,14 @@ export default function FormImagePicker({
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 18,
+        marginBottom: spacing.xl,
     },
+    inSection: { marginBottom: 0 },
     label: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
-        marginBottom: 8,
-        marginLeft: 4,
+        marginBottom: spacing.sm,
+        marginLeft: spacing.xs,
     },
     previewContainer: {
         borderRadius: 20,
@@ -143,13 +147,14 @@ const styles = StyleSheet.create({
         left: 12,
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
-        gap: 6,
+        gap: spacing.sm,
+        justifyContent: 'center',
     },
     changeBtnText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     removeBtn: {
@@ -168,10 +173,10 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     placeholderText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
 });

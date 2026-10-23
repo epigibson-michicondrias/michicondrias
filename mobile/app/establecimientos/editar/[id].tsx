@@ -1,3 +1,4 @@
+import RoleGuard from '@/src/components/RoleGuard';
 import React from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -9,8 +10,17 @@ import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { Building2, MapPin, Tag, FileText, Save, Trash2 } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EditarEstablecimientoScreen() {
+    return (
+        <RoleGuard roles={['establecimiento', 'admin']}>
+            <EditarEstablecimientoScreenContent />
+        </RoleGuard>
+    );
+}
+
+function EditarEstablecimientoScreenContent() {
     const { theme } = useTheme();
     const {
         formData,
@@ -27,7 +37,7 @@ export default function EditarEstablecimientoScreen() {
     if (isLoadingVenue) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Editar Establecimiento" />
+                <ScreenHeader title="Editar local" />
                 <LoadingOverlay message="Cargando establecimiento..." />
             </ScreenContainer>
         );
@@ -36,7 +46,7 @@ export default function EditarEstablecimientoScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="Editar Establecimiento"
+                title="Editar local"
                 subtitle="Actualiza la información de tu negocio"
             />
 
@@ -122,10 +132,10 @@ export default function EditarEstablecimientoScreen() {
                             disabled={isSubmitting || isDeleting}
                         >
                             {isSubmitting ? (
-                                <ActivityIndicator size="small" color="#fff" />
+                                <ActivityIndicator size="small" color={theme.onPrimary} />
                             ) : (
                                 <>
-                                    <Save size={20} color="#fff" />
+                                    <Save size={20} color={theme.onPrimary} />
                                     <Text style={styles.submitText}>Guardar Cambios</Text>
                                 </>
                             )}
@@ -158,59 +168,59 @@ export default function EditarEstablecimientoScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 40,
+        paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
     },
     inputGroup: {
         borderRadius: 14,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
         overflow: 'hidden',
     },
     inputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        gap: 12,
+        paddingHorizontal: spacing.lg,
+        gap: spacing.md,
     },
     input: {
         flex: 1,
-        fontSize: 15,
-        paddingVertical: 16,
+        fontSize: font.lg,
+        paddingVertical: spacing.lg,
     },
     actionButtons: {
-        gap: 12,
-        marginTop: 8,
+        gap: spacing.md,
+        marginTop: spacing.sm,
     },
     submitButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        gap: 10,
+        gap: spacing.md,
     },
     submitDisabled: {
         opacity: 0.7,
     },
     submitText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     deleteButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
         borderWidth: 1.5,
-        gap: 10,
+        gap: spacing.md,
     },
     deleteText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
 });

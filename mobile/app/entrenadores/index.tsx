@@ -9,6 +9,7 @@ import { Dumbbell, Clock, DollarSign, ChevronRight, Plus } from 'lucide-react-na
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EntrenadoresScreen() {
     const router = useRouter();
@@ -77,16 +78,16 @@ export default function EntrenadoresScreen() {
                     style={[styles.actionButton, { backgroundColor: theme.primary }]}
                     onPress={() => router.push('/entrenadores/nuevo-programa' as any)}
                 >
-                    <Plus size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Nuevo Programa</Text>
+                    <Plus size={18} color={theme.onPrimary} />
+                    <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Nuevo Programa</Text>
                 </TouchableOpacity>
             ) : (
                 <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.secondary }]}
                     onPress={() => router.push('/entrenadores/mis-inscripciones' as any)}
                 >
-                    <Dumbbell size={18} color="#fff" />
-                    <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis Inscripciones</Text>
+                    <Dumbbell size={18} color={theme.onPrimary} />
+                    <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis Inscripciones</Text>
                 </TouchableOpacity>
             )}
         </View>
@@ -120,38 +121,38 @@ export default function EntrenadoresScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 20,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     actionButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     programCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     programHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 12,
+        marginBottom: spacing.lg,
+        gap: spacing.md,
     },
     iconContainer: {
         width: 48,
@@ -164,12 +165,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     programName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     programDesc: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     arrowButton: {
@@ -182,12 +183,12 @@ const styles = StyleSheet.create({
     programStats: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderTopWidth: 1,
         borderTopColor: 'rgba(128,128,128,0.2)',
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(128,128,128,0.2)',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     statItem: {
         alignItems: 'center',
@@ -197,25 +198,27 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(128,128,128,0.25)',
     },
     statText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     statLabel: {
-        fontSize: 11,
-        marginTop: 2,
+        fontSize: font.sm,
+        marginTop: spacing.xxs,
     },
     programFooter: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
     },
     trainerTag: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     trainerText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
 });

@@ -13,6 +13,7 @@ import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import FilterChip from '@/src/components/FilterChip';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EstablecimientosScreen() {
     const router = useRouter();
@@ -68,11 +69,11 @@ export default function EstablecimientosScreen() {
                 </View>
             )}
 
-            {!!item.discount_coupon && (
+            {(item.has_coupon || !!item.discount_coupon) && (
                 <View style={[styles.discountBanner, { backgroundColor: theme.warningLight }]}>
                     <Tag size={14} color={theme.warning} />
                     <Text style={[styles.discountText, { color: theme.warning }]}>
-                        Cupón: {item.discount_coupon}
+                        {item.discount_coupon ? `Cupón: ${item.discount_coupon}` : 'Cupón disponible'}
                     </Text>
                     {!!item.discount_description && (
                         <Text style={[styles.discountDesc, { color: theme.textMuted }]}>
@@ -91,7 +92,7 @@ export default function EstablecimientosScreen() {
                 subtitle="Encuentra los mejores lugares para tu mascota"
             />
 
-            <View style={{ marginHorizontal: 24, marginBottom: 20 }}>
+            <View style={{ marginHorizontal: layout.screenPadding, marginBottom: spacing.xl }}>
                 <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -100,7 +101,7 @@ export default function EstablecimientosScreen() {
             </View>
 
             {isVenueOwner && (
-                <View style={{ flexDirection: 'row', gap: 8, marginHorizontal: 24, marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', gap: spacing.sm, marginHorizontal: layout.screenPadding, marginBottom: spacing.md }}>
                     <FilterChip label="Todos" active={!onlyMine} onPress={() => setOnlyMine(false)} />
                     <FilterChip label="Mis locales" active={onlyMine} onPress={() => setOnlyMine(true)} />
                 </View>
@@ -142,19 +143,19 @@ export default function EstablecimientosScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     venueCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     venueHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     iconContainer: {
         width: 48,
@@ -167,17 +168,17 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     venueName: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     locationText: {
-        fontSize: 14,
+        fontSize: font.base,
         flex: 1,
     },
     arrowButton: {
@@ -190,35 +191,37 @@ const styles = StyleSheet.create({
     amenitiesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-        marginTop: 16,
-        paddingTop: 16,
+        gap: spacing.sm,
+        marginTop: spacing.lg,
+        paddingTop: spacing.lg,
         borderTopWidth: 1,
         borderTopColor: 'rgba(128,128,128,0.2)',
     },
     amenityTag: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     amenityText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
     discountBanner: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 12,
-        padding: 12,
+        marginTop: spacing.md,
+        padding: spacing.md,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
     discountText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     discountDesc: {
-        fontSize: 12,
+        fontSize: font.md,
         flex: 1,
     },
 });

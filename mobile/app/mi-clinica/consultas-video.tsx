@@ -1,6 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Modal, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { useVideoConsultations } from '@/src/hooks/clinica/useVideoConsultations';
 import { ConsultationItem } from '@/src/services/directorio';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -12,6 +13,7 @@ import { Plus, Video, Calendar, Clock, VideoOff, ExternalLink, X } from 'lucide-
 import { Picker } from '@react-native-picker/picker';
 import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ConsultasVideoScreen() {
     const { theme } = useTheme();
@@ -80,7 +82,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnSecondary, { borderColor: theme.error, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'cancelled')}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: 13 }}>Cancelar</Text>
+                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: font.base }}>Cancelar</Text>
                         </TouchableOpacity>
                     )}
 
@@ -89,7 +91,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnSecondary, { borderColor: theme.success, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'active')}
                         >
-                            <Text style={{ color: theme.success, fontWeight: '800', fontSize: 13 }}>Iniciar Sala</Text>
+                            <Text style={{ color: theme.success, fontWeight: '800', fontSize: font.base }}>Iniciar Sala</Text>
                         </TouchableOpacity>
                     )}
 
@@ -98,7 +100,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnSecondary, { borderColor: theme.primary, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'completed')}
                         >
-                            <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Finalizar Consulta</Text>
+                            <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Finalizar Consulta</Text>
                         </TouchableOpacity>
                     )}
 
@@ -107,7 +109,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnPrimary, { backgroundColor: theme.success }]}
                             onPress={() => launchVideoRoom(item.room_url)}
                         >
-                            <ExternalLink size={16} color="#fff" />
+                            <ExternalLink size={16} color={theme.onPrimary} />
                             <Text style={styles.btnText}>Unirse al Video</Text>
                         </TouchableOpacity>
                     ) : (
@@ -125,20 +127,7 @@ export default function ConsultasVideoScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Videoconsultas"
-                rightElement={
-                    !isVet ? (
-                        <TouchableOpacity
-                            accessibilityRole="button"
-                            accessibilityLabel="Agendar videoconsulta"
-                            style={[styles.addBtn, { backgroundColor: theme.primary }]}
-                            onPress={openBookingModal}
-                        >
-                            <Plus size={20} color="#fff" />
-                        </TouchableOpacity>
-                    ) : (
-                        <View style={{ width: 44 }} />
-                    )
-                }
+                actions={!isVet ? [{ icon: Plus, label: 'Agendar videoconsulta', onPress: openBookingModal }] : undefined}
             />
 
             <View style={styles.content}>
@@ -171,16 +160,10 @@ export default function ConsultasVideoScreen() {
                             <X size={24} color={theme.text} />
                         </TouchableOpacity>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Agendar Consulta</Text>
-                        <TouchableOpacity onPress={handleBook} disabled={loadingAction} accessibilityRole="button" accessibilityLabel="Agendar videoconsulta">
-                            {loadingAction ? (
-                                <ActivityIndicator size="small" color={theme.primary} />
-                            ) : (
-                                <Text style={[styles.saveBtnText, { color: theme.primary }]}>Agendar</Text>
-                            )}
-                        </TouchableOpacity>
+                        <Button label="Agendar Videoconsulta" onPress={handleBook} loading={loadingAction} style={{ minWidth: 140 }} />
                     </View>
 
-                    <KeyboardScreen style={{ padding: 24 }}>
+                    <KeyboardScreen style={{ padding: spacing.xxl }}>
                         <View style={styles.formGroup}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>Mascota *</Text>
                             <View style={[styles.pickerContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -270,48 +253,47 @@ export default function ConsultasVideoScreen() {
 
 const styles = StyleSheet.create({
     content: { flex: 1 },
-    listContainer: { padding: 24, gap: 16, paddingBottom: 100 },
+    listContainer: { padding: spacing.xxl, gap: spacing.lg, paddingBottom: 100 },
     card: {
-        padding: 16, borderRadius: 24, borderWidth: 1, gap: 12,
+        padding: spacing.lg, borderRadius: 24, borderWidth: 1, gap: spacing.md,
         elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05, shadowRadius: 5,
     },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    roomBadgeContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    cardTitle: { fontSize: 15, fontWeight: '800' },
-    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
-    statusText: { fontSize: 10, fontWeight: '800' },
-    cardBody: { gap: 6 },
-    timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    timeText: { fontSize: 13, fontWeight: '600' },
-    notesBox: { padding: 12, borderRadius: 12, backgroundColor: 'rgba(128,128,128,0.08)', marginTop: 6 },
-    notesLabel: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5, marginBottom: 4 },
-    notesText: { fontSize: 12, fontWeight: '500', lineHeight: 16 },
+    roomBadgeContainer: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    cardTitle: { fontSize: font.lg, fontWeight: '800' },
+    statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6 },
+    statusText: { fontSize: font.xs, fontWeight: '800' },
+    cardBody: { gap: spacing.sm },
+    timeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    timeText: { fontSize: font.base, fontWeight: '600' },
+    notesBox: { padding: spacing.md, borderRadius: 12, backgroundColor: 'rgba(128,128,128,0.08)', marginTop: spacing.sm },
+    notesLabel: { fontSize: font.xs, fontWeight: '800', letterSpacing: 0.5, marginBottom: spacing.xs },
+    notesText: { fontSize: font.md, fontWeight: '500', lineHeight: 16 },
     cardFooter: {
         flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center',
-        borderTopWidth: 1, paddingTop: 12, gap: 10,
+        borderTopWidth: 1, paddingTop: spacing.md, gap: spacing.md,
     },
-    btnPrimary: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
-    btnSecondary: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-    btnText: { color: '#fff', fontWeight: '800', fontSize: 13 },
+    btnPrimary: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10 },
+    btnSecondary: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+    btnText: { color: '#fff', fontWeight: '800', fontSize: font.base },
     disabledRoom: {
-        flexDirection: 'row', alignItems: 'center', gap: 6,
-        paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10,
+        flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+        paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10,
         backgroundColor: 'rgba(128,128,128,0.08)',
     },
-    disabledRoomText: { fontSize: 12, fontWeight: '700' },
-    addBtn: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+    disabledRoomText: { fontSize: font.md, fontWeight: '700' },
     modalContainer: { flex: 1 },
     modalHeader: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        paddingHorizontal: 24, paddingVertical: 20,
+        paddingHorizontal: layout.screenPadding, paddingVertical: spacing.xl,
         borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.2)',
     },
-    modalTitle: { fontSize: 18, fontWeight: '800' },
-    saveBtnText: { fontSize: 16, fontWeight: '800' },
-    formGroup: { marginBottom: 20 },
-    label: { fontSize: 12, fontWeight: '800', marginBottom: 8, textTransform: 'uppercase' },
+    modalTitle: { fontSize: font.xxl, fontWeight: '800' },
+    saveBtnText: { fontSize: font.xl, fontWeight: '800' },
+    formGroup: { marginBottom: spacing.xl },
+    label: { fontSize: font.md, fontWeight: '800', marginBottom: spacing.sm, textTransform: 'uppercase' },
     pickerContainer: { height: 54, borderRadius: 16, borderWidth: 1, justifyContent: 'center', overflow: 'hidden' },
-    input: { height: 52, borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, fontSize: 14, fontWeight: '600' },
-    textArea: { height: 100, borderRadius: 16, paddingHorizontal: 16, paddingTop: 12, borderWidth: 1, fontSize: 14, fontWeight: '600', textAlignVertical: 'top' },
+    input: { height: 52, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.base, fontWeight: '600' },
+    textArea: { height: 100, borderRadius: 16, paddingHorizontal: spacing.lg, paddingTop: spacing.md, borderWidth: 1, fontSize: font.base, fontWeight: '600', textAlignVertical: 'top' },
 });

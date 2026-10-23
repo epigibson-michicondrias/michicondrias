@@ -1,244 +1,151 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Calendar, Clock, Building2, PawPrint, FileText, CalendarClock, Ban, AlertTriangle, Info } from 'lucide-react-native';
 import { useAppointments, STATUS_CONFIG, FILTER_TABS, formatDateTime } from '@/src/hooks/directorio/useAppointments';
 import type { Appointment } from '@/src/services/citas';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
-import { Calendar, Clock, MapPin, PawPrint, AlertCircle, CalendarClock, Ban } from 'lucide-react-native';
+import Card from '@/src/components/Card';
+import Badge from '@/src/components/Badge';
+import Button from '@/src/components/Button';
+import FilterChip from '@/src/components/FilterChip';
+import type { IconComponent } from '@/src/components/IconButton';
+import { layout, radius, spacing, tint, type } from '@/constants/design';
+
+function Line({ icon: Icon, text, muted }: { icon: IconComponent; text: string; muted?: boolean }) {
+    const { theme } = useTheme();
+    return (
+        <View style={styles.line}>
+            <Icon size={layout.icon.sm} color={theme.textMuted} />
+            <Text style={[type.body, styles.flex, { color: muted ? theme.textMuted : theme.text }]} numberOfLines={2}>{text}</Text>
+        </View>
+    );
+}
 
 export default function CitasScreen() {
     const router = useRouter();
-    const { theme, isDark } = useTheme();
-    const {
-        appointments: filtered,
-        isLoading,
-        isRefetching,
-        refetch,
-        activeFilter,
-        setActiveFilter,
-        handleCancel,
-        handleReschedule,
-        cancelMutation,
-    } = useAppointments();
+    const { theme } = useTheme();
+    const { appointments, countFor, isLoading, isRefetching, refetch, activeFilter, setActiveFilter, handleCancel, handleReschedule, cancelMutation } = useAppointments();
 
     const renderAppointment = ({ item }: { item: Appointment }) => {
-        const statusInfo = STATUS_CONFIG[item.status] || STATUS_CONFIG.scheduled;
+        const status = STATUS_CONFIG[item.status] || STATUS_CONFIG.scheduled;
+        const color = theme[status.tone] as string;
         const { date, time } = formatDateTime(item.appointment_date);
-        const isActive = item.status !== 'cancelled' && item.status !== 'completed' && item.status !== 'rescheduled';
-
+        const isActive = !['cancelled', 'completed', 'rescheduled'].includes(item.status);
         return (
-            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <View style={styles.cardTop}>
-                    <View style={styles.cardHeader}>
-                        <View style={[styles.clinicIcon, { backgroundColor: theme.primary + '20' }]}>
-                            <MapPin size={18} color={theme.primary} />
+            <Card>
+                <View style={styles.body}>
+                    <View style={styles.head}>
+                        <View style={[styles.iconBox, { backgroundColor: theme.primary + tint.faint }]}>
+                            <Building2 size={layout.icon.md} color={theme.primary} />
                         </View>
-                        <View style={styles.clinicInfo}>
-                            <Text style={[styles.clinicName, { color: theme.text }]} numberOfLines={1}>
-                                {item.clinic_name || 'Clínica'}
-                            </Text>
+                        <View style={styles.flex}>
+                            <Text style={[type.title, { color: theme.text }]} numberOfLines={1}>{item.clinic_name || 'Clínica'}</Text>
+                            {item.service_name ? <Text style={[type.caption, { color: theme.textMuted }]} numberOfLines={1}>{item.service_name}</Text> : null}
                         </View>
-                        <View style={[styles.statusBadge, { backgroundColor: statusInfo.lightColor }]}>
-                            <Text style={[styles.statusText, { color: statusInfo.color }]}>
-                                {statusInfo.label}
-                            </Text>
-                        </View>
+                        <Badge label={status.label} color={color} size="sm" />
                     </View>
-                </View>
-
-                <View style={[styles.cardBody, { borderTopColor: theme.border }]}>
-                    <View style={styles.infoRow}>
-                        <PawPrint size={15} color={theme.textMuted} />
-                        <Text style={[styles.infoText, { color: theme.text }]}>
-                            {item.pet_name || 'Mascota'}
-                        </Text>
+                    <View style={styles.lines}>
+                        <Line icon={Calendar} text={`${date}${time ? ` · ${time}` : ''}`} />
+                        <Line icon={PawPrint} text={item.pet_name || 'Mascota'} />
+                        {item.reason ? <Line icon={FileText} text={item.reason} muted /> : null}
                     </View>
-                    <View style={styles.infoRow}>
-                        <Calendar size={15} color={theme.textMuted} />
-                        <Text style={[styles.infoText, { color: theme.text }]}>{date}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Clock size={15} color={theme.textMuted} />
-                        <Text style={[styles.infoText, { color: theme.text }]}>{time}</Text>
-                    </View>
-                    {item.reason ? (
-                        <View style={styles.infoRow}>
-                            <AlertCircle size={15} color={theme.textMuted} />
-                            <Text style={[styles.infoText, { color: theme.textMuted }]} numberOfLines={2}>
-                                {item.reason}
-                            </Text>
+                    {item.is_emergency ? <Badge label="Emergencia" color={theme.error} size="sm" icon={<AlertTriangle size={layout.icon.xs} color={theme.error} />} /> : null}
+                    {item.status === 'cancelled' && item.cancellation_reason ? (
+                        <View style={[styles.note, { backgroundColor: theme.error + tint.faint }]}>
+                            <Info size={layout.icon.sm} color={theme.error} />
+                            <Text style={[type.body, styles.flex, { color: theme.text }]}>Motivo: {item.cancellation_reason}</Text>
                         </View>
                     ) : null}
-                    {item.is_emergency && (
-                        <View style={[styles.emergencyBadge, { backgroundColor: '#ef444420' }]}>
-                            <AlertCircle size={14} color="#ef4444" />
-                            <Text style={styles.emergencyText}>Emergencia</Text>
+                    {isActive ? (
+                        <View style={styles.actions}>
+                            <Button
+                                label="Reagendar"
+                                variant="secondary"
+                                size="sm"
+                                icon={<CalendarClock size={layout.icon.sm} color={theme.text} />}
+                                onPress={() => handleReschedule(item)}
+                                style={styles.flex}
+                                accessibilityLabel={`Reagendar la cita en ${item.clinic_name || 'la clínica'}`}
+                            />
+                            <Button
+                                label="Cancelar"
+                                variant="secondary"
+                                size="sm"
+                                icon={<Ban size={layout.icon.sm} color={theme.error} />}
+                                onPress={() => handleCancel(item)}
+                                disabled={cancelMutation.isPending}
+                                style={styles.flex}
+                                accessibilityLabel={`Cancelar la cita en ${item.clinic_name || 'la clínica'}`}
+                            />
                         </View>
-                    )}
+                    ) : null}
                 </View>
-
-                {isActive && (
-                    <View style={[styles.cardActions, { borderTopColor: theme.border }]}>
-                        <TouchableOpacity
-                            style={[styles.actionBtn, { backgroundColor: theme.overlay, borderColor: theme.border }]}
-                            onPress={() => handleReschedule(item)}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Reagendar cita en ${item.clinic_name || 'la clínica'}`}
-                        >
-                            <CalendarClock size={16} color={theme.text} />
-                            <Text style={[styles.actionBtnText, { color: theme.text }]}>Reagendar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.actionBtn, styles.cancelBtn, { backgroundColor: '#ef444415', borderColor: '#ef444440' }]}
-                            onPress={() => handleCancel(item)}
-                            disabled={cancelMutation.isPending}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Cancelar cita en ${item.clinic_name || 'la clínica'}`}
-                        >
-                            <Ban size={16} color="#ef4444" />
-                            <Text style={[styles.actionBtnText, { color: '#ef4444' }]}>Cancelar</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </View>
+            </Card>
         );
     };
 
-    return (
-        <ScreenContainer style={{ backgroundColor: theme.background }}>
-            <ScreenHeader title="Mis Citas" />
-
-            <View style={styles.tabsContainer}>
-                {FILTER_TABS.map(tab => (
-                    <TouchableOpacity
+    const header = (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
+            {FILTER_TABS.map((tab) => {
+                const count = countFor(tab.key);
+                return (
+                    <FilterChip
                         key={tab.key}
-                        style={[styles.tab, {
-                            backgroundColor: activeFilter === tab.key ? theme.primary : theme.surface,
-                            borderColor: activeFilter === tab.key ? theme.primary : theme.border,
-                        }]}
+                        label={tab.label}
+                        count={tab.key === 'all' || count === 0 ? undefined : count}
+                        active={activeFilter === tab.key}
                         onPress={() => setActiveFilter(tab.key)}
-                        accessibilityRole="button"
-                        accessibilityState={{ selected: activeFilter === tab.key }}
-                    >
-                        <Text style={[styles.tabText, { color: activeFilter === tab.key ? '#fff' : theme.text }]}>
-                            {tab.label}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
+                    />
+                );
+            })}
+        </ScrollView>
+    );
 
+    return (
+        <ScreenContainer>
+            <ScreenHeader title="Mis citas" subtitle={countFor('all') > 0 ? `${countFor('all')} ${countFor('all') === 1 ? 'cita' : 'citas'}` : undefined} />
             <DataList
-                data={filtered}
+                data={appointments}
                 keyExtractor={(item) => item.id}
                 renderItem={renderAppointment}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                header={header}
                 isLoading={isLoading}
+                skeleton
                 isRefreshing={isRefetching}
                 onRefresh={refetch}
-                contentStyle={styles.list}
-                emptyIcon={<Calendar size={48} color={theme.textMuted} />}
-                emptyTitle="Sin citas"
-                emptySubtitle={
-                    activeFilter === 'all'
-                        ? 'Aún no tienes citas agendadas. Busca una clínica para agendar tu primera cita.'
-                        : 'No hay citas con este filtro.'
-                }
-                emptyActionLabel={activeFilter === 'all' ? 'Buscar Clínicas' : undefined}
-                onEmptyAction={activeFilter === 'all' ? () => router.push('/directorio' as any) : undefined}
+                emptyIcon={activeFilter === 'all' ? <Calendar size={layout.icon.xl} color={theme.textMuted} /> : <Clock size={layout.icon.xl} color={theme.textMuted} />}
+                emptyTitle={activeFilter === 'all' ? 'Aún no tienes citas' : 'Nada en este filtro'}
+                emptySubtitle={activeFilter === 'all'
+                    ? 'Busca una clínica o especialista y agenda en minutos.'
+                    : 'No tienes citas con este estado.'}
+                emptyActionLabel={activeFilter === 'all' ? 'Buscar veterinario' : 'Ver todas'}
+                onEmptyAction={activeFilter === 'all' ? () => router.push('/directorio') : () => setActiveFilter('all')}
             />
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    tabsContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 24,
-        marginBottom: 16,
-        gap: 8,
-    },
-    tab: {
-        flex: 1,
+    flex: { flex: 1 },
+    body: { gap: spacing.md },
+    head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    iconBox: {
+        width: layout.iconBox.md,
+        height: layout.iconBox.md,
+        borderRadius: radius.sm,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 10,
-        borderRadius: 12,
-        borderWidth: 1.5,
     },
-    tabText: { fontSize: 13, fontWeight: '700' },
-    list: { paddingHorizontal: 24, paddingBottom: 100 },
-    card: {
-        borderRadius: 20,
-        marginBottom: 14,
-        borderWidth: 1,
-        overflow: 'hidden',
-    },
-    cardTop: { padding: 18, paddingBottom: 14 },
-    cardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    clinicIcon: {
-        width: 42,
-        height: 42,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    clinicInfo: { flex: 1 },
-    clinicName: { fontSize: 16, fontWeight: '800' },
-    statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 8,
-    },
-    statusText: { fontSize: 11, fontWeight: '700' },
-    cardBody: {
-        paddingHorizontal: 18,
-        paddingBottom: 14,
-        paddingTop: 10,
-        borderTopWidth: 1,
-        gap: 8,
-    },
-    infoRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    infoText: { fontSize: 14, fontWeight: '500', flex: 1 },
-    emergencyBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 8,
-        alignSelf: 'flex-start',
-        marginTop: 4,
-    },
-    emergencyText: { fontSize: 12, fontWeight: '700', color: '#ef4444' },
-    cardActions: {
-        flexDirection: 'row',
-        paddingHorizontal: 18,
-        paddingBottom: 16,
-        paddingTop: 12,
-        borderTopWidth: 1,
-        gap: 10,
-    },
-    actionBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-        borderRadius: 12,
-        gap: 6,
-    },
-    cancelBtn: {
-        borderWidth: 1,
-    },
-    actionBtnText: { fontSize: 13, fontWeight: '700' },
+    lines: { gap: spacing.xs },
+    line: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    note: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md },
+    actions: { flexDirection: 'row', gap: spacing.sm },
+    chipsScroll: { marginHorizontal: -layout.screenPadding, marginBottom: spacing.md },
+    chips: { gap: spacing.sm, paddingHorizontal: layout.screenPadding },
+    separator: { height: spacing.md },
 });

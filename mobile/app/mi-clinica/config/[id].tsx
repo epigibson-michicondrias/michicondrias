@@ -1,12 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
+import Button from '@/src/components/Button';
 import { useClinicConfig } from '@/src/hooks/clinica/useClinicConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
-import { Save, MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react-native';
+import { MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ConfigClinicaScreen() {
     const { id } = useLocalSearchParams();
@@ -31,17 +34,6 @@ export default function ConfigClinicaScreen() {
                     <ScreenHeader
                         title="Configuración"
                         subtitle="Perfil de tu clínica"
-                        rightElement={
-                            <TouchableOpacity
-                                accessibilityRole="button"
-                                accessibilityLabel="Guardar cambios"
-                                style={[styles.saveTopBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSave}
-                                disabled={loading}
-                            >
-                                {loading ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
-                            </TouchableOpacity>
-                        }
                     />
 
                     <View style={styles.content}>
@@ -61,23 +53,11 @@ export default function ConfigClinicaScreen() {
                         <Text style={[styles.sectionLabel, { color: theme.text }]}>Información General</Text>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Nombre de la Clínica *</Text>
-                            <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={form.name}
-                                onChangeText={(v) => updateField('name', v)}
-                            />
+                            <FormField label="Nombre de la Clínica *" value={form.name} onChangeText={(v) => updateField('name', v)} />
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Descripción</Text>
-                            <TextInput
-                                style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                value={form.description || ''}
-                                onChangeText={(v) => updateField('description', v)}
-                                multiline
-                                numberOfLines={4}
-                            />
+                            <FormField label="Descripción" value={form.description || ''} onChangeText={(v) => updateField('description', v)} multiline numberOfLines={4} />
                         </View>
 
                         {/* Contact Info */}
@@ -97,12 +77,7 @@ export default function ConfigClinicaScreen() {
 
                         <View style={styles.row}>
                             <View style={[styles.formGroup, { flex: 1 }]}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Ciudad</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                                    value={form.city || ''}
-                                    onChangeText={(v) => updateField('city', v)}
-                                />
+                                <FormField label="Ciudad" value={form.city || ''} onChangeText={(v) => updateField('city', v)} />
                             </View>
                             <View style={[styles.formGroup, { flex: 1 }]}>
                                 <Text style={[styles.label, { color: theme.textMuted }]}>Teléfono</Text>
@@ -167,13 +142,7 @@ export default function ConfigClinicaScreen() {
                             />
                         </View>
 
-                        <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                            onPress={handleSave}
-                            disabled={loading}
-                        >
-                            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Guardar Cambios</Text>}
-                        </TouchableOpacity>
+                        <Button label="Guardar Cambios" onPress={handleSave} loading={loading} />
 
                         <View style={{ height: 40 }} />
                     </View>
@@ -185,25 +154,24 @@ export default function ConfigClinicaScreen() {
 
 const styles = StyleSheet.create({
     center: { justifyContent: 'center', alignItems: 'center' },
-    saveTopBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    content: { paddingHorizontal: 24 },
-    logoSection: { alignItems: 'center', marginVertical: 32, gap: 12 },
+    content: { paddingHorizontal: layout.screenPadding },
+    logoSection: { alignItems: 'center', marginVertical: spacing.xxxl, gap: spacing.md },
     logoContainer: { position: 'relative' },
     logoImage: { width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: '#7c3aed' },
     cameraBtn: { position: 'absolute', bottom: 0, right: 0, width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#1e293b' },
-    logoHint: { fontSize: 12, fontWeight: '600' },
-    sectionLabel: { fontSize: 18, fontWeight: '900', marginBottom: 20, marginTop: 12 },
-    formGroup: { marginBottom: 24 },
-    label: { fontSize: 13, fontWeight: '700', marginBottom: 10 },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: 20, borderWidth: 1, fontSize: 15, fontWeight: '600' },
-    textArea: { height: 120, paddingVertical: 16, textAlignVertical: 'top' },
-    inputRow: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 56, borderRadius: 16, paddingHorizontal: 16, borderWidth: 1 },
-    rowInput: { flex: 1, fontSize: 15, fontWeight: '600' },
-    row: { flexDirection: 'row', gap: 16 },
-    switchCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderRadius: 24, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    switchInfo: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
-    switchLabel: { fontSize: 15, fontWeight: '800' },
-    switchSub: { fontSize: 12, fontWeight: '600', marginTop: 2 },
-    saveBtn: { height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: 20 },
-    saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+    logoHint: { fontSize: font.md, fontWeight: '600' },
+    sectionLabel: { fontSize: font.xxl, fontWeight: '900', marginBottom: spacing.xl, marginTop: spacing.md },
+    formGroup: { marginBottom: spacing.xxl },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.md },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.xl, borderWidth: 1, fontSize: font.lg, fontWeight: '600' },
+    textArea: { height: 120, paddingVertical: spacing.lg, textAlignVertical: 'top' },
+    inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1 },
+    rowInput: { flex: 1, fontSize: font.lg, fontWeight: '600' },
+    row: { flexDirection: 'row', gap: spacing.lg },
+    switchCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.xl, borderRadius: 24, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
+    switchInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, flex: 1 },
+    switchLabel: { fontSize: font.lg, fontWeight: '800' },
+    switchSub: { fontSize: font.md, fontWeight: '600', marginTop: spacing.xxs },
+    saveBtn: { height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: spacing.xl },
+    saveBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
 });

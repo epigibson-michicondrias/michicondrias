@@ -11,6 +11,7 @@ import {
     STATUS_LABELS,
 } from '@/src/hooks/adopciones/useRefugeApplications';
 import type { AdoptionForm } from '@/src/types/adopciones';
+import { font, spacing } from '@/constants/design';
 
 export default function RefugeApplicationsScreen() {
     const { theme } = useTheme();
@@ -120,7 +121,7 @@ export default function RefugeApplicationsScreen() {
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Solicitudes del Refugio" />
+            <ScreenHeader title="Postulaciones" />
 
             <DataList
                 data={applications}
@@ -140,12 +141,12 @@ export default function RefugeApplicationsScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        padding: 20,
-        gap: 16,
+        padding: spacing.xl,
+        gap: spacing.lg,
     },
     card: {
         borderRadius: 20,
-        padding: 16,
+        padding: spacing.lg,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
@@ -153,32 +154,32 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     cardTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     cardTitle: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
-        gap: 4,
+        gap: spacing.xs,
     },
     statusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     cardBody: {
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     infoRow: {
         flexDirection: 'row',
@@ -186,17 +187,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     infoLabel: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     infoValue: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     scoreContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     scoreBar: {
         width: 80,
@@ -209,19 +210,19 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     scoreText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
     },
     reviewBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 14,
-        gap: 8,
+        gap: spacing.sm,
     },
     reviewBtnText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
 });

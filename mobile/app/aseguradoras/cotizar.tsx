@@ -15,15 +15,8 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import type { InsurancePlan } from '@/src/services/insurance';
 import type { Pet } from '@/src/types/mascotas';
-import {
-    Shield,
-    DollarSign,
-    CheckCircle,
-    PawPrint,
-    Calculator,
-    CreditCard,
-    ArrowRight,
-} from 'lucide-react-native';
+import { Shield, DollarSign, CheckCircle, PawPrint, Calculator, CreditCard, ArrowRight, Dog, Cat } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function CotizarScreen() {
     const { theme } = useTheme();
@@ -85,9 +78,9 @@ export default function CotizarScreen() {
                                 ]}
                                 onPress={() => setSelectedPetId(pet.id)}
                             >
-                                <Text style={styles.petEmoji}>
-                                    {pet.species === 'perro' || pet.species === 'dog' ? '🐕' : '🐈'}
-                                </Text>
+                                {pet.species === 'perro' || pet.species === 'dog'
+                                    ? <Dog size={layout.icon.lg} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />
+                                    : <Cat size={layout.icon.lg} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />}
                                 <Text style={[styles.petName, { color: theme.text }]} numberOfLines={1}>
                                     {pet.name}
                                 </Text>
@@ -185,10 +178,10 @@ export default function CotizarScreen() {
                     onPress={handleCalculateQuote}
                 >
                     {isCalculating ? (
-                        <ActivityIndicator color="#fff" />
+                        <ActivityIndicator color={theme.onPrimary} />
                     ) : (
                         <>
-                            <Calculator size={20} color="#fff" />
+                            <Calculator size={20} color={theme.onPrimary} />
                             <Text style={styles.calculateBtnText}>Calcular Cotización</Text>
                         </>
                     )}
@@ -233,11 +226,11 @@ export default function CotizarScreen() {
                             onPress={handleSubscribe}
                         >
                             {isSubscribing ? (
-                                <ActivityIndicator color="#fff" />
+                                <ActivityIndicator color={theme.onPrimary} />
                             ) : (
                                 <>
                                     <Text style={styles.subscribeBtnText}>Contratar Seguro</Text>
-                                    <ArrowRight size={20} color="#fff" />
+                                    <ArrowRight size={20} color={theme.onPrimary} />
                                 </>
                             )}
                         </TouchableOpacity>
@@ -252,43 +245,43 @@ export default function CotizarScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     section: {
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     petList: {
-        gap: 12,
-        paddingRight: 24,
+        gap: spacing.md,
+        paddingRight: spacing.xxl,
     },
     petCard: {
         width: 110,
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
     },
     petEmoji: {
-        fontSize: 28,
+        fontSize: font.h1,
     },
     petName: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     petBreed: {
-        fontSize: 11,
+        fontSize: font.sm,
     },
     checkIcon: {
         position: 'absolute',
@@ -296,21 +289,21 @@ const styles = StyleSheet.create({
         right: 8,
     },
     emptyText: {
-        fontSize: 13,
+        fontSize: font.base,
         textAlign: 'center',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     planOption: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     planOptionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 12,
+        gap: spacing.md,
+        marginBottom: spacing.md,
     },
     planIcon: {
         width: 40,
@@ -323,50 +316,50 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     planOptionName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     planOptionDesc: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: font.md,
+        marginTop: spacing.xxs,
     },
     planOptionStats: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingTop: 12,
+        paddingTop: spacing.md,
         borderTopWidth: 1,
         borderTopColor: 'rgba(255,255,255,0.05)',
     },
     planStat: {
         alignItems: 'center',
-        gap: 2,
+        gap: spacing.xxs,
     },
     planStatText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     planStatLabel: {
-        fontSize: 10,
+        fontSize: font.xs,
     },
     switchRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     switchInfo: {
         flex: 1,
-        marginRight: 12,
+        marginRight: spacing.md,
     },
     switchLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     switchDesc: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: font.md,
+        marginTop: spacing.xxs,
     },
     calculateBtn: {
         flexDirection: 'row',
@@ -374,12 +367,12 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     calculateBtnText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     quoteCard: {
@@ -390,8 +383,8 @@ const styles = StyleSheet.create({
     quoteHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        padding: 20,
+        gap: spacing.md,
+        padding: spacing.xl,
         borderBottomWidth: 1,
     },
     quoteBadge: {
@@ -402,12 +395,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     quoteTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     quoteDetails: {
-        padding: 20,
-        gap: 16,
+        padding: spacing.xl,
+        gap: spacing.lg,
     },
     quoteRow: {
         flexDirection: 'row',
@@ -415,34 +408,34 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     quoteHighlight: {
-        padding: 12,
+        padding: spacing.md,
         borderRadius: 12,
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     quoteLabel: {
-        fontSize: 14,
+        fontSize: font.base,
     },
     quoteValue: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '600',
     },
     quotePremium: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     subscribeBtn: {
         flexDirection: 'row',
         height: 60,
-        marginHorizontal: 20,
-        marginBottom: 20,
+        marginHorizontal: spacing.xl,
+        marginBottom: spacing.xl,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     subscribeBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     bottomSpacer: {

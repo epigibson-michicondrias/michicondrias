@@ -6,6 +6,8 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
+import EmptyState from '@/src/components/EmptyState';
+import { spacing, radius, type, layout } from '@/constants/design';
 import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_WHATSAPP, TERMS_URL, PRIVACY_URL } from '@/src/constants/support';
 
 // FAQ verídicas: describen lo que la app tiene hoy (el botón de adopción es «¡Quiero Adoptar!» y
@@ -59,7 +61,7 @@ export default function HelpScreen() {
                     <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>PREGUNTAS FRECUENTES</Text>
                     <View style={[styles.card, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
                         {faqs.length === 0 && (
-                            <Text style={{ color: theme.textMuted, padding: 16 }}>No encontramos preguntas con esa búsqueda.</Text>
+                            <EmptyState icon={<Search size={32} color={theme.textMuted} />} title="Sin resultados" subtitle="No encontramos preguntas con esa búsqueda." />
                         )}
                         {faqs.map((faq, index) => {
                             const isOpen = expanded === index;
@@ -73,7 +75,7 @@ export default function HelpScreen() {
                                         <ChevronRight size={18} color={theme.textMuted} style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }} />
                                     </TouchableOpacity>
                                     {isOpen && (
-                                        <Text style={{ color: theme.textMuted, paddingHorizontal: 16, paddingBottom: 16, lineHeight: 20 }}>{faq.answer}</Text>
+                                        <Text style={{ color: theme.textMuted, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, lineHeight: 20 }}>{faq.answer}</Text>
                                     )}
                                 </View>
                             );
@@ -129,33 +131,33 @@ function ContactBtn({ icon: Icon, label, color, theme, onPress }: any) {
 
 const styles = StyleSheet.create({
     scroll: {
-        padding: 20,
-        gap: 32,
+        padding: spacing.xl,
+        gap: spacing.huge || 32,
     },
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 56,
-        paddingHorizontal: 16,
-        borderRadius: 18,
-        gap: 12,
+        minHeight: layout.minTouch + 8,
+        paddingHorizontal: spacing.lg,
+        borderRadius: radius.lg,
+        gap: spacing.md,
         borderWidth: 1,
     },
     searchInput: {
         flex: 1,
-        fontSize: 15,
+        fontSize: type.body.fontSize,
     },
     section: {
-        gap: 12,
+        gap: spacing.md,
     },
     sectionTitle: {
-        fontSize: 12,
+        fontSize: type.label.fontSize,
         fontWeight: '800',
         letterSpacing: 1,
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     card: {
-        borderRadius: 24,
+        borderRadius: radius.xl,
         overflow: 'hidden',
         borderWidth: 1,
     },
@@ -163,47 +165,48 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 20,
+        padding: spacing.xl,
     },
     faqQuestion: {
         flex: 1,
-        fontSize: 14,
+        fontSize: type.subtitle.fontSize,
         fontWeight: '700',
     },
     contactGrid: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     contactBtn: {
         flex: 1,
-        padding: 16,
-        borderRadius: 24,
+        padding: spacing.lg,
+        borderRadius: radius.xl,
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
+        justifyContent: 'center',
     },
     iconBox: {
         width: 54,
         height: 54,
-        borderRadius: 18,
+        borderRadius: radius.lg,
         justifyContent: 'center',
         alignItems: 'center',
     },
     contactLabel: {
-        fontSize: 12,
+        fontSize: type.caption.fontSize,
         fontWeight: '700',
     },
     footerCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
-        borderRadius: 24,
-        gap: 16,
+        padding: spacing.xl,
+        borderRadius: radius.xl,
+        gap: spacing.lg,
         borderWidth: 1,
     },
     footerCardText: {
         flex: 1,
-        fontSize: 14,
+        fontSize: type.subtitle.fontSize,
         fontWeight: '700',
     }
 });

@@ -37,20 +37,6 @@ export default function NotificationsScreen() {
     const { theme } = useTheme();
     const { notifications, isLoading, isError, unreadCount, getRoute, openNotification, handleMarkAllAsRead, isMarkingAll } = useNotifications();
 
-    const markAllButton = unreadCount > 0 ? (
-        <TouchableOpacity
-            style={styles.headerBtn}
-            onPress={handleMarkAllAsRead}
-            disabled={isMarkingAll}
-            accessibilityRole="button"
-            accessibilityLabel="Marcar todas como leídas"
-        >
-            <CheckCheck size={layout.icon.md} color={theme.primary} />
-        </TouchableOpacity>
-    ) : (
-        <View style={styles.headerBtn} />
-    );
-
     const renderItem = ({ item }: { item: Notification }) => {
         const config = TYPE_CONFIG[item.type] || DEFAULT_CONFIG;
         const Icon = config.icon;
@@ -109,7 +95,10 @@ export default function NotificationsScreen() {
 
     return (
         <ScreenContainer>
-            <ScreenHeader title="Notificaciones" rightElement={markAllButton} />
+            <ScreenHeader title="Notificaciones"
+ actions={unreadCount > 0
+                    ? [{ icon: CheckCheck, label: 'Marcar todas como leídas', onPress: handleMarkAllAsRead, loading: isMarkingAll }]
+                    : undefined} />
             {isLoading ? (
                 <SkeletonList count={4} />
             ) : (
@@ -134,12 +123,6 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-    headerBtn: {
-        width: layout.minTouch,
-        height: layout.minTouch,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     list: {
         paddingHorizontal: layout.screenPadding,
         paddingBottom: spacing.huge,

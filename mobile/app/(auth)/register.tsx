@@ -1,15 +1,17 @@
+/**
+ * Register — adopta AuthShell (U3). Formulario con tokens del design system.
+ */
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, View, Text, ActivityIndicator, Linking } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View, Text, ActivityIndicator, Linking } from 'react-native';
 import { useRegister } from '@/src/hooks/auth/useRegister';
-import Colors from '@/constants/Colors';
-import { useTheme } from '@/src/contexts/ThemeContext';
+import { useTheme } from '@/src/hooks/useTheme';
 import { Mail, Lock, User, UserPlus, ArrowRight, Eye, EyeOff, Check } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { showAlert } from '@/src/components/AppAlert';
+import AuthShell from '@/src/components/AuthShell';
 import { TERMS_URL, PRIVACY_URL } from '@/src/constants/support';
+import { spacing, radius, type, layout, shadow } from '@/constants/design';
 
 export default function RegisterScreen() {
     const [fullName, setFullName] = useState('');
@@ -19,15 +21,13 @@ export default function RegisterScreen() {
 
     const { register, isRegistering } = useRegister();
     const router = useRouter();
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
-    const isDark = colorScheme === 'dark';
+    const { theme } = useTheme();
 
     const handleRegister = () => {
         const cleanName = fullName.trim();
         const cleanEmail = email.trim().toLowerCase();
         if (!cleanEmail || !password || !cleanName) {
-            showAlert({ type: 'warning', title: 'Campos incompletos', message: 'Por favor llena todos los campos' });
+            showAlert({ type: 'warning', title: 'Campos incompletos', message: 'Por favor llena todos los campos.' });
             return;
         }
         if (cleanName.length < 2) {
@@ -35,258 +35,175 @@ export default function RegisterScreen() {
             return;
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
-            showAlert({ type: 'warning', title: 'Correo inválido', message: 'Revisa que tu correo esté bien escrito, por ejemplo nombre@correo.com.' });
+            showAlert({ type: 'warning', title: 'Correo inválido', message: 'Revisa que tu correo esté bien escrito.' });
             return;
         }
         if (password.length < 8) {
             showAlert({ type: 'warning', title: 'Contraseña muy corta', message: 'Tu contraseña debe tener al menos 8 caracteres.' });
             return;
         }
-        // Login automático (F10): al crear la cuenta se abre la sesión y la app cae en Inicio
         register({ email: cleanEmail, password, fullName: cleanName }, {
             onError: (error) => {
-                showAlert({ type: 'error', title: 'Error de registro', message: error.message || 'No se pudo crear la cuenta' });
+                showAlert({ type: 'error', title: 'Error de registro', message: error.message || 'No se pudo crear la cuenta.' });
             },
         });
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <StatusBar style={isDark ? 'light' : 'dark'} />
-            <LinearGradient
-                colors={isDark
-                    ? ['#1c2f6b', '#101c3d', '#0b0e17']
-                    : ['#d1fae5', '#ecfdf5', '#f0fdf4']
-                }
-                style={StyleSheet.absoluteFillObject}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 1 }}
-            />
+        <AuthShell>
+            <BackButton onPress={() => router.back()} style={styles.backBtn} />
 
-            <View style={[styles.decoCircle1, { backgroundColor: isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.06)' }]} />
-            <View style={[styles.decoCircle2, { backgroundColor: isDark ? 'rgba(52,211,153,0.06)' : 'rgba(52,211,153,0.05)' }]} />
+            <View style={styles.headerSection}>
+                <View style={[styles.iconCircle, { backgroundColor: theme.primary + '15' }]}>
+                    <UserPlus size={28} color={theme.primary} />
+                </View>
+                <Text style={[styles.title, { color: theme.onHero }]}>Crear cuenta</Text>
+                <Text style={[styles.subtitle, { color: theme.onHeroMuted }]}>
+                    Únete a la comunidad de mascotas más grande
+                </Text>
+            </View>
 
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}
-            >
-                <ScrollView
-                    contentContainerStyle={styles.scroll}
-                    showsVerticalScrollIndicator={false}
-                    bounces={false}
-                >
-                    {/* Back button */}
-                    <BackButton
-                        onPress={() => router.back()}
-                        style={styles.backBtn}
-                    />
-
-                    {/* Header */}
-                    <View style={styles.headerSection}>
-                        <View style={[styles.iconCircle, { backgroundColor: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)' }]}>
-                            <UserPlus size={28} color={theme.primary} />
-                        </View>
-                        <Text style={[styles.title, { color: isDark ? '#fff' : '#064e3b' }]}>Crear Cuenta</Text>
-                        <Text style={[styles.subtitle, { color: isDark ? 'rgba(255,255,255,0.55)' : '#059669' }]}>
-                            Únete a la comunidad de mascotas más grande
-                        </Text>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight, ...shadow.card }]}>
+                <View style={styles.field}>
+                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Nombre completo</Text>
+                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                        <User size={18} color={theme.primary} />
+                        <TextInput
+                            style={[styles.input, { color: theme.text }]}
+                            placeholder="Juan Pérez"
+                            placeholderTextColor={theme.textMuted}
+                            value={fullName}
+                            onChangeText={setFullName}
+                            textContentType="name"
+                            autoComplete="name"
+                            returnKeyType="next"
+                        />
                     </View>
+                </View>
 
-                    {/* Card */}
-                    <View style={[styles.card, {
-                        backgroundColor: isDark ? 'rgba(15,36,56,0.9)' : 'rgba(255,255,255,0.95)',
-                        borderColor: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.12)',
-                        shadowColor: isDark ? '#10b981' : '#10b981',
-                    }]}>
-                        {/* Name */}
-                        <View style={styles.field}>
-                            <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Nombre completo</Text>
-                            <View style={[styles.inputRow, {
-                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f0fdf4',
-                                borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#d1fae5',
-                            }]}>
-                                <User size={18} color={theme.primary} />
-                                <TextInput
-                                    style={[styles.input, { color: isDark ? '#fff' : '#0f172a' }]}
-                                    placeholder="Juan Pérez"
-                                    placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
-                                    value={fullName}
-                                    onChangeText={setFullName}
-                                    textContentType="name"
-                                />
-                            </View>
-                        </View>
+                <View style={styles.field}>
+                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Email</Text>
+                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                        <Mail size={18} color={theme.primary} />
+                        <TextInput
+                            style={[styles.input, { color: theme.text }]}
+                            placeholder="tu@email.com"
+                            placeholderTextColor={theme.textMuted}
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            textContentType="emailAddress"
+                            autoComplete="email"
+                            returnKeyType="next"
+                        />
+                    </View>
+                </View>
 
-                        {/* Email */}
-                        <View style={styles.field}>
-                            <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Email</Text>
-                            <View style={[styles.inputRow, {
-                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f0fdf4',
-                                borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#d1fae5',
-                            }]}>
-                                <Mail size={18} color={theme.primary} />
-                                <TextInput
-                                    style={[styles.input, { color: isDark ? '#fff' : '#0f172a' }]}
-                                    placeholder="tu@email.com"
-                                    placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    autoCapitalize="none"
-                                    keyboardType="email-address"
-                                    textContentType="emailAddress"
-                                />
-                            </View>
-                        </View>
-
-                        {/* Password */}
-                        <View style={styles.field}>
-                            <Text style={[styles.fieldLabel, { color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }]}>Contraseña</Text>
-                            <View style={[styles.inputRow, {
-                                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f0fdf4',
-                                borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#d1fae5',
-                            }]}>
-                                <Lock size={18} color={theme.primary} />
-                                <TextInput
-                                    style={[styles.input, { color: isDark ? '#fff' : '#0f172a', flex: 1 }]}
-                                    placeholder="Mínimo 8 caracteres"
-                                    placeholderTextColor={isDark ? 'rgba(255,255,255,0.25)' : '#94a3b8'}
-                                    value={password}
-                                    onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-                                    textContentType="newPassword"
-                                />
-                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-                                    {showPassword ? (
-                                        <EyeOff size={18} color={isDark ? 'rgba(255,255,255,0.35)' : '#94a3b8'} />
-                                    ) : (
-                                        <Eye size={18} color={isDark ? 'rgba(255,255,255,0.35)' : '#94a3b8'} />
-                                    )}
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        {/* Terms */}
-                        <View style={styles.termsRow}>
-                            <View style={[styles.checkCircle, { backgroundColor: theme.primary + '20' }]}>
-                                <Check size={12} color={theme.primary} strokeWidth={3} />
-                            </View>
-                            <Text style={[styles.termsText, { color: isDark ? 'rgba(255,255,255,0.45)' : '#94a3b8' }]}>
-                                Al registrarte aceptas nuestros{' '}
-                                <Text
-                                    accessibilityRole={TERMS_URL ? 'link' : undefined}
-                                    onPress={TERMS_URL ? () => Linking.openURL(TERMS_URL).catch(() => {}) : undefined}
-                                    style={{ color: TERMS_URL ? theme.primary : theme.text, fontWeight: '700', textDecorationLine: TERMS_URL ? 'underline' : 'none' }}
-                                >Términos</Text>
-                                {' '}y{' '}
-                                <Text
-                                    accessibilityRole={PRIVACY_URL ? 'link' : undefined}
-                                    onPress={PRIVACY_URL ? () => Linking.openURL(PRIVACY_URL).catch(() => {}) : undefined}
-                                    style={{ color: PRIVACY_URL ? theme.primary : theme.text, fontWeight: '700', textDecorationLine: PRIVACY_URL ? 'underline' : 'none' }}
-                                >Privacidad</Text>
-                            </Text>
-                        </View>
-
-                        {/* Register button */}
-                        <TouchableOpacity
-                            style={[styles.registerBtn, { backgroundColor: theme.primary }, isRegistering && { opacity: 0.7 }]}
-                            onPress={handleRegister}
-                            disabled={isRegistering}
-                            activeOpacity={0.85}
-                        >
-                            {isRegistering ? (
-                                <ActivityIndicator color="#fff" size="small" />
-                            ) : (
-                                <>
-                                    <Text style={styles.registerBtnText}>Crear Cuenta</Text>
-                                    <ArrowRight size={20} color="#fff" strokeWidth={2.5} />
-                                </>
-                            )}
+                <View style={styles.field}>
+                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Contraseña</Text>
+                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                        <Lock size={18} color={theme.primary} />
+                        <TextInput
+                            style={[styles.input, { color: theme.text, flex: 1 }]}
+                            placeholder="Mínimo 8 caracteres"
+                            placeholderTextColor={theme.textMuted}
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!showPassword}
+                            textContentType="newPassword"
+                            autoComplete="new-password"
+                            returnKeyType="go"
+                            onSubmitEditing={handleRegister}
+                        />
+                        <TouchableOpacity onPress={() => setShowPassword((v) => !v)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} accessibilityRole="button" accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
+                            {showPassword ? <EyeOff size={18} color={theme.textMuted} /> : <Eye size={18} color={theme.textMuted} />}
                         </TouchableOpacity>
                     </View>
+                </View>
 
-                    {/* Una línea hacia la cuenta profesional (F10) */}
-                    <Text style={[styles.proLine, { color: isDark ? 'rgba(255,255,255,0.55)' : '#64748b' }]}>
-                        ¿Ofreces servicios para mascotas? Podrás activar tu{' '}
-                        <Text style={{ color: theme.primary, fontWeight: '700' }}>cuenta profesional</Text> desde Perfil.
+                <View style={styles.termsRow}>
+                    <View style={[styles.checkCircle, { backgroundColor: theme.primary + '20' }]}>
+                        <Check size={12} color={theme.primary} strokeWidth={3} />
+                    </View>
+                    <Text style={[styles.termsText, { color: theme.textMuted }]}>
+                        Al registrarte aceptas nuestros{' '}
+                        <Text
+                            accessibilityRole={TERMS_URL ? 'link' : undefined}
+                            onPress={TERMS_URL ? () => Linking.openURL(TERMS_URL).catch(() => {}) : undefined}
+                            style={{ color: TERMS_URL ? theme.primary : theme.text, fontWeight: '700', textDecorationLine: TERMS_URL ? 'underline' : 'none' }}
+                        >Términos</Text>
+                        {' '}y{' '}
+                        <Text
+                            accessibilityRole={PRIVACY_URL ? 'link' : undefined}
+                            onPress={PRIVACY_URL ? () => Linking.openURL(PRIVACY_URL).catch(() => {}) : undefined}
+                            style={{ color: PRIVACY_URL ? theme.primary : theme.text, fontWeight: '700', textDecorationLine: PRIVACY_URL ? 'underline' : 'none' }}
+                        >Privacidad</Text>
                     </Text>
+                </View>
 
-                    {/* Footer */}
-                    <View style={styles.footer}>
-                        <Text style={[styles.footerLabel, { color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b' }]}>
-                            ¿Ya tienes cuenta?
-                        </Text>
-                        <TouchableOpacity onPress={() => router.replace('/login')} activeOpacity={0.7}>
-                            <Text style={[styles.footerLink, { color: theme.primary }]}> Inicia sesión</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </View>
+                <TouchableOpacity
+                    style={[styles.registerBtn, { backgroundColor: theme.primary }, isRegistering && { opacity: 0.7 }]}
+                    onPress={handleRegister}
+                    disabled={isRegistering}
+                    activeOpacity={0.85}
+                    accessibilityRole="button"
+                    accessibilityLabel="Crear cuenta"
+                >
+                    {isRegistering ? (
+                        <ActivityIndicator color={theme.onPrimary} size="small" />
+                    ) : (
+                        <>
+                            <Text style={[styles.registerBtnText, { color: theme.onPrimary }]}>Crear cuenta</Text>
+                            <ArrowRight size={20} color={theme.onPrimary} strokeWidth={2.5} />
+                        </>
+                    )}
+                </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.proLine, { color: theme.onHeroMuted }]}>
+                ¿Ofreces servicios para mascotas? Podrás activar tu{' '}
+                <Text style={{ color: theme.primary, fontWeight: '700' }}>cuenta profesional</Text> desde Perfil.
+            </Text>
+
+            <View style={styles.footer}>
+                <Text style={[styles.footerLabel, { color: theme.onHeroMuted }]}>¿Ya tienes cuenta?</Text>
+                <TouchableOpacity onPress={() => router.replace('/login')} activeOpacity={0.7} accessibilityRole="button">
+                    <Text style={[styles.footerLink, { color: theme.primary }]}> Inicia sesión</Text>
+                </TouchableOpacity>
+            </View>
+        </AuthShell>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    decoCircle1: {
-        position: 'absolute', top: -100, left: -80,
-        width: 260, height: 260, borderRadius: 130,
-    },
-    decoCircle2: {
-        position: 'absolute', bottom: 60, right: -60,
-        width: 180, height: 180, borderRadius: 90,
-    },
-    scroll: {
-        flexGrow: 1, paddingHorizontal: 28, paddingTop: 60, paddingBottom: 48,
-    },
-    backBtn: {
-        marginBottom: 20,
-    },
-    headerSection: { alignItems: 'center', marginBottom: 28 },
+    backBtn: { marginBottom: spacing.lg },
+    headerSection: { alignItems: 'center', marginBottom: spacing.xl },
     iconCircle: {
         width: 64, height: 64, borderRadius: 32,
-        justifyContent: 'center', alignItems: 'center', marginBottom: 16,
+        justifyContent: 'center', alignItems: 'center', marginBottom: spacing.md,
     },
-    title: { fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
-    subtitle: { fontSize: 14, fontWeight: '500', marginTop: 6, textAlign: 'center' },
-    card: {
-        borderRadius: 28, padding: 28, borderWidth: 1,
-        shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12,
-        shadowRadius: 24, elevation: 8,
-    },
-    field: { marginBottom: 18 },
-    fieldLabel: {
-        fontSize: 13, fontWeight: '700', marginBottom: 8, marginLeft: 4,
-    },
+    title: { fontSize: type.h1.fontSize, fontWeight: '900', letterSpacing: -0.5 },
+    subtitle: { fontSize: type.body.fontSize, fontWeight: '500', marginTop: spacing.xs, textAlign: 'center' },
+    card: { borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1 },
+    field: { marginBottom: spacing.lg },
+    fieldLabel: { fontSize: type.label.fontSize, fontWeight: '700', marginBottom: spacing.sm, marginLeft: spacing.xs },
     inputRow: {
         flexDirection: 'row', alignItems: 'center',
-        borderRadius: 16, paddingHorizontal: 16,
-        borderWidth: 1.5, height: 54, gap: 12,
+        borderRadius: radius.lg, paddingHorizontal: spacing.lg,
+        borderWidth: 1, minHeight: layout.minTouch + 4, gap: spacing.sm,
     },
-    input: { flex: 1, fontSize: 15, fontWeight: '500' },
-    termsRow: {
-        flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 24, marginTop: -2,
-    },
-    checkCircle: {
-        width: 20, height: 20, borderRadius: 10,
-        justifyContent: 'center', alignItems: 'center',
-    },
-    termsText: { flex: 1, fontSize: 12, fontWeight: '500', lineHeight: 18 },
+    input: { flex: 1, fontSize: type.body.fontSize, fontWeight: '500' },
+    termsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xl, marginTop: -spacing.xs },
+    checkCircle: { width: 20, height: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+    termsText: { flex: 1, fontSize: type.caption.fontSize, fontWeight: '500', lineHeight: 18 },
     registerBtn: {
-        height: 56, borderRadius: 16, flexDirection: 'row',
-        alignItems: 'center', justifyContent: 'center', gap: 10,
+        minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row',
+        alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
     },
-    registerBtnText: { color: '#fff', fontSize: 17, fontWeight: '800' },
-    proLine: {
-        fontSize: 12,
-        fontWeight: '500',
-        textAlign: 'center',
-        marginTop: 18,
-        marginHorizontal: 12,
-        lineHeight: 18,
-    },
-    footer: {
-        flexDirection: 'row', justifyContent: 'center', marginTop: 28,
-    },
-    footerLabel: { fontSize: 14, fontWeight: '500' },
-    footerLink: { fontSize: 14, fontWeight: '800' },
+    registerBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
+    proLine: { fontSize: type.caption.fontSize, fontWeight: '500', textAlign: 'center', marginTop: spacing.lg, marginHorizontal: spacing.md, lineHeight: 18 },
+    footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl },
+    footerLabel: { fontSize: type.body.fontSize, fontWeight: '500' },
+    footerLink: { fontSize: type.body.fontSize, fontWeight: '800' },
 });

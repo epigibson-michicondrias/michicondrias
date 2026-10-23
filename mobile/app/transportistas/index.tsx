@@ -10,6 +10,7 @@ import { Car, Users, Snowflake, Box, CheckCircle2, Plus, Clock, User, Inbox, Rou
 import SearchBar from '@/src/components/SearchBar';
 import { SkeletonList } from '@/src/components/Skeleton';
 import EmptyState from '@/src/components/EmptyState';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function TransportistasScreen() {
     const { theme } = useTheme();
@@ -78,7 +79,7 @@ export default function TransportistasScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🚗 Transportistas"
+                title="Transportistas"
                 subtitle="Transporte seguro para tu mascota"
             />
 
@@ -91,8 +92,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Ver solicitudes de viaje"
                         >
-                            <Inbox size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitudes</Text>
+                            <Inbox size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Solicitudes</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.actionButton, { backgroundColor: theme.secondary }]}
@@ -100,8 +101,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Mi vehículo"
                         >
-                            <User size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mi vehículo</Text>
+                            <User size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mi vehículo</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.actionButton, { backgroundColor: theme.secondary }]}
@@ -109,8 +110,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Historial de viajes"
                         >
-                            <Clock size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Historial</Text>
+                            <Clock size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Historial</Text>
                         </TouchableOpacity>
                     </>
                 )}
@@ -122,8 +123,8 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Solicitar transporte"
                         >
-                            <Plus size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Solicitar</Text>
+                            <Plus size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Solicitar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.actionButton, { backgroundColor: theme.secondary }]}
@@ -131,14 +132,14 @@ export default function TransportistasScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Mis viajes"
                         >
-                            <Route size={18} color="#fff" />
-                            <Text style={[styles.actionButtonText, { color: '#fff' }]}>Mis viajes</Text>
+                            <Route size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis viajes</Text>
                         </TouchableOpacity>
                     </>
                 )}
             </View>
 
-            <View style={{ marginHorizontal: 24, marginBottom: 20 }}>
+            <View style={{ marginHorizontal: layout.screenPadding, marginBottom: spacing.xl }}>
                 <SearchBar
                     value={searchQuery}
                     onChangeText={setSearchQuery}
@@ -147,7 +148,7 @@ export default function TransportistasScreen() {
             </View>
 
             {isLoading ? (
-                <View style={{ paddingHorizontal: 24 }}>
+                <View style={{ paddingHorizontal: layout.screenPadding }}>
                     <SkeletonList count={3} />
                 </View>
             ) : (
@@ -184,44 +185,44 @@ export default function TransportistasScreen() {
 }
 
 const styles = StyleSheet.create({
-    ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+    ratingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.xs },
     actionButtons: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 16,
+        paddingHorizontal: layout.screenPadding,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     actionButton: {
         flexDirection: 'row',
         flexGrow: 1,
         minHeight: 44,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     actionButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     card: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 16,
+        marginBottom: spacing.lg,
+        gap: spacing.lg,
     },
     iconContainer: {
         width: 56,
@@ -234,42 +235,43 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     cardPlate: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
         letterSpacing: 1,
     },
     availableBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
-        gap: 4,
+        gap: spacing.xs,
     },
     availableText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     tagsRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: spacing.sm,
     },
     tag: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 6,
-        gap: 4,
+        gap: spacing.xs,
+        justifyContent: 'center',
     },
     tagText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
 });

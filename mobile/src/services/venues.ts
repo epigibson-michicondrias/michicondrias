@@ -6,8 +6,11 @@ export interface Venue {
     name: string;
     address: string;
     amenities?: Record<string, any>;
-    discount_coupon?: string;
+    /** Código base: solo llega al dueño. */
+    discount_coupon?: string | null;
     discount_description?: string;
+    /** Hay descuento: cada cliente lo reclama y recibe un código personal. */
+    has_coupon?: boolean;
 }
 
 export interface VenueCreate {
@@ -109,7 +112,7 @@ export async function getVenueReviews(venueId: string): Promise<VenueReview[]> {
 }
 
 export async function redeemCoupon(couponCode: string): Promise<ClaimedCoupon> {
-    return apiFetch<ClaimedCoupon>("establecimientos", `/coupons/redeem?coupon_code=${couponCode}`, {
+    return apiFetch<ClaimedCoupon>("establecimientos", `/coupons/redeem?coupon_code=${encodeURIComponent(couponCode.trim().toUpperCase())}`, {
         method: "POST",
     });
 }

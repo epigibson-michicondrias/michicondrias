@@ -13,6 +13,7 @@ import { CREMATION_OPTIONS } from '@/src/services/funerary';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
 import { FileText, Info, AlertTriangle, PawPrint } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 
 /** La funeraria solo puede reportar mascotas con una reserva suya vigente (lo exige el backend). */
@@ -26,11 +27,11 @@ function FuneralHomePetSelect({ value, onChange }: { value: string; onChange: (i
             {isLoadingBookings ? (
                 <ActivityIndicator color={theme.primary} style={{ alignSelf: 'flex-start' }} />
             ) : reportable.length === 0 ? (
-                <Text style={{ color: theme.textMuted, fontSize: 14 }}>
+                <Text style={{ color: theme.textMuted, fontSize: font.base }}>
                     No tienes reservas vigentes. Solo puedes reportar mascotas con una reserva de tu funeraria.
                 </Text>
             ) : (
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
                     {reportable.map((b: any) => (
                         <PetChip key={b.pet_id} label={b.pet_name || `Mascota ${b.pet_id.slice(0, 6)}`} selected={value === b.pet_id} onPress={() => onChange(b.pet_id)} />
                     ))}
@@ -49,14 +50,14 @@ function PetChip({ label, selected, onPress }: { label: string; selected: boolea
             accessibilityState={{ selected }}
             onPress={onPress}
             style={{
-                flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 14,
+                flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.md, paddingHorizontal: spacing.lg,
                 borderRadius: 999, borderWidth: 1, maxWidth: '100%',
                 backgroundColor: selected ? theme.primary : theme.surface,
                 borderColor: selected ? theme.primary : theme.border,
             }}
         >
             <PawPrint size={14} color={selected ? '#fff' : theme.textMuted} />
-            <Text style={{ color: selected ? '#fff' : theme.text, fontWeight: '700', fontSize: 14, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+            <Text style={{ color: selected ? '#fff' : theme.text, fontWeight: '700', fontSize: font.base, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
         </TouchableOpacity>
     );
 }
@@ -189,7 +190,7 @@ export default function ReporteDefuncionScreen() {
                         disabled={isSubmitting}
                         onPress={handleSubmitReport}
                     >
-                        <FileText size={20} color="#fff" />
+                        <FileText size={20} color={theme.onPrimary} />
                         <Text style={styles.submitBtnText}>
                             {isSubmitting ? 'Registrando...' : 'Registrar Reporte'}
                         </Text>
@@ -205,49 +206,49 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     content: {
-        padding: 24,
-        gap: 20,
+        padding: spacing.xxl,
+        gap: spacing.xl,
     },
     warningBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     warningText: {
         flex: 1,
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
         lineHeight: 18,
     },
     inputGroup: {
-        gap: 8,
+        gap: spacing.sm,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
     },
     textArea: {
         height: 100,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
     },
     typeRow: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     typeBtn: {
         flex: 1,
@@ -258,19 +259,19 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     typeText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -279,13 +280,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 10,
-        marginTop: 10,
-        marginBottom: 40,
+        gap: spacing.md,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

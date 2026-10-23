@@ -5,6 +5,7 @@ import { useTrainerDashboard } from '@/src/hooks/training/useTrainerDashboard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, FileText, DollarSign, Clock, Sparkles } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 
 export default function CreateProgramScreen() {
@@ -19,7 +20,7 @@ export default function CreateProgramScreen() {
     return (
         <ScreenContainer>
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-                <ScreenHeader title="Nuevo Programa" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Nuevo Programa" />
 
                 {/* Header Illustration */}
                 <View style={styles.illustrationContainer}>
@@ -114,10 +115,10 @@ export default function CreateProgramScreen() {
                         activeOpacity={0.8}
                     >
                         {isCreatingProgram ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Dumbbell size={20} color="#fff" />
+                                <Dumbbell size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitButtonText}>Crear Programa</Text>
                             </>
                         )}
@@ -131,11 +132,10 @@ export default function CreateProgramScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     illustrationContainer: {
         alignItems: 'center',
-        paddingVertical: 20,
-        gap: 8,
+        paddingVertical: spacing.xl,
+        gap: spacing.sm,
     },
     illustrationCircle: {
         width: 72,
@@ -143,80 +143,81 @@ const styles = StyleSheet.create({
         borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     illustrationTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     illustrationSubtitle: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
     },
     formSection: {
-        marginHorizontal: 24,
-        padding: 20,
+        marginHorizontal: layout.screenPadding,
+        padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
-        gap: 20,
-        marginBottom: 24,
+        gap: spacing.xl,
+        marginBottom: spacing.xxl,
     },
-    fieldGroup: { gap: 6 },
+    fieldGroup: { gap: spacing.sm },
     fieldLabel: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginBottom: 4,
+        gap: spacing.sm,
+        marginBottom: spacing.xs,
     },
     labelText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     input: {
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
         borderWidth: 1,
-        fontSize: 15,
+        fontSize: font.lg,
     },
     textArea: {
         minHeight: 100,
-        paddingTop: 14,
+        paddingTop: spacing.lg,
     },
     rowFields: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     difficultyRow: {
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.md,
     },
     difficultyChip: {
         flex: 1,
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 12,
         borderWidth: 1,
+        justifyContent: 'center',
     },
     difficultyText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     actionContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 24,
+        paddingHorizontal: layout.screenPadding,
+        marginBottom: spacing.xxl,
     },
     submitButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        gap: 10,
+        gap: spacing.md,
     },
     submitButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     footer: { height: 20 },

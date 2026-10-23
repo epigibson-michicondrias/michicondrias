@@ -59,7 +59,7 @@ export function useListingForm() {
     const isEditing = !!editId;
 
     // Modo edición: precarga la publicación existente
-    const { data: existing } = useQuery({
+    const { data: existing, isLoading: loadingExisting } = useQuery({
         queryKey: ['adopcion', editId],
         queryFn: () => getListing(editId as string),
         enabled: isEditing,
@@ -68,6 +68,7 @@ export function useListingForm() {
     const [loading, setLoading] = useState(false);
     const [image, setImage] = useState<string | null>(null);
     const [form, setForm] = useState<ListingFormState>(INITIAL_FORM);
+    const [errors, setErrors] = useState<Partial<Record<'name' | 'age_months' | 'location', string>>>({});
 
     useEffect(() => {
         if (!existing) return;
@@ -95,6 +96,7 @@ export function useListingForm() {
 
     const updateField = <K extends keyof ListingFormState>(field: K, value: ListingFormState[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
+        if (errors[field as keyof typeof errors]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
 
     const toggleField = (field: keyof ListingFormState) => {
@@ -110,10 +112,12 @@ export function useListingForm() {
     };
 
     const handleSave = async () => {
-        if (!form.name.trim()) return showAlert({ type: 'error', title: 'Falta el nombre', message: 'El nombre de la mascota es obligatorio.' });
-        if (form.age_months.trim() && (!/^\d+$/.test(form.age_months.trim()) || parseInt(form.age_months, 10) > 480)) return showAlert({ type: 'error', title: 'Edad inválida', message: 'Escribe la edad en meses (número entero, máx. 480).' });
-        if (!form.location.trim()) return showAlert({ type: 'error', title: 'Falta la ubicación', message: 'Indica la ciudad o zona donde está la mascota.' });
-        if (!user) return showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
+        const next: typeof errors = {};
+        if (!form.name.trim()) next.name = 'Escribe su nombre.';
+        if (form.age_months.trim() && (!/^\d+$/.test(form.age_months.trim()) || parseInt(form.age_months, 10) > 480)) next.age_months = 'En meses, de 0 a 480.';
+        if (!form.location.trim()) next.location = 'Indica la ciudad o zona donde está.';
+        setErrors(next);
+        if (Object.keys(next).length > 0 || !user) return;
 
         setLoading(true);
         try {
@@ -156,7 +160,9 @@ export function useListingForm() {
         form,
         image,
         loading,
+        errors,
         isEditing,
+        loadingExisting: isEditing && loadingExisting,
         updateField,
         toggleField,
         handleImageSelected,

@@ -1,5 +1,5 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, Query, status, File, UploadFile, Form
 from sqlalchemy.orm import Session
 import os
 import uuid
@@ -24,16 +24,28 @@ def require_seller(token: str = Depends(deps.oauth2_scheme)) -> str:
 @router.get("/", response_model=List[ProductResponse])
 def read_products(
     db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
     category: Optional[str] = None,
-    seller_id: Optional[str] = None
+    seller_id: Optional[str] = None,
+    q: Optional[str] = Query(None, max_length=100, description="Búsqueda en nombre y descripción (sin acentos)"),
+    sort: str = Query("relevance", description="relevance | price_asc | price_desc | rating"),
+    ids: Optional[str] = Query(None, max_length=2000, description="IDs separados por coma"),
+    favorites: bool = Query(False, description="Solo los favoritos del usuario autenticado"),
+    viewer_id: Optional[str] = Depends(deps.get_optional_user_id),
 ) -> Any:
     """
-    Retrieve products. (Public endpoint)
+    Catálogo público (solo productos activos y aprobados), con búsqueda, orden y paginación.
     """
-    products = crud.crud_ecommerce.get_products(db, skip=skip, limit=limit, category=category, seller_id=seller_id)
-    return products
+    if sort not in crud.crud_ecommerce.PRODUCT_SORTS:
+        raise HTTPException(status_code=422, detail="Orden no válido")
+    if favorites and not viewer_id:
+        raise HTTPException(status_code=401, detail="Inicia sesión para ver tus favoritos")
+    id_list = [i.strip() for i in ids.split(",") if i.strip()][:100] if ids is not None else None
+    return crud.crud_ecommerce.get_products(
+        db, skip=skip, limit=limit, category=category, seller_id=seller_id, q=q, sort=sort, ids=id_list,
+        favorites_of=viewer_id if favorites else None,
+    )
 
 @router.get("/seller/me", response_model=List[ProductResponse])
 def read_my_products(
@@ -43,7 +55,7 @@ def read_my_products(
     """
     Retrieve products created by the current seller.
     """
-    return crud.crud_ecommerce.get_products(db, seller_id=user_id)
+    return crud.crud_ecommerce.get_products(db, seller_id=user_id, include_unpublished=True)
 
 @router.get("/presigned-url", response_model=PresignedUrlResponse)
 def get_presigned_url(

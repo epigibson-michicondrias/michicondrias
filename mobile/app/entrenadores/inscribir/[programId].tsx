@@ -6,6 +6,7 @@ import { useEnrollment } from '@/src/hooks/training/useEnrollment';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, DollarSign, Clock, PawPrint, CheckCircle, ArrowRight } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EnrollPetScreen() {
     const { theme } = useTheme();
@@ -22,7 +23,7 @@ export default function EnrollPetScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Inscribir Mascota" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Inscribir Mascota" />
                 <SkeletonList count={4} />
             </ScreenContainer>
         );
@@ -31,7 +32,7 @@ export default function EnrollPetScreen() {
     return (
         <ScreenContainer>
             <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-                <ScreenHeader title="Inscribir Mascota" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Inscribir Mascota" />
 
                 {/* Program Info Card */}
                 {program && (
@@ -103,7 +104,7 @@ export default function EnrollPetScreen() {
                                         </View>
                                         {isSelected && (
                                             <View style={[styles.checkCircle, { backgroundColor: theme.primary }]}>
-                                                <CheckCircle size={18} color="#fff" />
+                                                <CheckCircle size={18} color={theme.onPrimary} />
                                             </View>
                                         )}
                                     </TouchableOpacity>
@@ -128,7 +129,7 @@ export default function EnrollPetScreen() {
                         activeOpacity={0.8}
                     >
                         {isEnrolling ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
                                 <Dumbbell size={20} color={selectedPetId ? '#fff' : theme.textMuted} />
@@ -151,21 +152,20 @@ export default function EnrollPetScreen() {
 }
 
 const styles = StyleSheet.create({
-    placeholder: { width: 24 },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
-    loadingText: { fontSize: 16 },
+    loadingText: { fontSize: font.xl },
     programCard: {
-        marginHorizontal: 24,
-        padding: 24,
+        marginHorizontal: layout.screenPadding,
+        padding: spacing.xxl,
         borderRadius: 20,
         borderWidth: 1,
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     programIconBg: {
         width: 64,
@@ -173,67 +173,68 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     programName: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     programDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     programStats: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     statChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 14,
-        paddingVertical: 8,
+        gap: spacing.sm,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
+        justifyContent: 'center',
     },
     statChipText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     sectionContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 24,
+        paddingHorizontal: layout.screenPadding,
+        marginBottom: spacing.xxl,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     sectionSubtitle: {
-        fontSize: 14,
-        marginBottom: 16,
+        fontSize: font.base,
+        marginBottom: spacing.lg,
     },
     emptyPets: {
         alignItems: 'center',
-        padding: 32,
+        padding: spacing.xxxl,
         borderRadius: 16,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     emptyText: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
     },
-    petList: { gap: 12 },
+    petList: { gap: spacing.md },
     petCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 14,
+        gap: spacing.lg,
     },
     petAvatar: {
         width: 48,
@@ -244,12 +245,12 @@ const styles = StyleSheet.create({
     },
     petInfo: { flex: 1 },
     petName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     petBreed: {
-        fontSize: 13,
-        marginTop: 2,
+        fontSize: font.base,
+        marginTop: spacing.xxs,
     },
     checkCircle: {
         width: 28,
@@ -259,20 +260,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     actionContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 24,
+        paddingHorizontal: layout.screenPadding,
+        marginBottom: spacing.xxl,
     },
     enrollButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        gap: 10,
+        gap: spacing.md,
         borderWidth: 1,
     },
     enrollButtonText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     footer: { height: 20 },

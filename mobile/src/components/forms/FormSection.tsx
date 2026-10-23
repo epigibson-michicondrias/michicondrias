@@ -1,9 +1,14 @@
 /**
  * FormSection — Groups form fields with an optional title
  */
-import React from 'react';
+import React, { createContext, useContext } from 'react';
+import { spacing, type } from '@/constants/design';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+
+/** Dentro de una sección el espacio entre campos lo pone la sección (`gap`), no cada campo. */
+const InFormSection = createContext(false);
+export const useInFormSection = () => useContext(InFormSection);
 
 interface FormSectionProps {
     title?: string;
@@ -18,18 +23,22 @@ export default function FormSection({ title, children }: FormSectionProps) {
             {title ? (
                 <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
             ) : null}
-            {children}
+            <InFormSection.Provider value={true}>
+                <View style={styles.body}>{children}</View>
+            </InFormSection.Provider>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     section: {
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     title: {
-        fontSize: 16,
-        fontWeight: '800',
-        marginBottom: 16,
+        ...type.title,
+        marginBottom: spacing.md,
+    },
+    body: {
+        gap: spacing.md,
     },
 });

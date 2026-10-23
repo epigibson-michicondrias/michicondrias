@@ -41,6 +41,6 @@ def assert_can_read_pet_record(db: Session, pet_id: str, identity: dict) -> None
     # Mismos roles que para escribir (VET_ROLES): clínica y hospital también pueden leer
     if row[0] == identity["user_id"] or identity["role"] in VET_ROLES:
         return
-    vet = db.execute(text("SELECT id FROM veterinarians WHERE id = :uid"), {"uid": identity["user_id"]}).first()
+    vet = db.execute(text("SELECT id FROM veterinarians WHERE user_id = :uid"), {"uid": identity["user_id"]}).first()
     if not vet:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para ver el expediente de esta mascota")

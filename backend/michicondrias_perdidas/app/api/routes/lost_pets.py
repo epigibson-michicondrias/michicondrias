@@ -65,9 +65,22 @@ def resolve_report(
     return update_report(db, report_id=report_id, report_in=update_data)
 
 
+def _for_viewer(report, viewer_id: Optional[str]) -> LostPetReportOut:
+    """Lo que ve cada quien: el dueño todo; el resto sin el ID del collar ni su posición en vivo
+    (protege a la mascota de robos), y sin teléfono ni correo si no inició sesión."""
+    out = LostPetReportOut.model_validate(report)
+    if viewer_id and viewer_id == report.reporter_id:
+        return out
+    hidden = {"tracker_device_id": None, "current_lat": None, "current_lng": None}
+    if not viewer_id:
+        hidden.update(contact_phone=None, contact_email=None)
+    return out.model_copy(update=hidden)
+
+
 @router.get("/", response_model=List[LostPetReportOut])
 def list_reports(
     db: Session = Depends(get_db),
+    viewer_id: Optional[str] = Depends(deps.get_optional_user_id),
     report_type: Optional[str] = None,
     status: str = "active",
     species: Optional[str] = None,
@@ -77,7 +90,8 @@ def list_reports(
     """
     Retrieve all active lost/found pet reports. Public endpoint.
     """
-    return get_reports(db, report_type=report_type, status=status, species=species, skip=skip, limit=limit)
+    reports = get_reports(db, report_type=report_type, status=status, species=species, skip=skip, limit=limit)
+    return [_for_viewer(r, viewer_id) for r in reports]
 
 
 @router.get("/mine", response_model=List[LostPetReportOut])
@@ -95,6 +109,7 @@ def list_my_reports(
 def read_report(
     report_id: str,
     db: Session = Depends(get_db),
+    viewer_id: Optional[str] = Depends(deps.get_optional_user_id),
 ) -> Any:
     """
     Get a specific report by ID.
@@ -102,7 +117,7 @@ def read_report(
     report = get_report_by_id(db, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    return report
+    return _for_viewer(report, viewer_id)
 
 
 @router.post("/", response_model=LostPetReportOut)
@@ -244,14 +259,15 @@ def read_matching_reports(
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
         
     from app.crud.crud_lost_pets import find_matching_reports
-    return find_matching_reports(db, report=report, max_distance_km=max_distance_km)
+    return [_for_viewer(r, user_id) for r in find_matching_reports(db, report=report, max_distance_km=max_distance_km)]
 
 
-async def _notify_user(user_id: str, title: str, message: str) -> bool:
-    """Crea una notificación real (con push por WebSocket) vía el servicio core. Devuelve True si se entregó."""
+async def _notify_user(user_id: str, title: str, message: str, link: Optional[str] = None) -> bool:
+    """Crea una notificación real (con push por WebSocket) vía el servicio core. Devuelve True si se entregó.
+    `link` es la pantalla de la app que abre al tocarla."""
     try:
         from app.core.config import settings
-        payload = {"user_id": user_id, "title": title, "message": message, "type": "alert"}
+        payload = {"user_id": user_id, "title": title, "message": message, "type": "alert", "link": link}
         async with httpx.AsyncClient() as client:
             resp = await client.post(
                 f"{settings.CORE_SERVICE_URL}/api/v1/notifications/broadcast", json=payload,
@@ -284,6 +300,7 @@ async def broadcast_lost_pet_alert(
         user_id,
         f"Alerta activa: {report.pet_name}",
         f"Tu reporte de {report.pet_name} ({report.species}) sigue activo. Última ubicación: {report.last_seen_location or 'sin especificar'}.",
+        link=f"/perdidas/{report.id}",
     )
     return {
         "status": "success" if delivered else "error",
@@ -317,6 +334,7 @@ async def create_sighting(
         report.reporter_id,
         f"¡Alguien vio a {report.pet_name}!",
         f"Nuevo avistamiento en {where}." + (f" Nota: {sighting.note}" if sighting.note else ""),
+        link=f"/perdidas/{report.id}",
     )
     return sighting
 

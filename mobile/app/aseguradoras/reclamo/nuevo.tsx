@@ -17,17 +17,8 @@ import { formatDateMx } from '@/src/features/salud/format';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import type { Pet } from '@/src/types/mascotas';
-import {
-    Shield,
-    FileText,
-    DollarSign,
-    PawPrint,
-    Send,
-    CheckCircle,
-    AlertTriangle,
-    Receipt,
-    Sparkles,
-} from 'lucide-react-native';
+import { Shield, FileText, DollarSign, PawPrint, Send, CheckCircle, AlertTriangle, Receipt, Sparkles, Dog, Cat } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevoReclamoScreen() {
     const { theme } = useTheme();
@@ -99,11 +90,9 @@ export default function NuevoReclamoScreen() {
                                     ]}
                                     onPress={() => setSelectedPetId(pet.id)}
                                 >
-                                    <Text style={styles.petChipEmoji}>
-                                        {pet.species === 'perro' || pet.species === 'dog'
-                                            ? '🐕'
-                                            : '🐈'}
-                                    </Text>
+                                    {pet.species === 'perro' || pet.species === 'dog'
+                                        ? <Dog size={layout.icon.md} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />
+                                        : <Cat size={layout.icon.md} color={selectedPetId === pet.id ? theme.primary : theme.textMuted} />}
                                     <Text
                                         style={[styles.petChipName, { color: theme.text }]}
                                         numberOfLines={1}
@@ -265,10 +254,10 @@ export default function NuevoReclamoScreen() {
                                 onPress={handleSubmit}
                             >
                                 {isSubmitting ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
                                     <>
-                                        <Send size={20} color="#fff" />
+                                        <Send size={20} color={theme.onPrimary} />
                                         <Text style={styles.submitBtnText}>Enviar Reclamo</Text>
                                     </>
                                 )}
@@ -288,83 +277,84 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     section: {
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     petList: {
-        gap: 10,
+        gap: spacing.md,
     },
     petChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 10,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 12,
         borderWidth: 1,
-        gap: 8,
+        gap: spacing.sm,
+        justifyContent: 'center',
     },
     petChipEmoji: {
-        fontSize: 20,
+        fontSize: font.h3,
     },
     petChipName: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     policyStatus: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 14,
         borderWidth: 1,
-        gap: 12,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     policyStatusInfo: {
         flex: 1,
     },
     policyStatusTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     policyStatusDesc: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: font.md,
+        marginTop: spacing.xxs,
     },
     inputGroup: {
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
     },
     textArea: {
         minHeight: 100,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
     },
@@ -373,26 +363,26 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.lg,
         borderWidth: 1,
-        gap: 8,
+        gap: spacing.sm,
     },
     amountField: {
         flex: 1,
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '700',
     },
     aiInfoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     aiInfoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -401,12 +391,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 20,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     bottomSpacer: {

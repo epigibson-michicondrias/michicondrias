@@ -26,6 +26,8 @@ export function useProductForm() {
         specifications: '',
     });
     const [saving, setSaving] = useState(false);
+    // Errores en línea por campo (se borran al corregir el campo)
+    const [errors, setErrors] = useState<Partial<Record<'name' | 'price' | 'stock' | 'image', string>>>({});
     // Foto local recién elegida (aún sin subir); al guardar se sube y se reemplaza image_url
     const [localImage, setLocalImage] = useState<string | null>(null);
     const { upload } = useImageUpload({
@@ -64,22 +66,13 @@ export function useProductForm() {
     const handleSave = async () => {
         const price = parseFloat(formData.price.replace(',', '.'));
         const stock = parseInt(formData.stock, 10);
-        if (!formData.name.trim()) {
-            showAlert({ type: 'error', title: 'Falta el nombre', message: 'Escribe el nombre del producto.' });
-            return;
-        }
-        if (!isFinite(price) || price <= 0) {
-            showAlert({ type: 'error', title: 'Precio inválido', message: 'El precio debe ser un número mayor a 0.' });
-            return;
-        }
-        if (!Number.isInteger(stock) || stock < 0) {
-            showAlert({ type: 'error', title: 'Stock inválido', message: 'El stock debe ser un número entero de 0 o más.' });
-            return;
-        }
-        if (!formData.image_url && !localImage) {
-            showAlert({ type: 'error', title: 'Falta la foto', message: 'Agrega una foto del producto para que los compradores lo vean.' });
-            return;
-        }
+        const nextErrors: typeof errors = {};
+        if (!formData.name.trim()) nextErrors.name = 'Escribe el nombre del producto.';
+        if (!isFinite(price) || price <= 0) nextErrors.price = 'Debe ser mayor a 0.';
+        if (!/^\d+$/.test(formData.stock.trim()) || !Number.isInteger(stock) || stock < 0) nextErrors.stock = 'Un número entero, 0 o más.';
+        if (!formData.image_url && !localImage) nextErrors.image = 'Agrega una foto para que los compradores lo vean.';
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors).length > 0) return;
 
         setSaving(true);
         try {
@@ -126,6 +119,12 @@ export function useProductForm() {
 
     const updateField = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        if (field in errors) setErrors((prev) => ({ ...prev, [field]: undefined }));
+    };
+
+    const pickImage = (uri: string | null) => {
+        setLocalImage(uri);
+        if (uri) setErrors((prev) => ({ ...prev, image: undefined }));
     };
 
     return {
@@ -137,6 +136,7 @@ export function useProductForm() {
         loadingProduct,
         handleSave,
         localImage,
-        setLocalImage,
+        setLocalImage: pickImage,
+        errors,
     };
 }

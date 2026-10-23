@@ -5,8 +5,10 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useSchedule, type ScheduleDay, type Holiday } from '@/src/hooks/clinica/useSchedule';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import { spacing, font, layout } from '@/constants/design';
+import Button from '@/src/components/Button';
 
-import { Clock, Calendar, Plus, X, Save, Info, Globe } from 'lucide-react-native';
+import { Clock, Calendar, Plus, X, Info, Globe } from 'lucide-react-native';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import DatePicker from '@/src/components/DatePicker';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
@@ -145,21 +147,6 @@ export default function HorariosClinicaScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Horarios"
-                rightElement={
-                    <TouchableOpacity
-                        accessibilityRole="button"
-                        accessibilityLabel="Guardar horarios"
-                        style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                        onPress={handleSaveSchedule}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <Text style={styles.saveBtnText}>...</Text>
-                        ) : (
-                            <Save size={20} color="#fff" />
-                        )}
-                    </TouchableOpacity>
-                }
             />
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -184,13 +171,13 @@ export default function HorariosClinicaScreen() {
                         style={[styles.addHolidayBtn, { backgroundColor: theme.primary }]}
                         onPress={() => setHolidayModalVisible(true)}
                     >
-                        <Plus size={16} color="#fff" />
+                        <Plus size={16} color={theme.onPrimary} />
                         <Text style={styles.addHolidayBtnText}>Agregar</Text>
                     </TouchableOpacity>
                 </View>
 
                 {holidays.length === 0 ? (
-                    <Text style={{ color: theme.textMuted, fontSize: 13, marginBottom: 16 }}>No has registrado días festivos ni cierres.</Text>
+                    <Text style={{ color: theme.textMuted, fontSize: font.base, marginBottom: spacing.lg }}>No has registrado días festivos ni cierres.</Text>
                 ) : holidays.map(renderHoliday)}
 
                 {/* Emergency Hours */}
@@ -226,7 +213,9 @@ export default function HorariosClinicaScreen() {
                     )}
                 </View>
 
-                <View style={styles.footer} />
+                <View style={styles.saveBar}>
+                    <Button label="Guardar horarios" onPress={handleSaveSchedule} loading={loading} fullWidth />
+                </View>
             </ScrollView>
 
             {/* Add Holiday Modal */}
@@ -246,7 +235,7 @@ export default function HorariosClinicaScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <KeyboardScreen style={{ paddingHorizontal: 24 }}>
+                    <KeyboardScreen style={{ paddingHorizontal: layout.screenPadding }}>
                         <View style={styles.formGroup}>
                             <Text style={[styles.label, { color: theme.textMuted }]}>Nombre del Festivo *</Text>
                             <TextInput
@@ -300,7 +289,7 @@ export default function HorariosClinicaScreen() {
                         </View>
 
                         <View style={styles.timePickerBody}>
-                            <Text style={[styles.label, { color: theme.textMuted, textAlign: 'center', marginBottom: 12 }]}>Formato 24 Horas (HH:MM)</Text>
+                            <Text style={[styles.label, { color: theme.textMuted, textAlign: 'center', marginBottom: spacing.md }]}>Formato 24 Horas (HH:MM)</Text>
                             <TextInput
                                 style={[styles.timeInputModal, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
                                 value={tempTime}
@@ -324,7 +313,7 @@ export default function HorariosClinicaScreen() {
                                 style={[styles.timePickerBtn, { backgroundColor: theme.primary }]}
                                 onPress={confirmTimePicker}
                             >
-                                <Text style={[styles.timePickerBtnText, { color: '#fff' }]}>Guardar</Text>
+                                <Text style={[styles.timePickerBtnText, { color: theme.onPrimary }]}>Guardar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -336,63 +325,63 @@ export default function HorariosClinicaScreen() {
 
 const styles = StyleSheet.create({
     saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-    content: { flex: 1, paddingHorizontal: 24 },
-    infoCard: { flexDirection: 'row', padding: 16, borderRadius: 12, gap: 12, marginBottom: 24 },
-    infoText: { flex: 1, fontSize: 14, fontWeight: '600' },
-    sectionTitle: { fontSize: 18, fontWeight: '900', marginBottom: 16 },
-    dayCard: { padding: 20, borderRadius: 16, marginBottom: 12, borderWidth: 1 },
-    dayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    saveBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '700' },
+    content: { flex: 1, paddingHorizontal: layout.screenPadding },
+    infoCard: { flexDirection: 'row', padding: spacing.lg, borderRadius: 12, gap: spacing.md, marginBottom: spacing.xxl },
+    infoText: { flex: 1, fontSize: font.base, fontWeight: '600' },
+    sectionTitle: { fontSize: font.xxl, fontWeight: '900', marginBottom: spacing.lg },
+    dayCard: { padding: spacing.xl, borderRadius: 16, marginBottom: spacing.md, borderWidth: 1 },
+    dayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     dayInfo: { flex: 1 },
-    dayName: { fontSize: 16, fontWeight: '800', marginBottom: 4 },
-    statusBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start' },
-    statusText: { fontSize: 11, fontWeight: '700' },
-    timeSettings: { gap: 12 },
-    timeRow: { flexDirection: 'row', gap: 16 },
+    dayName: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.xs },
+    statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8, alignSelf: 'flex-start' },
+    statusText: { fontSize: font.sm, fontWeight: '700' },
+    timeSettings: { gap: spacing.md },
+    timeRow: { flexDirection: 'row', gap: spacing.lg },
     timeInput: { flex: 1 },
-    timeLabel: { fontSize: 12, fontWeight: '600', marginBottom: 8 },
-    timeButton: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, borderWidth: 1 },
-    timeText: { fontSize: 15, fontWeight: '600' },
-    addBreakBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12 },
-    addBreakText: { fontSize: 14, fontWeight: '600' },
-    holidaysHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    addHolidayBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
-    addHolidayBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-    holidayCard: { flexDirection: 'row', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1 },
+    timeLabel: { fontSize: font.md, fontWeight: '600', marginBottom: spacing.sm },
+    timeButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: 12, borderWidth: 1, justifyContent: 'center' },
+    timeText: { fontSize: font.lg, fontWeight: '600' },
+    addBreakBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: 12 },
+    addBreakText: { fontSize: font.base, fontWeight: '600' },
+    holidaysHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
+    addHolidayBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 8, justifyContent: 'center' },
+    addHolidayBtnText: { color: '#fff', fontSize: font.base, fontWeight: '600' },
+    holidayCard: { flexDirection: 'row', padding: spacing.lg, borderRadius: 12, marginBottom: spacing.md, borderWidth: 1 },
     holidayInfo: { flex: 1 },
-    holidayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-    holidayName: { fontSize: 16, fontWeight: '800' },
+    holidayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
+    holidayName: { fontSize: font.xl, fontWeight: '800' },
     deleteBtn: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-    holidayDetails: { gap: 4 },
-    holidayDate: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    holidayDateText: { fontSize: 14, fontWeight: '600' },
-    holidayReason: { fontSize: 13 },
-    holidayStatus: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-    holidayStatusText: { fontSize: 11, fontWeight: '700', color: '#ef4444' },
-    emergencyCard: { padding: 20, borderRadius: 16, borderWidth: 1 },
-    emergencyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    emergencyInfo: { flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 },
-    emergencyTitle: { fontSize: 16, fontWeight: '800', marginBottom: 2 },
-    emergencySub: { fontSize: 13 },
-    emergencyContact: { gap: 4 },
-    emergencyContactLabel: { fontSize: 13 },
-    emergencyPhone: { fontSize: 16, fontWeight: '700' },
-    footer: { height: 40 },
+    holidayDetails: { gap: spacing.xs },
+    holidayDate: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    holidayDateText: { fontSize: font.base, fontWeight: '600' },
+    holidayReason: { fontSize: font.base },
+    holidayStatus: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
+    holidayStatusText: { fontSize: font.sm, fontWeight: '700', color: '#ef4444' },
+    emergencyCard: { padding: spacing.xl, borderRadius: 16, borderWidth: 1 },
+    emergencyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
+    emergencyInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, flex: 1 },
+    emergencyTitle: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.xxs },
+    emergencySub: { fontSize: font.base },
+    emergencyContact: { gap: spacing.xs },
+    emergencyContactLabel: { fontSize: font.base },
+    emergencyPhone: { fontSize: font.xl, fontWeight: '700' },
+    saveBar: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, paddingBottom: spacing.huge },
     modalContainer: { flex: 1 },
-    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 24, paddingBottom: 24 },
-    modalTitle: { fontSize: 20, fontWeight: '900' },
-    formGroup: { marginBottom: 24 },
-    label: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
-    input: { height: 56, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, fontSize: 16, fontWeight: '600' },
-    textArea: { height: 100, borderRadius: 12, paddingHorizontal: 16, paddingTop: 16, borderWidth: 1, fontSize: 16, textAlignVertical: 'top' },
+    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xxl },
+    modalTitle: { fontSize: font.h3, fontWeight: '900' },
+    formGroup: { marginBottom: spacing.xxl },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontWeight: '600' },
+    textArea: { height: 100, borderRadius: 12, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, borderWidth: 1, fontSize: font.xl, textAlignVertical: 'top' },
     modalFooter: { height: 40 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-    timePickerContent: { width: '80%', borderRadius: 24, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 10 },
-    timePickerHeader: { alignItems: 'center', marginBottom: 20 },
-    timePickerTitle: { fontSize: 18, fontWeight: '800' },
-    timePickerBody: { marginBottom: 24 },
-    timeInputModal: { height: 60, fontSize: 32, fontWeight: '900', borderRadius: 16, borderWidth: 1, letterSpacing: 2 },
-    timePickerActions: { flexDirection: 'row', gap: 12 },
+    timePickerContent: { width: '80%', borderRadius: 24, padding: spacing.xxl, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 10 },
+    timePickerHeader: { alignItems: 'center', marginBottom: spacing.xl },
+    timePickerTitle: { fontSize: font.xxl, fontWeight: '800' },
+    timePickerBody: { marginBottom: spacing.xxl },
+    timeInputModal: { height: 60, fontSize: font.display, fontWeight: '900', borderRadius: 16, borderWidth: 1, letterSpacing: 2 },
+    timePickerActions: { flexDirection: 'row', gap: spacing.md },
     timePickerBtn: { flex: 1, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    timePickerBtnText: { fontSize: 15, fontWeight: '700' }
+    timePickerBtnText: { fontSize: font.lg, fontWeight: '700' }
 });

@@ -15,7 +15,8 @@ import {
 import { useTheme } from '@/src/hooks/useTheme';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { SkeletonList } from '@/src/components/Skeleton';
+import { SkeletonGrid, SkeletonList } from '@/src/components/Skeleton';
+import { font, spacing, layout } from '@/constants/design';
 
 interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'> {
     /** Data array */
@@ -47,6 +48,8 @@ interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'>
     /** Muestra skeletons en lugar del spinner mientras carga */
     skeleton?: boolean;
     skeletonCount?: number;
+    /** Forma del skeleton: filas (por defecto) o cuadrícula. */
+    skeletonVariant?: 'list' | 'grid';
 }
 
 export default function DataList<T>({
@@ -65,44 +68,43 @@ export default function DataList<T>({
     header,
     skeleton,
     skeletonCount = 4,
+    skeletonVariant = 'list',
     ...flatListProps
 }: DataListProps<T>) {
     const { theme } = useTheme();
 
-    if (isLoading) {
-        return skeleton ? <SkeletonList count={skeletonCount} /> : <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
-    }
+    if (isLoading && !skeleton) return <LoadingOverlay message={loadingMessage || 'Cargando...'} />;
 
-    if (data.length === 0 && !isLoading) {
-        // Un emoji/texto debe ir dentro de <Text> (RN falla si hay texto suelto dentro de <View>)
-        const iconElement =
-            typeof emptyIcon === 'string' ? (
-                <Text style={styles.emoji} accessibilityElementsHidden>{emptyIcon}</Text>
-            ) : (
-                emptyIcon
-            );
-
-        return (
-            <View style={styles.emptyContainer}>
-                {header}
-                <EmptyState
-                    icon={iconElement}
-                    title={emptyTitle}
-                    subtitle={emptySubtitle}
-                    actionLabel={emptyActionLabel}
-                    onAction={onEmptyAction}
-                />
-            </View>
+    // Un emoji/texto debe ir dentro de <Text> (RN falla si hay texto suelto dentro de <View>)
+    const iconElement =
+        typeof emptyIcon === 'string' ? (
+            <Text style={styles.emoji} accessibilityElementsHidden>{emptyIcon}</Text>
+        ) : (
+            emptyIcon
         );
-    }
+
+    // Carga y vacío van dentro de la MISMA lista: así el encabezado (buscador, filtros) nunca se vuelve a montar
+    // y no pierde el foco del teclado ni la posición de los chips al cambiar de estado.
+    const placeholder = isLoading
+        ? (skeletonVariant === 'grid' ? <SkeletonGrid count={skeletonCount} /> : <SkeletonList count={skeletonCount} inset={false} />)
+        : (
+            <EmptyState
+                icon={iconElement}
+                title={emptyTitle}
+                subtitle={emptySubtitle}
+                actionLabel={emptyActionLabel}
+                onAction={onEmptyAction}
+            />
+        );
 
     return (
         <FlatList
-            data={data}
+            data={isLoading ? [] : data}
             renderItem={renderItem}
             contentContainerStyle={[styles.listContent, contentStyle]}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={header}
+            ListEmptyComponent={placeholder}
             refreshControl={
                 onRefresh ? (
                     <RefreshControl
@@ -120,14 +122,11 @@ export default function DataList<T>({
 
 const styles = StyleSheet.create({
     listContent: {
-        paddingHorizontal: 24,
-        paddingBottom: 40,
-    },
-    emptyContainer: {
-        flex: 1,
+        paddingHorizontal: layout.screenPadding,
+        paddingBottom: spacing.huge,
     },
     emoji: {
-        fontSize: 32,
+        fontSize: font.display,
         textAlign: 'center',
     },
 });

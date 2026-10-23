@@ -8,6 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function PaseadoresCalendarioScreen() {
   const { theme } = useTheme();
@@ -37,7 +38,7 @@ export default function PaseadoresCalendarioScreen() {
     <ScreenContainer>
       <ScreenHeader title="Calendario" />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.huge }}>
         {/* Month Navigator */}
         <View style={[styles.monthNav, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <TouchableOpacity accessibilityRole="button" onPress={prevMonth} style={styles.navBtn}>
@@ -162,30 +163,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: 24,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    marginHorizontal: layout.screenPadding,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderRadius: 16,
     borderWidth: 1,
   },
   navBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  monthText: { fontSize: 16, fontWeight: '800' },
+  monthText: { fontSize: font.xl, fontWeight: '800' },
   dayHeaders: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 8,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
   },
   dayHeaderText: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: font.md,
     fontWeight: '700',
   },
   calendarGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.lg,
   },
   dayCell: {
     width: '14.28%',
@@ -193,46 +194,46 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  dayText: { fontSize: 14, fontWeight: '600' },
+  dayText: { fontSize: font.base, fontWeight: '600' },
   dot: {
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    marginTop: 3,
+    marginTop: spacing.xs,
   },
   requestsSection: {
-    paddingHorizontal: 24,
-    marginTop: 24,
+    paddingHorizontal: layout.screenPadding,
+    marginTop: spacing.xxl,
   },
-  sectionTitle: { fontSize: 16, fontWeight: '800', marginBottom: 12 },
+  sectionTitle: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.md },
   emptyCard: {
-    padding: 24,
+    padding: spacing.xxl,
     borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
   },
-  emptyText: { fontSize: 14, fontWeight: '600' },
+  emptyText: { fontSize: font.base, fontWeight: '600' },
   requestCard: {
-    padding: 16,
+    padding: spacing.lg,
     borderRadius: 16,
     borderWidth: 1,
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   reqTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
-  reqId: { fontSize: 14, fontWeight: '800' },
+  reqId: { fontSize: font.base, fontWeight: '800' },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: 10,
   },
-  statusText: { fontSize: 11, fontWeight: '700' },
-  reqDetails: { gap: 6 },
-  reqDetailRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  reqDetailText: { fontSize: 13 },
-  reqPrice: { fontSize: 16, fontWeight: '800', marginTop: 10 },
+  statusText: { fontSize: font.sm, fontWeight: '700' },
+  reqDetails: { gap: spacing.sm },
+  reqDetailRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  reqDetailText: { fontSize: font.base },
+  reqPrice: { fontSize: font.xl, fontWeight: '800', marginTop: spacing.md },
 });

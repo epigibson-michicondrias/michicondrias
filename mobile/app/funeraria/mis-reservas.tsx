@@ -10,6 +10,7 @@ import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { Calendar, Clock, FileText, Plus } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function MisReservasScreen() {
     const { theme } = useTheme();
@@ -60,7 +61,7 @@ export default function MisReservasScreen() {
                         onPress={() => handleCancel(item.id)}
                         style={[styles.cancelBtn, { borderColor: theme.error }]}
                     >
-                        <Text style={{ color: theme.error, fontWeight: '700', fontSize: 13 }}>Cancelar reserva</Text>
+                        <Text style={{ color: theme.error, fontWeight: '700', fontSize: font.base }}>Cancelar reserva</Text>
                     </TouchableOpacity>
                 )}
 
@@ -112,20 +113,20 @@ export default function MisReservasScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
-        paddingTop: 8,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.sm,
         paddingBottom: 100,
     },
     card: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     cardTop: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     iconContainer: {
         width: 48,
@@ -138,52 +139,54 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cardTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     dateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     dateText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '500',
     },
     statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     statusText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     cancelBtn: {
-        marginTop: 12,
+        marginTop: spacing.md,
         marginLeft: 60,
         alignSelf: 'flex-start',
-        paddingVertical: 8,
-        paddingHorizontal: 14,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.lg,
         borderRadius: 10,
         borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     notes: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 19,
-        marginTop: 12,
+        marginTop: spacing.md,
         paddingLeft: 60,
     },
     footerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        marginTop: 12,
+        gap: spacing.xs,
+        marginTop: spacing.md,
         paddingLeft: 60,
     },
     footerText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '500',
     },
 });

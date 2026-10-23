@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { PawPrint } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePets } from '@/src/hooks/mascotas/usePets';
+import { font, spacing } from '@/constants/design';
 
 interface PetPickerProps {
     value: string;
@@ -24,7 +25,7 @@ export default function PetPicker({ value, onChange, label = 'Mascota *' }: PetP
         <View>
             <Text style={[styles.label, { color: theme.text }]}>{label}</Text>
             {isLoading ? (
-                <ActivityIndicator color={theme.primary} style={{ alignSelf: 'flex-start', marginVertical: 8 }} />
+                <ActivityIndicator color={theme.primary} style={{ alignSelf: 'flex-start', marginVertical: spacing.sm }} />
             ) : isEmpty ? (
                 <View style={[styles.empty, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <Text style={[styles.emptyText, { color: theme.textMuted }]}>
@@ -75,16 +76,17 @@ export default function PetPicker({ value, onChange, label = 'Mascota *' }: PetP
 }
 
 const styles = StyleSheet.create({
-    label: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
-    row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     chip: {
-        flexDirection: 'row', alignItems: 'center', gap: 6,
-        paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, maxWidth: '100%',
+        flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+        paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 999, borderWidth: 1, maxWidth: '100%',
+        justifyContent: 'center',
     },
-    chipText: { fontSize: 14, fontWeight: '700', flexShrink: 1 },
-    empty: { padding: 16, borderRadius: 14, borderWidth: 1, gap: 10, alignItems: 'flex-start' },
-    emptyText: { fontSize: 14 },
-    emptyBtn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 10 },
-    emptyBtnText: { color: '#fff', fontWeight: '700', fontSize: 13 },
-    link: { fontSize: 13, fontWeight: '700' },
+    chipText: { fontSize: font.base, fontWeight: '700', flexShrink: 1 },
+    empty: { padding: spacing.lg, borderRadius: 14, borderWidth: 1, gap: spacing.md, alignItems: 'flex-start' },
+    emptyText: { fontSize: font.base },
+    emptyBtn: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+    emptyBtnText: { color: '#fff', fontWeight: '700', fontSize: font.base },
+    link: { fontSize: font.base, fontWeight: '700' },
 });

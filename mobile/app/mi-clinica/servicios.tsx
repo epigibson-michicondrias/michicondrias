@@ -1,12 +1,15 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
+import Button from '@/src/components/Button';
 import { useClinicServices } from '@/src/hooks/clinica/useClinicServices';
 import { ClinicServiceItem } from '@/src/services/directorio';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Plus, Pencil, Trash2, Clock, Tag, Briefcase, X, AlertTriangle } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function ServiciosClinicaScreen() {
     const { theme } = useTheme();
@@ -64,6 +67,7 @@ export default function ServiciosClinicaScreen() {
                 title="Servicios"
                 subtitle="Catálogo de prestaciones"
                 actionIcon={Plus}
+                actionLabel="Nuevo servicio"
                 onAction={openCreateModal}
             />
 
@@ -107,33 +111,18 @@ export default function ServiciosClinicaScreen() {
 
                         <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Nombre del Servicio *</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej: Consulta General"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={name}
-                                    onChangeText={setName}
-                                />
+                                <FormField label="Nombre del Servicio *" value={name} onChangeText={setName} placeholder="Ej: Consulta General" />
                             </View>
 
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Descripción</Text>
-                                <TextInput
-                                    style={[styles.input, styles.textArea, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Detalles sobre lo que incluye el servicio..."
-                                    placeholderTextColor={theme.textMuted}
-                                    multiline={true}
-                                    value={description}
-                                    onChangeText={setDescription}
-                                />
+                                <FormField label="Descripción" value={description} onChangeText={setDescription} placeholder="Detalles sobre lo que incluye el servicio..." multiline={true} />
                             </View>
 
                             <View style={styles.row}>
                                 <View style={[styles.formGroup, { flex: 1 }]}>
                                     <Text style={[styles.label, { color: theme.textMuted }]}>Precio *</Text>
                                     <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                                        <Text style={{ color: theme.textMuted, fontSize: 16 }}>$</Text>
+                                        <Text style={{ color: theme.textMuted, fontSize: font.xl }}>$</Text>
                                         <TextInput
                                             style={[styles.smallInput, { color: theme.text }]}
                                             keyboardType="numeric"
@@ -157,23 +146,10 @@ export default function ServiciosClinicaScreen() {
                             </View>
 
                             <View style={styles.formGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Categoría</Text>
-                                <TextInput
-                                    style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
-                                    placeholder="Ej: Cirugía, Estética, Vacuna..."
-                                    placeholderTextColor={theme.textMuted}
-                                    value={category}
-                                    onChangeText={setCategory}
-                                />
+                                <FormField label="Categoría" value={category} onChangeText={setCategory} placeholder="Ej: Cirugía, Estética, Vacuna..." />
                             </View>
 
-                            <TouchableOpacity
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSave}
-                                disabled={loadingAction}
-                            >
-                                {loadingAction ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>{editingService ? 'Actualizar Servicio' : 'Crear Servicio'}</Text>}
-                            </TouchableOpacity>
+                            <Button label={editingService ? 'Actualizar Servicio' : 'Crear Servicio'} onPress={handleSave} loading={loadingAction} />
                         </ScrollView>
                     </View>
                 </KeyboardAvoidingView>
@@ -183,36 +159,36 @@ export default function ServiciosClinicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    list: { padding: 24, paddingBottom: 100 },
-    card: { borderRadius: 28, padding: 20, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    cardMain: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+    list: { padding: spacing.xxl, paddingBottom: 100 },
+    card: { borderRadius: 28, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
+    cardMain: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
     iconBox: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    info: { flex: 1, gap: 4 },
-    serviceName: { fontSize: 16, fontWeight: '800' },
-    serviceDesc: { fontSize: 12, fontWeight: '600' },
-    metaRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
-    metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    metaText: { fontSize: 10, fontWeight: '700' },
+    info: { flex: 1, gap: spacing.xs },
+    serviceName: { fontSize: font.xl, fontWeight: '800' },
+    serviceDesc: { fontSize: font.md, fontWeight: '600' },
+    metaRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xs },
+    metaItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    metaText: { fontSize: font.xs, fontWeight: '700' },
     priceBox: { alignItems: 'flex-end' },
-    priceText: { fontSize: 18, fontWeight: '900' },
-    actions: { flexDirection: 'row', marginTop: 16, paddingTop: 16, borderTopWidth: 1, gap: 16 },
-    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
-    actionText: { fontSize: 13, fontWeight: '700' },
+    priceText: { fontSize: font.xxl, fontWeight: '900' },
+    actions: { flexDirection: 'row', marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: 1, gap: spacing.lg },
+    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs, justifyContent: 'center' },
+    actionText: { fontSize: font.base, fontWeight: '700' },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    empty: { paddingTop: 100, alignItems: 'center', gap: 20 },
-    emptyText: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
+    empty: { paddingTop: 100, alignItems: 'center', gap: spacing.xl },
+    emptyText: { fontSize: font.xl, fontWeight: '600', textAlign: 'center' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, maxHeight: '85%' },
-    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
-    modalTitle: { fontSize: 22, fontWeight: '900' },
+    modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: spacing.xxl, maxHeight: '85%' },
+    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xxl },
+    modalTitle: { fontSize: font.h2, fontWeight: '900' },
     modalScroll: { overflow: 'visible' },
-    formGroup: { marginBottom: 20 },
-    label: { fontSize: 13, fontWeight: '700', marginBottom: 8 },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: 16, borderWidth: 1, fontSize: 15, fontWeight: '600' },
-    textArea: { height: 100, textAlignVertical: 'top', paddingVertical: 16 },
-    row: { flexDirection: 'row', gap: 16 },
-    inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 56, borderRadius: 16, paddingHorizontal: 16, borderWidth: 1 },
-    smallInput: { flex: 1, height: '100%', fontSize: 15, fontWeight: '600' },
-    saveBtn: { height: 64, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: 10, marginBottom: 40 },
-    saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' }
+    formGroup: { marginBottom: spacing.xl },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.lg, fontWeight: '600' },
+    textArea: { height: 100, textAlignVertical: 'top', paddingVertical: spacing.lg },
+    row: { flexDirection: 'row', gap: spacing.lg },
+    inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1 },
+    smallInput: { flex: 1, height: '100%', fontSize: font.lg, fontWeight: '600' },
+    saveBtn: { height: 64, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: spacing.md, marginBottom: spacing.huge },
+    saveBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' }
 });

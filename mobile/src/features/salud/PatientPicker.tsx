@@ -9,6 +9,7 @@ import { PawPrint } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { getMyClinics } from '@/src/services/directorio';
 import { getClinicPatients } from '@/src/services/patients';
+import { font, spacing } from '@/constants/design';
 
 interface Props {
     value: string;
@@ -34,7 +35,7 @@ export default function PatientPicker({ value, onChange, label = 'Paciente *' }:
             {isLoading ? (
                 <ActivityIndicator color={theme.primary} style={{ alignSelf: 'flex-start' }} />
             ) : patients.length === 0 ? (
-                <Text style={{ color: theme.textMuted, fontSize: 13 }}>
+                <Text style={{ color: theme.textMuted, fontSize: font.base }}>
                     Aún no tienes pacientes: aparecen cuando una mascota agenda una cita en tu clínica.
                 </Text>
             ) : (
@@ -61,7 +62,7 @@ export default function PatientPicker({ value, onChange, label = 'Paciente *' }:
                                     style={[styles.chip, { backgroundColor: sel ? theme.primary : theme.surface, borderColor: sel ? theme.primary : theme.border }]}
                                 >
                                     <PawPrint size={14} color={sel ? '#fff' : theme.textMuted} />
-                                    <Text style={{ color: sel ? '#fff' : theme.text, fontWeight: '700', fontSize: 13 }} numberOfLines={1}>
+                                    <Text style={{ color: sel ? '#fff' : theme.text, fontWeight: '700', fontSize: font.base }} numberOfLines={1}>
                                         {p.name} · {p.owner}
                                     </Text>
                                 </TouchableOpacity>
@@ -75,8 +76,8 @@ export default function PatientPicker({ value, onChange, label = 'Paciente *' }:
 }
 
 const styles = StyleSheet.create({
-    label: { fontSize: 12, fontWeight: '700', marginBottom: 8, marginTop: 16 },
-    search: { height: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: 12, marginBottom: 8 },
-    row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-    chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 9, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, maxWidth: '100%' },
+    label: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
+    search: { height: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, marginBottom: spacing.sm },
+    row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    chip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 999, borderWidth: 1, maxWidth: '100%', justifyContent: 'center' },
 });

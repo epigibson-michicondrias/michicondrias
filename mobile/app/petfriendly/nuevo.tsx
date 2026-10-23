@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
+import FormField from '@/src/components/FormField';
 import { Camera, Check, Coffee, Utensils, TreePine, ShoppingBag, Droplets, UtensilsCrossed } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { showAlert } from '@/src/components/AppAlert';
@@ -14,6 +15,7 @@ import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petf
 import { useAuth } from '../../src/contexts/AuthContext';
 import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -145,14 +147,7 @@ export default function NuevoLugarScreen() {
                     </TouchableOpacity>
 
                     <View style={styles.form}>
-                        <Text style={[styles.label, { color: theme.text }]}>Nombre del Establecimiento</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. El Michi Café"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.name}
-                            onChangeText={(t) => setForm({ ...form, name: t })}
-                        />
+                        <FormField label="Nombre del Establecimiento" value={form.name} onChangeText={(t) => setForm({ ...form, name: t })} placeholder="Ej. El Michi Café" />
 
                         <Text style={[styles.label, { color: theme.text }]}>Categoría</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
@@ -173,7 +168,7 @@ export default function NuevoLugarScreen() {
                         </ScrollView>
 
                         <Text style={[styles.label, { color: theme.text }]}>Ubicación</Text>
-                        <Text style={{ color: theme.textMuted, fontSize: 12, marginBottom: 8 }}>
+                        <Text style={{ color: theme.textMuted, fontSize: font.md, marginBottom: spacing.sm }}>
                             Se usa tu posición actual: regístralo estando en el lugar.
                         </Text>
                         <View style={styles.mapWrapper}>
@@ -196,49 +191,18 @@ export default function NuevoLugarScreen() {
                             accessibilityRole="button"
                             accessibilityLabel="Usar mi ubicación actual"
                             onPress={locate}
-                            style={{ alignSelf: 'flex-start', marginBottom: 16 }}
+                            style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }}
                         >
                             <Text style={{ color: theme.primary, fontWeight: '800' }}>{location ? 'Actualizar mi ubicación' : 'Usar mi ubicación actual'}</Text>
                         </TouchableOpacity>
 
-                        <Text style={[styles.label, { color: theme.text }]}>Ciudad</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. Ciudad de México"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.city}
-                            onChangeText={(t) => setForm({ ...form, city: t })}
-                        />
+                        <FormField label="Ciudad" value={form.city} onChangeText={(t) => setForm({ ...form, city: t })} placeholder="Ej. Ciudad de México" />
 
-                        <Text style={[styles.label, { color: theme.text }]}>Teléfono (Opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="10 dígitos"
-                            placeholderTextColor={theme.textMuted}
-                            keyboardType="phone-pad"
-                            value={form.phone}
-                            onChangeText={(t) => setForm({ ...form, phone: t })}
-                        />
+                        <FormField label="Teléfono (Opcional)" value={form.phone} onChangeText={(t) => setForm({ ...form, phone: t })} placeholder="10 dígitos" keyboardType="phone-pad" />
 
-                        <Text style={[styles.label, { color: theme.text }]}>Sitio web (Opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="https://..."
-                            placeholderTextColor={theme.textMuted}
-                            autoCapitalize="none"
-                            keyboardType="url"
-                            value={form.website}
-                            onChangeText={(t) => setForm({ ...form, website: t })}
-                        />
+                        <FormField label="Sitio web (Opcional)" value={form.website} onChangeText={(t) => setForm({ ...form, website: t })} placeholder="https://..." autoCapitalize="none" keyboardType="url" />
 
-                        <Text style={[styles.label, { color: theme.text }]}>Dirección (Opcional)</Text>
-                        <TextInput
-                            style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Ej. Calle 123, Col. Centro"
-                            placeholderTextColor={theme.textMuted}
-                            value={form.address}
-                            onChangeText={(t) => setForm({ ...form, address: t })}
-                        />
+                        <FormField label="Dirección (Opcional)" value={form.address} onChangeText={(t) => setForm({ ...form, address: t })} placeholder="Ej. Calle 123, Col. Centro" />
 
                         <Text style={[styles.label, { color: theme.text }]}>Servicios Petfriendly</Text>
                         <View style={styles.amenitiesGrid}>
@@ -248,7 +212,7 @@ export default function NuevoLugarScreen() {
                             >
                                 <Droplets size={20} color={form.has_water_bowls === 'Sí' ? theme.primary : theme.textMuted} />
                                 <Text style={[styles.amenityText, { color: theme.text }]}>Platos con agua</Text>
-                                {form.has_water_bowls === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color="#fff" /></View>}
+                                {form.has_water_bowls === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color={theme.onPrimary} /></View>}
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.amenityBtn, { backgroundColor: theme.surface }, form.has_pet_menu === 'Sí' && { borderColor: theme.primary }]}
@@ -256,7 +220,7 @@ export default function NuevoLugarScreen() {
                             >
                                 <UtensilsCrossed size={20} color={form.has_pet_menu === 'Sí' ? theme.primary : theme.textMuted} />
                                 <Text style={[styles.amenityText, { color: theme.text }]}>Menú para mascotas</Text>
-                                {form.has_pet_menu === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color="#fff" /></View>}
+                                {form.has_pet_menu === 'Sí' && <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}><Check size={10} color={theme.onPrimary} /></View>}
                             </TouchableOpacity>
                         </View>
 
@@ -277,16 +241,7 @@ export default function NuevoLugarScreen() {
                             ))}
                         </View>
 
-                        <Text style={[styles.label, { color: theme.text }]}>Descripción y Tips</Text>
-                        <TextInput
-                            style={[styles.input, styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            placeholder="Cosas que otros dueños deberían saber..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                            numberOfLines={4}
-                            value={form.description}
-                            onChangeText={(t) => setForm({ ...form, description: t })}
-                        />
+                        <FormField label="Descripción y Tips" value={form.description} onChangeText={(t) => setForm({ ...form, description: t })} placeholder="Cosas que otros dueños deberían saber..." multiline numberOfLines={4} />
                     </View>
                 </ScrollView>
 
@@ -299,8 +254,8 @@ export default function NuevoLugarScreen() {
                         {loading ? (
                             <Text style={styles.saveBtnText}>Registrando...</Text>
                         ) : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                                <Check size={20} color="#fff" />
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+                                <Check size={20} color={theme.onPrimary} />
                                 <Text style={styles.saveBtnText}>Publicar Lugar</Text>
                             </View>
                         )}
@@ -320,22 +275,22 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingTop: 60,
-        paddingHorizontal: 20,
-        paddingBottom: 20,
+        paddingHorizontal: spacing.xl,
+        paddingBottom: spacing.xl,
     },
     title: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
     },
     scroll: {
-        padding: 24,
+        padding: spacing.xxl,
     },
     imageSelector: {
         width: '100%',
         height: 180,
         borderRadius: 24,
         overflow: 'hidden',
-        marginBottom: 32,
+        marginBottom: spacing.xxxl,
     },
     imagePlaceholder: {
         flex: 1,
@@ -346,47 +301,48 @@ const styles = StyleSheet.create({
         borderStyle: 'dashed',
     },
     imagePlaceholderText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     selectedImage: {
         width: '100%',
         height: '100%',
     },
     form: {
-        gap: 16,
+        gap: spacing.lg,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginBottom: 4,
-        marginLeft: 4,
+        marginBottom: spacing.xs,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     categoryRow: {
-        gap: 10,
-        paddingBottom: 4,
+        gap: spacing.md,
+        paddingBottom: spacing.xs,
     },
     catBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 16,
-        gap: 8,
+        gap: spacing.sm,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
+        justifyContent: 'center',
     },
     catText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     mapWrapper: {
@@ -408,19 +364,19 @@ const styles = StyleSheet.create({
     },
     amenitiesGrid: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     amenityBtn: {
         flex: 1,
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     amenityText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
         textAlign: 'center',
     },
@@ -437,7 +393,7 @@ const styles = StyleSheet.create({
     },
     sizeRow: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     sizeBtn: {
         flex: 1,
@@ -449,17 +405,17 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(128,128,128,0.2)',
     },
     sizeText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     textArea: {
         height: 120,
-        paddingTop: 16,
+        paddingTop: spacing.lg,
         textAlignVertical: 'top',
     },
     footer: {
-        padding: 24,
-        paddingBottom: 40,
+        padding: spacing.xxl,
+        paddingBottom: spacing.huge,
         borderTopWidth: 1,
     },
     saveBtn: {
@@ -475,7 +431,7 @@ const styles = StyleSheet.create({
     },
     saveBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

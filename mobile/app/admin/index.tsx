@@ -17,6 +17,7 @@ import {
     AlertTriangle,
     Heart,
 } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -138,13 +139,12 @@ export default function AdminScreen() {
             <ScreenHeader
                 title="Panel Admin"
                 showBack
-                gradient={[theme.primary, theme.primary + 'CC', theme.primary + '99']}
             />
 
             <ScrollView 
                 style={styles.content} 
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 40 }}
+                contentContainerStyle={{ paddingBottom: spacing.huge }}
             >
                 {/* Real Stats Strip */}
                 <View style={styles.statsStrip}>
@@ -167,7 +167,7 @@ export default function AdminScreen() {
                 </View>
 
                 {/* Extended Stats Strip */}
-                <View style={[styles.statsStrip, { marginTop: 12 }]}>
+                <View style={[styles.statsStrip, { marginTop: spacing.md }]}>
                     <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                         <UserCheck size={18} color={theme.info} />
                         <View>
@@ -199,13 +199,13 @@ export default function AdminScreen() {
 
                 {/* Quick Actions Premium */}
                 <View style={styles.quickSection}>
-                    <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 12 }]}>Acciones Urgentes</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: spacing.md }]}>Acciones Urgentes</Text>
                     <View style={styles.quickGrid}>
                         <TouchableOpacity accessibilityRole="button" 
                             style={[styles.quickCard, { backgroundColor: '#ef4444' }]}
                             onPress={() => router.push('/admin/moderacion')}
                         >
-                            <AlertTriangle size={20} color="#fff" />
+                            <AlertTriangle size={20} color={theme.onPrimary} />
                             <Text style={styles.quickCardTitle}>Moderación</Text>
                             <Text style={styles.quickCardDesc}>Pendientes</Text>
                         </TouchableOpacity>
@@ -214,7 +214,7 @@ export default function AdminScreen() {
                             style={[styles.quickCard, { backgroundColor: '#3b82f6' }]}
                             onPress={() => router.push('/admin/verificaciones')}
                         >
-                            <UserCheck size={20} color="#fff" />
+                            <UserCheck size={20} color={theme.onPrimary} />
                             <Text style={styles.quickCardTitle}>Identidad</Text>
                             <Text style={styles.quickCardDesc}>Validar KYC</Text>
                         </TouchableOpacity>
@@ -231,17 +231,16 @@ const styles = StyleSheet.create({
     },
     statsStrip: {
         flexDirection: 'row',
-        paddingHorizontal: 24,
-        marginTop: -14,
-        gap: 12,
+        paddingHorizontal: layout.screenPadding,
+        gap: spacing.md,
     },
     statItem: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
-        gap: 12,
+        gap: spacing.md,
         borderWidth: 1,
         elevation: 4,
         shadowColor: '#000',
@@ -250,40 +249,40 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
     },
     statNumber: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     statLabel: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '700',
         textTransform: 'uppercase',
     },
     groupSection: {
-        marginTop: 24,
-        paddingHorizontal: 24,
+        marginTop: spacing.xxl,
+        paddingHorizontal: layout.screenPadding,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
     modulesGrid: {
-        gap: 12,
+        gap: spacing.md,
     },
     moduleCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
-        gap: 16,
+        gap: spacing.lg,
     },
     iconContainer: {
         width: 48,
@@ -296,27 +295,27 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     moduleTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     moduleDescription: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
     },
     quickSection: {
-        marginTop: 32,
-        paddingHorizontal: 24,
+        marginTop: spacing.xxxl,
+        paddingHorizontal: layout.screenPadding,
     },
     quickGrid: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     quickCard: {
         flex: 1,
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 24,
-        gap: 8,
+        gap: spacing.sm,
         elevation: 6,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -324,12 +323,12 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
     },
     quickCardTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
         color: '#fff',
     },
     quickCardDesc: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
         color: 'rgba(255,255,255,0.8)',
     },

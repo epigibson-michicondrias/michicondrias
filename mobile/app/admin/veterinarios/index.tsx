@@ -9,6 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { UserCheck, Mail, Briefcase, Star, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminVeterinariosScreen() {
     const { theme } = useTheme();
@@ -24,7 +25,7 @@ export default function AdminVeterinariosScreen() {
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.cardHeader}>
                 <LinearGradient
-                    colors={['#1c2f6b', '#101c3d']}
+                    colors={theme.heroGradient}
                     style={styles.avatarPlaceholder}
                 >
                     <Text style={styles.avatarInitial}>{item.full_name?.charAt(0).toUpperCase() || 'V'}</Text>
@@ -64,7 +65,7 @@ export default function AdminVeterinariosScreen() {
                     style={[styles.btn, { backgroundColor: theme.primary }]}
                     onPress={handleManage}
                 >
-                    <Text style={[styles.btnText, { color: '#fff' }]}>Gestionar</Text>
+                    <Text style={[styles.btnText, { color: theme.onPrimary }]}>Gestionar</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -74,8 +75,8 @@ export default function AdminVeterinariosScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Veterinarios"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
                 actionIcon={Search}
+                actionLabel="Buscar veterinario"
                 onAction={handleSearch}
             />
 
@@ -102,9 +103,9 @@ export default function AdminVeterinariosScreen() {
 
 const styles = StyleSheet.create({
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 12 
+        paddingTop: spacing.md 
     },
     center: { 
         flex: 1, 
@@ -115,20 +116,20 @@ const styles = StyleSheet.create({
     empty: { 
         alignItems: 'center', 
         marginTop: 60, 
-        paddingHorizontal: 40 
+        paddingHorizontal: spacing.huge 
     },
     emptyText: { 
-        fontSize: 14, 
+        fontSize: font.base, 
         fontWeight: '700', 
-        marginTop: 20,
+        marginTop: spacing.xl,
         textAlign: 'center' 
     },
     card: { 
-        padding: 20, 
+        padding: spacing.xl, 
         borderRadius: 28, 
-        marginBottom: 16, 
+        marginBottom: spacing.lg, 
         borderWidth: 1.5, 
-        gap: 16,
+        gap: spacing.lg,
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 6 },
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
     cardHeader: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 14 
+        gap: spacing.lg 
     },
     avatarPlaceholder: { 
         width: 60, 
@@ -148,57 +149,57 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatarInitial: {
-        fontSize: 24,
+        fontSize: font.h2,
         fontWeight: '800',
         color: '#fff',
     },
     info: { flex: 1 },
     name: { 
-        fontSize: 17, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     row: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 6, 
-        marginTop: 4 
+        gap: spacing.sm, 
+        marginTop: spacing.xs 
     },
     specialty: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '700' 
     },
     statusBadge: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 4, 
-        paddingHorizontal: 10, 
-        paddingVertical: 6, 
+        gap: spacing.xs, 
+        paddingHorizontal: spacing.md, 
+        paddingVertical: spacing.sm, 
         borderRadius: 10 
     },
     statusText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     details: { 
-        gap: 10,
-        paddingVertical: 4,
+        gap: spacing.md,
+        paddingVertical: spacing.xs,
         borderTopWidth: 1,
         borderTopColor: '#ffffff10',
-        paddingTop: 16,
+        paddingTop: spacing.lg,
     },
     detailItem: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 10 
+        gap: spacing.md 
     },
     detailText: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '700' 
     },
     actions: { 
         flexDirection: 'row', 
-        gap: 12, 
-        marginTop: 8 
+        gap: spacing.md, 
+        marginTop: spacing.sm 
     },
     btn: { 
         flex: 1, 
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
         alignItems: 'center' 
     },
     btnText: { 
-        fontSize: 14, 
+        fontSize: font.base, 
         fontWeight: '800' 
     }
 });

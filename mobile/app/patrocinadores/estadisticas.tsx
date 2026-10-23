@@ -8,6 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { BarChart3, Eye, MousePointerClick, TrendingUp, DollarSign, Megaphone } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function EstadisticasScreen() {
     const { theme } = useTheme();
@@ -183,22 +184,22 @@ export default function EstadisticasScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     statsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     statCard: {
         width: '47%',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
     },
     statIcon: {
         width: 40,
@@ -208,24 +209,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     statValue: {
-        fontSize: 22,
+        fontSize: font.h2,
         fontWeight: '800',
     },
     statLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     campaignCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 14,
+        marginBottom: spacing.lg,
         borderWidth: 1,
     },
     campaignHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     campaignIcon: {
         width: 44,
@@ -238,55 +239,55 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     campaignTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     statusRow: {
         flexDirection: 'row',
     },
     statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xxs,
         borderRadius: 6,
     },
     statusText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     metricsRow: {
         flexDirection: 'row',
-        gap: 8,
-        marginBottom: 14,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     metricItem: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 8,
+        paddingVertical: spacing.sm,
         borderRadius: 10,
-        gap: 4,
+        gap: spacing.xs,
     },
     metricValue: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
     },
     metricLabel: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '600',
     },
     budgetRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     budgetLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     budgetPercent: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
     progressTrack: {

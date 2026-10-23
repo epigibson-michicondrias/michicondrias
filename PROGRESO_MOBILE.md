@@ -56,12 +56,12 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Perfil (`perfil/`, `(tabs)/two`) | 7+1 | 🔍 | 🟡 | ⬜ | F13 ✅ (2FA con QR, KYC con cámara, estado en partner); faltan F11/F12 (core) y la pasada U5 |
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); F14 ✅ (avisos de dosis y refuerzos en la bandeja); falta la pasada U7 |
-| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | 🟡 | ⬜ | F18 ✅ (`useCheckout`, carrito con precio/stock frescos, bolsa se vacía al confirmar el pago); F19 ✅ (pedidos vencidos, aviso de pago, `can_review`, paginación); F20 ✅ |
+| P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ✅ | ✅ | F18–F20 ✅. U8 ✅ 2026-10-19: pestaña (favoritos, ordenar, cuadrícula/lista, agregar rápido, CartBar), producto, bolsa, compras con filtros, pedido con seguimiento y «Volver a comprar» |
 | P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
-| P2 | Directorio y citas | 6 | ⬜ | ⬜ | ⬜ | `especialista/[id]` 809 líneas; `?type=clinic` ignorado |
-| P2 | Adopciones | 12 | ⬜ | ⬜ | ⬜ | Muchas pantallas de solicitudes: ¿fusionar? |
-| P2 | Perdidas | 4 | ⬜ | ⬜ | ⬜ | |
-| P2 | Paseadores / Cuidadores (cliente) | 4+4 | ⬜ | ⬜ | ⬜ | Detalles de 844 y 938 líneas casi gemelos → componente compartido |
+| P2 | Directorio y citas | 6 | 🔍 | 🟡 | 🟡 | 2026-10-19: mis citas, agendar y clínica premium; falta `index`/`especialista`/`nuevo` |
+| P2 | Adopciones | 12 | 🔍 | 🟡 | ✅ | U ✅ 2026-10-19. Pendiente: KYC en backend; fusionar `solicitudes` y `ver-solicitudes` (requiere aprobación) |
+| P2 | Perdidas | 5 | 🔍 | ✅ | ✅ | 2026-10-19: detalle, crear/editar, mis reportes; privacidad en backend |
+| P2 | Paseadores / Cuidadores (cliente) | 4+4 | 🔍 | 🟡 | 🟡 | 2026-10-19: detalles con `BottomSheet` (reservar cuidado ya funciona); faltan listas y calendarios |
 | P2 | Pet-friendly / Establecimientos | 3+4 | ⬜ | ⬜ | ⬜ | Dos módulos de "lugares": ¿solapan? (ambos en Explorar) |
 | P2 | Grooming / Estilistas | 4+2 | ⬜ | ⬜ | ⬜ | Dos nombres para lo mismo |
 | P2 | Entrenadores | 7 | ⬜ | ⬜ | ⬜ | |
@@ -72,7 +72,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P2 | Donaciones | 1 | ⬜ | ⬜ | ⬜ | |
 | P3 | Mi clínica (veterinario/hospital) | 14 | ⬜ | ⬜ | ⬜ | Segundo sistema de recetas (`services/prescriptions.ts`) |
 | P3 | Servicios pro | 3 | ⬜ | ⬜ | ⬜ | |
-| P3 | Tienda vendedor | 5 | ⬜ | ⬜ | ⬜ | |
+| P3 | Tienda vendedor | 5 | 🔍 | ✅ | ✅ | 2026-10-19: panel con avisos accionables, catálogo con filtros por estado, pedidos con nombre del comprador y confirmación, analíticas (tendencia de 7 días, más vendidos), formulario con errores en línea y vista previa |
 | P3 | Patrocinadores | 5 | ⬜ | ⬜ | ⬜ | |
 | P3 | Admin | 14 | ⬜ | ⬜ | ⬜ | |
 
@@ -176,10 +176,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 · 📱 = requiere APK nuevo. Detalle de cada una en `AUDITORIA_MOBILE.md`.
 
 **Fase 1 — Auditoría (resto)**
-- [ ] A1 Auditar P2: Directorio/citas, Adopciones, Perdidas.
-- [ ] A2 Auditar P2: Paseadores/Cuidadores, Pet-friendly/Establecimientos, Grooming/Estilistas (decidir fusiones).
-- [ ] A3 Auditar P2: Entrenadores, Transportistas, Aseguradoras, Laboratorio, Funeraria, Donaciones.
-- [ ] A4 Auditar P3: Mi clínica, Servicios pro, Tienda vendedor, Patrocinadores, Admin.
+- [x] A1 Auditar P2: Directorio/citas, Adopciones, Perdidas.
+- [x] A2 Auditar P2: Paseadores/Cuidadores, Pet-friendly/Establecimientos, Grooming/Estilistas (decidir fusiones).
+- [x] A3 Auditar P2: Entrenadores, Transportistas, Aseguradoras, Laboratorio, Funeraria, Donaciones. (2026-10-08, informe `docs/auditoria-integral/03-mobile.md`)
+- [x] A4 Auditar P3: Mi clínica, Servicios pro, Tienda vendedor, Patrocinadores, Admin. (2026-10-08, ídem)
 - [ ] A5 Revisión visual con capturas (skill `review-ux`) de las pestañas y del flujo de compra, en claro y oscuro.
 
 **Fase 2 — Limpieza** (aprobación del usuario por bloque)
@@ -266,18 +266,19 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] 🛠️ F22 Privacidad: limitar `GET /pets/{id}` a dueño/veterinario/admin; alinear `VET_ROLES` en `pet_access.py`.
 
 **Fase 5 — UI premium + APK**
-- [ ] U1 **Tema** (antes que nada): `warning` distinto de `accent`; token `heroGradient` por modo (adiós `#1c2f6b` fijo);
+- [x] U1 **Tema** (antes que nada): `warning` distinto de `accent`; token `heroGradient` por modo (adiós `#1c2f6b` fijo);
       paleta de acentos de dominio armonizada con *Midnight & Gold* (reemplaza el arcoíris Tailwind de
       `useExplore`/`useHome`/`roleTools`); `StatusBar` según el tema; un solo acceso `useTheme()`; tema guardado en
       AsyncStorage; decidir paletas alternas.
-- [ ] U2 Componentes base: revisar los existentes y crear `AuthShell`, `SegmentedTabs`, `PetForm`; adoptar `FormField`
-      y `utils/validators.ts`; documentar en `mobile/src/components/README.md`.
+- [x] U2 Componentes base: revisar los existentes y crear `AuthShell`, `SegmentedTabs`, `PetForm`; adoptar `FormField`
+      y `utils/validators.ts`; documentar en `mobile/src/components/README.md` (`SegmentedControl` cubre
+      `SegmentedTabs`; `AuthShell` creado, U3 lo adopta en las 4 pantallas de `(auth)`).
 - [ ] U3 Auth (4 pantallas) con `AuthShell`, validación inline, autoComplete, ≥ 44 px.
 - [ ] U4 Inicio, Explorar y Herramientas: tokens, Skeleton, EmptyState, refresh.
 - [ ] U5 Perfil + `perfil/editar` + verificacion, 2FA, partner, eliminar-cuenta.
 - [ ] U6 Mascotas: ficha con pestañas, `PetForm`, diagnóstico IA (`FormSelect`, colores del tema).
 - [ ] U7 Carnet: partir `carnet/[id]` en `src/features/carnet/`, formularios con botón primario abajo, receta.
-- [ ] U8 Tienda: tab, producto (extraer), carrito, compras, pedido.
+- [x] U8 Tienda: tab, producto (extraer), carrito, compras, pedido. (2026-10-19, también vendedor)
 - [ ] U9 Notificaciones, búsqueda (ampliada a más dominios) y Ayuda.
 - [ ] 📱 U10 APK único: `expo-image`, `expo-haptics`, FlashList, fuente propia, **`expo-notifications` (push + tabla
       `push_tokens` 🛠️)**, QR si es nativa; quitar deps sin uso; `npx expo install --check`.
@@ -301,6 +302,19 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
      módulo, cuando se toquen; en la Fase 2 no se borran los archivos de `src/types/` marcados por knip.
 - **2026-10-07** — Las tareas 🚨 de la Fase 4 que no dependen de la navegación (F1 sesión, F2 caché, F3 login web) se
   adelantan antes de la Fase 2.
+- **2026-10-18** — Cabecera hero por módulo: `ScreenHeader module="…"` pinta el degradado con el mismo color
+  del ícono del módulo en Explorar; el color vive solo en `src/constants/modules.ts`.
+- **2026-10-19** — Cabecera hero en **todas** las pantallas con `ScreenHeader` (incluidos formularios y pantallas
+  internas). El color se deduce de la ruta (`useScreenAccent`): zona de rol (`ROUTE_ACCESS`) → color del rol; módulo →
+  color del módulo; si no, azul de la marca. Cada módulo tiene un tono propio (14 distintos); cada rol usa el de su
+  módulo y admin (bronce), vendedor (esmeralda) y patrocinador (lima) llevan uno propio. Acciones de cabecera solo con
+  `actions` (nada de botones armados a mano en `rightElement`). Fuera: detalles con foto (`[id]` con hero de imagen),
+  pestañas y `(auth)`.
+
+- **2026-10-22** — Web (`frontend/`): rediseño aparte de la app, con la misma paleta *Midnight & Gold* (tokens `--mg-*`
+  en `globals.css`), fuente Hanken Grotesk (`next/font`) y animaciones con `motion` (nunca `framer-motion`). Orden:
+  landing → login/registro → esqueleto del dashboard → módulos. Referencia de estilo: plantilla Elena Voss de 21st.dev
+  (solo inspiración, sin copiar código ni imágenes).
 
 ## Bitácora
 
@@ -531,6 +545,16 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   funeraria, solicitudes/mis-viajes). Si el rol no puede abrir el link, la app cae al mapeo por tipo+rol de siempre
   (`resolveNotificationRoute` lo valida). Verificado: los 8 archivos compilan y `notify_user` con link inserta bien en
   una tabla `notifications` de prueba. **Pendiente de desplegar** (sin migración; la `d3e9a7b4c215` ya está aplicada).
+- **2026-10-08** — **Auditoría integral multi-agente** (solo lectura, sin cambios de código). Equipo: Arquitecto,
+  Backend (395 endpoints / 17 servicios), Mobile (P2/P3 = A3+A4), Frontend web y UX/UI. Informes en
+  `docs/auditoria-integral/` (00-plan-maestro.md es el consolidado con el plan por etapas 0/A/B/C/D). Cierre de A3+A4:
+  8/11 módulos P2/P3 funcionan; **MO-016 P0 vivo** (cancelación de citas de la clínica: `directorio.cancelAppointment`
+  sin body → 422; el arreglo correcto está en `services/citas.ts`); Patrocinadores rota (2 pantallas de alta, CTA fuera
+  de `ROUTE_ACCESS`); `RoleGuard` solo en 3 pantallas. Backend: **P0s de seguridad** — tokens `is_temp` aceptados en
+  10/17 servicios, `SECRET_KEY` por defecto en los 17, certificados de funeraria sin auth, sin rate limit, migración de
+  `perdidas` crea la tabla equivocada. Arquitectura: monolito de BD + 17 procesos, 3 tablas con doble propiedad. UX:
+  81% pantallas con hex, `AuthShell` sin adoptar. Frontend Next.js = legacy congelado (recomendación: archivar).
+  **Siguiente: Etapa 0 del plan maestro (seguridad + MO-016).**
 - **2026-10-08** — **F27 DatePicker con el sistema de diseño** (solo app). `DatePicker` deja `constants/Colors` y el
   `ThemeContext` directo por el `useTheme()` estándar, y sus estilos pasan a los tokens (`spacing`, `radius` y el
   token nuevo **`type.labelSentence`** para etiquetas de campo en tipo oración — antes cada uno armaba su estilo).
@@ -591,3 +615,310 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   pinta si es `https://`. App: la tarjeta del QR explica qué verá quien lo escanee y que el enlace dura 24 h.
   Verificado: TestClient+SQLite (póliza `•••• 3456`, XSS escapado, `javascript:` descartado, JSON intacto, 403/404 en
   HTML y JSON) y la página a 375 px.
+- **2026-10-08** — **Despliegue F14+F19+F25+F26**: push (`0d9f61d..f7522d3`) → `deploy-oracle.yml` ✅, **migración de
+  carnet `c14a7e2b9d01` aplicada** (head), `vm.sh status` **17/17 en http 200** y **OTA en `production`** (runtime
+  1.0.0, update group `3704404d-82a9-447c-8dee-aef559b06db3`). La primera pasada del emisor de recordatorios falló
+  (corrió entre el deploy y la migración) sin afectar al resto del carnet, como se diseñó; las siguientes ya leen las
+  columnas nuevas. **Fase 4 completa en los módulos P1.** Siguiente: Bloque B (auditoría P2/P3) o Fase 5 (U1 Tema).
+- **2026-10-08** — **U1 Tema** (solo app, OTA). Paleta con tipo único `ThemeColors`; **`warning` propio** (ámbar
+  `#f2a541`/`#c46a0c`, ya no igual a `accent`); tokens nuevos `onPrimary`, `onHero`, `onHeroMuted`, **`heroGradient`**
+  (azul medianoche en ambos modos, un poco más claro en modo claro), `heroGlass`/`heroGlassBorder` y `statusBar`.
+  **Acentos de dominio armonizados** en `design.ts` (`accents`: health, info, services, shop, community, warning, teal,
+  gold, neutral, danger + `AccentKey`) que reemplazan los 70+ hex Tailwind de `roleTools`, `useExplore` y `useHome`.
+  **Un solo acceso al tema**: `@/src/hooks/useTheme` (los 12 archivos que leían `ThemeContext` + `Colors` migrados;
+  `useThemeContext` queda interno). **Tema guardado en AsyncStorage** (migra el valor viejo de SecureStore una vez; en
+  web desaparece «Failed to load theme mode»). **StatusBar**: una global según el tema + `useHeroStatusBar()` (clara
+  solo mientras la pantalla con hero está enfocada; antes las pestañas la dejaban clara también sobre pantallas de
+  fondo claro). Tema de React Navigation con los colores de la paleta (sin destellos al navegar). Heroes con
+  `theme.heroGradient` (Inicio, Explorar, Tienda, Perdidas, 3 de admin) y `ScreenHeader` con `onHero`. Borrado
+  `components/Themed.tsx` (plantilla sin uso). Paletas alternas: decisión ya tomada (solo Midnight & Gold).
+  Verificado: tsc + ESLint, Inicio en web claro/oscuro.
+- **2026-10-08** — **A1 y A2 auditados** (Directorio/citas, Adopciones, Perdidas, Paseadores/Cuidadores, Pet-friendly +
+  Establecimientos, Estética): secciones nuevas al final de `AUDITORIA_MOBILE.md` con P0 (cancelar cita desde la clínica
+  → 422, `vet_id` ignorado, flujo B de adopción roto, «Invalid Date» en paseos, tipos `daycare`/`boarding` inexistentes)
+  y propuestas de fusión. **A3 y A4 quedaron pendientes** (se detuvieron por límite de uso).
+  **U2 en curso**: `EmptyState` (usa `Button`), `FilterChip`, `Badge`, `BackButton` (44 px), `LoadingOverlay`,
+  `SearchBar` (botón borrar también en Android) pasados a tokens; `Button` y chips usan el token `onPrimary` (casi negro
+  en oscuro, contraste AA) y `onAccent`. Falta en U2: `AppAlert`, `ScreenHeader`, `forms/*`, `QueryErrorBanner`,
+  `AuthShell`, `PetForm`, README de componentes.
+- **2026-10-08** — **U2 Componentes base** (solo app). **Barrido de colores y tokens**: `AppAlert`, `ScreenHeader`,
+  `QueryErrorBanner`, `FormImagePicker`, `FormSwitch` y `WebMapView` sin hex sueltos (`onPrimary`/`onAccent`/`onHero`);
+  `ScreenHeader` usa `heroGradient`/`heroGlass`/`onHeroMuted` de U1 (adiós el `#1c2f6b` fijo) y `QueryErrorBanner` la
+  sombra del design system. `FormSelect`, `FormSection`, `GettingStartedCard` y `WeightSparkline` con
+  `spacing`/`radius`/`type` (los tamaños de glifo de emoji y de gráfica se quedan como excepción documentada).
+  **`PetForm` común** (`features/mascotas/PetForm`) con **`FormField` + `utils/validators`** adoptados: `nuevo.tsx`
+  pasó de 334 a 26 líneas y `editar/[id].tsx` de 364 a 71 (la zona de peligro va como hijo del formulario).
+  **`AuthShell`** creado (esqueleto de `(auth)` con `heroGradient`) — U3 lo adopta en las 4 pantallas —.
+  **`components/README.md`** documentando el kit completo. Verificado: `npm run check` 0 errores (73 avisos, los
+  archivos tocados sin avisos nuevos).
+- **2026-10-17** — **Barrido funcional completo con usuarios de prueba** (producción). Creados **18 usuarios**
+  (1 por rol + 2 consumidores) con KYC `VERIFIED`, documentados en [`users.md`](users.md) con la contraseña
+  `MichiTest2026!`. Datos de prueba sembrados vía API/SQL: 3 mascotas, 8 productos aprobados, 5 vacunas, 3 consultas,
+  4 publicaciones de adopción, 1 reporte de perdidas, perfil de veterinaria. **Barrido con Playwright** (app web
+  375×812 contra producción): **~140 rutas** de los 17 roles cargan sin 404 ni pantalla en blanco; interacciones
+  verificadas (login, alta de mascota, alta de vacuna/consulta, publicar adopción, búsqueda, carrito → «Proceder al
+  pago», ficha con pestañas, notificaciones, admin usuarios/moderación, vendedor productos). **Bugs hallados:**
+  **P0 carnet** — registrar vacunas/consultas daba 500 (FK: se guardaba `users.id` pero la FK apunta a
+  `veterinarians.id`); corregido en `58d177e` (`_vet_profile_id` resuelve `user_id` → `veterinarians.id`, o NULL si el
+  pro no tiene perfil; `pet_access` buscaba por `id` en vez de `user_id`) y **aplicado a mano en la VM** para poder
+  probar — **falta `git push`** (las credenciales de GitHub en esta máquina solo tienen lectura). **P1:** los 500 sin
+  manejar no llevan headers CORS (la app dice «Failed to fetch»); `GET /products/seller/me` filtra `is_approved` y el
+  vendedor no ve sus productos pendientes; `GET /users/me/avatar` responde 401 desde la app. **P2:** el buscador de
+  Explorar es `readonly` y el clic en el input no navega (sí el del contenedor). Detalle y datos en
+  [`users.md`](users.md); capturas en `output/playwright/`.
+- **2026-10-17** — **Segundo pase: botones restantes + fixes B-02…B-05** (app + backend). Probados: editar/ocultar/
+  eliminar producto (con confirmación), editar/eliminar vacuna, 2FA («Iniciar Configuración» → QR + clave + verificar),
+  donaciones, solicitudes y publicaciones de adopción, agenda del vet (filtros, estado vacío), editar perfil (el
+  nombre se guarda), compartir carnet con QR, diagnóstico IA, perdidas (lista + detalle), checkout (crea pedido y
+  llama a Stripe). **Corregidos:** B-02 (los 17 servicios añaden CORS a la respuesta del middleware de errores; antes
+  un 500 llegaba como «Failed to fetch»), B-03 (`/products/seller/me` ya no filtra `is_approved`), B-04 (`useAvatar`
+  solo consulta con sesión), B-05 (el buscador de Explorar usa `Text` en vez de `TextInput` readonly). Commit
+  `97197e3` **aplicado en la VM** (carne, ecommerce, core, etc. reiniciados y verificados). **Sigue sin poderse hacer
+  `git push`** (credenciales de GitHub solo lectura): los commits `58d177e` y `97197e3` esperan push. **Stripe no está
+  configurado** en producción (`STRIPE_SECRET_KEY` vacío en `ecommerce.env`): el botón de pago crea el pedido y avisa
+  «Pagos no disponibles; tu carrito se conservó» — es config, no código. Resumen y datos en [`users.md`](users.md).
+- **2026-10-17** — **Llenado completo de datos de prueba + 4 bugs nuevos corregidos**. Todas las tablas del dominio
+  con contenido real (ver [`users.md`](users.md) para el inventario): 6 mascotas, 9 vacunas, 5 consultas, 8 productos,
+  4 pedidos, 2 reseñas, 4 adopciones + 3 solicitudes, 1 clínica con 5 servicios y 6 horarios, 3 citas, 3 planes de
+  seguro + 3 pólizas + 3 reclamos, 3 servicios funerarios + booking + memorial, 3 programas de entrenamiento,
+  3 servicios de grooming, 4 tests de lab + 2 órdenes, 2 campañas, 3 venues, paseador/cuidador + solicitud,
+  conductor + viaje, 9 notificaciones, 1 donación, 1 reporte de perdidas. **Bugs hallados al llenar y corregidos:**
+  `_notify()` sin parámetro `link` en **aseguradoras, transportistas y funeraria** (500 al crear reclamos, viajes y
+  servicios — F24 actualizó los llamadores pero no las firmas) y `AppointmentCreate` no seteaba `date` desde
+  `appointment_date` cuando `start_time` venía por separado (**500 al crear citas**). Todo aplicado en la VM y
+  commiteado. Inventario y detalle en [`users.md`](users.md).
+- **2026-10-17** — **Auditoría funcional del módulo Carnet/historial clínico** (Playwright, producción). **20 OK · 0
+  FAIL**: ficha con pestañas, estado de vacunas calculado, alta/edición/borrado de vacunas y consultas con
+  confirmación, receta digital (folio, medicamentos, compartir), recordatorios de medicación, `carnet/[id]` redirect,
+  permisos (vet edita, extraño recibe 403). **C-01 corregido:** el error al abrir una mascota ajena decía «Revisa tu
+  conexión» — ahora dice «No tienes permiso» (403) o «ya no existe» (404) y solo ofrece reintento en errores de red.
+  Detalle en [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md) (sección Carnet).
+- **2026-10-17** — **Auditoría funcional de Citas y Recordatorios** (Playwright, producción). **MO-016 corregido:**
+  `directorio.cancelAppointment` mandaba la razón como query y sin body → 422 al cancelar citas. **C-02:** el vet
+  asignado no veía su agenda (`getMyClinics` vacío si no es dueño) → nuevo `GET /appointments/vet/me` + fallback en
+  `useAgenda`. **C-03:** confirm/complete/cancel solo aceptaban al dueño de la clínica → ahora también al vet asignado
+  (`_is_clinic_staff`). **C-04:** filtro «Canceladas» en Mis citas. Verificado: estados de citas (confirmada,
+  completada, cancelada) desde la agenda del vet y desde el cliente; notificaciones con navegación; recordatorios de
+  medicación (marcar dosis); refuerzos de vacuna. Detalle en [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Auditoría funcional de Adopciones** (Playwright, producción). Todo el flujo verificado: listado
+  público, detalle, solicitud de adopción, mis solicitudes, publicaciones del refugio (editar/eliminar), solicitudes
+  recibidas con **flujo de estados completo** (Pendiente → Revisar → En revisión → Aprobar Adopción → Adoptado),
+  formulario de compatibilidad, nueva publicación. Los botones de editar publicación son iconos con `aria-label`.
+  Sin bugs nuevos: el flujo de dos pasos y los alerts de confirmación son el diseño correcto. Detalle en
+  [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Auditoría funcional de módulos P2 y P3** (Playwright, producción). **P2-A: 17 OK** (Perdidas,
+  Donaciones, Paseadores/Cuidadores cliente y pro). **P2-B: 30 OK** (Estilistas, Entrenadores, Transportes, Seguros,
+  Laboratorio, Funeraria — cliente y pro). **P3: 23 OK** (Mi Clínica vet/hospital, Tienda vendedor, Admin,
+  Patrocinadores, Establecimientos, Servicios pro). **P3-01 corregido:** rutas `/hospitals/*` devolvían 404 porque
+  `/{clinic_id}` capturaba `hospitals` como id — ahora las rutas estáticas van antes que las dinámicas.
+  Los 8 falsos positivos del test eran regex sin `i` («Panel Admin» vs `panel»). Detalle en
+  [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Seed masivo: 70/70 tablas con datos, 0 vacías**. Las 31 tablas que estaban sin contenido quedaron
+  llenas: reviews (vet, clínica, paseo, cuidado, grooming, entrenamiento, venues), formularios y contratos de adopción,
+  citas de grooming, tests/resultados/citas de laboratorio, cirugías, inventario (10 items), recetas clínicas, alertas
+  y métricas del dashboard, videoconsultas, avistamientos de mascotas perdidas, solicitudes de cuidado, inscripciones
+  y metas de entrenamiento, defunciones funerarias, lugares pet-friendly con reseñas, excepciones de horario, cupones
+  canjeados, boost de alertas, medical records extended. Constraints respetados (enums de status/priority/alert_level).
+  Inventario completo en [`users.md`](users.md).
+- **2026-10-17** — **Auditoría de Receta/Recordatorios y Especialistas sin clínica**. **R-01:** QR para surtir en
+  farmacia agregado a `receta/[id].tsx` (los estilos `barcode*` existían pero nunca se renderizaban). **R-02:** switch
+  de recordatorios de medicación en la receta (los recordatorios se generan solos al crearla; ahora el usuario sabe
+  que existen y puede controlarlos). **R-03:** el especialista sin clínica ya no bloquea — ofrece «Agendar
+  videoconsulta» (el schema `Consultation` ya permitía `clinic_id` opcional). Commit `ee75ca6`. Detalle en
+  [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-17** — **Auditoría de módulos restantes** (Perfil, Tienda, IA, Ayuda, Búsqueda, Notificaciones, Pago,
+  Carnet): **12 OK · 0 FAIL**. Perfil completo (editar, verificación, 2FA, partner, eliminar cuenta), Tienda
+  (producto, carrito, compras, pago exitoso/cancelado), Diagnóstico IA, Ayuda (FAQ + contacto), Búsqueda,
+  Notificaciones, Directorio (clínica), Ficha de mascota (3 pestañas), formularios de vacuna y consulta. Los 10
+  WARN eran falsos positivos por etiquetas («Pago recibido» vs «éxito», «PREGUNTAS FRECUENTES» vs «FAQ», etc.).
+  Detalle en [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md).
+- **2026-10-18** — `ScreenHeader` rehecho: prop `accent` (degradado del color del módulo), botones volver/acción de
+  44 px iguales (reusa `BackButton`), subtítulo a 2 líneas, título que se ajusta (`type.screenTitle`), tokens en vez de
+  valores sueltos, barra de estado clara sobre la variante hero. Piloto en `perdidas/index.tsx` con `accents.danger`.
+  Archivos: `src/components/layout/ScreenHeader.tsx`, `constants/design.ts`, `app/perdidas/index.tsx`.
+- **2026-10-18** — Cabecera separada en piezas reutilizables: `IconButton` (4 variantes, 44 px), `BackButton` (ahora
+  un `IconButton`), `layout/HeroBackground` (degradado + barra de estado) y `src/constants/modules.ts`
+  (`MODULE_ACCENTS`, fuente única del color por módulo; Explorar lo consume). `ScreenHeader` las compone y recibe
+  `module="…"`. Perdidas migrado a `module="perdidas"`.
+- **2026-10-19** — Homologación de cabeceras y mejoras de Perdidas.
+  - Paleta: 11 acentos nuevos en `design.ts`; `MODULE_ACCENTS`/`ROLE_ACCENTS`/`SEGMENT_ROLES` en `modules.ts`;
+    `roles.ts` toma el color de ahí (sin hex). Hook `useScreenAccent`.
+  - `ScreenHeader` hero por defecto + `actions`; quitada la prop `gradient` (22 pantallas); 31 `rightElement`
+    migrados a `actions` o eliminados (placeholders, íconos decorativos de admin, «Actualizar» de Mis solicitudes y
+    «Guardar» de configuración de clínica —duplicados—, «+» falso de Admin › Servicios). 7 pantallas con cabecera
+    propia migradas (Directorio, Donaciones, Aseguradoras/Funeraria/Patrocinadores nuevo, Verificación, Receta).
+    Títulos sin emoji y más cortos. Quitados márgenes negativos que encimaban contenido sobre la cabecera vieja.
+  - Perdidas: cifras como filtro (`StatTile`, incluye «Reunidos»), cifras que ya no dependen del filtro, `SkeletonGrid`,
+    `AppRefreshControl`, sin error duplicado, banner del tracker solo en el mapa, `ReportCard` en
+    `src/features/perdidas/`, `Badge variant="solid"`.
+  - Repuestos placeholders/teclados/multilínea que perdió la migración a `FormField` (commit 4f0e6ef) en 13 pantallas.
+  - Verificado: `tsc` limpio, ESLint sin errores en los 92 archivos tocados, barrido de 108 rutas por rol a 375 px
+    (claro) y Perdidas/Donaciones/Funeraria/Adopciones/Directorio en oscuro.
+- **2026-10-19** — Correcciones tras la revisión (`code-reviewer`):
+  - Barra de estado: nuevo `layout/HeroStatusBar` (monta `<StatusBar style="light" />` solo con la pantalla enfocada;
+    no depende del orden de eventos de foco). Sustituye a `useHeroStatusBar` (eliminado) en las pestañas y en
+    `HeroBackground`.
+  - `useScreenAccent` fija la ruta del primer render: la pantalla de abajo en la pila ya no toma el color de la de encima.
+  - `accentGradient` oscurece según luminancia (amarillo y lima bajan más) para que el subtítulo tenga contraste.
+  - «Guardar» como botón primario abajo (no ícono en la cabecera) en Nueva consulta, Perfil profesional, Producto y
+    Horarios. Etiquetas explícitas en las 14 cabeceras con `actionIcon`. Quitados los «+» falsos de Admin › Mascotas,
+    Productos y Clínicas. Perdidas: carga propia del filtro «Reunidos», «Quitar filtros» en el vacío, reunidos en verde
+    en el mapa.
+- **2026-10-19** — Fix: `AppRefreshControl` no reenviaba `children`/`style` en nativo → en Android la lista dentro de
+  `ScrollView`/`FlatList` con jalar-para-refrescar no se dibujaba (Perdidas en blanco). OTA publicada.
+- **2026-10-19** — Homologación de tamaños (paso 1 de 2): nueva escala `font` en `design.ts`; codemod en 155 archivos:
+  1,301 `fontSize` numéricos → `font.*` (un escalón más chico en los grandes: 14→13, 16→15, 18→16, 20→18, 24→20,
+  28→22) y 3,163 padding/margin/gap numéricos → `spacing.*` (12→10, 16→14, 20→18, 24→22). Título de cabecera 26→22.
+  Sin tocar radios, anchos/altos ni valores ≥ 48. Paso 2 pendiente: ajuste de escala dentro de la app.
+- **2026-10-19** — Homologación de tamaños (paso 2 de 2): «Tamaño del contenido» en Perfil › Apariencia
+  (Compacto 0.9 · Normal 1 · Grande 1.12). `src/lib/uiScale.ts` guarda la escala (SecureStore síncrono en nativo,
+  localStorage en web) y `constants/design.ts` multiplica todos los tokens (`spacing`, `font`, `type`, `radius`,
+  `layout`; fijo `minTouch` y `pill`) con `scaled()` al arrancar. Cambiarla recarga la app (`Updates.reloadAsync`;
+  `DevSettings.reload` en desarrollo). Hook `useUiScale`. Lo que siga con medidas numéricas sueltas (anchos/altos,
+  tamaños de ícono en props) no escala.
+
+- **2026-10-19** — Compactación y Mis mascotas. Cabecera hero más baja (botones `IconButton size="sm"` de 38 px con
+  área táctil 44, título 19) y margen lateral 22 → 18 (`layout.screenPadding`) en 85 archivos. 85 estilos de
+  chips/pestañas/botones hechos a mano ahora centran su contenido; Directorio usa `FilterChip`. Mis mascotas con
+  selector de vista (`ViewModeToggle` + `useViewMode`, recordado por pantalla en `src/lib/prefs.ts`): cuadrícula
+  (2 columnas, 3 en ≥ 600 px, por defecto), lista y tarjetas (`src/features/mascotas/PetCards.tsx`). `capitalize`
+  ya respeta acentos ("Siamés").
+  Después: `MediaCard`/`MediaRow` (componentes base de elemento con foto) y `useGridCell`; Adopciones (cuadrícula/lista)
+  y Perdidas (cuadrícula/lista/mapa, antes solo cuadrícula↔mapa) usan el mismo selector, recordado por pantalla.
+- **2026-10-19** — **Tienda completa (cliente + vendedor)**. Cliente: pestaña con cabecera hero (bolsa con contador),
+  buscador, categorías con ícono, **favoritos** (en la cuenta desde la entrada siguiente), **ordenar**
+  (`OptionMenu`), cuadrícula/lista, **agregar rápido** desde la tarjeta y **barra flotante de la bolsa** (`CartBar`);
+  producto con botones flotantes en la safe area, existencias, opiniones de compra verificada (`ReviewsSection`),
+  «También te puede gustar» y cantidad + agregar fijos; bolsa con `QuantityStepper` de 44 px, dirección con error en
+  línea, vaciar con confirmación y «Pagar» fijo (`KeyboardScreen` con `footer`); Mis compras con filtros por estado;
+  pedido con seguimiento (`OrderTracking`), **«Volver a comprar»** (`addManyToCart`) y correo a soporte con el pedido.
+  Vendedor: panel (`SummaryCard` con el color del rol, avisos accionables «por enviar / agotados / en revisión»,
+  más vendidos), catálogo con filtros por estado y `?filtro=`, pedidos con **nombre del comprador** y confirmación
+  antes de avanzar, analíticas con tendencia de 7 días (`MiniBarChart`) y top 5, formulario con errores en línea,
+  teclado numérico y **vista previa**. Estados de pedido unificados en `features/tienda/orderStatus.ts` (sin hex).
+  Backend ecommerce: `buyer_name` en `/orders/seller/me`; `GET /products/?seller_id=` ya no expone productos ocultos
+  ni pendientes. Borrado `useSellerDashboard` (lo cubre `useSellerAnalytics`).
+  Revisión (`code-reviewer`) aplicada: `DataList` dibuja carga y vacío dentro de la misma `FlatList` (el buscador ya no
+  pierde el foco al quedarse sin resultados); «Volver a comprar» omite productos no aprobados; panel y catálogo cuentan
+  igual (`CATALOG_FILTERS`); `addToCart` devuelve las piezas agregadas; el vendedor no ve «agregar» en sus productos;
+  `RoleGuard` en `tienda/vendedor/_layout.tsx`. Pendiente: métricas del vendedor limitadas a 50 pedidos (`/orders/seller/me`
+  sin paginación).
+- **2026-10-19** — **Búsqueda y orden de la tienda en el backend**. `GET /products/` acepta `q` (sin acentos con
+  `translate`, cada palabra en nombre o descripción), `sort` (relevance | price_asc | price_desc | rating, agotados
+  al final; 422 si no es válido), `ids` (favoritos) y `limit` ≤ 100. La pestaña pide páginas de 24 con scroll
+  infinito (`useInfiniteQuery`) y busca al dejar de escribir (`useDebouncedValue`, 350 ms). Probado contra producción.
+- **2026-10-19** — **Favoritos de la tienda en la cuenta**. Tabla `product_favorites` (migración `f2b7c4e91a06`,
+  `ON DELETE CASCADE`, único por usuario+producto, tope 200) y endpoints `GET /favorites/me`, `PUT`/`DELETE
+  /favorites/me/{id}` y `POST /favorites/me/merge`; `GET /products/?favorites=true` filtra en el servidor. En la app
+  `useProductFavorites` (reemplaza a `useFavorites`): corazón optimista con reversión y aviso si falla; los favoritos
+  que estaban solo en el teléfono se suben una vez y se borran de ahí. `apiFetch` acepta respuestas 204.
+- **2026-10-19** — **Detalle de Perdidas rediseñado** (`app/perdidas/[id].tsx`). La flecha de volver quedaba bajo la
+  foto (no estaba posicionada) y el nombre iba encima de la imagen: ahora sigue el patrón del detalle de producto
+  (foto con esquinas redondeadas, volver/editar/compartir flotantes y fijos en la safe area, datos debajo). Una sola
+  acción principal abajo: «Contactar al dueño» o, para el dueño, «Ya regresó a casa» (editar pasa arriba). Tokens y
+  componentes base (0 hex); `TrackerCard` y `SightingForm` en `src/features/perdidas/ReportDetailSections.tsx`.
+- **2026-10-19** — **Detalle de Adopciones rediseñado** y piezas comunes en `src/components/layout/DetailLayout.tsx`
+  (`DetailPhoto`, `DetailTopBar`, `DetailFooter`), usadas también por Producto y Perdidas. En Adopciones la foto era
+  cabecera pegajosa (`stickyHeaderIndices`) y tapaba el texto al hacer scroll; los botones estaban a 60 px fijos. Ahora:
+  skeleton, galería deslizable (`photo_url` + `gallery`), datos con energía, salud y convivencia con ✓/–, personalidad,
+  y una acción principal (adoptar / ver mi solicitud / **ver solicitudes recibidas** para quien publicó). `Badge` acepta
+  `accessibilityLabel`; nuevo `sentenceCase` para valores sueltos ("Gris y blanco").
+- **2026-10-19** — **Auditoría integral** (ver `AUDITORIA_MOBILE.md` § Auditoría integral): deuda medida en las 156
+  pantallas, P0 abiertos revisados en código (4 ya resueltos, 3 siguen: fecha del paseo, filtros de cuidadores,
+  aprobación de adopciones), ESLint en 0 errores, Knip con 19 archivos sin uso. Plan de 8 pasos.
+- **2026-10-19** — **Paso 1 del plan**: fecha del paseo (hoy por defecto), filtros de cuidadores con los tipos reales
+  (`hosting`/`visiting`), «Solicitudes recibidas» lleva a la gestión de cada solicitud (estados en
+  `features/adopciones/requestStatus.ts`), avisos de avistamiento con enlace, privacidad en `GET /reports/` y
+  `GET /pets/{id}` (backend desplegado y verificado). **Paso 2**: Inicio, Explorar y Panel con `ScreenHeader` hero,
+  secciones en `src/features/home/HomeSections.tsx` (`ShortcutGrid`, `PetCarousel` con skeleton y sin fotos de
+  Unsplash, `AppointmentList`, `ServiceGrid`), pull-to-refresh; Explorar agrupado por categoría con Diagnóstico IA
+  como un servicio más (sin banner duplicado); `SearchBar` con modo `onPress`; pestaña «Herramientas» → «Panel».
+- **2026-10-19** — **Paso 3: Adopciones** (12 pantallas premium). Solicitar (pasos con `FormField`/`FormSwitch`/
+  `FilterChip`, errores en línea, puertas de admin y verificación con `EmptyState`; veterinarios ya pueden adoptar),
+  publicar/editar (`FormImagePicker`, secciones, skeleton al editar), gestionar solicitud (estado + siguiente paso,
+  datos del hogar, entrevista, «Rechazar» + acción principal fija), «Solicitudes recibidas» en una lista con filtros
+  (`RequestCard` compartida con `ver-solicitudes`), mis solicitudes (sin «En vivo» falso), mis publicaciones
+  (`MediaRow` con editar/eliminar; sin eliminar en adoptadas), compatibilidad y contrato con `Button`/`DetailFooter`.
+  La cabecera de Adopciones lleva a mis solicitudes y mis publicaciones. Base: `FormSection` con `gap` (los
+  `FormSwitch` dentro no suman margen) y `EmptyState` con la acción centrada.
+- **2026-10-19** — **Paso 4: Perdidas**. Crear y editar comparten `src/features/perdidas/ReportFormScreen.tsx` y
+  `useReportForm` (con `id` = edición): errores en línea, teléfono y correo validados, mover el punto a la ubicación
+  actual al editar, ubicación automática silenciosa al crear. Nueva pantalla **Mis reportes** (`/perdidas/mis-reportes`,
+  `GET /reports/mine`) con editar y eliminar con confirmación; acceso desde la cabecera de Perdidas. Borrados
+  `useEditReport` y `useReportActions` (sin uso).
+- **2026-10-19** — **Paso 5a: Directorio y citas**. Mis citas (filtros desplazables con conteo, tarjetas con
+  `Card`/`Badge`, motivo de cancelación, estados con tonos del tema), agendar (`FormSection`, servicios como tarjetas,
+  horarios con `FilterChip` y skeleton, botón fijo con la hora elegida, sin emojis, aviso de urgencia honesto) y
+  detalle de clínica (encabezado dentro del scroll con `DetailTopBar` fijo, contacto rápido solo con lo registrado,
+  `ReviewsSection` sin formulario para el dueño, sin favorito falso, compartir real; acciones en `useClinicDetail`).
+  Especialista: sin formulario de reseña para el propio veterinario.
+- **2026-10-19** — **Paso 5b: Paseadores y Cuidadores**. **Bug**: «Reservar cuidado» no abría nada (el modal del
+  cuidador nunca se dibujaba); ahora ambos detalles usan el nuevo `BottomSheet` (mascota con `FilterChip`, fecha/rango
+  con `DatePicker`, duración o tipo de cuidado, notas, Cancelar/Enviar). Detalles con skeleton, `EmptyState`,
+  `ProviderPrice`/`ProviderServices`, calificación calculada con las reseñas reales. `ProviderFooter` usa
+  `DetailFooter` + `Button` (safe area) para todos los proveedores.
+- **2026-10-19** — **Paso 6 (parcial): Mascotas**. Ficha con `DetailPhoto`/`DetailTopBar` (compartir carnet y editar
+  fijos; sin emojis: ícono de huella, `Satellite`, `Scissors`, `Flower2`), `ListRow` para Michi-Tracker y servicios,
+  `EmptyState` en errores. Vacunas y consultas con editar/eliminar como íconos compactos. `DetailPhoto` sin foto usa
+  55 % de alto. Auth revisado (ya premium; «Crear cuenta» en tipo oración).
+  Carnet: nueva consulta y nueva vacuna con `FormSection`/`FormField`, errores en línea (motivo, peso, temperatura) y
+  botón fijo. **Revisión (`code-reviewer`) de los pasos 1–5 aplicada**: «Mis reportes» se refresca al resolver o
+  borrar; Inicio muestra las citas `pending` futuras; al aprobar una adopción se refresca la publicación; quien ya
+  solicitó sigue viendo una publicación en remoderación (backend); el solicitante no ve botones de gestión;
+  moderación → `ver-solicitudes/{id}`; reportes `expired` = «Vencido»; clínica inexistente con `EmptyState`;
+  `FormSelect`/`FormImagePicker` sin margen doble dentro de `FormSection`; `BottomSheet` con `padding` en Android;
+  «Hasta» se recorre si «Desde» lo rebasa.
+- **2026-10-19** — **Paso 8: código muerto**. Borrados 17 archivos sin uso (Knip): hooks `useAdminOrders`, `useAlerts`,
+  `usePatients`, `useSubcategories` y 13 tipos viejos de `src/types/`. Quedan 5 dependencias sin uso (`@expo/cli`,
+  `@teovilla/react-native-web-maps`, `axios`, `expo-symbols`, `react-native-get-location`): quitarlas junto con el
+  próximo APK.
+- **2026-10-19** — **Paso 7 (pasada global)**. `LoadingOverlay` ahora dibuja un esqueleto de lista a todo el ancho
+  (las 35 pantallas que lo usaban para cargar ya no muestran un spinner a pantalla completa). Codemod: 127 `#fff` en
+  JSX → `theme.onPrimary` en 57 archivos (en tema oscuro `onPrimary` es oscuro: el blanco fijo sobre botones claros
+  tenía poco contraste); sobre velos de foto se usa `theme.onHero`.
+  Revisión visual de Mi clínica (12 pantallas: consistentes, deuda solo de código) y Admin (14): Mascotas muestra el
+  nombre del dueño en vez de su UUID; Usuarios sin textos encimados (nombre/correo en una línea, insignias que
+  saltan de línea, acciones con `IconButton` de 44 px de área).
+  Barrido visual de 15 módulos de cliente: listas de paseadores y cuidadores sin botón anidado (error en web);
+  emojis usados como ícono reemplazados por lucide (Partner con un ícono por rol, Aseguradoras, Transportistas,
+  Diagnóstico IA, «Primeros pasos»).
+- **2026-10-19** — Especialista rehecho como la clínica (encabezado en el scroll, `DetailTopBar`, sin favorito
+  falso, compartir real, `ReviewsSection`, acciones en `useVetDetail`). **Bugs**: `vet_id` nunca se enviaba al
+  agendar (la cita no quedaba asignada al especialista) y el especialista sin clínica mandaba a una ruta inexistente;
+  ahora su acción principal es WhatsApp/llamar.
+- **2026-10-19** — Sin push (a pedido del usuario; solo commits locales). Cupones personales en establecimientos
+  (backend), detalle de pet-friendly con `DetailLayout`, Estética (horarios pasados y privacidad del historial en
+  backend, alta con invalidación, **Mis servicios** nuevo con pausar/editar, nombre del estilista en el catálogo,
+  `RoleGuard`), registro en el directorio solo para veterinarios/clínicas (app y backend), `RoleGuard` en
+  establecimientos, «Mis solicitudes» de paseos/cuidados abierta a clientes, receta sin interruptor falso, admin abre
+  documentos reales, perfil de servicio con componentes base, borrado código muerto de hooks de proveedores.
+  **Revisión de los commits locales aplicada**: cupones en mayúsculas y canje sin distinguir mayúsculas, reclamos
+  viejos con código compartido pasan a código personal al volver a reclamar, campaña reconocida sin comodines LIKE
+  (`PROMO` ≠ `PROMO-VERANO`), lista de establecimientos con «Cupón disponible», el `vet_id` debe pertenecer a la
+  clínica (backend), estética rechaza citas en el pasado (hora de México), `RoleGuard` en perfil de servicio,
+  especialista sin servicios cae a contacto, descripción de estética borrable, admin abre solo enlaces `https`,
+  pet-friendly con skeleton/`EmptyState`, «Mis inscripciones» sin botón anidado, laboratorio con `EmptyState`.
+- **2026-10-22** — Web, landing nueva en `frontend/src/features/landing/` (hero con carnet de ejemplo animado, línea
+  de tiempo fija por etapas, frase que se enfoca con el scroll, carril horizontal de profesionales, FAQ y footer).
+  `page.tsx` pasa a server component; se borra `page.module.css`. Deps: `motion`, `lucide-react`. Revisada con
+  capturas a 1440 y 375 px. Pendiente web: `NEXT_PUBLIC_API_URL`/rutas de `lib/api.ts` desfasadas (adopciones usa
+  `/adopciones/api/v1/adopciones`, el backend sirve `/pets`), error previo de tipos en `Sidebar.tsx` (`getPlaces`),
+  `next dev` con Turbopack falla aquí con *Permission denied* (usar `--webpack`), y 6 vulnerabilidades de `npm audit`.
+- **2026-10-23** — Web, landing ampliada (sin quitar nada): fotos de Gemini con gatos al frente (`public/landing/`,
+  prompts en `docs/landing-fotos-prompts.md`); rueda de funciones (port de «works-wheel» de 21st.dev a CSS Modules,
+  girando con el scroll de la página); catálogo de 22 funciones reales; «Un día con tu michi» (carril fijo con cielo y
+  sol); «Lo que cuidamos por ti» (tarjetas que se enderezan); títulos que suben por palabras, fotos que se asoman, cola de gato dibujada, footer con revelado y nombre
+  gigante. Scroll suave con `lenis` (helper `scrollToY`). Efectos de la plantilla Sill hechos con `motion`, sin GSAP.
+- **2026-10-23** — Web, landing: 7 fotos más en profesionales (falta `pro-transporte`), oficios aseguradoras, funerarias y
+  patrocinadores; catálogo a 28 funciones (QR, alertas impulsadas, bloque «Tu cuenta»). Secciones nuevas con ideas de
+  la landing vieja de Vercel (Astro), sin sus cifras, testimonios ni marcas inventadas: chat de ejemplo de Michi-IA con
+  el formato real (urgencia, resumen, plan, aviso), «Así funciona adoptar» (4 pasos reales) y «Tu michi, en tu
+  bolsillo» (botón de descarga solo si existe `NEXT_PUBLIC_APP_DOWNLOAD_URL`). Corregido: la landing decía que los
+  vecinos reciben alertas de perdidas; el backend solo avisa al dueño por avistamientos y busca reportes a 10 km.
+- **2026-10-23** — Web: se quita «Así son los michis» (decorativa, no mostraba ninguna función). Títulos «Tu mascota, en
+  tu bolsillo» y «Un día con tu mascota».
+- **2026-10-23** — Landing publicada en https://michicondrias-landing-page.vercel.app/ (repo aparte
+  `michicondrias-landing`, ahora Next.js en vez de Astro; Vercel despliega con cada push a `main`). Fuente de verdad:
+  `frontend/src/features/landing/` del monorepo; se copia al otro repo. Enlaces «Entrar»/«Crear cuenta» centralizados
+  en `links.ts` (`NEXT_PUBLIC_WEB_APP_URL`); sin web app publicada bajan a la sección de la app.
+

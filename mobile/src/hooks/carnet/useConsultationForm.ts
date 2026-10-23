@@ -23,6 +23,7 @@ export function useConsultationForm() {
     const [notes, setNotes] = useState('');
     const [weight, setWeight] = useState('');
     const [temp, setTemp] = useState('');
+    const [errors, setErrors] = useState<Partial<Record<'reason' | 'weight' | 'temp', string>>>({});
     const [prescriptions, setPrescriptions] = useState<MedicalRecordCreate['prescriptions']>([]);
 
     const { data: editing } = useQuery({
@@ -66,7 +67,7 @@ export function useConsultationForm() {
             router.back();
         },
         onError: (error: any) => {
-            showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo guardar la consulta.' });
+            showAlert({ type: 'error', title: 'No se pudo guardar', message: error.message || 'Inténtalo de nuevo.' });
         }
     });
 
@@ -85,26 +86,22 @@ export function useConsultationForm() {
     };
 
     const handleSave = () => {
-        if (!reason.trim()) {
-            showAlert({ type: 'error', title: 'Campo Requerido', message: 'Por favor ingresa el motivo de la consulta.' });
-            return;
-        }
+        const next: typeof errors = {};
+        if (!reason.trim()) next.reason = 'Escribe el motivo de la visita.';
+        const w = weight.trim() ? parseFloat(weight.replace(',', '.')) : undefined;
+        if (w !== undefined && (isNaN(w) || w <= 0)) next.weight = 'Mayor a cero.';
+        const t = temp.trim() ? parseFloat(temp.replace(',', '.')) : undefined;
+        if (t !== undefined && (isNaN(t) || t < 30 || t > 45)) next.temp = 'Entre 30 y 45 °C.';
+        setErrors(next);
+        if (Object.keys(next).length > 0) return;
 
         if (!petId) {
-            showAlert({ type: 'error', title: 'Error', message: 'No se encontró la mascota de esta consulta.' });
+            showAlert({ type: 'error', title: 'Falta la mascota', message: 'Abre la consulta desde la ficha de la mascota.' });
             return;
         }
 
         const weightVal = weight.trim() ? parseFloat(weight.replace(',', '.')) : undefined;
-        if (weightVal !== undefined && (isNaN(weightVal) || weightVal <= 0)) {
-            showAlert({ type: 'error', title: 'Dato inválido', message: 'El peso debe ser un número mayor a cero.' });
-            return;
-        }
         const tempVal = temp.trim() ? parseFloat(temp.replace(',', '.')) : undefined;
-        if (tempVal !== undefined && (isNaN(tempVal) || tempVal < 30 || tempVal > 45)) {
-            showAlert({ type: 'error', title: 'Dato inválido', message: 'La temperatura debe estar entre 30 y 45 °C.' });
-            return;
-        }
 
         const validPrescriptions = prescriptions.filter(p => p.medication_name.trim());
         for (const p of validPrescriptions) {
@@ -131,6 +128,7 @@ export function useConsultationForm() {
     };
 
     return {
+        errors,
         petId,
         isEditing: !!editId,
         // Form fields

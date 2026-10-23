@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useServiceManagement } from '@/src/hooks/servicios-pro/useServiceManagement';
@@ -12,6 +12,7 @@ import FilterChip from '@/src/components/FilterChip';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Clock, ClipboardList, User, Activity } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function ProfessionalGestionScreen() {
     const router = useRouter();
@@ -52,16 +53,7 @@ export default function ProfessionalGestionScreen() {
             <ScreenHeader
                 title="Mis tareas"
                 subtitle={kind === 'walk' ? 'Solicitudes de paseo' : 'Solicitudes de cuidado'}
-                rightElement={
-                    <TouchableOpacity
-                        style={[styles.headerAction, { backgroundColor: theme.surface }]}
-                        onPress={() => router.push('/servicios-pro/perfil' as any)}
-                        accessibilityRole="button"
-                        accessibilityLabel="Editar perfil profesional"
-                    >
-                        <User size={22} color={theme.text} />
-                    </TouchableOpacity>
-                }
+                actions={[{ icon: User, label: 'Mi perfil profesional', onPress: () => router.push('/servicios-pro/perfil' as any) }]}
             />
             {isLoading ? (
                 <LoadingOverlay message="Cargando solicitudes..." />
@@ -95,11 +87,10 @@ export default function ProfessionalGestionScreen() {
 }
 
 const styles = StyleSheet.create({
-    headerAction: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    statsRow: { flexDirection: 'row', gap: 12, marginBottom: 16 },
-    statBox: { flex: 1, flexDirection: 'row', padding: 16, borderRadius: 18, alignItems: 'center', gap: 12, borderWidth: 1 },
-    statValue: { fontSize: 18, fontWeight: '800' },
-    statLabel: { fontSize: 11, fontWeight: '700' },
-    chips: { gap: 8, paddingBottom: 16 },
-    list: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 100 },
+    statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+    statBox: { flex: 1, flexDirection: 'row', padding: spacing.lg, borderRadius: 18, alignItems: 'center', gap: spacing.md, borderWidth: 1 },
+    statValue: { fontSize: font.xxl, fontWeight: '800' },
+    statLabel: { fontSize: font.sm, fontWeight: '700' },
+    chips: { gap: spacing.sm, paddingBottom: spacing.lg },
+    list: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: 100 },
 });

@@ -18,6 +18,7 @@ import {
     Save,
     X
 } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function ClinicDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -47,7 +48,7 @@ export default function ClinicDetailScreen() {
         return (
             <View style={[styles.center, { backgroundColor: theme.background }]}>
                 <Text style={{ color: theme.textMuted }}>No se pudo cargar la información de la clínica.</Text>
-                <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} style={{ marginTop: 20 }}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} style={{ marginTop: spacing.xl }}>
                     <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Regresar</Text>
                 </TouchableOpacity>
             </View>
@@ -58,10 +59,9 @@ export default function ClinicDetailScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Detalles de Clínica"
-                gradient={[theme.primary, theme.primary + 'CC']}
             />
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.huge }}>
                 {isEditing ? (
                     <>
                         {/* Edit Form */}
@@ -111,7 +111,7 @@ export default function ClinicDetailScreen() {
                                     thumbColor={form.is_24_hours ? theme.primary : theme.textMuted}
                                 />
                             </View>
-                            <View style={[styles.switchRow, { borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 16, marginTop: 12 }]}>
+                            <View style={[styles.switchRow, { borderTopWidth: 1, borderTopColor: theme.border, paddingTop: spacing.lg, marginTop: spacing.md }]}>
                                 <Text style={[styles.switchLabel, { color: theme.text }]}>Servicio de emergencias</Text>
                                 <Switch
                                     value={form.has_emergency}
@@ -136,9 +136,9 @@ export default function ClinicDetailScreen() {
                                 disabled={isSaving}
                             >
                                 {isSaving ? (
-                                    <ActivityIndicator size="small" color="#fff" />
+                                    <ActivityIndicator size="small" color={theme.onPrimary} />
                                 ) : (
-                                    <Save size={18} color="#fff" />
+                                    <Save size={18} color={theme.onPrimary} />
                                 )}
                                 <Text style={styles.btnActionText}>Guardar</Text>
                             </TouchableOpacity>
@@ -271,8 +271,8 @@ function FormField({ label, value, onChangeText, theme, keyboardType }: {
 const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     infoCard: {
-        margin: 20,
-        padding: 24,
+        margin: spacing.xl,
+        padding: spacing.xxl,
         borderRadius: 32,
         borderWidth: 1,
         elevation: 8,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     logoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 20,
+        gap: spacing.xl,
     },
     logo: {
         width: 80,
@@ -300,34 +300,34 @@ const styles = StyleSheet.create({
     },
     mainMeta: { flex: 1 },
     name: {
-        fontSize: 22,
+        fontSize: font.h2,
         fontWeight: '800',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     statusBadgeRow: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 10,
     },
     statusText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
     },
     divider: {
         height: 1,
-        marginVertical: 24,
+        marginVertical: spacing.xxl,
     },
     contactSection: {
-        gap: 20,
+        gap: spacing.xl,
     },
     detailItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     iconCircle: {
         width: 36,
@@ -338,55 +338,55 @@ const styles = StyleSheet.create({
     },
     detailInfo: { flex: 1 },
     detailLabel: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
         textTransform: 'uppercase',
         letterSpacing: 0.5,
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     detailValue: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     section: {
-        marginHorizontal: 20,
-        marginBottom: 16,
-        padding: 24,
+        marginHorizontal: spacing.xl,
+        marginBottom: spacing.lg,
+        padding: spacing.xxl,
         borderRadius: 28,
         borderWidth: 1,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
     },
     description: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 22,
         fontWeight: '500',
     },
     adminData: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     adminLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     adminValue: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     actionRow: {
-        paddingHorizontal: 20,
-        marginTop: 8,
-        gap: 12,
+        paddingHorizontal: spacing.xl,
+        marginTop: spacing.sm,
+        gap: spacing.md,
     },
     btnAction: {
         height: 56,
@@ -394,57 +394,57 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
         elevation: 4,
     },
     btnActionText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     // Edit form styles
     formCard: {
-        marginHorizontal: 20,
-        marginTop: 16,
-        padding: 24,
+        marginHorizontal: spacing.xl,
+        marginTop: spacing.lg,
+        padding: spacing.xxl,
         borderRadius: 28,
         borderWidth: 1,
     },
     formSectionTitle: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     fieldContainer: {
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     fieldLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
         textTransform: 'uppercase',
         letterSpacing: 0.5,
-        marginBottom: 6,
+        marginBottom: spacing.sm,
     },
     input: {
         height: 48,
         borderRadius: 14,
         borderWidth: 1,
-        paddingHorizontal: 16,
-        fontSize: 14,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.base,
         fontWeight: '600',
     },
     textArea: {
         borderRadius: 14,
         borderWidth: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        fontSize: 14,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
+        fontSize: font.base,
         fontWeight: '500',
         minHeight: 100,
     },
     formRow: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     formRowField: {
         flex: 1,
@@ -455,13 +455,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     switchLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     editActions: {
         flexDirection: 'row',
-        paddingHorizontal: 20,
-        marginTop: 20,
-        gap: 12,
+        paddingHorizontal: spacing.xl,
+        marginTop: spacing.xl,
+        gap: spacing.md,
     },
 });

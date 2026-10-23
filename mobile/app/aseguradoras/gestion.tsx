@@ -24,6 +24,7 @@ import {
     CheckCircle,
     CheckCircle2,
 } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function GestionScreen() {
     const { theme } = useTheme();
@@ -57,7 +58,7 @@ export default function GestionScreen() {
                         </Text>
                     )}
                 </View>
-                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                <View style={{ alignItems: 'flex-end', gap: spacing.xs }}>
                     <View style={[styles.activeBadge, { backgroundColor: item.is_active ? theme.successLight : theme.overlay }]}>
                         <CheckCircle size={12} color={item.is_active ? theme.success : theme.textMuted} />
                         <Text style={[styles.activeText, { color: item.is_active ? theme.success : theme.textMuted }]}>
@@ -117,6 +118,7 @@ export default function GestionScreen() {
                 title="Gestión de Planes"
                 subtitle="Administra tus planes de seguro"
                 actionIcon={showCreateForm ? X : Plus}
+                actionLabel={showCreateForm ? 'Cerrar formulario' : 'Nuevo plan'}
                 onAction={() => setShowCreateForm(!showCreateForm)}
             />
 
@@ -251,7 +253,7 @@ export default function GestionScreen() {
                             onPress={handleCreatePlan}
                         >
                             {isCreatingPlan ? (
-                                <ActivityIndicator color="#fff" />
+                                <ActivityIndicator color={theme.onPrimary} />
                             ) : (
                                 <Text style={styles.createBtnText}>Crear Plan</Text>
                             )}
@@ -284,26 +286,26 @@ export default function GestionScreen() {
 
 const styles = StyleSheet.create({
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     formContainer: {
         flex: 1,
     },
     formContent: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
     formCard: {
         borderRadius: 20,
         borderWidth: 1,
-        padding: 20,
+        padding: spacing.xl,
     },
     formHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 24,
+        gap: spacing.md,
+        marginBottom: spacing.xxl,
     },
     formHeaderIcon: {
         width: 40,
@@ -313,54 +315,54 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     formTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     inputGroup: {
-        gap: 8,
-        marginBottom: 16,
+        gap: spacing.sm,
+        marginBottom: spacing.lg,
     },
     row: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     label: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 52,
         borderRadius: 14,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
     },
     textArea: {
         minHeight: 80,
         borderRadius: 14,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
     },
     speciesRow: {
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.md,
     },
     speciesButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 12,
         borderWidth: 1,
-        gap: 6,
+        gap: spacing.sm,
     },
     speciesButtonText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     createBtn: {
@@ -368,24 +370,24 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     createBtnText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     planCard: {
-        padding: 18,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     planHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 14,
-        gap: 12,
+        marginBottom: spacing.lg,
+        gap: spacing.md,
     },
     planIcon: {
         width: 44,
@@ -398,32 +400,32 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     planName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     planDesc: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 16,
     },
     activeBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
-        gap: 4,
+        gap: spacing.xs,
     },
     activeText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
     },
     planStats: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderTopWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     statItem: {
         alignItems: 'center',
@@ -433,26 +435,28 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.1)',
     },
     statValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginTop: 4,
+        marginTop: spacing.xs,
     },
     statLabel: {
-        fontSize: 10,
-        marginTop: 2,
+        fontSize: font.xs,
+        marginTop: spacing.xxs,
     },
     tagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
+        gap: spacing.sm,
     },
     speciesTag: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     speciesTagText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
 });

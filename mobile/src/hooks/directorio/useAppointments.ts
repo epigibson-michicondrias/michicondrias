@@ -9,22 +9,24 @@ import { getMyAppointments } from '@/src/services/directorio';
 import type { AppointmentItem } from '@/src/services/directorio';
 import { showAlert } from '@/src/components/AppAlert';
 
-export type FilterTab = 'all' | 'scheduled' | 'confirmed' | 'completed';
+export type FilterTab = 'all' | 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
 
-export const STATUS_CONFIG: Record<string, { label: string; color: string; lightColor: string }> = {
-    scheduled: { label: 'Pendiente', color: '#f59e0b', lightColor: '#f59e0b20' },
-    pending: { label: 'Pendiente', color: '#f59e0b', lightColor: '#f59e0b20' },
-    rescheduled: { label: 'Reagendada', color: '#6366f1', lightColor: '#6366f120' },
-    confirmed: { label: 'Confirmada', color: '#22c55e', lightColor: '#22c55e20' },
-    completed: { label: 'Completada', color: '#3b82f6', lightColor: '#3b82f620' },
-    cancelled: { label: 'Cancelada', color: '#ef4444', lightColor: '#ef444420' },
+/** Etiqueta y tono del tema por estado (el color se resuelve con `theme[tone]`). */
+export const STATUS_CONFIG: Record<string, { label: string; tone: 'warning' | 'info' | 'success' | 'primary' | 'error' }> = {
+    scheduled: { label: 'Por confirmar', tone: 'warning' },
+    pending: { label: 'Por confirmar', tone: 'warning' },
+    rescheduled: { label: 'Reagendada', tone: 'info' },
+    confirmed: { label: 'Confirmada', tone: 'success' },
+    completed: { label: 'Completada', tone: 'primary' },
+    cancelled: { label: 'Cancelada', tone: 'error' },
 };
 
 export const FILTER_TABS: { key: FilterTab; label: string }[] = [
     { key: 'all', label: 'Todas' },
-    { key: 'scheduled', label: 'Pendientes' },
+    { key: 'scheduled', label: 'Por confirmar' },
     { key: 'confirmed', label: 'Confirmadas' },
     { key: 'completed', label: 'Completadas' },
+    { key: 'cancelled', label: 'Canceladas' },
 ];
 
 export function formatDateTime(dateStr: string): { date: string; time: string } {
@@ -78,8 +80,8 @@ export function useAppointments() {
         onError: (error: any) => {
             showAlert({
                 type: 'error',
-                title: 'Error',
-                message: error.message || 'No se pudo cancelar la cita. Intenta de nuevo.',
+                title: 'No se pudo cancelar',
+                message: error.message || 'Inténtalo de nuevo.',
             });
         },
     });
@@ -87,7 +89,7 @@ export function useAppointments() {
     const handleCancel = useCallback((appointment: Appointment) => {
         showAlert({
             type: 'warning',
-            title: 'Cancelar Cita',
+            title: '¿Cancelar la cita?',
             message: `¿Estás seguro de cancelar tu cita en ${appointment.clinic_name || 'esta clínica'}?`,
             buttonText: 'Sí, cancelar',
             showCancel: true,
@@ -100,6 +102,13 @@ export function useAppointments() {
         router.push(`/directorio/citas/agendar/${appointment.clinic_id}?reschedule_id=${appointment.id}&service_id=${appointment.service_id ?? ''}` as any);
     }, [router]);
 
+    const matches = (a: Appointment, key: FilterTab) => {
+        if (key === 'all') return a.status !== 'cancelled' && a.status !== 'rescheduled';
+        if (key === 'scheduled') return a.status === 'pending' || a.status === 'scheduled';
+        return a.status === key;
+    };
+    const countFor = (key: FilterTab) => appointments.filter((a) => matches(a, key)).length;
+
     const filtered = appointments.filter(a => {
         if (activeFilter === 'all') return a.status !== 'cancelled' && a.status !== 'rescheduled';
         // El backend guarda las citas por confirmar como "pending"
@@ -109,6 +118,7 @@ export function useAppointments() {
 
     return {
         appointments: filtered,
+        countFor,
         allAppointments: appointments,
         directorioAppointments,
         directorioLoading,

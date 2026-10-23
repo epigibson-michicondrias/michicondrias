@@ -1,6 +1,6 @@
 /**
  * useClinicsAndVets — Hook for fetching and filtering clinics and vets
- * Extracts data fetching and filtering logic from app/directorio/index.tsx
+ * Doctoralia-style filters: specialty, location, rating, services.
  */
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -16,11 +16,12 @@ export function useClinicsAndVets() {
     const [activeTab, setActiveTab] = useState<DirectorioTab>('clinics');
     const [searchQuery, setSearchQuery] = useState('');
     const [filterService, setFilterService] = useState('all');
+    const [filterSpecialty, setFilterSpecialty] = useState('all');
+    const [filterCity, setFilterCity] = useState('all');
+    const [filterRating, setFilterRating] = useState('all');
     const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, [user]);
+    useEffect(() => { setIsMounted(true); }, [user]);
 
     const { data: clinics = [], isLoading: loadingClinics } = useQuery({
         queryKey: ['directorio-clinics'],
@@ -34,56 +35,69 @@ export function useClinicsAndVets() {
 
     const canRegister = ['veterinario', 'hospital', 'admin'].includes(user?.role_name || '');
 
+    // Especialidades únicas para el filtro
+    const specialties = useMemo(() => {
+        const set = new Set<string>();
+        vets.forEach((v) => { if (v.specialty) set.add(v.specialty); });
+        return ['all', ...Array.from(set).sort()];
+    }, [vets]);
+
+    // Ciudades únicas para el filtro
+    const cities = useMemo(() => {
+        const set = new Set<string>();
+        clinics.forEach((c) => { if (c.city) set.add(c.city); });
+        return ['all', ...Array.from(set).sort()];
+    }, [clinics]);
+
     const filteredClinics = useMemo(() => {
-        return clinics.filter(c => {
+        return clinics.filter((c) => {
             const matchesQuery = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (c.city?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-            const matchesService = filterService === "all"
-                || (filterService === "24h" && c.is_24_hours)
-                || (filterService === "emergencia" && c.has_emergency);
-            return matchesQuery && matchesService;
+                (c.city?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
+                (c.address?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+            const matchesService = filterService === 'all'
+                || (filterService === '24h' && c.is_24_hours)
+                || (filterService === 'emergencia' && c.has_emergency);
+            const matchesCity = filterCity === 'all' || c.city === filterCity;
+            return matchesQuery && matchesService && matchesCity;
         });
-    }, [clinics, searchQuery, filterService]);
+    }, [clinics, searchQuery, filterService, filterCity]);
 
     const filteredVets = useMemo(() => {
-        return vets.filter(v => {
+        return vets.filter((v) => {
             const fullName = `${v.first_name} ${v.last_name}`.toLowerCase();
-            return fullName.includes(searchQuery.toLowerCase()) ||
+            const matchesQuery = fullName.includes(searchQuery.toLowerCase()) ||
                 (v.specialty?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+            const matchesSpecialty = filterSpecialty === 'all' || v.specialty === filterSpecialty;
+            return matchesQuery && matchesSpecialty;
         });
-    }, [vets, searchQuery]);
+    }, [vets, searchQuery, filterSpecialty]);
 
     const isLoading = activeTab === 'clinics' ? loadingClinics : loadingVets;
     const currentData = activeTab === 'clinics' ? filteredClinics : filteredVets;
     const resultsCount = currentData.length;
+    const hasActiveFilters = filterService !== 'all' || filterSpecialty !== 'all' || filterCity !== 'all' || filterRating !== 'all' || searchQuery.length > 0;
 
     return {
         // Data
-        clinics,
-        vets,
-        filteredClinics,
-        filteredVets,
-        currentData,
-        resultsCount,
+        clinics, vets, filteredClinics, filteredVets, currentData, resultsCount,
 
         // Loading
-        loadingClinics,
-        loadingVets,
-        isLoading,
+        loadingClinics, loadingVets, isLoading,
 
         // Tabs
-        activeTab,
-        setActiveTab,
+        activeTab, setActiveTab,
 
         // Search & Filters
-        searchQuery,
-        setSearchQuery,
-        filterService,
-        setFilterService,
+        searchQuery, setSearchQuery,
+        filterService, setFilterService,
+        filterSpecialty, setFilterSpecialty,
+        filterCity, setFilterCity,
+        filterRating, setFilterRating,
+        specialties, cities,
+        hasActiveFilters,
 
         // Auth
-        canRegister,
-        isMounted,
+        canRegister, isMounted,
     };
 }
 

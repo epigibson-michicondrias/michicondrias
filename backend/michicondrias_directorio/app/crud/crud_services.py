@@ -251,6 +251,14 @@ def create_appointment(db: Session, user_id: str, appt: AppointmentCreate):
     clinic_row = db.query(Clinic).filter(Clinic.id == appt.clinic_id).first()
     if not clinic_row or not clinic_row.is_approved:
         raise ValueError("La clínica no está disponible.")
+    # El especialista elegido debe trabajar en esta clínica y estar aprobado (si no, tendría acceso a la cita)
+    if appt.vet_id:
+        vet_ok = db.execute(
+            text("SELECT 1 FROM veterinarians WHERE id = :vid AND clinic_id = :cid AND is_approved = true"),
+            {"vid": appt.vet_id, "cid": appt.clinic_id},
+        ).first()
+        if not vet_ok:
+            raise ValueError("Ese especialista no atiende en esta clínica.")
     pet_row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pid"), {"pid": appt.pet_id}).first()
     if not pet_row or pet_row[0] != user_id:
         raise PermissionError("La mascota no te pertenece.")
@@ -314,6 +322,13 @@ def get_user_appointments(db: Session, user_id: str):
 
 def get_clinic_appointments(db: Session, clinic_id: str, status: str = None):
     query = db.query(Appointment).filter(Appointment.clinic_id == clinic_id)
+    if status:
+        query = query.filter(Appointment.status == status)
+    return query.order_by(Appointment.date, Appointment.start_time).all()
+
+def get_vet_appointments(db: Session, vet_profile_id: str, status: str = None):
+    """Citas asignadas a un veterinario (por su perfil en `veterinarians`), aunque no sea dueño de la clínica."""
+    query = db.query(Appointment).filter(Appointment.vet_id == vet_profile_id)
     if status:
         query = query.filter(Appointment.status == status)
     return query.order_by(Appointment.date, Appointment.start_time).all()

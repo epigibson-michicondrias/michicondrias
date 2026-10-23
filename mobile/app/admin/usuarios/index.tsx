@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Modal, KeyboardAvoidingView, TextInput, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Modal, KeyboardAvoidingView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminUsers } from '@/src/hooks/admin/useAdminUsers';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import IconButton from '@/src/components/IconButton';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import { AdminUser } from '@/src/services/adminUsers';
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getRoleName, ALL_ROLES } from '@/src/constants/roles';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminUsersScreen() {
     const router = useRouter();
@@ -58,16 +60,16 @@ export default function AdminUsersScreen() {
         <View style={[styles.userCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.userHeader}>
                 <LinearGradient
-                    colors={['#1c2f6b', '#101c3d']}
+                    colors={theme.heroGradient}
                     style={styles.avatar}
                 >
                     <Text style={styles.avatarText}>{item.full_name.charAt(0).toUpperCase()}</Text>
                 </LinearGradient>
                 <View style={styles.userInfo}>
-                    <Text style={[styles.userName, { color: theme.text }]}>{item.full_name}</Text>
+                    <Text style={[styles.userName, { color: theme.text }]} numberOfLines={1}>{item.full_name}</Text>
                     <View style={styles.emailRow}>
-                        <Mail size={10} color={theme.textMuted} style={{ marginRight: 4 }} />
-                        <Text style={[styles.userEmail, { color: theme.textMuted }]}>{item.email}</Text>
+                        <Mail size={10} color={theme.textMuted} style={{ marginRight: spacing.xs }} />
+                        <Text style={[styles.userEmail, { color: theme.textMuted }]} numberOfLines={1}>{item.email}</Text>
                     </View>
                     <View style={styles.userMeta}>
                         <View style={[styles.roleBadge, { backgroundColor: getRoleColorLocal(getRoleName(item.role_id, item.role_name)) + '15' }]}>
@@ -84,25 +86,15 @@ export default function AdminUsersScreen() {
                     </View>
                 </View>
                 <View style={styles.cardActions}>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
+                    <IconButton
+                        icon={item.is_active ? EyeOff : Eye}
+                        accessibilityLabel={item.is_active ? `Desactivar a ${item.full_name}` : `Activar a ${item.full_name}`}
                         onPress={() => toggleUserStatus.mutate(item.id)}
                         disabled={toggleUserStatus.isPending}
-                    >
-                        {item.is_active ? <EyeOff size={14} color={theme.textMuted} /> : <Eye size={14} color={theme.primary} />}
-                    </TouchableOpacity>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
-                        onPress={() => openEditModal(item)}
-                    >
-                        <Edit size={14} color={theme.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.actionIconButton, { backgroundColor: theme.backgroundSecondary }]}
-                        onPress={() => handleDeletePress(item.id, item.full_name)}
-                    >
-                        <Trash2 size={14} color={theme.error} />
-                    </TouchableOpacity>
+                        size="sm"
+                    />
+                    <IconButton icon={Edit} accessibilityLabel={`Editar a ${item.full_name}`} onPress={() => openEditModal(item)} size="sm" />
+                    <IconButton icon={Trash2} accessibilityLabel={`Eliminar a ${item.full_name}`} onPress={() => handleDeletePress(item.id, item.full_name)} color={theme.error} size="sm" />
                 </View>
             </View>
         </View>
@@ -110,13 +102,12 @@ export default function AdminUsersScreen() {
 
     return (
         <ScreenContainer>
-            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
             <ScreenHeader
                 title="Usuarios"
                 subtitle={`${users.length} Registrados`}
-                gradient={[theme.primary, theme.primary + 'DD', theme.primary + 'AA']}
                 actionIcon={UserPlus}
+                actionLabel="Nuevo usuario"
                 onAction={openCreateModal}
             />
 
@@ -167,7 +158,7 @@ export default function AdminUsersScreen() {
                             <Text style={[
                                 styles.filterText,
                                 { color: theme.textMuted },
-                                filterRole === role && { color: '#fff' }
+                                filterRole === role && { color: theme.onPrimary }
                             ]}>
                                 {role === 'all' ? 'Todos' : getRoleLabelLocal(role)}
                             </Text>
@@ -287,9 +278,9 @@ export default function AdminUsersScreen() {
                                     onPress={handleSubmit}
                                 >
                                     {(createUserMutation.isPending || updateUserMutation.isPending) ? (
-                                        <ActivityIndicator color="#fff" size="small" />
+                                        <ActivityIndicator color={theme.onPrimary} size="small" />
                                     ) : (
-                                        <Text style={[styles.btnText, { color: '#fff' }]}>
+                                        <Text style={[styles.btnText, { color: theme.onPrimary }]}>
                                             {editingUser ? 'Guardar Cambios' : 'Crear Usuario'}
                                         </Text>
                                     )}
@@ -306,16 +297,15 @@ export default function AdminUsersScreen() {
 const styles = StyleSheet.create({
     statsContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 20,
-        marginTop: -12,
-        gap: 12,
-        marginBottom: 20,
+        paddingHorizontal: spacing.xl,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
     },
     statItem: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 14,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
         elevation: 4,
@@ -330,46 +320,48 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 10,
+        marginRight: spacing.md,
     },
     statVal: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     statLab: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '600',
         textTransform: 'uppercase',
     },
     searchSection: {
-        paddingHorizontal: 20,
-        marginBottom: 12,
+        paddingHorizontal: spacing.xl,
+        marginBottom: spacing.md,
     },
     filterSection: {
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     filterScrollContent: {
-        paddingHorizontal: 20,
-        gap: 8,
+        paddingHorizontal: spacing.xl,
+        gap: spacing.sm,
     },
     filterChip: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 12,
         borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     filterText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     usersList: {
-        paddingHorizontal: 20,
-        paddingBottom: 40,
+        paddingHorizontal: spacing.xl,
+        paddingBottom: spacing.huge,
     },
     userCard: {
         borderRadius: 24,
-        padding: 16,
-        marginBottom: 16,
+        padding: spacing.lg,
+        marginBottom: spacing.lg,
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -387,52 +379,56 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: spacing.lg,
     },
     avatarText: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
         color: '#fff',
     },
     userInfo: {
         flex: 1,
+        minWidth: 0,
+        marginRight: spacing.sm,
     },
     userName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     emailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     userEmail: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
     },
     userMeta: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.xs,
+        marginTop: spacing.xs,
     },
     roleBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     roleText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
         textTransform: 'uppercase',
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
-        gap: 6,
+        gap: spacing.sm,
     },
     statusDot: {
         width: 6,
@@ -440,13 +436,13 @@ const styles = StyleSheet.create({
         borderRadius: 3,
     },
     statusText: {
-        fontSize: 10,
+        fontSize: font.xs,
         fontWeight: '800',
         textTransform: 'uppercase',
     },
     cardActions: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.xs,
     },
     actionIconButton: {
         width: 36,
@@ -468,48 +464,48 @@ const styles = StyleSheet.create({
     modalInner: {
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
-        padding: 24,
+        padding: spacing.xxl,
         paddingBottom: Platform.OS === 'ios' ? 40 : 24,
     },
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     modalTitle: {
-        fontSize: 20,
+        fontSize: font.h3,
         fontWeight: '800',
     },
     modalForm: {
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     inputLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '800',
-        marginBottom: 8,
-        marginTop: 16,
+        marginBottom: spacing.sm,
+        marginTop: spacing.lg,
     },
     modalInput: {
         height: 54,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 15,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.lg,
         fontWeight: '600',
         borderWidth: 1,
     },
     rolePickerGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10,
-        marginTop: 4,
+        gap: spacing.md,
+        marginTop: spacing.xs,
     },
     roleOption: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        gap: spacing.sm,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 14,
         borderWidth: 1,
         minWidth: '45%',
@@ -520,13 +516,13 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     roleOptionText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         flex: 1,
     },
     modalFooter: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     modalBtn: {
         flex: 1,
@@ -546,7 +542,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
     },
     btnText: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
     },
 });

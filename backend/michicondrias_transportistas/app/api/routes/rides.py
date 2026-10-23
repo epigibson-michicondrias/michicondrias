@@ -67,7 +67,7 @@ def _compute_fare(distance_km: Optional[float], requires_carrier: bool) -> float
     return round(max(fare, settings.RIDE_MIN_FARE if distance_km is not None else 0.0), 2)
 
 
-def _notify(db: Session, user_id: Optional[str], title: str, message: str, ntype: str = "transportistas") -> None:
+def _notify(db: Session, user_id: Optional[str], title: str, message: str, ntype: str = "transportistas", link: str = None) -> None:
     """Notificación en la bandeja del usuario (misma BD que core). Nunca debe romper el flujo principal."""
     if not user_id:
         return

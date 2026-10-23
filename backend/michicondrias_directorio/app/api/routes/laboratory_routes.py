@@ -4,6 +4,7 @@ from typing import Any, List
 from datetime import datetime
 
 from app.api import deps
+from app.api.clinic_access import is_clinic_staff
 from app.models.dashboard import LabTests
 from app.models.clinic import Clinic
 from sqlalchemy import text, bindparam
@@ -19,7 +20,7 @@ def get_clinic_lab_tests(
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     query = db.query(LabTests).filter(LabTests.clinic_id == clinic_id)
@@ -62,7 +63,7 @@ def request_lab_test(
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     if not test_data.get("patientId") or not test_data.get("testName"):
@@ -94,7 +95,7 @@ def update_lab_test_results(
     user_id: str = Depends(deps.get_current_user_id)
 ) -> Any:
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
-    if not clinic or clinic.owner_user_id != user_id:
+    if not clinic or not is_clinic_staff(db, user_id, clinic_id):
         raise HTTPException(status_code=404, detail="Clinic not found or unauthorized")
         
     test = db.query(LabTests).filter(

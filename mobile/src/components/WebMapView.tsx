@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { useTheme } from '@/src/hooks/useTheme';
 
 export interface MapMarker {
     id: string;
@@ -28,6 +29,7 @@ export default function WebMapView({
     markers = [],
     onMarkerPress,
 }: WebMapViewProps) {
+    const { theme } = useTheme();
     const html = useMemo(() => {
         const markersJS = markers
             .map(
@@ -35,7 +37,7 @@ export default function WebMapView({
                 L.marker([${m.latitude}, ${m.longitude}], {
                     icon: L.divIcon({
                         className: '',
-                        html: '<div style="background:${m.color || '#ef4444'};width:24px;height:24px;border-radius:12px;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:12px;">🐾</span></div>',
+                        html: '<div style="background:${m.color || theme.error};width:24px;height:24px;border-radius:12px;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:12px;">🐾</span></div>',
                         iconSize: [24, 24],
                         iconAnchor: [12, 12],
                     })
@@ -82,7 +84,7 @@ export default function WebMapView({
     </script>
 </body>
 </html>`;
-    }, [markers, initialLatitude, initialLongitude, initialZoom]);
+    }, [markers, initialLatitude, initialLongitude, initialZoom, theme.error]);
 
     const handleMessage = (event: any) => {
         try {
@@ -90,7 +92,7 @@ export default function WebMapView({
             if (data.type === 'markerPress' && onMarkerPress) {
                 onMarkerPress(data.id);
             }
-        } catch (e) {}
+        } catch { /* mensaje mal formado del mapa */ }
     };
 
     return (
@@ -103,8 +105,8 @@ export default function WebMapView({
                 domStorageEnabled
                 startInLoadingState
                 renderLoading={() => (
-                    <View style={styles.loading}>
-                        <ActivityIndicator size="large" color="#0ea5e9" />
+                    <View style={[styles.loading, { backgroundColor: theme.primaryLight }]}>
+                        <ActivityIndicator size="large" color={theme.primary} />
                     </View>
                 )}
             />
@@ -120,6 +122,5 @@ const styles = StyleSheet.create({
         top: 0, left: 0, right: 0, bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#e0f2fe',
     },
 });

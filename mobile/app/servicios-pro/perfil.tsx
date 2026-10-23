@@ -1,194 +1,106 @@
 import React from 'react';
-import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Switch, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { Save } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useServiceProfile } from '@/src/hooks/servicios-pro/useServiceProfile';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Save } from 'lucide-react-native';
+import { DetailFooter } from '@/src/components/layout/DetailLayout';
+import KeyboardScreen from '@/src/components/KeyboardScreen';
+import FormField from '@/src/components/FormField';
+import FormSection from '@/src/components/forms/FormSection';
+import FormSwitch from '@/src/components/forms/FormSwitch';
+import Button from '@/src/components/Button';
+import RoleGuard from '@/src/components/RoleGuard';
+import { SkeletonList } from '@/src/components/Skeleton';
+import { layout, spacing } from '@/constants/design';
+
+/** Texto controlado aunque el perfil aún no tenga el dato (evita «changing an uncontrolled input»). */
+const text = (v: unknown) => (v == null ? '' : String(v));
 
 export default function ProfessionalProfileScreen() {
-    const router = useRouter();
+    return (
+        <RoleGuard roles={['paseador', 'cuidador']}>
+            <ProfessionalProfile />
+        </RoleGuard>
+    );
+}
+
+function ProfessionalProfile() {
     const { theme } = useTheme();
-    const {
-        isWalker,
-        formData,
-        updateField,
-        saving,
-        isLoading,
-        handleSave,
-    } = useServiceProfile();
+    const { isWalker, formData, updateField, saving, isLoading, handleSave } = useServiceProfile();
+    const money = (v: string) => v.replace(/[^\d.]/g, '');
 
     if (isLoading) {
         return (
-            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
+            <ScreenContainer>
+                <ScreenHeader title="Mi perfil de servicio" />
+                <SkeletonList count={4} />
+            </ScreenContainer>
         );
     }
 
     return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-        >
-            <ScreenContainer>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <ScreenHeader
-                        title="Configuración Prof."
-                        subtitle="Tus servicios y precios"
-                        rightElement={
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSave}
-                                disabled={saving}
-                            >
-                                {saving ? <ActivityIndicator size="small" color="#fff" /> : <Save size={20} color="#fff" />}
-                            </TouchableOpacity>
-                        }
+        <ScreenContainer>
+            <ScreenHeader title="Mi perfil de servicio" subtitle={isWalker ? 'Lo que ven los dueños al buscar paseador' : 'Lo que ven los dueños al buscar cuidador'} />
+            <KeyboardScreen
+                contentContainerStyle={styles.content}
+                footer={(
+                    <DetailFooter>
+                        <Button label="Guardar perfil" icon={<Save size={layout.icon.sm} color={theme.onPrimary} />} onPress={handleSave} loading={saving} size="lg" style={styles.flex} />
+                    </DetailFooter>
+                )}
+            >
+                <FormSection title="Visibilidad">
+                    <FormSwitch
+                        variant="switch"
+                        label={formData.is_active ? 'Visible para nuevos clientes' : 'Perfil oculto'}
+                        description="Ocúltalo cuando no puedas recibir solicitudes (vacaciones, agenda llena)."
+                        value={!!formData.is_active}
+                        onChange={(v) => updateField('is_active', v)}
                     />
+                </FormSection>
 
-                    <View style={styles.content}>
-                        {/* Status Toggle */}
-                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                            <View style={styles.toggleRow}>
-                                <View style={styles.toggleText}>
-                                    <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 4 }]}>Estatus de Servicio</Text>
-                                    <Text style={[styles.sectionSubtitle, { color: theme.textMuted }]}>
-                                        {formData.is_active ? "Estás visible para nuevos clientes" : "Perfil oculto temporalmente"}
-                                    </Text>
+                <FormSection title="Sobre ti">
+                    <FormField label="Nombre que verán los clientes" value={text(formData.display_name)} onChangeText={(v) => updateField('display_name', v)} placeholder="Ej. Juan, paseador en Coyoacán" />
+                    <FormField label="Experiencia" value={text(formData.bio)} onChangeText={(v) => updateField('bio', v)} placeholder="Años de experiencia, razas que conoces, certificaciones…" multiline />
+                </FormSection>
+
+                <FormSection title="Tarifas (MXN)">
+                    <View style={styles.row}>
+                        {isWalker ? (
+                            <>
+                                <View style={styles.flex}>
+                                    <FormField label="Por paseo" value={text(formData.price_per_walk)} onChangeText={(v) => updateField('price_per_walk', money(v))} keyboardType="decimal-pad" placeholder="0" />
                                 </View>
-                                <Switch
-                                    value={formData.is_active}
-                                    onValueChange={(val) => updateField('is_active', val)}
-                                    trackColor={{ false: '#767577', true: theme.primary + '80' }}
-                                    thumbColor={formData.is_active ? theme.primary : '#f4f3f4'}
-                                />
-                            </View>
-                        </View>
-
-                        {/* Basic Info */}
-                        <Text style={[styles.groupTitle, { color: theme.textMuted }]}>INFORMACIÓN BÁSICA</Text>
-                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                            <View style={styles.inputGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Nombre a mostrar</Text>
-                                <TextInput
-                                    style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                    value={formData.display_name}
-                                    onChangeText={(val) => updateField('display_name', val)}
-                                    placeholder="Ej: Juan El Paseador"
-                                    placeholderTextColor={theme.textMuted}
-                                />
-                            </View>
-                            <View style={styles.inputGroup}>
-                                <Text style={[styles.label, { color: theme.textMuted }]}>Biografía / Experiencia</Text>
-                                <TextInput
-                                    style={[styles.input, styles.textArea, { color: theme.text, borderColor: theme.border }]}
-                                    value={formData.bio}
-                                    onChangeText={(val) => updateField('bio', val)}
-                                    multiline
-                                    numberOfLines={4}
-                                    placeholder="Cuéntanos sobre tu experiencia..."
-                                    placeholderTextColor={theme.textMuted}
-                                />
-                            </View>
-                        </View>
-
-                        {/* Pricing */}
-                        <Text style={[styles.groupTitle, { color: theme.textMuted }]}>TARIFAS Y PRECIOS (MXN)</Text>
-                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                            {isWalker ? (
-                                <>
-                                    <View style={styles.inputRow}>
-                                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                                            <Text style={[styles.label, { color: theme.textMuted }]}>Por Paseo</Text>
-                                            <TextInput
-                                                style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                                value={formData.price_per_walk}
-                                                onChangeText={(val) => updateField('price_per_walk', val)}
-                                                keyboardType="numeric"
-                                            />
-                                        </View>
-                                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                                            <Text style={[styles.label, { color: theme.textMuted }]}>Por Hora</Text>
-                                            <TextInput
-                                                style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                                value={formData.price_per_hour}
-                                                onChangeText={(val) => updateField('price_per_hour', val)}
-                                                keyboardType="numeric"
-                                            />
-                                        </View>
-                                    </View>
-                                </>
-                            ) : (
-                                <>
-                                    <View style={styles.inputRow}>
-                                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                                            <Text style={[styles.label, { color: theme.textMuted }]}>Por Día (Alojamiento)</Text>
-                                            <TextInput
-                                                style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                                value={formData.price_per_day}
-                                                onChangeText={(val) => updateField('price_per_day', val)}
-                                                keyboardType="numeric"
-                                            />
-                                        </View>
-                                        <View style={[styles.inputGroup, { flex: 1 }]}>
-                                            <Text style={[styles.label, { color: theme.textMuted }]}>Por Visita</Text>
-                                            <TextInput
-                                                style={[styles.input, { color: theme.text, borderColor: theme.border }]}
-                                                value={formData.price_per_visit}
-                                                onChangeText={(val) => updateField('price_per_visit', val)}
-                                                keyboardType="numeric"
-                                            />
-                                        </View>
-                                    </View>
-                                </>
-                            )}
-                        </View>
-
-                        {/* Preferences */}
-                        <Text style={[styles.groupTitle, { color: theme.textMuted }]}>PREFERENCIAS</Text>
-                        <View style={[styles.section, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                            <View style={styles.toggleItem}>
-                                <Text style={[styles.infoLabel, { color: theme.text }]}>Acepta Perros</Text>
-                                <Switch
-                                    value={formData.accepts_dogs}
-                                    onValueChange={(val) => updateField('accepts_dogs', val)}
-                                    trackColor={{ false: '#767577', true: theme.success + '80' }}
-                                    thumbColor={formData.accepts_dogs ? theme.success : '#f4f3f4'}
-                                />
-                            </View>
-                            <View style={[styles.toggleItem, { marginTop: 12 }]}>
-                                <Text style={[styles.infoLabel, { color: theme.text }]}>Acepta Gatos</Text>
-                                <Switch
-                                    value={formData.accepts_cats}
-                                    onValueChange={(val) => updateField('accepts_cats', val)}
-                                    trackColor={{ false: '#767577', true: theme.success + '80' }}
-                                    thumbColor={formData.accepts_cats ? theme.success : '#f4f3f4'}
-                                />
-                            </View>
-                        </View>
+                                <View style={styles.flex}>
+                                    <FormField label="Por hora" value={text(formData.price_per_hour)} onChangeText={(v) => updateField('price_per_hour', money(v))} keyboardType="decimal-pad" placeholder="0" />
+                                </View>
+                            </>
+                        ) : (
+                            <>
+                                <View style={styles.flex}>
+                                    <FormField label="Por día (hospedaje)" value={text(formData.price_per_day)} onChangeText={(v) => updateField('price_per_day', money(v))} keyboardType="decimal-pad" placeholder="0" />
+                                </View>
+                                <View style={styles.flex}>
+                                    <FormField label="Por visita" value={text(formData.price_per_visit)} onChangeText={(v) => updateField('price_per_visit', money(v))} keyboardType="decimal-pad" placeholder="0" />
+                                </View>
+                            </>
+                        )}
                     </View>
-                </ScrollView>
-            </ScreenContainer>
-        </KeyboardAvoidingView>
+                </FormSection>
+
+                <FormSection title="Mascotas que aceptas">
+                    <FormSwitch label="Perros" value={!!formData.accepts_dogs} onChange={(v) => updateField('accepts_dogs', v)} />
+                    <FormSwitch label="Gatos" value={!!formData.accepts_cats} onChange={(v) => updateField('accepts_cats', v)} />
+                </FormSection>
+            </KeyboardScreen>
+        </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    content: { padding: 24, paddingBottom: 100 },
-    section: { padding: 20, borderRadius: 24, marginBottom: 24, borderWidth: 1 },
-    groupTitle: { fontSize: 12, fontWeight: '800', marginBottom: 12, marginLeft: 12, letterSpacing: 1 },
-    sectionTitle: { fontSize: 16, fontWeight: '800' },
-    sectionSubtitle: { fontSize: 12, fontWeight: '600' },
-    toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    toggleText: { flex: 1 },
-    inputGroup: { marginBottom: 16 },
-    label: { fontSize: 12, fontWeight: '700', marginBottom: 8 },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, fontSize: 15, fontWeight: '600' },
-    textArea: { height: 120, paddingTop: 12, textAlignVertical: 'top' },
-    inputRow: { flexDirection: 'row', gap: 12 },
-    toggleItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    infoLabel: { fontSize: 15, fontWeight: '700' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' }
+    flex: { flex: 1 },
+    content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: spacing.xl },
+    row: { flexDirection: 'row', gap: spacing.md },
 });

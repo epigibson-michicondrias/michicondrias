@@ -9,6 +9,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Building2, MapPin, Tag, Star, MessageSquare, Gift, Send, X, Edit3 } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function VenueDetailScreen() {
     const router = useRouter();
@@ -106,17 +107,12 @@ export default function VenueDetailScreen() {
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
             <ScreenHeader
-                title="Detalle del Establecimiento"
-                rightElement={
-                    canEdit ? (
-                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Editar establecimiento"
-                            style={[styles.editBtn, { backgroundColor: theme.primary + '20' }]}
-                            onPress={() => router.push({ pathname: '/establecimientos/editar/[id]', params: { id: venue.id } } as any)}
-                        >
-                            <Edit3 size={18} color={theme.primary} />
-                        </TouchableOpacity>
-                    ) : undefined
-                }
+                title="Establecimiento"
+                actions={canEdit ? [{
+                    icon: Edit3,
+                    label: 'Editar establecimiento',
+                    onPress: () => router.push({ pathname: '/establecimientos/editar/[id]', params: { id: venue.id } } as any),
+                }] : undefined}
             />
 
             {/* Venue Header */}
@@ -163,13 +159,15 @@ export default function VenueDetailScreen() {
             )}
 
             {/* Discount + Coupon Claim */}
-            {venue.discount_coupon && (
+            {(venue.has_coupon || venue.discount_coupon) && (
                 <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Descuento Disponible</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Descuento disponible</Text>
                     <View style={[styles.discountCard, { backgroundColor: theme.warningLight }]}>
                         <Tag size={24} color={theme.warning} />
                         <View style={styles.discountInfo}>
-                            <Text style={[styles.discountCode, { color: theme.warning }]}>{venue.discount_coupon}</Text>
+                            <Text style={[styles.discountCode, { color: theme.warning }]}>
+                                {isOwner && venue.discount_coupon ? venue.discount_coupon : 'Cupón de descuento'}
+                            </Text>
                             {venue.discount_description && (
                                 <Text style={[styles.discountDesc, { color: theme.textMuted }]}>{venue.discount_description}</Text>
                             )}
@@ -182,18 +180,18 @@ export default function VenueDetailScreen() {
                         disabled={isClaimingCoupon}
                     >
                         {isClaimingCoupon ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Gift size={18} color="#fff" />
-                                <Text style={styles.claimButtonText}>Reclamar Cupón</Text>
+                                <Gift size={18} color={theme.onPrimary} />
+                                <Text style={styles.claimButtonText}>Obtener mi código</Text>
                             </>
                         )}
                     </TouchableOpacity>
                     )}
                     {isOwner && (
-                        <View style={{ marginTop: 12, gap: 8 }}>
-                            <Text style={{ color: theme.textMuted, fontSize: 13 }}>Canjear el cupón de un cliente (pídele su código):</Text>
+                        <View style={{ marginTop: spacing.md, gap: spacing.sm }}>
+                            <Text style={{ color: theme.textMuted, fontSize: font.base }}>Canjear el cupón de un cliente (pídele su código):</Text>
                             <TextInput
                                 style={[styles.reviewInput, { color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
                                 placeholder="Código del cupón"
@@ -257,10 +255,10 @@ export default function VenueDetailScreen() {
                             disabled={isSubmittingReview}
                         >
                             {isSubmittingReview ? (
-                                <ActivityIndicator size="small" color="#fff" />
+                                <ActivityIndicator size="small" color={theme.onPrimary} />
                             ) : (
                                 <>
-                                    <Send size={16} color="#fff" />
+                                    <Send size={16} color={theme.onPrimary} />
                                     <Text style={styles.submitReviewText}>Enviar Reseña</Text>
                                 </>
                             )}
@@ -270,7 +268,7 @@ export default function VenueDetailScreen() {
 
                 {/* Reviews list */}
                 {isLoadingReviews ? (
-                    <ActivityIndicator size="small" color={theme.primary} style={{ marginTop: 16 }} />
+                    <ActivityIndicator size="small" color={theme.primary} style={{ marginTop: spacing.lg }} />
                 ) : reviews.length === 0 ? (
                     <Text style={[styles.noReviews, { color: theme.textMuted }]}>
                         Aún no hay reseñas. ¡Sé el primero!
@@ -305,44 +303,39 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     loadingText: {
-        fontSize: 16,
+        fontSize: font.xl,
     },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 24,
-        gap: 16,
+        paddingHorizontal: layout.screenPadding,
+        gap: spacing.lg,
     },
     errorText: {
-        fontSize: 16,
+        fontSize: font.xl,
         textAlign: 'center',
     },
     retryButton: {
-        paddingHorizontal: 24,
-        paddingVertical: 12,
+        paddingHorizontal: layout.screenPadding,
+        paddingVertical: spacing.md,
         borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     retryButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '600',
-    },
-    editBtn: {
-        width: 42,
-        height: 42,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     venueHeader: {
         alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingVertical: 20,
-        gap: 12,
+        paddingHorizontal: layout.screenPadding,
+        paddingVertical: spacing.xl,
+        gap: spacing.md,
     },
     iconContainer: {
         width: 80,
@@ -352,96 +345,96 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     venueName: {
-        fontSize: 24,
+        fontSize: font.h2,
         fontWeight: '900',
         textAlign: 'center',
     },
     scoreBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 8,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.sm,
         borderRadius: 20,
-        gap: 6,
+        gap: spacing.sm,
     },
     scoreValue: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
         color: '#d97706',
     },
     scoreCount: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     section: {
-        marginHorizontal: 24,
-        padding: 20,
+        marginHorizontal: layout.screenPadding,
+        padding: spacing.xl,
         borderRadius: 16,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '700',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 10,
+        gap: spacing.md,
     },
     locationText: {
-        fontSize: 15,
+        fontSize: font.lg,
         flex: 1,
         lineHeight: 22,
     },
     amenitiesGrid: {
-        gap: 12,
+        gap: spacing.md,
     },
     amenityCard: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     amenityKey: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
         textTransform: 'uppercase',
     },
     amenityValue: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '600',
     },
     discountCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 12,
-        gap: 16,
+        gap: spacing.lg,
     },
     discountInfo: {
         flex: 1,
     },
     discountCode: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     discountDesc: {
-        fontSize: 14,
-        marginTop: 4,
+        fontSize: font.base,
+        marginTop: spacing.xs,
     },
     claimButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 12,
-        marginTop: 12,
-        gap: 8,
+        marginTop: spacing.md,
+        gap: spacing.sm,
     },
     claimButtonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     // Reviews
@@ -449,40 +442,41 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     addReviewBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 8,
-        gap: 6,
+        gap: spacing.sm,
+        justifyContent: 'center',
     },
     addReviewText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '600',
     },
     reviewForm: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 14,
         borderWidth: 1,
-        marginBottom: 16,
-        gap: 12,
+        marginBottom: spacing.lg,
+        gap: spacing.md,
     },
     reviewFormLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     starsRow: {
         flexDirection: 'row',
-        gap: 4,
+        gap: spacing.xs,
     },
     reviewInput: {
         borderRadius: 12,
         borderWidth: 1,
-        padding: 14,
-        fontSize: 14,
+        padding: spacing.lg,
+        fontSize: font.base,
         minHeight: 80,
         textAlignVertical: 'top',
     },
@@ -490,71 +484,71 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
     submitReviewText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     reviewsList: {
-        gap: 10,
+        gap: spacing.md,
     },
     reviewCard: {
-        padding: 14,
+        padding: spacing.lg,
         borderRadius: 12,
     },
     reviewHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     reviewDate: {
-        fontSize: 12,
+        fontSize: font.md,
     },
     reviewText: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
     },
     noReviews: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
-        paddingVertical: 20,
+        paddingVertical: spacing.xl,
     },
     // Info
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        paddingVertical: 10,
+        gap: spacing.md,
+        paddingVertical: spacing.md,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(128,128,128,0.2)',
     },
     infoLabel: {
-        fontSize: 14,
+        fontSize: font.base,
         flex: 1,
     },
     infoValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     actionContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 24,
+        paddingHorizontal: layout.screenPadding,
+        marginBottom: spacing.xxl,
     },
     contactButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
     },
     contactButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     footer: {

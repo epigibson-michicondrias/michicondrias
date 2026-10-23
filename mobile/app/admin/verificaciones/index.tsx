@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminVerifications } from '@/src/hooks/admin/useAdminVerifications';
@@ -17,6 +17,7 @@ import {
     Activity,
 } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminVerificacionesScreen() {
     const router = useRouter();
@@ -29,11 +30,12 @@ export default function AdminVerificacionesScreen() {
             {url ? (
                 <TouchableOpacity accessibilityRole="button"
                     style={[styles.docPreview, { backgroundColor: theme.background, borderColor: theme.border }]}
-                    onPress={() => showAlert({ type: 'info', title: 'Documento', message: 'Aquí se abriría el visor de documentos a pantalla completa.' })}
+                    onPress={() => (url.startsWith('https://') ? Linking.openURL(url) : Promise.reject()).catch(() => showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El enlace del documento venció o no es válido. Recarga la lista.' }))}
+                    accessibilityLabel="Abrir documento"
                 >
                     <Image source={{ uri: url }} style={styles.docImage} resizeMode="cover" />
                     <View style={styles.docOverlay}>
-                        <ExternalLink size={18} color="#fff" />
+                        <ExternalLink size={18} color={theme.onHero} />
                     </View>
                 </TouchableOpacity>
             ) : (
@@ -86,8 +88,8 @@ export default function AdminVerificacionesScreen() {
                     onPress={() => handleAction(item.id, item.full_name, 'VERIFIED')}
                     disabled={verifyMutation.isPending}
                 >
-                    <CheckCircle2 size={18} color="#fff" />
-                    <Text style={[styles.btnText, { color: '#fff' }]}>Aprobar</Text>
+                    <CheckCircle2 size={18} color={theme.onPrimary} />
+                    <Text style={[styles.btnText, { color: theme.onPrimary }]}>Aprobar</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -97,12 +99,6 @@ export default function AdminVerificacionesScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Verificaciones"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                rightElement={
-                    <View style={styles.headerAction}>
-                        <ShieldCheck size={22} color="#fff" style={{ opacity: 0.8 }} />
-                    </View>
-                }
             />
 
             <DataList
@@ -123,21 +119,15 @@ export default function AdminVerificacionesScreen() {
 }
 
 const styles = StyleSheet.create({
-    headerAction: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 12 
+        paddingTop: spacing.md 
     },
     card: { 
         borderRadius: 28, 
-        padding: 20, 
-        marginBottom: 24, 
+        padding: spacing.xl, 
+        marginBottom: spacing.xxl, 
         borderWidth: 1,
         elevation: 4,
         shadowColor: '#000',
@@ -148,8 +138,8 @@ const styles = StyleSheet.create({
     cardHeader: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 14, 
-        marginBottom: 20 
+        gap: spacing.lg, 
+        marginBottom: spacing.xl 
     },
     userIcon: { 
         width: 54, 
@@ -160,39 +150,39 @@ const styles = StyleSheet.create({
     },
     userInfo: { flex: 1 },
     userName: { 
-        fontSize: 17, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     infoRow: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 6, 
-        marginTop: 4 
+        gap: spacing.sm, 
+        marginTop: spacing.xs 
     },
     userEmail: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '700' 
     },
     statusBadge: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 4, 
-        paddingHorizontal: 10, 
-        paddingVertical: 5, 
+        gap: spacing.xs, 
+        paddingHorizontal: spacing.md, 
+        paddingVertical: spacing.xs, 
         borderRadius: 10 
     },
     statusText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     docsGrid: { 
         flexDirection: 'row', 
-        gap: 12, 
-        marginBottom: 24 
+        gap: spacing.md, 
+        marginBottom: spacing.xxl 
     },
-    docItem: { flex: 1, gap: 10 },
+    docItem: { flex: 1, gap: spacing.md },
     docLabel: { 
-        fontSize: 11, 
+        fontSize: font.sm, 
         fontWeight: '800', 
         textAlign: 'center' 
     },
@@ -216,23 +206,23 @@ const styles = StyleSheet.create({
     docEmpty: { 
         justifyContent: 'center', 
         alignItems: 'center', 
-        gap: 6,
+        gap: spacing.sm,
         borderStyle: 'dashed',
     },
     docEmptyText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     cardActions: { 
         flexDirection: 'row', 
-        gap: 12 
+        gap: spacing.md 
     },
     btnAction: { 
         flex: 1, 
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        gap: 10, 
+        gap: spacing.md, 
         height: 52, 
         borderRadius: 18 
     },
@@ -247,7 +237,7 @@ const styles = StyleSheet.create({
         shadowRadius: 10 
     },
     btnText: { 
-        fontSize: 14, 
+        fontSize: font.base, 
         fontWeight: '800' 
     }
 });

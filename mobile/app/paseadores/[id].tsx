@@ -1,844 +1,205 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, Modal, TextInput, ActivityIndicator, FlatList } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Calendar, Dog, Cat, UserX, PawPrint, Send } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useWalkerDetail } from '@/src/hooks/paseadores/useWalkerDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import LoadingOverlay from '@/src/components/LoadingOverlay';
-import { 
-    MapPin, Star, Clock, Users, Calendar, 
-    Shield, Share2, Dog, Cat, CheckCircle 
-} from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-
-import { shareContent } from '@/src/utils/share';
+import EmptyState from '@/src/components/EmptyState';
+import BottomSheet from '@/src/components/BottomSheet';
+import FilterChip from '@/src/components/FilterChip';
+import FormField from '@/src/components/FormField';
+import Button from '@/src/components/Button';
 import DatePicker from '@/src/components/DatePicker';
+import { Skeleton } from '@/src/components/Skeleton';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
+import {
+    ProviderHero, ProviderStats, ProviderSection, ProviderBio, ProviderServices, ProviderLocation, ProviderPrice,
+    ProviderRatingSummary, ProviderReviews, ProviderReviewForm, ProviderFooter,
+} from '@/src/features/proveedor/ProviderProfile';
 import { toLocalIsoDate } from '@/src/hooks/servicios-pro/requestStatus';
+import { formatCurrency } from '@/src/utils/formatters';
+import { layout, spacing, type } from '@/constants/design';
+
+const DURATIONS = [30, 45, 60, 90];
 
 export default function WalkerDetailScreen() {
     const router = useRouter();
     const { theme } = useTheme();
-    const {
-        walker,
-        isOwnProfile,
-        walkDate,
-        setWalkDate,
-        isLoading,
-        error,
-        handleBook,
-        // Walk request
-        walkModalVisible,
-        setWalkModalVisible,
-        selectedPetId,
-        setSelectedPetId,
-        walkNotes,
-        setWalkNotes,
-        walkDuration,
-        setWalkDuration,
-        myPets,
-        handleSubmitWalkRequest,
-        isRequestingWalk,
-        // Reviews
-        reviews,
-        reviewsLoading,
-        handleCreateReview,
-        isCreatingReview,
-        unreviewedCompletedRequests,
-    } = useWalkerDetail();
+    const w = useWalkerDetail();
+    const { walker } = w;
 
-    const [formRating, setFormRating] = React.useState(5);
-    const [formComment, setFormComment] = React.useState('');
-
-    if (isLoading) {
+    if (w.isLoading) {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Paseador" />
-                <View style={styles.loadingContainer}>
-                    <LoadingOverlay message="Cargando información..." />
+                <View style={styles.loading}>
+                    <Skeleton width={96} height={96} borderRadius={48} style={styles.center} />
+                    <Skeleton width="50%" height={24} style={styles.center} />
+                    <Skeleton height={72} />
+                    <Skeleton height={120} />
                 </View>
             </ScreenContainer>
         );
     }
 
-    if (error || !walker) {
+    if (w.error || !walker) {
         return (
             <ScreenContainer>
                 <ScreenHeader title="Paseador" />
-                <View style={styles.errorContainer}>
-                    <Text style={[styles.errorText, { color: theme.textMuted }]}>
-                        No pudimos cargar la información del paseador.
-                    </Text>
-                    <TouchableOpacity accessibilityRole="button"
-                        style={[styles.retryButton, { backgroundColor: theme.primary }]}
-                        onPress={() => router.back()}
-                    >
-                        <Text style={styles.retryButtonText}>Volver</Text>
-                    </TouchableOpacity>
-                </View>
+                <EmptyState
+                    icon={<UserX size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No pudimos cargar este perfil"
+                    subtitle="Puede que ya no esté disponible o que no tengas conexión."
+                    actionLabel="Ver paseadores"
+                    onAction={() => router.replace('/paseadores')}
+                />
             </ScreenContainer>
         );
     }
+
+    // El promedio guardado en el perfil no siempre está al día: se calcula con las reseñas
+    const average = w.reviews.length ? w.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / w.reviews.length : 0;
 
     return (
-        <ScreenContainer style={{ backgroundColor: theme.background }}>
-            <ScreenHeader
-                title="Perfil del Paseador"
-            />
+        <ScreenContainer>
+            <ScreenHeader title={walker.display_name} subtitle={walker.is_verified ? 'Paseador verificado' : 'Paseador'} />
 
-            <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollContainer}>
-                {/* Profile Header */}
-                <View style={styles.profileHeader}>
-                    <View style={[styles.avatarContainer, { backgroundColor: theme.primary + '20' }]}>
-                        {walker.photo_url ? (
-                            <Image source={{ uri: walker.photo_url }} style={styles.avatar} />
-                        ) : (
-                            <Text style={[styles.avatarText, { color: theme.primary }]}>
-                                {walker.display_name.charAt(0).toUpperCase()}
-                            </Text>
-                        )}
+            <ScrollView showsVerticalScrollIndicator={false} refreshControl={<AppRefreshControl />} contentContainerStyle={styles.content}>
+                <ProviderHero
+                    photoUrl={walker.photo_url}
+                    name={walker.display_name}
+                    rating={w.reviews.length ? average : undefined}
+                    reviewCount={w.reviews.length}
+                />
+                <ProviderStats items={[
+                    { value: String(walker.total_walks), label: 'Paseos' },
+                    { value: String(walker.experience_years ?? 0), label: walker.experience_years === 1 ? 'Año' : 'Años' },
+                    { value: String(walker.max_pets_per_walk), label: 'Por paseo' },
+                ]} />
+
+                {walker.bio ? (
+                    <ProviderSection title="Sobre mí">
+                        <ProviderBio text={walker.bio} />
+                    </ProviderSection>
+                ) : null}
+
+                <ProviderSection title="Pasea a">
+                    <ProviderServices services={[
+                        { name: 'Perros', active: walker.accepts_dogs, icon: <Dog size={layout.icon.md} color={walker.accepts_dogs ? theme.primary : theme.textMuted} /> },
+                        { name: 'Gatos', active: walker.accepts_cats, icon: <Cat size={layout.icon.md} color={walker.accepts_cats ? theme.primary : theme.textMuted} /> },
+                    ]} />
+                </ProviderSection>
+
+                {walker.location ? (
+                    <ProviderSection title="Zona">
+                        <ProviderLocation text={walker.location} extra={walker.service_radius_km ? `Hasta ${walker.service_radius_km} km a la redonda` : undefined} />
+                    </ProviderSection>
+                ) : null}
+
+                <ProviderSection title="Tarifas">
+                    <View style={styles.prices}>
+                        <ProviderPrice label="Por hora" amount={walker.price_per_hour ? formatCurrency(walker.price_per_hour) : 'Por acordar'} />
+                        {walker.price_per_walk ? <ProviderPrice label="Paseo individual" amount={formatCurrency(walker.price_per_walk)} /> : null}
                     </View>
-                    
-                    <View style={styles.profileInfo}>
-                        <Text style={[styles.profileName, { color: theme.text }]}>{walker.display_name}</Text>
-                        <View style={styles.ratingRow}>
-                            <Star size={16} color={theme.warning} fill={theme.warning} />
-                            <Text style={[styles.ratingText, { color: theme.text }]}>
-                                {walker.rating ? walker.rating.toFixed(1) : 'Nuevo'} ({walker.total_walks} paseos)
-                            </Text>
-                        </View>
-                        
-                        {walker.is_verified && (
-                            <View style={styles.verifiedBadge}>
-                                <Shield size={14} color={theme.success} />
-                                <Text style={styles.verifiedText}>Verificado</Text>
-                            </View>
-                        )}
-                    </View>
+                </ProviderSection>
 
-                    <TouchableOpacity accessibilityRole="button" style={styles.shareButton} onPress={() => shareContent('Paseador', `${walker.display_name} es paseador en Michicondrias 🐾`)}>
-                        <Share2 size={20} color={theme.textMuted} />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Quick Stats */}
-                <View style={[styles.statsContainer, { backgroundColor: theme.surface }]}>
-                    <View style={styles.statItem}>
-                        <Users size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.total_walks}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Paseos</Text>
-                    </View>
-                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-                    <View style={styles.statItem}>
-                        <Clock size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.experience_years ?? 0}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Años</Text>
-                    </View>
-                    <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-                    <View style={styles.statItem}>
-                        <Dog size={20} color={theme.primary} />
-                        <Text style={[styles.statNumber, { color: theme.text }]}>{walker.max_pets_per_walk}</Text>
-                        <Text style={[styles.statLabel, { color: theme.textMuted }]}>Mascotas</Text>
-                    </View>
-                </View>
-
-                {/* Bio */}
-                {walker.bio && (
-                    <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Sobre mí</Text>
-                        <Text style={[styles.bioText, { color: theme.textMuted }]}>{walker.bio}</Text>
-                    </View>
-                )}
-
-                {/* Services */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Servicios</Text>
-                    <View style={styles.servicesGrid}>
-                        <View style={[styles.serviceCard, { borderColor: theme.border }, { backgroundColor: walker.accepts_dogs ? theme.primary + '10' : theme.surface }]}>
-                            <Dog size={24} color={walker.accepts_dogs ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.serviceName, { color: walker.accepts_dogs ? theme.primary : theme.textMuted }]}>
-                                Paseo de Perros
-                            </Text>
-                            <CheckCircle size={16} color={walker.accepts_dogs ? theme.success : theme.textMuted} />
-                        </View>
-                        <View style={[styles.serviceCard, { borderColor: theme.border }, { backgroundColor: walker.accepts_cats ? theme.primary + '10' : theme.surface }]}>
-                            <Cat size={24} color={walker.accepts_cats ? theme.primary : theme.textMuted} />
-                            <Text style={[styles.serviceName, { color: walker.accepts_cats ? theme.primary : theme.textMuted }]}>
-                                Paseo de Gatos
-                            </Text>
-                            <CheckCircle size={16} color={walker.accepts_cats ? theme.success : theme.textMuted} />
-                        </View>
-                    </View>
-                </View>
-
-                {/* Location */}
-                {walker.location && (
-                    <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>Ubicación</Text>
-                        <View style={styles.locationRow}>
-                            <MapPin size={20} color={theme.primary} />
-                            <Text style={[styles.locationText, { color: theme.textMuted }]}>
-                                {walker.location}
-                            </Text>
-                        </View>
-                        {walker.service_radius_km && (
-                            <Text style={[styles.radiusText, { color: theme.textMuted }]}>
-                                Radio de servicio: {walker.service_radius_km} km
-                            </Text>
-                        )}
-                    </View>
-                )}
-
-                {/* Pricing */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Tarifas</Text>
-                    <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
-                        <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Por hora</Text>
-                        <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                            {walker.price_per_hour ? `$${walker.price_per_hour}` : 'Por acordar'}
-                        </Text>
-                    </View>
-                    {walker.price_per_walk && (
-                        <View style={[styles.pricingCard, { borderBottomColor: theme.border }]}>
-                            <Text style={[styles.priceLabel, { color: theme.textMuted }]}>Paseo individual</Text>
-                            <Text style={[styles.priceAmount, { color: theme.primary }]}>
-                                ${walker.price_per_walk}
-                            </Text>
-                        </View>
-                    )}
-                </View>
-
-                {/* Reseñas y Opiniones */}
-                <View style={[styles.section, { backgroundColor: theme.surface }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Reseñas y Opiniones</Text>
-
-                    {/* Resumen de Calificación */}
-                    <View style={[styles.ratingSummaryCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                        <View style={styles.summaryLeft}>
-                            <Text style={[styles.bigRating, { color: theme.text }]}>
-                                {walker.rating ? walker.rating.toFixed(1) : '—'}
-                            </Text>
-                            <View style={styles.starsRow}>
-                                {[1, 2, 3, 4, 5].map((s) => {
-                                    const isFilled = s <= Math.round(walker.rating || 0);
-                                    return <Star key={s} size={16} color={theme.warning} fill={isFilled ? theme.warning : "transparent"} />;
-                                })}
-                            </View>
-                            <Text style={[styles.totalReviewsText, { color: theme.textMuted }]}>
-                                {reviews.length} {reviews.length === 1 ? 'opinión' : 'opiniones'}
-                            </Text>
-                        </View>
-                        <View style={[styles.summarySeparator, { backgroundColor: theme.borderLight }]} />
-                        <View style={styles.summaryRight}>
-                            <Text style={[styles.summaryDescription, { color: theme.textMuted }]}>
-                                Calificación de la comunidad sobre la calidad del servicio, puntualidad y trato de este paseador.
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* Formulario para Calificar */}
-                    {unreviewedCompletedRequests.length > 0 && (
-                        <View style={[styles.writeReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Calificar tu paseo reciente</Text>
-                            <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>
-                                Selecciona estrellas y escribe tu reseña para tu paseo con {walker.display_name}.
-                            </Text>
-
-                            <View style={styles.interactiveStars}>
-                                {[1, 2, 3, 4, 5].map((starVal) => (
-                                    <TouchableOpacity accessibilityRole="button"
-                                        key={starVal}
-                                        onPress={() => setFormRating(starVal)}
-                                        style={styles.starTouch}
-                                    >
-                                        <Star
-                                            size={32}
-                                            color={theme.warning}
-                                            fill={starVal <= formRating ? theme.warning : "transparent"}
-                                        />
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-
-                            <TextInput
-                                style={[
-                                    styles.commentInput,
-                                    {
-                                        backgroundColor: theme.surface,
-                                        borderColor: theme.border,
-                                        color: theme.text,
-                                    },
-                                ]}
-                                placeholder="Escribe tu opinión aquí (opcional)..."
-                                placeholderTextColor={theme.textMuted}
-                                value={formComment}
-                                onChangeText={setFormComment}
-                                multiline
-                                numberOfLines={3}
-                            />
-
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.submitReviewBtn, { backgroundColor: theme.primary }]}
-                                onPress={() => {
-                                    const latestRequest = unreviewedCompletedRequests[0];
-                                    handleCreateReview(latestRequest.id, {
-                                        rating: formRating,
-                                        comment: formComment.trim() || '',
-                                    });
-                                }}
-                                disabled={isCreatingReview}
-                            >
-                                {isCreatingReview ? (
-                                    <ActivityIndicator size="small" color="#fff" />
-                                ) : (
-                                    <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
-                                )}
-                            </TouchableOpacity>
-                        </View>
-                    )}
-
-                    {/* Nota cuando no se puede calificar */}
-                    {unreviewedCompletedRequests.length === 0 && (
-                        <View style={[styles.infoReviewCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}>
-                            <Text style={[styles.infoReviewText, { color: theme.textMuted }]}>
-                                Solo puedes dejar una reseña si has completado un paseo con este paseador.
-                            </Text>
-                        </View>
-                    )}
-
-                    {/* Listado de Opiniones */}
-                    <View style={styles.reviewsList}>
-                        {reviewsLoading ? (
-                            <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 20 }} />
-                        ) : reviews.length === 0 ? (
-                            <Text style={[styles.emptyReviewsText, { color: theme.textMuted }]}>
-                                Este paseador aún no tiene opiniones de otros clientes.
-                            </Text>
-                        ) : (
-                            reviews.map((review) => (
-                                <View
-                                    key={review.id}
-                                    style={[styles.reviewItemCard, { backgroundColor: theme.background, borderColor: theme.borderLight }]}
-                                >
-                                    <View style={styles.reviewItemHeader}>
-                                        <View style={[styles.reviewAvatar, { backgroundColor: theme.primary + '15' }]}>
-                                            <Text style={[styles.reviewAvatarText, { color: theme.primary }]}>
-                                                C
-                                            </Text>
-                                        </View>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={[styles.reviewUserName, { color: theme.text }]}>Cliente</Text>
-                                            <View style={styles.reviewStarsRow}>
-                                                {[1, 2, 3, 4, 5].map((s) => (
-                                                    <Star
-                                                        key={s}
-                                                        size={12}
-                                                        color={theme.warning}
-                                                        fill={s <= review.rating ? theme.warning : "transparent"}
-                                                    />
-                                                ))}
-                                            </View>
-                                        </View>
-                                        <Text style={[styles.reviewDate, { color: theme.textMuted }]}>
-                                            {review.created_at
-                                                ? new Date(review.created_at).toLocaleDateString('es-MX', {
-                                                      day: 'numeric',
-                                                      month: 'short',
-                                                  })
-                                                : ''}
-                                        </Text>
-                                    </View>
-                                    {review.comment && (
-                                        <Text style={[styles.reviewCommentText, { color: theme.textMuted }]}>
-                                            {review.comment}
-                                        </Text>
-                                    )}
-                                </View>
-                            ))
-                        )}
-                    </View>
-                </View>
+                <ProviderSection title="Opiniones">
+                    <ProviderRatingSummary rating={average} count={w.reviews.length} />
+                    {w.unreviewedCompletedRequests.length > 0 ? (
+                        <ProviderReviewForm
+                            onSubmit={(rating, comment) => {
+                                const req = w.unreviewedCompletedRequests[0];
+                                if (req) w.handleCreateReview(req.id, { rating, comment });
+                            }}
+                            isSubmitting={w.isCreatingReview}
+                        />
+                    ) : null}
+                    <ProviderReviews reviews={w.reviews.map((r: any) => ({ id: r.id, user_name: r.user_name, rating: r.rating, comment: r.comment, created_at: r.created_at }))} />
+                </ProviderSection>
             </ScrollView>
 
-            {/* Action Buttons (Sticky Footer) */}
-            {!isOwnProfile && (
-            <View style={[styles.footer, { backgroundColor: theme.surface, borderTopColor: theme.borderLight }]}>
-<TouchableOpacity accessibilityRole="button"
-                    style={[styles.bookButton, { backgroundColor: theme.primary }]}
-                    onPress={handleBook}
-                >
-                    <Calendar size={20} color="#fff" />
-                    <Text style={styles.bookButtonText}>Reservar Paseo</Text>
-                </TouchableOpacity>
-            </View>
-            )}
+            {!w.isOwnProfile ? (
+                <ProviderFooter label="Solicitar paseo" onPress={w.handleBook} icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />} />
+            ) : null}
 
-            {/* Walk Request Modal */}
-            <Modal visible={walkModalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-                        <Text style={[styles.modalTitle, { color: theme.text }]}>Solicitar Paseo</Text>
-                        
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Selecciona tu mascota</Text>
-                        {myPets.length === 0 ? (
-                            <Text style={[styles.noPetsText, { color: theme.textMuted }]}>No tienes mascotas registradas</Text>
-                        ) : (
-                            <FlatList
-                                data={myPets}
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                keyExtractor={p => p.id}
-                                renderItem={({ item: pet }) => (
-                                    <TouchableOpacity accessibilityRole="button"
-                                        style={[
-                                            styles.petChip,
-                                            { backgroundColor: theme.surface, borderColor: selectedPetId === pet.id ? theme.primary : theme.border },
-                                            selectedPetId === pet.id && { borderWidth: 2 }
-                                        ]}
-                                        onPress={() => setSelectedPetId(pet.id)}
-                                    >
-                                        <Text style={[styles.petChipText, { color: selectedPetId === pet.id ? theme.primary : theme.text }]}>
-                                            {pet.name}
-                                        </Text>
-                                    </TouchableOpacity>
-                                )}
-                            />
-                        )}
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Fecha del paseo</Text>
-                        <DatePicker
-                            value={new Date(walkDate + 'T12:00:00')}
-                            onChange={(d) => setWalkDate(toLocalIsoDate(d))}
-                            minimumDate={new Date()}
+            <BottomSheet
+                visible={w.walkModalVisible}
+                onClose={() => w.setWalkModalVisible(false)}
+                title="Solicitar paseo"
+                subtitle={`Con ${walker.display_name}`}
+                footer={(
+                    <>
+                        <Button label="Cancelar" variant="secondary" onPress={() => w.setWalkModalVisible(false)} style={styles.flex} />
+                        <Button
+                            label="Enviar"
+                            icon={<Send size={layout.icon.sm} color={theme.onPrimary} />}
+                            onPress={w.handleSubmitWalkRequest}
+                            loading={w.isRequestingWalk}
+                            style={styles.primary}
                         />
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Duración (minutos)</Text>
-                        <View style={styles.durationRow}>
-                            {[30, 45, 60, 90].map(d => (
-                                <TouchableOpacity accessibilityRole="button"
-                                    key={d}
-                                    style={[
-                                        styles.durationChip,
-                                        { backgroundColor: walkDuration === d ? theme.primary : theme.surface, borderColor: theme.border }
-                                    ]}
-                                    onPress={() => setWalkDuration(d)}
-                                >
-                                    <Text style={{ color: walkDuration === d ? '#fff' : theme.text, fontWeight: '700', fontSize: 14 }}>{d}</Text>
-                                </TouchableOpacity>
-                            ))}
+                    </>
+                )}
+            >
+                <View style={styles.group}>
+                    <Text style={[type.labelSentence, { color: theme.text }]}>¿A quién pasea?</Text>
+                    {w.myPets.length === 0 ? (
+                        <View style={styles.inline}>
+                            <Text style={[type.body, styles.flex, { color: theme.textMuted }]}>Primero agrega a tu mascota.</Text>
+                            <Button label="Agregar" size="sm" onPress={() => { w.setWalkModalVisible(false); router.push('/mascotas/nuevo'); }} />
                         </View>
-
-                        <Text style={[styles.modalLabel, { color: theme.textMuted }]}>Notas (opcional)</Text>
-                        <TextInput
-                            style={[styles.modalInput, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                            value={walkNotes}
-                            onChangeText={setWalkNotes}
-                            placeholder="Instrucciones especiales..."
-                            placeholderTextColor={theme.textMuted}
-                            multiline
-                        />
-
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity accessibilityRole="button" style={[styles.modalCancelBtn, { backgroundColor: theme.surface }]} onPress={() => setWalkModalVisible(false)}>
-                                <Text style={[styles.modalCancelText, { color: theme.text }]}>Cancelar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity accessibilityRole="button"
-                                style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
-                                onPress={handleSubmitWalkRequest}
-                                disabled={isRequestingWalk}
-                            >
-                                {isRequestingWalk ? <ActivityIndicator color="#fff" size="small" /> : (
-                                    <Text style={styles.modalSubmitText}>Enviar Solicitud</Text>
-                                )}
-                            </TouchableOpacity>
+                    ) : (
+                        <View style={styles.chips}>
+                            {w.myPets.map((pet) => {
+                                const active = w.selectedPetId === pet.id;
+                                return (
+                                    <FilterChip
+                                        key={pet.id}
+                                        label={pet.name}
+                                        active={active}
+                                        onPress={() => w.setSelectedPetId(pet.id)}
+                                        icon={<PawPrint size={layout.icon.xs} color={active ? theme.onPrimary : theme.textMuted} />}
+                                    />
+                                );
+                            })}
                         </View>
+                    )}
+                </View>
+                <DatePicker
+                    label="Día del paseo"
+                    value={new Date(`${w.walkDate}T12:00:00`)}
+                    onChange={(d) => w.setWalkDate(toLocalIsoDate(d))}
+                    minimumDate={new Date()}
+                />
+                <View style={styles.group}>
+                    <Text style={[type.labelSentence, { color: theme.text }]}>Duración</Text>
+                    <View style={styles.chips}>
+                        {DURATIONS.map((d) => (
+                            <FilterChip key={d} label={`${d} min`} active={w.walkDuration === d} onPress={() => w.setWalkDuration(d)} />
+                        ))}
                     </View>
                 </View>
-            </Modal>
-
+                <FormField
+                    label="Notas para el paseador"
+                    value={w.walkNotes}
+                    onChangeText={w.setWalkNotes}
+                    placeholder="Hora preferida, dirección, si jala la correa…"
+                    multiline
+                />
+            </BottomSheet>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 16,
-    },
-    loadingText: {
-        fontSize: 16,
-    },
-    errorContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        gap: 16,
-    },
-    errorText: {
-        fontSize: 16,
-        textAlign: 'center',
-    },
-    retryButton: {
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 8,
-    },
-    retryButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    profileHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 24,
-        paddingVertical: 20,
-        gap: 16,
-    },
-    avatarContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-    },
-    avatar: {
-        width: '100%',
-        height: '100%',
-    },
-    avatarText: {
-        fontSize: 32,
-        fontWeight: '800',
-    },
-    profileInfo: {
-        flex: 1,
-    },
-    profileName: {
-        fontSize: 24,
-        fontWeight: '800',
-        marginBottom: 4,
-    },
-    ratingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: 8,
-    },
-    ratingText: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    verifiedBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        alignSelf: 'flex-start',
-    },
-    verifiedText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#10b981',
-    },
-    shareButton: {
-        padding: 8,
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginHorizontal: 24,
-        padding: 20,
-        borderRadius: 16,
-        marginBottom: 16,
-    },
-    statItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    statDivider: {
-        width: 1,
-        marginHorizontal: 16,
-    },
-    statNumber: {
-        fontSize: 20,
-        fontWeight: '800',
-        marginTop: 8,
-    },
-    statLabel: {
-        fontSize: 12,
-        marginTop: 4,
-    },
-    section: {
-        marginHorizontal: 24,
-        padding: 20,
-        borderRadius: 16,
-        marginBottom: 16,
-    },
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        marginBottom: 12,
-    },
-    bioText: {
-        fontSize: 15,
-        lineHeight: 22,
-    },
-    servicesGrid: {
-        gap: 12,
-    },
-    serviceCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        borderWidth: 1,
-        gap: 12,
-    },
-    serviceName: {
-        flex: 1,
-        fontSize: 15,
-        fontWeight: '600',
-    },
-    locationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
-    },
-    locationText: {
-        fontSize: 15,
-        flex: 1,
-    },
-    radiusText: {
-        fontSize: 13,
-        fontStyle: 'italic',
-    },
-    pricingCard: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-    },
-    priceLabel: {
-        fontSize: 15,
-    },
-    priceAmount: {
-        fontSize: 20,
-        fontWeight: '800',
-    },
-    actionContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 24,
-        gap: 12,
-        marginBottom: 24,
-    },
-    scrollContainer: {
-        flex: 1,
-    },
-    contactBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 56,
-        borderRadius: 18,
-        gap: 8,
-        borderWidth: 1.5,
-    },
-    contactBtnText: {
-        fontSize: 15,
-        fontWeight: '700',
-    },
-    bookButton: {
-        flex: 1.5,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 56,
-        borderRadius: 18,
-        gap: 8,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-    },
-    bookButtonText: {
-        color: '#fff',
-        fontSize: 15,
-        fontWeight: '800',
-    },
-    footer: {
-        flexDirection: 'row',
-        padding: 20,
-        paddingBottom: 40,
-        borderTopWidth: 1,
-        gap: 12,
-    },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40, maxHeight: '80%' },
-    modalTitle: { fontSize: 22, fontWeight: '800', marginBottom: 20 },
-    modalLabel: { fontSize: 12, fontWeight: '700', marginTop: 16, marginBottom: 8 },
-    petChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, marginRight: 10, borderWidth: 1 },
-    petChipText: { fontSize: 14, fontWeight: '700' },
-    noPetsText: { fontSize: 14, paddingVertical: 8 },
-    durationRow: { flexDirection: 'row', gap: 12 },
-    durationChip: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1 },
-    modalInput: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, height: 80, textAlignVertical: 'top' },
-    modalActions: { flexDirection: 'row', gap: 12, marginTop: 24 },
-    modalCancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    modalCancelText: { fontSize: 15, fontWeight: '700' },
-    modalSubmitBtn: { flex: 2, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    modalSubmitText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-    ratingSummaryCard: {
-        flexDirection: 'row',
-        padding: 20,
-        borderRadius: 24,
-        borderWidth: 1,
-        marginBottom: 20,
-        alignItems: 'center',
-    },
-    summaryLeft: {
-        alignItems: 'center',
-        paddingRight: 20,
-    },
-    bigRating: {
-        fontSize: 32,
-        fontWeight: '800',
-    },
-    starsRow: {
-        flexDirection: 'row',
-        gap: 2,
-        marginVertical: 6,
-    },
-    totalReviewsText: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
-    summarySeparator: {
-        width: 1,
-        height: '80%',
-    },
-    summaryRight: {
-        flex: 1,
-        paddingLeft: 20,
-    },
-    summaryDescription: {
-        fontSize: 12,
-        lineHeight: 18,
-        fontWeight: '600',
-    },
-    writeReviewCard: {
-        padding: 20,
-        borderRadius: 24,
-        borderWidth: 1,
-        marginBottom: 24,
-    },
-    writeReviewTitle: {
-        fontSize: 16,
-        fontWeight: '800',
-        marginBottom: 4,
-    },
-    writeReviewSubtitle: {
-        fontSize: 12,
-        fontWeight: '600',
-        marginBottom: 16,
-    },
-    interactiveStars: {
-        flexDirection: 'row',
-        gap: 12,
-        justifyContent: 'center',
-        marginBottom: 20,
-    },
-    starTouch: {
-        padding: 4,
-    },
-    commentInput: {
-        borderRadius: 16,
-        borderWidth: 1,
-        padding: 12,
-        fontSize: 14,
-        height: 80,
-        textAlignVertical: 'top',
-        marginBottom: 16,
-        fontWeight: '600',
-    },
-    submitReviewBtn: {
-        height: 48,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    submitReviewBtnText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '800',
-    },
-    infoReviewCard: {
-        padding: 16,
-        borderRadius: 20,
-        borderWidth: 1,
-        marginBottom: 20,
-    },
-    infoReviewText: {
-        fontSize: 13,
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-    reviewsList: {
-        gap: 12,
-        marginBottom: 12,
-    },
-    emptyReviewsText: {
-        fontSize: 14,
-        fontWeight: '600',
-        textAlign: 'center',
-        paddingVertical: 20,
-        fontStyle: 'italic',
-    },
-    reviewItemCard: {
-        padding: 16,
-        borderRadius: 20,
-        borderWidth: 1,
-    },
-    reviewItemHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 10,
-    },
-    reviewAvatar: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    reviewAvatarText: {
-        fontSize: 14,
-        fontWeight: '800',
-    },
-    reviewUserName: {
-        fontSize: 14,
-        fontWeight: '800',
-    },
-    reviewStarsRow: {
-        flexDirection: 'row',
-        gap: 2,
-        marginTop: 2,
-    },
-    reviewDate: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
-    reviewCommentText: {
-        fontSize: 13,
-        lineHeight: 19,
-        fontWeight: '600',
-    },
+    flex: { flex: 1 },
+    primary: { flex: 1.6 },
+    center: { alignSelf: 'center' },
+    loading: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.md },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl },
+    prices: { gap: spacing.sm },
+    group: { gap: spacing.sm },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    inline: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
 });

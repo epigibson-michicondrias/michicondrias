@@ -8,6 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import BackButton from '@/src/components/BackButton';
 import { Shield, Clock, DollarSign, CheckCircle, ArrowRight, PawPrint, Award, HeartHandshake } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function PlanDetailScreen() {
     const router = useRouter();
@@ -20,8 +21,8 @@ export default function PlanDetailScreen() {
     if (isLoading) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Detalle del Plan" rightElement={<View style={styles.placeholder} />} />
-                <View style={{ padding: 20 }}><SkeletonList count={4} /></View>
+                <ScreenHeader title="Detalle del Plan" />
+                <View style={{ padding: spacing.xl }}><SkeletonList count={4} /></View>
             </ScreenContainer>
         );
     }
@@ -29,9 +30,9 @@ export default function PlanDetailScreen() {
     if (!plan) {
         return (
             <ScreenContainer>
-                <ScreenHeader title="Plan no encontrado" rightElement={<View style={styles.placeholder} />} />
+                <ScreenHeader title="Plan no encontrado" />
                 <View style={styles.errorContainer}>
-                    <Shield size={64} color={theme.textMuted} style={{ marginBottom: 16 }} />
+                    <Shield size={64} color={theme.textMuted} style={{ marginBottom: spacing.lg }} />
                     <Text style={[styles.errorText, { color: theme.textMuted }]}>
                         No pudimos encontrar el plan de seguro solicitado.
                     </Text>
@@ -131,7 +132,7 @@ export default function PlanDetailScreen() {
                 <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                     <View style={styles.sectionHeaderRow}>
                         <HeartHandshake size={20} color={theme.secondary} />
-                        <Text style={[styles.sectionTitle, { color: theme.text, marginLeft: 8 }]}>¿Cómo funciona?</Text>
+                        <Text style={[styles.sectionTitle, { color: theme.text, marginLeft: spacing.sm }]}>¿Cómo funciona?</Text>
                     </View>
                     {benefits.map((benefit, index) => (
                         <View key={index} style={styles.benefitItem}>
@@ -148,7 +149,7 @@ export default function PlanDetailScreen() {
                         onPress={() => router.push({ pathname: '/aseguradoras/cotizar', params: { plan_id: plan.id } } as any)}
                     >
                         <Text style={styles.ctaButtonText}>Cotizar y Contratar</Text>
-                        <ArrowRight size={20} color="#fff" />
+                        <ArrowRight size={20} color={theme.onPrimary} />
                     </TouchableOpacity>
                 </View>
 
@@ -166,57 +167,59 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderBottomWidth: 1,
     },
     headerTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     scrollContent: {
-        paddingHorizontal: 20,
-        paddingTop: 16,
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing.lg,
         paddingBottom: 60,
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16,
+        gap: spacing.lg,
     },
     loadingText: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600',
     },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 30,
+        paddingHorizontal: spacing.xxxl,
     },
     errorText: {
-        fontSize: 16,
+        fontSize: font.xl,
         textAlign: 'center',
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
         lineHeight: 22,
     },
     retryButton: {
-        paddingHorizontal: 28,
-        paddingVertical: 14,
+        paddingHorizontal: spacing.xxxl,
+        paddingVertical: spacing.lg,
         borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     retryButtonText: {
         color: '#fff',
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     heroCard: {
         alignItems: 'center',
-        padding: 24,
+        padding: spacing.xxl,
         borderRadius: 24,
         borderWidth: 1,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
@@ -229,31 +232,31 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     planName: {
-        fontSize: 22,
+        fontSize: font.h2,
         fontWeight: '800',
         textAlign: 'center',
-        marginBottom: 8,
+        marginBottom: spacing.sm,
     },
     planDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
         textAlign: 'center',
     },
     metricsRow: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 16,
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     metricCard: {
         flex: 1,
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
@@ -261,18 +264,18 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     metricValue: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
     metricLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     section: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 20,
         borderWidth: 1,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
@@ -282,17 +285,17 @@ const styles = StyleSheet.create({
     sectionHeaderRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     sectionTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
     },
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
-        gap: 12,
+        marginBottom: spacing.lg,
+        gap: spacing.md,
     },
     infoIconBg: {
         width: 36,
@@ -305,54 +308,54 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     infoLabel: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '600',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     infoValue: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     speciesRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 6,
-        marginTop: 4,
+        gap: spacing.sm,
+        marginTop: spacing.xs,
     },
     speciesBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
         borderRadius: 8,
     },
     speciesText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     benefitItem: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: 12,
-        gap: 10,
+        marginBottom: spacing.md,
+        gap: spacing.md,
     },
     checkIcon: {
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     benefitText: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
         flex: 1,
         fontWeight: '500',
     },
     actionContainer: {
-        marginTop: 8,
+        marginTop: spacing.sm,
     },
     ctaButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        gap: 8,
+        gap: spacing.sm,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
@@ -361,7 +364,7 @@ const styles = StyleSheet.create({
     },
     ctaButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     footer: {

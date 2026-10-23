@@ -1,21 +1,21 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Wrench } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useMenu } from '@/src/hooks/home/useMenu';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 import ListRow from '@/src/components/ListRow';
 import SectionHeader from '@/src/components/SectionHeader';
 import EmptyState from '@/src/components/EmptyState';
-import { spacing, type, layout } from '@/constants/design';
+import { spacing, layout } from '@/constants/design';
 import type { RoleTool } from '@/src/constants/roleTools';
 
 /** Herramientas: el trabajo del rol profesional o de administración. Solo visible para pro/admin. */
 export default function MenuScreen() {
     const router = useRouter();
-    const insets = useSafeAreaInsets();
     const { theme } = useTheme();
     const { title, subtitle, mainTools, moreTools } = useMenu();
 
@@ -32,14 +32,12 @@ export default function MenuScreen() {
 
     return (
         <ScreenContainer>
+            <ScreenHeader title={title} subtitle={subtitle} showBack={false} />
             <ScrollView
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
+                refreshControl={<AppRefreshControl />}
+                contentContainerStyle={styles.content}
             >
-                <View>
-                    <Text accessibilityRole="header" style={[type.h1, { color: theme.text }]}>{title}</Text>
-                    <Text style={[type.body, { color: theme.textMuted }]}>{subtitle}</Text>
-                </View>
 
                 {mainTools.length === 0 && moreTools.length === 0 ? (
                     <EmptyState
@@ -66,7 +64,8 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
     content: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: spacing.huge * 2,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.huge,
         gap: spacing.xl,
     },
     section: {

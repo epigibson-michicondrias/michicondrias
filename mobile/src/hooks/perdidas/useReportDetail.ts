@@ -51,6 +51,7 @@ export function useReportDetail() {
         queryClient.invalidateQueries({ queryKey: ['perdidas-report', id] });
         queryClient.invalidateQueries({ queryKey: ['lost-pet-reports'] });
         queryClient.invalidateQueries({ queryKey: ['lost-pet-resolved'] });
+        queryClient.invalidateQueries({ queryKey: ['my-lost-reports'] });
     };
 
     const resolveMutation = useMutation({
@@ -88,10 +89,10 @@ export function useReportDetail() {
         showAlert({
             type: 'info',
             title: '¿Ya regresó a casa?',
-            message: 'Esto marcará el reporte como RESUELTO y dejará de mostrarse como búsqueda activa.',
+            message: 'El reporte se cerrará y dejará de mostrarse como búsqueda activa.',
             showCancel: true,
             cancelText: 'Cancelar',
-            buttonText: '¡SÍ, YA REGRESÓ!',
+            buttonText: 'Sí, ya regresó',
             onButtonPress: () => resolveMutation.mutate(),
         });
     };

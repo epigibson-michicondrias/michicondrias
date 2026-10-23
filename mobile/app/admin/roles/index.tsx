@@ -8,6 +8,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Shield, Plus, Edit3, Trash2, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminRolesScreen() {
     const { theme } = useTheme();
@@ -61,8 +62,8 @@ export default function AdminRolesScreen() {
             <ScreenHeader
                 title="Roles"
                 subtitle="Gestión de Permisos"
-                gradient={['#ef4444', '#ef4444E6', '#ef4444CC']}
                 actionIcon={Plus}
+                actionLabel="Nuevo rol"
                 onAction={() => handleAction()}
             />
 
@@ -101,7 +102,7 @@ export default function AdminRolesScreen() {
                                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                             />
 
-                            <Text style={[styles.label, { color: theme.textMuted, marginTop: 16 }]}>DESCRIPCIÓN</Text>
+                            <Text style={[styles.label, { color: theme.textMuted, marginTop: spacing.lg }]}>DESCRIPCIÓN</Text>
                             <TextInput
                                 style={[styles.input, styles.textArea, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
                                 placeholder="Breve descripción de permisos..."
@@ -118,7 +119,7 @@ export default function AdminRolesScreen() {
                                 onPress={handleSubmit}
                             >
                                 {isSaving ? (
-                                    <ActivityIndicator color="#fff" />
+                                    <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
                                     <Text style={styles.submitBtnText}>
                                         {editingRole ? 'Guardar Cambios' : 'Crear Rol'}
@@ -136,18 +137,18 @@ export default function AdminRolesScreen() {
 
 const styles = StyleSheet.create({
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 12 
+        paddingTop: spacing.md 
     },
     card: { 
         flexDirection: 'row', 
         alignItems: 'flex-start', 
-        padding: 20, 
+        padding: spacing.xl, 
         borderRadius: 28, 
-        marginBottom: 16, 
+        marginBottom: spacing.lg, 
         borderWidth: 1.5, 
-        gap: 16,
+        gap: spacing.lg,
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 6 },
@@ -164,29 +165,29 @@ const styles = StyleSheet.create({
     },
     cardInfo: { flex: 1 },
     roleName: { 
-        fontSize: 17, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     roleDesc: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '600', 
-        marginTop: 6, 
+        marginTop: spacing.sm, 
         lineHeight: 18 
     },
     badgeRow: { 
         flexDirection: 'row', 
-        marginTop: 14 
+        marginTop: spacing.lg 
     },
     countBadge: { 
-        paddingHorizontal: 12, 
-        paddingVertical: 6, 
+        paddingHorizontal: spacing.md, 
+        paddingVertical: spacing.sm, 
         borderRadius: 10 
     },
     countText: { 
-        fontSize: 10, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
-    actions: { flexDirection: 'row', gap: 4 },
+    actions: { flexDirection: 'row', gap: spacing.xs },
     modalOverlay: { 
         flex: 1, 
         backgroundColor: 'rgba(0,0,0,0.6)', 
@@ -195,33 +196,33 @@ const styles = StyleSheet.create({
     modalContent: { 
         borderTopLeftRadius: 32, 
         borderTopRightRadius: 32, 
-        padding: 28, 
-        paddingBottom: 40,
+        padding: spacing.xxxl, 
+        paddingBottom: spacing.huge,
         elevation: 20,
     },
     modalHeader: { 
         flexDirection: 'row', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        marginBottom: 28 
+        marginBottom: spacing.xxxl 
     },
     modalTitle: { 
-        fontSize: 22, 
+        fontSize: font.h2, 
         fontWeight: '800',
         letterSpacing: -0.5 
     },
-    form: { gap: 12 },
+    form: { gap: spacing.md },
     label: { 
-        fontSize: 11, 
+        fontSize: font.sm, 
         fontWeight: '800', 
         letterSpacing: 1.2,
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: { 
         borderRadius: 18, 
-        padding: 18, 
+        padding: spacing.xl, 
         borderWidth: 1.5, 
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600' 
     },
     textArea: { 
@@ -230,14 +231,15 @@ const styles = StyleSheet.create({
     },
     submitBtn: { 
         borderRadius: 18, 
-        padding: 20, 
+        padding: spacing.xl, 
         alignItems: 'center', 
-        marginTop: 24, 
+        marginTop: spacing.xxl, 
         elevation: 6,
+        justifyContent: 'center',
     },
     submitBtnText: { 
         color: '#fff', 
-        fontSize: 16, 
+        fontSize: font.xl, 
         fontWeight: '800' 
     },
     editBtn: { 

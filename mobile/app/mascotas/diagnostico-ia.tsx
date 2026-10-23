@@ -1,14 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ActivityIndicator, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TextInput, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAIDiagnosis } from '@/src/hooks/mascotas/useAIDiagnosis';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Sparkles, AlertTriangle, ShieldAlert, Heart, Info, Clipboard, Activity } from 'lucide-react-native';
-import { Picker } from '@react-native-picker/picker';
+import FormSelect from '@/src/components/forms/FormSelect';
+import SegmentedControl from '@/src/components/SegmentedControl';
+import Button from '@/src/components/Button';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
-
-const { width } = Dimensions.get('window');
+import { spacing, radius, type, shadow, layout, font } from '@/constants/design';
 
 export default function DiagnosticoIAScreen() {
     const { theme } = useTheme();
@@ -39,8 +40,29 @@ export default function DiagnosticoIAScreen() {
         loadingPets,
         getTriageColor,
         goAddPet,
-        router,
     } = useAIDiagnosis();
+
+    const triagePetOptions = [
+        { label: 'Sin especificar', value: '' },
+        ...pets.map((pet) => ({
+            label: pet.name,
+            value: pet.id,
+        })),
+    ];
+
+    const dietPetOptions = [
+        { label: '-- Elige una mascota --', value: '' },
+        ...pets.map((pet) => ({
+            label: pet.name,
+            value: pet.id,
+        })),
+    ];
+
+    const activityOptions = [
+        { label: 'Bajo (Poco ejercicio)', value: 'bajo' },
+        { label: 'Medio (Normal / Juegos)', value: 'medio' },
+        { label: 'Alto (Deportivo / Muy activo)', value: 'alto' },
+    ];
 
     return (
         <ScreenContainer>
@@ -48,87 +70,70 @@ export default function DiagnosticoIAScreen() {
             <ScreenHeader
                 title="Michi-IA Asistente"
                 leftElement={undefined}
-                rightElement={<View style={{ width: 44 }} />}
             />
 
-            {/* Custom Segmented Control */}
-            <View style={[styles.tabBar, { borderColor: theme.border }]}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'triage' && [styles.activeTab, { borderBottomColor: theme.primary }]]}
-                    onPress={() => setActiveTab('triage')}
-                    accessibilityRole="tab"
-                    accessibilityState={{ selected: activeTab === 'triage' }}
-                >
-                    <Activity size={18} color={activeTab === 'triage' ? theme.primary : theme.textMuted} />
-                    <Text style={[styles.tabText, { color: activeTab === 'triage' ? theme.text : theme.textMuted }]}>
-                        Sintomatología
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'diet' && [styles.activeTab, { borderBottomColor: theme.primary }]]}
-                    onPress={() => setActiveTab('diet')}
-                    accessibilityRole="tab"
-                    accessibilityState={{ selected: activeTab === 'diet' }}
-                >
-                    <Heart size={18} color={activeTab === 'diet' ? theme.primary : theme.textMuted} />
-                    <Text style={[styles.tabText, { color: activeTab === 'diet' ? theme.primary : theme.textMuted }]}>
-                        Nutrición
-                    </Text>
-                </TouchableOpacity>
+            {/* Segmented Control */}
+            <View style={styles.segmentContainer}>
+                <SegmentedControl
+                    accessibilityLabel="Pestañas de asistente IA"
+                    value={activeTab}
+                    onChange={(val) => setActiveTab(val as 'triage' | 'diet')}
+                    options={[
+                        { value: 'triage', label: 'Sintomatología', icon: Activity },
+                        { value: 'diet', label: 'Nutrición', icon: Heart },
+                    ]}
+                />
             </View>
 
-            <KeyboardScreen contentContainerStyle={{ paddingHorizontal: 24 }}>
+            <KeyboardScreen contentContainerStyle={{ paddingHorizontal: spacing.xl }}>
                 {activeTab === 'triage' ? (
                     <View style={styles.formContainer}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                        <Text style={[type.h2, { color: theme.text, marginBottom: spacing.xs }]}>
                             Analizador Clínico Pre-Diagnóstico
                         </Text>
-                        <Text style={[styles.subtitle, { color: theme.textMuted }]}>
+                        <Text style={[type.body, { color: theme.textMuted, marginBottom: spacing.xl }]}>
                             Te orientamos sobre qué tan urgente es atender a tu mascota según los síntomas. No es un diagnóstico ni sustituye a un veterinario.
                         </Text>
 
-                        {/* Mascota del análisis (opcional): aporta especie, peso y edad al triage */}
+                        {/* Mascota del análisis */}
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>¿A qué mascota le pasa? (opcional)</Text>
                             {loadingPets ? (
                                 <ActivityIndicator size="small" color={theme.primary} />
                             ) : pets.length === 0 ? (
                                 <View style={[styles.emptyPetsCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                    <AlertTriangle size={24} color="#f59e0b" />
-                                    <Text style={[styles.emptyPetsText, { color: theme.text }]}>
+                                    <AlertTriangle size={layout.icon.lg} color={theme.warning} />
+                                    <Text style={[type.bodyStrong, { color: theme.text, textAlign: 'center' }]}>
                                         Registra a tu mascota para orientar el análisis con su especie, peso y edad.
                                     </Text>
-                                    <TouchableOpacity
-                                        style={[styles.emptyPetsBtn, { backgroundColor: theme.primary }]}
+                                    <Button
+                                        label="Agregar mascota"
                                         onPress={goAddPet}
-                                        accessibilityRole="button"
-                                    >
-                                        <Text style={styles.emptyPetsBtnText}>Agregar mascota</Text>
-                                    </TouchableOpacity>
+                                        variant="primary"
+                                        size="sm"
+                                    />
                                 </View>
                             ) : (
-                                <View style={[styles.pickerContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                    <Picker
-                                        selectedValue={triagePetId}
-                                        onValueChange={(val) => setTriagePetId(val)}
-                                        style={{ color: theme.text }}
-                                    >
-                                        <Picker.Item label="-- Sin especificar --" value="" />
-                                        {pets.map((pet) => (
-                                            <Picker.Item key={pet.id} label={pet.name} value={pet.id} />
-                                        ))}
-                                    </Picker>
-                                </View>
+                                <FormSelect
+                                    label="¿A qué mascota le pasa? (opcional)"
+                                    options={triagePetOptions}
+                                    value={triagePetId}
+                                    onChange={(val) => setTriagePetId(val)}
+                                />
                             )}
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>¿Qué síntomas presenta tu mascota?</Text>
+                            <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
+                                ¿Qué síntomas presenta tu mascota? *
+                            </Text>
                             <TextInput
-                                style={[styles.textArea, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                style={[
+                                    styles.textArea,
+                                    { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
+                                ]}
                                 multiline
                                 numberOfLines={4}
-                                placeholder="Describe detalladamente lo que notas (ej. vomito constante, no quiere comer, diarrea, sangrado, letargo)..."
+                                placeholder="Describe detalladamente lo que notas (ej. vomito constante, decaído, no come)..."
                                 placeholderTextColor={theme.textMuted}
                                 value={symptoms}
                                 onChangeText={setSymptoms}
@@ -136,9 +141,14 @@ export default function DiagnosticoIAScreen() {
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={[styles.label, { color: theme.text }]}>¿Hace cuántas horas comenzaron los síntomas?</Text>
+                            <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
+                                ¿Hace cuántas horas comenzaron los síntomas? *
+                            </Text>
                             <TextInput
-                                style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                style={[
+                                    styles.input,
+                                    { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
+                                ]}
                                 keyboardType="numeric"
                                 placeholder="Ej. 12"
                                 placeholderTextColor={theme.textMuted}
@@ -147,44 +157,39 @@ export default function DiagnosticoIAScreen() {
                             />
                         </View>
 
-                        <TouchableOpacity
-                            style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                            onPress={handleSymptomCheck}
-                            disabled={triageLoading}
-                        >
-                            {triageLoading ? (
-                                <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                                <>
-                                    <Sparkles size={20} color="#fff" />
-                                    <Text style={styles.submitBtnText}>Iniciar Análisis Clínico</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
+                        <View style={styles.actionRow}>
+                            <Button
+                                label={triageLoading ? 'Analizando síntomas...' : 'Iniciar Análisis Clínico'}
+                                onPress={handleSymptomCheck}
+                                loading={triageLoading}
+                                icon={<Sparkles size={layout.icon.md} color={theme.onPrimary} />}
+                                fullWidth
+                            />
+                        </View>
 
                         {triageResult && (
                             <View style={[styles.resultCard, { backgroundColor: theme.surface, borderColor: getTriageColor(triageResult.urgency) }]}>
                                 <View style={styles.resultHeader}>
-                                    <ShieldAlert size={24} color={getTriageColor(triageResult.urgency)} />
-                                    <Text style={[styles.resultTitle, { color: getTriageColor(triageResult.urgency) }]}>
+                                    <ShieldAlert size={layout.icon.lg} color={getTriageColor(triageResult.urgency)} />
+                                    <Text style={[type.title, { color: getTriageColor(triageResult.urgency) }]}>
                                         {triageResult.triage_level}
                                     </Text>
                                 </View>
 
-                                <Text style={[styles.resultText, { color: theme.text }]}>
+                                <Text style={[type.body, { color: theme.text }]}>
                                     {triageResult.summary}
                                 </Text>
 
-                                <View style={[styles.recommendationBox, { backgroundColor: theme.background }]}>
-                                    <Text style={[styles.boxTitle, { color: theme.text }]}>Plan de Acción Recomendado:</Text>
-                                    <Text style={[styles.boxText, { color: theme.text }]}>
+                                <View style={[styles.recommendationBox, { backgroundColor: theme.backgroundSecondary }]}>
+                                    <Text style={[type.label, { color: theme.primary }]}>Plan de Acción Recomendado:</Text>
+                                    <Text style={[type.body, { color: theme.text }]}>
                                         {triageResult.action_plan}
                                     </Text>
                                 </View>
 
                                 <View style={styles.disclaimerContainer}>
-                                    <Info size={16} color={theme.textMuted} />
-                                    <Text style={[styles.disclaimerText, { color: theme.textMuted }]}>
+                                    <Info size={layout.icon.xs} color={theme.textMuted} />
+                                    <Text style={[type.caption, { color: theme.textMuted }]}>
                                         {triageResult.disclaimer}
                                     </Text>
                                 </View>
@@ -193,66 +198,57 @@ export default function DiagnosticoIAScreen() {
                     </View>
                 ) : (
                     <View style={styles.formContainer}>
-                        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                        <Text style={[type.h2, { color: theme.text, marginBottom: spacing.xs }]}>
                             Planificador Nutricional Personalizado
                         </Text>
-                        <Text style={[styles.subtitle, { color: theme.textMuted }]}>
-                            Calcula las calorías diarias de tu mascota (fórmula RER/MER) y recibe una guía de alimentación.
+                        <Text style={[type.body, { color: theme.textMuted, marginBottom: spacing.xl }]}>
+                            Calcula las calorías diarias de tu mascota (fórmula RER/MER) y recibe una guía de alimentación balanceada.
                         </Text>
 
                         {loadingPets ? (
                             <ActivityIndicator size="small" color={theme.primary} />
                         ) : pets.length === 0 ? (
                             <View style={[styles.emptyPetsCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                <AlertTriangle size={24} color="#f59e0b" />
-                                <Text style={[styles.emptyPetsText, { color: theme.text }]}>
+                                <AlertTriangle size={layout.icon.lg} color={theme.warning} />
+                                <Text style={[type.bodyStrong, { color: theme.text, textAlign: 'center' }]}>
                                     Necesitas registrar al menos una mascota para generar un plan nutricional.
                                 </Text>
-                                <TouchableOpacity
-                                    style={[styles.emptyPetsBtn, { backgroundColor: theme.primary }]}
+                                <Button
+                                    label="Agregar mascota"
                                     onPress={goAddPet}
-                                    accessibilityRole="button"
-                                >
-                                    <Text style={styles.emptyPetsBtnText}>Agregar mascota</Text>
-                                </TouchableOpacity>
+                                    variant="primary"
+                                    size="sm"
+                                />
                             </View>
                         ) : (
                             <>
                                 <View style={styles.formGroup}>
-                                    <Text style={[styles.label, { color: theme.text }]}>Selecciona tu Mascota</Text>
-                                    <View style={[styles.pickerContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                        <Picker
-                                            selectedValue={selectedPetId}
-                                            onValueChange={(val) => setSelectedPetId(val)}
-                                            style={{ color: theme.text }}
-                                        >
-                                            <Picker.Item label="-- Elige una mascota --" value="" />
-                                            {pets.map((pet) => (
-                                                <Picker.Item key={pet.id} label={pet.name} value={pet.id} />
-                                            ))}
-                                        </Picker>
-                                    </View>
+                                    <FormSelect
+                                        label="Selecciona tu Mascota *"
+                                        options={dietPetOptions}
+                                        value={selectedPetId}
+                                        onChange={(val) => setSelectedPetId(val)}
+                                    />
                                 </View>
 
                                 <View style={styles.formGroup}>
-                                    <Text style={[styles.label, { color: theme.text }]}>Nivel de Actividad Física</Text>
-                                    <View style={[styles.pickerContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                                        <Picker
-                                            selectedValue={activityLevel}
-                                            onValueChange={(val) => setActivityLevel(val)}
-                                            style={{ color: theme.text }}
-                                        >
-                                            <Picker.Item label="Bajo (Poco ejercicio)" value="bajo" />
-                                            <Picker.Item label="Medio (Normal/Juegos)" value="medio" />
-                                            <Picker.Item label="Alto (Deportivo/Activo)" value="alto" />
-                                        </Picker>
-                                    </View>
+                                    <FormSelect
+                                        label="Nivel de Actividad Física"
+                                        options={activityOptions}
+                                        value={activityLevel}
+                                        onChange={(val) => setActivityLevel(val)}
+                                    />
                                 </View>
 
                                 <View style={styles.formGroup}>
-                                    <Text style={[styles.label, { color: theme.text }]}>Alergias Conocidas (Opcional)</Text>
+                                    <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
+                                        Alergias Conocidas (Opcional)
+                                    </Text>
                                     <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                        style={[
+                                            styles.input,
+                                            { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
+                                        ]}
                                         placeholder="Ej. Pollo, pescado, granos..."
                                         placeholderTextColor={theme.textMuted}
                                         value={allergies}
@@ -261,9 +257,14 @@ export default function DiagnosticoIAScreen() {
                                 </View>
 
                                 <View style={styles.formGroup}>
-                                    <Text style={[styles.label, { color: theme.text }]}>Peso Objetivo en kg (Opcional)</Text>
+                                    <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
+                                        Peso Objetivo en kg (Opcional)
+                                    </Text>
                                     <TextInput
-                                        style={[styles.input, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
+                                        style={[
+                                            styles.input,
+                                            { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
+                                        ]}
                                         keyboardType="decimal-pad"
                                         placeholder="Ej. 8.5"
                                         placeholderTextColor={theme.textMuted}
@@ -272,56 +273,51 @@ export default function DiagnosticoIAScreen() {
                                     />
                                 </View>
 
-                                <TouchableOpacity
-                                    style={[styles.submitBtn, { backgroundColor: theme.primary }]}
-                                    onPress={handleDietPlan}
-                                    disabled={dietLoading}
-                                >
-                                    {dietLoading ? (
-                                        <ActivityIndicator size="small" color="#fff" />
-                                    ) : (
-                                        <>
-                                            <Sparkles size={20} color="#fff" />
-                                            <Text style={styles.submitBtnText}>Generar Plan de Dieta</Text>
-                                        </>
-                                    )}
-                                </TouchableOpacity>
+                                <View style={styles.actionRow}>
+                                    <Button
+                                        label={dietLoading ? 'Generando plan...' : 'Generar Plan de Dieta'}
+                                        onPress={handleDietPlan}
+                                        loading={dietLoading}
+                                        icon={<Sparkles size={layout.icon.md} color={theme.onPrimary} />}
+                                        fullWidth
+                                    />
+                                </View>
                             </>
                         )}
 
                         {dietResult && (
-                            <View style={[styles.resultCard, { backgroundColor: theme.surface, borderColor: theme.primary }]}>
+                            <View style={[styles.resultCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                                 <View style={styles.resultHeader}>
-                                    <Clipboard size={24} color={theme.primary} />
-                                    <Text style={[styles.resultTitle, { color: theme.text }]}>
+                                    <Clipboard size={layout.icon.lg} color={theme.primary} />
+                                    <Text style={[type.title, { color: theme.text }]}>
                                         Guía de Nutrición
                                     </Text>
                                 </View>
 
                                 <View style={styles.metricRow}>
-                                    <View style={[styles.metricBox, { backgroundColor: theme.background }]}>
+                                    <View style={[styles.metricBox, { backgroundColor: theme.backgroundSecondary }]}>
                                         <Text style={[styles.metricVal, { color: theme.primary }]}>
                                             {dietResult.resting_energy_requirement_kcal}
                                         </Text>
                                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>RER (kcal/día)</Text>
                                     </View>
-                                    <View style={[styles.metricBox, { backgroundColor: theme.background }]}>
-                                        <Text style={[styles.metricVal, { color: '#10b981' }]}>
+                                    <View style={[styles.metricBox, { backgroundColor: theme.backgroundSecondary }]}>
+                                        <Text style={[styles.metricVal, { color: theme.success }]}>
                                             {dietResult.daily_energy_needs_kcal}
                                         </Text>
                                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>Meta Calórica</Text>
                                     </View>
-                                    <View style={[styles.metricBox, { backgroundColor: theme.background }]}>
-                                        <Text style={[styles.metricVal, { color: '#0ea5e9' }]}>
+                                    <View style={[styles.metricBox, { backgroundColor: theme.backgroundSecondary }]}>
+                                        <Text style={[styles.metricVal, { color: theme.info }]}>
                                             {dietResult.hydration_target_ml}ml
                                         </Text>
                                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>Hidratación</Text>
                                     </View>
                                 </View>
 
-                                <View style={[styles.recommendationBox, { backgroundColor: theme.background }]}>
-                                    <Text style={[styles.boxTitle, { color: theme.text }]}>Pauta de Dieta Sugerida:</Text>
-                                    <Text style={[styles.boxText, { color: theme.text, lineHeight: 20 }]}>
+                                <View style={[styles.recommendationBox, { backgroundColor: theme.backgroundSecondary }]}>
+                                    <Text style={[type.label, { color: theme.primary }]}>Pauta de Dieta Sugerida:</Text>
+                                    <Text style={[type.body, { color: theme.text, lineHeight: 22 }]}>
                                         {dietResult.recommended_diet}
                                     </Text>
                                 </View>
@@ -335,189 +331,90 @@ export default function DiagnosticoIAScreen() {
 }
 
 const styles = StyleSheet.create({
-    tabBar: {
-        flexDirection: 'row',
-        marginHorizontal: 24,
-        borderBottomWidth: 1,
-        marginBottom: 16,
-    },
-    tab: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 14,
-        gap: 8,
-        borderBottomWidth: 3,
-        borderBottomColor: 'transparent',
-    },
-    activeTab: {},
-    tabText: {
-        fontSize: 14,
-        fontWeight: '800',
+    segmentContainer: {
+        paddingHorizontal: spacing.xl,
+        marginBottom: spacing.lg,
     },
     formContainer: {
         paddingBottom: 100,
     },
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: '900',
-        letterSpacing: -0.5,
-        marginBottom: 6,
-    },
-    subtitle: {
-        fontSize: 13,
-        fontWeight: '600',
-        lineHeight: 18,
-        marginBottom: 24,
-    },
     formGroup: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 14,
-        fontWeight: '800',
-        marginBottom: 8,
+        marginBottom: spacing.lg,
     },
     input: {
-        height: 54,
-        borderRadius: 16,
-        paddingHorizontal: 16,
+        height: layout.inputHeight,
+        borderRadius: radius.md,
+        paddingHorizontal: spacing.md,
         borderWidth: 1,
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600',
     },
     textArea: {
-        height: 120,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingTop: 16,
+        minHeight: 120,
+        borderRadius: radius.md,
+        paddingHorizontal: spacing.md,
+        paddingTop: spacing.md,
         borderWidth: 1,
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '600',
         textAlignVertical: 'top',
     },
-    pickerContainer: {
-        height: 54,
-        borderRadius: 16,
-        borderWidth: 1,
-        justifyContent: 'center',
-        overflow: 'hidden',
-    },
-    submitBtn: {
-        height: 54,
-        borderRadius: 16,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 10,
-        marginTop: 10,
-        marginBottom: 30,
-        elevation: 4,
-        shadowColor: '#7c3aed',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-    },
-    submitBtnText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '800',
+    actionRow: {
+        marginTop: spacing.sm,
+        marginBottom: spacing.xl,
     },
     resultCard: {
-        padding: 20,
-        borderRadius: 24,
-        borderWidth: 2,
-        gap: 16,
-        marginBottom: 30,
+        padding: spacing.lg,
+        borderRadius: radius.xl,
+        borderWidth: 1.5,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
+        ...shadow.card,
     },
     resultHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-    },
-    resultTitle: {
-        fontSize: 16,
-        fontWeight: '900',
-    },
-    resultText: {
-        fontSize: 14,
-        fontWeight: '600',
-        lineHeight: 20,
+        gap: spacing.sm,
     },
     recommendationBox: {
-        padding: 16,
-        borderRadius: 16,
-        gap: 8,
-    },
-    boxTitle: {
-        fontSize: 13,
-        fontWeight: '800',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
-    boxText: {
-        fontSize: 14,
-        fontWeight: '600',
-        lineHeight: 20,
+        padding: spacing.md,
+        borderRadius: radius.md,
+        gap: spacing.xs,
     },
     disclaimerContainer: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.xs,
         alignItems: 'flex-start',
-        opacity: 0.8,
-    },
-    disclaimerText: {
-        fontSize: 11,
-        fontWeight: '500',
-        flex: 1,
-        lineHeight: 16,
+        opacity: 0.85,
     },
     emptyPetsCard: {
-        padding: 24,
-        borderRadius: 16,
+        padding: spacing.xl,
+        borderRadius: radius.lg,
         borderWidth: 1,
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 20,
-    },
-    emptyPetsText: {
-        fontSize: 14,
-        fontWeight: '700',
-        textAlign: 'center',
-        lineHeight: 20,
-    },
-    emptyPetsBtn: {
-        minHeight: 44,
-        paddingHorizontal: 20,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    emptyPetsBtnText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '800',
+        gap: spacing.md,
+        marginBottom: spacing.lg,
     },
     metricRow: {
         flexDirection: 'row',
-        gap: 10,
+        gap: spacing.sm,
     },
     metricBox: {
         flex: 1,
-        padding: 12,
-        borderRadius: 16,
+        padding: spacing.md,
+        borderRadius: radius.md,
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     metricVal: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
     },
     metricLabel: {
-        fontSize: 9,
+        fontSize: font.xs,
         fontWeight: '700',
         textTransform: 'uppercase',
-    }
+    },
 });
+

@@ -7,8 +7,9 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
-import { Plus, ShoppingCart, Box } from 'lucide-react-native';
+import { ShoppingCart, Box } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminProductosScreen() {
     const router = useRouter();
@@ -44,7 +45,7 @@ export default function AdminProductosScreen() {
                         style={[styles.manageBtn, { backgroundColor: theme.primary }]}
                         onPress={() => showAlert({ type: 'info', title: 'Producto', message: `Gestionar: ${item.name}` })}
                     >
-                        <Text style={[styles.manageBtnText, { color: '#fff' }]}>Editar</Text>
+                        <Text style={[styles.manageBtnText, { color: theme.onPrimary }]}>Editar</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -67,9 +68,6 @@ export default function AdminProductosScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Productos"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                actionIcon={Plus}
-                onAction={() => showAlert({ type: 'info', title: 'Nuevo Producto', message: 'Formulario de alta' })}
             />
 
             <DataList
@@ -93,9 +91,9 @@ export default function AdminProductosScreen() {
 const styles = StyleSheet.create({
     searchBar: { 
         flexDirection: 'row', 
-        paddingHorizontal: 20, 
-        paddingVertical: 12, 
-        gap: 12, 
+        paddingHorizontal: spacing.xl, 
+        paddingVertical: spacing.md, 
+        gap: spacing.md, 
     },
     filterBtn: { 
         width: 54, 
@@ -111,17 +109,17 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
     },
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100, 
-        paddingTop: 8 
+        paddingTop: spacing.sm 
     },
     card: { 
         flexDirection: 'row', 
-        padding: 14, 
+        padding: spacing.lg, 
         borderRadius: 24, 
-        marginBottom: 16, 
+        marginBottom: spacing.lg, 
         borderWidth: 1, 
-        gap: 16,
+        gap: spacing.lg,
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -137,7 +135,7 @@ const styles = StyleSheet.create({
     productInfo: { 
         flex: 1, 
         justifyContent: 'space-between',
-        paddingVertical: 4, 
+        paddingVertical: spacing.xs, 
     },
     topRow: { 
         flexDirection: 'row', 
@@ -145,40 +143,40 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start' 
     },
     productName: { 
-        fontSize: 16, 
+        fontSize: font.xl, 
         fontWeight: '800', 
         flex: 1,
-        marginRight: 8,
+        marginRight: spacing.sm,
     },
     stockBadge: { 
-        paddingHorizontal: 8, 
-        paddingVertical: 4, 
+        paddingHorizontal: spacing.sm, 
+        paddingVertical: spacing.xs, 
         borderRadius: 8 
     },
     stockText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     price: { 
-        fontSize: 18, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     actions: { 
         flexDirection: 'row', 
-        gap: 8, 
-        marginTop: 8 
+        gap: spacing.sm, 
+        marginTop: spacing.sm 
     },
     manageBtn: { 
         flex: 1, 
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        gap: 8, 
+        gap: spacing.sm, 
         height: 40, 
         borderRadius: 12 
     },
     manageBtnText: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '800' 
     }
 });

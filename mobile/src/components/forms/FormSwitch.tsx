@@ -6,6 +6,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { useInFormSection } from '@/src/components/forms/FormSection';
+import { font, spacing } from '@/constants/design';
 
 interface FormSwitchProps {
     label: string;
@@ -25,11 +27,13 @@ export default function FormSwitch({
     variant = 'checkbox',
 }: FormSwitchProps) {
     const { theme } = useTheme();
+    const inSection = useInFormSection();
 
     return (
         <TouchableOpacity
             style={[
                 styles.container,
+                inSection && styles.inSection,
                 {
                     backgroundColor: value ? theme.primaryLight : theme.inputBg,
                     borderColor: value ? theme.primary : theme.inputBorder,
@@ -57,7 +61,7 @@ export default function FormSwitch({
                     },
                 ]}
             >
-                {value ? <Check size={14} color="#fff" strokeWidth={3} /> : null}
+                {value ? <Check size={14} color={theme.onPrimary} strokeWidth={3} /> : null}
             </View>
         </TouchableOpacity>
     );
@@ -68,24 +72,25 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
         borderWidth: 1.5,
-        marginBottom: 10,
+        marginBottom: spacing.md,
     },
+    inSection: { marginBottom: 0 },
     content: {
         flex: 1,
-        marginRight: 12,
+        marginRight: spacing.md,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
     },
     description: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '500',
-        marginTop: 2,
+        marginTop: spacing.xxs,
     },
     checkBox: {
         width: 24,

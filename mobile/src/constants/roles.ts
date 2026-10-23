@@ -3,6 +3,8 @@
  * Basado en la estructura real de la base de datos
  */
 
+import { ROLE_ACCENTS } from '@/src/constants/modules';
+
 // IDs de roles según la tabla roles
 export const ROLE_IDS = {
     VETERINARIO: "920fa098-bc65-461d-8ef9-dd0118e983ef",
@@ -55,26 +57,24 @@ export type ProRole = typeof PRO_ROLES[number];
 /** Todos los roles que la app conoce. */
 export const ALL_ROLES = ['consumidor', ...PRO_ROLES, 'admin'] as const;
 
-export interface RoleMeta { label: string; color: string; }
-
-const ROLE_META: Record<string, RoleMeta> = {
-    consumidor: { label: 'Dueño de mascota', color: '#6b7280' },
-    admin: { label: 'Administrador', color: '#ef4444' },
-    veterinario: { label: 'Veterinario', color: '#06b6d4' },
-    hospital: { label: 'Clínica / Hospital', color: '#0ea5e9' },
-    refugio: { label: 'Refugio', color: '#ec4899' },
-    hogar_temporal: { label: 'Hogar temporal', color: '#f472b6' },
-    vendedor: { label: 'Vendedor', color: '#10b981' },
-    paseador: { label: 'Paseador', color: '#6366f1' },
-    cuidador: { label: 'Cuidador', color: '#8b5cf6' },
-    aseguradora: { label: 'Aseguradora', color: '#0ea5e9' },
-    funeraria: { label: 'Funeraria', color: '#64748b' },
-    entrenador: { label: 'Entrenador', color: '#8b5cf6' },
-    estilista: { label: 'Estilista', color: '#ec4899' },
-    laboratorio: { label: 'Laboratorio', color: '#10b981' },
-    patrocinador: { label: 'Patrocinador', color: '#f59e0b' },
-    transportista: { label: 'Transportista', color: '#6366f1' },
-    establecimiento: { label: 'Establecimiento pet-friendly', color: '#f59e0b' },
+const ROLE_LABELS: Record<string, string> = {
+    consumidor: 'Dueño de mascota',
+    admin: 'Administrador',
+    veterinario: 'Veterinario',
+    hospital: 'Clínica / Hospital',
+    refugio: 'Refugio',
+    hogar_temporal: 'Hogar temporal',
+    vendedor: 'Vendedor',
+    paseador: 'Paseador',
+    cuidador: 'Cuidador',
+    aseguradora: 'Aseguradora',
+    funeraria: 'Funeraria',
+    entrenador: 'Entrenador',
+    estilista: 'Estilista',
+    laboratorio: 'Laboratorio',
+    patrocinador: 'Patrocinador',
+    transportista: 'Transportista',
+    establecimiento: 'Establecimiento pet-friendly',
 };
 
 /** Normaliza el nombre de rol (alias → canónico, vacío → consumidor). */
@@ -89,8 +89,9 @@ export const isProRole = (role?: string | null): boolean =>
 
 export const getRoleLabelFor = (role?: string | null): string => {
     const r = normalizeRole(role);
-    return ROLE_META[r]?.label || r;
+    return ROLE_LABELS[r] || r;
 };
 
+/** Color de identidad del rol (fuente: `ROLE_ACCENTS` en `src/constants/modules.ts`). */
 export const getRoleColorFor = (role?: string | null): string =>
-    ROLE_META[normalizeRole(role)]?.color || '#6b7280';
+    ROLE_ACCENTS[normalizeRole(role)] || ROLE_ACCENTS.consumidor;

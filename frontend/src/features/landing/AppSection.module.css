@@ -1,0 +1,142 @@
+.section {
+  position: relative;
+  padding-block: clamp(6rem, 14vh, 10rem);
+  overflow: hidden;
+  background:
+    radial-gradient(50% 60% at 75% 55%, rgba(233, 200, 131, 0.18), transparent 70%),
+    var(--mg-ink);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: clamp(2.5rem, 6vw, 6rem);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+}
+
+/* Teléfono de ejemplo hecho con CSS */
+
+.phone {
+  position: relative;
+  justify-self: center;
+  width: min(19rem, 80vw);
+  aspect-ratio: 9 / 19;
+  padding: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 2.8rem;
+  background: #05070d;
+  box-shadow:
+    0 60px 120px -40px rgba(0, 0, 0, 0.95),
+    0 0 0 6px rgba(233, 200, 131, 0.08);
+  will-change: transform;
+}
+
+.notch {
+  position: absolute;
+  left: 50%;
+  top: 1.1rem;
+  z-index: 1;
+  width: 5.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: #05070d;
+  transform: translateX(-50%);
+}
+
+.screen {
+  height: 100%;
+  overflow: hidden;
+  padding: 3rem 1.1rem 1.1rem;
+  border-radius: 2.2rem;
+  background: linear-gradient(180deg, #1c2f6b 0%, var(--mg-ink) 45%);
+}
+
+.hello {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.helloSub {
+  color: var(--mg-fg-muted);
+  font-size: 0.85rem;
+}
+
+.pet {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 0.85rem;
+  border: 1px solid var(--mg-line);
+  border-radius: 1.1rem;
+  background: var(--mg-surface);
+}
+
+.petAvatar {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.8rem;
+  background: rgba(233, 200, 131, 0.14);
+  color: var(--mg-gold);
+}
+
+.petName {
+  font-weight: 500;
+}
+
+.petMeta {
+  color: var(--mg-success);
+  font-size: 0.8rem;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.85rem;
+  border: 1px solid var(--mg-divider);
+  border-radius: 1rem;
+  background: var(--mg-surface);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.tile svg {
+  color: var(--mg-gold);
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 1rem;
+  background: var(--mg-gold);
+  color: var(--mg-on-gold);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

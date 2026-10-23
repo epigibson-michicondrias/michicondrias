@@ -1,134 +1,72 @@
 /**
- * useApplications — Hook for managing adoption applications on user's listings
- * Extracts data fetching, filtering, and mutations from app/adopciones/solicitudes.tsx
+ * useApplications — Todas las solicitudes recibidas en mis publicaciones, en una sola lista con filtro por estado.
+ * Cada solicitud se gestiona en `solicitud/[id]`.
  */
-import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { getMyListings, getListingRequests, updateRequestStatus } from '@/src/services/adopciones';
+import { getMyListings, getListingRequests } from '@/src/services/adopciones';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { showAlert } from '@/src/components/AppAlert';
 import type { Listing, AdoptionRequest } from '@/src/types/adopciones';
 
 export type ListingWithRequests = Listing & { requests: AdoptionRequest[] };
 
-type Tone = 'warning' | 'info' | 'primary' | 'success' | 'accent' | 'error';
-const STATUS_LABELS: Record<string, { label: string; tone: Tone }> = {
-    PENDING: { label: "Pendiente", tone: 'warning' },
-    REVIEWING: { label: "En revisión", tone: 'info' },
-    INTERVIEW_SCHEDULED: { label: "Entrevista programada", tone: 'primary' },
-    APPROVED: { label: "Pre-aprobada", tone: 'success' },
-    ADOPTED: { label: "Adoptado", tone: 'accent' },
-    REJECTED: { label: "Rechazada", tone: 'error' },
-};
-
-const FILTER_OPTIONS = [
+export const REQUEST_FILTERS = [
     { key: 'all', label: 'Todas' },
-    { key: 'PENDING', label: 'Pendientes' },
-    { key: 'REVIEWING', label: 'En Revisión' },
+    { key: 'PENDING', label: 'Por revisar' },
+    { key: 'REVIEWING', label: 'En revisión' },
     { key: 'INTERVIEW_SCHEDULED', label: 'Entrevista' },
-    { key: 'APPROVED', label: 'Aprobadas' },
-];
+    { key: 'APPROVED', label: 'Pre-aprobadas' },
+    { key: 'ADOPTED', label: 'Adoptadas' },
+    { key: 'REJECTED', label: 'Rechazadas' },
+] as const;
+export type RequestFilter = (typeof REQUEST_FILTERS)[number]['key'];
+
+/** Primero las que esperan respuesta; las cerradas al final. */
+const ORDER: Record<string, number> = { PENDING: 0, REVIEWING: 1, INTERVIEW_SCHEDULED: 2, APPROVED: 3, ADOPTED: 4, REJECTED: 5 };
 
 export function useApplications() {
     const router = useRouter();
     const { user } = useAuth();
-    const queryClient = useQueryClient();
-    const [refreshing, setRefreshing] = useState(false);
-    const [filterStatus, setFilterStatus] = useState<string>('all');
+    const [filter, setFilter] = useState<RequestFilter>('all');
 
-    const { data: listings = [], isLoading, refetch } = useQuery({
+    const { data: listings = [], isLoading, refetch, isRefetching } = useQuery({
         queryKey: ['user-listings-with-requests'],
         queryFn: async () => {
             const userListings = await getMyListings();
-
-            const listingsWithRequests = await Promise.all(
-                userListings.map(async (listing) => {
-                    try {
-                        const requests = await getListingRequests(listing.id);
-                        return { ...listing, requests };
-                    } catch {
-                        return { ...listing, requests: [] };
-                    }
-                })
-            );
-
-            return listingsWithRequests as ListingWithRequests[];
+            return Promise.all(userListings.map(async (listing) => {
+                try {
+                    return { ...listing, requests: await getListingRequests(listing.id) };
+                } catch {
+                    return { ...listing, requests: [] };
+                }
+            })) as Promise<ListingWithRequests[]>;
         },
         enabled: !!user?.id,
     });
 
-    const mutation = useMutation({
-        mutationFn: ({ requestId, status }: { requestId: string; status: string }) =>
-            updateRequestStatus(requestId, status),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['user-listings-with-requests'] });
-            queryClient.invalidateQueries({ queryKey: ['listing-requests'] });
-            queryClient.invalidateQueries({ queryKey: ['my-requests'] });
-        },
-        onError: (e: any) => {
-            showAlert({ type: 'error', title: 'No se pudo actualizar', message: e?.message || 'Inténtalo de nuevo.' });
-        },
-    });
-
-    const onRefresh = async () => {
-        setRefreshing(true);
-        await refetch();
-        setRefreshing(false);
-    };
-
-    const handleStatusUpdate = (requestId: string, status: string) => {
-        const statusInfo = STATUS_LABELS[status] || STATUS_LABELS.PENDING;
-        showAlert({
-            type: 'warning',
-            title: 'Actualizar Estado',
-            message: `¿Cambiar estado a "${statusInfo.label}"?`,
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Confirmar',
-            onButtonPress: () => mutation.mutate({ requestId, status }),
-        });
-    };
-
-    const filterRequests = (requests: AdoptionRequest[]) => {
-        if (filterStatus === 'all') return requests;
-        return requests.filter((request) => request.status === filterStatus);
-    };
-
-    const allRequests = listings.flatMap((listing) =>
-        listing.requests.map((request) => ({ request, listing }))
+    const all = useMemo(
+        () => listings
+            .flatMap((listing) => listing.requests.map((request) => ({ request, petName: listing.name })))
+            .sort((a, b) => (ORDER[a.request.status] ?? 9) - (ORDER[b.request.status] ?? 9)
+                || new Date(b.request.created_at).getTime() - new Date(a.request.created_at).getTime()),
+        [listings],
     );
-    const filteredAllRequests = allRequests.filter(({ request }) => {
-        if (filterStatus === 'all') return true;
-        return request.status === filterStatus;
-    });
 
-    /** Color resuelto con el tema (se pasa `theme` desde la pantalla). */
-    const getStatusInfo = (status: string, theme: any) => {
-        const info = STATUS_LABELS[status] || STATUS_LABELS.PENDING;
-        return { label: info.label, color: theme[info.tone] as string };
-    };
-
-    const goToRequestDetail = (requestId: string) =>
-        router.push(`/adopciones/solicitud/${requestId}` as any);
-    const goToListingRequests = (listingId: string) =>
-        router.push(`/adopciones/ver-solicitudes/${listingId}` as any);
+    const countFor = (key: RequestFilter) => (key === 'all' ? all.length : all.filter((r) => r.request.status === key).length);
 
     return {
-        listings,
         isLoading,
-        refreshing,
-        filterStatus,
-        setFilterStatus,
-        onRefresh,
-        handleStatusUpdate,
-        filterRequests,
-        filteredAllRequests,
-        getStatusInfo,
-        goToRequestDetail,
-        goToListingRequests,
-        FILTER_OPTIONS,
-        STATUS_LABELS,
+        refetch,
+        isRefetching,
+        hasListings: listings.length > 0,
+        requests: filter === 'all' ? all : all.filter((r) => r.request.status === filter),
+        total: all.length,
+        filter,
+        setFilter,
+        countFor,
+        openRequest: (requestId: string) => router.push(`/adopciones/solicitud/${requestId}`),
+        goPublish: () => router.push('/adopciones/nuevo'),
     };
 }
 

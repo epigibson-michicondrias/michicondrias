@@ -1,0 +1,40 @@
+.section {
+  padding-block: clamp(7rem, 18vh, 12rem);
+  background: var(--mg-ink);
+}
+
+.text {
+  max-width: 62rem;
+  margin-inline: auto;
+  font-size: clamp(2rem, 4.6vw, 4rem);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.text span {
+  display: inline-block;
+  will-change: filter, opacity;
+}
+
+.inner {
+  position: relative;
+}
+
+/* Cola de gato que se dibuja junto a la frase */
+.curl {
+  position: absolute;
+  left: max(var(--gutter), calc(50% - 38rem));
+  top: -4rem;
+  width: clamp(4rem, 9vw, 8rem);
+  height: auto;
+  opacity: 0.9;
+}
+
+@media (max-width: 760px) {
+  .curl {
+    top: -5.5rem;
+  }
+}

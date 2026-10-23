@@ -35,19 +35,21 @@ export function usePlaceDetail() {
             showAlert({ type: 'success', title: 'Reseña enviada', message: 'Tu reseña ha sido publicada.' });
         },
         onError: (err: any) => {
-            showAlert({ type: 'error', title: 'Error', message: err.message || 'No se pudo enviar la reseña.' });
+            showAlert({ type: 'error', title: 'No se pudo enviar la reseña', message: err.message || 'Inténtalo de nuevo.' });
         }
     });
 
-    const handleCreateReview = async (rating: number, comment: string) => {
+    /** Devuelve true si se publicó (la pantalla limpia el formulario solo entonces). */
+    const handleCreateReview = async (rating: number, comment: string): Promise<boolean> => {
         if (rating < 1 || rating > 5) {
-            showAlert({ type: 'error', title: 'Error', message: 'Por favor selecciona una calificación.' });
-            return;
+            showAlert({ type: 'info', title: 'Elige una calificación', message: 'Toca de 1 a 5 estrellas.' });
+            return false;
         }
         try {
             await createReviewMutation.mutateAsync({ rating, comment });
+            return true;
         } catch {
-            // el error ya se muestra en onError
+            return false; // el error ya se muestra en onError
         }
     };
 

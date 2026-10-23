@@ -7,6 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Users, ShieldCheck, Activity, BarChart2, TrendingUp } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { font, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -25,12 +26,6 @@ export default function AdminStatsScreen() {
             <ScreenHeader
                 title="Estadísticas"
                 subtitle="Métricas en Tiempo Real"
-                gradient={['#3b82f6', '#3b82f6E6', '#3b82f6CC']}
-                rightElement={
-                    <View style={styles.headerAction}>
-                        <TrendingUp size={22} color="#fff" style={{ opacity: 0.8 }} />
-                    </View>
-                }
             />
 
             <ScrollView contentContainerStyle={styles.scroll}>
@@ -51,7 +46,7 @@ export default function AdminStatsScreen() {
                             <TrendingUp size={20} color={theme.primary} />
                             <Text style={[styles.sectionTitle, { color: theme.text }]}>Registros (14 días)</Text>
                         </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: 90, gap: 4 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: 90, gap: spacing.xs }}>
                             {metrics.registrations_14d.map((d) => {
                                 const max = Math.max(...metrics.registrations_14d!.map((x) => x.count), 1);
                                 return (
@@ -79,7 +74,7 @@ export default function AdminStatsScreen() {
                             </View>
                             <View style={[styles.progressBar, { backgroundColor: theme.background }]}>
                                 <LinearGradient
-                                    colors={['#1c2f6b', '#101c3d']}
+                                    colors={theme.heroGradient}
                                     start={{ x: 0, y: 0 }}
                                     end={{ x: 1, y: 0 }}
                                     style={[styles.progressFill, { width: `${Math.max(kpis!.total_users ? (count / kpis!.total_users) * 100 : 0, 5)}%` }]}
@@ -111,33 +106,27 @@ const styles = StyleSheet.create({
         flex: 1, 
         justifyContent: 'center', 
         alignItems: 'center',
-        padding: 40,
+        padding: spacing.huge,
     },
     loadingText: { 
-        fontSize: 14, 
+        fontSize: font.base, 
         fontWeight: '700', 
         letterSpacing: 0.5 
     },
-    headerAction: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     scroll: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 60, 
-        paddingTop: 12,
-        gap: 24 
+        paddingTop: spacing.md,
+        gap: spacing.xxl 
     },
     grid: { 
         flexDirection: 'row', 
         flexWrap: 'wrap', 
-        gap: 16 
+        gap: spacing.lg 
     },
     card: { 
         width: '47.5%', 
-        padding: 20, 
+        padding: spacing.xl, 
         borderRadius: 28, 
         borderWidth: 1,
         elevation: 4,
@@ -152,22 +141,22 @@ const styles = StyleSheet.create({
         borderRadius: 16, 
         justifyContent: 'center', 
         alignItems: 'center', 
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         elevation: 2,
     },
     cardValue: { 
-        fontSize: 26, 
+        fontSize: font.h1, 
         fontWeight: '800', 
         letterSpacing: -0.5 
     },
     cardLabel: { 
-        fontSize: 10, 
+        fontSize: font.xs, 
         fontWeight: '800', 
-        marginTop: 4, 
+        marginTop: spacing.xs, 
         letterSpacing: 1 
     },
     chartBox: { 
-        padding: 24, 
+        padding: spacing.xxl, 
         borderRadius: 32, 
         borderWidth: 1,
         elevation: 4,
@@ -179,35 +168,35 @@ const styles = StyleSheet.create({
     sectionHeader: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 12, 
-        marginBottom: 28 
+        gap: spacing.md, 
+        marginBottom: spacing.xxxl 
     },
     sectionTitle: { 
-        fontSize: 18, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     roleItem: { 
-        marginBottom: 24 
+        marginBottom: spacing.xxl 
     },
     roleInfo: { 
         flexDirection: 'row', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        marginBottom: 10 
+        marginBottom: spacing.md 
     },
     roleName: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '800', 
         letterSpacing: 0.5 
     },
     rolePercentage: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '800' 
     },
     roleCount: { 
-        fontSize: 11, 
+        fontSize: font.sm, 
         fontWeight: '700', 
-        marginTop: 8, 
+        marginTop: spacing.sm, 
         textAlign: 'right' 
     },
     progressBar: { 

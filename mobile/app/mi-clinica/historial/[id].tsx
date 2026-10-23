@@ -2,10 +2,12 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
+import Button from '@/src/components/Button';
 import { usePatientHistory } from '@/src/hooks/clinica/usePatientHistory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Plus, Trash2, Stethoscope, Pill, Save } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function GenerarFichaMedicaScreen() {
     const { id, appointment_id } = useLocalSearchParams();
@@ -175,18 +177,7 @@ export default function GenerarFichaMedicaScreen() {
                             </View>
                         )}
 
-                        <TouchableOpacity
-                            style={[styles.saveBtn, { backgroundColor: theme.primary }]}
-                            onPress={handleSave}
-                            disabled={loading}
-                        >
-                            {loading ? <ActivityIndicator color="#fff" /> : (
-                                <>
-                                    <Save size={20} color="#fff" />
-                                    <Text style={styles.saveBtnText}>Guardar Expediente</Text>
-                                </>
-                            )}
-                        </TouchableOpacity>
+                        <Button label="Guardar Expediente" onPress={handleSave} loading={loading} />
                     </View>
                 </ScrollView>
             </ScreenContainer>
@@ -195,23 +186,23 @@ export default function GenerarFichaMedicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { paddingHorizontal: 24, paddingBottom: 100 },
-    infoBanner: { flexDirection: 'row', alignItems: 'center', padding: 20, borderRadius: 24, gap: 16, marginBottom: 32 },
-    bannerTitle: { fontSize: 16, fontWeight: '800' },
-    bannerSub: { fontSize: 12, fontWeight: '600' },
-    sectionLabel: { fontSize: 18, fontWeight: '900', marginBottom: 20 },
-    formGroup: { marginBottom: 20 },
-    label: { fontSize: 13, fontWeight: '700', marginBottom: 10 },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: 20, borderWidth: 1, fontSize: 15, fontWeight: '600' },
-    textArea: { height: 120, paddingVertical: 20, textAlignVertical: 'top' },
-    row: { flexDirection: 'row', gap: 16 },
-    sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, marginTop: 12 },
-    addPrescBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10 },
-    prescCard: { padding: 20, borderRadius: 24, marginBottom: 16, gap: 12, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    prescHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-    prescTitle: { fontSize: 14, fontWeight: '800', flex: 1 },
-    pInput: { height: 44, borderBottomWidth: 1, fontSize: 14, fontWeight: '600' },
-    emptyPresc: { padding: 30, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, alignItems: 'center', marginBottom: 24 },
-    saveBtn: { height: 64, borderRadius: 24, flexDirection: 'row', gap: 12, justifyContent: 'center', alignItems: 'center', marginTop: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 12 },
-    saveBtnText: { color: '#fff', fontSize: 17, fontWeight: '900' },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
+    infoBanner: { flexDirection: 'row', alignItems: 'center', padding: spacing.xl, borderRadius: 24, gap: spacing.lg, marginBottom: spacing.xxxl },
+    bannerTitle: { fontSize: font.xl, fontWeight: '800' },
+    bannerSub: { fontSize: font.md, fontWeight: '600' },
+    sectionLabel: { fontSize: font.xxl, fontWeight: '900', marginBottom: spacing.xl },
+    formGroup: { marginBottom: spacing.xl },
+    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.md },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.xl, borderWidth: 1, fontSize: font.lg, fontWeight: '600' },
+    textArea: { height: 120, paddingVertical: spacing.xl, textAlignVertical: 'top' },
+    row: { flexDirection: 'row', gap: spacing.lg },
+    sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xl, marginTop: spacing.md },
+    addPrescBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 10, justifyContent: 'center' },
+    prescCard: { padding: spacing.xl, borderRadius: 24, marginBottom: spacing.lg, gap: spacing.md, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
+    prescHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
+    prescTitle: { fontSize: font.base, fontWeight: '800', flex: 1 },
+    pInput: { height: 44, borderBottomWidth: 1, fontSize: font.base, fontWeight: '600' },
+    emptyPresc: { padding: spacing.xxxl, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, alignItems: 'center', marginBottom: spacing.xxl },
+    saveBtn: { height: 64, borderRadius: 24, flexDirection: 'row', gap: spacing.md, justifyContent: 'center', alignItems: 'center', marginTop: spacing.xl, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 12 },
+    saveBtnText: { color: '#fff', fontSize: font.xxl, fontWeight: '900' },
 });

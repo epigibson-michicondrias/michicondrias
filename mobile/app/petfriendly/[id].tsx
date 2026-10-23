@@ -1,14 +1,16 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator, Dimensions, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput } from 'react-native';
 import { usePlaceDetail } from '@/src/hooks/petfriendly/usePlaceDetail';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
-import BackButton from '@/src/components/BackButton';
+import { DetailPhoto, DetailTopBar } from '@/src/components/layout/DetailLayout';
+import IconButton from '@/src/components/IconButton';
+import EmptyState from '@/src/components/EmptyState';
+import { Skeleton } from '@/src/components/Skeleton';
 import { showAlert } from '@/src/components/AppAlert';
 import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2 } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
-
-const { width } = Dimensions.get('window');
+import { font, layout, spacing } from '@/constants/design';
 
 export default function PetfriendlyDetalleScreen() {
     const { theme } = useTheme();
@@ -33,14 +35,15 @@ export default function PetfriendlyDetalleScreen() {
 
     if (!isLoading && !place) {
         return (
-            <ScreenContainer>
-                <View style={styles.center}>
-                    <Text style={{ color: theme.text, fontWeight: '700', marginBottom: 6 }}>No pudimos cargar el lugar</Text>
-                    <Text style={{ color: theme.textMuted, marginBottom: 16, textAlign: 'center' }}>Puede que ya no exista o que no tengas conexión.</Text>
-                    <TouchableOpacity onPress={goBack} accessibilityRole="button" style={{ backgroundColor: theme.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 }}>
-                        <Text style={{ color: '#fff', fontWeight: '700' }}>Volver</Text>
-                    </TouchableOpacity>
-                </View>
+            <ScreenContainer style={styles.centerScreen}>
+                <EmptyState
+                    icon={<MapPin size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No pudimos cargar el lugar"
+                    subtitle="Puede que ya no exista o que no tengas conexión."
+                    actionLabel="Ver lugares"
+                    onAction={goBack}
+                />
+                <DetailTopBar onBack={goBack} />
             </ScreenContainer>
         );
     }
@@ -48,34 +51,23 @@ export default function PetfriendlyDetalleScreen() {
     if (isLoading || !place) {
         return (
             <ScreenContainer>
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                <Skeleton height={200} borderRadius={0} />
+                <View style={styles.skeletonBody}>
+                    <Skeleton width="60%" height={26} />
+                    <Skeleton height={56} />
+                    <Skeleton height={120} />
                 </View>
+                <DetailTopBar onBack={goBack} />
             </ScreenContainer>
         );
     }
 
     return (
-        <ScreenContainer noPadding>
+        <ScreenContainer>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                <View style={styles.imageContainer}>
-                    {place.image_url ? (
-                        <Image source={{ uri: place.image_url }} style={styles.image} accessibilityLabel={`Foto de ${place.name}`} />
-                    ) : (
-                        <View style={[styles.image, { backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }]}>
-                            <Bone size={64} color={theme.textMuted} />
-                        </View>
-                    )}
-                    <View style={styles.topOverlay}>
-                        <BackButton onPress={goBack} color="#fff" style={styles.circleBtn} />
-                        <Text style={styles.headerTitle}>Detalles del Lugar</Text>
-                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Compartir" style={styles.circleBtn} onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)}>
-                            <Share2 size={20} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                <DetailPhoto images={[place.image_url]} fallbackIcon={Bone} accessibilityLabel={`Foto de ${place.name}`} />
 
-                <View style={[styles.content, { backgroundColor: theme.background }]}>
+                <View style={styles.content}>
                     <View style={styles.placeHeader}>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.placeName, { color: theme.text }]}>{place.name}</Text>
@@ -131,7 +123,7 @@ export default function PetfriendlyDetalleScreen() {
                             accessibilityLabel="Eliminar este lugar"
                             disabled={isDeleting}
                             onPress={handleDelete}
-                            style={{ alignSelf: 'flex-start', paddingVertical: 8, marginBottom: 12 }}
+                            style={{ alignSelf: 'flex-start', paddingVertical: spacing.sm, marginBottom: spacing.md }}
                         >
                             <Text style={{ color: theme.error, fontWeight: '800' }}>Eliminar este lugar</Text>
                         </TouchableOpacity>
@@ -172,9 +164,10 @@ export default function PetfriendlyDetalleScreen() {
                             </View>
                         </View>
 
-                        {/* Write a Review Card */}
+                        {/* Quien registró el lugar no se reseña a sí mismo (el backend responde 403) */}
+                        {!isOwner && (
                         <View style={[styles.writeReviewCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Escribe tu Opinión</Text>
+                            <Text style={[styles.writeReviewTitle, { color: theme.text }]}>Escribe tu opinión</Text>
                             <Text style={[styles.writeReviewSubtitle, { color: theme.textMuted }]}>¿Qué te pareció el lugar y su trato con las mascotas?</Text>
                             
                             <View style={styles.interactiveStars}>
@@ -212,24 +205,26 @@ export default function PetfriendlyDetalleScreen() {
                                         showAlert({ type: 'error', title: 'Comentario corto', message: 'Por favor escribe un comentario de al menos 5 caracteres.' });
                                         return;
                                     }
-                                    await handleCreateReview(formRating, formComment);
-                                    setFormComment('');
-                                    setFormRating(5);
+                                    if (await handleCreateReview(formRating, formComment)) {
+                                        setFormComment('');
+                                        setFormRating(5);
+                                    }
                                 }}
                                 disabled={isCreatingReview}
                             >
                                 {isCreatingReview ? (
-                                    <ActivityIndicator size="small" color="#fff" />
+                                    <ActivityIndicator size="small" color={theme.onPrimary} />
                                 ) : (
-                                    <Text style={styles.submitReviewBtnText}>Publicar Reseña</Text>
+                                    <Text style={styles.submitReviewBtnText}>Publicar reseña</Text>
                                 )}
                             </TouchableOpacity>
                         </View>
+                        )}
 
                         {/* Reviews List */}
                         <View style={styles.reviewsList}>
                             {reviewsLoading ? (
-                                <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: 20 }} />
+                                <ActivityIndicator size="small" color={theme.primary} style={{ marginVertical: spacing.xl }} />
                             ) : reviews.length === 0 ? (
                                 <Text style={[styles.emptyReviewsText, { color: theme.textMuted }]}>
                                     Aún no hay opiniones. ¡Sé el primero en dejar una reseña!
@@ -263,7 +258,7 @@ export default function PetfriendlyDetalleScreen() {
                                             </Text>
                                         </View>
                                         {rev.comment ? (
-                                            <Text style={[styles.reviewCommentText, { color: theme.text, marginTop: 4 }]}>
+                                            <Text style={[styles.reviewCommentText, { color: theme.text, marginTop: spacing.xs }]}>
                                                 {rev.comment}
                                             </Text>
                                         ) : null}
@@ -274,20 +269,16 @@ export default function PetfriendlyDetalleScreen() {
                     </View>
                 </View>
             </ScrollView>
+            <DetailTopBar
+                onBack={goBack}
+                actions={<IconButton icon={Share2} accessibilityLabel="Compartir lugar" onPress={() => shareContent('Lugar pet friendly', `${place.name} es pet friendly. Míralo en Michicondrias 🐾`)} variant="surface" size="sm" />}
+            />
         </ScreenContainer>
     );
 }
 
 const isYes = (v?: string | null) => ['si', 'sí', 'yes', 'true'].includes((v || '').trim().toLowerCase());
 
-function HourRow({ day, hours, theme, isLast }: any) {
-    return (
-        <View style={[styles.hourRow, !isLast && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
-            <Text style={[styles.hourDay, { color: theme.text }]}>{day}</Text>
-            <Text style={[styles.hourVal, { color: theme.textMuted }]}>{hours}</Text>
-        </View>
-    );
-}
 
 function ActionBtn({ icon, label, onPress, theme, disabled }: { icon: any, label: string, onPress: any, theme: any, disabled?: boolean }) {
     return (
@@ -312,149 +303,116 @@ function ServiceItem({ label, active, theme }: { label: string, active: boolean,
 }
 
 const styles = StyleSheet.create({
+    centerScreen: { justifyContent: 'center' },
+    skeletonBody: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.md },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
     scroll: {
-        paddingBottom: 40,
-    },
-    imageContainer: {
-        height: 320,
-        width: width,
-        position: 'relative',
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-    topOverlay: {
-        position: 'absolute',
-        top: 60,
-        left: 20,
-        right: 20,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '900',
-        color: '#fff',
-        textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: { width: -1, height: 1 },
-        textShadowRadius: 10
-    },
-    circleBtn: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
+        paddingBottom: spacing.huge,
     },
     content: {
-        marginTop: -30,
-        backgroundColor: 'transparent',
-        borderTopLeftRadius: 36,
-        borderTopRightRadius: 36,
-        padding: 24,
-        gap: 32,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.xl,
+        gap: spacing.xxl,
     },
     placeHeader: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 16,
+        gap: spacing.lg,
     },
     placeName: {
-        fontSize: 26,
+        fontSize: font.h1,
         fontWeight: '900',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     category: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
         textTransform: 'uppercase',
     },
     ratingCard: {
-        paddingVertical: 10,
-        paddingHorizontal: 14,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
         borderRadius: 20,
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     ratingValue: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '900',
     },
     actionGrid: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
     },
     actionBtn: {
         flex: 1,
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 20,
         alignItems: 'center',
-        gap: 8,
+        gap: spacing.sm,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
+        justifyContent: 'center',
     },
     actionLabel: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     section: {
-        gap: 16,
+        gap: spacing.lg,
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: spacing.md,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '900',
     },
     description: {
-        fontSize: 15,
+        fontSize: font.lg,
         lineHeight: 24,
     },
     servicesGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        gap: spacing.md,
     },
     serviceItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        gap: spacing.md,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 16,
     },
     serviceText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     addressCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
-        padding: 20,
+        gap: spacing.lg,
+        padding: spacing.xl,
         borderRadius: 24,
         borderWidth: 1,
         borderColor: 'rgba(128,128,128,0.2)',
     },
     addressTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     addressText: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     hoursCard: {
@@ -466,38 +424,38 @@ const styles = StyleSheet.create({
     hourRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 14,
+        padding: spacing.lg,
     },
     hourDay: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     hourVal: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     ratingSummaryCard: {
         flexDirection: 'row',
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 24,
         borderWidth: 1,
-        marginBottom: 20,
+        marginBottom: spacing.xl,
         alignItems: 'center',
     },
     summaryLeft: {
         alignItems: 'center',
-        paddingRight: 20,
+        paddingRight: spacing.xl,
     },
     bigRating: {
-        fontSize: 32,
+        fontSize: font.display,
         fontWeight: '900',
     },
     starsRow: {
         flexDirection: 'row',
-        gap: 2,
-        marginVertical: 6,
+        gap: spacing.xxs,
+        marginVertical: spacing.sm,
     },
     totalReviewsText: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     summarySeparator: {
@@ -506,46 +464,46 @@ const styles = StyleSheet.create({
     },
     summaryRight: {
         flex: 1,
-        paddingLeft: 20,
+        paddingLeft: spacing.xl,
     },
     summaryDescription: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
         fontWeight: '600',
     },
     writeReviewCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 24,
         borderWidth: 1,
-        marginBottom: 24,
+        marginBottom: spacing.xxl,
     },
     writeReviewTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     writeReviewSubtitle: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     interactiveStars: {
         flexDirection: 'row',
-        gap: 12,
+        gap: spacing.md,
         justifyContent: 'center',
-        marginBottom: 20,
+        marginBottom: spacing.xl,
     },
     starTouch: {
-        padding: 4,
+        padding: spacing.xs,
     },
     commentInput: {
         borderRadius: 16,
         borderWidth: 1,
-        padding: 12,
-        fontSize: 14,
+        padding: spacing.md,
+        fontSize: font.base,
         height: 80,
         textAlignVertical: 'top',
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         fontWeight: '600',
     },
     submitReviewBtn: {
@@ -556,30 +514,30 @@ const styles = StyleSheet.create({
     },
     submitReviewBtnText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     reviewsList: {
-        gap: 12,
-        marginBottom: 12,
+        gap: spacing.md,
+        marginBottom: spacing.md,
     },
     emptyReviewsText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
         textAlign: 'center',
-        paddingVertical: 20,
+        paddingVertical: spacing.xl,
         fontStyle: 'italic',
     },
     reviewItemCard: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
     },
     reviewItemHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        marginBottom: 10,
+        gap: spacing.md,
+        marginBottom: spacing.md,
     },
     reviewAvatar: {
         width: 36,
@@ -589,24 +547,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     reviewAvatarText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     reviewUserName: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
     },
     reviewStarsRow: {
         flexDirection: 'row',
-        gap: 2,
-        marginTop: 2,
+        gap: spacing.xxs,
+        marginTop: spacing.xxs,
     },
     reviewDate: {
-        fontSize: 11,
+        fontSize: font.sm,
         fontWeight: '700',
     },
     reviewCommentText: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 19,
         fontWeight: '600',
     },

@@ -7,6 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormSection from '@/src/components/forms/FormSection';
 import { Megaphone, DollarSign, Link2, Type, Image } from 'lucide-react-native';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function NuevaCampanaScreen() {
     const { theme } = useTheme();
@@ -104,10 +105,10 @@ export default function NuevaCampanaScreen() {
                         disabled={isSubmittingCampaign}
                     >
                         {isSubmittingCampaign ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Megaphone size={20} color="#fff" />
+                                <Megaphone size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitText}>Crear Campaña</Text>
                             </>
                         )}
@@ -120,56 +121,56 @@ export default function NuevaCampanaScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 40,
+        paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
     },
     inputGroup: {
         borderRadius: 14,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
         overflow: 'hidden',
     },
     inputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        gap: 12,
+        paddingHorizontal: spacing.lg,
+        gap: spacing.md,
     },
     input: {
         flex: 1,
-        fontSize: 15,
-        paddingVertical: 16,
+        fontSize: font.lg,
+        paddingVertical: spacing.lg,
     },
     budgetHint: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        padding: 14,
+        padding: spacing.lg,
         borderRadius: 12,
-        gap: 10,
-        marginTop: 4,
+        gap: spacing.md,
+        marginTop: spacing.xs,
     },
     budgetHintText: {
         flex: 1,
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     submitButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        marginTop: 8,
-        gap: 10,
+        marginTop: spacing.sm,
+        gap: spacing.md,
     },
     submitDisabled: {
         opacity: 0.7,
     },
     submitText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
 });

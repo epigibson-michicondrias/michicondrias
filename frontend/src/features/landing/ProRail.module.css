@@ -1,0 +1,237 @@
+.section {
+  position: relative;
+  background: var(--mg-ink-2);
+}
+
+.track {
+  height: 420svh;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3rem;
+  height: 100svh;
+  padding-top: 4.5rem;
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 3rem;
+}
+
+.head p {
+  margin-top: 0;
+}
+
+.viewport {
+  padding-inline: var(--gutter);
+}
+
+.rail {
+  display: flex;
+  gap: 1.25rem;
+  list-style: none;
+  width: 100%;
+  max-width: calc(var(--max) - 2 * var(--gutter));
+  margin-inline: auto;
+  will-change: transform;
+}
+
+.card {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: clamp(17rem, 24vw, 21rem);
+  min-height: 24rem;
+  padding: 1.75rem;
+  border: 1px solid var(--mg-divider);
+  border-radius: 1.75rem;
+  background: var(--mg-surface);
+  transition:
+    border-color 300ms var(--mg-ease-out),
+    transform 400ms var(--mg-ease-out);
+}
+
+.card:hover {
+  border-color: var(--mg-line);
+  transform: translateY(-6px);
+}
+
+.cardIcon {
+  margin-bottom: auto;
+  color: var(--mg-gold);
+}
+
+.card[data-photo="true"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: transparent;
+}
+
+.cardPhoto {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.cardPhoto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(11, 14, 23, 0) 25%, rgba(11, 14, 23, 0.75) 60%, rgba(11, 14, 23, 0.95) 100%);
+}
+
+.cardImg {
+  object-fit: cover;
+  transition: transform 700ms var(--mg-ease-out);
+}
+
+.card[data-photo="true"]:hover .cardImg {
+  transform: scale(1.05);
+}
+
+.card[data-photo="true"] .tools {
+  color: rgba(245, 241, 232, 0.78);
+}
+
+.cardTitle {
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.tools {
+  margin-top: 1.25rem;
+  padding-left: 1.1rem;
+  color: var(--mg-fg-muted);
+}
+
+.tools li {
+  padding-block: 0.2rem;
+}
+
+.tools li::marker {
+  color: var(--mg-gold);
+}
+
+.cardCta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--mg-gold) 0%, var(--mg-gold-deep) 100%);
+  color: var(--mg-on-gold);
+}
+
+/* En la tarjeta dorada la foto se funde hacia el dorado en lugar de hacia el negro */
+.cardCta .cardPhoto::after {
+  background: linear-gradient(180deg, rgba(233, 200, 131, 0) 20%, rgba(233, 200, 131, 0.85) 55%, var(--mg-gold) 75%);
+}
+
+.cardCta:hover .cardImg {
+  transform: scale(1.05);
+}
+
+.cardCta:hover {
+  border-color: transparent;
+}
+
+.ctaText {
+  margin-top: 1rem;
+  color: rgba(16, 28, 61, 0.78);
+}
+
+.ctaLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3rem;
+  margin-top: 1.75rem;
+  padding: 0 0.4rem 0 1.25rem;
+  border-radius: 999px;
+  background: var(--mg-on-gold);
+  color: var(--mg-fg);
+  font-weight: 500;
+}
+
+.ctaLink:hover {
+  color: var(--mg-gold);
+}
+
+.ctaIcon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--mg-gold);
+  color: var(--mg-on-gold);
+}
+
+/* Móvil o movimiento reducido: carril con scroll horizontal nativo */
+
+@media (max-width: 960px) {
+  .track {
+    height: auto;
+  }
+
+  .sticky {
+    position: static;
+    height: auto;
+    padding-block: 6rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .viewport {
+    padding-inline: 0;
+  }
+
+  .rail {
+    max-width: none;
+    overflow-x: auto;
+    padding-inline: var(--gutter);
+    padding-bottom: 0.5rem;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .card {
+    width: min(80vw, 19rem);
+    min-height: 20rem;
+    scroll-snap-align: start;
+  }
+}
+
+.section[data-static="true"] .track {
+  height: auto;
+}
+
+.section[data-static="true"] .sticky {
+  position: static;
+  height: auto;
+  padding-block: 6rem;
+}
+
+.section[data-static="true"] .rail {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.section[data-static="true"] .card {
+  scroll-snap-align: start;
+}

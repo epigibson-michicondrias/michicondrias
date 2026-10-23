@@ -8,6 +8,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Heart, Info, CheckCircle2 } from 'lucide-react-native';
 
 import { CREMATION_OPTIONS } from '@/src/services/funerary';
+import { font, spacing } from '@/constants/design';
 
 export default function NuevoServicioScreen() {
     const { theme } = useTheme();
@@ -115,7 +116,7 @@ export default function NuevoServicioScreen() {
                         disabled={isCreatingService}
                         onPress={handleCreateService}
                     >
-                        <Heart size={20} color="#fff" />
+                        <Heart size={20} color={theme.onPrimary} />
                         <Text style={styles.submitBtnText}>
                             {isCreatingService ? 'Registrando...' : 'Registrar Servicio'}
                         </Text>
@@ -131,36 +132,36 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     content: {
-        padding: 24,
-        gap: 20,
+        padding: spacing.xxl,
+        gap: spacing.xl,
     },
     inputGroup: {
-        gap: 8,
+        gap: spacing.sm,
     },
     label: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginLeft: 4,
+        marginLeft: spacing.xs,
     },
     input: {
         height: 56,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        fontSize: font.xl,
         borderWidth: 1,
     },
     textArea: {
         height: 120,
         borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        fontSize: 16,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.lg,
+        fontSize: font.xl,
         textAlignVertical: 'top',
         borderWidth: 1,
     },
     typeRow: {
         flexDirection: 'row',
-        gap: 8,
+        gap: spacing.sm,
     },
     typeBtn: {
         flex: 1,
@@ -171,14 +172,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     typeText: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
     },
     toggleItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 20,
         borderWidth: 1,
     },
@@ -186,23 +187,23 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     toggleLabel: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     toggleDesc: {
-        fontSize: 12,
-        marginTop: 2,
+        fontSize: font.md,
+        marginTop: spacing.xxs,
     },
     infoBox: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
-        gap: 12,
+        gap: spacing.md,
         alignItems: 'center',
     },
     infoText: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 18,
     },
     submitBtn: {
@@ -211,13 +212,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 10,
-        marginTop: 10,
-        marginBottom: 40,
+        gap: spacing.md,
+        marginTop: spacing.md,
+        marginBottom: spacing.huge,
     },
     submitBtnText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
     },
 });

@@ -6,8 +6,8 @@ import { useAdminClinics, type Clinic } from '@/src/hooks/admin/useAdminClinics'
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
-import { Plus, MapPin, Phone, Hospital } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
+import { MapPin, Phone, Hospital } from 'lucide-react-native';
+import { font, spacing } from '@/constants/design';
 
 export default function AdminClinicasScreen() {
     const router = useRouter();
@@ -57,9 +57,6 @@ export default function AdminClinicasScreen() {
             <ScreenHeader
                 title="Clínicas"
                 subtitle="Red Veterinaria"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                actionIcon={Plus}
-                onAction={() => showAlert({ type: 'info', title: 'Nueva Clínica', message: 'Abre el formulario de registro' })}
             />
 
             <DataList
@@ -81,16 +78,16 @@ export default function AdminClinicasScreen() {
 
 const styles = StyleSheet.create({
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 12 
+        paddingTop: spacing.md 
     },
     card: { 
-        padding: 20, 
+        padding: spacing.xl, 
         borderRadius: 28, 
-        marginBottom: 16, 
+        marginBottom: spacing.lg, 
         borderWidth: 1.5, 
-        gap: 16,
+        gap: spacing.lg,
         elevation: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 6 },
@@ -100,7 +97,7 @@ const styles = StyleSheet.create({
     cardTop: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 16 
+        gap: spacing.lg 
     },
     iconBox: { 
         width: 52, 
@@ -112,17 +109,17 @@ const styles = StyleSheet.create({
     },
     cardInfo: { flex: 1 },
     clinicName: { 
-        fontSize: 17, 
+        fontSize: font.xxl, 
         fontWeight: '800' 
     },
     locationRow: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 6, 
-        marginTop: 4 
+        gap: spacing.sm, 
+        marginTop: spacing.xs 
     },
     clinicLocation: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '700' 
     },
     moreBtn: { 
@@ -139,25 +136,25 @@ const styles = StyleSheet.create({
     stat: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 8 
+        gap: spacing.sm 
     },
     statText: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '800' 
     },
     badge: { 
-        paddingHorizontal: 12, 
-        paddingVertical: 6, 
+        paddingHorizontal: spacing.md, 
+        paddingVertical: spacing.sm, 
         borderRadius: 10 
     },
     badgeText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     cardActions: { 
         flexDirection: 'row', 
-        gap: 12, 
-        marginTop: 4 
+        gap: spacing.md, 
+        marginTop: spacing.xs 
     },
     actionBtn: { 
         flex: 1, 
@@ -167,7 +164,7 @@ const styles = StyleSheet.create({
         alignItems: 'center' 
     },
     actionBtnText: { 
-        fontSize: 14, 
+        fontSize: font.base, 
         fontWeight: '800' 
     }
 });

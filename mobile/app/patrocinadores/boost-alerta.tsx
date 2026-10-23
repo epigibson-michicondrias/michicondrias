@@ -11,6 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Zap, DollarSign, MapPin, PawPrint, Check } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function BoostAlertaScreen() {
     const { theme } = useTheme();
@@ -48,7 +49,7 @@ export default function BoostAlertaScreen() {
                     </View>
                     {isSelected && (
                         <View style={[styles.checkIcon, { backgroundColor: theme.primary }]}>
-                            <Check size={14} color="#fff" strokeWidth={3} />
+                            <Check size={14} color={theme.onPrimary} strokeWidth={3} />
                         </View>
                     )}
                 </View>
@@ -138,10 +139,10 @@ export default function BoostAlertaScreen() {
                         disabled={isSubmittingBoost}
                     >
                         {isSubmittingBoost ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Zap size={20} color="#fff" />
+                                <Zap size={20} color={theme.onPrimary} />
                                 <Text style={styles.submitText}>Impulsar Alerta</Text>
                             </>
                         )}
@@ -154,21 +155,21 @@ export default function BoostAlertaScreen() {
 
 const styles = StyleSheet.create({
     scrollContent: {
-        paddingBottom: 40,
+        paddingBottom: spacing.huge,
     },
     form: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
     },
     reportCard: {
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 14,
         borderWidth: 1.5,
-        marginBottom: 10,
+        marginBottom: spacing.md,
     },
     reportHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: spacing.md,
     },
     petIcon: {
         width: 44,
@@ -181,12 +182,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     petName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     petSpecies: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     checkIcon: {
         width: 24,
@@ -198,57 +199,57 @@ const styles = StyleSheet.create({
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
-        marginTop: 10,
-        paddingTop: 10,
+        gap: spacing.sm,
+        marginTop: spacing.md,
+        paddingTop: spacing.md,
         borderTopWidth: 1,
         borderTopColor: 'transparent',
     },
     locationText: {
-        fontSize: 12,
+        fontSize: font.md,
         flex: 1,
     },
     inputGroup: {
         borderRadius: 14,
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: spacing.md,
         overflow: 'hidden',
     },
     inputRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        gap: 12,
+        paddingHorizontal: spacing.lg,
+        gap: spacing.md,
     },
     input: {
         flex: 1,
-        fontSize: 15,
-        paddingVertical: 16,
+        fontSize: font.lg,
+        paddingVertical: spacing.lg,
     },
     radiusInfo: {
-        padding: 12,
+        padding: spacing.md,
         borderRadius: 10,
-        marginBottom: 12,
+        marginBottom: spacing.md,
     },
     radiusInfoText: {
-        fontSize: 13,
+        fontSize: font.base,
         textAlign: 'center',
     },
     submitButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
+        paddingVertical: spacing.lg,
         borderRadius: 16,
-        marginTop: 8,
-        gap: 10,
+        marginTop: spacing.sm,
+        gap: spacing.md,
     },
     submitDisabled: {
         opacity: 0.7,
     },
     submitText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
 });

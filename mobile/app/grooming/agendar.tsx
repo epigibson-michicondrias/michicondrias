@@ -13,6 +13,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSection from '@/src/components/forms/FormSection';
 import type { GroomingService } from '@/src/services/grooming';
 import type { Pet } from '@/src/types/mascotas';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function AgendarGroomingScreen() {
     const { theme } = useTheme();
@@ -83,7 +84,7 @@ export default function AgendarGroomingScreen() {
                 </View>
                 {isActive && (
                     <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
-                        <Check size={14} color="#fff" />
+                        <Check size={14} color={theme.onPrimary} />
                     </View>
                 )}
             </TouchableOpacity>
@@ -113,7 +114,7 @@ export default function AgendarGroomingScreen() {
                 </Text>
                 {isActive && (
                     <View style={[styles.checkBadge, { backgroundColor: theme.primary }]}>
-                        <Check size={12} color="#fff" />
+                        <Check size={12} color={theme.onPrimary} />
                     </View>
                 )}
             </TouchableOpacity>
@@ -125,7 +126,6 @@ export default function AgendarGroomingScreen() {
             <ScreenHeader
                 title="Agendar Cita"
                 subtitle="Spa & Grooming para tu mascota"
-                gradient={[theme.primary, theme.secondary]}
             />
 
             <ScrollView
@@ -239,10 +239,10 @@ export default function AgendarGroomingScreen() {
                     activeOpacity={0.8}
                 >
                     {isPending ? (
-                        <ActivityIndicator color="#fff" />
+                        <ActivityIndicator color={theme.onPrimary} />
                     ) : (
                         <>
-                            <Sparkles size={20} color="#fff" />
+                            <Sparkles size={20} color={theme.onPrimary} />
                             <Text style={styles.bookBtnText}>Confirmar Cita</Text>
                         </>
                     )}
@@ -259,27 +259,27 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingHorizontal: 24,
-        paddingTop: 24,
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.xxl,
     },
     loader: {
-        paddingVertical: 24,
+        paddingVertical: spacing.xxl,
     },
     emptyText: {
-        fontSize: 14,
+        fontSize: font.base,
         textAlign: 'center',
-        paddingVertical: 20,
+        paddingVertical: spacing.xl,
     },
 
     // Service cards
     serviceCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1.5,
-        marginBottom: 12,
-        gap: 14,
+        marginBottom: spacing.md,
+        gap: spacing.lg,
     },
     serviceIcon: {
         width: 48,
@@ -292,25 +292,25 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     serviceName: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     serviceDesc: {
-        fontSize: 13,
-        marginBottom: 4,
+        fontSize: font.base,
+        marginBottom: spacing.xs,
     },
     serviceMeta: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: spacing.xs,
     },
     servicePrice: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     serviceDuration: {
-        fontSize: 13,
+        fontSize: font.base,
     },
     checkBadge: {
         width: 26,
@@ -323,16 +323,16 @@ const styles = StyleSheet.create({
     // Pet cards
     petRow: {
         flexDirection: 'row',
-        gap: 12,
-        paddingRight: 24,
+        gap: spacing.md,
+        paddingRight: spacing.xxl,
     },
     petCard: {
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1.5,
         width: 100,
-        gap: 8,
+        gap: spacing.sm,
     },
     petAvatar: {
         width: 44,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     petName: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '700',
         textAlign: 'center',
     },
@@ -351,10 +351,10 @@ const styles = StyleSheet.create({
     dateContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 14,
+        padding: spacing.lg,
         borderRadius: 14,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     datePicker: {
         flex: 1,
@@ -364,53 +364,54 @@ const styles = StyleSheet.create({
     slotsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 10,
+        gap: spacing.md,
     },
     slotChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderRadius: 12,
         borderWidth: 1,
-        gap: 6,
+        gap: spacing.sm,
+        justifyContent: 'center',
     },
     slotText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     noSlotsCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 14,
-        gap: 12,
+        gap: spacing.md,
     },
     noSlotsText: {
         flex: 1,
-        fontSize: 14,
+        fontSize: font.base,
     },
 
     // Summary
     summaryCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 20,
-        gap: 14,
+        marginBottom: spacing.xl,
+        gap: spacing.lg,
     },
     summaryInfo: {
         flex: 1,
     },
     summaryTitle: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     summaryDetail: {
-        fontSize: 13,
+        fontSize: font.base,
     },
 
     // Book button
@@ -418,12 +419,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 18,
+        paddingVertical: spacing.xl,
         borderRadius: 16,
-        gap: 10,
+        gap: spacing.md,
     },
     bookBtnText: {
-        fontSize: 17,
+        fontSize: font.xxl,
         fontWeight: '800',
         color: '#fff',
     },

@@ -1,22 +1,22 @@
 import React from 'react';
-import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import Colors from '../../constants/Colors';
-import { useTheme } from '../../src/contexts/ThemeContext';
+import { View, StyleSheet } from 'react-native';
+import { Skeleton } from '@/src/components/Skeleton';
+import { layout, radius, spacing } from '@/constants/design';
 
 interface LoadingOverlayProps {
+    /** Solo para lectores de pantalla. */
     message?: string;
 }
 
+/**
+ * Carga genérica de una pantalla: esqueleto de lista a todo el ancho (aunque el contenedor esté centrado).
+ * Si la pantalla tiene una forma propia (detalle con foto, formulario…), mejor un `Skeleton` con esa forma.
+ */
 export default function LoadingOverlay({ message }: LoadingOverlayProps) {
-    const { colorScheme } = useTheme();
-    const theme = Colors[colorScheme];
-
     return (
         <View style={styles.container} accessibilityRole="progressbar" accessibilityLabel={message || 'Cargando'}>
-            <ActivityIndicator size="large" color={theme.primary} />
-            {message && (
-                <Text style={[styles.message, { color: theme.textMuted }]}>{message}</Text>
-            )}
+            <Skeleton height={56} borderRadius={radius.lg} />
+            {[0, 1, 2, 3].map((i) => <Skeleton key={i} height={84} borderRadius={radius.lg} />)}
         </View>
     );
 }
@@ -24,12 +24,9 @@ export default function LoadingOverlay({ message }: LoadingOverlayProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 16,
-    },
-    message: {
-        fontSize: 14,
-        fontWeight: '500',
+        alignSelf: 'stretch',
+        paddingHorizontal: layout.screenPadding,
+        paddingTop: spacing.lg,
+        gap: spacing.md,
     },
 });

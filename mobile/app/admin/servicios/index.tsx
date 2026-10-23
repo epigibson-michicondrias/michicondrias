@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, FlatList } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminServices } from '@/src/hooks/admin/useAdminServices';
 import { ClinicServiceItem } from '@/src/services/directorio';
@@ -7,9 +7,10 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import SearchBar from '@/src/components/SearchBar';
-import { Briefcase, Plus } from 'lucide-react-native';
-import { showAlert } from '@/src/components/AppAlert';
+import { Briefcase, CheckCircle2, Layers } from 'lucide-react-native';
+import StatTile from '@/src/components/StatTile';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { spacing, font, layout } from '@/constants/design';
 
 const CATEGORY_COLORS: Record<string, string> = {
     Médico: '#3b82f6',
@@ -59,32 +60,10 @@ export default function AdminServiciosScreen() {
 
     return (
         <ScreenContainer>
-            <ScreenHeader
-                title="Servicios"
-                gradient={['#14b8a6', '#14b8a6E6', '#14b8a6CC']}
-                actionIcon={Plus}
-                onAction={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
-                rightElement={
-                    <View style={styles.headerRight}>
-                        <TouchableOpacity accessibilityRole="button" 
-                            style={[styles.headerAction, { backgroundColor: 'rgba(255,255,255,0.15)' }]} 
-                            onPress={() => showAlert({ type: 'info', title: 'Nuevo Servicio', message: 'Abrir formulario de alta' })}
-                        >
-                            <Plus size={22} color="#fff" />
-                        </TouchableOpacity>
-                    </View>
-                }
-            />
+            <ScreenHeader title="Servicios" subtitle="Catálogo de todas las clínicas" />
             <View style={styles.headerStats}>
-                <View style={styles.statMini}>
-                    <Text style={styles.statVal}>{activeCount}</Text>
-                    <Text style={styles.statLab}>Activos</Text>
-                </View>
-                <View style={styles.statDivider} />
-                <View style={styles.statMini}>
-                    <Text style={styles.statVal}>{categoryCount}</Text>
-                    <Text style={styles.statLab}>Categorías</Text>
-                </View>
+                <StatTile icon={CheckCircle2} value={activeCount} label="Activos" color={theme.success} />
+                <StatTile icon={Layers} value={categoryCount} label="Categorías" color={theme.info} />
             </View>
 
             <View style={styles.searchBarContainer}>
@@ -108,60 +87,27 @@ export default function AdminServiciosScreen() {
 }
 
 const styles = StyleSheet.create({
-    headerRight: {
+    headerStats: {
         flexDirection: 'row',
-        alignItems: 'center',
-    },
-    headerAction: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerStats: { 
-        flexDirection: 'row', 
-        alignItems: 'center',
-        gap: 20, 
-        marginTop: -12,
-        paddingHorizontal: 24,
-        paddingBottom: 12,
-    },
-    statMini: { alignItems: 'center' },
-    statVal: { 
-        fontSize: 22, 
-        fontWeight: '800', 
-        color: '#fff' 
-    },
-    statLab: { 
-        fontSize: 10, 
-        fontWeight: '800', 
-        color: 'rgba(255,255,255,0.7)',
-        letterSpacing: 0.5,
-        marginTop: 2,
-    },
-    statDivider: {
-        width: 1,
-        height: 24,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        gap: spacing.md,
+        paddingHorizontal: layout.screenPadding,
+        marginBottom: spacing.md,
     },
     searchBarContainer: { 
-        paddingHorizontal: 20, 
-        marginTop: -16,
-        zIndex: 20,
+        paddingHorizontal: spacing.xl,
     },
     list: { 
-        padding: 20, 
+        padding: spacing.xl, 
         paddingBottom: 100,
-        paddingTop: 8 
+        paddingTop: spacing.sm 
     },
     card: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        padding: 16, 
+        padding: spacing.lg, 
         borderRadius: 24, 
         borderWidth: 1.5, 
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         elevation: 3,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -176,23 +122,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 1,
     },
-    cardInfo: { flex: 1, marginLeft: 16 },
+    cardInfo: { flex: 1, marginLeft: spacing.lg },
     serviceName: { 
-        fontSize: 16, 
+        fontSize: font.xl, 
         fontWeight: '800' 
     },
     serviceCat: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '700', 
-        marginTop: 4 
+        marginTop: spacing.xs 
     },
     statusBadge: { 
-        paddingHorizontal: 10, 
-        paddingVertical: 6, 
+        paddingHorizontal: spacing.md, 
+        paddingVertical: spacing.sm, 
         borderRadius: 10 
     },
     statusText: { 
-        fontSize: 9, 
+        fontSize: font.xs, 
         fontWeight: '800', 
         textTransform: 'uppercase' 
     },
@@ -201,6 +147,6 @@ const styles = StyleSheet.create({
         height: 36, 
         justifyContent: 'center', 
         alignItems: 'center',
-        marginLeft: 8,
+        marginLeft: spacing.sm,
     }
 });

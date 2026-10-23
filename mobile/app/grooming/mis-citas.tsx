@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Scissors, Calendar, Clock, ChevronRight, Sparkles } from 'lucide-react-native';
+import { Scissors, Calendar, Clock, ChevronRight, Plus } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { useGroomingClient } from '@/src/hooks/grooming/useGroomingClient';
@@ -18,6 +18,7 @@ import DataList from '@/src/components/data/DataList';
 import { createAppointmentReview } from '@/src/services/grooming';
 import type { GroomingAppointment } from '@/src/services/grooming';
 import { ReviewForm } from '@/src/components/reviews/ReviewsSection';
+import { font, spacing, layout } from '@/constants/design';
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
     pending:     { label: 'Programada',  color: '#3b82f6', bg: 'rgba(14,165,233,0.12)' },
@@ -130,7 +131,7 @@ export default function MisCitasGroomingScreen() {
                     ) : null}
                     {item.status === 'completed' && (
                         item.reviewed ? (
-                            <Text style={{ color: theme.textMuted, fontWeight: '700', fontSize: 12 }}>Reseñada</Text>
+                            <Text style={{ color: theme.textMuted, fontWeight: '700', fontSize: font.md }}>Reseñada</Text>
                         ) : (
                             <TouchableOpacity
                                 onPress={() => setReviewing(item)}
@@ -138,7 +139,7 @@ export default function MisCitasGroomingScreen() {
                                 accessibilityLabel="Calificar servicio"
                                 hitSlop={8}
                             >
-                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: 13 }}>Calificar</Text>
+                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Calificar</Text>
                             </TouchableOpacity>
                         )
                     )}
@@ -158,7 +159,7 @@ export default function MisCitasGroomingScreen() {
                             accessibilityLabel="Cancelar cita"
                             hitSlop={8}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: 13 }}>
+                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: font.base }}>
                                 {cancellingId === item.id ? 'Cancelando...' : 'Cancelar'}
                             </Text>
                         </TouchableOpacity>
@@ -179,8 +180,8 @@ export default function MisCitasGroomingScreen() {
             <ScreenHeader
                 title="Mis Citas"
                 subtitle="Grooming & Estética"
-                gradient={[theme.primary, theme.secondary]}
-                actionIcon={Sparkles}
+                actionIcon={Plus}
+                actionLabel="Agendar cita"
                 onAction={() => router.push('/grooming/agendar' as any)}
             />
 
@@ -211,7 +212,7 @@ export default function MisCitasGroomingScreen() {
                                 onSubmit={(rating, comment) => reviewMutation.mutate({ id: reviewing.id, rating, comment })}
                             />
                         ) : null}
-                        <TouchableOpacity onPress={() => setReviewing(null)} accessibilityRole="button" accessibilityLabel="Cerrar" style={{ alignSelf: 'center', paddingTop: 14 }}>
+                        <TouchableOpacity onPress={() => setReviewing(null)} accessibilityRole="button" accessibilityLabel="Cerrar" style={{ alignSelf: 'center', paddingTop: spacing.lg }}>
                             <Text style={{ color: theme.textMuted, fontWeight: '700' }}>Ahora no</Text>
                         </TouchableOpacity>
                     </View>
@@ -223,55 +224,57 @@ export default function MisCitasGroomingScreen() {
 
 const styles = StyleSheet.create({
     modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' },
-    modalSheet: { padding: 24, paddingBottom: 36, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
+    modalSheet: { padding: spacing.xxl, paddingBottom: spacing.xxxl, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
     list: {
-        paddingHorizontal: 24,
+        paddingHorizontal: layout.screenPadding,
         paddingBottom: 100,
     },
 
     // Tabs
     tabsContainer: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 20,
-        marginTop: 8,
+        gap: spacing.md,
+        marginBottom: spacing.xl,
+        marginTop: spacing.sm,
     },
     tab: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 14,
+        paddingVertical: spacing.lg,
         borderRadius: 14,
         borderWidth: 1.5,
-        gap: 8,
+        gap: spacing.sm,
     },
     tabLabel: {
-        fontSize: 15,
+        fontSize: font.lg,
         fontWeight: '700',
     },
     tabBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xxs,
         borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     tabBadgeText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '800',
     },
 
     // Card
     card: {
-        padding: 18,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 1,
-        marginBottom: 14,
+        marginBottom: spacing.lg,
     },
     cardTop: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 14,
-        marginBottom: 14,
+        gap: spacing.lg,
+        marginBottom: spacing.lg,
     },
     cardIcon: {
         width: 50,
@@ -284,17 +287,17 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     cardService: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     cardDateRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
+        gap: spacing.xs,
     },
     cardDate: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '500',
     },
     cardBottom: {
@@ -307,10 +310,10 @@ const styles = StyleSheet.create({
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         borderRadius: 10,
-        gap: 6,
+        gap: spacing.sm,
     },
     statusDot: {
         width: 7,
@@ -318,13 +321,13 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     statusText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '700',
     },
     skinReport: {
         flex: 1,
-        fontSize: 12,
+        fontSize: font.md,
         textAlign: 'right',
-        marginLeft: 10,
+        marginLeft: spacing.md,
     },
 });

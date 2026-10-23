@@ -1,11 +1,11 @@
 /**
  * useWalkerDetail — Hook for walker detail screen
- * Manages walker data fetching, favorite state, requestWalk mutation, and registration
+ * Datos del paseador, solicitud de paseo y reseñas
  */
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { getWalker, requestWalk, registerAsWalker, getWalkerReviews, createWalkerReview, getMyWalkRequests, Walker, WalkRequest, WalkerReview } from '@/src/services/paseadores';
+import { getWalker, requestWalk, getWalkerReviews, createWalkerReview, getMyWalkRequests, Walker, WalkRequest, WalkerReview } from '@/src/services/paseadores';
 import { getUserPets } from '@/src/services/mascotas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
@@ -16,11 +16,10 @@ export function useWalkerDetail() {
     const queryClient = useQueryClient();
     const { user } = useAuth();
 
-    const [isFavorite, setIsFavorite] = useState(false);
     const [walkModalVisible, setWalkModalVisible] = useState(false);
-    const [registerModalVisible, setRegisterModalVisible] = useState(false);
     const [selectedPetId, setSelectedPetId] = useState<string | null>(null);
-    const [walkDate, setWalkDate] = useState('');
+    // Hoy por defecto: el selector necesita una fecha válida desde que se abre
+    const [walkDate, setWalkDate] = useState(() => toLocalIsoDate(new Date()));
     const [walkNotes, setWalkNotes] = useState('');
     const [walkDuration, setWalkDuration] = useState(30);
 
@@ -60,7 +59,7 @@ export function useWalkerDetail() {
         onSuccess: () => {
             setWalkModalVisible(false);
             resetWalkForm();
-            showAlert({ type: 'success', title: '¡Solicitud Enviada!', message: 'Tu solicitud de paseo ha sido enviada al paseador.' });
+            showAlert({ type: 'success', title: 'Solicitud enviada', message: 'El paseador la verá en sus solicitudes. Sigue su estado en «Mis solicitudes»' });
             queryClient.invalidateQueries({ queryKey: ['my-walk-requests'] });
             queryClient.invalidateQueries({ queryKey: ['walker-requests'] });
         },
@@ -69,16 +68,6 @@ export function useWalkerDetail() {
         },
     });
 
-    const registerMutation = useMutation({
-        mutationFn: (data: Partial<Walker>) => registerAsWalker(data),
-        onSuccess: () => {
-            setRegisterModalVisible(false);
-            showAlert({ type: 'success', title: '¡Registro Exitoso!', message: 'Te has registrado como paseador. Tu perfil será revisado.' });
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo completar el registro.' });
-        },
-    });
 
     const createReviewMutation = useMutation({
         mutationFn: ({ requestId, data }: { requestId: string; data: { rating: number; comment: string } }) =>
@@ -102,23 +91,7 @@ export function useWalkerDetail() {
         setWalkDuration(30);
     };
 
-    const toggleFavorite = () => {
-        setIsFavorite(!isFavorite);
-    };
 
-    const handleContact = () => {
-        showAlert({
-            type: 'info',
-            title: 'Contactar Paseador',
-            message: '¿Cómo deseas contactar a este paseador?',
-            showCancel: true,
-            cancelText: 'Cancelar',
-            buttonText: 'Mensaje',
-            onButtonPress: () => {
-                showAlert({ type: 'info', title: 'Mensaje', message: 'Abriendro chat con el paseador...' });
-            },
-        });
-    };
 
     const handleBook = () => {
         setWalkModalVisible(true);
@@ -126,20 +99,17 @@ export function useWalkerDetail() {
 
     const handleSubmitWalkRequest = () => {
         if (!selectedPetId) {
-            showAlert({ type: 'error', title: 'Error', message: 'Selecciona una mascota para el paseo.' });
+            showAlert({ type: 'info', title: 'Elige a tu mascota', message: 'Selecciona a quién llevará a pasear.' });
             return;
         }
         requestWalkMutation.mutate({
             pet_id: selectedPetId,
-            requested_date: walkDate || toLocalIsoDate(new Date()),
+            requested_date: walkDate,
             duration_minutes: walkDuration,
             notes: walkNotes || undefined,
         });
     };
 
-    const handleRegisterAsWalker = (data: Partial<Walker>) => {
-        registerMutation.mutate(data);
-    };
 
     const handleCreateReview = (requestId: string, data: { rating: number; comment: string }) => {
         createReviewMutation.mutate({ requestId, data });
@@ -152,9 +122,6 @@ export function useWalkerDetail() {
         walker,
         isLoading,
         error,
-        isFavorite,
-        toggleFavorite,
-        handleContact,
         handleBook,
         // Walk request
         walkModalVisible,
@@ -170,11 +137,6 @@ export function useWalkerDetail() {
         myPets,
         handleSubmitWalkRequest,
         isRequestingWalk: requestWalkMutation.isPending,
-        // Registration
-        registerModalVisible,
-        setRegisterModalVisible,
-        handleRegisterAsWalker,
-        isRegistering: registerMutation.isPending,
         // Reviews
         reviews,
         reviewsLoading,

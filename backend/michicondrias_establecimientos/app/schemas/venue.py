@@ -27,7 +27,8 @@ class VenueInDBBase(VenueBase):
         from_attributes = True
 
 class Venue(VenueInDBBase):
-    pass
+    # El código base del cupón solo lo ve el dueño; los demás ven que hay descuento y reclaman uno personal
+    has_coupon: bool = False
 
 
 # ClaimedCoupon Schemas

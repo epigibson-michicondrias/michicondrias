@@ -1,14 +1,12 @@
 /**
- * useReportForm — Hook for creating a new lost/found pet report
- * Extracts form state, image picking, location, and submit logic
- * from app/perdidas/nuevo.tsx
+ * useReportForm — Crear o editar un reporte de mascota perdida/encontrada (con `id` en la ruta = edición).
+ * Valida en línea, sube la foto, ubica el punto con el GPS (en edición se puede mover a la posición actual).
  */
-import { useState, useEffect } from 'react';
-import { useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
-import * as ImagePicker from 'expo-image-picker';
+import { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Location from 'expo-location';
-import { createReport, getPerdidasPresignedUrl } from '@/src/services/perdidas';
+import { createReport, getPerdidasPresignedUrl, getReportById, updateReport } from '@/src/services/perdidas';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { showAlert } from '@/src/components/AppAlert';
 import { getS3Url, getFileExtension } from '@/src/utils/helpers';
@@ -28,12 +26,22 @@ export interface ReportFormState {
     contact_email: string;
 }
 
+type Point = { latitude: number; longitude: number };
+type Errors = Partial<Record<'pet_name' | 'location' | 'contact_phone' | 'contact_email', string>>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function useReportForm() {
+    const { id } = useLocalSearchParams<{ id?: string }>();
+    const isEditing = !!id;
     const { user } = useAuth();
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const [image, setImage] = useState<string | null>(null);
-    const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [point, setPoint] = useState<Point | null>(null);
+    const [locating, setLocating] = useState(false);
+    const [errors, setErrors] = useState<Errors>({});
     const [form, setForm] = useState<ReportFormState>({
         pet_name: '',
         report_type: 'lost',
@@ -48,113 +56,129 @@ export function useReportForm() {
         contact_email: user?.email || '',
     });
 
+    const { data: report, isLoading: loadingReport } = useQuery({
+        queryKey: ['perdidas-report', id],
+        queryFn: () => getReportById(id as string),
+        enabled: isEditing,
+    });
+
+    // Edición: precarga el reporte
     useEffect(() => {
-        (async () => {
-            try {
-                const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status !== 'granted') {
-                    showAlert({ type: 'warning', title: 'Permiso denegado', message: 'Necesitamos tu ubicación para marcar el reporte.' });
-                    return;
-                }
-                const loc = await Location.getCurrentPositionAsync({});
-                setLocation({
-                    latitude: loc.coords.latitude,
-                    longitude: loc.coords.longitude,
-                });
-            } catch (error) {
-                console.warn('Location services unavailable:', error);
+        if (!report) return;
+        setForm({
+            pet_name: report.pet_name || '',
+            report_type: report.report_type === 'found' ? 'found' : 'lost',
+            species: report.species || 'gato',
+            breed: report.breed || '',
+            color: report.color || '',
+            size: report.size || 'mediano',
+            age_approx: report.age_approx || 'joven',
+            last_seen_location: report.last_seen_location || '',
+            description: report.description || '',
+            contact_phone: report.contact_phone || '',
+            contact_email: report.contact_email || '',
+        });
+        if (report.image_url) setImage(report.image_url);
+        if (report.latitude != null && report.longitude != null) setPoint({ latitude: report.latitude, longitude: report.longitude });
+    }, [report]);
+
+    /** `silent`: el intento automático al abrir no muestra alertas (el error queda en línea al guardar). */
+    const locate = async (silent = false) => {
+        setLocating(true);
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                if (silent) return;
+                showAlert({ type: 'warning', title: 'Sin permiso de ubicación', message: 'Actívalo en los ajustes del teléfono para marcar el punto en el mapa.' });
+                return;
             }
-        })();
-    }, []);
+            const loc = await Location.getCurrentPositionAsync({});
+            setPoint({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+            setErrors((prev) => ({ ...prev, location: undefined }));
+        } catch {
+            if (silent) return;
+            showAlert({ type: 'error', title: 'Sin ubicación', message: 'No pudimos obtener tu ubicación. Revisa que el GPS esté activo.' });
+        } finally {
+            setLocating(false);
+        }
+    };
+
+    // Reporte nuevo: se ubica de inmediato en la posición actual
+    useEffect(() => {
+        if (!isEditing) locate(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isEditing]);
 
     const updateField = <K extends keyof ReportFormState>(field: K, value: ReportFormState[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
+        if (errors[field as keyof Errors]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
 
-    const pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-
-        if (!result.canceled) {
-            setImage(result.assets[0].uri);
-        }
+    const validate = (): boolean => {
+        const next: Errors = {};
+        if (!form.pet_name.trim()) next.pet_name = 'Escribe su nombre o una descripción corta.';
+        if (!point) next.location = 'Marca el punto con «Usar mi ubicación».';
+        const phone = form.contact_phone.trim();
+        const email = form.contact_email.trim();
+        if (!phone && !email) next.contact_phone = 'Agrega un teléfono o un correo para que puedan avisarte.';
+        if (phone && phone.replace(/\D/g, '').length < 8) next.contact_phone = 'Escribe al menos 8 dígitos.';
+        if (email && !EMAIL_RE.test(email)) next.contact_email = 'Revisa el correo.';
+        setErrors(next);
+        return Object.keys(next).length === 0;
     };
 
-    const submitMutation = useMutation({
+    const mutation = useMutation({
         mutationFn: async () => {
-            if (!form.pet_name) throw new Error('name_required');
-            if (!location) throw new Error('location_required');
-            if (!user) throw new Error('auth_required');
-
-            let image_url = null;
-
-            if (image) {
+            let image_url = report?.image_url ?? null;
+            if (image && !image.startsWith('http')) {
                 const ext = getFileExtension(image);
                 const { url, object_key } = await getPerdidasPresignedUrl(ext);
                 await uploadImageToPresignedUrl(image, url, ext);
-
                 image_url = getS3Url(object_key);
+            } else if (!image) {
+                image_url = null;
             }
-
-            return createReport({
+            const payload = {
                 ...form,
-                reporter_id: user.id,
-                latitude: location.latitude,
-                longitude: location.longitude,
+                contact_phone: form.contact_phone.trim() || null,
+                contact_email: form.contact_email.trim() || null,
+                latitude: point!.latitude,
+                longitude: point!.longitude,
                 image_url,
-                status: 'active',
-            });
+            };
+            return isEditing
+                ? updateReport(id as string, payload)
+                : createReport({ ...payload, reporter_id: user!.id, status: 'active' });
         },
         onSuccess: () => {
-            showAlert({ type: 'success', title: '¡Reporte Enviado!', message: 'La comunidad ha sido notificada. Gracias por ayudar.' });
+            queryClient.invalidateQueries({ queryKey: ['perdidas-report', id] });
+            queryClient.invalidateQueries({ queryKey: ['lost-pet-reports'] });
+            queryClient.invalidateQueries({ queryKey: ['my-lost-reports'] });
+            showAlert(isEditing
+                ? { type: 'success', title: 'Cambios guardados', message: 'El reporte ya muestra los datos nuevos.' }
+                : { type: 'success', title: '¡Reporte publicado!', message: 'Ya aparece en el listado y en el mapa. Te avisaremos si alguien lo ve.' });
             router.back();
         },
-        onError: (error: Error) => {
-            if (error.message === 'name_required') {
-                showAlert({ type: 'error', title: 'Error', message: 'El nombre o descripción corta es obligatorio' });
-            } else if (error.message === 'location_required') {
-                showAlert({ type: 'error', title: 'Error', message: 'Debes marcar la ubicación en el mapa' });
-            } else if (error.message === 'auth_required') {
-                showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
-            } else {
-                showAlert({ type: 'error', title: 'Error', message: 'No se pudo crear el reporte.' });
-            }
-        },
+        onError: (e: Error) => showAlert({ type: 'error', title: isEditing ? 'No se pudieron guardar los cambios' : 'No se pudo publicar', message: e.message || 'Inténtalo de nuevo.' }),
     });
 
     const handleSave = () => {
-        if (!form.pet_name) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre o descripción corta es obligatorio' });
-            return;
-        }
-        if (!location) {
-            showAlert({ type: 'error', title: 'Error', message: 'Debes marcar la ubicación en el mapa' });
-            return;
-        }
-        if (!user) {
-            showAlert({ type: 'error', title: 'Error', message: 'Debes estar autenticado' });
-            return;
-        }
-        submitMutation.mutate();
+        if (!validate() || !user) return;
+        mutation.mutate();
     };
 
     return {
-        // Data
+        isEditing,
+        loadingReport: isEditing && loadingReport,
         form,
+        errors,
         image,
-        location,
-        loading: submitMutation.isPending,
-
-        // Actions
-        updateField,
-        setForm,
-        pickImage,
         setImage,
-        setLocation,
+        point,
+        locating,
+        locate: () => locate(),
+        updateField,
         handleSave,
+        saving: mutation.isPending,
     };
 }

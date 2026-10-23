@@ -7,7 +7,8 @@ import { showAlert } from '@/src/components/AppAlert';
 import { usePartnerUpgrade } from '@/src/hooks/perfil/usePartnerUpgrade';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
-import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock } from 'lucide-react-native';
+import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock, Award, Building2, Car, Coffee, Dog, FlaskConical, Flower2, GraduationCap, Heart, HeartHandshake, Home, Scissors, Shield, ShoppingBag, Stethoscope } from 'lucide-react-native';
+import { font, spacing, layout, radius, tint } from '@/constants/design';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
@@ -27,21 +28,21 @@ export default function PartnerOnboardingScreen() {
     const KycIcon = kycCard.icon;
 
     const roles = [
-        { id: "veterinario", icon: "🩺", title: "Veterinario", desc: "Atiende pacientes, agenda citas y emite recetas.", benefits: ["🏥 Gestión de pacientes", "📅 Sistema de citas", "🎥 Videoconsultas"] },
-        { id: "hospital", icon: "🏥", title: "Clínica u Hospital", desc: "Administra sedes, médicos asociados y agenda.", benefits: ["🏢 Sucursales", "👩‍⚕️ Médicos asociados", "📦 Inventario"] },
-        { id: "vendedor", icon: "🛒", title: "Marca o Vendedor", desc: "Vende alimentos, accesorios o medicinas en la Michi-Shop.", benefits: ["🛍️ Tienda online", "📦 Pedidos", "📊 Análisis de ventas"] },
-        { id: "paseador", icon: "🦮", title: "Paseador", desc: "Ofrece paseos para dueños ocupados.", benefits: ["🚶 Calendario flexible", "📍 Solicitudes", "⭐ Reseñas"] },
-        { id: "cuidador", icon: "🏡", title: "Cuidador / Pensión", desc: "Hospeda y cuida mascotas en tu hogar.", benefits: ["🛏️ Hospedaje", "📅 Calendario", "⭐ Reseñas"] },
-        { id: "refugio", icon: "🏠", title: "Refugio", desc: "Gestiona adopciones y recibe donaciones.", benefits: ["🐾 Adopciones", "💳 Donaciones", "🏆 Insignia de confianza"] },
-        { id: "hogar_temporal", icon: "💛", title: "Hogar temporal", desc: "Cuida mascotas rescatadas mientras encuentran familia.", benefits: ["🐾 Publicaciones", "📋 Solicitudes"] },
-        { id: "aseguradora", icon: "🛡️", title: "Aseguradora", desc: "Publica planes y gestiona reclamos.", benefits: ["📄 Planes", "🧾 Reclamos"] },
-        { id: "laboratorio", icon: "🧪", title: "Laboratorio", desc: "Recibe órdenes y entrega resultados.", benefits: ["🧫 Órdenes", "📑 Resultados"] },
-        { id: "funeraria", icon: "🕊️", title: "Funeraria", desc: "Servicios de despedida y memoriales.", benefits: ["⚱️ Paquetes", "🕯️ Memoriales"] },
-        { id: "entrenador", icon: "🎓", title: "Entrenador", desc: "Ofrece programas de adiestramiento.", benefits: ["📚 Programas", "👥 Alumnos"] },
-        { id: "estilista", icon: "✂️", title: "Estilista", desc: "Agenda citas de estética y grooming.", benefits: ["📅 Agenda", "💈 Servicios"] },
-        { id: "patrocinador", icon: "🏅", title: "Patrocinador", desc: "Crea campañas y apoya alertas de mascotas perdidas.", benefits: ["📣 Campañas", "📊 Estadísticas"] },
-        { id: "transportista", icon: "🚗", title: "Transportista", desc: "Transporta mascotas con seguimiento del viaje.", benefits: ["🧭 Viajes", "📍 Tracking"] },
-        { id: "establecimiento", icon: "☕", title: "Establecimiento pet-friendly", desc: "Registra tu local y atrae clientes con mascotas.", benefits: ["📍 Perfil del local", "🎟️ Cupones"] },
+        { id: "veterinario", icon: Stethoscope, title: "Veterinario", desc: "Atiende pacientes, agenda citas y emite recetas.", benefits: ["Gestión de pacientes", "Sistema de citas", "Videoconsultas"] },
+        { id: "hospital", icon: Building2, title: "Clínica u Hospital", desc: "Administra sedes, médicos asociados y agenda.", benefits: ["Sucursales", "Médicos asociados", "Inventario"] },
+        { id: "vendedor", icon: ShoppingBag, title: "Marca o Vendedor", desc: "Vende alimentos, accesorios o medicinas en la Michi-Shop.", benefits: ["Tienda online", "Pedidos", "Análisis de ventas"] },
+        { id: "paseador", icon: Dog, title: "Paseador", desc: "Ofrece paseos para dueños ocupados.", benefits: ["Calendario flexible", "Solicitudes", "Reseñas"] },
+        { id: "cuidador", icon: Home, title: "Cuidador / Pensión", desc: "Hospeda y cuida mascotas en tu hogar.", benefits: ["Hospedaje", "Calendario", "Reseñas"] },
+        { id: "refugio", icon: HeartHandshake, title: "Refugio", desc: "Gestiona adopciones y recibe donaciones.", benefits: ["Adopciones", "Donaciones", "Insignia de confianza"] },
+        { id: "hogar_temporal", icon: Heart, title: "Hogar temporal", desc: "Cuida mascotas rescatadas mientras encuentran familia.", benefits: ["Publicaciones", "Solicitudes"] },
+        { id: "aseguradora", icon: Shield, title: "Aseguradora", desc: "Publica planes y gestiona reclamos.", benefits: ["Planes", "Reclamos"] },
+        { id: "laboratorio", icon: FlaskConical, title: "Laboratorio", desc: "Recibe órdenes y entrega resultados.", benefits: ["Órdenes", "Resultados"] },
+        { id: "funeraria", icon: Flower2, title: "Funeraria", desc: "Servicios de despedida y memoriales.", benefits: ["Paquetes", "Memoriales"] },
+        { id: "entrenador", icon: GraduationCap, title: "Entrenador", desc: "Ofrece programas de adiestramiento.", benefits: ["Programas", "Alumnos"] },
+        { id: "estilista", icon: Scissors, title: "Estilista", desc: "Agenda citas de estética y grooming.", benefits: ["Agenda", "Servicios"] },
+        { id: "patrocinador", icon: Award, title: "Patrocinador", desc: "Crea campañas y apoya alertas de mascotas perdidas.", benefits: ["Campañas", "Estadísticas"] },
+        { id: "transportista", icon: Car, title: "Transportista", desc: "Transporta mascotas con seguimiento del viaje.", benefits: ["Viajes", "Tracking"] },
+        { id: "establecimiento", icon: Coffee, title: "Establecimiento pet-friendly", desc: "Registra tu local y atrae clientes con mascotas.", benefits: ["Perfil del local", "Cupones"] },
     ];
 
     function handleUpgrade() {
@@ -98,7 +99,9 @@ export default function PartnerOnboardingScreen() {
             onPress={() => setSelectedRole(role.id)}
         >
             <View style={styles.roleHeader}>
-                <Text style={styles.roleIcon}>{role.icon}</Text>
+                <View style={[styles.roleIconBox, { backgroundColor: theme.primary + tint.faint }]}>
+                    <role.icon size={layout.icon.lg} color={theme.primary} />
+                </View>
                 <View style={styles.roleTitleContainer}>
                     <Text style={[styles.roleTitle, { color: theme.text }]}>{role.title}</Text>
                     {selectedRole === role.id && (
@@ -126,7 +129,7 @@ export default function PartnerOnboardingScreen() {
     return (
         <ScreenContainer>
             <ScreenHeader
-                title="🚀 Conviértete en Partner"
+                title="Cuenta profesional"
                 subtitle="Desbloquea herramientas profesionales y genera ingresos con Michicondrias"
             />
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -165,16 +168,16 @@ export default function PartnerOnboardingScreen() {
                     disabled={!selectedRole || isUpgrading}
                 >
                     {isUpgrading ? (
-                        <ActivityIndicator color="#fff" size="small" />
+                        <ActivityIndicator color={theme.onPrimary} size="small" />
                     ) : (
                         <>
                             <Text style={[
                                 styles.upgradeButtonText, 
-                                { color: selectedRole ? '#fff' : theme.textMuted }
+                                { color: selectedRole ? theme.onPrimary : theme.textMuted }
                             ]}>
                                 {selectedRole ? `Convertirme en ${roles.find(r => r.id === selectedRole)?.title}` : "Selecciona un rol"}
                             </Text>
-                            {selectedRole && <ArrowRight size={20} color="#fff" />}
+                            {selectedRole && <ArrowRight size={20} color={theme.onPrimary} />}
                         </>
                     )}
                 </TouchableOpacity>
@@ -211,18 +214,18 @@ const styles = StyleSheet.create({
     },
 
     rolesContainer: {
-        padding: 24,
-        gap: 16,
+        padding: spacing.xxl,
+        gap: spacing.lg,
     },
     kycCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginHorizontal: 24,
-        marginTop: 16,
-        padding: 16,
+        marginHorizontal: layout.screenPadding,
+        marginTop: spacing.lg,
+        padding: spacing.lg,
         borderRadius: 16,
         borderWidth: 1,
-        gap: 12,
+        gap: spacing.md,
     },
     kycIconBox: {
         width: 44,
@@ -235,112 +238,117 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     kycTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '800',
-        marginBottom: 2,
+        marginBottom: spacing.xxs,
     },
     kycDesc: {
-        fontSize: 12,
+        fontSize: font.md,
         lineHeight: 17,
     },
     kycAction: {
-        fontSize: 13,
+        fontSize: font.base,
         fontWeight: '800',
     },
     roleCard: {
-        padding: 20,
+        padding: spacing.xl,
         borderRadius: 16,
         borderWidth: 2,
     },
     roleHeader: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        marginBottom: 12,
-        gap: 16,
+        marginBottom: spacing.md,
+        gap: spacing.lg,
     },
-    roleIcon: {
-        fontSize: 32,
+    roleIconBox: {
+        width: layout.iconBox.lg,
+        height: layout.iconBox.lg,
+        borderRadius: radius.md,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     roleTitleContainer: {
         flex: 1,
     },
     roleTitle: {
-        fontSize: 18,
+        fontSize: font.xxl,
         fontWeight: '800',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     selectedBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: spacing.sm,
         alignSelf: 'flex-start',
     },
     selectedText: {
-        fontSize: 12,
+        fontSize: font.md,
         fontWeight: '600',
     },
     roleDesc: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
-        marginBottom: 16,
+        marginBottom: spacing.lg,
     },
     benefitsContainer: {
-        gap: 8,
+        gap: spacing.sm,
     },
     benefitsTitle: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     benefitItem: {
-        fontSize: 13,
+        fontSize: font.base,
         lineHeight: 18,
     },
     actionContainer: {
-        padding: 24,
-        gap: 12,
+        padding: spacing.xxl,
+        gap: spacing.md,
     },
     upgradeButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 24,
+        paddingVertical: spacing.lg,
+        paddingHorizontal: layout.screenPadding,
         borderRadius: 12,
-        gap: 8,
+        gap: spacing.sm,
     },
     upgradeButtonText: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
     },
     cancelButton: {
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: spacing.md,
+        justifyContent: 'center',
     },
     cancelButtonText: {
-        fontSize: 14,
+        fontSize: font.base,
         fontWeight: '600',
     },
     infoContainer: {
-        padding: 24,
+        padding: spacing.xxl,
         paddingTop: 0,
     },
     infoCard: {
         flexDirection: 'row',
-        padding: 16,
+        padding: spacing.lg,
         borderRadius: 12,
-        gap: 16,
+        gap: spacing.lg,
     },
     infoContent: {
         flex: 1,
     },
     infoTitle: {
-        fontSize: 16,
+        fontSize: font.xl,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: spacing.xs,
     },
     infoText: {
-        fontSize: 14,
+        fontSize: font.base,
         lineHeight: 20,
     },
 });

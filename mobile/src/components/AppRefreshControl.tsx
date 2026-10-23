@@ -21,8 +21,20 @@ export default function AppRefreshControl({ children, style }: { children?: Reac
         }
     }, [queryClient]);
 
-    // react-native-web envuelve el contenido de la lista dentro del refreshControl; sin hijos la lista se ve vacía.
+    // ScrollView (y FlatList, que lo usa) clona el refreshControl y le pasa la lista como hijo y el estilo de
+    // layout (`cloneElement(refreshControl, { style }, <NativeScrollView />)`, así en Android y en web). Si no se
+    // reenvían `children` y `style`, la pantalla queda en blanco.
     if (Platform.OS === 'web') return <View style={style}>{children}</View>;
 
-    return <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} colors={[theme.primary]} />;
+    return (
+        <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.primary}
+            colors={[theme.primary]}
+            style={style}
+        >
+            {children}
+        </RefreshControl>
+    );
 }

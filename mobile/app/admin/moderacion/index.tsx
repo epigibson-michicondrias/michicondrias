@@ -13,7 +13,6 @@ import {
     MapPin,
     Hospital,
     XCircle,
-    ClipboardList,
     PawPrint,
     AlertCircle,
     ShoppingBag,
@@ -21,6 +20,7 @@ import {
     FileText
 } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -122,7 +122,7 @@ export default function AdminModerationScreen() {
                     <MapPin size={12} color={theme.textMuted} />
                     <Text style={[styles.userEmail, { color: theme.textMuted }]}>{item.last_seen_location}</Text>
                 </View>
-                <Text style={[styles.cardDesc, { color: theme.textMuted, marginTop: 10 }]} numberOfLines={2}>{item.description}</Text>
+                <Text style={[styles.cardDesc, { color: theme.textMuted, marginTop: spacing.md }]} numberOfLines={2}>{item.description}</Text>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"
                         style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
@@ -197,7 +197,7 @@ export default function AdminModerationScreen() {
                     </View>
                     <Text style={[styles.dateText, { color: theme.textMuted }]}>Para: {item.pet_name}</Text>
                 </View>
-                <Text style={[styles.cardTitle, { color: theme.text, marginTop: 8 }]}>{item.applicant_name}</Text>
+                <Text style={[styles.cardTitle, { color: theme.text, marginTop: spacing.sm }]}>{item.applicant_name}</Text>
                 <View style={[styles.notesBox, { backgroundColor: theme.background }]}>
                     <Text style={[styles.notesText, { color: theme.textMuted }]}>«{item.reason}»</Text>
                 </View>
@@ -218,7 +218,7 @@ export default function AdminModerationScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity accessibilityRole="button"
                         style={[styles.btnActionSquare, { backgroundColor: theme.primary + '15' }]}
-                        onPress={() => router.push(`/adopciones/solicitudes?id=${item.listing_id}` as any)}
+                        onPress={() => router.push(`/adopciones/ver-solicitudes/${item.listing_id}`)}
                     >
                         <FileText size={18} color={theme.primary} />
                     </TouchableOpacity>
@@ -272,12 +272,6 @@ export default function AdminModerationScreen() {
         <ScreenContainer>
             <ScreenHeader
                 title="Moderación"
-                gradient={[theme.primary, theme.primary + 'E6', theme.primary + 'CC']}
-                rightElement={
-                    <View style={styles.headerAction}>
-                        <ClipboardList size={22} color="#fff" style={{ opacity: 0.8 }} />
-                    </View>
-                }
             />
 
             {/* Tabs */}
@@ -325,44 +319,38 @@ export default function AdminModerationScreen() {
 }
 
 const styles = StyleSheet.create({
-    headerAction: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     tabsContainer: { 
-        marginTop: -12, 
-        marginBottom: 16,
+        marginBottom: spacing.lg,
         zIndex: 20,
     },
     tabsScroll: { 
-        paddingHorizontal: 24, 
-        gap: 10,
-        paddingBottom: 8,
+        paddingHorizontal: layout.screenPadding, 
+        gap: spacing.md,
+        paddingBottom: spacing.sm,
     },
     tab: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 8, 
-        paddingHorizontal: 16, 
-        paddingVertical: 10, 
+        gap: spacing.sm, 
+        paddingHorizontal: spacing.lg, 
+        paddingVertical: spacing.md, 
         borderRadius: 16, 
         borderWidth: 1,
+        justifyContent: 'center',
     },
     tabText: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '800' 
     },
     content: { flex: 1 },
     listContainer: { 
-        paddingHorizontal: 20, 
-        paddingBottom: 40, 
-        paddingTop: 8 
+        paddingHorizontal: spacing.xl, 
+        paddingBottom: spacing.huge, 
+        paddingTop: spacing.sm 
     },
     card: { 
         borderRadius: 24, 
-        marginBottom: 20, 
+        marginBottom: spacing.xl, 
         overflow: 'hidden', 
         borderWidth: 1,
         elevation: 3,
@@ -371,7 +359,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 12,
     },
-    cardPadding: { padding: 20 },
+    cardPadding: { padding: spacing.xl },
     cardCover: { 
         width: '100%', 
         height: 180,
@@ -382,68 +370,68 @@ const styles = StyleSheet.create({
         height: 64, 
         borderRadius: 20, 
         alignSelf: 'center', 
-        marginTop: 20, 
+        marginTop: spacing.xl, 
         justifyContent: 'center', 
         alignItems: 'center',
         elevation: 2,
     },
-    cardContent: { padding: 20 },
+    cardContent: { padding: spacing.xl },
     cardHeader: { 
         flexDirection: 'row', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        marginBottom: 12 
+        marginBottom: spacing.md 
     },
     cardTitle: { 
-        fontSize: 17, 
+        fontSize: font.xxl, 
         fontWeight: '800', 
         flex: 1 
     },
     cardDesc: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '500', 
         lineHeight: 19, 
-        marginBottom: 20 
+        marginBottom: spacing.xl 
     },
     badge: { 
-        paddingHorizontal: 10, 
-        paddingVertical: 4, 
+        paddingHorizontal: spacing.md, 
+        paddingVertical: spacing.xs, 
         borderRadius: 8 
     },
     badgeText: { 
-        fontSize: 10, 
+        fontSize: font.xs, 
         fontWeight: '800' 
     },
     priceTag: { 
-        fontSize: 16, 
+        fontSize: font.xl, 
         fontWeight: '800',
-        marginLeft: 12 
+        marginLeft: spacing.md 
     },
     infoRow: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 8, 
-        marginBottom: 20 
+        gap: spacing.sm, 
+        marginBottom: spacing.xl 
     },
     userEmail: { 
-        fontSize: 12, 
+        fontSize: font.md, 
         fontWeight: '700' 
     },
     cardActions: { 
         flexDirection: 'row', 
-        gap: 12 
+        gap: spacing.md 
     },
     btnAction: { 
         flex: 1, 
         flexDirection: 'row', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        gap: 8, 
+        gap: spacing.sm, 
         height: 50, 
         borderRadius: 16 
     },
     btnActionText: { 
-        fontSize: 14, 
+        fontSize: font.base, 
         fontWeight: '800' 
     },
     btnActionSquare: {
@@ -456,22 +444,22 @@ const styles = StyleSheet.create({
     infoRowCompact: {
         flexDirection: 'row', 
         alignItems: 'center', 
-        gap: 6,
+        gap: spacing.sm,
     },
     dateText: { 
-        fontSize: 11, 
+        fontSize: font.sm, 
         fontWeight: '700',
     },
     notesBox: { 
-        padding: 16, 
+        padding: spacing.lg, 
         borderRadius: 16, 
-        marginTop: 4, 
-        marginBottom: 20, 
+        marginTop: spacing.xs, 
+        marginBottom: spacing.xl, 
         borderLeftWidth: 4, 
         borderLeftColor: '#8b5cf6' 
     },
     notesText: { 
-        fontSize: 13, 
+        fontSize: font.base, 
         fontWeight: '600', 
         fontStyle: 'italic',
         lineHeight: 18,
