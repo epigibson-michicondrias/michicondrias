@@ -69,8 +69,11 @@ y sigue donde se quedó el otro.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [ ] W4: faltan partner+verificacion (`useKYC`/`usePartnerUpgrade`), Notificaciones/Búsqueda/Ayuda, Admin (W4-A)
-  y P2/P3. **Hechos en W4:** Mascotas, Carnet, Perfil, Tienda cliente, Inicio, Explorar. · W5 pulido y merge · W7 permisos.
+- [ ] W4: faltan P2 (paseadores, cuidadores, estilistas, entrenadores, transportistas, aseguradoras,
+  laboratorio, funeraria, pet-friendly, establecimientos) y P3 (mi-clínica, servicios-pro, tienda vendedor,
+  patrocinadores) y **W4-A consola admin**. **Hechos:** Mascotas, Carnet, Perfil (+partner/verificacion),
+  Tienda cliente, Inicio, Explorar, Adopciones, Directorio, Perdidas, Notificaciones, Búsqueda, Ayuda. ·
+  W5 pulido y merge · W7 permisos.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
 **Landing**
@@ -88,6 +91,13 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Mimo** — W4 multiagente en `web/espejo` (`a4e7d4e`): Adopciones, Directorio/citas,
+  Perdidas/reportes, Notificaciones, Búsqueda y Ayuda portados con hooks y features por módulo. Build
+  verde. Donaciones = aviso «en la app» (sin cobro simulado). **Siguiente para Claude:** P2 restantes
+  (paseadores, cuidadores, estilistas, entrenadores, transportistas, aseguradoras, laboratorio, funeraria,
+  pet-friendly, establecimientos), P3 (mi-clínica, servicios-pro, tienda vendedor, patrocinadores) y W4-A
+  (consola admin). Luego W5 (pulido + merge a `main`) y el OTA del login móvil (§3).
 
 - **2026-10-23 · Mimo** — W4 Tienda cliente + Inicio/Explorar en `web/espejo`:
   - Tienda: catálogo (categorías, orden, favoritos), bolsa con checkout Stripe, mis compras, producto,
