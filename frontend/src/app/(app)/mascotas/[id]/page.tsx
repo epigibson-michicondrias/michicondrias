@@ -32,7 +32,8 @@ import { showAlert } from "@/components/AppAlert";
 import { usePetDetail, type PetTab } from "@/hooks/mascotas/usePetDetail";
 import { usePetHealth } from "@/hooks/carnet/usePetHealth";
 import { copyText } from "@/utils/helpers";
-import { RecordItem, VaccineItem } from "@/features/carnet/CarnetItems";
+import { ItemActions, RecordItem, VaccineItem } from "@/features/carnet/CarnetItems";
+import { formatDate } from "@/utils/formatters";
 import s from "../mascotas.module.css";
 
 function formatAge(months: number | null): string {
@@ -243,15 +244,33 @@ function PetDetailContent() {
           ) : health.vaccines.length === 0 ? (
             <p className={s.emptyLine}>Aún no hay vacunas registradas de {pet.name}.</p>
           ) : (
-            <div className={s.itemList}>
-              {health.vaccines.map((v) => (
-                <VaccineItem
-                  key={v.id}
-                  vaccine={v}
-                  onEdit={health.canEdit ? () => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}&id=${v.id}`) : undefined}
-                  onDelete={health.canEdit ? () => health.deleteVaccine(v.id) : undefined}
-                />
-              ))}
+            /* Timeline: la línea de tiempo del carnet — punto con estado, nombre, fecha y refuerzo. */
+            <div className={s.timeline}>
+              {health.vaccines.map((v: any) => {
+                const vencido = !!v.next_due_date && v.next_due_date.slice(0, 10) < new Date().toISOString().slice(0, 10);
+                return (
+                  <div key={v.id} className={s.timelineItem}>
+                    <span className={`${s.timelineDot} ${vencido ? s.timelineDotWarn : s.timelineDotOk}`} aria-hidden />
+                    <div className={s.timelineBody}>
+                      <p className={s.timelineTitle}>{v.name}</p>
+                      <p className={s.timelineMeta}>
+                        {[
+                          v.applied_on ? `Aplicada el ${formatDate(v.applied_on)}` : null,
+                          v.next_due_date ? `Refuerzo: ${formatDate(v.next_due_date)}` : null,
+                          v.notes || null,
+                        ].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
+                    {health.canEdit && (
+                      <ItemActions
+                        onEdit={() => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}&id=${v.id}`)}
+                        onDelete={() => health.deleteVaccine(v.id)}
+                        label={v.name}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
 

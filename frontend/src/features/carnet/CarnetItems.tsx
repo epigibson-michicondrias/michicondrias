@@ -22,7 +22,7 @@ import s from "./carnetItems.module.css";
 const formatDate = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" }) : "Sin fecha";
 
-function ItemActions({ onEdit, onDelete, label }: { onEdit?: () => void; onDelete?: () => void; label: string }) {
+export function ItemActions({ onEdit, onDelete, label }: { onEdit?: () => void; onDelete?: () => void; label: string }) {
   if (!onEdit && !onDelete) return null;
   return (
     <div className={s.actions}>
