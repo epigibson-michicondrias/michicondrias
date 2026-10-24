@@ -14,6 +14,10 @@ class RoleUpdate(RoleBase):
 
 class RoleResponse(RoleBase):
     id: str
-    
+    # Solo los llena `GET /roles/` (consola de admin); el resto de respuestas los deja en None
+    users_count: Optional[int] = None
+    # Roles que la plataforma usa por nombre: no se pueden borrar ni renombrar
+    is_system: Optional[bool] = None
+
     class Config:
         from_attributes = True

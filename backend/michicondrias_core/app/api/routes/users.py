@@ -1,6 +1,7 @@
 from typing import Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Query
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Session, joinedload
 import os
 
 from app import crud
@@ -238,6 +239,53 @@ def read_users(
     for u in users:  # la app muestra el rol por nombre; el ORM solo trae role_id
         setattr(u, "role_name", u.role.name if u.role else None)
     return users
+
+class UserPage(PydanticBaseModel):
+    items: List[UserResponse]
+    total: int
+
+
+_USER_ORDER = {
+    "created_at_desc": User.created_at.desc(),
+    "created_at_asc": User.created_at.asc(),
+    "name_asc": User.full_name.asc(),
+    "name_desc": User.full_name.desc(),
+    "email_asc": User.email.asc(),
+}
+
+
+@router.get("/search", response_model=UserPage)
+def search_users(
+    db: Session = Depends(get_db),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    role: Optional[str] = None,
+    q: Optional[str] = None,
+    is_active: Optional[bool] = None,
+    verification_status: Optional[str] = None,
+    order_by: str = "created_at_desc",
+    current_user: User = Depends(deps.require_role("admin")),
+) -> Any:
+    """
+    Usuarios paginados con total y filtros en el servidor (consola de admin). (Admin only)
+    `GET /users/` se conserva igual para no romper a los clientes que ya lo usan.
+    """
+    query = db.query(User).options(joinedload(User.role))
+    if role:
+        query = query.filter(User.role.has(Role.name == role))
+    if q and q.strip():
+        like = f"%{q.strip().lower()}%"
+        query = query.filter(or_(func.lower(User.full_name).like(like), func.lower(User.email).like(like)))
+    if is_active is not None:
+        query = query.filter(User.is_active == is_active)
+    if verification_status:
+        query = query.filter(User.verification_status == verification_status.upper())
+    total = query.count()
+    users = query.order_by(_USER_ORDER.get(order_by, _USER_ORDER["created_at_desc"])).offset(skip).limit(limit).all()
+    for u in users:
+        setattr(u, "role_name", u.role.name if u.role else None)
+    return {"items": users, "total": total}
+
 
 @router.post("/", response_model=UserResponse)
 def create_user(
@@ -792,3 +840,21 @@ def disable_two_factor(
     return _add_kyc_presigned_urls(user)
 
 
+
+# Va al final: las rutas GET de un solo segmento (`/me`, `/search`, `/pending-verifications`) deben resolverse antes.
+@router.get("/{user_id}", response_model=UserResponse)
+def read_user(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.require_role("admin")),
+) -> Any:
+    """
+    Detalle de un usuario con sus documentos KYC firmados. (Admin only)
+    """
+    user = crud.crud_user.get_user(db, user_id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    setattr(user, "role_name", user.role.name if user.role else None)
+    res = _add_kyc_presigned_urls(user)
+    res["created_at"] = user.created_at  # el helper no lo copia y el detalle muestra «Miembro desde»
+    return res
