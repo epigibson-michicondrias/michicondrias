@@ -131,6 +131,20 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **Auditoría admin + cobertura de roles:**
+  - `app/admin/productos`: acciones reales (mostrar/ocultar con `PATCH .../visibility`, aprobar/rechazar con
+    confirmación), filtros por estado, badges de estado y `EmptyState`. Antes los dos botones eran `showAlert`
+    de placeholder.
+  - `app/admin/servicios`: adiós al arcoíris `CATEGORY_COLORS` (Tailwind) → `theme.primary`; `EmptyState`.
+  - `app/admin/roles` y `veterinarios`: `EmptyState` accionable.
+  - **H1 resuelto**: las 6 pantallas admin (clínicas, productos, mascotas, servicios, categorías, veterinarios)
+    estaban solo en el panel, sin entrada en `ROLE_TOOLS.admin` → ya están registradas.
+  - Informe [`docs/COBERTURA_ROLES.md`](docs/COBERTURA_ROLES.md): matriz rol → flujo, huecos de navegación y
+    contraste con las guardas del backend. **Prioridad real: los P1 de X2/X3 en `SEGURIDAD_X2_X8.md`** — la app
+    deja pasar al admin a zonas que el backend todavía no deja moderar.
+  - Marca: icono **M + huella** y splash con halo suave (`b3771c0`).
+  - APK `versionCode 10` construido y enviado por KDE Connect; **reconstruir tras este commit**.
+
 - **2026-10-24 · Mimo** — **U10 parcial: cableado JS de las libs nativas del APK único** (`app.config.js` intacto).
   - **expo-image** en 24 archivos que cargan foto de red, con `contentFit` + `transition`. Lo más rentable:
     `MediaCard.Photo`, `DetailPhoto` (`layout/DetailLayout`) y `FormImagePicker` — arrastran la mayoría de listas.
