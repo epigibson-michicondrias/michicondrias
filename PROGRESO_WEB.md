@@ -104,6 +104,13 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-23 — Pulido post W4-A (`d960744`, Mimo).**
+  - `AppOnlyNotice` pasa al kit base (`ScreenContainer` + `ScreenHeader` + `Card` + `EmptyState`) en vez de HTML suelto
+    con clases legacy.
+  - Nuevo `--app-bottom-inset` en `app/theme.css`: los pies fijos («Agendar», «Agregar a la bolsa») de directorio y
+    servicios-pro quedaban **detrás** de la barra de pestañas en móvil; ahora se desplazan por encima (0 en escritorio).
+  - Verificado: `tsc`, ESLint del archivo tocado y `next build` en verde.
+
 - **2026-10-23 — W4-A consola admin + diseño de la landing (Claude + 4 agentes, `dcde5bc`…`dc2440d`).**
   - Backend core (`c7369c6`): `/users/search`, `/users/{id}`, roles con `users_count`/`is_system` y borrado seguro.
     Directorio (`2beae13`): el admin edita clínicas. **B1–B3 hechos**; B4 (motivo de rechazo KYC) sigue opcional.
