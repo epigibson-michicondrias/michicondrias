@@ -101,6 +101,11 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — **U3 Auth (Fase 5) completa** en la app móvil: componente `AuthField` (pill + ícono + error
+  inline) en las 4 pantallas de `(auth)`, validación por campo con `validators.ts`, etiquetas en español, acento
+  unificado a `theme.primary` y checkbox de Términos real. Capturas en `output/u3-auth/`. **Pendiente:** el modo
+  oscuro no aplica en web (tema no responde a `prefers-color-scheme`) — revisar `ThemeContext`. Sigue U4 (Inicio,
+  Explorar y Herramientas).
 - **2026-10-23 · Mimo** — **Backend de la consola admin** (en `main`, **sin deploy todavía**):
   - ecommerce: `buyer_name` también en `/orders/admin/all`; `GET /products/admin/all` (filtros published/review/hidden/out)
     y `PATCH /products/admin/{id}/visibility` para mostrar/ocultar productos del vendedor.

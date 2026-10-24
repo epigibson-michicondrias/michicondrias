@@ -1,19 +1,21 @@
 /**
- * Forgot Password — adopta AuthShell (U3). Envío de código de 6 dígitos.
+ * Forgot Password — adopta AuthShell (U3). Envío de código de 6 dígitos con validación inline.
  */
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Mail, ArrowRight, Send, KeyRound, CheckCircle } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { useRouter } from 'expo-router';
 import { usePasswordReset } from '@/src/hooks/auth/usePasswordReset';
-import { showAlert } from '@/src/components/AppAlert';
 import AuthShell from '@/src/components/AuthShell';
+import AuthField from '@/src/components/AuthField';
+import { validateEmail } from '@/src/utils/validators';
 import { spacing, radius, type, layout, shadow } from '@/constants/design';
 
 export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
+    const [emailError, setEmailError] = useState<string | null>(null);
     const [sent, setSent] = useState(false);
 
     const { requestReset, isRequesting } = usePasswordReset();
@@ -21,15 +23,16 @@ export default function ForgotPasswordScreen() {
     const { theme } = useTheme();
 
     const handleSend = () => {
-        const cleanEmail = email.trim();
-        if (!cleanEmail) {
-            showAlert({ type: 'warning', title: 'Campo requerido', message: 'Ingresa tu correo electrónico.' });
+        const check = validateEmail(email);
+        if (!check.valid) {
+            setEmailError(check.message!);
             return;
         }
-        requestReset(cleanEmail, {
+        setEmailError(null);
+        requestReset(email.trim().toLowerCase(), {
             onSuccess: () => setSent(true),
             onError: (error) => {
-                showAlert({ type: 'error', title: 'Error de envío', message: error.message || 'No se pudo enviar el correo. Inténtalo de nuevo.' });
+                setEmailError(error.message || 'No se pudo enviar el correo. Inténtalo de nuevo.');
             },
         });
     };
@@ -41,8 +44,8 @@ export default function ForgotPasswordScreen() {
             {!sent ? (
                 <>
                     <View style={styles.headerSection}>
-                        <View style={[styles.iconCircle, { backgroundColor: theme.warning + '15' }]}>
-                            <KeyRound size={28} color={theme.warning} />
+                        <View style={[styles.iconCircle, { backgroundColor: theme.primary + '15' }]}>
+                            <KeyRound size={28} color={theme.primary} />
                         </View>
                         <Text style={[styles.title, { color: theme.onHero }]}>¿Olvidaste tu contraseña?</Text>
                         <Text style={[styles.subtitle, { color: theme.onHeroMuted }]}>
@@ -53,31 +56,26 @@ export default function ForgotPasswordScreen() {
                     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight, ...shadow.card }]}>
                         <Text style={[styles.cardTitle, { color: theme.text }]}>Restablecer contraseña</Text>
                         <Text style={[styles.cardSubtitle, { color: theme.textMuted }]}>
-                            Ingresa el email asociado a tu cuenta.
+                            Ingresa el correo asociado a tu cuenta.
                         </Text>
 
-                        <View style={styles.field}>
-                            <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Email</Text>
-                            <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                                <Mail size={18} color={theme.warning} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.text }]}
-                                    placeholder="tu@email.com"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    autoCapitalize="none"
-                                    keyboardType="email-address"
-                                    textContentType="emailAddress"
-                                    autoComplete="email"
-                                    returnKeyType="go"
-                                    onSubmitEditing={handleSend}
-                                />
-                            </View>
-                        </View>
+                        <AuthField
+                            label="Correo electrónico"
+                            icon={Mail}
+                            value={email}
+                            onChangeText={(t) => { setEmail(t); if (emailError) setEmailError(null); }}
+                            error={emailError}
+                            placeholder="tu@email.com"
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            textContentType="emailAddress"
+                            autoComplete="email"
+                            returnKeyType="go"
+                            onSubmitEditing={handleSend}
+                        />
 
                         <TouchableOpacity
-                            style={[styles.sendBtn, { backgroundColor: theme.warning }, isRequesting && { opacity: 0.7 }]}
+                            style={[styles.sendBtn, { backgroundColor: theme.primary }, isRequesting && { opacity: 0.7 }]}
                             onPress={handleSend}
                             disabled={isRequesting}
                             activeOpacity={0.85}
@@ -108,7 +106,7 @@ export default function ForgotPasswordScreen() {
                                 <Text style={[styles.tipText, { color: theme.textMuted }]}>Revisa tu carpeta de spam.</Text>
                             </View>
                             <View style={styles.tipItem}>
-                                <View style={[styles.tipDot, { backgroundColor: theme.warning }]} />
+                                <View style={[styles.tipDot, { backgroundColor: theme.primary }]} />
                                 <Text style={[styles.tipText, { color: theme.textMuted }]}>El código expira en 30 minutos.</Text>
                             </View>
                             <View style={styles.tipItem}>
@@ -122,16 +120,16 @@ export default function ForgotPasswordScreen() {
                             onPress={() => router.replace('/login')}
                             accessibilityRole="button"
                         >
-                            <Text style={[styles.sendBtnText, { color: theme.onPrimary }]}>Volver al Login</Text>
+                            <Text style={[styles.sendBtnText, { color: theme.onPrimary }]}>Volver al inicio de sesión</Text>
                             <ArrowRight size={18} color={theme.onPrimary} />
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={[styles.secondaryBtn, { borderColor: theme.warning + '40' }]}
+                            style={[styles.secondaryBtn, { borderColor: theme.primary + '40' }]}
                             onPress={() => router.push('/reset-password')}
                             accessibilityRole="button"
                         >
-                            <Text style={[styles.secondaryBtnText, { color: theme.warning }]}>¿Ya tienes el código? Restablecer aquí</Text>
+                            <Text style={[styles.secondaryBtnText, { color: theme.primary }]}>¿Ya tienes el código? Restablecer aquí</Text>
                         </TouchableOpacity>
                     </View>
                 </>
@@ -155,12 +153,8 @@ const styles = StyleSheet.create({
     subtitle: { fontSize: type.body.fontSize, fontWeight: '500', marginTop: spacing.sm, textAlign: 'center', lineHeight: 20 },
     card: { borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1 },
     cardTitle: { fontSize: type.h2.fontSize, fontWeight: '800', marginBottom: spacing.xs },
-    cardSubtitle: { fontSize: type.caption.fontSize, fontWeight: '500', marginBottom: spacing.xl, lineHeight: 20 },
-    field: { marginBottom: spacing.xl },
-    fieldLabel: { fontSize: type.label.fontSize, fontWeight: '700', marginBottom: spacing.sm, marginLeft: spacing.xs },
-    inputRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, paddingHorizontal: spacing.lg, borderWidth: 1, minHeight: layout.minTouch + 4, gap: spacing.sm },
-    input: { flex: 1, fontSize: type.body.fontSize, fontWeight: '500' },
-    sendBtn: { minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    cardSubtitle: { fontSize: type.caption.fontSize, fontWeight: '500', marginBottom: spacing.lg, lineHeight: 20 },
+    sendBtn: { minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.sm },
     sendBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
     tipsContainer: { gap: spacing.md, marginBottom: spacing.xl },
     tipItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

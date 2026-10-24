@@ -8,10 +8,10 @@ export interface ValidationResult {
     message?: string;
 }
 
-/** Validate required field */
-export function validateRequired(value: string | undefined | null, fieldName: string): ValidationResult {
+/** Validate required field. `gender` concuerda el adjetivo: 'La contraseña' → 'f'. */
+export function validateRequired(value: string | undefined | null, fieldName: string, gender: 'm' | 'f' = 'm'): ValidationResult {
     if (!value || value.trim().length === 0) {
-        return { valid: false, message: `${fieldName} es obligatorio` };
+        return { valid: false, message: `${fieldName} es obligatori${gender === 'f' ? 'a' : 'o'}` };
     }
     return { valid: true };
 }
@@ -19,11 +19,11 @@ export function validateRequired(value: string | undefined | null, fieldName: st
 /** Validate email format */
 export function validateEmail(email: string | undefined | null): ValidationResult {
     if (!email || email.trim().length === 0) {
-        return { valid: false, message: 'El email es obligatorio' };
+        return { valid: false, message: 'El correo electrónico es obligatorio' };
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        return { valid: false, message: 'El formato del email no es válido' };
+        return { valid: false, message: 'Revisa el formato del correo electrónico' };
     }
     return { valid: true };
 }

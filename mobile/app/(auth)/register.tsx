@@ -1,50 +1,54 @@
 /**
- * Register — adopta AuthShell (U3). Formulario con tokens del design system.
+ * Register — adopta AuthShell (U3). Formulario con AuthField y validación inline.
  */
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View, Text, ActivityIndicator, Linking } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, ActivityIndicator, Linking } from 'react-native';
 import { useRegister } from '@/src/hooks/auth/useRegister';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Mail, Lock, User, UserPlus, ArrowRight, Eye, EyeOff, Check } from 'lucide-react-native';
+import { Mail, Lock, User, UserPlus, ArrowRight, Eye, EyeOff, Check, Square } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
 import AuthShell from '@/src/components/AuthShell';
+import AuthField from '@/src/components/AuthField';
+import { validateEmail, validateMinLength, validateRequired } from '@/src/utils/validators';
 import { TERMS_URL, PRIVACY_URL } from '@/src/constants/support';
 import { spacing, radius, type, layout, shadow } from '@/constants/design';
+
+type FieldKey = 'fullName' | 'email' | 'password' | 'terms';
 
 export default function RegisterScreen() {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
 
     const { register, isRegistering } = useRegister();
     const router = useRouter();
     const { theme } = useTheme();
 
+    const setError = (key: FieldKey, message: string | null) =>
+        setErrors((prev) => ({ ...prev, [key]: message ?? undefined }));
+
     const handleRegister = () => {
         const cleanName = fullName.trim();
         const cleanEmail = email.trim().toLowerCase();
-        if (!cleanEmail || !password || !cleanName) {
-            showAlert({ type: 'warning', title: 'Campos incompletos', message: 'Por favor llena todos los campos.' });
-            return;
-        }
-        if (cleanName.length < 2) {
-            showAlert({ type: 'warning', title: 'Nombre muy corto', message: 'Escribe tu nombre completo.' });
-            return;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
-            showAlert({ type: 'warning', title: 'Correo inválido', message: 'Revisa que tu correo esté bien escrito.' });
-            return;
-        }
-        if (password.length < 8) {
-            showAlert({ type: 'warning', title: 'Contraseña muy corta', message: 'Tu contraseña debe tener al menos 8 caracteres.' });
-            return;
-        }
+        const e1 = validateMinLength(cleanName, 2, 'El nombre');
+        const e2 = validateEmail(cleanEmail);
+        const e3 = validateMinLength(password, 8, 'La contraseña');
+        const next: Partial<Record<FieldKey, string>> = {};
+        if (!e1.valid) next.fullName = e1.message;
+        if (!e2.valid) next.email = e2.message;
+        if (!e3.valid) next.password = e3.message;
+        if (!acceptedTerms) next.terms = 'Debes aceptar los Términos y la Privacidad para continuar.';
+        setErrors(next);
+        if (Object.keys(next).length > 0) return;
+
         register({ email: cleanEmail, password, fullName: cleanName }, {
             onError: (error) => {
-                showAlert({ type: 'error', title: 'Error de registro', message: error.message || 'No se pudo crear la cuenta.' });
+                // El backend suele rechazar por correo ya registrado: se pinta en ese campo.
+                setError('email', error.message || 'No se pudo crear la cuenta.');
             },
         });
     };
@@ -64,70 +68,73 @@ export default function RegisterScreen() {
             </View>
 
             <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight, ...shadow.card }]}>
-                <View style={styles.field}>
-                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Nombre completo</Text>
-                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                        <User size={18} color={theme.primary} />
-                        <TextInput
-                            style={[styles.input, { color: theme.text }]}
-                            placeholder="Juan Pérez"
-                            placeholderTextColor={theme.textMuted}
-                            value={fullName}
-                            onChangeText={setFullName}
-                            textContentType="name"
-                            autoComplete="name"
-                            returnKeyType="next"
-                        />
-                    </View>
-                </View>
+                <AuthField
+                    label="Nombre completo"
+                    icon={User}
+                    value={fullName}
+                    onChangeText={(t) => { setFullName(t); setError('fullName', null); }}
+                    error={errors.fullName}
+                    placeholder="Juan Pérez"
+                    textContentType="name"
+                    autoComplete="name"
+                    returnKeyType="next"
+                />
 
-                <View style={styles.field}>
-                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Email</Text>
-                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                        <Mail size={18} color={theme.primary} />
-                        <TextInput
-                            style={[styles.input, { color: theme.text }]}
-                            placeholder="tu@email.com"
-                            placeholderTextColor={theme.textMuted}
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            textContentType="emailAddress"
-                            autoComplete="email"
-                            returnKeyType="next"
-                        />
-                    </View>
-                </View>
+                <AuthField
+                    label="Correo electrónico"
+                    icon={Mail}
+                    value={email}
+                    onChangeText={(t) => { setEmail(t); setError('email', null); }}
+                    error={errors.email}
+                    placeholder="tu@email.com"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    textContentType="emailAddress"
+                    autoComplete="email"
+                    returnKeyType="next"
+                />
 
-                <View style={styles.field}>
-                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Contraseña</Text>
-                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                        <Lock size={18} color={theme.primary} />
-                        <TextInput
-                            style={[styles.input, { color: theme.text, flex: 1 }]}
-                            placeholder="Mínimo 8 caracteres"
-                            placeholderTextColor={theme.textMuted}
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry={!showPassword}
-                            textContentType="newPassword"
-                            autoComplete="new-password"
-                            returnKeyType="go"
-                            onSubmitEditing={handleRegister}
-                        />
+                <AuthField
+                    label="Contraseña"
+                    icon={Lock}
+                    value={password}
+                    onChangeText={(t) => { setPassword(t); setError('password', null); }}
+                    error={errors.password}
+                    hint="Mínimo 8 caracteres"
+                    placeholder="Mínimo 8 caracteres"
+                    secureTextEntry={!showPassword}
+                    textContentType="newPassword"
+                    autoComplete="new-password"
+                    returnKeyType="go"
+                    onSubmitEditing={handleRegister}
+                    rightElement={
                         <TouchableOpacity onPress={() => setShowPassword((v) => !v)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} accessibilityRole="button" accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                             {showPassword ? <EyeOff size={18} color={theme.textMuted} /> : <Eye size={18} color={theme.textMuted} />}
                         </TouchableOpacity>
-                    </View>
-                </View>
+                    }
+                />
 
-                <View style={styles.termsRow}>
-                    <View style={[styles.checkCircle, { backgroundColor: theme.primary + '20' }]}>
-                        <Check size={12} color={theme.primary} strokeWidth={3} />
+                <TouchableOpacity
+                    style={styles.termsRow}
+                    onPress={() => { setAcceptedTerms((v) => !v); setError('terms', null); }}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: acceptedTerms }}
+                    accessibilityLabel="Aceptar Términos y Privacidad"
+                    activeOpacity={0.7}
+                >
+                    <View
+                        style={[
+                            styles.checkBox,
+                            {
+                                backgroundColor: acceptedTerms ? theme.primary : 'transparent',
+                                borderColor: errors.terms ? theme.error : acceptedTerms ? theme.primary : theme.border,
+                            },
+                        ]}
+                    >
+                        {acceptedTerms && <Check size={14} color={theme.onPrimary} strokeWidth={3} />}
                     </View>
                     <Text style={[styles.termsText, { color: theme.textMuted }]}>
-                        Al registrarte aceptas nuestros{' '}
+                        Acepto nuestros{' '}
                         <Text
                             accessibilityRole={TERMS_URL ? 'link' : undefined}
                             onPress={TERMS_URL ? () => Linking.openURL(TERMS_URL).catch(() => {}) : undefined}
@@ -140,7 +147,10 @@ export default function RegisterScreen() {
                             style={{ color: PRIVACY_URL ? theme.primary : theme.text, fontWeight: '700', textDecorationLine: PRIVACY_URL ? 'underline' : 'none' }}
                         >Privacidad</Text>
                     </Text>
-                </View>
+                </TouchableOpacity>
+                {errors.terms ? (
+                    <Text style={[styles.termsError, { color: theme.error }]} accessibilityLiveRegion="polite">{errors.terms}</Text>
+                ) : null}
 
                 <TouchableOpacity
                     style={[styles.registerBtn, { backgroundColor: theme.primary }, isRegistering && { opacity: 0.7 }]}
@@ -186,20 +196,20 @@ const styles = StyleSheet.create({
     title: { fontSize: type.h1.fontSize, fontWeight: '900', letterSpacing: -0.5 },
     subtitle: { fontSize: type.body.fontSize, fontWeight: '500', marginTop: spacing.xs, textAlign: 'center' },
     card: { borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1 },
-    field: { marginBottom: spacing.lg },
-    fieldLabel: { fontSize: type.label.fontSize, fontWeight: '700', marginBottom: spacing.sm, marginLeft: spacing.xs },
-    inputRow: {
-        flexDirection: 'row', alignItems: 'center',
-        borderRadius: radius.lg, paddingHorizontal: spacing.lg,
-        borderWidth: 1, minHeight: layout.minTouch + 4, gap: spacing.sm,
+    termsRow: {
+        flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm,
+        marginBottom: spacing.xs, marginTop: -spacing.xs, minHeight: layout.minTouch,
+        paddingVertical: spacing.sm,
     },
-    input: { flex: 1, fontSize: type.body.fontSize, fontWeight: '500' },
-    termsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xl, marginTop: -spacing.xs },
-    checkCircle: { width: 20, height: 20, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+    checkBox: {
+        width: 22, height: 22, borderRadius: radius.sm, borderWidth: 2,
+        justifyContent: 'center', alignItems: 'center', marginTop: 1,
+    },
     termsText: { flex: 1, fontSize: type.caption.fontSize, fontWeight: '500', lineHeight: 18 },
+    termsError: { fontSize: type.caption.fontSize, marginLeft: spacing.xs, marginBottom: spacing.md },
     registerBtn: {
         minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row',
-        alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
+        alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.md,
     },
     registerBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
     proLine: { fontSize: type.caption.fontSize, fontWeight: '500', textAlign: 'center', marginTop: spacing.lg, marginHorizontal: spacing.md, lineHeight: 18 },

@@ -1,6 +1,6 @@
 /**
  * Login — adopta AuthShell (U3). Fondo con heroGradient del tema, círculos decorativos,
- * teclado y scroll centrado. Formulario con tokens del design system.
+ * teclado y scroll centrado. Formulario con AuthField y validación inline.
  */
 import React, { useState, useRef } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, Image, View, Text, ActivityIndicator, Animated } from 'react-native';
@@ -8,8 +8,9 @@ import { useLogin } from '@/src/hooks/auth/useLogin';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck, ArrowLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { showAlert } from '@/src/components/AppAlert';
 import AuthShell from '@/src/components/AuthShell';
+import AuthField from '@/src/components/AuthField';
+import { validateEmail, validateRequired } from '@/src/utils/validators';
 import { spacing, radius, type, layout, shadow } from '@/constants/design';
 
 export default function LoginScreen() {
@@ -19,6 +20,9 @@ export default function LoginScreen() {
     const [show2FA, setShow2FA] = useState(false);
     const [tempToken, setTempToken] = useState('');
     const [otpCode, setOtpCode] = useState('');
+    const [emailError, setEmailError] = useState<string | null>(null);
+    const [passwordError, setPasswordError] = useState<string | null>(null);
+    const [otpError, setOtpError] = useState<string | null>(null);
 
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const slideAnim = useRef(new Animated.Value(0)).current;
@@ -41,10 +45,12 @@ export default function LoginScreen() {
     };
 
     const handleLogin = () => {
-        if (!email.trim() || !password) {
-            showAlert({ type: 'warning', title: 'Campos incompletos', message: 'Ingresa tu correo y contraseña.' });
-            return;
-        }
+        const e1 = validateEmail(email);
+        const e2 = validateRequired(password, 'La contraseña', 'f');
+        setEmailError(e1.valid ? null : e1.message!);
+        setPasswordError(e2.valid ? null : e2.message!);
+        if (!e1.valid || !e2.valid) return;
+
         login({ email: email.trim().toLowerCase(), password }, {
             onSuccess: (data) => {
                 // Con 2FA el backend devuelve un token temporal: se pide el código. Sin 2FA el hook ya abrió la sesión.
@@ -55,19 +61,22 @@ export default function LoginScreen() {
                 }
             },
             onError: (error) => {
-                showAlert({ type: 'error', title: 'No pudimos iniciar sesión', message: error.message || 'Revisa tu correo y contraseña.' });
+                // Error del backend: se pinta en la contraseña para no perder lo escrito.
+                setPasswordError(error.message || 'Revisa tu correo y contraseña.');
             },
         });
     };
 
     const handleVerify2FA = () => {
-        if (!otpCode.trim() || otpCode.trim().length < 6) {
-            showAlert({ type: 'warning', title: 'Código inválido', message: 'Ingresa el código de 6 dígitos.' });
+        const code = otpCode.trim();
+        if (code.length !== 6) {
+            setOtpError('Ingresa el código de 6 dígitos.');
             return;
         }
-        verify2FA({ tempToken, code: otpCode.trim() }, {
+        setOtpError(null);
+        verify2FA({ tempToken, code }, {
             onError: (error) => {
-                showAlert({ type: 'error', title: 'Código inválido', message: error.message || 'El código es incorrecto o ya venció.' });
+                setOtpError(error.message || 'El código es incorrecto o ya venció.');
                 setOtpCode('');
             },
         });
@@ -105,46 +114,38 @@ export default function LoginScreen() {
                     <Text style={[styles.cardTitle, { color: theme.text }]}>Bienvenido</Text>
                     <Text style={[styles.cardSubtitle, { color: theme.textMuted }]}>Inicia sesión en tu cuenta</Text>
 
-                    <View style={styles.field}>
-                        <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Email</Text>
-                        <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                            <Mail size={18} color={theme.primary} />
-                            <TextInput
-                                style={[styles.input, { color: theme.text }]}
-                                placeholder="tu@email.com"
-                                placeholderTextColor={theme.textMuted}
-                                value={email}
-                                onChangeText={setEmail}
-                                autoCapitalize="none"
-                                keyboardType="email-address"
-                                textContentType="emailAddress"
-                                autoComplete="email"
-                                returnKeyType="next"
-                            />
-                        </View>
-                    </View>
+                    <AuthField
+                        label="Correo electrónico"
+                        icon={Mail}
+                        value={email}
+                        onChangeText={(t) => { setEmail(t); if (emailError) setEmailError(null); }}
+                        error={emailError}
+                        placeholder="tu@email.com"
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        textContentType="emailAddress"
+                        autoComplete="email"
+                        returnKeyType="next"
+                    />
 
-                    <View style={styles.field}>
-                        <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Contraseña</Text>
-                        <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                            <Lock size={18} color={theme.primary} />
-                            <TextInput
-                                style={[styles.input, { color: theme.text, flex: 1 }]}
-                                placeholder="Tu contraseña"
-                                placeholderTextColor={theme.textMuted}
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry={!showPassword}
-                                textContentType="password"
-                                autoComplete="password"
-                                returnKeyType="go"
-                                onSubmitEditing={handleLogin}
-                            />
+                    <AuthField
+                        label="Contraseña"
+                        icon={Lock}
+                        value={password}
+                        onChangeText={(t) => { setPassword(t); if (passwordError) setPasswordError(null); }}
+                        error={passwordError}
+                        placeholder="Tu contraseña"
+                        secureTextEntry={!showPassword}
+                        textContentType="password"
+                        autoComplete="password"
+                        returnKeyType="go"
+                        onSubmitEditing={handleLogin}
+                        rightElement={
                             <TouchableOpacity onPress={() => setShowPassword((v) => !v)} accessibilityRole="button" accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                                 {showPassword ? <EyeOff size={18} color={theme.textMuted} /> : <Eye size={18} color={theme.textMuted} />}
                             </TouchableOpacity>
-                        </View>
-                    </View>
+                        }
+                    />
 
                     <TouchableOpacity onPress={() => router.push('/forgot-password')} style={styles.forgotRow} accessibilityRole="button">
                         <Text style={[styles.forgotText, { color: theme.primary }]}>¿Olvidaste tu contraseña?</Text>
@@ -195,18 +196,21 @@ export default function LoginScreen() {
                     <TextInput
                         style={[styles.otpInput, {
                             backgroundColor: theme.background,
-                            borderColor: theme.success + '40',
+                            borderColor: otpError ? theme.error : theme.primary + '40',
                             color: theme.text,
                         }]}
                         placeholder="000000"
                         placeholderTextColor={theme.textMuted}
                         value={otpCode}
-                        onChangeText={setOtpCode}
+                        onChangeText={(t) => { setOtpCode(t); if (otpError) setOtpError(null); }}
                         keyboardType="number-pad"
                         maxLength={6}
                         textContentType="oneTimeCode"
                         accessibilityLabel="Código de verificación"
                     />
+                    {otpError ? (
+                        <Text style={[styles.otpError, { color: theme.error }]} accessibilityLiveRegion="polite">{otpError}</Text>
+                    ) : null}
 
                     <TouchableOpacity
                         style={[styles.loginBtn, { backgroundColor: theme.success }, isVerifying2FA && { opacity: 0.7 }]}
@@ -262,19 +266,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: { fontSize: type.h1.fontSize, fontWeight: '800', marginBottom: spacing.xs },
     cardSubtitle: { fontSize: type.body.fontSize, marginBottom: spacing.xl },
-    field: { marginBottom: spacing.lg },
-    fieldLabel: { fontSize: type.label.fontSize, fontWeight: '700', marginBottom: spacing.sm },
-    inputRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: radius.lg,
-        borderWidth: 1,
-        paddingHorizontal: spacing.lg,
-        minHeight: layout.minTouch + 4,
-        gap: spacing.sm,
-    },
-    input: { flex: 1, fontSize: type.body.fontSize, paddingVertical: spacing.md },
-    forgotRow: { alignSelf: 'flex-end', marginBottom: spacing.xl },
+    forgotRow: { alignSelf: 'flex-end', marginBottom: spacing.xl, marginTop: spacing.md },
     forgotText: { fontSize: type.caption.fontSize, fontWeight: '600' },
     loginBtn: {
         flexDirection: 'row',
@@ -305,7 +297,12 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         textAlign: 'center',
         letterSpacing: 8,
-        marginBottom: spacing.xl,
+    },
+    otpError: {
+        fontSize: type.caption.fontSize,
+        textAlign: 'center',
+        marginTop: spacing.sm,
+        marginBottom: spacing.lg,
     },
     footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl },
     footerLabel: { fontSize: type.body.fontSize },

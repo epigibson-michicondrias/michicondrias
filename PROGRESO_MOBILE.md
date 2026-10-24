@@ -273,7 +273,12 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - [x] U2 Componentes base: revisar los existentes y crear `AuthShell`, `SegmentedTabs`, `PetForm`; adoptar `FormField`
       y `utils/validators.ts`; documentar en `mobile/src/components/README.md` (`SegmentedControl` cubre
       `SegmentedTabs`; `AuthShell` creado, U3 lo adopta en las 4 pantallas de `(auth)`).
-- [ ] U3 Auth (4 pantallas) con `AuthShell`, validación inline, autoComplete, ≥ 44 px.
+- [x] U3 Auth (4 pantallas) con `AuthShell`, validación inline, autoComplete, ≥ 44 px. (2026-10-23, Mimo: nuevo
+      componente `AuthField` (pill + ícono + error inline) adoptado en las 4; validación con `validators.ts` por campo
+      y errores del backend pintados en el campo; etiquetas en español («Correo electrónico»); acento unificado a
+      `theme.primary` (adiós naranja de forgot y verde de reset); checkbox de Términos **real** que arranca desmarcado.
+      Verificado con capturas a 375 px: `output/u3-auth/`. **Pendiente conocido:** el modo oscuro no aplica en web
+      (`set-color-scheme` de playwright no cambia el tema de la app) — revisar con `useTheme`/`ThemeContext`.)
 - [ ] U4 Inicio, Explorar y Herramientas: tokens, Skeleton, EmptyState, refresh.
 - [ ] U5 Perfil + `perfil/editar` + verificacion, 2FA, partner, eliminar-cuenta.
 - [ ] U6 Mascotas: ficha con pestañas, `PetForm`, diagnóstico IA (`FormSelect`, colores del tema).
@@ -929,4 +934,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `GET /system/public` y modo mantenimiento real en el login. App: KYC aprobar sin confirmar / rechazar con
   confirmación, `useAdminProducts` con `admin/all`, suspender clínica en `useAdminClinicDetail`. Archivos clave:
   `backend/michicondrias_{ecommerce,directorio,core}/app/…`, `mobile/src/hooks/admin/*`, `mobile/src/services/{ecommerce,moderacion,directorio}.ts`.
+- **2026-10-23** — **U3 Auth completa**: `AuthField` nuevo (`src/components/AuthField.tsx`) con ícono + error inline,
+  adoptado en `login`, `register`, `forgot-password` y `reset-password`. Validación por campo con `validators.ts`
+  (concordancia de género en `validateRequired`), errores del backend pintados en el campo correspondiente, etiquetas
+  «Correo electrónico», acento unificado a `theme.primary` y checkbox de Términos real (arranca desmarcado).
+  Verificado con playwright a 375×812: `output/u3-auth/` (formularios, errores inline, checkbox). `tsc` y ESLint limpios.
 

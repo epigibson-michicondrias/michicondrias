@@ -1,17 +1,20 @@
 /**
  * Reset Password — adopta AuthShell (U3). Pantalla única: con `?token=` (deep link)
- * o con correo + código de 6 dígitos.
+ * o con correo + código de 6 dígitos. Validación inline por campo.
  */
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View, Text, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, KeyRound, ShieldCheck, Mail } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { usePasswordReset } from '@/src/hooks/auth/usePasswordReset';
-import { showAlert } from '@/src/components/AppAlert';
 import AuthShell from '@/src/components/AuthShell';
+import AuthField from '@/src/components/AuthField';
+import { validateEmail, validateMinLength } from '@/src/utils/validators';
 import { spacing, radius, type, layout, shadow } from '@/constants/design';
+
+type FieldKey = 'email' | 'code' | 'newPassword' | 'confirmPassword';
 
 export default function ResetPasswordScreen() {
     const { token: tokenParam } = useLocalSearchParams<{ token?: string }>();
@@ -23,38 +26,38 @@ export default function ResetPasswordScreen() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
 
     const { resetPassword, isResetting, resetWithCode, isResettingWithCode } = usePasswordReset();
     const router = useRouter();
     const { theme } = useTheme();
     const isWorking = isResetting || isResettingWithCode;
 
+    const setError = (key: FieldKey, message: string | null) =>
+        setErrors((prev) => ({ ...prev, [key]: message ?? undefined }));
+
     const handleReset = () => {
         const cleanEmail = email.trim().toLowerCase();
         const cleanCode = code.trim();
-        if (withToken && !token) {
-            showAlert({ type: 'warning', title: 'Token requerido', message: 'Pega el token de recuperación.' });
-            return;
+        const next: Partial<Record<FieldKey, string>> = {};
+
+        if (!withToken) {
+            const e1 = validateEmail(cleanEmail);
+            if (!e1.valid) next.email = e1.message;
+            if (cleanCode.length !== 6) next.code = 'El código tiene 6 dígitos.';
         }
-        if (!withToken && (!cleanEmail || cleanCode.length !== 6)) {
-            showAlert({ type: 'warning', title: 'Datos requeridos', message: 'Escribe tu correo y el código de 6 dígitos.' });
-            return;
-        }
-        if (!newPassword || !confirmPassword) {
-            showAlert({ type: 'warning', title: 'Campos requeridos', message: 'Ingresa y confirma tu nueva contraseña.' });
-            return;
-        }
-        if (newPassword.length < 8) {
-            showAlert({ type: 'warning', title: 'Contraseña débil', message: 'Debe tener al menos 8 caracteres.' });
-            return;
-        }
-        if (newPassword !== confirmPassword) {
-            showAlert({ type: 'error', title: 'No coinciden', message: 'Las contraseñas no coinciden.' });
-            return;
-        }
+        const e3 = validateMinLength(newPassword, 8, 'La contraseña');
+        if (!e3.valid) next.newPassword = e3.message;
+        if (confirmPassword !== newPassword) next.confirmPassword = 'Las contraseñas no coinciden.';
+        else if (!confirmPassword) next.confirmPassword = 'Confirma tu contraseña.';
+
+        setErrors(next);
+        if (Object.keys(next).length > 0) return;
+
         const onSuccess = () => setSuccess(true);
         const onError = (error: Error) => {
-            showAlert({ type: 'error', title: 'Error', message: error.message || 'No se pudo restablecer. El código puede haber expirado.' });
+            // El fallo típico es un código vencido/incorrecto: se pinta en ese campo.
+            setError(withToken ? 'newPassword' : 'code', error.message || 'No se pudo restablecer. El código puede haber expirado.');
         };
         if (withToken) {
             resetPassword({ token, newPassword }, { onSuccess, onError });
@@ -70,8 +73,8 @@ export default function ResetPasswordScreen() {
             {!success ? (
                 <>
                     <View style={styles.headerSection}>
-                        <View style={[styles.iconCircle, { backgroundColor: theme.success + '15' }]}>
-                            <KeyRound size={28} color={theme.success} />
+                        <View style={[styles.iconCircle, { backgroundColor: theme.primary + '15' }]}>
+                            <KeyRound size={28} color={theme.primary} />
                         </View>
                         <Text style={[styles.title, { color: theme.onHero }]}>Nueva contraseña</Text>
                         <Text style={[styles.subtitle, { color: theme.onHeroMuted }]}>
@@ -84,85 +87,70 @@ export default function ResetPasswordScreen() {
                     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight, ...shadow.card }]}>
                         {!withToken && (
                             <>
-                                <View style={styles.field}>
-                                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Email</Text>
-                                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                                        <Mail size={18} color={theme.success} />
-                                        <TextInput
-                                            style={[styles.input, { color: theme.text }]}
-                                            placeholder="tu@email.com"
-                                            placeholderTextColor={theme.textMuted}
-                                            value={email}
-                                            onChangeText={setEmail}
-                                            autoCapitalize="none"
-                                            keyboardType="email-address"
-                                            textContentType="emailAddress"
-                                            autoComplete="email"
-                                        />
-                                    </View>
-                                </View>
+                                <AuthField
+                                    label="Correo electrónico"
+                                    icon={Mail}
+                                    value={email}
+                                    onChangeText={(t) => { setEmail(t); setError('email', null); }}
+                                    error={errors.email}
+                                    placeholder="tu@email.com"
+                                    autoCapitalize="none"
+                                    keyboardType="email-address"
+                                    textContentType="emailAddress"
+                                    autoComplete="email"
+                                    returnKeyType="next"
+                                />
 
-                                <View style={styles.field}>
-                                    <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Código de verificación</Text>
-                                    <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                                        <ShieldCheck size={18} color={theme.success} />
-                                        <TextInput
-                                            style={[styles.input, { color: theme.text }]}
-                                            placeholder="000000"
-                                            placeholderTextColor={theme.textMuted}
-                                            value={code}
-                                            onChangeText={(t) => setCode(t.replace(/[^0-9]/g, '').slice(0, 6))}
-                                            keyboardType="number-pad"
-                                            maxLength={6}
-                                            textContentType="oneTimeCode"
-                                            accessibilityLabel="Código de verificación"
-                                        />
-                                    </View>
-                                </View>
+                                <AuthField
+                                    label="Código de verificación"
+                                    icon={ShieldCheck}
+                                    value={code}
+                                    onChangeText={(t) => { setCode(t.replace(/[^0-9]/g, '').slice(0, 6)); setError('code', null); }}
+                                    error={errors.code}
+                                    placeholder="000000"
+                                    keyboardType="number-pad"
+                                    maxLength={6}
+                                    textContentType="oneTimeCode"
+                                    accessibilityLabel="Código de verificación"
+                                />
                             </>
                         )}
 
-                        <View style={styles.field}>
-                            <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Nueva contraseña</Text>
-                            <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                                <Lock size={18} color={theme.success} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.text, flex: 1 }]}
-                                    placeholder="Mínimo 8 caracteres"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={newPassword}
-                                    onChangeText={setNewPassword}
-                                    secureTextEntry={!showPassword}
-                                    textContentType="newPassword"
-                                    autoComplete="new-password"
-                                />
+                        <AuthField
+                            label="Nueva contraseña"
+                            icon={Lock}
+                            value={newPassword}
+                            onChangeText={(t) => { setNewPassword(t); setError('newPassword', null); }}
+                            error={errors.newPassword}
+                            hint="Mínimo 8 caracteres"
+                            placeholder="Mínimo 8 caracteres"
+                            secureTextEntry={!showPassword}
+                            textContentType="newPassword"
+                            autoComplete="new-password"
+                            returnKeyType="next"
+                            rightElement={
                                 <TouchableOpacity onPress={() => setShowPassword((v) => !v)} accessibilityRole="button" accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                                     {showPassword ? <EyeOff size={18} color={theme.textMuted} /> : <Eye size={18} color={theme.textMuted} />}
                                 </TouchableOpacity>
-                            </View>
-                        </View>
+                            }
+                        />
 
-                        <View style={styles.field}>
-                            <Text style={[styles.fieldLabel, { color: theme.textMuted }]}>Confirmar contraseña</Text>
-                            <View style={[styles.inputRow, { backgroundColor: theme.background, borderColor: theme.border }]}>
-                                <Lock size={18} color={theme.success} />
-                                <TextInput
-                                    style={[styles.input, { color: theme.text }]}
-                                    placeholder="Repite tu contraseña"
-                                    placeholderTextColor={theme.textMuted}
-                                    value={confirmPassword}
-                                    onChangeText={setConfirmPassword}
-                                    secureTextEntry={!showPassword}
-                                    textContentType="newPassword"
-                                    autoComplete="new-password"
-                                    returnKeyType="go"
-                                    onSubmitEditing={handleReset}
-                                />
-                            </View>
-                        </View>
+                        <AuthField
+                            label="Confirmar contraseña"
+                            icon={Lock}
+                            value={confirmPassword}
+                            onChangeText={(t) => { setConfirmPassword(t); setError('confirmPassword', null); }}
+                            error={errors.confirmPassword}
+                            placeholder="Repite tu contraseña"
+                            secureTextEntry={!showPassword}
+                            textContentType="newPassword"
+                            autoComplete="new-password"
+                            returnKeyType="go"
+                            onSubmitEditing={handleReset}
+                        />
 
                         <TouchableOpacity
-                            style={[styles.submitBtn, { backgroundColor: theme.success }, isWorking && { opacity: 0.7 }]}
+                            style={[styles.submitBtn, { backgroundColor: theme.primary }, isWorking && { opacity: 0.7 }]}
                             onPress={handleReset}
                             disabled={isWorking}
                             accessibilityRole="button"
@@ -193,11 +181,11 @@ export default function ResetPasswordScreen() {
 
                     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
                         <TouchableOpacity
-                            style={[styles.submitBtn, { backgroundColor: theme.success }]}
+                            style={[styles.submitBtn, { backgroundColor: theme.primary }]}
                             onPress={() => router.replace('/login')}
                             accessibilityRole="button"
                         >
-                            <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>Ir al Login</Text>
+                            <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>Ir al inicio de sesión</Text>
                             <ArrowRight size={18} color={theme.onPrimary} />
                         </TouchableOpacity>
                     </View>
@@ -214,10 +202,6 @@ const styles = StyleSheet.create({
     title: { fontSize: type.h1.fontSize, fontWeight: '900', letterSpacing: -0.5, textAlign: 'center' },
     subtitle: { fontSize: type.body.fontSize, fontWeight: '500', marginTop: spacing.sm, textAlign: 'center', lineHeight: 20 },
     card: { borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1 },
-    field: { marginBottom: spacing.lg },
-    fieldLabel: { fontSize: type.label.fontSize, fontWeight: '700', marginBottom: spacing.sm, marginLeft: spacing.xs },
-    inputRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.lg, paddingHorizontal: spacing.lg, borderWidth: 1, minHeight: layout.minTouch + 4, gap: spacing.sm },
-    input: { flex: 1, fontSize: type.body.fontSize, fontWeight: '500' },
-    submitBtn: { minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm },
+    submitBtn: { minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.sm },
     submitBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
 });
