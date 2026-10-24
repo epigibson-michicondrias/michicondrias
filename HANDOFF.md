@@ -57,7 +57,23 @@ y sigue donde se quedó el otro.
 **Urgentes / seguridad**
 - [x] **Login web** (2026-10-23): el bundle publicado ya usa `https://michicondrias.duckdns.org` (antes el AWS viejo → «NetworkError»).
 - [x] **X1** (2026-10-23) 2FA saltable en 10 servicios: ya rechazan el token temporal (`is_temp`).
-- [ ] **X2–X8** del backend (admin sin pasar guardas, servicios sin moderación, etc.): tabla en `AUDITORIA_WEB.md` (rama `web/espejo`) y `docs/PERMISOS_BACKEND.md`.
+- [x] **X2–X8** (2026-10-24): auditoría completa en `docs/SEGURIDAD_X2_X8.md` — **15 hallazgos (1 P0, 10 P1, 4 P2)**.
+  - [ ] **Arreglos pendientes de esa auditoría** (prioridad):
+    - **P0 X8.1**: credenciales de Supabase/Neon en claro en el código (incl. `directorio/app/core/config.py:8` que se
+      despliega) → **rotar contraseñas** + sacarlas del código.
+    - **P1 X8.2**: `SECRET_KEY` con default débil en todos los `config.py` → default vacío + rotar.
+    - **P1 X4.1/X5.1**: `POST /payments/create-subscription-session/{pet_id}` sin check de dueño (activa
+      Michi-Tracker Pro en mascotas ajenas vía webhook).
+    - **P1 X4.2**: `GET /pets/adopted-from/{listing_id}` sin check de dueño.
+    - **P1 X6.2**: teléfono/correo del denunciante visible a cualquier autenticado en perdidas.
+    - **P1 X6.1**: URLs de KYC (INE, comprobante) de todos los usuarios en `GET /users/` y `/users/search`.
+    - **P1 X3.2**: paseadores/cuidadores se publican sin verificar (`is_verified` existe pero no se usa).
+    - **P1 X2.1–X2.5**: `admin` excluido de guardas de rol en aseguradoras, laboratorio, entrenadores,
+      patrocinadores y funeraria (no puede moderar).
+    - **P1 X3.1/X3.3**: 8 servicios con `require_admin` sin usar (sin moderación) + campañas de patrocinadores
+      publicadas sin aprobación.
+    - **P2**: certificados funerarios públicos (X4.3), owner checks que excluyen admin (X2.6), Dockerfiles como
+      root + `--reload` (X8.3), `GET /categories/init-db/seed` que escribe (X8.4).
 
 **App móvil — publicar**
 - [x] **OTA del arreglo del login** (2026-10-23, Mimo): publicado en el canal `production` (runtime 1.0.0), update group
@@ -107,6 +123,17 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Claude** — **Auditoría de seguridad X2–X8 del backend (solo lectura, sin tocar código):**
+  - Entregable: [`docs/SEGURIDAD_X2_X8.md`](docs/SEGURIDAD_X2_X8.md) — 15 hallazgos (1 P0, 10 P1, 4 P2), tabla con
+    `archivo:línea`, impacto y corrección propuesta. **No se aplicó ningún arreglo.**
+  - **P0 X8.1**: credenciales de **producción** en claro en el repo (`michicondrias_directorio/app/core/config.py:8`
+    como default de `DATABASE_URL`, más 8 scripts de migración). **Rotar Supabase/Neon ya.**
+  - Método: inventario de 409 rutas (208 state-changing) con sus `Depends` reales; Semgrep OSS 1.182.1 con
+    `p/security-audit`, `p/python`, `p/secrets`, `p/jwt`, `p/owasp-top-ten`, `p/fastapi` (`--metrics=off`, salida en
+    `output/semgrep-backend/`); triaje manual leyendo ruta + guarda + modelo.
+  - Lo **no** hallazgo (verificado): inyección SQL (todo parametrizado), `hashed_password`/`reset_code_hash` en
+    respuestas, CORS abierto, WebSocket de notificaciones, broadcast sin token interno. X1 no se reabre.
+  - Próximo paso: ver «Arreglos pendientes» en §3 — empezar por rotación de secretos.
 - **2026-10-24 · Mimo** — **Push tokens en core** (en `main`, pendiente de deploy + migración):
   - Migración `e7c4a9b2d6f8` (`alembic/versions/e7c4a9b2d6f8_add_push_tokens.py`): tabla `push_tokens`
     aditiva e idempotente (`id`, `user_id` indexado sin FK, `token` único, `platform` android|ios|web,
