@@ -101,6 +101,9 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — **U4 Inicio/Explorar/Herramientas** cerrada (`output/u4-home/`): `EmptyState` con acción en
+  Herramientas y el vacío de citas pasa al componente `EmptyState`. Las 3 pantallas cumplían tokens/refresh; Skeleton
+  solo aplica en Inicio (los otros dos son catálogo estático). Sigue **U5 Perfil**.
 - **2026-10-23 · Mimo** — **U3 Auth (Fase 5) completa** en la app móvil: componente `AuthField` (pill + ícono + error
   inline) en las 4 pantallas de `(auth)`, validación por campo con `validators.ts`, etiquetas en español, acento
   unificado a `theme.primary` y checkbox de Términos real. Capturas en `output/u3-auth/`. **Pendiente:** el modo

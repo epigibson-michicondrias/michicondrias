@@ -44,6 +44,8 @@ export default function MenuScreen() {
                         icon={<Wrench size={layout.icon.xl} color={theme.textMuted} />}
                         title="Sin herramientas"
                         subtitle="Tu rol todavía no tiene herramientas en la app."
+                        actionLabel="Ir a Inicio"
+                        onAction={() => router.push('/(tabs)')}
                     />
                 ) : (
                     <>

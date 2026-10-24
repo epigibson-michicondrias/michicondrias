@@ -279,7 +279,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `theme.primary` (adiós naranja de forgot y verde de reset); checkbox de Términos **real** que arranca desmarcado.
       Verificado con capturas a 375 px: `output/u3-auth/`. **Pendiente conocido:** el modo oscuro no aplica en web
       (`set-color-scheme` de playwright no cambia el tema de la app) — revisar con `useTheme`/`ThemeContext`.)
-- [ ] U4 Inicio, Explorar y Herramientas: tokens, Skeleton, EmptyState, refresh.
+- [x] U4 Inicio, Explorar y Herramientas: tokens, Skeleton, EmptyState, refresh. (2026-10-23, Mimo: ya estaban en
+      gran parte; se cerraron los huecos — `EmptyState` de Herramientas con acción «Ir a Inicio», y el vacío de
+      `AppointmentList` pasa al componente `EmptyState` con «Agendar». Verificado con mocks de API a 375×812:
+      `output/u4-home/`. Nota: los datos de Explorar/Herramientas son estáticos, así que Skeleton solo aplica en
+      Inicio (ya lo tiene `PetCarousel`/`AppointmentList` vía `HomeSections`.)
 - [ ] U5 Perfil + `perfil/editar` + verificacion, 2FA, partner, eliminar-cuenta.
 - [ ] U6 Mascotas: ficha con pestañas, `PetForm`, diagnóstico IA (`FormSelect`, colores del tema).
 - [ ] U7 Carnet: partir `carnet/[id]` en `src/features/carnet/`, formularios con botón primario abajo, receta.
@@ -939,4 +943,8 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   (concordancia de género en `validateRequired`), errores del backend pintados en el campo correspondiente, etiquetas
   «Correo electrónico», acento unificado a `theme.primary` y checkbox de Términos real (arranca desmarcado).
   Verificado con playwright a 375×812: `output/u3-auth/` (formularios, errores inline, checkbox). `tsc` y ESLint limpios.
+- **2026-10-23** — **U4 Inicio/Explorar/Herramientas**: `EmptyState` de Herramientas con acción «Ir a Inicio»;
+  `AppointmentList` vacío pasa a `EmptyState` («Agendar»); se borran `Button` sin uso y el estilo `emptyCard`.
+  Verificado con mocks de API (token + `cached_user` en localStorage) a 375×812: `output/u4-home/`. Explorar ya
+  cumplía (0 hex, tokens, chips, cuadrícula).
 

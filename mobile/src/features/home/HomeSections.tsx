@@ -6,7 +6,7 @@ import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, useWindowD
 import { Plus, PawPrint, Calendar, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import Badge from '@/src/components/Badge';
-import Button from '@/src/components/Button';
+import EmptyState from '@/src/components/EmptyState';
 import { Skeleton } from '@/src/components/Skeleton';
 import type { IconComponent } from '@/src/components/IconButton';
 import { sentenceCase } from '@/src/utils/formatters';
@@ -136,16 +136,13 @@ export function AppointmentList({ items, loading, onOpen, onBook }: {
     }
     if (items.length === 0) {
         return (
-            <View style={[styles.emptyCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                <View style={[styles.rowIcon, { backgroundColor: theme.primary + tint.faint }]}>
-                    <Calendar size={layout.icon.md} color={theme.primary} />
-                </View>
-                <View style={styles.flex}>
-                    <Text style={[type.bodyStrong, { color: theme.text }]}>Sin citas próximas</Text>
-                    <Text style={[type.caption, { color: theme.textMuted }]}>Encuentra un veterinario y agenda en minutos.</Text>
-                </View>
-                <Button label="Agendar" size="sm" onPress={onBook} />
-            </View>
+            <EmptyState
+                icon={<Calendar size={layout.icon.xl} color={theme.textMuted} />}
+                title="Sin citas próximas"
+                subtitle="Encuentra un veterinario y agenda en minutos."
+                actionLabel="Agendar"
+                onAction={onBook}
+            />
         );
     }
     return (
@@ -223,15 +220,6 @@ const styles = StyleSheet.create({
         borderRadius: radius.sm,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    emptyCard: {
-        marginHorizontal: layout.screenPadding,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        padding: spacing.md,
-        borderRadius: radius.md,
-        borderWidth: 1,
     },
 });
 
