@@ -138,7 +138,7 @@ def get_admin_products(db: Session, status: str = None, q: str = None, skip: int
         query = query.filter(Product.stock <= 0)
     if q:
         query = query.filter(_fold(Product.name).like(f"%{_fold_text(q)}%"))
-    products = query.order_by(Product.updated_at.desc(), Product.name.asc()).offset(skip).limit(limit).all()
+    products = query.order_by(Product.created_at.desc(), Product.name.asc()).offset(skip).limit(limit).all()
     return _batch_attach_ratings(db, products)
 
 # ... (approve_product and others remain same, skipping to new Review CRUD)
