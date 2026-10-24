@@ -133,6 +133,11 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **X4/X5/X6 del backend desplegado** (`0c5541b`, 17/17 OK): dueño de la mascota en
+  `create-subscription-session`, `GET /pets/adopted-from` con dueño/admin/interno, `UserSummaryResponse` sin KYC en
+  `GET /users/` y `/search`, y teléfono/correo del denunciante en perdidas solo para el denunciante o admin.
+  **APK `versionCode 11`** (icono M + huella, splash, U3–U10) enviado por KDE Connect.
+
 - **2026-10-24 · Mimo** — **X2/X3 del backend desplegado** (`a77c771` → `deploy-oracle.yml` verde, 17/17 OK):
   - **X2**: los 6 guards que excluían a `admin` ya lo aceptan (`require_aseguradora`, `require_consumidor_or_aseguradora`,
     `require_entrenador`, `require_veterinario`, `require_laboratorio`, `require_patrocinador`, `RoleChecker` de
