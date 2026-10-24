@@ -97,6 +97,9 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — Web espejo: pulido post W4-A (`d960744` + `68cb18d` en `web/espejo`, sin producción):
+  `AppOnlyNotice` al kit base y `--app-bottom-inset` para que los pies fijos no queden detrás de la barra de pestañas.
+  `tsc`/ESLint/`next build` en verde. Sigue W5 (recorrido del consumidor + CSS legacy).
 - **2026-10-23 · Mimo** — **OTA del login publicada** (pendiente urgente de §3): canal `production`, runtime 1.0.0,
   update group `a84459e2-d146-42cd-a26e-0c4cc3b9b480`, mensaje «fix: login muestra errores y pide el código 2FA».
   Lleva el fix `89a584e` (login con `onError` y paso 2FA). `mobile/.env` ya apunta a `michicondrias.duckdns.org`.
