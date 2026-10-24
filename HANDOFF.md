@@ -60,9 +60,8 @@ y sigue donde se quedó el otro.
 - [ ] **X2–X8** del backend (admin sin pasar guardas, servicios sin moderación, etc.): tabla en `AUDITORIA_WEB.md` (rama `web/espejo`) y `docs/PERMISOS_BACKEND.md`.
 
 **App móvil — publicar**
-- [ ] **OTA del arreglo del login** (`mobile/app/(auth)/login.tsx`, commit en `main`): confirmar que `mobile/.env` apunta a
-  `https://michicondrias.duckdns.org` y correr `cd mobile && npx eas-cli update --channel production --environment
-  production --platform android --message "fix: login muestra errores y pide el código 2FA"`.
+- [x] **OTA del arreglo del login** (2026-10-23, Mimo): publicado en el canal `production` (runtime 1.0.0), update group
+  `a84459e2-d146-42cd-a26e-0c4cc3b9b480`. Commit `89a584e`.
 
 **Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
 - [x] W2 (`bd1831f`, `f72e123`): espejos, `api.ts`, `tokens.css`, contextos Theme/Auth/Cart y kit base.
@@ -98,6 +97,9 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — **OTA del login publicada** (pendiente urgente de §3): canal `production`, runtime 1.0.0,
+  update group `a84459e2-d146-42cd-a26e-0c4cc3b9b480`, mensaje «fix: login muestra errores y pide el código 2FA».
+  Lleva el fix `89a584e` (login con `onError` y paso 2FA). `mobile/.env` ya apunta a `michicondrias.duckdns.org`.
 - **2026-10-23 · Claude** — W4-A **terminada** y diseño homologado (`dc2440d` en `web/espejo`, push; build verde, 128
   páginas). 18 rutas de admin. Diseño: `frontend/src/app/theme.css` (capa web sobre `tokens.css`; el espejo queda
   intacto) con Hanken Grotesk, CTA dorado, tarjetas con brillo y navegación en vidrio; el primario vuelve a azul

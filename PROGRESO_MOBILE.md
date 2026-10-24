@@ -921,4 +921,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `michicondrias-landing`, ahora Next.js en vez de Astro; Vercel despliega con cada push a `main`). Fuente de verdad:
   `frontend/src/features/landing/` del monorepo; se copia al otro repo. Enlaces «Entrar»/«Crear cuenta» centralizados
   en `links.ts` (`NEXT_PUBLIC_WEB_APP_URL`); sin web app publicada bajan a la sección de la app.
+- **2026-10-23** — **OTA del login publicada** (pendiente de `HANDOFF.md` §3): canal `production`, runtime 1.0.0,
+  update group `a84459e2-d146-42cd-a26e-0c4cc3b9b480`. Lleva `89a584e` (login con `onError` y paso 2FA, regresión de
+  U3). `mobile/.env` verificado apuntando a `michicondrias.duckdns.org`.
 
