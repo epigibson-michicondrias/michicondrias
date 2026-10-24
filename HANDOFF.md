@@ -93,6 +93,12 @@ y sigue donde se quedó el otro.
 **App móvil** (detalle con IDs en `PROGRESO_MOBILE.md` → Backlog)
 - [ ] Bloque A (Fase 4 en P1), Bloque B (auditoría P2/P3: A1–A5), Bloque C (U10 APK único y U11). U3–U9 ✅. Ver Anexo A §8.
 
+**Backend**
+- [ ] **Push tokens** (2026-10-24): tabla `push_tokens` en core (migración `e7c4a9b2d6f8` aditiva) + endpoints
+  `POST|DELETE|GET /push-tokens` y emisor `notify_user_push`. **Tras el deploy hay que correr
+  `scripts/vm.sh migrate core`** (`alembic upgrade head` de core) antes de usar los endpoints.
+  Falta el envío real por FCM: hay que conectar `notify_user_push` con Firebase (credenciales de FCM pendientes).
+
 **Varios**
 - [ ] Mimo: `mimo mcp auth supabase` y `mimo mcp auth expo` (OAuth, una vez).
 - [ ] `npm audit` en `frontend/`: 6 vulnerabilidades (1 crítica) de dependencias viejas.
@@ -101,6 +107,22 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **Push tokens en core** (en `main`, pendiente de deploy + migración):
+  - Migración `e7c4a9b2d6f8` (`alembic/versions/e7c4a9b2d6f8_add_push_tokens.py`): tabla `push_tokens`
+    aditiva e idempotente (`id`, `user_id` indexado sin FK, `token` único, `platform` android|ios|web,
+    `is_active`, `created_at`/`updated_at` estilo `BaseModel`). **Hay que correr
+    `scripts/vm.sh migrate core` tras el deploy.**
+  - Modelo/schema/CRUD (`app/models/push_token.py`, `app/schemas/push_token.py`,
+    `app/crud/crud_push_token.py`) + endpoints con `deps.get_current_user_id`:
+    `POST /push-tokens` (upsert por token: reasigna si era de otro usuario, refresca plataforma y
+    reactiva), `DELETE /push-tokens/{token}` (marca `is_active=false` al cerrar sesión),
+    `GET /push-tokens/me` (tokens activos del usuario).
+  - Emisor `notify_user_push(db, user_id, title, message, link)` en `app/core/push.py`: hoy inserta en
+    `notifications` (como el resto de servicios) y deja TODO(FCM) para el push real — sin inventar
+    credenciales de Firebase.
+  - Pruebas: `scripts/push_tokens_test.py` (TestClient + SQLite en memoria, sobrescribiendo `get_db` y
+    `deps.get_current_user_id`) — 27 casos en verde (registrar, upsert, reasignar, desactivar, listar,
+    validaciones, emisor). `py_compile` limpio; el `api_router` importa bien (55 rutas, 3 nuevas).
 - **2026-10-24 · Mimo** — **Despliegue U3–U9 + landing + web espejo:**
   - **OTA** canal `production`, update group `1419b06c-e96c-4cb8-9e5a-36f2437b5516` (commit `7203b0c`): Auth con
     validación inline, Inicio/Explorar/Herramientas, Perfil, Mascotas, Carnet y Notificaciones/Búsqueda/Ayuda.
