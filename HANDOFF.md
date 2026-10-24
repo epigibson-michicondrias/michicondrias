@@ -62,6 +62,8 @@ y sigue donde se quedó el otro.
     `DATABASE_URL` (sin default de prod); docs y el propio informe redactados. **FALTA LA ROTACIÓN** (solo el usuario
     puede hacerla en las consolas de Supabase/Neon): pasos en [`docs/ROTACION_CREDENCIALES.md`](docs/ROTACION_CREDENCIALES.md).
   - [ ] **Arreglos pendientes de esa auditoría** (prioridad):
+    - [x] **P1 X2.1–X2.6 / X3.1–X3.2** (2026-10-24): admin ya pasa las 6 guards locales y hay endpoints de
+      verificación/suspensión en paseadores y cuidadores. **Desplegado.**
     - **P1 X8.2**: `SECRET_KEY` con default débil en todos los `config.py` → default vacío + rotar.
     - **P1 X4.1/X5.1**: `POST /payments/create-subscription-session/{pet_id}` sin check de dueño (activa
       Michi-Tracker Pro en mascotas ajenas vía webhook).
@@ -131,6 +133,16 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **X2/X3 del backend desplegado** (`a77c771` → `deploy-oracle.yml` verde, 17/17 OK):
+  - **X2**: los 6 guards que excluían a `admin` ya lo aceptan (`require_aseguradora`, `require_consumidor_or_aseguradora`,
+    `require_entrenador`, `require_veterinario`, `require_laboratorio`, `require_patrocinador`, `RoleChecker` de
+    funeraria). `update`/`delete` de producto y los checks de dueño de directorio (clínicas, veterinarios, servicios,
+    agenda, citas) también dejan pasar al admin. **El superadmin ya puede moderar contenido ajeno.**
+  - **X3**: endpoints admin de **verificar / desverificar / suspender / reactivar** en paseadores y cuidadores
+    (`require_admin` existía sin usar). `is_verified` ya tiene quien lo active.
+  - Sin migraciones. Faltan los P1 restantes (X4–X6: suscripciones sin dueño, KYC en listados, datos de contacto).
+- **2026-10-24 · Mimo** — **OTA** `bfa39f64-a81c-4fff-885b-eb591fd39444` (runtime `1.1.0`): acciones reales en
+  admin productos, `EmptyState` en roles/servicios/veterinarios y **13 herramientas admin** en el menú.
 - **2026-10-24 · Mimo** — **Auditoría admin + cobertura de roles:**
   - `app/admin/productos`: acciones reales (mostrar/ocultar con `PATCH .../visibility`, aprobar/rechazar con
     confirmación), filtros por estado, badges de estado y `EmptyState`. Antes los dos botones eran `showAlert`
