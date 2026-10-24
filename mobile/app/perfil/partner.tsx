@@ -46,10 +46,8 @@ export default function PartnerOnboardingScreen() {
     ];
 
     function handleUpgrade() {
-        if (!selectedRole) {
-            showAlert({ type: 'warning', title: 'Selecciona un rol', message: 'Por favor selecciona el tipo de cuenta profesional que deseas.' });
-            return;
-        }
+        // El botón viene disabled sin rol seleccionado; este return solo satisface al type-checker.
+        if (!selectedRole) return;
         const roleTitle = roles.find(r => r.id === selectedRole)?.title;
         upgrade(selectedRole, {
             onSuccess: (result) => {

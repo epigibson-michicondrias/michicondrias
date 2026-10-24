@@ -284,7 +284,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `AppointmentList` pasa al componente `EmptyState` con «Agendar». Verificado con mocks de API a 375×812:
       `output/u4-home/`. Nota: los datos de Explorar/Herramientas son estáticos, así que Skeleton solo aplica en
       Inicio (ya lo tiene `PetCarousel`/`AppointmentList` vía `HomeSections`.)
-- [ ] U5 Perfil + `perfil/editar` + verificacion, 2FA, partner, eliminar-cuenta.
+- [x] U5 Perfil + `perfil/editar` + verificacion, 2FA, partner, eliminar-cuenta. (2026-10-23, Mimo: `editar` ya usaba
+      `FormField`+Skeleton; se quitan los 2 hex `#fff` de `seguridad-2fa`/`verificacion` (→ `theme.onPrimary`),
+      `eliminar-cuenta` pasa a `AuthField` con validación inline y se borra un `showAlert` muerto en `partner` (el
+      botón ya viene `disabled`). **0 hex** en todo `app/perfil/`. Verificado a 375 px: `output/u5-perfil/`.)
 - [ ] U6 Mascotas: ficha con pestañas, `PetForm`, diagnóstico IA (`FormSelect`, colores del tema).
 - [ ] U7 Carnet: partir `carnet/[id]` en `src/features/carnet/`, formularios con botón primario abajo, receta.
 - [x] U8 Tienda: tab, producto (extraer), carrito, compras, pedido. (2026-10-19, también vendedor)
@@ -947,4 +950,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `AppointmentList` vacío pasa a `EmptyState` («Agendar»); se borran `Button` sin uso y el estilo `emptyCard`.
   Verificado con mocks de API (token + `cached_user` en localStorage) a 375×812: `output/u4-home/`. Explorar ya
   cumplía (0 hex, tokens, chips, cuadrícula).
+- **2026-10-23** — **U5 Perfil**: `app/perfil/` queda con **0 hex** (`#fff` de botones → `theme.onPrimary`);
+  `eliminar-cuenta` con `AuthField` y validación inline; sin `TextInput` a pelo en formularios; muerto un `showAlert`
+  redundante en `partner`. Verificado a 375 px con mocks: `output/u5-perfil/`.
 

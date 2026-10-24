@@ -101,6 +101,8 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — **U5 Perfil** cerrada (`output/u5-perfil/`): `app/perfil/` con 0 hex, `eliminar-cuenta` a
+  `AuthField` con validación inline. Sigue **U6 Mascotas**.
 - **2026-10-23 · Mimo** — **U4 Inicio/Explorar/Herramientas** cerrada (`output/u4-home/`): `EmptyState` con acción en
   Herramientas y el vacío de citas pasa al componente `EmptyState`. Las 3 pantallas cumplían tokens/refresh; Skeleton
   solo aplica en Inicio (los otros dos son catálogo estático). Sigue **U5 Perfil**.

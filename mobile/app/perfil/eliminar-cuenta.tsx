@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Trash2, AlertTriangle } from 'lucide-react-native';
+import { Trash2, AlertTriangle, Lock, ShieldCheck } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { getMyProfile, deleteMyAccount } from '@/src/services/profile';
@@ -11,6 +11,8 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import Button from '@/src/components/Button';
+import AuthField from '@/src/components/AuthField';
+import { validateRequired } from '@/src/utils/validators';
 import { font, spacing, layout } from '@/constants/design';
 
 /** Eliminación de cuenta (requisito de Apple/Google): confirma con la contraseña actual y, si aplica, el código 2FA. */
@@ -22,9 +24,10 @@ export default function EliminarCuentaScreen() {
 
     const [password, setPassword] = useState('');
     const [code, setCode] = useState('');
+    const [passwordError, setPasswordError] = useState<string | null>(null);
+    const [codeError, setCodeError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const needsCode = !!profile?.is_two_factor_enabled;
-    const canSubmit = password.length > 0 && (!needsCode || code.trim().length >= 6);
 
     const performDelete = async () => {
         setBusy(true);
@@ -41,6 +44,16 @@ export default function EliminarCuentaScreen() {
     };
 
     const confirm = () => {
+        const e1 = validateRequired(password, 'La contraseña', 'f');
+        setPasswordError(e1.valid ? null : e1.message!);
+        let codeOk = true;
+        if (needsCode) {
+            const trimmed = code.trim();
+            codeOk = trimmed.length === 6;
+            setCodeError(codeOk ? null : 'El código tiene 6 dígitos.');
+        }
+        if (!e1.valid || !codeOk) return;
+
         showAlert({
             type: 'warning',
             title: 'Eliminar cuenta definitivamente',
@@ -51,8 +64,6 @@ export default function EliminarCuentaScreen() {
             onButtonPress: performDelete,
         });
     };
-
-    const inputStyle = [styles.input, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }];
 
     return (
         <ScreenContainer>
@@ -72,32 +83,31 @@ export default function EliminarCuentaScreen() {
                 </View>
 
                 <View style={styles.form}>
-                    <Text style={[styles.label, { color: theme.textMuted }]}>Contraseña actual</Text>
-                    <TextInput
-                        style={inputStyle}
+                    <AuthField
+                        label="Contraseña actual"
+                        icon={Lock}
                         value={password}
-                        onChangeText={setPassword}
+                        onChangeText={(t) => { setPassword(t); if (passwordError) setPasswordError(null); }}
+                        error={passwordError}
                         secureTextEntry
                         autoCapitalize="none"
                         autoCorrect={false}
                         placeholder="Tu contraseña"
-                        placeholderTextColor={theme.textMuted}
                         textContentType="password"
                     />
 
                     {needsCode && (
-                        <>
-                            <Text style={[styles.label, { color: theme.textMuted }]}>Código de tu app de autenticación (2FA)</Text>
-                            <TextInput
-                                style={inputStyle}
-                                value={code}
-                                onChangeText={setCode}
-                                keyboardType="number-pad"
-                                maxLength={6}
-                                placeholder="123456"
-                                placeholderTextColor={theme.textMuted}
-                            />
-                        </>
+                        <AuthField
+                            label="Código de tu app de autenticación (2FA)"
+                            icon={ShieldCheck}
+                            value={code}
+                            onChangeText={(t) => { setCode(t.replace(/[^0-9]/g, '').slice(0, 6)); if (codeError) setCodeError(null); }}
+                            error={codeError}
+                            keyboardType="number-pad"
+                            maxLength={6}
+                            placeholder="123456"
+                            textContentType="oneTimeCode"
+                        />
                     )}
 
                     <Button
@@ -106,7 +116,6 @@ export default function EliminarCuentaScreen() {
                         icon={<Trash2 size={18} color={theme.onPrimary} />}
                         onPress={confirm}
                         loading={busy}
-                        disabled={!canSubmit}
                         style={{ marginTop: spacing.md }}
                     />
                     <Button label="Cancelar" variant="ghost" onPress={() => router.back()} disabled={busy} />
@@ -121,6 +130,4 @@ const styles = StyleSheet.create({
     warnTitle: { fontSize: font.lg, fontWeight: '800' },
     warnText: { fontSize: font.base, lineHeight: 20 },
     form: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.huge },
-    label: { fontSize: font.base, fontWeight: '600', marginTop: spacing.sm },
-    input: { borderWidth: 1, borderRadius: 8, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.xl },
 });

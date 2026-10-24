@@ -67,7 +67,7 @@ export default function VerificationScreen() {
                             activeOpacity={0.85}
                         >
                             <View style={styles.ctaRow}>
-                                <Text style={styles.submitBtnText}>Activar cuenta profesional</Text>
+                                <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>Activar cuenta profesional</Text>
                                 <ArrowRight size={20} color={theme.onPrimary} />
                             </View>
                         </TouchableOpacity>
@@ -126,7 +126,7 @@ export default function VerificationScreen() {
                             >
                                 {isSubmitting
                                     ? <ActivityIndicator color={theme.onPrimary} />
-                                    : <Text style={styles.submitBtnText}>Enviar para revisión</Text>}
+                                    : <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>Enviar para revisión</Text>}
                             </TouchableOpacity>
                         </>
                     )}
@@ -242,7 +242,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.huge,
     },
     submitBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

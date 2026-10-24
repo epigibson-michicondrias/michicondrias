@@ -71,7 +71,7 @@ export default function Seguridad2FAScreen() {
                             {isSettingUp ? (
                                 <ActivityIndicator color={theme.onPrimary} size="small" />
                             ) : (
-                                <Text style={styles.primaryButtonText}>Iniciar Configuración</Text>
+                                <Text style={[styles.primaryButtonText, { color: theme.onPrimary }]}>Iniciar Configuración</Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -188,7 +188,7 @@ export default function Seguridad2FAScreen() {
                                 {isEnabling ? (
                                     <ActivityIndicator color={theme.onPrimary} size="small" />
                                 ) : (
-                                    <Text style={styles.primaryButtonText}>Activar 2FA</Text>
+                                    <Text style={[styles.primaryButtonText, { color: theme.onPrimary }]}>Activar 2FA</Text>
                                 )}
                             </TouchableOpacity>
                         )}
@@ -309,7 +309,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     primaryButtonText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '700',
     },
