@@ -70,7 +70,8 @@ function CatalogContent() {
         rightElement={
           <div className={s.headerActions}>
             <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda/compras")} aria-label="Mis compras">
-              <ShoppingBag size={20} />
+              {/* Package (mis pedidos) vs ShoppingBag (bolsa): antes los dos usaban ShoppingBag y eran indistinguibles */}
+              <Package size={20} />
             </button>
             <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda/carrito")} aria-label="Abrir bolsa">
               <ShoppingBag size={20} />
