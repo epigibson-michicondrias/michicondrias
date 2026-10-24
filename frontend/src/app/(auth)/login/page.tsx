@@ -62,7 +62,7 @@ export default function LoginPage() {
     <>
       <div className={s.logo}>
         <div className={s.logoRing}>
-          <Image src="/logo.jpg" alt="Michicondrias" width={72} height={72} className={s.logoImage} />
+          <Image src="/monograma.png" alt="Michicondrias" width={72} height={72} className={s.logoImage} />
         </div>
         <h1 className={s.appName}>Michicondrias</h1>
         <p className={s.tagline}>Cuidado integral para tus mascotas</p>
@@ -74,7 +74,7 @@ export default function LoginPage() {
           <p className={s.cardSubtitle}>Inicia sesión en tu cuenta</p>
 
           <div className={s.field}>
-            <label className={s.fieldLabel} htmlFor="login-email">Email</label>
+            <label className={s.fieldLabel} htmlFor="login-email">Correo electrónico</label>
             <div className={s.inputRow}>
               <Mail size={18} aria-hidden />
               <input

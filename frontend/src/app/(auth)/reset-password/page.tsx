@@ -81,7 +81,7 @@ function ResetPasswordForm() {
           <form className={s.card} onSubmit={handleReset}>
             {!withToken && (
               <div className={s.field}>
-                <label className={s.fieldLabel} htmlFor="reset-email">Email</label>
+                <label className={s.fieldLabel} htmlFor="reset-email">Correo electrónico</label>
                 <div className={s.inputRow}>
                   <Mail size={18} aria-hidden />
                   <input

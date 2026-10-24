@@ -54,7 +54,7 @@ export default function RegisterPage() {
     <>
       <div className={s.logo}>
         <div className={s.logoRing}>
-          <Image src="/logo.jpg" alt="Michicondrias" width={72} height={72} className={s.logoImage} />
+          <Image src="/monograma.png" alt="Michicondrias" width={72} height={72} className={s.logoImage} />
         </div>
         <h1 className={s.appName}>Michicondrias</h1>
         <p className={s.tagline}>Crea tu cuenta y empieza a cuidarlos</p>
@@ -82,7 +82,7 @@ export default function RegisterPage() {
         </div>
 
         <div className={s.field}>
-          <label className={s.fieldLabel} htmlFor="reg-email">Email</label>
+          <label className={s.fieldLabel} htmlFor="reg-email">Correo electrónico</label>
           <div className={s.inputRow}>
             <Mail size={18} aria-hidden />
             <input

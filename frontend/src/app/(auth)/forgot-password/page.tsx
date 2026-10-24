@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
             <p className={s.cardSubtitle}>Ahí recibirás el código de recuperación</p>
 
             <div className={s.field}>
-              <label className={s.fieldLabel} htmlFor="forgot-email">Email</label>
+              <label className={s.fieldLabel} htmlFor="forgot-email">Correo electrónico</label>
               <div className={s.inputRow}>
                 <Mail size={18} aria-hidden />
                 <input
