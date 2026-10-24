@@ -104,6 +104,29 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-24 — Cableado de endpoints nuevos del backend (Claude).**
+  - **Suspender/reactivar clínica** (`/admin/clinicas/[id]`): `is_suspended` en `types/directorio.ts` y
+    `services/directorio.ts`; `suspendClinic`/`unsuspendClinic` en `services/moderacion.ts`;
+    `useAdminClinicDetail` con mutación + `showAlert` de confirmación (invalida `admin-clinic` y `admin-clinics`);
+    badge «Suspendida» y botón «Suspender»/«Reactivar clínica» en la ficha.
+  - **Productos ocultos** (`/admin/productos`): `getAdminProducts`/`setProductVisibility` + `AdminProductFilter`
+    en `services/ecommerce.ts`; `useAdminProducts` pasa a un solo `GET /products/admin/all` (antes armaba
+    público + pendientes y los ocultos no aparecían); chip **«Ocultos»** y acción mostrar/ocultar por fila
+    (`Eye`/`EyeOff`, con confirmación al ocultar).
+  - **`buyer_name` en pedidos**: verificado en `types/ecommerce.ts` y visible en la tabla de `/admin/pedidos`;
+    placeholder del buscador actualizado (folio, comprador o dirección).
+  - **Aviso de mantenimiento**: `systemService.getPublicSettings()` (`GET /system/public`, sin sesión) + hook
+    `usePublicSettings`/`useMaintenanceMode`; `MaintenanceBanner` no bloqueante en el root layout cuando
+    `maintenance_mode` es true.
+  - **Sincronización con conteos**: `syncDatabase` tipado como `SyncResult` (`{ message, last_sync, counts }`);
+    `useAdminConfig` guarda `lastSyncResult` y `/admin/config` muestra los conteos de tablas (Usuarios, Mascotas,
+    Clínicas, Productos, Pedidos, Notificaciones) tras sincronizar.
+  - **Verificado:** `tsc` limpio, `eslint --quiet` 0 errores nuevos (20 previos intactos), `next build` verde
+    (128 páginas). Revisión visual con mocks de API a 375×812 y 1280×800 en claro y oscuro: detalle de clínica
+    (badge Suspendida + Reactivar), productos (chip Ocultos + ojos), pedidos (`buyer_name`) y config. El banner de
+    mantenimiento se ve en todas. **No se probaron mutaciones** (la API es producción: suspend/unsuspend, visibility
+    y sync escriben). Capturas en `output/ui-*.png` (no commiteadas).
+
 - **2026-10-23 — W5 homologación de diseño con la landing (Claude).**
   - **Inventario real:** de los CSS modules legacy, **11 estaban muertos** (las pantallas ya usaban los de
     `features/` o `pages.module.css`): `home`, `adopciones/*` (4), `carnet/*` (2), `perdidas/perdidas`,

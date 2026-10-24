@@ -66,6 +66,10 @@ y sigue donde se quedó el otro.
 - [x] W4 (2026-10-23): módulos portados (P1–P3) + W4-A consola de admin.
 - [x] W5 homologación de diseño con la landing (2026-10-23): CSS legacy migrado a `tokens.css`+`theme.css`, 11 CSS
   muertos y 5 componentes muertos borrados, `ErrorBoundary`/`Toaster`/`OfflineBanner` al criterio Midnight & Gold.
+- [x] Cableado de endpoints nuevos del backend (2026-10-24): suspender/reactivar clínica, productos ocultos
+  (chip Ocultos + mostrar/ocultar), `buyer_name` en pedidos, banner de mantenimiento (`/system/public`) y conteos
+  de sincronización en `/admin/config`. **Pendiente:** probar las mutaciones (suspend/unsuspend, visibility,
+  sync) contra pruebas — con la API de producción solo se revisó lectura.
 - [ ] W5 cierre: hover/foco/atajos de escritorio, tablas admin, SEO de la landing, **merge a `main`** · W7 permisos editables.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 - [ ] Llevar `scripts/sync-mimo.sh` al worktree (llega al fusionar `main` en `web/espejo`).
@@ -85,6 +89,15 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-24 · Claude** — Cableado de endpoints nuevos del backend en `web/espejo` (sin push):
+  suspender/reactivar clínica (`is_suspended` + `POST /clinics/admin/{id}/suspend|unsuspend` con confirmación),
+  productos ocultos (`GET /products/admin/all` de un solo request, chip «Ocultos», mostrar/ocultar por fila),
+  `buyer_name` verificado en la tabla de pedidos, aviso de mantenimiento (`GET /system/public` + `MaintenanceBanner`)
+  y conteos de `POST /admin/system/database/sync` en `/admin/config`. `tsc` + ESLint + `build` (128 páginas) en
+  verde; revisión visual con mocks a 375/1280 claro y oscuro. **No se probaron mutaciones** (API de producción).
+  Detalle en `PROGRESO_WEB.md`. **Siguiente:** probar suspend/unsuspend y visibility contra un entorno de pruebas
+  (o con el usuario) y seguir con W5 cierre.
 
 - **2026-10-23 · Claude** — W5 homologación de diseño web con la landing en `web/espejo` (sin push): CSS legacy →
   `tokens.css`+`theme.css` (`perfil`, `dashboard`, `modules`, `features/adopciones`), borrados 11 CSS muertos y los
