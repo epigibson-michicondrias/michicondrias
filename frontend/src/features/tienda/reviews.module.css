@@ -1,0 +1,130 @@
+/* Formulario y listado de reseñas de producto (espejo de ReviewsSection en la app). */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-h3);
+  font-weight: 800;
+}
+.avgBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.avgText {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  font-weight: 600;
+}
+
+/* Estrellas */
+.starsRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.starBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.starBtn:hover,
+.starBtn:focus-visible {
+  color: var(--color-accent);
+  background: var(--color-overlay-hover);
+}
+.starBtnFilled {
+  color: var(--color-accent);
+}
+.starStatic {
+  display: inline-flex;
+  color: var(--color-text-muted);
+}
+.starStaticFilled {
+  color: var(--color-accent);
+}
+
+/* Formulario */
+.formWrap {
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.formPrompt {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-lg);
+  font-weight: 700;
+}
+.formHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+}
+
+/* Listado */
+.empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.review {
+  padding: var(--space-md);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.reviewHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+.reviewAuthor {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-sm);
+  font-weight: 700;
+}
+.reviewComment {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.reviewDate {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+}

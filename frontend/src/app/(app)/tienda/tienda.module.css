@@ -325,6 +325,25 @@
   justify-content: space-between;
   margin-bottom: var(--space-md);
 }
+/* Acciones de la cabecera (favorito, bolsa, mis compras) */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+/* Icono de estado + texto del pedido */
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+/* Pagar / cancelar en el detalle del pedido */
+.payActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
 .heroImgWrap {
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -336,6 +355,9 @@
   height: 260px;
   object-fit: cover;
   display: block;
+}
+.heroImgFallback {
+  height: 240px;
 }
 .productTitle {
   margin: 0 0 var(--space-sm);

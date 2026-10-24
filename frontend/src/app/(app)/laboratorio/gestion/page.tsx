@@ -186,6 +186,18 @@ function GestionContent() {
     });
   };
 
+  const confirmCancelOrder = (id: string) => {
+    showAlert({
+      type: "warning",
+      title: "¿Cancelar la orden?",
+      message: "El veterinario solicitante será notificado. Esta acción no se puede deshacer.",
+      buttonText: "Sí, cancelar",
+      showCancel: true,
+      cancelText: "Volver",
+      onButtonPress: () => updateOrderStatus({ orderId: id, status: "cancelled" }),
+    });
+  };
+
   const data =
     tab === "ordenes" ? orders : tab === "citas" ? appointments : tab === "anomalias" ? anomalies : myTests;
   const loading =
@@ -425,7 +437,7 @@ function GestionContent() {
                             variant="danger"
                             fullWidth={false}
                             disabled={isUpdatingStatus}
-                            onPress={() => updateOrderStatus({ orderId: id, status: "cancelled" })}
+                            onPress={() => confirmCancelOrder(id)}
                           />
                         </div>
                       ) : null}
@@ -563,10 +575,11 @@ function GestionContent() {
 }
 
 export default function GestionLabPage() {
+  // Refleja ROUTE_ACCESS `/laboratorio/gestion` y `require_laboratorio` del backend (solo laboratorio; admin pasa siempre).
   return (
     <RoleGuard
-      roles={["laboratorio", "veterinario", "clinica", "hospital"]}
-      message="Esta sección es para laboratorios y personal veterinario."
+      roles={["laboratorio"]}
+      message="Esta sección es para cuentas de laboratorio."
     >
       <GestionContent />
     </RoleGuard>

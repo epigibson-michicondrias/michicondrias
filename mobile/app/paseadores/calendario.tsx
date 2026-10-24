@@ -2,15 +2,25 @@ import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { useWalkerCalendar, MONTHS_ES, DAYS_ES, STATUS_COLORS } from '@/src/hooks/paseadores/useWalkerCalendar';
+import { useWalkerCalendar, MONTHS_ES, DAYS_ES } from '@/src/hooks/paseadores/useWalkerCalendar';
+import { normalizeStatus, STATUS_LABELS } from '@/src/hooks/servicios-pro/requestStatus';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import RoleGuard from '@/src/components/RoleGuard';
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function PaseadoresCalendarioScreen() {
+  return (
+    <RoleGuard roles={['paseador']} message="El calendario de paseos es solo para cuentas de paseador.">
+      <PaseadoresCalendario />
+    </RoleGuard>
+  );
+}
+
+function PaseadoresCalendario() {
   const { theme } = useTheme();
   const {
     today,
@@ -29,6 +39,7 @@ export default function PaseadoresCalendarioScreen() {
   if (isLoading) {
     return (
       <ScreenContainer>
+        <ScreenHeader title="Calendario" subtitle="Tus paseos del mes" />
         <SkeletonList count={4} />
       </ScreenContainer>
     );
@@ -36,18 +47,28 @@ export default function PaseadoresCalendarioScreen() {
 
   return (
     <ScreenContainer>
-      <ScreenHeader title="Calendario" />
+      <ScreenHeader title="Calendario" subtitle="Tus paseos del mes" />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: spacing.huge }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* Month Navigator */}
         <View style={[styles.monthNav, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <TouchableOpacity accessibilityRole="button" onPress={prevMonth} style={styles.navBtn}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Mes anterior"
+            onPress={prevMonth}
+            style={styles.navBtn}
+          >
             <ChevronLeft size={20} color={theme.primary} />
           </TouchableOpacity>
           <Text style={[styles.monthText, { color: theme.text }]}>
             {MONTHS_ES[currentMonth]} {currentYear}
           </Text>
-          <TouchableOpacity accessibilityRole="button" onPress={nextMonth} style={styles.navBtn}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Mes siguiente"
+            onPress={nextMonth}
+            style={styles.navBtn}
+          >
             <ChevronRight size={20} color={theme.primary} />
           </TouchableOpacity>
         </View>
@@ -71,7 +92,9 @@ export default function PaseadoresCalendarioScreen() {
             const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
 
             return (
-              <TouchableOpacity accessibilityRole="button"
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={`${day} de ${MONTHS_ES[currentMonth]}${dayRequests.length ? `, ${dayRequests.length} paseo(s)` : ''}`}
                 key={`day-${day}`}
                 style={[
                   styles.dayCell,
@@ -113,15 +136,16 @@ export default function PaseadoresCalendarioScreen() {
             </View>
           ) : (
             selectedRequests.map((req) => {
-              const st = STATUS_COLORS[req.status] || STATUS_COLORS.pending;
+              const label = STATUS_LABELS[normalizeStatus(req.status)];
               return (
-                <TouchableOpacity accessibilityRole="button"
+                <TouchableOpacity
+                  accessibilityRole="button"
                   key={req.id}
                   style={[styles.requestCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
                   onPress={() => showAlert({
                     type: 'info',
                     title: 'Detalle del Paseo',
-                    message: `Mascota: ${req.pet_name || "—"}\nHora: ${req.requested_time || 'N/A'}\nDuración: ${req.duration_minutes} min\nEstado: ${st.label}`,
+                    message: `Mascota: ${req.pet_name || '—'}\nHora: ${req.requested_time || 'Por acordar'}\nDuración: ${req.duration_minutes} min\nEstado: ${label}`,
                   })}
                 >
                   <View style={styles.reqTop}>
@@ -158,19 +182,19 @@ export default function PaseadoresCalendarioScreen() {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  scroll: { paddingBottom: spacing.huge },
   monthNav: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginHorizontal: layout.screenPadding,
     marginBottom: spacing.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderRadius: 16,
     borderWidth: 1,
   },
-  navBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
+  navBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   monthText: { fontSize: font.xl, fontWeight: '800' },
   dayHeaders: {
     flexDirection: 'row',
@@ -191,6 +215,8 @@ const styles = StyleSheet.create({
   dayCell: {
     width: '14.28%',
     aspectRatio: 1,
+    minWidth: 44,
+    minHeight: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -226,14 +252,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   reqId: { fontSize: font.base, fontWeight: '800' },
-  statusBadge: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: 10,
-  },
-  statusText: { fontSize: font.sm, fontWeight: '700' },
   reqDetails: { gap: spacing.sm },
   reqDetailRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  reqDetailText: { fontSize: font.base },
+  reqDetailText: { fontSize: font.base, flex: 1 },
   reqPrice: { fontSize: font.xl, fontWeight: '800', marginTop: spacing.md },
 });

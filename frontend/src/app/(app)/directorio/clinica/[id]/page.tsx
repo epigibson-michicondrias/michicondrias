@@ -4,8 +4,6 @@
  * Detalle de clínica: datos, contacto rápido, servicios (cada uno agenda directo) y reseñas.
  * Espejo de `mobile/app/directorio/clinica/[id].tsx`.
  */
-import Link from "next/link";
-import Image from "next/image";
 import {
   AlertTriangle,
   Calendar,
@@ -30,6 +28,7 @@ import ContactActions from "@/features/directorio/ContactActions";
 import ReviewsSection from "@/features/directorio/ReviewsSection";
 import { useClinicDetail } from "@/hooks/directorio/useClinicDetail";
 import { formatCurrency } from "@/utils/formatters";
+import { getS3Url } from "@/utils/helpers";
 import s from "./clinica.module.css";
 
 export default function ClinicDetailPage() {
@@ -81,7 +80,8 @@ export default function ClinicDetailPage() {
         <div className={s.hero}>
           <div className={s.logo}>
             {clinic.logo_url ? (
-              <Image src={clinic.logo_url} alt={`Logo de ${clinic.name}`} fill className={s.logoImg} />
+              // eslint-disable-next-line @next/next/no-img-element -- logo del storage
+              <img src={getS3Url(clinic.logo_url)} alt={`Logo de ${clinic.name}`} className={s.logoImg} />
             ) : (
               <Hospital size={36} color="var(--color-primary)" aria-hidden />
             )}

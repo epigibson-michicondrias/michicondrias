@@ -83,7 +83,7 @@ function Analytics() {
 
             <Card>
               <div className={s.cardHead}>
-                <div style={{ flex: 1 }}>
+                <div className={s.cardHeadMain}>
                   <div className={s.cardTitle}>Ventas por semana</div>
                   <div className={s.cardCaption}>
                     Últimos 7 días: {formatCurrency(thisWeek)}
@@ -107,7 +107,7 @@ function Analytics() {
             </div>
 
             <Card>
-              <div className={s.cardTitle} style={{ marginBottom: "var(--space-md)" }}>Pedidos por estado</div>
+              <div className={`${s.cardTitle} ${s.cardTitleSpaced}`}>Pedidos por estado</div>
               <div className={s.breakdown}>
                 {breakdown.map((b) => {
                   const pct = a.orders.length > 0 ? (b.count / a.orders.length) * 100 : 0;

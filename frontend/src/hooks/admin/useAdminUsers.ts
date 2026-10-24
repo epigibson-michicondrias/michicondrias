@@ -1,6 +1,7 @@
 /**
  * useAdminUsers — consola de usuarios: búsqueda, filtros, orden y paginación EN EL SERVIDOR (`GET /users/search`),
  * más alta, edición, activar/desactivar y borrado. La app filtra en el cliente sobre los primeros 100; la web no.
+ * Con `withList: false` (pantalla de detalle) no se pide la lista: solo mutaciones, formulario y roles.
  */
 import { useState } from 'react';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -8,6 +9,7 @@ import { adminUsersService, type AdminUser, type UserSearchParams } from '@/serv
 import { getRoleColorFor, getRoleLabelFor } from '@/constants/roles';
 import { showAlert } from '@/components/AppAlert';
 import { errorMessage } from '@/features/servicios-pro/requestStatus';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export const PAGE_SIZE = 25;
 
@@ -26,9 +28,11 @@ export type KycFilter = 'all' | 'PENDING' | 'VERIFIED' | 'REJECTED' | 'UNVERIFIE
 const EMPTY_FORM: UserFormData = { full_name: '', email: '', password: '', role_id: '' };
 const INVALIDATE = [['admin-users'], ['admin-user'], ['admin-roles'], ['admin-dashboard'], ['users-stats']];
 
-export function useAdminUsers() {
+export function useAdminUsers(options?: { withList?: boolean }) {
+    const withList = options?.withList !== false;
     const queryClient = useQueryClient();
     const [q, setQ] = useState('');
+    const debouncedQ = useDebounce(q.trim(), 350);
     const [role, setRole] = useState('all');
     const [status, setStatus] = useState<StatusFilter>('all');
     const [kyc, setKyc] = useState<KycFilter>('all');
@@ -43,17 +47,18 @@ export function useAdminUsers() {
     const params: UserSearchParams = {
         skip: page * PAGE_SIZE,
         limit: PAGE_SIZE,
-        q: q.trim() || undefined,
+        q: debouncedQ || undefined,
         role: role === 'all' ? undefined : role,
         is_active: status === 'all' ? undefined : status === 'active',
         verification_status: kyc === 'all' ? undefined : kyc,
         order_by: orderBy,
     };
 
-    const { data, isLoading, isFetching } = useQuery({
+    const { data, isLoading, isFetching, isError, refetch } = useQuery({
         queryKey: ['admin-users', params],
         queryFn: () => adminUsersService.searchUsers(params),
         placeholderData: keepPreviousData,
+        enabled: withList,
     });
 
     const { data: roles = [] } = useQuery({ queryKey: ['admin-roles'], queryFn: () => adminUsersService.getRoles() });

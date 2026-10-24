@@ -10,11 +10,26 @@ import {
 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
+import { Skeleton } from "@/components/Skeleton";
 import { ModuleLink, StatTile } from "@/features/admin/AdminKit";
 import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
 import { useAdminModeration } from "@/hooks/admin/useAdminModeration";
 import { useAdminVerifications } from "@/hooks/admin/useAdminVerifications";
 import s from "@/features/admin/admin.module.css";
+
+function TilesSkeleton() {
+  return (
+    <div className={s.tiles} role="status" aria-label="Cargando">
+      {Array.from({ length: 4 }, (_, i) => (
+        <div key={i} className={s.tile}>
+          <Skeleton width={20} height={20} borderRadius={6} />
+          <Skeleton width="40%" height={22} />
+          <Skeleton width="70%" height={12} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const d = useAdminDashboard();
@@ -27,12 +42,16 @@ export default function AdminPage() {
       <ScreenHeader title="Panel admin" subtitle="Administración de la plataforma" />
 
       <div className={s.content}>
-        <div className={s.tiles}>
-          <StatTile icon={Users} value={d.totalUsers} label="Usuarios" color="var(--color-info)" href="/admin/usuarios" />
-          <StatTile icon={Stethoscope} value={d.vetCount} label="Veterinarios" color="var(--color-success)" href="/admin/veterinarios" />
-          <StatTile icon={Building2} value={d.clinicCount} label="Clínicas" color="var(--color-primary)" href="/admin/clinicas" />
-          <StatTile icon={PawPrint} value={d.sitterCount} label="Paseadores y cuidadores" color="var(--color-secondary)" href="/admin/usuarios" />
-        </div>
+        {d.isLoading ? (
+          <TilesSkeleton />
+        ) : (
+          <div className={s.tiles}>
+            <StatTile icon={Users} value={d.totalUsers} label="Usuarios" color="var(--color-info)" href="/admin/usuarios" />
+            <StatTile icon={Stethoscope} value={d.vetCount} label="Veterinarios" color="var(--color-success)" href="/admin/veterinarios" />
+            <StatTile icon={Building2} value={d.clinicCount} label="Clínicas" color="var(--color-primary)" href="/admin/clinicas" />
+            <StatTile icon={PawPrint} value={d.sitterCount} label="Paseadores y cuidadores" color="var(--color-secondary)" href="/admin/usuarios" />
+          </div>
+        )}
 
         <section className={s.section}>
           <h2 className={s.sectionTitle}>Requiere tu atención</h2>

@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Save } from 'lucide-react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { Save, ShieldCheck, ShieldAlert, Eye, EyeOff } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useServiceProfile } from '@/src/hooks/servicios-pro/useServiceProfile';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -11,9 +11,10 @@ import FormField from '@/src/components/FormField';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import Button from '@/src/components/Button';
+import Badge from '@/src/components/Badge';
 import RoleGuard from '@/src/components/RoleGuard';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { layout, spacing } from '@/constants/design';
+import { layout, spacing, type } from '@/constants/design';
 
 /** Texto controlado aunque el perfil aún no tenga el dato (evita «changing an uncontrolled input»). */
 const text = (v: unknown) => (v == null ? '' : String(v));
@@ -28,8 +29,9 @@ export default function ProfessionalProfileScreen() {
 
 function ProfessionalProfile() {
     const { theme } = useTheme();
-    const { isWalker, formData, updateField, saving, isLoading, handleSave } = useServiceProfile();
+    const { isWalker, formData, updateField, saving, isLoading, handleSave, isVerified, isSuspended } = useServiceProfile();
     const money = (v: string) => v.replace(/[^\d.]/g, '');
+    const kind = isWalker ? 'paseador' : 'cuidador';
 
     if (isLoading) {
         return (
@@ -51,18 +53,33 @@ function ProfessionalProfile() {
                     </DetailFooter>
                 )}
             >
-                <FormSection title="Visibilidad">
-                    <FormSwitch
-                        variant="switch"
-                        label={formData.is_active ? 'Visible para nuevos clientes' : 'Perfil oculto'}
-                        description="Ocúltalo cuando no puedas recibir solicitudes (vacaciones, agenda llena)."
-                        value={!!formData.is_active}
-                        onChange={(v) => updateField('is_active', v)}
-                    />
+                <FormSection title="Estado">
+                    <View style={styles.badges}>
+                        {isVerified ? (
+                            <Badge label="Verificado" color={theme.success} icon={<ShieldCheck size={layout.icon.xs} color={theme.success} />} />
+                        ) : (
+                            <Badge label="Sin verificar" color={theme.textMuted} icon={<ShieldAlert size={layout.icon.xs} color={theme.textMuted} />} />
+                        )}
+                        <Badge
+                            label={isSuspended ? 'Suspendido' : 'Visible en el directorio'}
+                            color={isSuspended ? theme.error : theme.success}
+                            icon={isSuspended
+                                ? <EyeOff size={layout.icon.xs} color={theme.error} />
+                                : <Eye size={layout.icon.xs} color={theme.success} />}
+                        />
+                    </View>
+                    <Text style={[type.body, styles.statusNote, { color: theme.textMuted }]}>
+                        {isSuspended
+                            ? `Tu perfil está suspendido y no aparece en el directorio. Si crees que es un error, escríbenos desde Ayuda.`
+                            : isVerified
+                                ? `Tu perfil está visible y verificado por el equipo. Apareces en el directorio de ${kind === 'paseador' ? 'paseadores' : 'cuidadores'}.`
+                                : `Tu perfil está visible en el directorio. Cuando el equipo verifique tu cuenta aparecerá el sello «Verificado».`}
+                    </Text>
                 </FormSection>
 
                 <FormSection title="Sobre ti">
                     <FormField label="Nombre que verán los clientes" value={text(formData.display_name)} onChangeText={(v) => updateField('display_name', v)} placeholder="Ej. Juan, paseador en Coyoacán" />
+                    <FormField label="Zona de servicio" value={text(formData.location)} onChangeText={(v) => updateField('location', v)} placeholder="Ej. Condesa, Roma, Juárez" />
                     <FormField label="Experiencia" value={text(formData.bio)} onChangeText={(v) => updateField('bio', v)} placeholder="Años de experiencia, razas que conoces, certificaciones…" multiline />
                 </FormSection>
 
@@ -103,4 +120,6 @@ const styles = StyleSheet.create({
     flex: { flex: 1 },
     content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: spacing.xl },
     row: { flexDirection: 'row', gap: spacing.md },
+    badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    statusNote: { lineHeight: 20 },
 });

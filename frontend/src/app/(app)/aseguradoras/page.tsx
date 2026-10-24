@@ -5,7 +5,7 @@
  * Espejo de `mobile/app/aseguradoras/index.tsx`.
  */
 import { useRouter } from "next/navigation";
-import { Shield, Clock, DollarSign, Plus, CheckCircle, FolderHeart } from "lucide-react";
+import { Shield, Clock, DollarSign, Plus, CheckCircle, FolderHeart, ClipboardList, ShieldCheck } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Card from "@/components/Card";
@@ -48,9 +48,14 @@ export default function AseguradorasPage() {
                   onPress: () => router.push("/aseguradoras/nuevo"),
                 },
                 {
-                  icon: FolderHeart,
-                  label: "Gestión de reclamos",
+                  icon: ShieldCheck,
+                  label: "Gestión de planes",
                   onPress: () => router.push("/aseguradoras/gestion"),
+                },
+                {
+                  icon: ClipboardList,
+                  label: "Reclamos",
+                  onPress: () => router.push("/aseguradoras/reclamos"),
                 },
               ]
             : [

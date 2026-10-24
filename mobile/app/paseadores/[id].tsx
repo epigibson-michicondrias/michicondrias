@@ -1,12 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Calendar, Dog, Cat, UserX, PawPrint, Send } from 'lucide-react-native';
+import { Calendar, Dog, Cat, UserX, PawPrint, Send, ShieldCheck, Ban } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useWalkerDetail } from '@/src/hooks/paseadores/useWalkerDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import EmptyState from '@/src/components/EmptyState';
+import Badge from '@/src/components/Badge';
 import BottomSheet from '@/src/components/BottomSheet';
 import FilterChip from '@/src/components/FilterChip';
 import FormField from '@/src/components/FormField';
@@ -61,10 +62,11 @@ export default function WalkerDetailScreen() {
 
     // El promedio guardado en el perfil no siempre está al día: se calcula con las reseñas
     const average = w.reviews.length ? w.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / w.reviews.length : 0;
+    const isSuspended = walker.is_active === false;
 
     return (
         <ScreenContainer>
-            <ScreenHeader title={walker.display_name} subtitle={walker.is_verified ? 'Paseador verificado' : 'Paseador'} />
+            <ScreenHeader title={walker.display_name} subtitle={isSuspended ? 'Paseador suspendido' : walker.is_verified ? 'Paseador verificado' : 'Paseador'} />
 
             <ScrollView showsVerticalScrollIndicator={false} refreshControl={<AppRefreshControl />} contentContainerStyle={styles.content}>
                 <ProviderHero
@@ -72,7 +74,26 @@ export default function WalkerDetailScreen() {
                     name={walker.display_name}
                     rating={w.reviews.length ? average : undefined}
                     reviewCount={w.reviews.length}
-                />
+                >
+                    {walker.is_verified && !isSuspended ? (
+                        <Badge
+                            label="Verificado"
+                            color={theme.success}
+                            icon={<ShieldCheck size={layout.icon.xs} color={theme.success} />}
+                            accessibilityLabel="Profesional verificado por el equipo"
+                        />
+                    ) : null}
+                </ProviderHero>
+
+                {isSuspended ? (
+                    <View style={[styles.notice, { backgroundColor: theme.errorLight, borderColor: theme.error }]}>
+                        <Ban size={layout.icon.md} color={theme.error} />
+                        <Text style={[type.body, styles.flex, { color: theme.text }]}>
+                            Este perfil está suspendido y no acepta solicitudes por ahora.
+                        </Text>
+                    </View>
+                ) : null}
+
                 <ProviderStats items={[
                     { value: String(walker.total_walks), label: 'Paseos' },
                     { value: String(walker.experience_years ?? 0), label: walker.experience_years === 1 ? 'Año' : 'Años' },
@@ -121,7 +142,12 @@ export default function WalkerDetailScreen() {
             </ScrollView>
 
             {!w.isOwnProfile ? (
-                <ProviderFooter label="Solicitar paseo" onPress={w.handleBook} icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />} />
+                <ProviderFooter
+                    label={isSuspended ? 'No disponible' : 'Solicitar paseo'}
+                    onPress={w.handleBook}
+                    disabled={isSuspended}
+                    icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />}
+                />
             ) : null}
 
             <BottomSheet
@@ -198,6 +224,7 @@ const styles = StyleSheet.create({
     center: { alignSelf: 'center' },
     loading: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.md },
     content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl },
+    notice: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: 16, borderWidth: 1, marginBottom: spacing.md },
     prices: { gap: spacing.sm },
     group: { gap: spacing.sm },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

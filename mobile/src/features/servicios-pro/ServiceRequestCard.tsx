@@ -188,7 +188,7 @@ function ActionButton({
     const { theme } = useTheme();
     const bg = tone === 'primary' ? theme.primary : tone === 'secondary' ? theme.secondary : 'transparent';
     const border = tone === 'danger' ? theme.error : bg;
-    const fg = tone === 'danger' ? theme.error : '#fff';
+    const fg = tone === 'danger' ? theme.error : theme.onPrimary;
     return (
         <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: bg, borderColor: border }, disabled && { opacity: 0.5 }]}

@@ -36,11 +36,11 @@ export default function CuidadoresScreen() {
             <View style={styles.sitterHeader}>
                 <View style={[styles.avatarPlaceholder, { backgroundColor: theme.secondary + '20' }]}>
                     <Text style={[styles.avatarText, { color: theme.secondary }]}>
-                        {item.display_name.charAt(0).toUpperCase()}
+                        {(item.display_name || 'C').charAt(0).toUpperCase()}
                     </Text>
                 </View>
                 <View style={styles.sitterInfo}>
-                    <Text style={[styles.sitterName, { color: theme.text }]}>{item.display_name}</Text>
+                    <Text style={[styles.sitterName, { color: theme.text }]}>{item.display_name || 'Cuidador'}</Text>
                     <View style={styles.locationRow}>
                         <MapPin size={14} color={theme.textMuted} />
                         <Text style={[styles.locationText, { color: theme.textMuted }]}>

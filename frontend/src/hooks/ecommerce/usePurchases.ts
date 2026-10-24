@@ -25,5 +25,6 @@ export function usePurchases() {
         isRefetching,
         loadMore,
         isLoadingMore: isFetchingNextPage,
+        hasMore: !!hasNextPage,
     };
 }

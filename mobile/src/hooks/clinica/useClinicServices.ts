@@ -129,7 +129,9 @@ export function useClinicServices() {
         duration, setDuration,
         category, setCategory,
         // Data
+        loadingClinics,
         loadingServices,
+        clinic,
         services,
         // Actions
         handleEdit,

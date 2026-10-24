@@ -1,16 +1,16 @@
 /**
- * useDriverProfile — Hook for driver profile management screen
- * Loads existing profile, manages form state, handles create/update
+ * useDriverProfile — alta/edición del perfil de vehículo del conductor.
+ * El 404 del GET es el flujo de alta (aún no hay perfil), no un error de red.
  */
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
 import {
   getMyDriverProfile,
   createOrUpdateDriverProfile,
 } from '@/src/services/rides';
 import type { DriverProfile, DriverProfileCreate } from '@/src/services/rides';
 import { showAlert } from '@/src/components/AppAlert';
+import { ApiError } from '@/src/lib/api';
 
 export interface DriverProfileFormData {
   vehicle_model: string;
@@ -20,6 +20,8 @@ export interface DriverProfileFormData {
   has_carriers: boolean;
   is_available: boolean;
 }
+
+export type DriverProfileErrors = Partial<Record<'vehicle_model' | 'vehicle_plate' | 'max_capacity', string>>;
 
 const FORM_DEFAULTS: DriverProfileFormData = {
   vehicle_model: '',
@@ -31,18 +33,28 @@ const FORM_DEFAULTS: DriverProfileFormData = {
 };
 
 export function useDriverProfile() {
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [form, setForm] = useState<DriverProfileFormData>(FORM_DEFAULTS);
+  const [errors, setErrors] = useState<DriverProfileErrors>({});
 
-  // Load existing profile
+  // Load existing profile (404 = es el alta, no un error)
   const {
     data: profile,
     isLoading,
     isError,
-  } = useQuery<DriverProfile>({
+    refetch,
+    isRefetching,
+  } = useQuery<DriverProfile | null>({
     queryKey: ['my-driver-profile'],
-    queryFn: () => getMyDriverProfile(),
+    queryFn: async () => {
+      try {
+        return await getMyDriverProfile();
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 404) return null;
+        throw e;
+      }
+    },
+    retry: (count, e) => !(e instanceof ApiError && e.status === 404) && count < 1,
   });
 
   // Populate form when profile loads
@@ -66,37 +78,43 @@ export function useDriverProfile() {
       queryClient.invalidateQueries({ queryKey: ['my-driver-profile'] });
       showAlert({
         type: 'success',
-        title: '¡Perfil Guardado!',
+        title: '¡Perfil guardado!',
         message: 'Tu perfil de conductor ha sido actualizado exitosamente.',
       });
     },
-    onError: () => {
+    onError: (e: any) => {
       showAlert({
         type: 'error',
-        title: 'Error',
-        message: 'No se pudo guardar el perfil. Intenta de nuevo.',
+        title: 'No se pudo guardar',
+        message: e?.message || 'Intenta de nuevo.',
       });
     },
   });
 
   const updateForm = (updates: Partial<DriverProfileFormData>) => {
     setForm((prev) => ({ ...prev, ...updates }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      for (const k of Object.keys(updates) as (keyof DriverProfileErrors)[]) {
+        if (next[k]) next[k] = undefined;
+      }
+      return next;
+    });
   };
 
   const handleSave = () => {
-    if (!form.vehicle_model.trim() || !form.vehicle_plate.trim()) {
-      showAlert({
-        type: 'error',
-        title: 'Error',
-        message: 'El modelo y placa del vehículo son obligatorios.',
-      });
-      return;
-    }
+    const next: DriverProfileErrors = {};
+    if (!form.vehicle_model.trim()) next.vehicle_model = 'Escribe el modelo del vehículo.';
+    if (!form.vehicle_plate.trim()) next.vehicle_plate = 'Escribe la placa del vehículo.';
+    const capacity = parseInt(form.max_capacity, 10);
+    if (!Number.isInteger(capacity) || capacity < 1 || capacity > 20) next.max_capacity = 'Entre 1 y 20 mascotas.';
+    setErrors(next);
+    if (Object.keys(next).length > 0) return;
 
     saveMutation.mutate({
-      vehicle_model: form.vehicle_model,
-      vehicle_plate: form.vehicle_plate,
-      max_capacity: parseInt(form.max_capacity, 10) || 1,
+      vehicle_model: form.vehicle_model.trim(),
+      vehicle_plate: form.vehicle_plate.trim(),
+      max_capacity: capacity,
       has_air_conditioning: form.has_air_conditioning,
       has_carriers: form.has_carriers,
       is_available: form.is_available,
@@ -108,6 +126,7 @@ export function useDriverProfile() {
   return {
     // Form state
     form,
+    errors,
     updateForm,
 
     // Data
@@ -118,8 +137,7 @@ export function useDriverProfile() {
     // Actions
     handleSave,
     isSaving: saveMutation.isPending,
-
-    // Navigation
-    router,
+    refetch,
+    isRefetching,
   };
 }

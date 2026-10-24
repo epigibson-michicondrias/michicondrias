@@ -1,0 +1,13 @@
+/* Ajustes de la pantalla de configuración (solo tokens de tokens.css). */
+
+/* Reset de fieldset: envuelve cada interruptor para poder deshabilitarlo con `disabled`. */
+.switchGroup {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.switchGroup:disabled {
+  opacity: 0.55;
+}

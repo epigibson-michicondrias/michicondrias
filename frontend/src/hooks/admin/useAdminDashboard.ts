@@ -7,12 +7,12 @@ import { adminUsersService } from '@/services/adminUsers';
 import { getClinics } from '@/services/directorio';
 
 export function useAdminDashboard() {
-    const { data: stats } = useQuery({
+    const { data: stats, isLoading: statsLoading } = useQuery({
         queryKey: ['admin-stats'],
         queryFn: () => adminUsersService.getUsersStats(),
     });
 
-    const { data: clinics = [] } = useQuery({
+    const { data: clinics = [], isLoading: clinicsLoading } = useQuery({
         queryKey: ['admin-clinics'],
         queryFn: () => getClinics(),
     });
@@ -24,6 +24,7 @@ export function useAdminDashboard() {
     const clinicCount = clinics.length;
 
     return {
+        isLoading: statsLoading || clinicsLoading,
         totalUsers,
         vetCount,
         consumerCount,

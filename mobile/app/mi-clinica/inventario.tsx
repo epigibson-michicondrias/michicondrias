@@ -10,6 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import SearchBar from '@/src/components/SearchBar';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
+import ClinicRequired from '@/src/features/salud/ClinicRequired';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Package, AlertTriangle, PlusCircle, Box, Search, X } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
@@ -23,15 +24,18 @@ export default function InventarioScreen() {
         filteredInventory, toggleSearch, handleSaveItem,
         editModalVisible, setEditModalVisible, editingItem, setEditingItem,
         handleEditItem, handleUpdateItem, handleDeleteItem, isUpdating, isDeleting,
+        loadingClinics, clinic,
     } = useInventory();
 
-    if (isLoading) {
+    if (isLoading || loadingClinics) {
         return (
             <ScreenContainer>
                 <LoadingOverlay message="Cargando inventario..." />
             </ScreenContainer>
         );
     }
+
+    if (!clinic) return <ClinicRequired title="Inventario Médico" />;
 
     return (
         <ScreenContainer>

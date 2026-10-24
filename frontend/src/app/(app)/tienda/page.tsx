@@ -68,7 +68,7 @@ function CatalogContent() {
         subtitle="Todo para tu mejor amigo"
         showBack={false}
         rightElement={
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className={s.headerActions}>
             <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda/compras")} aria-label="Mis compras">
               <ShoppingBag size={20} />
             </button>

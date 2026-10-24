@@ -9,15 +9,6 @@ import type { WalkRequest } from '@/src/services/paseadores';
 export const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 export const DAYS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-export const STATUS_COLORS: Record<string, { color: string; bg: string; label: string }> = {
-    accepted: { color: '#10b981', bg: '#10b98120', label: 'Aceptada' },
-    in_progress: { color: '#0ea5e9', bg: '#0ea5e920', label: 'En curso' },
-    pending: { color: '#f59e0b', bg: '#f59e0b20', label: 'Pendiente' },
-    confirmed: { color: '#10b981', bg: '#10b98120', label: 'Confirmado' },
-    completed: { color: '#6366f1', bg: '#6366f120', label: 'Completado' },
-    cancelled: { color: '#ef4444', bg: '#ef444420', label: 'Cancelado' },
-};
-
 function getDaysInMonth(year: number, month: number) {
     return new Date(year, month + 1, 0).getDate();
 }

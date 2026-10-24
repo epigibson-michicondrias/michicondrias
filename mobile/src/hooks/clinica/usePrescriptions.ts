@@ -94,6 +94,18 @@ export function usePrescriptions() {
     });
 
     const handleUpdateStatus = (prescId: string, newStatus: string) => {
+        if (newStatus === 'cancelled') {
+            showAlert({
+                type: 'warning',
+                title: 'Cancelar receta',
+                message: '¿Estás seguro de que deseas cancelar esta receta? El paciente ya no podrá surtirla.',
+                showCancel: true,
+                cancelText: 'Mantener',
+                buttonText: 'Cancelar receta',
+                onButtonPress: () => statusMutation.mutate({ prescId, status: newStatus }),
+            });
+            return;
+        }
         statusMutation.mutate({ prescId, status: newStatus });
     };
 
@@ -110,6 +122,7 @@ export function usePrescriptions() {
         setNewPresc,
         // Data
         loadingClinics,
+        clinic,
         loadingPrescriptions,
         prescriptions,
         resolvedPets,

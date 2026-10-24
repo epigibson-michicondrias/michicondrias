@@ -105,7 +105,7 @@ export default function AyudaPage() {
       : []),
     {
       key: "email",
-      label: "Email",
+      label: "Correo",
       icon: Mail,
       color: "var(--color-info)",
       url: `mailto:${SUPPORT_EMAIL}?subject=Ayuda%20Michicondrias`,

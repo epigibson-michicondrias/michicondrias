@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
 import { showAlert } from '@/src/components/AppAlert';
 import { createPlan } from '../../src/services/insurance';
@@ -12,6 +13,7 @@ import { font, spacing } from '@/constants/design';
 export default function NuevoPlanScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const queryClient = useQueryClient();
 
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
@@ -47,6 +49,8 @@ export default function NuevoPlanScreen() {
                 max_age: parseInt(form.max_age) || 20,
                 allowed_species: allowedSpecies,
             });
+            queryClient.invalidateQueries({ queryKey: ['insurancePlans'] });
+            queryClient.invalidateQueries({ queryKey: ['insurancePlansMine'] });
             showAlert({
                 type: 'success',
                 title: '¡Plan creado!',

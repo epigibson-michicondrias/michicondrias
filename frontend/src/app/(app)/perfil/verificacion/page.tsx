@@ -56,7 +56,8 @@ export default function VerificacionPage() {
   const { user } = useAuth();
   const router = useRouter();
   const status = (user?.verification_status || "UNVERIFIED") as VerificationStatus;
-  const copy = STATE_COPY[status];
+  // Un estado inesperado del backend no debe dejar la pantalla en blanco: se cae a UNVERIFIED.
+  const copy = STATE_COPY[status] ?? STATE_COPY.UNVERIFIED;
   const Icon = copy.icon;
   const { documents, setDocumentFile, allDocumentsSelected, handleSubmit, isSubmitting, uploadProgress } = useKYC();
   const showForm = status === "UNVERIFIED" || status === "REJECTED";

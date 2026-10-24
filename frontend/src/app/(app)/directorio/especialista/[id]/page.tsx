@@ -4,7 +4,6 @@
  * Perfil de especialista: datos, contacto rápido, clínica donde atiende, servicios y reseñas.
  * Espejo de `mobile/app/directorio/especialista/[id].tsx`.
  */
-import Image from "next/image";
 import {
   Building2,
   Calendar,
@@ -29,6 +28,7 @@ import ReviewsSection from "@/features/directorio/ReviewsSection";
 import { useVetDetail } from "@/hooks/directorio/useVetDetail";
 import { useVetReviews } from "@/hooks/directorio/useVetReviews";
 import { formatCurrency } from "@/utils/formatters";
+import { getS3Url } from "@/utils/helpers";
 import s from "./especialista.module.css";
 
 export default function EspecialistaDetailPage() {
@@ -71,7 +71,7 @@ export default function EspecialistaDetailPage() {
     <ScreenContainer>
       <ScreenHeader
         title={v.fullName}
-        subtitle={specialist.specialty || "Médico veterinario"}
+        subtitle={v.specialtyLabel}
         actions={[{ icon: Share2, label: "Compartir perfil", onPress: v.share }]}
       />
 
@@ -79,13 +79,14 @@ export default function EspecialistaDetailPage() {
         <div className={s.hero}>
           <div className={s.avatar}>
             {specialist.photo_url ? (
-              <Image src={specialist.photo_url} alt={`Foto de ${v.fullName}`} fill className={s.avatarImg} />
+              // eslint-disable-next-line @next/next/no-img-element -- foto del storage
+              <img src={getS3Url(specialist.photo_url)} alt={`Foto de ${v.fullName}`} className={s.avatarImg} />
             ) : (
-              <span className={s.avatarLetter}>{specialist.first_name.charAt(0).toUpperCase()}</span>
+              <span className={s.avatarLetter}>{v.avatarLetter}</span>
             )}
           </div>
           <h2 className={s.name}>{v.fullName}</h2>
-          <p className={s.specialty}>{specialist.specialty || "Médico veterinario"}</p>
+          <p className={s.specialty}>{v.specialtyLabel}</p>
           <div className={s.meta}>
             <Star
               size={16}
@@ -150,24 +151,29 @@ export default function EspecialistaDetailPage() {
               <p className={s.body}>Aún no hay servicios para agendar en línea.</p>
             ) : (
               <div className={s.services}>
-                {services.map((service) => (
-                  <button
-                    key={service.id}
-                    type="button"
-                    className={s.service}
-                    onClick={() => v.book(service.id)}
-                    aria-label={`Agendar ${service.name}`}
-                  >
-                    <span className={s.serviceInfo}>
-                      <span className={s.serviceName}>{service.name}</span>
-                      <span className={s.serviceMeta}>{service.duration_minutes} min</span>
-                    </span>
-                    <span className={s.servicePrice}>
-                      {service.price ? formatCurrency(Number(service.price)) : "Consultar"}
-                    </span>
-                    <ChevronRight size={16} color="var(--color-text-muted)" aria-hidden />
-                  </button>
-                ))}
+                {services.map((service) => {
+                  const name = service.name?.trim() || "Servicio";
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      className={s.service}
+                      onClick={() => v.book(service.id)}
+                      aria-label={`Agendar ${name}`}
+                    >
+                      <span className={s.serviceInfo}>
+                        <span className={s.serviceName}>{name}</span>
+                        <span className={s.serviceMeta}>
+                          {service.duration_minutes ? `${service.duration_minutes} min` : "Duración por acordar"}
+                        </span>
+                      </span>
+                      <span className={s.servicePrice}>
+                        {service.price != null ? formatCurrency(Number(service.price)) : "Consultar"}
+                      </span>
+                      <ChevronRight size={16} color="var(--color-text-muted)" aria-hidden />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </section>

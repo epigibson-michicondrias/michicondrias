@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchParams } from 'next/navigation';
-import { Sparkles, Package, Star, HeartPulse, Tag, Shirt, Bath, Heart } from 'lucide-react';
+import { Sparkles, Package, Star, HeartPulse, Tag, Shirt, Bath } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { getProducts, getCategories, PRODUCTS_PAGE_SIZE, type ProductSort } from '@/services/ecommerce';
 import { useDebounce } from '@/hooks/useDebounce';

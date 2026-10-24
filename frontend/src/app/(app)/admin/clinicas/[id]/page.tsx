@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * Detalle de clínica (`/admin/clinicas/[id]`): ficha, edición, aprobación si está en revisión y
- * suspender/reactivar (`POST /clinics/admin/{id}/suspend|unsuspend`).
+ * Detalle de clínica (`/admin/clinicas/[id]`): ficha, edición, aprobación/rechazo si está en revisión y
+ * suspender/reactivar (`POST /clinics/admin/{id}/suspend|unsuspend`, `DELETE /clinics/admin/{id}/reject`).
  * Espejo de `mobile/app/admin/clinicas/[id].tsx`.
  */
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Building2, CheckCircle2, Pencil, SearchX, ShieldOff, ShieldCheck } from "lucide-react";
+import { Building2, CheckCircle2, Pencil, SearchX, ShieldOff, ShieldCheck, XCircle } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Badge from "@/components/Badge";
@@ -42,10 +42,21 @@ export default function AdminClinicaPage() {
         <EmptyState
           icon={<SearchX size={28} />}
           title="No encontramos esta clínica"
-          subtitle="Puede que se haya eliminado o que el enlace esté mal."
+          subtitle="Puede que se haya eliminado, que el enlace esté mal o que esté suspendida (las suspendidas no se pueden abrir)."
           actionLabel="Volver a clínicas"
           onAction={() => router.push("/admin/clinicas")}
         />
+        <div className={s.formActions}>
+          <Button
+            label="Reactivar si fue suspendida"
+            icon={<ShieldCheck size={16} />}
+            variant="secondary"
+            fullWidth={false}
+            onPress={d.handleForceUnsuspend}
+            loading={d.isReactivating}
+            disabled={d.isReactivating}
+          />
+        </div>
       </ScreenContainer>
     );
   }
@@ -137,7 +148,10 @@ export default function AdminClinicaPage() {
             <div className={s.toolbarRow}>
               <Button label="Editar información" icon={<Pencil size={16} />} fullWidth={false} onPress={d.startEditing} />
               {!approved ? (
-                <Button label="Aprobar clínica" icon={<CheckCircle2 size={16} />} variant="secondary" fullWidth={false} onPress={d.handleApprove} loading={d.isApproving} />
+                <>
+                  <Button label="Aprobar clínica" icon={<CheckCircle2 size={16} />} variant="secondary" fullWidth={false} onPress={d.handleApprove} loading={d.isApproving} disabled={d.isRejecting} />
+                  <Button label="Rechazar" icon={<XCircle size={16} />} variant="danger" fullWidth={false} onPress={d.handleReject} loading={d.isRejecting} disabled={d.isApproving} />
+                </>
               ) : null}
               {d.isSuspended ? (
                 <Button

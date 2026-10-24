@@ -20,6 +20,13 @@ export interface TrainingProgramCreate {
     duration_weeks?: number;
 }
 
+export interface TrainingProgramUpdate {
+    title?: string;
+    description?: string;
+    price?: number;
+    duration_weeks?: number;
+}
+
 export interface PetTrainingGoal {
     id: string;
     pet_id: string;
@@ -72,10 +79,27 @@ export async function getAllPrograms(): Promise<TrainingProgram[]> {
     return apiFetch<TrainingProgram[]>("entrenadores", "/programs");
 }
 
+export async function getMyPrograms(): Promise<TrainingProgram[]> {
+    return apiFetch<TrainingProgram[]>("entrenadores", "/programs/mine");
+}
+
 export async function createProgram(data: TrainingProgramCreate): Promise<TrainingProgram> {
     return apiFetch<TrainingProgram>("entrenadores", "/programs", {
         method: "POST",
         body: JSON.stringify(data),
+    });
+}
+
+export async function updateProgram(id: string, data: TrainingProgramUpdate): Promise<TrainingProgram> {
+    return apiFetch<TrainingProgram>("entrenadores", `/programs/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteProgram(id: string): Promise<void> {
+    return apiFetch("entrenadores", `/programs/${id}`, {
+        method: "DELETE",
     });
 }
 

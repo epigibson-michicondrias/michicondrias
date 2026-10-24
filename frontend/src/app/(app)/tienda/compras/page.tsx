@@ -7,7 +7,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Package, ShoppingBag } from "lucide-react";
+import { Package, RefreshCw, ShoppingBag } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import FilterChip from "@/components/FilterChip";
@@ -27,7 +27,7 @@ function matchesFilter(order: Order, filter: PurchaseFilter): boolean {
 }
 
 export default function ComprasPage() {
-  const { orders, isLoading, loadMore, isLoadingMore, isRefetching, refetch } = usePurchases();
+  const { orders, isLoading, loadMore, isLoadingMore, isRefetching, refetch, hasMore } = usePurchases();
   const [filter, setFilter] = useState<PurchaseFilter>("all");
   const router = useRouter();
 
@@ -41,7 +41,11 @@ export default function ComprasPage() {
 
   return (
     <ScreenContainer>
-      <ScreenHeader title="Mis compras" subtitle="Seguimiento de tus pedidos" />
+      <ScreenHeader
+        title="Mis compras"
+        subtitle="Seguimiento de tus pedidos"
+        actions={[{ icon: RefreshCw, label: "Actualizar", onPress: () => refetch(), loading: isRefetching }]}
+      />
 
       <div className={s.chips}>
         {PURCHASE_FILTERS.map((f) => (
@@ -101,14 +105,13 @@ export default function ComprasPage() {
               );
             })}
           </div>
-          <Button
-            label={isLoadingMore ? "Cargando…" : "Ver más"}
-            variant="secondary"
-            onPress={loadMore}
-            loading={isLoadingMore || isRefetching}
-          />
-          {isRefetching && (
-            <Button label="Actualizar" variant="ghost" onPress={() => refetch()} />
+          {hasMore && (
+            <Button
+              label={isLoadingMore ? "Cargando…" : "Ver más"}
+              variant="secondary"
+              onPress={loadMore}
+              loading={isLoadingMore}
+            />
           )}
         </>
       )}

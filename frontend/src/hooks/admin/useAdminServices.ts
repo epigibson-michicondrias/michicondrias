@@ -28,6 +28,6 @@ export function useAdminServices() {
         setSearchText,
         clinicName,
         activeCount: servicios.filter((s) => s.is_active).length,
-        categoryCount: new Set(servicios.map((s) => s.category).filter(Boolean)).size,
+        categoryCount: new Set(servicios.map((s) => s.category?.trim().toLowerCase()).filter(Boolean)).size,
     };
 }

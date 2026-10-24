@@ -40,18 +40,26 @@ export function useVetDetail() {
   });
 
   const phoneDigits = specialist?.phone?.replace(/\D/g, "") ?? "";
-  const fullName = specialist ? `${specialist.first_name} ${specialist.last_name}`.trim() : "";
+  const fullName = specialist
+    ? [specialist.first_name, specialist.last_name].filter(Boolean).join(" ").trim() || "Especialista"
+    : "";
+  const specialtyLabel = specialist?.specialty?.trim()
+    ? specialist.specialty.trim().replace(/^./, (c) => c.toUpperCase())
+    : "Médico veterinario";
+  const avatarLetter = (specialist?.first_name || specialist?.last_name || fullName || "?").charAt(0).toUpperCase();
 
   return {
     vetId,
     fullName,
+    specialtyLabel,
+    avatarLetter,
     call: phoneDigits ? () => openExternalUrl(`tel:${phoneDigits}`) : undefined,
     whatsapp: phoneDigits
       ? () => openExternalUrl(`https://wa.me/${phoneDigits.length === 10 ? `52${phoneDigits}` : phoneDigits}`)
       : undefined,
     share: () =>
       specialist &&
-      shareContent(fullName, `${fullName} — ${specialist.specialty || "Médico veterinario"}. Lo encontré en Michicondrias 🐾`),
+      shareContent(fullName, `${fullName} — ${specialtyLabel}. Lo encontré en Michicondrias 🐾`),
     /** Solo se agenda en línea con quien atiende en una clínica con servicios (el backend exige clínica y servicio). */
     canBook: !!specialist?.clinic_id && services.length > 0,
     book: (serviceId?: string) => {

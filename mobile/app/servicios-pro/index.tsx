@@ -8,11 +8,21 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useServiciosPro } from '@/src/hooks/servicios-pro/useServiciosPro';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User } from 'lucide-react-native';
+import RoleGuard from '@/src/components/RoleGuard';
+import EmptyState from '@/src/components/EmptyState';
+import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User, Users } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function ServiciosProScreen() {
+    return (
+        <RoleGuard roles={['paseador', 'cuidador']} message="Servicios Pro es para cuentas de paseador o cuidador.">
+            <ServiciosProDirectory />
+        </RoleGuard>
+    );
+}
+
+function ServiciosProDirectory() {
     const router = useRouter();
     const { theme } = useTheme();
     const { activeTab, setActiveTab, searchQuery, setSearchQuery, filteredData, isLoading } = useServiciosPro();
@@ -29,7 +39,7 @@ export default function ServiciosProScreen() {
                         style={[styles.profileImage, { backgroundColor: theme.primaryLight }]}
                     />
                     {item.is_verified && (
-                        <View style={styles.verifiedBadge}>
+                        <View style={[styles.verifiedBadge, { backgroundColor: theme.success, borderColor: theme.surface }]}>
                             <ShieldCheck size={12} color={theme.onPrimary} />
                         </View>
                     )}
@@ -38,7 +48,7 @@ export default function ServiciosProScreen() {
                     <View style={styles.nameRow}>
                         <Text style={[styles.name, { color: theme.text }]}>{item.display_name}</Text>
                         <View style={styles.ratingBox}>
-                            <Star size={14} color="#facc15" fill="#facc15" />
+                            <Star size={14} color={theme.warning} fill={theme.warning} />
                             <Text style={[styles.ratingText, { color: theme.text }]}>{item.rating ? item.rating.toFixed(1) : 'Nuevo'}</Text>
                         </View>
                     </View>
@@ -46,6 +56,9 @@ export default function ServiciosProScreen() {
                         <MapPin size={14} color={theme.textMuted} />
                         <Text style={[styles.location, { color: theme.textMuted }]}>{item.location || 'Ubicación no indicada'}</Text>
                     </View>
+                    {item.is_verified ? (
+                        <Text style={[styles.verifiedText, { color: theme.success }]}>Verificado por el equipo</Text>
+                    ) : null}
                 </View>
             </View>
 
@@ -75,13 +88,13 @@ export default function ServiciosProScreen() {
                     style={[styles.tab, { backgroundColor: theme.overlay }, activeTab === 'walkers' && { backgroundColor: theme.primary }]}
                     onPress={() => setActiveTab('walkers')}
                 >
-                    <Text style={[styles.tabText, { color: activeTab === 'walkers' ? '#fff' : theme.textMuted }]}>Paseadores</Text>
+                    <Text style={[styles.tabText, { color: activeTab === 'walkers' ? theme.onPrimary : theme.textMuted }]}>Paseadores</Text>
                 </TouchableOpacity>
                 <TouchableOpacity accessibilityRole="button"
                     style={[styles.tab, { backgroundColor: theme.overlay }, activeTab === 'sitters' && { backgroundColor: theme.primary }]}
                     onPress={() => setActiveTab('sitters')}
                 >
-                    <Text style={[styles.tabText, { color: activeTab === 'sitters' ? '#fff' : theme.textMuted }]}>Cuidadores</Text>
+                    <Text style={[styles.tabText, { color: activeTab === 'sitters' ? theme.onPrimary : theme.textMuted }]}>Cuidadores</Text>
                 </TouchableOpacity>
             </View>
 
@@ -109,9 +122,13 @@ export default function ServiciosProScreen() {
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                        <View style={styles.emptyState}>
-                            <Text style={{ color: theme.textMuted, textAlign: 'center' }}>No se encontraron profesionales disponibles.</Text>
-                        </View>
+                        <EmptyState
+                            icon={<Users size={32} color={theme.textMuted} />}
+                            title={searchQuery ? 'Sin resultados' : 'Aún no hay profesionales'}
+                            subtitle={searchQuery ? 'No encontramos profesionales con esa búsqueda.' : 'Cuando un profesional se registre aparecerá aquí.'}
+                            actionLabel={searchQuery ? 'Quitar búsqueda' : undefined}
+                            onAction={searchQuery ? () => setSearchQuery('') : undefined}
+                        />
                     }
                 />
             )}
@@ -181,14 +198,16 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: -4,
         right: -4,
-        backgroundColor: '#6366f1',
         width: 20,
         height: 20,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#101c3d',
+    },
+    verifiedText: {
+        fontSize: font.xs,
+        fontWeight: '700',
     },
     mainInfo: {
         flex: 1,
@@ -253,12 +272,4 @@ const styles = StyleSheet.create({
         fontSize: font.md,
         fontWeight: '600',
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyState: {
-        paddingTop: 60,
-    }
 });

@@ -5,9 +5,10 @@
  * Espejo de `mobile/app/servicios-pro/perfil.tsx`.
  */
 import { useRouter } from "next/navigation";
-import { UserPlus } from "lucide-react";
+import { ShieldCheck, UserPlus } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
+import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import EmptyState from "@/components/EmptyState";
 import FormField from "@/components/FormField";
@@ -29,7 +30,7 @@ export default function ServiceProfilePage() {
 
 function ServiceProfile() {
   const router = useRouter();
-  const { isWalker, hasProfile, form, updateField, saving, isLoading, handleSave } = useServiceProfile();
+  const { isWalker, hasProfile, isVerified, form, updateField, saving, isLoading, handleSave } = useServiceProfile();
   const title = "Mi perfil de servicio";
 
   if (isLoading) {
@@ -66,6 +67,11 @@ function ServiceProfile() {
       />
 
       <div style={{ display: "grid", gap: "var(--space-xxl)", paddingBottom: "var(--space-xxl)" }}>
+        {isVerified ? (
+          <div>
+            <Badge label="Verificado" color="var(--color-success)" icon={<ShieldCheck size={12} />} size="sm" />
+          </div>
+        ) : null}
         <FormSection title="Visibilidad">
           <FormSwitch
             label={form.is_active ? "Visible para nuevos clientes" : "Perfil oculto"}

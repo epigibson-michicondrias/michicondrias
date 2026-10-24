@@ -21,7 +21,7 @@ import { useCheckout } from "@/hooks/ecommerce/useCheckout";
 import s from "../tienda.module.css";
 
 export default function CarritoPage() {
-  const { items, cartTotal, cartCount, updateQuantity, removeFromCart, clearCart, savedAddress, rememberAddress } = useCart();
+  const { items, cartTotal, cartCount, updateQuantity, clearCart, savedAddress, rememberAddress } = useCart();
   const { isRefreshing } = useCartProducts();
   const { checkout, isCheckingOut } = useCheckout();
   const [address, setAddress] = useState(savedAddress);

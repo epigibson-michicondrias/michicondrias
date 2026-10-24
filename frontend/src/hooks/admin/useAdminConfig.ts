@@ -35,14 +35,18 @@ export function useAdminConfig() {
     const queryClient = useQueryClient();
     const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(null);
 
-    const { data: settings, isLoading } = useQuery({
+    const { data: settings, isLoading, isError, refetch } = useQuery({
         queryKey: SETTINGS_KEY,
         queryFn: systemService.getSettings,
     });
 
     const updateMutation = useMutation({
         mutationFn: (data: Partial<SystemSettings>) => systemService.updateSettings(data),
-        onSuccess: (data) => queryClient.setQueryData(SETTINGS_KEY, data),
+        onSuccess: (data) => {
+            queryClient.setQueryData(SETTINGS_KEY, data);
+            // Los clientes (banner de mantenimiento, OTA, push) leen los ajustes públicos: se actualizan al momento.
+            queryClient.invalidateQueries({ queryKey: ['public-system-settings'] });
+        },
         onError: (error) => showAlert({ type: 'error', title: 'No se guardó el cambio', message: errorMessage(error, 'Inténtalo de nuevo.') }),
     });
 
@@ -61,6 +65,8 @@ export function useAdminConfig() {
         mutationFn: systemService.clearCache,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
+            // `cache_version` también viaja en los ajustes públicos que leen los clientes.
+            queryClient.invalidateQueries({ queryKey: ['public-system-settings'] });
             showAlert({ type: 'success', title: 'Caché limpiada', message: 'Ya hay una nueva versión de caché.' });
         },
         onError: (error) => showAlert({ type: 'error', title: 'No se pudo limpiar la caché', message: errorMessage(error, 'Inténtalo de nuevo.') }),
@@ -69,6 +75,7 @@ export function useAdminConfig() {
     const currentSettings = settings || DEFAULT_SETTINGS;
 
     const toggleSetting = (key: ToggleKey) => {
+        if (updateMutation.isPending) return;
         updateMutation.mutate({ [key]: !currentSettings[key] });
     };
 
@@ -98,9 +105,12 @@ export function useAdminConfig() {
         currentSettings,
         hasSettings: !!settings,
         isLoading,
+        /** Los ajustes no se pudieron cargar: no hay que mostrar valores inventados. */
+        isError,
+        refetchSettings: refetch,
         toggleSetting,
-        /** Clave que se está guardando ahora (para deshabilitar ese interruptor). */
-        updatingKey: updateMutation.isPending ? (Object.keys(updateMutation.variables ?? {})[0] as ToggleKey | undefined) : undefined,
+        /** `true` mientras se guarda un interruptor: se deshabilitan todos para no pisar respuestas. */
+        isUpdating: updateMutation.isPending,
         syncDatabase,
         clearCache,
         isSyncing: syncMutation.isPending,

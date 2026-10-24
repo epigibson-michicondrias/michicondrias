@@ -1,11 +1,13 @@
 /**
- * useAdminProducts — todos los productos de la tienda para el admin, incluidos los ocultos por su vendedor.
- * Espejo de `mobile/src/hooks/admin/useAdminProducts.ts`. Usa `GET /products/admin/all` (un solo request;
- * antes se armaba a mano con el catálogo público y los pendientes, y los ocultos no aparecían).
+ * useAdminProducts — todos los productos para el admin, incluidos los ocultos por su vendedor.
+ * Usa `GET /products/admin/all` de un solo request. Trae los filtros por estado y las mutaciones
+ * reales del admin: mostrar/ocultar (`PATCH .../visibility`) y aprobar/rechazar (moderación).
+ * Espejo de `mobile/src/hooks/admin/useAdminProducts.ts`.
  */
 import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdminProducts, setProductVisibility, type AdminProductFilter, type Product } from '@/services/ecommerce';
+import { approveProduct, rejectProduct } from '@/services/moderacion';
 import { showAlert } from '@/components/AppAlert';
 import { errorMessage } from '@/features/servicios-pro/requestStatus';
 
@@ -30,10 +32,18 @@ export function useAdminProducts() {
         queryFn: () => getAdminProducts('all'),
     });
 
+    const invalidate = () => {
+        queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+        // El catálogo público y la ficha del producto también cambian al mostrar/ocultar o moderar.
+        queryClient.invalidateQueries({ queryKey: ['store-products'] });
+        queryClient.invalidateQueries({ queryKey: ['product'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-products'] });
+    };
+
     const visibilityMutation = useMutation({
         mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => setProductVisibility(id, isActive),
         onSuccess: (_, { isActive }) => {
-            queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+            invalidate();
             showAlert({
                 type: 'success',
                 title: isActive ? 'Producto visible' : 'Producto oculto',
@@ -47,6 +57,25 @@ export function useAdminProducts() {
         },
     });
 
+    const approveMutation = useMutation({
+        mutationFn: (id: string) => approveProduct(id),
+        onSuccess: () => {
+            invalidate();
+            showAlert({ type: 'success', title: 'Producto aprobado', message: 'Ya está publicado en el catálogo.' });
+        },
+        onError: (e) => showAlert({ type: 'error', title: 'No se pudo aprobar', message: errorMessage(e, 'Intenta de nuevo en un momento.') }),
+    });
+
+    const rejectMutation = useMutation({
+        mutationFn: (id: string) => rejectProduct(id),
+        onSuccess: () => {
+            invalidate();
+            showAlert({ type: 'success', title: 'Producto rechazado', message: 'Se eliminó del catálogo.' });
+        },
+        onError: (e) => showAlert({ type: 'error', title: 'No se pudo rechazar', message: errorMessage(e, 'Intenta de nuevo en un momento.') }),
+    });
+
+    /** Mostrar/ocultar: sin confirmación si se muestra, con confirmación si se oculta. */
     const toggleVisibility = (p: Product) => {
         const hide = !!p.is_active;
         if (!hide) {
@@ -64,10 +93,42 @@ export function useAdminProducts() {
         });
     };
 
+    const approve = (p: Product) => {
+        showAlert({
+            type: 'info',
+            title: 'Aprobar producto',
+            message: `¿Publicar "${p.name}" en la tienda?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Aprobar',
+            onButtonPress: () => approveMutation.mutate(p.id),
+        });
+    };
+
+    const reject = (p: Product) => {
+        showAlert({
+            type: 'error',
+            title: 'Rechazar producto',
+            message: `¿Rechazar y eliminar "${p.name}"? Esta acción no se puede deshacer.`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Rechazar',
+            onButtonPress: () => rejectMutation.mutate(p.id),
+        });
+    };
+
     const filtered = useMemo(() => {
         const q = searchText.trim().toLowerCase();
         return products.filter((p) => MATCH[filter](p) && (!q || p.name.toLowerCase().includes(q)));
     }, [products, searchText, filter]);
+
+    const busyId = visibilityMutation.isPending
+        ? (visibilityMutation.variables?.id ?? null)
+        : approveMutation.isPending
+            ? (approveMutation.variables ?? null)
+            : rejectMutation.isPending
+                ? (rejectMutation.variables ?? null)
+                : null;
 
     return {
         products: filtered,
@@ -86,6 +147,8 @@ export function useAdminProducts() {
             setFilter('all');
         },
         toggleVisibility,
-        updatingId: visibilityMutation.isPending ? (visibilityMutation.variables?.id ?? null) : null,
+        approve,
+        reject,
+        busyId,
     };
 }

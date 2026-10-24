@@ -13,13 +13,14 @@ import EmptyState from "@/components/EmptyState";
 import Button from "@/components/Button";
 import Badge from "@/components/Badge";
 import { Skeleton } from "@/components/Skeleton";
+import ReviewsSection from "@/features/tienda/ReviewsSection";
 import { useProduct } from "@/hooks/ecommerce/useProduct";
 import s from "../../tienda.module.css";
 
 function ProductoContent() {
   const {
     product, reviews, isLoading, canReview, handleCreateReview, isCreatingReview,
-    related, addToCart, cartCount, inCart, isOwner, isFavorite, toggleFavorite,
+    related, addToCart, cartCount, inCart, isOwner, isFavorite, toggleFavorite, userId,
   } = useProduct();
   const [qty, setQty] = useState(1);
   const router = useRouter();
@@ -62,7 +63,7 @@ function ProductoContent() {
         <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda")} aria-label="Volver">
           <ArrowLeft size={20} />
         </button>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={s.headerActions}>
           <button type="button" className={`${s.iconBtn} ${isFavorite ? s.favOn : ""}`} onClick={toggleFavorite} aria-label="Favorito">
             <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
           </button>
@@ -77,7 +78,7 @@ function ProductoContent() {
         {product.image_url ? (
           <Image src={product.image_url} alt={product.name} width={480} height={360} className={s.heroImg} />
         ) : (
-          <div className={s.cardImgFallback} style={{ height: 240 }}><Package size={48} /></div>
+          <div className={`${s.cardImgFallback} ${s.heroImgFallback}`}><Package size={48} /></div>
         )}
       </div>
 
@@ -116,29 +117,16 @@ function ProductoContent() {
         </section>
       )}
 
-      <section>
-        <h2 className={s.sectionTitle}>Opiniones</h2>
-        {reviews.length === 0 ? (
-          <p className={s.cardMeta}>Sin opiniones aún.</p>
-        ) : (
-          <div className={s.reviewList}>
-            {reviews.map((r) => (
-              <div key={r.id} className={s.review}>
-                <p className={s.reviewAuthor}>Compra verificada</p>
-                <p className={s.reviewText}>{r.comment || r.rating ? `★ ${r.rating}` : ""}</p>
-              </div>
-            ))}
-          </div>
-        )}
-        {canReview && (
-          <Button
-            label={isCreatingReview ? "Enviando…" : "Escribir reseña"}
-            variant="secondary"
-            loading={isCreatingReview}
-            onPress={() => handleCreateReview({ rating: 5, comment: "" })}
-          />
-        )}
-      </section>
+      <ReviewsSection
+        title="Opiniones"
+        average={product.average_rating}
+        count={product.review_count}
+        reviews={reviews.map((r) => ({ ...r, author_name: "Compra verificada", is_mine: r.user_id === userId }))}
+        canReview={canReview}
+        submitting={isCreatingReview}
+        onSubmit={(rating, comment) => handleCreateReview({ rating, comment: comment || undefined })}
+        formPrompt="Ya lo compraste: ¿qué te pareció?"
+      />
 
       {related.length > 0 && (
         <section>

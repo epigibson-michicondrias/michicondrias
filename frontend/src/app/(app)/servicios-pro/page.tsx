@@ -82,11 +82,12 @@ export default function ServiciosProPage() {
                 <ProviderCard
                   key={w.id}
                   href={`/paseadores/${w.id}`}
-                  name={w.display_name}
+                  name={w.display_name?.trim() || "Paseador"}
                   photoUrl={w.photo_url}
                   location={w.location}
                   rating={w.rating}
                   verified={w.is_verified}
+                  suspended={w.is_active === false}
                   accent={MODULE_ACCENTS.paseadores}
                   stats={[
                     { icon: Users, text: `${w.total_walks || 0} paseos` },
@@ -103,11 +104,12 @@ export default function ServiciosProPage() {
               <ProviderCard
                 key={c.id}
                 href={`/cuidadores/${c.id}`}
-                name={c.display_name}
+                name={c.display_name?.trim() || "Cuidador"}
                 photoUrl={c.photo_url}
                 location={c.location}
                 rating={c.rating}
                 verified={c.is_verified}
+                suspended={c.is_active === false}
                 accent={MODULE_ACCENTS.cuidadores}
                 stats={[
                   { icon: Users, text: `${c.total_sits || 0} cuidados` },

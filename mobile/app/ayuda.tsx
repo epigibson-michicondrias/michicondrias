@@ -94,7 +94,7 @@ export default function HelpScreen() {
                             <ContactBtn icon={MessageCircle} label="WhatsApp" color={theme.success}
                                 onPress={() => open(`https://wa.me/${SUPPORT_WHATSAPP.replace(/\D/g, '')}`)} />
                         )}
-                        <ContactBtn icon={Mail} label="Email" color={theme.info}
+                        <ContactBtn icon={Mail} label="Correo" color={theme.info}
                             onPress={() => open(`mailto:${SUPPORT_EMAIL}?subject=Ayuda%20Michicondrias`)} />
                         {!!SUPPORT_PHONE && (
                             <ContactBtn icon={Phone} label="Teléfono" color={theme.secondary}

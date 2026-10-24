@@ -25,6 +25,9 @@ function formatDuration(min: number) {
   return rest ? `${h} h ${rest} min` : `${h} h`;
 }
 
+/** «consulta general» → «Consulta general» */
+const capitalize = (v: string) => v.trim().replace(/^./, (c) => c.toUpperCase());
+
 export default function AdminServiciosPage() {
   const v = useAdminServices();
   const searching = !!v.searchText.trim();
@@ -74,13 +77,13 @@ export default function AdminServiciosPage() {
                       <tr key={sv.id}>
                         <td>
                           <div className={s.cellMain}>
-                            <span className={s.cellTitle}>{sv.name}</span>
+                            <span className={s.cellTitle}>{sv.name?.trim() || "Servicio sin nombre"}</span>
                             <Link href={`/admin/clinicas/${sv.clinic_id}`} className={`${s.cellSub} ${s.cellLink}`}>
                               {clinic ?? "Ver clínica"}
                             </Link>
                           </div>
                         </td>
-                        <td data-label="Categoría">{sv.category ? <Badge label={sv.category} size="sm" variant="outlined" /> : <span className={s.cellSub}>Sin categoría</span>}</td>
+                        <td data-label="Categoría">{sv.category ? <Badge label={capitalize(sv.category)} size="sm" variant="outlined" /> : <span className={s.cellSub}>Sin categoría</span>}</td>
                         <td data-label="Precio" className={s.nowrap}>
                           {sv.price != null ? formatCurrency(sv.price) : "A consultar"}
                         </td>
@@ -88,7 +91,7 @@ export default function AdminServiciosPage() {
                           {formatDuration(sv.duration_minutes)}
                         </td>
                         <td data-label="Estado">
-                          <Badge label={sv.is_active ? "Activo" : "Inactivo"} color={sv.is_active ? "var(--color-success)" : "var(--color-text-muted)"} size="sm" />
+                          <Badge label={sv.is_active ? "Activo" : "Pausado"} color={sv.is_active ? "var(--color-success)" : "var(--color-text-muted)"} size="sm" />
                         </td>
                       </tr>
                     );

@@ -11,13 +11,16 @@ export type { Pet };
 
 export function useAdminPets() {
     const [searchText, setSearchText] = useState('');
-    const { data: mascotas = [], isLoading } = useQuery({ queryKey: ['admin-mascotas'], queryFn: getAllPets });
+    const { data: mascotas = [], isLoading, isError, isFetching, refetch } = useQuery({ queryKey: ['admin-mascotas'], queryFn: getAllPets });
     // Dueños para mostrar el nombre (hasta 200; la consola de usuarios pagina el resto)
     const { data: owners } = useQuery({
         queryKey: ['admin-users', { owners: true }],
         queryFn: () => adminUsersService.searchUsers({ limit: 200 }),
     });
-    const ownerName = (ownerId: string) => owners?.items.find((u) => u.id === ownerId)?.full_name ?? 'Dueño sin nombre';
+    const ownerName = (ownerId: string) => {
+        const owner = owners?.items.find((u) => u.id === ownerId);
+        return owner?.full_name?.trim() || owner?.email || 'Sin datos del dueño';
+    };
 
     const filtered = useMemo(() => {
         const q = searchText.trim().toLowerCase();
@@ -32,6 +35,9 @@ export function useAdminPets() {
         mascotas: filtered,
         total: mascotas.length,
         isLoading,
+        isError,
+        isFetching,
+        refetch,
         searchText,
         setSearchText,
         vaccinatedCount: mascotas.filter((m) => m.is_vaccinated).length,

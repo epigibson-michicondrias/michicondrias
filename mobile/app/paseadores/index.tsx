@@ -31,11 +31,11 @@ export default function PaseadoresScreen() {
             <View style={styles.walkerHeader}>
                 <View style={[styles.avatarPlaceholder, { backgroundColor: theme.primary + '20' }]}>
                     <Text style={[styles.avatarText, { color: theme.primary }]}>
-                        {item.display_name.charAt(0).toUpperCase()}
+                        {(item.display_name || 'P').charAt(0).toUpperCase()}
                     </Text>
                 </View>
                 <View style={styles.walkerInfo}>
-                    <Text style={[styles.walkerName, { color: theme.text }]}>{item.display_name}</Text>
+                    <Text style={[styles.walkerName, { color: theme.text }]}>{item.display_name || 'Paseador'}</Text>
                     <View style={styles.locationRow}>
                         <MapPin size={14} color={theme.textMuted} />
                         <Text style={[styles.locationText, { color: theme.textMuted }]}>

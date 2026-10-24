@@ -8,8 +8,7 @@ import type { ComponentType, CSSProperties } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Activity, AlertTriangle, BarChart3, Briefcase, Calendar, ChevronRight, ClipboardList, Clock, DollarSign,
-  FileText, FlaskConical, MapPin, Package, Settings, Stethoscope, Users, Video,
+  Activity, BarChart3, Calendar, ChevronRight, DollarSign, Settings, Stethoscope,
 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
@@ -19,6 +18,7 @@ import EmptyState from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { normalizeRole } from "@/constants/roles";
+import { canAccessRoute, getRoleTools } from "@/constants/roleTools";
 import { formatDateMx } from "@/features/mi-clinica/format";
 import { useMyClinic } from "@/hooks/directorio/useMyClinic";
 import { formatCurrency } from "@/utils/formatters";
@@ -64,19 +64,11 @@ function MiClinica() {
     );
   }
 
-  const menu: { icon: Icon; color: string; label: string; sub: string; href: string; show?: boolean }[] = [
-    { icon: ClipboardList, color: "var(--color-primary)", label: "Agenda", sub: "Gestionar citas", href: "/mi-clinica/agenda" },
-    { icon: AlertTriangle, color: "var(--color-error)", label: "Pacientes", sub: "General y críticos", href: "/mi-clinica/pacientes" },
-    { icon: Briefcase, color: "var(--color-secondary)", label: "Servicios", sub: "Catálogo y precios", href: "/mi-clinica/servicios" },
-    { icon: Users, color: "var(--color-success)", label: "Veterinarios", sub: "Tu equipo", href: "/mi-clinica/veterinarios" },
-    { icon: Clock, color: "var(--color-warning)", label: "Horarios", sub: "Disponibilidad", href: "/mi-clinica/horarios" },
-    { icon: Stethoscope, color: "var(--color-error)", label: "Cirugías", sub: "Quirófano", href: "/mi-clinica/cirugias" },
-    { icon: Package, color: "var(--color-primary)", label: "Inventario", sub: "Insumos médicos", href: "/mi-clinica/inventario" },
-    { icon: FlaskConical, color: "var(--color-info)", label: "Laboratorio", sub: "Pruebas y resultados", href: "/mi-clinica/laboratorio" },
-    { icon: FileText, color: "var(--color-success)", label: "Recetas", sub: "Prescripciones", href: "/mi-clinica/recetas" },
-    { icon: Video, color: "var(--color-info)", label: "Videoconsultas", sub: "Pacientes virtuales", href: "/mi-clinica/consultas-video", show: role === "veterinario" },
-    { icon: MapPin, color: "var(--color-info)", label: "Sucursales", sub: "Sedes y datos", href: "/mi-clinica/sucursales", show: role === "hospital" },
-  ];
+  // Menú = herramientas de /mi-clinica del rol (fuente única ROLE_TOOLS), sin la propia "Mi clínica".
+  // `canAccessRoute` es el mismo criterio que ROUTE_ACCESS: hospital no ve recetas/cirugías; veterinario no ve sucursales/médicos.
+  const menu = getRoleTools(role)
+    .filter((t) => t.route.startsWith("/mi-clinica/") && canAccessRoute(role, t.route))
+    .map((t) => ({ icon: t.icon as Icon, color: t.color, label: t.label, sub: t.desc, href: t.route }));
 
   return (
     <ScreenContainer>
@@ -119,7 +111,6 @@ function MiClinica() {
           <h2 className={s.sectionTitle}>Gestión operativa</h2>
           <div className={s.menu}>
             {menu
-              .filter((m) => m.show !== false)
               .map((m) => (
                 <Link key={m.href} href={m.href} className={s.menuItem} style={{ "--c": m.color } as CSSProperties}>
                   <span className={s.iconBox} style={{ "--c": m.color } as CSSProperties}>

@@ -9,6 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import PatientPicker from '@/src/features/salud/PatientPicker';
+import ClinicRequired from '@/src/features/salud/ClinicRequired';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { FlaskConical, TestTube2, CheckCircle2, Clock, Plus, Edit3 } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
@@ -19,7 +20,7 @@ export default function LaboratorioScreen() {
         filter, setFilter, modalVisible, setModalVisible, loadingAction,
         newTest, setNewTest, loadingClinics, loadingTests, labTests, handleSaveTest,
         resultModalVisible, setResultModalVisible, resultData, setResultData,
-        handleOpenResultModal, handleSaveResults, isSavingResults,
+        handleOpenResultModal, handleSaveResults, isSavingResults, clinic,
     } = useLaboratory();
 
     if (loadingClinics) {
@@ -29,6 +30,8 @@ export default function LaboratorioScreen() {
             </ScreenContainer>
         );
     }
+
+    if (!clinic) return <ClinicRequired title="Laboratorio" />;
 
     return (
         <ScreenContainer>

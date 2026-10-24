@@ -26,6 +26,7 @@ export function useGroomingProvider() {
     const {
         data: appointments = [],
         isLoading,
+        isError,
         isRefetching,
         refetch,
     } = useQuery<GroomingAppointment[]>({
@@ -100,6 +101,7 @@ export function useGroomingProvider() {
 
         // Loading
         isLoading,
+        isError,
         isRefetching,
         isUpdating: photoMutation.isPending || statusMutation.isPending,
 

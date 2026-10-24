@@ -31,7 +31,7 @@ export function useSurgeries() {
     const [surgDuration, setSurgDuration] = useState('60');
     const [surgRoom, setSurgRoom] = useState('');
 
-    const { data: clinics = [] } = useQuery({
+    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
         queryKey: ['my-clinics'],
         queryFn: getMyClinics,
     });
@@ -118,6 +118,8 @@ export function useSurgeries() {
 
     return {
         // Data
+        clinic,
+        loadingClinics,
         filtered,
         isLoading,
         todaySurgeries,
@@ -147,7 +149,21 @@ export function useSurgeries() {
         // Mutation
         handleCreate,
         isCreating: createMutation.isPending,
-        changeStatus: (id: string, status: string) => statusMutation.mutate({ id, status }),
+        changeStatus: (id: string, status: string) => {
+            if (status === 'cancelled') {
+                showAlert({
+                    type: 'warning',
+                    title: 'Cancelar cirugía',
+                    message: '¿Estás seguro de que deseas cancelar esta cirugía programada?',
+                    showCancel: true,
+                    cancelText: 'Mantener',
+                    buttonText: 'Cancelar cirugía',
+                    onButtonPress: () => statusMutation.mutate({ id, status }),
+                });
+                return;
+            }
+            statusMutation.mutate({ id, status });
+        },
         isChangingStatus: statusMutation.isPending,
     };
 }

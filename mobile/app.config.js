@@ -26,7 +26,7 @@ export default {
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.michicondrias.mobile",
-      "versionCode": 10,
+      "versionCode": 11,
       "newArchEnabled": false,
       "config": {
         "googleMaps": {

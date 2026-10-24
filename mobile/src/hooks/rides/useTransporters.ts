@@ -18,11 +18,11 @@ export function useTransporters() {
 
   const filteredDrivers = useMemo(
     () =>
-      drivers.filter(
-        (driver) =>
-          driver.vehicle_model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          driver.vehicle_plate.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
+      drivers.filter((driver) => {
+        // vehicle_model / vehicle_plate pueden no estar guardados aún.
+        const hay = `${driver.vehicle_model ?? ""} ${driver.vehicle_plate ?? ""}`.toLowerCase();
+        return hay.includes(searchQuery.toLowerCase());
+      }),
     [drivers, searchQuery],
   );
 

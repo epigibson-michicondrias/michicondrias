@@ -78,7 +78,7 @@ export function useAccount() {
         roleLabel: getRoleLabelFor(role),
         canBecomePro: !isProRole(role) && !isAdmin,
         verification,
-        verificationCopy: VERIFICATION_COPY[verification],
+        verificationCopy: VERIFICATION_COPY[verification] ?? VERIFICATION_COPY.UNVERIFIED,
         pendingAction,
         themeMode,
         setThemeMode,

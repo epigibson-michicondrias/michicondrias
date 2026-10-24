@@ -153,6 +153,8 @@ export function useInventory() {
         setInventoryFilter,
         // Data
         isLoading,
+        loadingClinics,
+        clinic,
         criticalItems,
         filteredInventory,
         activeInventory,

@@ -69,6 +69,7 @@ function GestionGrooming() {
         appointments,
         filter,
         isLoading,
+        isError,
         isRefetching,
         isUpdating,
         setFilter,
@@ -263,6 +264,7 @@ function GestionGrooming() {
                 renderItem={renderAppointment}
                 keyExtractor={(item) => item.id}
                 isLoading={isLoading}
+                isError={isError}
                 loadingMessage="Cargando citas..."
                 onRefresh={refetch}
                 isRefreshing={isRefetching}

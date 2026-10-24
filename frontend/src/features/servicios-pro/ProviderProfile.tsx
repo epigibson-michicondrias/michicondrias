@@ -20,6 +20,7 @@ export function ProviderHero({
   reviewCount?: number;
   accent: string;
 }) {
+  const label = name || "Proveedor";
   return (
     <div className={s.hero} style={{ ["--c" as string]: accent }}>
       <div className={s.heroAvatar}>
@@ -27,10 +28,10 @@ export function ProviderHero({
           // eslint-disable-next-line @next/next/no-img-element -- la foto del proveedor viene del storage
           <img src={photoUrl} alt="" className={s.avatarImg} />
         ) : (
-          name.charAt(0).toUpperCase()
+          label.charAt(0).toUpperCase()
         )}
       </div>
-      <p className={s.heroName}>{name}</p>
+      <p className={s.heroName}>{label}</p>
       {subtitle ? <p className={s.heroSubtitle}>{subtitle}</p> : null}
       {typeof rating === "number" ? (
         <div className={s.rating}>

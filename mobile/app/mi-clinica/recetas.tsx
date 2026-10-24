@@ -10,6 +10,7 @@ import SearchBar from '@/src/components/SearchBar';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
+import ClinicRequired from '@/src/features/salud/ClinicRequired';
 import { FileText, Plus, AlertCircle, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { font, spacing } from '@/constants/design';
@@ -21,7 +22,7 @@ export default function RecetasScreen() {
         setPatientPickerVisible, patientSearch, setPatientSearch, newPresc,
         setNewPresc, loadingClinics, loadingPrescriptions, prescriptions,
         resolvedPets, filteredPets, loadingPets, handleSavePrescription, selectPatient,
-        handleUpdateStatus, isUpdatingStatus,
+        handleUpdateStatus, isUpdatingStatus, clinic,
     } = usePrescriptions();
 
     if (loadingClinics) {
@@ -31,6 +32,8 @@ export default function RecetasScreen() {
             </ScreenContainer>
         );
     }
+
+    if (!clinic) return <ClinicRequired title="Recetas Médicas" />;
 
     return (
         <ScreenContainer>

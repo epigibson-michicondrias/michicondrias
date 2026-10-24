@@ -1,5 +1,5 @@
 import { apiFetch } from "../lib/api";
-import type { KYCPresignedUrlsResponse } from "../types/auth";
+import type { KYCPresignedUrlsResponse, User } from "../types/auth";
 
 export async function getKYCPresignedUrls(extensions: {
     id_front: string;
@@ -18,8 +18,8 @@ export async function finalizeKYC(data: {
     id_front_url: string;
     id_back_url: string;
     proof_of_address_url: string;
-}): Promise<any> {
-    return await apiFetch<any>("core", "/users/me/kyc/finalize", {
+}): Promise<User> {
+    return await apiFetch<User>("core", "/users/me/kyc/finalize", {
         method: "POST",
         body: JSON.stringify(data),
     });

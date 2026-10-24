@@ -26,11 +26,15 @@ export default function AdminClinicasPage() {
     { key: "all", label: "Todas", count: c.total },
     { key: "approved", label: "Verificadas", count: c.approvedCount },
     { key: "pending", label: "En revisión", count: c.pendingCount },
+    { key: "suspended", label: "Suspendidas", count: c.suspendedCount },
   ];
 
   return (
     <ScreenContainer>
-      <ScreenHeader title="Clínicas" subtitle={`${c.total} en el directorio · ${c.pendingCount} en revisión`} />
+      <ScreenHeader
+        title="Clínicas"
+        subtitle={`${c.total} en el directorio · ${c.pendingCount} en revisión${c.suspendedCount ? ` · ${c.suspendedCount} suspendidas` : ""}`}
+      />
 
       <div className={s.toolbar}>
         <SearchBar value={c.searchText} onChangeText={c.setSearchText} placeholder="Buscar por nombre, ciudad o dirección..." />
@@ -66,6 +70,7 @@ export default function AdminClinicasPage() {
             <tbody>
               {c.clinics.map((cl) => {
                 const approved = cl.is_approved !== false;
+                const suspended = !!cl.is_suspended;
                 return (
                   <tr key={cl.id} className={s.rowLink} onClick={() => router.push(`/admin/clinicas/${cl.id}`)}>
                     <td>
@@ -91,7 +96,10 @@ export default function AdminClinicasPage() {
                       {cl.phone || "—"}
                     </td>
                     <td data-label="Estado">
-                      <Badge label={approved ? "Verificada" : "En revisión"} color={approved ? "var(--color-success)" : "var(--color-warning)"} size="sm" />
+                      <div className={s.badges}>
+                        <Badge label={approved ? "Verificada" : "En revisión"} color={approved ? "var(--color-success)" : "var(--color-warning)"} size="sm" />
+                        {suspended ? <Badge label="Suspendida" color="var(--color-error)" size="sm" /> : null}
+                      </div>
                     </td>
                     <td data-label="Servicio">
                       <div className={s.badges}>

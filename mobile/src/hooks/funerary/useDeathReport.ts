@@ -51,8 +51,8 @@ export function useDeathReport(deathId?: string) {
       queryClient.invalidateQueries({ queryKey: ['funerary-provider-bookings'] });
       showAlert({
         type: 'success',
-        title: 'Reporte registrado',
-        message: 'El reporte de defunción ha sido registrado exitosamente.',
+        title: 'Registro completado',
+        message: 'Quedó constancia del fallecimiento. Puedes descargar el certificado cuando lo necesites.',
         onButtonPress: () => router.replace(`/funeraria/certificado/${result.id}` as any),
       });
       resetForm();

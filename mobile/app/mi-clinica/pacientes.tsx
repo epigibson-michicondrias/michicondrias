@@ -8,6 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import EmptyState from '@/src/components/EmptyState';
 import FilterChip from '@/src/components/FilterChip';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
+import ClinicRequired from '@/src/features/salud/ClinicRequired';
 import { getMyClinics } from '@/src/services/directorio';
 import { getClinicPatients, ClinicPatient } from '@/src/services/patients';
 import { formatDateMx } from '@/src/features/salud/format';
@@ -79,6 +80,8 @@ export default function PacientesScreen() {
             </ScreenContainer>
         );
     }
+
+    if (!clinic) return <ClinicRequired title="Pacientes" subtitle="Mascotas que atiendes" />;
 
     return (
         <ScreenContainer>

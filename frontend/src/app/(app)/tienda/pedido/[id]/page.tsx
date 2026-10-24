@@ -5,7 +5,6 @@
  */
 import { use, Suspense } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HelpCircle, Package, RotateCcw, XCircle } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
@@ -19,6 +18,7 @@ import EmptyState from "@/components/EmptyState";
 import { useOrderDetail } from "@/hooks/ecommerce/useOrderDetail";
 import { getOrderStatus, TRACKING_STEPS, trackingIndex } from "@/features/tienda/orderStatus";
 import { SUPPORT_EMAIL } from "@/constants/support";
+import { formatCurrency } from "@/utils/formatters";
 import s from "../../tienda.module.css";
 
 function PedidoContent({ orderId }: { orderId: string }) {
@@ -50,6 +50,7 @@ function PedidoContent({ orderId }: { orderId: string }) {
 
   const st = getOrderStatus(order.status);
   const stepIdx = trackingIndex(order.status);
+  const total = formatCurrency(order.total_amount);
   const totalLabel =
     order.status === "pending" ? "Total a pagar"
       : order.status === "cancelled" ? "Total (sin cargo)"
@@ -61,7 +62,7 @@ function PedidoContent({ orderId }: { orderId: string }) {
 
       <Card>
         <div className={s.priceRow}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className={s.statusRow}>
             <st.icon size={22} />
             <div>
               <p className={s.cardName}>{st.label}</p>
@@ -88,9 +89,9 @@ function PedidoContent({ orderId }: { orderId: string }) {
         <Card>
           <p className={s.cardName}>Tu pedido espera el pago</p>
           <p className={s.cardMeta}>Las piezas están apartadas por tiempo limitado.</p>
-          <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+          <div className={s.payActions}>
             <Button
-              label={`Pagar ahora · $${order.total_amount.toFixed(2)}`}
+              label={`Pagar ahora · ${total}`}
               onPress={payNow}
               loading={isPaying}
             />
@@ -119,9 +120,9 @@ function PedidoContent({ orderId }: { orderId: string }) {
               </div>
               <div className={s.orderBody}>
                 <p className={s.cardName}>{item.product?.name || "Producto"}</p>
-                <p className={s.cardMeta}>{item.quantity} × ${item.price_at_purchase.toFixed(2)}</p>
+                <p className={s.cardMeta}>{item.quantity} × {formatCurrency(item.price_at_purchase)}</p>
               </div>
-              <p className={s.cartLineTotal}>${(item.price_at_purchase * item.quantity).toFixed(2)}</p>
+              <p className={s.cartLineTotal}>{formatCurrency(Number(item.price_at_purchase ?? 0) * Number(item.quantity ?? 1))}</p>
             </div>
           ))}
         </div>
@@ -129,9 +130,9 @@ function PedidoContent({ orderId }: { orderId: string }) {
 
       <Card>
         <div className={s.summaryRow}><span>Dirección de envío</span><span>{order.shipping_address || "—"}</span></div>
-        <div className={s.summaryRow}><span>Subtotal</span><strong>${order.total_amount.toFixed(2)}</strong></div>
+        <div className={s.summaryRow}><span>Subtotal</span><strong>{total}</strong></div>
         <div className={s.summaryRow}><span>Envío</span><strong>Gratis</strong></div>
-        <div className={`${s.summaryRow} ${s.summaryTotal}`}><span>{totalLabel}</span><strong>${order.total_amount.toFixed(2)}</strong></div>
+        <div className={`${s.summaryRow} ${s.summaryTotal}`}><span>{totalLabel}</span><strong>{total}</strong></div>
       </Card>
 
       {order.status !== "pending" && (

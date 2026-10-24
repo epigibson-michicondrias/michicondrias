@@ -96,6 +96,7 @@ export function useLaboratory() {
         setResultData,
         // Data
         loadingClinics,
+        clinic,
         loadingTests,
         labTests,
         // Actions

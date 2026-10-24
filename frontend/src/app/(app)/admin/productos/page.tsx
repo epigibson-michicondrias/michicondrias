@@ -7,10 +7,11 @@
  */
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Package, ShieldCheck } from "lucide-react";
+import { Check, Eye, EyeOff, Package, ShieldCheck, X } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Badge from "@/components/Badge";
+import Button from "@/components/Button";
 import EmptyState from "@/components/EmptyState";
 import FilterChip from "@/components/FilterChip";
 import IconButton from "@/components/IconButton";
@@ -83,7 +84,8 @@ export default function AdminProductosPage() {
               {p.products.map((prod) => {
                 const st = productStatus(prod);
                 const href = `/tienda/producto/${prod.id}`;
-                const busy = p.updatingId === prod.id;
+                const busy = p.busyId === prod.id;
+                const isPending = prod.is_approved === false;
                 const hidden = !prod.is_active;
                 return (
                   <tr key={prod.id} className={s.rowLink} onClick={() => router.push(href)}>
@@ -123,14 +125,38 @@ export default function AdminProductosPage() {
                     </td>
                     <td>
                       <div className={s.cellActions} onClick={(e) => e.stopPropagation()}>
-                        <IconButton
-                          icon={hidden ? Eye : EyeOff}
-                          accessibilityLabel={hidden ? `Mostrar ${prod.name}` : `Ocultar ${prod.name}`}
-                          onPress={() => p.toggleVisibility(prod)}
-                          color={hidden ? "var(--color-success)" : "var(--color-text-muted)"}
-                          size="sm"
-                          disabled={!!p.updatingId && !busy}
-                        />
+                        {isPending ? (
+                          <>
+                            <Button
+                              label="Aprobar"
+                              icon={<Check size={16} />}
+                              size="sm"
+                              variant="secondary"
+                              fullWidth={false}
+                              onPress={() => p.approve(prod)}
+                              loading={busy}
+                              disabled={!!p.busyId && !busy}
+                            />
+                            <Button
+                              label="Rechazar"
+                              icon={<X size={16} />}
+                              size="sm"
+                              variant="danger"
+                              fullWidth={false}
+                              onPress={() => p.reject(prod)}
+                              disabled={!!p.busyId}
+                            />
+                          </>
+                        ) : (
+                          <IconButton
+                            icon={hidden ? Eye : EyeOff}
+                            accessibilityLabel={hidden ? `Mostrar ${prod.name}` : `Ocultar ${prod.name}`}
+                            onPress={() => p.toggleVisibility(prod)}
+                            color={hidden ? "var(--color-success)" : "var(--color-text-muted)"}
+                            size="sm"
+                            disabled={!!p.busyId && !busy}
+                          />
+                        )}
                       </div>
                     </td>
                   </tr>

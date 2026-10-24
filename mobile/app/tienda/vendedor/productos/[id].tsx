@@ -1,11 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Eye } from 'lucide-react-native';
+import { Eye, SearchX } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProductForm } from '@/src/hooks/ecommerce/useProductForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormField from '@/src/components/FormField';
 import FormSection from '@/src/components/forms/FormSection';
@@ -21,6 +23,7 @@ import { layout, shadow, spacing, type } from '@/constants/design';
 const PREVIEW_WIDTH = 160;
 
 export default function VendedorProductoFormScreen() {
+    const router = useRouter();
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const f = useProductForm();
@@ -37,6 +40,21 @@ export default function VendedorProductoFormScreen() {
                     <Skeleton height={50} />
                     <Skeleton height={50} />
                 </View>
+            </ScreenContainer>
+        );
+    }
+
+    if (f.notFound) {
+        return (
+            <ScreenContainer>
+                <ScreenHeader title={title} />
+                <EmptyState
+                    icon={<SearchX size={layout.icon.xl} color={theme.textMuted} />}
+                    title="No encontramos este producto"
+                    subtitle="Puede que se haya eliminado."
+                    actionLabel="Volver a mi catálogo"
+                    onAction={() => router.push('/tienda/vendedor/productos')}
+                />
             </ScreenContainer>
         );
     }

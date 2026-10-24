@@ -5,11 +5,12 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useMyClinic } from '@/src/hooks/directorio/useMyClinic';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { canAccessRoute, getRoleTools } from '@/src/constants/roleTools';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
-import { Calendar, Settings, Activity, Users, ClipboardList, Stethoscope, Briefcase, ChevronRight, Clock, Package, FlaskConical, FileText, AlertTriangle, DollarSign, BarChart3, Video, MapPin } from 'lucide-react-native';
+import { Calendar, Settings, Activity, Stethoscope, ChevronRight, DollarSign, BarChart3 } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
@@ -18,8 +19,10 @@ export default function MiClinicaScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const { user } = useAuth();
-    const isHospital = user?.role_name === 'hospital';
-    const isVet = user?.role_name === 'veterinario';
+    // El mismo criterio que ROLE_TOOLS / ROUTE_ACCESS: cada entrada se muestra solo al rol que puede abrirla.
+    const role = user?.role_name ?? null;
+    // Menú = herramientas de /mi-clinica del rol (fuente única ROLE_TOOLS), sin la propia "Mi clínica".
+    const menuTools = getRoleTools(role).filter((t) => t.route.startsWith('/mi-clinica/') && canAccessRoute(role, t.route));
     const {
         clinic,
         loadingClinics,
@@ -121,17 +124,9 @@ export default function MiClinicaScreen() {
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>Gestión Operativa</Text>
 
                     <View style={styles.menuGrid}>
-                        <MenuItem icon={ClipboardList} color={theme.primary} label="Agenda" sub="Gestionar citas" onPress={() => router.push('/mi-clinica/agenda' as any)} theme={theme} />
-                        <MenuItem icon={Briefcase} color={theme.secondary} label="Servicios" sub="Catálogo pro" onPress={() => router.push('/mi-clinica/servicios' as any)} theme={theme} />
-                        <MenuItem icon={Users} color={theme.success} label="Vets" sub="Tu Equipo" onPress={() => router.push('/mi-clinica/veterinarios' as any)} theme={theme} />
-                        <MenuItem icon={Clock} color={theme.warning} label="Horarios" sub="Disponibilidad" onPress={() => router.push('/mi-clinica/horarios' as any)} theme={theme} />
-                        <MenuItem icon={Stethoscope} color={theme.error} label="Cirugías" sub="Quirófano" onPress={() => router.push('/mi-clinica/cirugias' as any)} theme={theme} />
-                        <MenuItem icon={Package} color={theme.primary} label="Inventario" sub="Insumos médicos" onPress={() => router.push('/mi-clinica/inventario' as any)} theme={theme} />
-                        <MenuItem icon={FlaskConical} color={theme.info} label="Laboratorio" sub="Pruebas y resultados" onPress={() => router.push('/mi-clinica/laboratorio' as any)} theme={theme} />
-                        <MenuItem icon={FileText} color={theme.success} label="Recetas" sub="Prescripciones" onPress={() => router.push('/mi-clinica/recetas' as any)} theme={theme} />
-                        {isVet && <MenuItem icon={Video} color={theme.info} label="Videoconsultas" sub="Pacientes virtuales" onPress={() => router.push('/mi-clinica/consultas-video' as any)} theme={theme} />}
-                        {isHospital && <MenuItem icon={MapPin} color={theme.info} label="Sucursales" sub="Sedes y datos" onPress={() => router.push('/mi-clinica/sucursales' as any)} theme={theme} />}
-                        <MenuItem icon={AlertTriangle} color={theme.error} label="Pacientes" sub="General y Críticos" onPress={() => router.push('/mi-clinica/pacientes' as any)} theme={theme} />
+                        {menuTools.map((t) => (
+                            <MenuItem key={t.id} icon={t.icon} color={t.color} label={t.label} sub={t.desc} onPress={() => router.push(t.route as any)} theme={theme} />
+                        ))}
                     </View>
 
                     {/* Revenue & Occupancy Section */}

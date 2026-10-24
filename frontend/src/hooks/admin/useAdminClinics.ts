@@ -1,15 +1,17 @@
 /**
- * useAdminClinics — clínicas del directorio con búsqueda y filtro verificadas / en revisión.
- * Espejo de `mobile/src/hooks/admin/useAdminClinics.ts`. `GET /clinics/` solo trae las aprobadas, así que se suman
- * las de `GET /clinics/admin/pending` para que el filtro "En revisión" muestre algo real.
+ * useAdminClinics — clínicas del directorio con búsqueda y filtro verificadas / en revisión / suspendidas.
+ * Espejo de `mobile/src/hooks/admin/useAdminClinics.ts`. `GET /clinics/` solo trae las aprobadas y no suspendidas,
+ * así que se suman las de `GET /clinics/admin/pending` y las suspendidas retenidas en la sesión
+ * (`suspendedClinics`) para que el admin no pierda la pista de una clínica al suspenderla.
  */
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getClinics, type Clinic } from '@/services/directorio';
 import { getPendingClinics } from '@/services/moderacion';
+import { getSuspendedSeen } from './suspendedClinics';
 
 export type { Clinic };
-export type ClinicFilter = 'all' | 'approved' | 'pending';
+export type ClinicFilter = 'all' | 'approved' | 'pending' | 'suspended';
 
 export function useAdminClinics() {
     const [searchText, setSearchText] = useState('');
@@ -21,26 +23,37 @@ export function useAdminClinics() {
     });
 
     const clinics = useMemo(() => {
-        const seen = new Set(approved.map((c) => c.id));
-        return [...pending.filter((c) => !seen.has(c.id)).map((c) => ({ ...c, is_approved: false })), ...approved];
+        const byId = new Map<string, Clinic>();
+        for (const c of getSuspendedSeen()) byId.set(c.id, { ...c, is_suspended: true });
+        for (const c of pending) {
+            if (!byId.has(c.id)) byId.set(c.id, { ...c, is_approved: false });
+        }
+        for (const c of approved) byId.set(c.id, { ...c, is_approved: c.is_approved !== false });
+        // Suspendidas primero dentro de cada bloque: el admin las busca para reactivarlas.
+        return [...byId.values()].sort((a, b) => Number(!!b.is_suspended) - Number(!!a.is_suspended));
     }, [approved, pending]);
 
     const filtered = useMemo(() => {
         const q = searchText.trim().toLowerCase();
         return clinics.filter(
             (c) =>
-                (filter === 'all' || (filter === 'approved' ? c.is_approved !== false : c.is_approved === false)) &&
+                (filter === 'all' ||
+                    (filter === 'approved' && c.is_approved !== false && !c.is_suspended) ||
+                    (filter === 'pending' && c.is_approved === false) ||
+                    (filter === 'suspended' && !!c.is_suspended)) &&
                 (!q || `${c.name} ${c.city ?? ''} ${c.address ?? ''}`.toLowerCase().includes(q)),
         );
     }, [clinics, searchText, filter]);
 
-    const approvedCount = clinics.filter((c) => c.is_approved !== false).length;
+    const approvedCount = clinics.filter((c) => c.is_approved !== false && !c.is_suspended).length;
+    const suspendedCount = clinics.filter((c) => !!c.is_suspended).length;
 
     return {
         clinics: filtered,
         total: clinics.length,
         approvedCount,
-        pendingCount: clinics.length - approvedCount,
+        suspendedCount,
+        pendingCount: clinics.filter((c) => c.is_approved === false).length,
         isLoading: isLoading || loadingPending,
         searchText,
         setSearchText,

@@ -52,7 +52,7 @@ export default function AdminPedidosPage() {
           onAction={o.filtering ? o.clearFilters : undefined}
         />
       ) : (
-        <div className={s.tableWrap} style={{ opacity: o.isFetching && !o.updatingId ? 0.6 : 1 }}>
+        <div className={`${s.tableWrap} ${o.isFetching && !o.updatingId ? s.refreshing : ""}`}>
           <table className={s.table}>
             <thead>
               <tr>

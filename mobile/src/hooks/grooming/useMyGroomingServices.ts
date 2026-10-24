@@ -23,7 +23,7 @@ export function useMyGroomingServices() {
     const [draft, setDraft] = useState<ServiceDraft>({ name: '', description: '', price: '', duration_minutes: '' });
     const [errors, setErrors] = useState<Errors>({});
 
-    const { data: services = [], isLoading, refetch, isRefetching } = useQuery({
+    const { data: services = [], isLoading, isError, refetch, isRefetching } = useQuery({
         queryKey: ['grooming-my-services'],
         queryFn: getMyGroomingServices,
     });
@@ -84,6 +84,7 @@ export function useMyGroomingServices() {
     return {
         services,
         isLoading,
+        isError,
         refetch,
         isRefetching,
         toggle: (s: GroomingService) => toggleMutation.mutate(s),

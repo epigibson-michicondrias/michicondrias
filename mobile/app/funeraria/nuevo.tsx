@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { showAlert } from '@/src/components/AppAlert';
 import { createFuneraryService, CREMATION_OPTIONS } from '../../src/services/funerary';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -12,6 +13,7 @@ import { font, spacing } from '@/constants/design';
 export default function NuevaFunerariaScreen() {
     const router = useRouter();
     const { theme, isDark } = useTheme();
+    const queryClient = useQueryClient();
 
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
@@ -39,6 +41,9 @@ export default function NuevaFunerariaScreen() {
                 cremation_type: form.cremation_type,
                 urn_included: form.urn_included,
             });
+            queryClient.invalidateQueries({ queryKey: ['funerary-my-services'] });
+            queryClient.invalidateQueries({ queryKey: ['funerary-services'] });
+            queryClient.invalidateQueries({ queryKey: ['funerary-services-booking'] });
             showAlert({
                 type: 'success',
                 title: '¡Éxito!',

@@ -7,7 +7,7 @@
  */
 import type { ComponentType } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, CheckCircle2, ClipboardList, Heart, ImageOff, MapPin, Package, Stethoscope, XCircle } from "lucide-react";
+import { Building2, CheckCircle2, ClipboardList, Heart, ImageOff, MapPin, Package, RefreshCw, Stethoscope, XCircle } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
@@ -37,19 +37,19 @@ function ModerationCard({ item, busy, disabled, onAction }: { item: ModerationIt
         // eslint-disable-next-line @next/next/no-img-element -- imagen del storage
         <img src={item.imageUrl} alt={item.title} className={s.modImg} loading="lazy" />
       ) : (
-        <span className={s.modImg}>
-          <ImageOff size={28} aria-hidden />
+        <span className={s.modImg} aria-hidden>
+          <ImageOff size={28} />
         </span>
       )}
       <div className={s.modBody}>
         <span className={s.cellTitle}>{item.title}</span>
-        {item.subtitle ? <span className={s.cellSub}>{item.subtitle}</span> : null}
-        {item.detail ? <p className={s.modDetail}>{item.detail}</p> : null}
+        <span className={s.cellSub}>{item.subtitle}</span>
+        <p className={s.modDetail}>{item.detail}</p>
         {date ? <span className={s.muted}>Enviado el {date}</span> : null}
       </div>
       <div className={s.modActions}>
-        <Button label="Rechazar" icon={<XCircle size={16} />} size="sm" variant="ghost" onPress={() => onAction("reject")} disabled={busy || disabled} />
-        <Button label="Aprobar" icon={<CheckCircle2 size={16} />} size="sm" onPress={() => onAction("approve")} loading={busy} disabled={disabled} />
+        <Button label="Rechazar" icon={<XCircle size={16} />} variant="ghost" onPress={() => onAction("reject")} disabled={busy || disabled} />
+        <Button label="Aprobar" icon={<CheckCircle2 size={16} />} onPress={() => onAction("approve")} loading={busy} disabled={disabled} />
       </div>
     </article>
   );
@@ -65,7 +65,11 @@ export default function AdminModeracionPage() {
 
   return (
     <ScreenContainer>
-      <ScreenHeader title="Moderación" subtitle={total ? `${total} ${total === 1 ? "elemento" : "elementos"} por revisar` : "Nada pendiente"} />
+      <ScreenHeader
+        title="Moderación"
+        subtitle={m.isLoading ? "Cargando pendientes…" : total ? `${total} ${total === 1 ? "elemento" : "elementos"} por revisar` : "Nada pendiente"}
+        actions={[{ icon: RefreshCw, label: "Actualizar", onPress: m.refetch, loading: m.isFetching && !m.isLoading }]}
+      />
 
       <div className={s.toolbar}>
         <div className={s.chips} role="group" aria-label="Tipo de contenido">
@@ -77,6 +81,14 @@ export default function AdminModeracionPage() {
 
       {m.isLoading ? (
         <SkeletonList count={4} />
+      ) : m.isError ? (
+        <EmptyState
+          icon={<XCircle size={28} />}
+          title="No pudimos cargar la cola"
+          subtitle="Ocurrió un error al pedir el contenido pendiente. El detalle aparece arriba; vuelve a intentarlo."
+          actionLabel="Reintentar"
+          onAction={m.refetch}
+        />
       ) : m.items.length === 0 ? (
         <EmptyState
           icon={<MetaIcon size={28} />}

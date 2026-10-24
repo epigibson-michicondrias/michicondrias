@@ -4,15 +4,18 @@
  * Configuración del sistema (`/admin/config`): interruptores globales, estado de la última sincronización y acciones
  * de mantenimiento con confirmación. Espejo de `mobile/app/admin/config.tsx`.
  */
-import { Database, Trash2 } from "lucide-react";
+import { Fragment } from "react";
+import { Database, Settings, Trash2 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
+import EmptyState from "@/components/EmptyState";
 import FormSection from "@/components/forms/FormSection";
 import FormSwitch from "@/components/forms/FormSwitch";
 import { Skeleton } from "@/components/Skeleton";
 import { useAdminConfig, type ToggleKey } from "@/hooks/admin/useAdminConfig";
 import s from "@/features/admin/admin.module.css";
+import c from "./config.module.css";
 
 const SWITCHES: { section: string; items: { key: ToggleKey; label: string; description: string }[] }[] = [
   {
@@ -70,8 +73,10 @@ function ConfigSkeleton() {
 }
 
 export default function AdminConfigPage() {
-  const { currentSettings, isLoading, toggleSetting, updatingKey, syncDatabase, clearCache, isSyncing, isClearing, lastSyncResult, tableLabel } =
-    useAdminConfig();
+  const {
+    currentSettings, hasSettings, isLoading, isError, refetchSettings, toggleSetting, isUpdating,
+    syncDatabase, clearCache, isSyncing, isClearing, lastSyncResult, tableLabel,
+  } = useAdminConfig();
 
   return (
     <ScreenContainer>
@@ -79,20 +84,30 @@ export default function AdminConfigPage() {
 
       {isLoading ? (
         <ConfigSkeleton />
+      ) : !hasSettings ? (
+        // Sin datos del servidor no se muestran interruptores: los valores por defecto podrían mentir.
+        <EmptyState
+          icon={<Settings size={48} strokeWidth={1} />}
+          title={isError ? "No pudimos cargar la configuración" : "Sin configuración disponible"}
+          subtitle={isError ? "Revisa tu conexión e inténtalo de nuevo." : "El servidor no devolvió los ajustes del sistema."}
+          actionLabel="Reintentar"
+          onAction={() => refetchSettings()}
+        />
       ) : (
         <div className={s.content}>
           {SWITCHES.map((group) => (
             <FormSection key={group.section} title={group.section}>
               {group.items.map((item) => (
-                <FormSwitch
-                  key={item.key}
-                  label={item.label}
-                  description={item.description}
-                  value={!!currentSettings[item.key]}
-                  onChange={() => {
-                    if (updatingKey !== item.key) toggleSetting(item.key);
-                  }}
-                />
+                // `fieldset disabled` es la forma nativa de bloquear el interruptor mientras se guarda
+                // (FormSwitch aún no expone `disabled`; ver reporte del módulo).
+                <fieldset key={item.key} disabled={isUpdating} className={c.switchGroup}>
+                  <FormSwitch
+                    label={item.label}
+                    description={item.description}
+                    value={!!currentSettings[item.key]}
+                    onChange={() => toggleSetting(item.key)}
+                  />
+                </fieldset>
               ))}
             </FormSection>
           ))}
@@ -106,13 +121,13 @@ export default function AdminConfigPage() {
               <dd>{currentSettings.cache_version || "Sin dato"}</dd>
             </dl>
             {lastSyncResult ? (
-              <dl className={s.kv} role="status" aria-label="Resultado de la sincronización">
-                <dt>Registros contados</dt>
-                <dd>
-                  {Object.entries(lastSyncResult.counts)
-                    .map(([table, n]) => `${tableLabel(table)}: ${n == null ? "—" : n}`)
-                    .join(" · ")}
-                </dd>
+              <dl className={s.kv} role="status" aria-label="Registros contados en la última sincronización">
+                {Object.entries(lastSyncResult.counts).map(([table, n]) => (
+                  <Fragment key={table}>
+                    <dt>{tableLabel(table)}</dt>
+                    <dd>{n == null ? "—" : n}</dd>
+                  </Fragment>
+                ))}
               </dl>
             ) : null}
             <div className={s.configActions}>
@@ -122,7 +137,7 @@ export default function AdminConfigPage() {
                 variant="secondary"
                 fullWidth={false}
                 loading={isSyncing}
-                disabled={isSyncing}
+                disabled={isSyncing || isClearing}
                 onPress={syncDatabase}
               />
               <Button
@@ -131,7 +146,7 @@ export default function AdminConfigPage() {
                 variant="danger"
                 fullWidth={false}
                 loading={isClearing}
-                disabled={isClearing}
+                disabled={isClearing || isSyncing}
                 onPress={clearCache}
               />
             </div>

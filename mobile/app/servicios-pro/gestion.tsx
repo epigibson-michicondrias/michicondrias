@@ -7,6 +7,7 @@ import { normalizeStatus, STATUS_FILTERS } from '@/src/hooks/servicios-pro/reque
 import ServiceRequestCard from '@/src/features/servicios-pro/ServiceRequestCard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import RoleGuard from '@/src/components/RoleGuard';
 import EmptyState from '@/src/components/EmptyState';
 import FilterChip from '@/src/components/FilterChip';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
@@ -15,6 +16,14 @@ import { Clock, ClipboardList, User, Activity } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function ProfessionalGestionScreen() {
+    return (
+        <RoleGuard roles={['paseador', 'cuidador']} message="Mis tareas es para cuentas de paseador o cuidador.">
+            <ProfessionalGestion />
+        </RoleGuard>
+    );
+}
+
+function ProfessionalGestion() {
     const router = useRouter();
     const { theme } = useTheme();
     const { kind, filter, setFilter, actionLoading, allRequests, filtered, isLoading, handleStatusUpdate } = useServiceManagement();

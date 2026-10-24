@@ -102,6 +102,9 @@ export function useServiceProfile() {
   return {
     isWalker,
     hasProfile: !!profile,
+    /** Sello «Verificado» que un admin activó (X3). */
+    isVerified: !!profile?.is_verified,
+    isSuspended: profile?.is_active === false,
     form,
     updateField,
     saving,

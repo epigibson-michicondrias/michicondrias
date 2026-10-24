@@ -5,7 +5,7 @@ import { useFuneraryServices } from '@/src/hooks/funerary/useFuneraryServices';
 import { FuneraryService, cremationLabel } from '@/src/services/funerary';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { Heart, DollarSign, Plus } from 'lucide-react-native';
+import { Heart, DollarSign, Plus, ClipboardList } from 'lucide-react-native';
 import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
@@ -88,13 +88,24 @@ export default function FunerariaScreen() {
                         </TouchableOpacity>
                     </>
                 ) : (
-                    <TouchableOpacity
-                        style={[styles.actionButton, { backgroundColor: theme.secondary }]}
-                        onPress={() => router.push('/funeraria/mis-reservas')}
-                    >
-                        <Heart size={18} color={theme.onPrimary} />
-                        <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis Reservas</Text>
-                    </TouchableOpacity>
+                    <>
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            style={[styles.actionButton, { backgroundColor: theme.secondary }]}
+                            onPress={() => router.push('/funeraria/mis-reservas')}
+                        >
+                            <Heart size={18} color={theme.onPrimary} />
+                            <Text style={[styles.actionButtonText, { color: theme.onPrimary }]}>Mis Reservas</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            style={[styles.actionButton, { backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }]}
+                            onPress={() => router.push('/funeraria/reporte-defuncion')}
+                        >
+                            <ClipboardList size={18} color={theme.textMuted} />
+                            <Text style={[styles.actionButtonText, { color: theme.text }]}>Reportar defunción</Text>
+                        </TouchableOpacity>
+                    </>
                 )}
             </View>
 
@@ -132,13 +143,15 @@ export default function FunerariaScreen() {
 const styles = StyleSheet.create({
     actionButtons: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         paddingHorizontal: layout.screenPadding,
         gap: spacing.md,
         marginBottom: spacing.lg,
     },
     actionButton: {
         flexDirection: 'row',
-        flex: 1,
+        flexGrow: 1,
+        flexBasis: '46%',
         paddingVertical: spacing.md,
         paddingHorizontal: spacing.lg,
         borderRadius: 12,

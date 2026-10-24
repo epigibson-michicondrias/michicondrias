@@ -1,5 +1,7 @@
 /**
  * useAdminVerifications — cola de identidades (KYC) por revisar.
+ * Los documentos (INE frente/reverso y comprobante) solo llegan en `GET /users/pending-verifications` y en
+ * `GET /users/{id}` (X6.1: los listados generales de usuarios ya no los traen).
  * Aprobar va directo; rechazar pide confirmación. `busyId` marca la tarjeta que se está procesando.
  */
 import { useState } from 'react';
@@ -9,13 +11,14 @@ import type { AdminUserDetail } from '@/services/adminUsers';
 import { showAlert } from '@/components/AppAlert';
 import { errorMessage } from '@/features/servicios-pro/requestStatus';
 
-export type PendingVerification = AdminUserDetail;
+/** La cola de pendientes no trae `created_at` (el helper del backend no lo copia); el resto es el detalle de usuario. */
+export type PendingVerification = Omit<AdminUserDetail, 'created_at'> & { created_at?: string | null };
 
 export function useAdminVerifications() {
     const queryClient = useQueryClient();
     const [busyId, setBusyId] = useState<string | null>(null);
 
-    const { data: pendingUsers = [], isLoading, isFetching, refetch } = useQuery({
+    const { data: pendingUsers = [], isLoading, isFetching, isError, refetch } = useQuery({
         queryKey: ['pending-verifications'],
         queryFn: async (): Promise<PendingVerification[]> => getPendingVerifications(),
     });
@@ -31,10 +34,12 @@ export function useAdminVerifications() {
                 message: variables.status === 'VERIFIED' ? 'La cuenta ya aparece como verificada.' : 'La persona podrá volver a subir sus documentos.',
             });
         },
+        // El motivo real del servidor viene en el mensaje del ApiError; el fallback solo cubre errores de red.
         onError: (e) => showAlert({ type: 'error', title: 'No se pudo completar', message: errorMessage(e, 'No se pudo procesar la verificación.') }),
         onSettled: () => setBusyId(null),
     });
 
+    /** Aprobar es reversible y de bajo riesgo: se aplica sin confirmar. Rechazar sí confirma. */
     const handleAction = (userId: string, name: string, status: 'VERIFIED' | 'REJECTED') => {
         if (status === 'VERIFIED') {
             verifyMutation.mutate({ userId, status });
@@ -55,6 +60,7 @@ export function useAdminVerifications() {
         pendingUsers,
         isLoading,
         isFetching,
+        isError,
         refetch,
         verifyMutation,
         busyId,

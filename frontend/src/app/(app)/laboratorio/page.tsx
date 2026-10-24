@@ -9,9 +9,9 @@ import { useRouter } from "next/navigation";
 import {
   FlaskConical,
   Calendar,
-  Clock,
   CheckCircle,
   X,
+  Clock,
 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
@@ -22,6 +22,8 @@ import FilterChip from "@/components/FilterChip";
 import EmptyState from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import { showAlert } from "@/components/AppAlert";
+import { useAuth } from "@/contexts/AuthContext";
+import { normalizeRole } from "@/constants/roles";
 import { useLabOrders } from "@/hooks/laboratorio/useLabOrders";
 import { formatDate, formatCurrency } from "@/utils/formatters";
 import local from "./laboratorio.module.css";
@@ -37,6 +39,9 @@ function statusBadge(status?: string) {
 
 export default function LaboratorioPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const role = normalizeRole(user?.role_name);
+  const canManageLab = role === "laboratorio" || role === "admin";
   const [view, setView] = useState<View>("estudios");
   const {
     appointments,
@@ -65,13 +70,17 @@ export default function LaboratorioPage() {
         title="Laboratorio"
         subtitle="Estudios clínicos para tu mascota"
         showBack={false}
-        actions={[
-          {
-            icon: FlaskConical,
-            label: "Gestión de laboratorio",
-            onPress: () => router.push("/laboratorio/gestion"),
-          },
-        ]}
+        actions={
+          canManageLab
+            ? [
+                {
+                  icon: FlaskConical,
+                  label: "Gestión de laboratorio",
+                  onPress: () => router.push("/laboratorio/gestion"),
+                },
+              ]
+            : undefined
+        }
       />
 
       <div className={local.toolbar}>

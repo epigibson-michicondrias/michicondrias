@@ -90,6 +90,7 @@ export function useProduct() {
         toggleFavorite: () => product && toggleFavorite(product.id),
         isFavoriteId: isFavorite,
         toggleFavoriteId: toggleFavorite,
+        userId: user?.id,
     };
 }
 

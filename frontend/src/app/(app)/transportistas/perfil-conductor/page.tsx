@@ -4,10 +4,11 @@
  * Perfil de conductor (`/transportistas/perfil-conductor`): alta/edición del vehículo.
  * Espejo de `mobile/app/transportistas/perfil-conductor.tsx`.
  */
-import { Car, CheckCircle2, Save, UserCircle } from "lucide-react";
+import { AlertCircle, Car, CheckCircle2, Save, UserCircle } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
+import EmptyState from "@/components/EmptyState";
 import FormSection from "@/components/forms/FormSection";
 import FormSwitch from "@/components/forms/FormSwitch";
 import FormField from "@/components/FormField";
@@ -17,17 +18,26 @@ import { useDriverProfile } from "@/hooks/rides/useDriverProfile";
 import l from "../transportistas.module.css";
 
 function PerfilConductorContent() {
-  const { form, updateForm, isLoading, isExistingProfile, handleSave, isSaving } = useDriverProfile();
+  const { form, errors, updateForm, isLoading, isError, isExistingProfile, handleSave, isSaving, refetch } =
+    useDriverProfile();
 
   return (
     <ScreenContainer>
       <ScreenHeader
         title="Perfil de conductor"
-        subtitle={isExistingProfile ? "Edita tu perfil de conductor" : "Crea tu perfil de conductor"}
+        subtitle={isExistingProfile ? "Edita los datos de tu vehículo" : "Completa los datos para empezar a conducir"}
       />
 
       {isLoading ? (
         <SkeletonList count={3} />
+      ) : isError ? (
+        <EmptyState
+          icon={<AlertCircle size={28} />}
+          title="No pudimos cargar tu perfil"
+          subtitle="Revisa tu conexión e intenta de nuevo."
+          actionLabel="Reintentar"
+          onAction={() => refetch()}
+        />
       ) : (
         <>
           <div className={`${l.statusBanner} ${!isExistingProfile ? l.statusBannerNew : ""}`}>
@@ -50,12 +60,15 @@ function PerfilConductorContent() {
               value={form.vehicle_model}
               onChangeText={(val) => updateForm({ vehicle_model: val })}
               placeholder="Ej. Toyota Corolla 2023"
+              error={errors.vehicle_model}
             />
             <FormField
               label="Placa del vehículo *"
               value={form.vehicle_plate}
-              onChangeText={(val) => updateForm({ vehicle_plate: val })}
+              onChangeText={(val) => updateForm({ vehicle_plate: val.toUpperCase() })}
               placeholder="Ej. ABC-1234"
+              maxLength={10}
+              error={errors.vehicle_plate}
             />
             <FormField
               label="Capacidad máxima de mascotas"
@@ -64,6 +77,7 @@ function PerfilConductorContent() {
               placeholder="1"
               keyboardType="number-pad"
               maxLength={2}
+              error={errors.max_capacity}
             />
           </FormSection>
 

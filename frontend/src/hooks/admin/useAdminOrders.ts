@@ -62,6 +62,7 @@ export function useAdminOrders() {
             queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
             queryClient.invalidateQueries({ queryKey: ['seller-orders'] });
             queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+            queryClient.invalidateQueries({ queryKey: ['order-detail'] });
             showAlert({ type: 'success', title: 'Pedido actualizado', message: `Ahora está "${getOrderStatus(status).label}".` });
         },
         onError: (e) => {

@@ -104,11 +104,18 @@ export function useInsuranceAdmin() {
     { claimId: string; data: InsuranceClaimUpdate }
   >({
     mutationFn: ({ claimId, data }) => updateClaimStatus(claimId, data),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["insuranceClaims"] });
+      queryClient.invalidateQueries({ queryKey: ["insurancePolicies"] });
+      const statusLabel = variables.data.status === "approved" ? "aprobado" : "rechazado";
+      showAlert({
+        type: "success",
+        title: "Estado actualizado",
+        message: `El reclamo ha sido ${statusLabel}.`,
+      });
     },
     onError: (e) =>
-      showAlert({ type: "error", title: "No se pudo actualizar", message: e.message || "Inténtalo de nuevo." }),
+      showAlert({ type: "error", title: "No se pudo actualizar el reclamo", message: e.message || "Inténtalo de nuevo." }),
   });
 
   const handleCreatePlan = () => {
@@ -157,6 +164,19 @@ export function useInsuranceAdmin() {
     });
   };
 
+  /** Resolución de un reclamo, con confirmación previa (acción difícil de deshacer). */
+  const handleUpdateClaimStatus = (claimId: string, status: string) => {
+    showAlert({
+      type: "warning",
+      title: `¿${status === "approved" ? "Aprobar" : "Rechazar"} reclamo?`,
+      message: `Esta acción cambiará el estado del reclamo a "${status === "approved" ? "Aprobado" : "Rechazado"}".`,
+      buttonText: "Confirmar",
+      showCancel: true,
+      cancelText: "Volver",
+      onButtonPress: () => updateClaimMutation.mutate({ claimId, data: { status } }),
+    });
+  };
+
   return {
     planForm,
     updatePlanField,
@@ -171,6 +191,7 @@ export function useInsuranceAdmin() {
     allClaims,
     isLoadingClaims,
     toggleActive: (planId: string, active: boolean) => toggleActiveMutation.mutate({ planId, active }),
+    handleUpdateClaimStatus,
     updateClaimStatus: (claimId: string, status: string) =>
       updateClaimMutation.mutate({ claimId, data: { status } }),
     isUpdatingClaim: updateClaimMutation.isPending,

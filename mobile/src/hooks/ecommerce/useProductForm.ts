@@ -134,6 +134,7 @@ export function useProductForm() {
         saving,
         categories,
         loadingProduct,
+        notFound: !!isEditing && !loadingProduct && !product,
         handleSave,
         localImage,
         setLocalImage: pickImage,

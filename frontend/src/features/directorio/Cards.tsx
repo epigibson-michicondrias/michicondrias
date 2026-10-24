@@ -15,6 +15,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import type { Clinic, Vet } from "@/types/directorio";
+import { getS3Url } from "@/utils/helpers";
 import s from "./cards.module.css";
 
 function RatingInline({ average, total }: { average?: number; total?: number }) {
@@ -34,8 +35,8 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
       <div className={s.cardHeader}>
         <div className={`${s.avatar} ${s.avatarPrimary}`} aria-hidden>
           {clinic.logo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={clinic.logo_url} alt="" className={s.avatarImg} />
+            // eslint-disable-next-line @next/next/no-img-element -- logo del storage
+            <img src={getS3Url(clinic.logo_url)} alt="" className={s.avatarImg} />
           ) : (
             clinic.name.charAt(0).toUpperCase()
           )}
@@ -91,8 +92,8 @@ export function VetCard({ vet }: { vet: Vet }) {
       <div className={s.cardHeader}>
         <div className={`${s.avatar} ${s.avatarSuccess}`} aria-hidden>
           {vet.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={vet.photo_url} alt="" className={s.avatarImg} />
+            // eslint-disable-next-line @next/next/no-img-element -- foto del storage
+            <img src={getS3Url(vet.photo_url)} alt="" className={s.avatarImg} />
           ) : (
             vet.first_name.charAt(0).toUpperCase()
           )}

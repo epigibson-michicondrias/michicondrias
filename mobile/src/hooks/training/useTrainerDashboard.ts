@@ -1,11 +1,16 @@
 /**
  * useTrainerDashboard — Hook for trainer/provider dashboard
- * Handles provider enrollments, program creation, and goal management
+ * Handles provider enrollments, program creation/edition, and goal management
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getProviderEnrollments, createProgram, createGoal, updateGoal, reviewGoalVideo, updateEnrollmentStatus, TrainingEnrollment, TrainingProgramCreate, PetTrainingGoalCreate, PetTrainingGoalUpdate } from '@/src/services/training';
+import {
+    getProviderEnrollments, getMyPrograms, createProgram, updateProgram,
+    createGoal, updateGoal, reviewGoalVideo, updateEnrollmentStatus,
+    TrainingEnrollment, TrainingProgramCreate, TrainingProgramUpdate,
+    PetTrainingGoalCreate, PetTrainingGoalUpdate,
+} from '@/src/services/training';
 import { showAlert } from '@/src/components/AppAlert';
 
 export interface ProgramFormData {

@@ -16,21 +16,26 @@ export interface ModerationItem {
     id: string;
     title: string;
     subtitle: string;
-    detail?: string | null;
-    imageUrl?: string | null;
-    createdAt?: string | null;
+    detail: string;
+    imageUrl: string | null;
+    createdAt: string | null;
 }
 
 type Raw = Record<string, unknown> & { id: string };
 
-const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v : null);
+const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null);
 const img = (v: unknown) => (str(v) ? getS3Url(v as string) : null);
+/** Une partes presentes con `sep`; si no queda nada, devuelve `fallback`. */
+const join = (parts: Array<unknown>, sep = ' · ', fallback = '') =>
+    parts.map(str).filter(Boolean).join(sep) || fallback;
 
 const TABS: Record<TabType, {
     key: string;
     fetch: () => Promise<unknown[]>;
     approve: (id: string) => Promise<unknown>;
     reject: (id: string) => Promise<unknown>;
+    /** Aviso del confirmar-rechazar: varias colas borran el contenido. */
+    rejectNote: string;
     map: (r: Raw) => ModerationItem;
 }> = {
     adopciones: {
@@ -38,42 +43,96 @@ const TABS: Record<TabType, {
         fetch: ModeracionService.getPendingAdoptions,
         approve: ModeracionService.approveAdoption,
         reject: ModeracionService.rejectAdoption,
-        map: (r) => ({ id: r.id, title: str(r.name) || 'Mascota', subtitle: [str(r.species), str(r.breed)].filter(Boolean).join(' · ') || 'En adopción', detail: str(r.description), imageUrl: img(r.photo_url), createdAt: str(r.created_at) }),
+        rejectNote: 'La publicación se elimina y no se puede deshacer.',
+        map: (r) => ({
+            id: r.id,
+            title: str(r.name) || 'Mascota sin nombre',
+            subtitle: join([str(r.species), str(r.breed), str(r.location)], ' · ', 'En adopción · Sin ubicación'),
+            detail: str(r.description) || 'Sin descripción.',
+            imageUrl: img(r.photo_url),
+            createdAt: str(r.created_at),
+        }),
     },
     solicitudes: {
         key: 'pending-requests',
         fetch: ModeracionService.getGlobalPendingRequests,
         approve: ModeracionService.approveAdoptionRequest,
         reject: ModeracionService.rejectAdoptionRequest,
-        map: (r) => ({ id: r.id, title: `${str(r.applicant_name) || 'Solicitante'} quiere adoptar a ${str(r.pet_name) || 'una mascota'}`, subtitle: [str(r.house_type), r.has_yard ? 'con patio' : null, str(r.own_or_rent)].filter(Boolean).join(' · '), detail: str(r.reason), imageUrl: img(r.pet_photo_url), createdAt: str(r.created_at) }),
+        rejectNote: 'La solicitud quedará marcada como rechazada.',
+        map: (r) => ({
+            id: r.id,
+            title: `${str(r.applicant_name) || 'Un solicitante'} quiere adoptar a ${str(r.pet_name) || 'una mascota'}`,
+            subtitle: join([str(r.house_type), r.has_yard ? 'con patio' : null, str(r.own_or_rent)], ' · ', 'Sin datos de vivienda'),
+            detail: str(r.reason) ? `«${str(r.reason)}»` : 'Sin mensaje del solicitante.',
+            imageUrl: img(r.pet_photo_url),
+            createdAt: str(r.created_at),
+        }),
     },
     perdidas: {
         key: 'pending-lost-pets',
         fetch: ModeracionService.getPendingLostPets,
         approve: ModeracionService.approveLostPet,
         reject: ModeracionService.rejectLostPet,
-        map: (r) => ({ id: r.id, title: str(r.pet_name) || 'Mascota', subtitle: [str(r.species), str(r.last_seen_location)].filter(Boolean).join(' · ') || 'Reporte', detail: str(r.description), imageUrl: img(r.image_url), createdAt: str(r.created_at) }),
+        rejectNote: 'El reporte se elimina y no se puede deshacer.',
+        map: (r) => ({
+            id: r.id,
+            title: str(r.pet_name) || 'Mascota sin nombre',
+            subtitle: join(
+                [str(r.report_type) === 'found' ? 'Encontrada' : 'Perdida', str(r.species), str(r.last_seen_location)],
+                ' · ',
+                'Reporte · Sin ubicación',
+            ),
+            detail: str(r.description) || 'Sin descripción.',
+            imageUrl: img(r.image_url),
+            createdAt: str(r.created_at),
+        }),
     },
     directorio: {
         key: 'pending-clinics',
         fetch: ModeracionService.getPendingClinics,
         approve: ModeracionService.approveClinic,
         reject: ModeracionService.rejectClinic,
-        map: (r) => ({ id: r.id, title: str(r.name) || 'Clínica', subtitle: [str(r.address), str(r.city)].filter(Boolean).join(', ') || 'Sin dirección', detail: str(r.description), imageUrl: img(r.logo_url), createdAt: str(r.created_at) }),
+        rejectNote: 'La clínica se elimina y no se puede deshacer.',
+        map: (r) => ({
+            id: r.id,
+            title: str(r.name) || 'Clínica sin nombre',
+            subtitle: join([str(r.address), str(r.city), str(r.state)], ', ', 'Sin dirección'),
+            detail: str(r.description) || 'Sin descripción.',
+            imageUrl: img(r.logo_url),
+            createdAt: str(r.created_at),
+        }),
     },
     veterinarios: {
         key: 'pending-vets',
         fetch: ModeracionService.getPendingVeterinarians,
         approve: ModeracionService.approveVeterinarian,
         reject: ModeracionService.rejectVeterinarian,
-        map: (r) => ({ id: r.id, title: [str(r.first_name), str(r.last_name)].filter(Boolean).join(' ') || 'Veterinario', subtitle: [str(r.specialty) || 'Medicina general', str(r.license_number) && `Cédula ${r.license_number}`].filter(Boolean).join(' · '), detail: str(r.bio), imageUrl: img(r.photo_url), createdAt: str(r.created_at) }),
+        rejectNote: 'El registro se elimina y no se puede deshacer.',
+        map: (r) => ({
+            id: r.id,
+            title: join([str(r.first_name), str(r.last_name)], ' ', 'Veterinario sin nombre'),
+            subtitle: join([str(r.specialty) || 'Medicina general', str(r.license_number) && `Cédula ${str(r.license_number)}`], ' · ', 'Sin especialidad'),
+            detail: str(r.bio) || 'Sin biografía.',
+            imageUrl: img(r.photo_url),
+            createdAt: str(r.created_at),
+        }),
     },
     ecommerce: {
         key: 'pending-products',
         fetch: ModeracionService.getPendingProducts,
         approve: ModeracionService.approveProduct,
         reject: ModeracionService.rejectProduct,
-        map: (r) => ({ id: r.id, title: str(r.name) || 'Producto', subtitle: typeof r.price === 'number' ? `$${r.price.toLocaleString('es-MX')} · ${r.stock ?? 0} en existencia` : 'Producto', detail: str(r.description), imageUrl: img(r.image_url), createdAt: str(r.created_at) }),
+        rejectNote: 'El producto se elimina y no se puede deshacer.',
+        map: (r) => ({
+            id: r.id,
+            title: str(r.name) || 'Producto sin nombre',
+            subtitle: typeof r.price === 'number'
+                ? `$${r.price.toLocaleString('es-MX')} · ${typeof r.stock === 'number' ? r.stock : 0} en existencia`
+                : 'Sin precio',
+            detail: str(r.description) || 'Sin descripción.',
+            imageUrl: img(r.image_url),
+            createdAt: str(r.created_at),
+        }),
     },
 };
 
@@ -100,31 +159,47 @@ export function useAdminModeration() {
 
     const counts = Object.fromEntries(TAB_ORDER.map((t) => [t, queries[t].data?.length ?? 0])) as Record<TabType, number>;
 
-    const run = async (action: 'approve' | 'reject', item: ModerationItem) => {
-        const t = TABS[activeTab];
+    /** Recarga todas las colas y el resumen del panel (los contadores viven ahí). */
+    const refetchAll = () => {
+        TAB_ORDER.forEach((t) => queryClient.invalidateQueries({ queryKey: [TABS[t].key] }));
+        queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    };
+
+    /** `tab` viaja explícito: el confirmar-rechazar se dispara más tarde y la pestaña pudo cambiar. */
+    const run = async (action: 'approve' | 'reject', tab: TabType, item: ModerationItem) => {
+        const t = TABS[tab];
         setBusyId(item.id);
         try {
             await (action === 'approve' ? t.approve(item.id) : t.reject(item.id));
             queryClient.invalidateQueries({ queryKey: [t.key] });
-            showAlert({ type: 'success', title: action === 'approve' ? 'Aprobado' : 'Rechazado', message: `«${item.title}» se procesó correctamente.` });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+            showAlert({
+                type: 'success',
+                title: action === 'approve' ? 'Aprobado' : 'Rechazado',
+                message: action === 'approve'
+                    ? `«${item.title}» ya es visible.`
+                    : `«${item.title}» salió de la cola de revisión.`,
+            });
         } catch (e) {
+            // El motivo real del servidor viene en el mensaje del ApiError; el fallback solo cubre errores de red.
             showAlert({ type: 'error', title: 'No se pudo completar', message: errorMessage(e, 'Inténtalo de nuevo.') });
         } finally {
             setBusyId(null);
         }
     };
 
-    /** Aprobar va directo; rechazar pide confirmación (en varios servicios borra el contenido). */
+    /** Aprobar va directo; rechazar pide confirmación (en varias colas borra el contenido). */
     const handleAction = (action: 'approve' | 'reject', item: ModerationItem) => {
-        if (action === 'approve') return run('approve', item);
+        const tab = activeTab;
+        if (action === 'approve') return run('approve', tab, item);
         showAlert({
             type: 'warning',
             title: 'Rechazar contenido',
-            message: `¿Rechazar «${item.title}»? No se puede deshacer.`,
+            message: `¿Rechazar «${item.title}»? ${TABS[tab].rejectNote}`,
             showCancel: true,
             cancelText: 'Cancelar',
             buttonText: 'Rechazar',
-            onButtonPress: () => run('reject', item),
+            onButtonPress: () => run('reject', tab, item),
         });
     };
 
@@ -135,6 +210,9 @@ export function useAdminModeration() {
         counts,
         items: current.data ?? [],
         isLoading: current.isLoading,
+        isError: current.isError,
+        isFetching: current.isFetching,
+        refetch: refetchAll,
         busyId,
         handleAction,
     };

@@ -2,12 +2,19 @@
 
 .content {
   display: grid;
+  /* minmax(0, 1fr): sin esto el min-content de una tarjeta ensancha toda la columna y desborda el móvil */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-xl);
   padding-bottom: var(--space-huge);
 }
 
+.content > * {
+  min-width: 0;
+}
+
 .section {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-sm);
 }
 
@@ -48,7 +55,7 @@
 
 .summaryStats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-sm);
   padding-top: var(--space-md);
   border-top: 1px solid var(--color-hero-glass-border);
@@ -57,22 +64,27 @@
 .summaryStat {
   display: grid;
   gap: var(--space-xxs);
+  min-width: 0;
 }
 
 .summaryStatValue {
   font-size: var(--font-lg);
   font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .summaryStatLabel {
   font-size: var(--font-xs);
   color: var(--color-on-hero-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Tiles */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-sm);
 }
 
@@ -82,6 +94,7 @@
   gap: var(--space-xs);
   padding: var(--space-md);
   min-height: var(--min-touch);
+  min-width: 0;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
   background: var(--color-card);
@@ -110,12 +123,18 @@ button.tile:focus-visible {
 .tileValue {
   font-size: var(--font-xl);
   font-weight: 900;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tileLabel {
   font-size: var(--font-xs);
   font-weight: 600;
   color: var(--color-text-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Fila con imagen */
@@ -206,31 +225,38 @@ button.tile:focus-visible {
 
 .list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-sm);
   padding-bottom: var(--space-huge);
 }
 
 .listWide {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-md);
   padding-bottom: var(--space-huge);
 }
 
 @media (min-width: 1024px) {
   .listWide {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 /* Tarjeta de pedido */
 .order {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-md);
   padding: var(--space-lg);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-card-border);
   background: var(--color-card);
   align-content: start;
+}
+
+.order > * {
+  min-width: 0;
 }
 
 .orderHead {
@@ -273,6 +299,12 @@ button.tile:focus-visible {
   gap: var(--space-sm);
   color: var(--color-text);
   font-size: var(--font-md);
+  min-width: 0;
+}
+
+.orderInfoRow span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .orderInfoRow svg {
@@ -294,10 +326,19 @@ button.tile:focus-visible {
   margin-bottom: var(--space-lg);
 }
 
+.cardHeadMain {
+  flex: 1;
+  min-width: 0;
+}
+
 .cardTitle {
   font-size: var(--font-lg);
   font-weight: 800;
   color: var(--color-text);
+}
+
+.cardTitleSpaced {
+  margin-bottom: var(--space-md);
 }
 
 .cardCaption {
@@ -320,7 +361,7 @@ button.tile:focus-visible {
 .chart {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 1fr;
+  grid-auto-columns: minmax(0, 1fr);
   align-items: end;
   gap: var(--space-xs);
   height: 140px;
@@ -360,7 +401,7 @@ button.tile:focus-visible {
 
 .breakdownRow {
   display: grid;
-  grid-template-columns: 120px 1fr 32px;
+  grid-template-columns: minmax(0, 120px) minmax(0, 1fr) 32px;
   align-items: center;
   gap: var(--space-md);
   color: var(--color-text);
@@ -388,8 +429,13 @@ button.tile:focus-visible {
 /* Formulario */
 .formLayout {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-xxl);
   padding-bottom: var(--space-huge);
+}
+
+.formLayout > * {
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
@@ -401,12 +447,17 @@ button.tile:focus-visible {
 
 .form {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-xxl);
+}
+
+.form > * {
+  min-width: 0;
 }
 
 .row2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-md);
 }
 

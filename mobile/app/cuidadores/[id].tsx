@@ -1,12 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Calendar, Dog, Cat, Home, Sun, Moon, Trees, UserX, PawPrint, Send } from 'lucide-react-native';
+import { Calendar, Dog, Cat, Home, Sun, Moon, Trees, UserX, PawPrint, Send, ShieldCheck, Ban } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useSitterDetail } from '@/src/hooks/cuidadores/useSitterDetail';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import EmptyState from '@/src/components/EmptyState';
+import Badge from '@/src/components/Badge';
 import BottomSheet from '@/src/components/BottomSheet';
 import FilterChip from '@/src/components/FilterChip';
 import FormField from '@/src/components/FormField';
@@ -64,10 +65,11 @@ export default function SitterDetailScreen() {
 
     // El promedio guardado en el perfil no siempre está al día: se calcula con las reseñas
     const average = s.reviews.length ? s.reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / s.reviews.length : 0;
+    const isSuspended = sitter.is_active === false;
 
     return (
         <ScreenContainer>
-            <ScreenHeader title={sitter.display_name} subtitle={sitter.is_verified ? 'Cuidador verificado' : 'Cuidador'} />
+            <ScreenHeader title={sitter.display_name} subtitle={isSuspended ? 'Cuidador suspendido' : sitter.is_verified ? 'Cuidador verificado' : 'Cuidador'} />
 
             <ScrollView showsVerticalScrollIndicator={false} refreshControl={<AppRefreshControl />} contentContainerStyle={styles.content}>
                 <ProviderHero
@@ -76,7 +78,26 @@ export default function SitterDetailScreen() {
                     rating={s.reviews.length ? average : undefined}
                     reviewCount={s.reviews.length}
                     accent={theme.secondary}
-                />
+                >
+                    {sitter.is_verified && !isSuspended ? (
+                        <Badge
+                            label="Verificado"
+                            color={theme.success}
+                            icon={<ShieldCheck size={layout.icon.xs} color={theme.success} />}
+                            accessibilityLabel="Profesional verificado por el equipo"
+                        />
+                    ) : null}
+                </ProviderHero>
+
+                {isSuspended ? (
+                    <View style={[styles.notice, { backgroundColor: theme.errorLight, borderColor: theme.error }]}>
+                        <Ban size={layout.icon.md} color={theme.error} />
+                        <Text style={[type.body, styles.flex, { color: theme.text }]}>
+                            Este perfil está suspendido y no acepta solicitudes por ahora.
+                        </Text>
+                    </View>
+                ) : null}
+
                 <ProviderStats items={[
                     { value: String(sitter.total_sits), label: 'Cuidados' },
                     { value: String(sitter.experience_years ?? 0), label: sitter.experience_years === 1 ? 'Año' : 'Años' },
@@ -136,7 +157,12 @@ export default function SitterDetailScreen() {
             </ScrollView>
 
             {!s.isOwnProfile ? (
-                <ProviderFooter label="Solicitar cuidado" onPress={s.handleBook} icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />} />
+                <ProviderFooter
+                    label={isSuspended ? 'No disponible' : 'Solicitar cuidado'}
+                    onPress={s.handleBook}
+                    disabled={isSuspended}
+                    icon={<Calendar size={layout.icon.sm} color={theme.onPrimary} />}
+                />
             ) : null}
 
             <BottomSheet
@@ -216,6 +242,7 @@ const styles = StyleSheet.create({
     center: { alignSelf: 'center' },
     loading: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.md },
     content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xl },
+    notice: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: 16, borderWidth: 1, marginBottom: spacing.md },
     prices: { gap: spacing.sm },
     group: { gap: spacing.sm },
     chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

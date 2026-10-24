@@ -1,41 +1,52 @@
+/**
+ * Perfil de conductor (`/transportistas/perfil-conductor`): alta/edición del vehículo.
+ * Espejo de `frontend/src/app/(app)/transportistas/perfil-conductor/page.tsx`.
+ */
 import React from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { AlertCircle, Car, CheckCircle2, Save, UserCircle } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useDriverProfile } from '@/src/hooks/rides/useDriverProfile';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import RoleGuard from '@/src/components/RoleGuard';
+import Button from '@/src/components/Button';
+import Card from '@/src/components/Card';
+import EmptyState from '@/src/components/EmptyState';
+import FormField from '@/src/components/FormField';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
-import LoadingOverlay from '@/src/components/LoadingOverlay';
-import {
-  Car,
-  CreditCard,
-  Users,
-  Snowflake,
-  Box,
-  CheckCircle2,
-  Save,
-  UserCircle,
-} from 'lucide-react-native';
-import { accents, font, layout, spacing, tint } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
+import { radius, spacing, tint, type } from '@/constants/design';
 
-export default function PerfilConductorScreen() {
+function PerfilConductorContent() {
   const { theme } = useTheme();
-  const {
-    form,
-    updateForm,
-    isLoading,
-    isExistingProfile,
-    handleSave,
-    isSaving,
-  } = useDriverProfile();
+  const { form, errors, updateForm, isLoading, isError, isExistingProfile, handleSave, isSaving, refetch } =
+    useDriverProfile();
 
   if (isLoading) {
     return (
       <ScreenContainer>
-        <ScreenHeader title="Perfil de conductor" subtitle="Administra tu perfil de conductor" />
-        <LoadingOverlay message="Cargando perfil..." />
+        <ScreenHeader title="Perfil de conductor" subtitle="Datos del vehículo" />
+        <View style={styles.pad}>
+          <SkeletonList count={3} />
+        </View>
+      </ScreenContainer>
+    );
+  }
+
+  if (isError) {
+    return (
+      <ScreenContainer>
+        <ScreenHeader title="Perfil de conductor" subtitle="Datos del vehículo" />
+        <EmptyState
+          icon={<AlertCircle size={32} color={theme.textMuted} />}
+          title="No pudimos cargar tu perfil"
+          subtitle="Revisa tu conexión e intenta de nuevo."
+          actionLabel="Reintentar"
+          onAction={() => refetch()}
+        />
       </ScreenContainer>
     );
   }
@@ -44,246 +55,121 @@ export default function PerfilConductorScreen() {
     <ScreenContainer>
       <ScreenHeader
         title="Perfil de conductor"
-        subtitle={isExistingProfile ? 'Edita tu perfil de conductor' : 'Crea tu perfil de conductor'}
+        subtitle={isExistingProfile ? 'Edita los datos de tu vehículo' : 'Completa los datos para empezar a conducir'}
       />
 
-      <KeyboardScreen contentContainerStyle={styles.scrollContent}>
-        {/* Profile status indicator */}
-        <View style={[styles.statusBanner, { backgroundColor: isExistingProfile ? theme.success + tint.faint : theme.primary + '10' }]}>
-          <View style={[styles.statusIcon, { backgroundColor: isExistingProfile ? theme.success + tint.faint : theme.primary + '20' }]}>
+      <KeyboardScreen
+        contentContainerStyle={styles.content}
+        footer={
+          <Button
+            label={isExistingProfile ? 'Guardar perfil' : 'Crear perfil'}
+            icon={<Save size={18} color={theme.onPrimary} />}
+            onPress={handleSave}
+            loading={isSaving}
+            size="lg"
+          />
+        }
+      >
+        <Card style={styles.statusBanner}>
+          <View style={[styles.statusIcon, { backgroundColor: isExistingProfile ? theme.success + tint.faint : theme.primary + tint.faint }]}>
             {isExistingProfile ? (
-              <CheckCircle2 size={24} color={theme.success} />
+              <CheckCircle2 size={22} color={theme.success} />
             ) : (
-              <UserCircle size={24} color={theme.primary} />
+              <UserCircle size={22} color={theme.primary} />
             )}
           </View>
-          <View style={styles.statusInfo}>
-            <Text style={[styles.statusTitle, { color: isExistingProfile ? theme.success : theme.primary }]}>
-              {isExistingProfile ? 'Perfil Activo' : 'Nuevo Perfil'}
+          <View style={styles.flex}>
+            <Text style={[type.bodyStrong, { color: isExistingProfile ? theme.success : theme.primary }]}>
+              {isExistingProfile ? 'Perfil activo' : 'Nuevo perfil'}
             </Text>
-            <Text style={[styles.statusSub, { color: theme.textMuted }]}>
-              {isExistingProfile ? 'Tu perfil de conductor está configurado' : 'Completa los datos para empezar a conducir'}
+            <Text style={[type.caption, { color: theme.textMuted }]}>
+              {isExistingProfile
+                ? 'Tu perfil de conductor está configurado'
+                : 'Completa los datos para empezar a conducir'}
             </Text>
           </View>
-        </View>
+        </Card>
 
-        {/* Vehicle info */}
-        <FormSection title="Información del Vehículo">
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.textMuted }]}>Modelo del Vehículo *</Text>
-            <View style={styles.inputWrapper}>
-              <Car size={18} color={theme.primary} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                placeholder="Ej. Toyota Corolla 2023"
-                placeholderTextColor={theme.textMuted}
-                value={form.vehicle_model}
-                onChangeText={(val) => updateForm({ vehicle_model: val })}
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.textMuted }]}>Placa del Vehículo *</Text>
-            <View style={styles.inputWrapper}>
-              <CreditCard size={18} color={theme.primary} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                placeholder="Ej. ABC-1234"
-                placeholderTextColor={theme.textMuted}
-                value={form.vehicle_plate}
-                onChangeText={(val) => updateForm({ vehicle_plate: val.toUpperCase() })}
-                autoCapitalize="characters"
-              />
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.textMuted }]}>Capacidad Máxima de Mascotas</Text>
-            <View style={styles.inputWrapper}>
-              <Users size={18} color={theme.primary} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, styles.inputWithIcon, { backgroundColor: theme.surface, color: theme.text, borderColor: theme.border }]}
-                placeholder="Ej. 3"
-                placeholderTextColor={theme.textMuted}
-                keyboardType="numeric"
-                value={form.max_capacity}
-                onChangeText={(val) => updateForm({ max_capacity: val.replace(/[^0-9]/g, '') })}
-              />
-            </View>
-          </View>
+        <FormSection title="Información del vehículo">
+          <FormField
+            label="Modelo del vehículo *"
+            value={form.vehicle_model}
+            onChangeText={(val) => updateForm({ vehicle_model: val })}
+            placeholder="Ej. Toyota Corolla 2023"
+            error={errors.vehicle_model}
+          />
+          <FormField
+            label="Placa del vehículo *"
+            value={form.vehicle_plate}
+            onChangeText={(val) => updateForm({ vehicle_plate: val.toUpperCase() })}
+            placeholder="Ej. ABC-1234"
+            autoCapitalize="characters"
+            maxLength={10}
+            error={errors.vehicle_plate}
+          />
+          <FormField
+            label="Capacidad máxima de mascotas"
+            value={form.max_capacity}
+            onChangeText={(val) => updateForm({ max_capacity: val.replace(/\D/g, '') })}
+            placeholder="1"
+            keyboardType="number-pad"
+            maxLength={2}
+            error={errors.max_capacity}
+          />
         </FormSection>
 
-        {/* Features */}
-        <FormSection title="Características del Servicio">
+        <FormSection title="Comodidades">
           <FormSwitch
-            label="Aire Acondicionado"
-            description="El vehículo cuenta con A/C funcional"
+            label="Aire acondicionado"
+            description="El vehículo cuenta con A/C"
             value={form.has_air_conditioning}
             onChange={(val) => updateForm({ has_air_conditioning: val })}
           />
-
           <FormSwitch
-            label="Transportines Disponibles"
-            description="Cuento con transportines para las mascotas"
+            label="Transportines"
+            description="Puedes llevar transportines para las mascotas"
             value={form.has_carriers}
             onChange={(val) => updateForm({ has_carriers: val })}
           />
-        </FormSection>
-
-        {/* Availability */}
-        <FormSection title="Disponibilidad">
           <FormSwitch
             label="Disponible para viajes"
-            description="Aparecerás como conductor disponible para los usuarios"
+            description="Los clientes podrán solicitarte viajes"
             value={form.is_available}
             onChange={(val) => updateForm({ is_available: val })}
           />
         </FormSection>
 
-        {/* Features summary */}
-        <View style={[styles.featuresSummary, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.featuresTitle, { color: theme.text }]}>Tu perfil incluye</Text>
-          <View style={styles.featuresRow}>
-            <View style={[styles.featureChip, { backgroundColor: theme.background }]}>
-              <Users size={14} color={theme.textMuted} />
-              <Text style={[styles.featureText, { color: theme.textMuted }]}>
-                {form.max_capacity || '1'} mascotas
-              </Text>
-            </View>
-            {form.has_air_conditioning && (
-              <View style={[styles.featureChip, { backgroundColor: accents.teal + tint.faint }]}>
-                <Snowflake size={14} color={accents.teal} />
-                <Text style={[styles.featureText, { color: accents.teal }]}>A/C</Text>
-              </View>
-            )}
-            {form.has_carriers && (
-              <View style={[styles.featureChip, { backgroundColor: theme.warning + tint.faint }]}>
-                <Box size={14} color={theme.warning} />
-                <Text style={[styles.featureText, { color: theme.warning }]}>Transportín</Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Save */}
-        <TouchableOpacity
-          style={[styles.submitBtn, { backgroundColor: theme.primary }, isSaving && { opacity: 0.7 }]}
-          disabled={isSaving}
-          onPress={handleSave}
-          activeOpacity={0.85}
-        >
-          <Save size={20} color={theme.onPrimary} />
-          <Text style={styles.submitBtnText}>
-            {isSaving ? 'Guardando...' : isExistingProfile ? 'Actualizar Perfil' : 'Crear Perfil'}
+        <View style={[styles.note, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+          <Car size={16} color={theme.textMuted} />
+          <Text style={[type.caption, styles.flex, { color: theme.textMuted }]}>
+            Conductor, vehículo y disponibilidad se validan también al aceptar cada viaje.
           </Text>
-        </TouchableOpacity>
+        </View>
       </KeyboardScreen>
     </ScreenContainer>
   );
 }
 
+export default function PerfilConductorScreen() {
+  return (
+    <RoleGuard roles={['transportista']} message="El perfil de conductor es solo para cuentas de transportista.">
+      <PerfilConductorContent />
+    </RoleGuard>
+  );
+}
+
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingHorizontal: layout.screenPadding,
-    paddingBottom: 100,
-  },
-  statusBanner: {
+  flex: { flex: 1 },
+  pad: { paddingHorizontal: spacing.xl },
+  content: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.xl, gap: spacing.lg },
+  statusBanner: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  statusIcon: { width: 44, height: 44, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+  note: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.lg,
-    borderRadius: 16,
-    gap: spacing.lg,
-    marginBottom: spacing.xxl,
-  },
-  statusIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  statusInfo: {
-    flex: 1,
-  },
-  statusTitle: {
-    fontSize: font.xl,
-    fontWeight: '800',
-    marginBottom: spacing.xxs,
-  },
-  statusSub: {
-    fontSize: font.base,
-    fontWeight: '500',
-  },
-  inputGroup: {
     gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  label: {
-    fontSize: font.base,
-    fontWeight: '700',
-    marginLeft: spacing.xs,
-  },
-  inputWrapper: {
-    position: 'relative',
-  },
-  inputIcon: {
-    position: 'absolute',
-    left: 16,
-    top: 18,
-    zIndex: 1,
-  },
-  input: {
-    height: 56,
-    borderRadius: 16,
-    paddingHorizontal: spacing.lg,
-    fontSize: font.lg,
+    padding: spacing.md,
+    borderRadius: radius.md,
     borderWidth: 1,
-  },
-  inputWithIcon: {
-    paddingLeft: spacing.huge,
-  },
-  featuresSummary: {
-    padding: spacing.xl,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: spacing.lg,
-    gap: spacing.md,
-  },
-  featuresTitle: {
-    fontSize: font.base,
-    fontWeight: '800',
-  },
-  featuresRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  featureChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 8,
-    gap: spacing.sm,
-  },
-  featureText: {
-    fontSize: font.md,
-    fontWeight: '600',
-  },
-  submitBtn: {
-    height: 64,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginTop: spacing.sm,
-    marginBottom: spacing.huge,
-    elevation: 8,
-  },
-  submitBtnText: {
-    fontSize: font.xxl,
-    fontWeight: '800',
   },
 });

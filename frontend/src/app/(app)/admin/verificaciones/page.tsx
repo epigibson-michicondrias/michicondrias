@@ -82,8 +82,8 @@ function VerificationCard({ user, busy, onAction }: { user: PendingVerification;
       </div>
 
       <div className={s.toolbarRow}>
-        <Button label="Aprobar identidad" icon={<CheckCircle2 size={16} />} size="sm" fullWidth={false} onPress={() => onAction("VERIFIED")} loading={busy} />
-        <Button label="Rechazar" icon={<XCircle size={16} />} size="sm" variant="ghost" fullWidth={false} onPress={() => onAction("REJECTED")} disabled={busy} />
+        <Button label="Aprobar identidad" icon={<CheckCircle2 size={16} />} fullWidth={false} onPress={() => onAction("VERIFIED")} loading={busy} />
+        <Button label="Rechazar" icon={<XCircle size={16} />} variant="ghost" fullWidth={false} onPress={() => onAction("REJECTED")} disabled={busy} />
       </div>
     </section>
   );
@@ -104,6 +104,14 @@ export default function AdminVerificacionesPage() {
 
       {v.isLoading ? (
         <SkeletonList count={3} />
+      ) : v.isError ? (
+        <EmptyState
+          icon={<XCircle size={28} />}
+          title="No pudimos cargar las identidades"
+          subtitle="Ocurrió un error al pedir las identidades pendientes. El detalle aparece arriba; vuelve a intentarlo."
+          actionLabel="Reintentar"
+          onAction={() => v.refetch()}
+        />
       ) : n === 0 ? (
         <EmptyState
           icon={<ShieldCheck size={28} />}

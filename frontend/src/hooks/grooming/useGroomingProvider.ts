@@ -34,6 +34,7 @@ export function useGroomingProvider() {
   const {
     data: appointments = [],
     isLoading,
+    isError,
     isRefetching,
     refetch,
   } = useQuery<GroomingAppointment[]>({

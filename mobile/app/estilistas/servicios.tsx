@@ -63,6 +63,7 @@ function MisServicios() {
                 renderItem={renderItem}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 isLoading={s.isLoading}
+                isError={s.isError}
                 skeleton
                 onRefresh={s.refetch}
                 isRefreshing={s.isRefetching}

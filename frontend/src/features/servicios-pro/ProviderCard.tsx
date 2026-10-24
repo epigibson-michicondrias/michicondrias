@@ -18,7 +18,10 @@ export interface ProviderCardProps {
   photoUrl?: string | null;
   location?: string | null;
   rating?: number;
+  /** Sello «Verificado» del admin (X3: `is_verified` ya se puede activar). */
   verified?: boolean;
+  /** Suspendido por un admin (`is_active=false`): deja de recibir solicitudes. */
+  suspended?: boolean;
   /** Color de identidad del módulo (avatar). */
   accent: string;
   stats: { icon: IconType; text: string }[];
@@ -29,21 +32,23 @@ export interface ProviderCardProps {
 }
 
 export default function ProviderCard({
-  href, name, photoUrl, location, rating, verified, accent, stats, tags, price, priceUnit, bio,
+  href, name, photoUrl, location, rating, verified, suspended, accent, stats, tags, price, priceUnit, bio,
 }: ProviderCardProps) {
+  // `display_name` puede venir null del backend: nunca se rompe la tarjeta por un nombre faltante.
+  const label = name || "Proveedor";
   return (
-    <Link href={href} className={s.providerCard} style={{ ["--c" as string]: accent }} aria-label={`Ver perfil de ${name}`}>
+    <Link href={href} className={s.providerCard} style={{ ["--c" as string]: accent }} aria-label={`Ver perfil de ${label}`}>
       <div className={s.providerHeader}>
         <div className={s.avatar}>
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- la foto del proveedor viene del storage
             <img src={photoUrl} alt="" className={s.avatarImg} />
           ) : (
-            name.charAt(0).toUpperCase()
+            label.charAt(0).toUpperCase()
           )}
         </div>
         <div className={s.providerInfo}>
-          <p className={s.providerName}>{name}</p>
+          <p className={s.providerName}>{label}</p>
           <p className={s.metaRow}>
             <MapPin size={14} aria-hidden />
             <span>{location || "Ubicación no disponible"}</span>
@@ -71,7 +76,8 @@ export default function ProviderCard({
         {tags.map((t) => (
           <Badge key={t.label} label={t.label} color={t.color} icon={t.icon} size="sm" />
         ))}
-        {verified ? <Badge label="Verificado" color="var(--color-success)" size="sm" /> : null}
+        {verified && !suspended ? <Badge label="Verificado" color="var(--color-success)" size="sm" /> : null}
+        {suspended ? <Badge label="Suspendido" color="var(--color-text-muted)" size="sm" /> : null}
       </div>
 
       {bio ? <p className={s.bioText}>{bio}</p> : null}
