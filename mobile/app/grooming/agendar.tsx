@@ -202,8 +202,8 @@ export default function AgendarGroomingScreen() {
                                             onPress={() => setSelectedSlot(slot)}
                                             activeOpacity={0.7}
                                         >
-                                            <Clock size={14} color={isActive ? '#fff' : theme.textMuted} />
-                                            <Text style={[styles.slotText, { color: isActive ? '#fff' : theme.text }]}>
+                                            <Clock size={14} color={isActive ? theme.onPrimary : theme.textMuted} />
+                                            <Text style={[styles.slotText, { color: isActive ? theme.onPrimary : theme.text }]}>
                                                 {slot}
                                             </Text>
                                         </TouchableOpacity>
@@ -426,7 +426,6 @@ const styles = StyleSheet.create({
     bookBtnText: {
         fontSize: font.xxl,
         fontWeight: '800',
-        color: '#fff',
     },
     bottomSpacer: {
         height: 60,

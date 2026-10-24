@@ -132,14 +132,14 @@ export default function EnrollPetScreen() {
                             <ActivityIndicator size="small" color={theme.onPrimary} />
                         ) : (
                             <>
-                                <Dumbbell size={20} color={selectedPetId ? '#fff' : theme.textMuted} />
+                                <Dumbbell size={20} color={selectedPetId ? theme.onPrimary : theme.textMuted} />
                                 <Text style={[
                                     styles.enrollButtonText,
-                                    { color: selectedPetId ? '#fff' : theme.textMuted },
+                                    { color: selectedPetId ? theme.onPrimary : theme.textMuted },
                                 ]}>
                                     Confirmar Inscripción
                                 </Text>
-                                <ArrowRight size={18} color={selectedPetId ? '#fff' : theme.textMuted} />
+                                <ArrowRight size={18} color={selectedPetId ? theme.onPrimary : theme.textMuted} />
                             </>
                         )}
                     </TouchableOpacity>

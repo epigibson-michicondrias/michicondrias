@@ -18,7 +18,7 @@ import {
   Save,
   UserCircle,
 } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { accents, font, layout, spacing, tint } from '@/constants/design';
 
 export default function PerfilConductorScreen() {
   const { theme } = useTheme();
@@ -49,16 +49,16 @@ export default function PerfilConductorScreen() {
 
       <KeyboardScreen contentContainerStyle={styles.scrollContent}>
         {/* Profile status indicator */}
-        <View style={[styles.statusBanner, { backgroundColor: isExistingProfile ? '#10b98115' : theme.primary + '10' }]}>
-          <View style={[styles.statusIcon, { backgroundColor: isExistingProfile ? '#10b98120' : theme.primary + '20' }]}>
+        <View style={[styles.statusBanner, { backgroundColor: isExistingProfile ? theme.success + tint.faint : theme.primary + '10' }]}>
+          <View style={[styles.statusIcon, { backgroundColor: isExistingProfile ? theme.success + tint.faint : theme.primary + '20' }]}>
             {isExistingProfile ? (
-              <CheckCircle2 size={24} color="#10b981" />
+              <CheckCircle2 size={24} color={theme.success} />
             ) : (
               <UserCircle size={24} color={theme.primary} />
             )}
           </View>
           <View style={styles.statusInfo}>
-            <Text style={[styles.statusTitle, { color: isExistingProfile ? '#10b981' : theme.primary }]}>
+            <Text style={[styles.statusTitle, { color: isExistingProfile ? theme.success : theme.primary }]}>
               {isExistingProfile ? 'Perfil Activo' : 'Nuevo Perfil'}
             </Text>
             <Text style={[styles.statusSub, { color: theme.textMuted }]}>
@@ -152,15 +152,15 @@ export default function PerfilConductorScreen() {
               </Text>
             </View>
             {form.has_air_conditioning && (
-              <View style={[styles.featureChip, { backgroundColor: '#06b6d415' }]}>
-                <Snowflake size={14} color="#06b6d4" />
-                <Text style={[styles.featureText, { color: '#06b6d4' }]}>A/C</Text>
+              <View style={[styles.featureChip, { backgroundColor: accents.teal + tint.faint }]}>
+                <Snowflake size={14} color={accents.teal} />
+                <Text style={[styles.featureText, { color: accents.teal }]}>A/C</Text>
               </View>
             )}
             {form.has_carriers && (
-              <View style={[styles.featureChip, { backgroundColor: '#f59e0b15' }]}>
-                <Box size={14} color="#f59e0b" />
-                <Text style={[styles.featureText, { color: '#f59e0b' }]}>Transportín</Text>
+              <View style={[styles.featureChip, { backgroundColor: theme.warning + tint.faint }]}>
+                <Box size={14} color={theme.warning} />
+                <Text style={[styles.featureText, { color: theme.warning }]}>Transportín</Text>
               </View>
             )}
           </View>
@@ -280,14 +280,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginTop: spacing.sm,
     marginBottom: spacing.huge,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
     elevation: 8,
   },
   submitBtnText: {
-    color: '#fff',
     fontSize: font.xxl,
     fontWeight: '800',
   },

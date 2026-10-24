@@ -11,7 +11,7 @@ import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { font, layout, spacing, tint } from '@/constants/design';
 
 export default function PaseadoresScreen() {
     const router = useRouter();
@@ -78,7 +78,7 @@ export default function PaseadoresScreen() {
                     </Text>
                 </View>
                 {item.is_verified && (
-                    <View style={[styles.serviceTag, { backgroundColor: '#10b98120' }]}>
+                    <View style={[styles.serviceTag, { backgroundColor: theme.success + tint.faint }]}>
                         <Text style={[styles.serviceText, { color: theme.success }]}>
                             Verificado
                         </Text>
@@ -283,7 +283,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     contactButtonText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '600',
     },

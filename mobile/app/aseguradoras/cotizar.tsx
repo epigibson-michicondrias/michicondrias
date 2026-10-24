@@ -162,7 +162,7 @@ export default function CotizarScreen() {
                         value={hasPreexisting}
                         onValueChange={setHasPreexisting}
                         trackColor={{ false: theme.border, true: theme.primary + '60' }}
-                        thumbColor={hasPreexisting ? theme.primary : '#f4f4f4'}
+                        thumbColor={hasPreexisting ? theme.primary : theme.backgroundSecondary}
                     />
                 </View>
 
@@ -371,7 +371,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.xxl,
     },
     calculateBtnText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '800',
     },
@@ -434,7 +433,6 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     subscribeBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

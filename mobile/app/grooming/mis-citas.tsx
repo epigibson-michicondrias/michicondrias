@@ -18,15 +18,20 @@ import DataList from '@/src/components/data/DataList';
 import { createAppointmentReview } from '@/src/services/grooming';
 import type { GroomingAppointment } from '@/src/services/grooming';
 import { ReviewForm } from '@/src/components/reviews/ReviewsSection';
-import { font, spacing, layout } from '@/constants/design';
+import { accents, font, layout, spacing } from '@/constants/design';
 
-const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-    pending:     { label: 'Programada',  color: '#3b82f6', bg: 'rgba(14,165,233,0.12)' },
-    scheduled:   { label: 'Programada',  color: '#3b82f6', bg: 'rgba(14,165,233,0.12)' },
-    confirmed:   { label: 'Confirmada',  color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-    in_progress: { label: 'En Progreso', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-    completed:   { label: 'Completada',  color: '#8b5cf6', bg: 'rgba(99,102,241,0.12)' },
-    cancelled:   { label: 'Cancelada',   color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+// Se resuelve en runtime: theme/accents no existen fuera del componente.
+type StatusStyle = { label: string; color: string; bg: string };
+const statusStyle = (t: any, accents: any, key: string): StatusStyle => {
+    const map: Record<string, StatusStyle> = {
+        pending:     { label: 'Programada',  color: t.primary, bg: t.primary + '1f' },
+        scheduled:   { label: 'Programada',  color: t.primary, bg: t.primary + '1f' },
+        confirmed:   { label: 'Confirmada',  color: t.success, bg: t.success + '1f' },
+        in_progress: { label: 'En Progreso', color: t.warning, bg: t.warning + '1f' },
+        completed:   { label: 'Completada',  color: accents.services, bg: accents.services + '1f' },
+        cancelled:   { label: 'Cancelada',   color: t.error, bg: t.error + '1f' },
+    };
+    return map[key] || { label: key, color: t.textMuted, bg: t.backgroundSecondary };
 };
 
 export default function MisCitasGroomingScreen() {
@@ -78,12 +83,12 @@ export default function MisCitasGroomingScreen() {
                 onPress={() => setActiveTab(tab.key)}
                 activeOpacity={0.7}
             >
-                <Text style={[styles.tabLabel, { color: isActive ? '#fff' : theme.textMuted }]}>
+                <Text style={[styles.tabLabel, { color: isActive ? theme.onPrimary : theme.textMuted }]}>
                     {tab.label}
                 </Text>
                 {tab.count > 0 && (
                     <View style={[styles.tabBadge, { backgroundColor: isActive ? 'rgba(255,255,255,0.25)' : theme.primaryLight }]}>
-                        <Text style={[styles.tabBadgeText, { color: isActive ? '#fff' : theme.primary }]}>
+                        <Text style={[styles.tabBadgeText, { color: isActive ? theme.onPrimary : theme.primary }]}>
                             {tab.count}
                         </Text>
                     </View>
@@ -93,7 +98,7 @@ export default function MisCitasGroomingScreen() {
     };
 
     const renderAppointment = ({ item }: { item: GroomingAppointment }) => {
-        const status = STATUS_MAP[item.status || 'scheduled'] ?? STATUS_MAP.scheduled;
+        const status = statusStyle(theme, accents, item.status || 'scheduled');
         return (
             <TouchableOpacity accessibilityRole="button"
                 style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}

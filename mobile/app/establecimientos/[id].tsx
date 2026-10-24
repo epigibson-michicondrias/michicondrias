@@ -126,7 +126,7 @@ export default function VenueDetailScreen() {
                 {score && score.reviews_count > 0 && (
                     <View style={[styles.scoreBadge, { backgroundColor: theme.warningLight }]}>
                         <Star size={18} color={theme.warning} fill={theme.warning} />
-                        <Text style={styles.scoreValue}>{score.average_rating.toFixed(1)}</Text>
+                        <Text style={[styles.scoreValue, { color: theme.warning }]}>{score.average_rating.toFixed(1)}</Text>
                         <Text style={[styles.scoreCount, { color: theme.textMuted }]}>
                             ({score.reviews_count} reseñas)
                         </Text>
@@ -327,7 +327,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     retryButtonText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '600',
     },
@@ -360,7 +359,6 @@ const styles = StyleSheet.create({
     scoreValue: {
         fontSize: font.xxl,
         fontWeight: '900',
-        color: '#d97706',
     },
     scoreCount: {
         fontSize: font.base,
@@ -433,7 +431,6 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     claimButtonText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '700',
     },
@@ -489,7 +486,6 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     submitReviewText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '700',
     },
@@ -547,7 +543,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
     },
     contactButtonText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '700',
     },

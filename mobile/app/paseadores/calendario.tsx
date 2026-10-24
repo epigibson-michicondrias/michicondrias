@@ -82,14 +82,14 @@ export default function PaseadoresCalendarioScreen() {
               >
                 <Text style={[
                   styles.dayText,
-                  { color: isSelected ? '#fff' : theme.text },
+                  { color: isSelected ? theme.onPrimary : theme.text },
                 ]}>
                   {day}
                 </Text>
                 {dayRequests.length > 0 && (
                   <View style={[
                     styles.dot,
-                    { backgroundColor: isSelected ? '#fff' : theme.primary },
+                    { backgroundColor: isSelected ? theme.onPrimary : theme.primary },
                   ]} />
                 )}
               </TouchableOpacity>

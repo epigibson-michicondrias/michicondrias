@@ -105,7 +105,7 @@ export default function NuevaFunerariaScreen() {
                             ]}
                             onPress={() => setForm(f => ({ ...f, cremation_type: opt.value }))}
                         >
-                            <Text style={[styles.typeText, { color: form.cremation_type === opt.value ? '#fff' : theme.text }]}>
+                            <Text style={[styles.typeText, { color: form.cremation_type === opt.value ? theme.onPrimary : theme.text }]}>
                                 {opt.label}
                             </Text>
                         </TouchableOpacity>
@@ -234,7 +234,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.huge,
     },
     submitBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

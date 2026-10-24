@@ -135,7 +135,7 @@ function GestionGrooming() {
                 onPress={() => setFilter(f.key)}
                 activeOpacity={0.7}
             >
-                <Text style={[styles.filterLabel, { color: isActive ? '#fff' : theme.textMuted }]}>
+                <Text style={[styles.filterLabel, { color: isActive ? theme.onPrimary : theme.textMuted }]}>
                     {f.label}
                 </Text>
             </TouchableOpacity>
@@ -564,6 +564,5 @@ const styles = StyleSheet.create({
     saveBtnText: {
         fontSize: font.xl,
         fontWeight: '800',
-        color: '#fff',
     },
 });

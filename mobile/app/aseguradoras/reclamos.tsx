@@ -260,7 +260,6 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     approveBtnText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '700',
     },

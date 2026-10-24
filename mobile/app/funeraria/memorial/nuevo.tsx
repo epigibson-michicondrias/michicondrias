@@ -136,7 +136,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.huge,
     },
     submitBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

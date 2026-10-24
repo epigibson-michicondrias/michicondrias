@@ -216,7 +216,6 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     submitButtonText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '700',
     },

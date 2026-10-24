@@ -175,7 +175,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     retryButtonText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '600',
     },
@@ -282,7 +281,6 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     enrollButtonText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '700',
     },

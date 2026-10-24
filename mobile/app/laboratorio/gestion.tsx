@@ -95,7 +95,7 @@ export default function LaboratorioGestionScreen() {
             accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={onPress}
             style={[styles.btn, { borderColor: color, backgroundColor: filled ? color : 'transparent' }, disabled && { opacity: 0.6 }]}
         >
-            <Text style={{ color: filled ? '#fff' : color, fontWeight: '700', fontSize: font.base }}>{label}</Text>
+            <Text style={{ color: filled ? theme.onPrimary : color, fontWeight: '700', fontSize: font.base }}>{label}</Text>
         </TouchableOpacity>
     );
 
@@ -260,7 +260,7 @@ export default function LaboratorioGestionScreen() {
                             </TouchableOpacity>
                             <TextInput style={input} placeholder="URL del informe PDF (opcional)" autoCapitalize="none" keyboardType="url" placeholderTextColor={theme.textMuted} value={pdfUrl} onChangeText={setPdfUrl} />
                             <TouchableOpacity accessibilityRole="button" disabled={isUploadingResults} onPress={submitResults} style={[styles.submit, { backgroundColor: theme.primary }, isUploadingResults && { opacity: 0.7 }]}>
-                                <Text style={styles.submitText}>{isUploadingResults ? 'Enviando...' : 'Enviar resultados'}</Text>
+                                <Text style={[styles.submitText, { color: theme.onPrimary }]}>{isUploadingResults ? 'Enviando...' : 'Enviar resultados'}</Text>
                             </TouchableOpacity>
                         </ScrollView>
                     </View>
@@ -284,7 +284,7 @@ export default function LaboratorioGestionScreen() {
                                 <TextInput style={[input, { flex: 1 }]} placeholder="Rango ref." placeholderTextColor={theme.textMuted} value={tf.reference_range} onChangeText={(v) => setTf({ ...tf, reference_range: v })} />
                             </View>
                             <TouchableOpacity accessibilityRole="button" disabled={isCreatingTest} onPress={submitTest} style={[styles.submit, { backgroundColor: theme.primary }, isCreatingTest && { opacity: 0.7 }]}>
-                                <Text style={styles.submitText}>{isCreatingTest ? 'Publicando...' : 'Publicar estudio'}</Text>
+                                <Text style={[styles.submitText, { color: theme.onPrimary }]}>{isCreatingTest ? 'Publicando...' : 'Publicar estudio'}</Text>
                             </TouchableOpacity>
                         </ScrollView>
                     </View>
@@ -312,5 +312,5 @@ const styles = StyleSheet.create({
     rowBox: { borderWidth: 1, borderRadius: 14, padding: spacing.md, gap: spacing.sm, marginBottom: spacing.md },
     input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, paddingVertical: spacing.md, fontSize: font.base },
     submit: { paddingVertical: spacing.lg, borderRadius: 14, alignItems: 'center', marginTop: spacing.md, marginBottom: spacing.xl },
-    submitText: { color: '#fff', fontWeight: '800', fontSize: font.lg },
+    submitText: { fontWeight: '800', fontSize: font.lg },
 });

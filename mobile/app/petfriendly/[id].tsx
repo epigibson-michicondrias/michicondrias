@@ -513,7 +513,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     submitReviewBtnText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '800',
     },

@@ -28,15 +28,20 @@ import {
     ClipboardList,
     X,
 } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { accents, font, layout, spacing } from '@/constants/design';
 
-const STATUS_INFO: Record<string, { label: string; color: string; icon: any }> = {
-    pending: { label: 'Pendiente', color: '#f59e0b', icon: ClipboardList },
-    not_started: { label: 'Pendiente', color: '#f59e0b', icon: ClipboardList },
-    in_progress: { label: 'En progreso', color: '#3b82f6', icon: Target },
-    video_submitted: { label: 'Video enviado', color: '#8b5cf6', icon: Video },
-    completed: { label: 'Completado', color: '#10b981', icon: Trophy },
-    rejected: { label: 'Rechazado', color: '#ef4444', icon: XCircle },
+// Resuelto en runtime: theme/accents no existen fuera del componente.
+type StatusInfo = { label: string; color: string; icon: any };
+const statusInfo = (t: any, acc: any, key: string): StatusInfo => {
+    const map: Record<string, StatusInfo> = {
+        pending: { label: 'Pendiente', color: t.warning, icon: ClipboardList },
+        not_started: { label: 'Pendiente', color: t.warning, icon: ClipboardList },
+        in_progress: { label: 'En progreso', color: t.primary, icon: Target },
+        video_submitted: { label: 'Video enviado', color: acc.services, icon: Video },
+        completed: { label: 'Completado', color: t.success, icon: Trophy },
+        rejected: { label: 'Rechazado', color: t.error, icon: XCircle },
+    };
+    return map[key] || { label: key, color: t.textMuted, icon: ClipboardList };
 };
 
 export default function GoalManagementScreen() {
@@ -136,7 +141,7 @@ export default function GoalManagementScreen() {
                                 accessibilityRole="button"
                                 accessibilityLabel="Finalizar programa"
                             >
-                                <Text style={styles.enrollActionText}>Finalizar programa</Text>
+                                <Text style={[styles.enrollActionText, { color: theme.onPrimary }]}>Finalizar programa</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity
@@ -174,8 +179,8 @@ export default function GoalManagementScreen() {
                     )}
 
                     {goals.map((goal) => {
-                        const statusInfo = STATUS_INFO[goal.status ?? 'pending'] || STATUS_INFO.pending;
-                        const StatusIcon = statusInfo.icon;
+                        const status = statusInfo(theme, accents, goal.status ?? 'pending');
+                        const StatusIcon = status.icon;
                         const hasVideo = isTrainer && goal.status === 'video_submitted';
 
                         return (
@@ -184,14 +189,14 @@ export default function GoalManagementScreen() {
                                 style={[styles.goalCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                             >
                                 <View style={styles.goalHeader}>
-                                    <View style={[styles.goalIconBg, { backgroundColor: statusInfo.color + '20' }]}>
-                                        <StatusIcon size={18} color={statusInfo.color} />
+                                    <View style={[styles.goalIconBg, { backgroundColor: status.color + '20' }]}>
+                                        <StatusIcon size={18} color={status.color} />
                                     </View>
                                     <View style={styles.goalInfo}>
                                         <Text style={[styles.goalName, { color: theme.text }]}>{goal.goal_name}</Text>
-                                        <View style={[styles.goalStatusBadge, { backgroundColor: statusInfo.color + '15' }]}>
-                                            <Text style={[styles.goalStatusText, { color: statusInfo.color }]}>
-                                                {statusInfo.label}
+                                        <View style={[styles.goalStatusBadge, { backgroundColor: status.color + '15' }]}>
+                                            <Text style={[styles.goalStatusText, { color: status.color }]}>
+                                                {status.label}
                                             </Text>
                                         </View>
                                     </View>
@@ -231,7 +236,7 @@ export default function GoalManagementScreen() {
                                 {hasVideo && (
                                     <View style={styles.videoActions}>
                                         <TouchableOpacity accessibilityRole="button"
-                                            style={[styles.reviewBtn, { backgroundColor: '#22c55e' }]}
+                                            style={[styles.reviewBtn, { backgroundColor: theme.success }]}
                                             onPress={() => openReview(goal)}
                                             activeOpacity={0.8}
                                         >
@@ -360,7 +365,7 @@ export default function GoalManagementScreen() {
                             </TouchableOpacity>
 
                             <TouchableOpacity accessibilityRole="button"
-                                style={[styles.approveBtn, { backgroundColor: '#22c55e' }]}
+                                style={[styles.approveBtn, { backgroundColor: theme.success }]}
                                 onPress={() => {
                                     if (selectedGoal) handleReviewVideo(selectedGoal.id, true);
                                     setShowReviewModal(false);
@@ -388,7 +393,7 @@ export default function GoalManagementScreen() {
 const styles = StyleSheet.create({
     enrollActions: { flexDirection: 'row', gap: spacing.md, marginHorizontal: layout.screenPadding, marginBottom: spacing.lg },
     enrollActionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.md, borderRadius: 14 },
-    enrollActionText: { color: '#fff', fontSize: font.base, fontWeight: '800' },
+    enrollActionText: { fontSize: font.base, fontWeight: '800' },
     progressCard: {
         marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
@@ -515,7 +520,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     reviewBtnText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '700',
     },
@@ -568,7 +572,6 @@ const styles = StyleSheet.create({
         marginTop: spacing.lg,
     },
     modalSubmitText: {
-        color: '#fff',
         fontSize: font.lg,
         fontWeight: '700',
     },
@@ -618,7 +621,6 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     approveBtnText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '700',
     },

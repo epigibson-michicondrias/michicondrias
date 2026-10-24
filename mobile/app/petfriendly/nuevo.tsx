@@ -162,8 +162,8 @@ export default function NuevoLugarScreen() {
                                     ]}
                                     onPress={() => setForm({ ...form, category: cat.id })}
                                 >
-                                    <cat.icon size={18} color={form.category === cat.id ? '#fff' : theme.primary} />
-                                    <Text style={[styles.catText, { color: form.category === cat.id ? '#fff' : theme.text }]}>{cat.id}</Text>
+                                    <cat.icon size={18} color={form.category === cat.id ? theme.onPrimary : theme.primary} />
+                                    <Text style={[styles.catText, { color: form.category === cat.id ? theme.onPrimary : theme.text }]}>{cat.id}</Text>
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
@@ -237,7 +237,7 @@ export default function NuevoLugarScreen() {
                                     ]}
                                     onPress={() => setForm({ ...form, pet_sizes_allowed: size })}
                                 >
-                                    <Text style={[styles.sizeText, { color: form.pet_sizes_allowed === size ? '#fff' : theme.textMuted }]}>{size}</Text>
+                                    <Text style={[styles.sizeText, { color: form.pet_sizes_allowed === size ? theme.onPrimary : theme.textMuted }]}>{size}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -424,14 +424,9 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
         elevation: 8,
     },
     saveBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

@@ -262,7 +262,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     exploreButtonText: {
-        color: '#fff',
         fontSize: font.lg,
         fontWeight: '700',
     },

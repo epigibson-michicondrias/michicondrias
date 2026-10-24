@@ -80,7 +80,7 @@ export default function NuevoServicioScreen() {
                                     <Text
                                         style={[
                                             styles.typeText,
-                                            { color: form.cremation_type === opt.value ? '#fff' : theme.text },
+                                            { color: form.cremation_type === opt.value ? theme.onPrimary : theme.text },
                                         ]}
                                     >
                                         {opt.label}
@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.huge,
     },
     submitBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

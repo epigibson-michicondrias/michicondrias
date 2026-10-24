@@ -39,7 +39,7 @@ export default function GestionScreen() {
             onPress={onPress}
             style={[styles.actionBtn, { borderColor: color, backgroundColor: filled ? color : 'transparent' }, isChangingStatus && { opacity: 0.6 }]}
         >
-            <Text style={{ color: filled ? '#fff' : color, fontWeight: '700', fontSize: font.base }}>{label}</Text>
+            <Text style={{ color: filled ? theme.onPrimary : color, fontWeight: '700', fontSize: font.base }}>{label}</Text>
         </TouchableOpacity>
     );
 

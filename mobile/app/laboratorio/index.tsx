@@ -542,7 +542,6 @@ const styles = StyleSheet.create({
     notesTitle: {
         fontSize: font.base,
         fontWeight: '800',
-        color: '#f59e0b',
         marginBottom: spacing.xs,
     },
     notesText: {
@@ -560,7 +559,6 @@ const styles = StyleSheet.create({
     completedTitle: {
         fontSize: font.base,
         fontWeight: '800',
-        color: '#10b981',
         marginBottom: spacing.xs,
     },
     completedText: {

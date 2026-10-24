@@ -56,8 +56,8 @@ function PetChip({ label, selected, onPress }: { label: string; selected: boolea
                 borderColor: selected ? theme.primary : theme.border,
             }}
         >
-            <PawPrint size={14} color={selected ? '#fff' : theme.textMuted} />
-            <Text style={{ color: selected ? '#fff' : theme.text, fontWeight: '700', fontSize: font.base, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+            <PawPrint size={14} color={selected ? theme.onPrimary : theme.textMuted} />
+            <Text style={{ color: selected ? theme.onPrimary : theme.text, fontWeight: '700', fontSize: font.base, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
         </TouchableOpacity>
     );
 }
@@ -139,7 +139,7 @@ export default function ReporteDefuncionScreen() {
                                     <Text
                                         style={[
                                             styles.typeText,
-                                            { color: form.cremation_type === opt.value ? '#fff' : theme.text },
+                                            { color: form.cremation_type === opt.value ? theme.onPrimary : theme.text },
                                         ]}
                                     >
                                         {opt.label}
@@ -285,7 +285,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.huge,
     },
     submitBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

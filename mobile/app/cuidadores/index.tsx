@@ -10,7 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
-import { font, spacing, layout } from '@/constants/design';
+import { font, layout, spacing, tint } from '@/constants/design';
 
 export default function CuidadoresScreen() {
     const router = useRouter();
@@ -84,7 +84,7 @@ export default function CuidadoresScreen() {
                     </Text>
                 </View>
                 {item.is_verified && (
-                    <View style={[styles.serviceTag, { backgroundColor: '#10b98120' }]}>
+                    <View style={[styles.serviceTag, { backgroundColor: theme.success + tint.faint }]}>
                         <Shield size={12} color={theme.success} />
                         <Text style={[styles.serviceText, { color: theme.success }]}>
                             Verificado
@@ -92,7 +92,7 @@ export default function CuidadoresScreen() {
                     </View>
                 )}
                 {item.has_yard && (
-                    <View style={[styles.serviceTag, { backgroundColor: '#f59e0b20' }]}>
+                    <View style={[styles.serviceTag, { backgroundColor: theme.warning + tint.faint }]}>
                         <Text style={[styles.serviceText, { color: theme.warning }]}>
                             Patio propio
                         </Text>
@@ -325,7 +325,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     contactButtonText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '600',
     },

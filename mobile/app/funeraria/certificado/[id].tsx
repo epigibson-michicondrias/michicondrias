@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.lg,
     },
     downloadBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     },

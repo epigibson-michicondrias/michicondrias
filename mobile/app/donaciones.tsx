@@ -183,7 +183,7 @@ export default function DonacionesScreen() {
                     </View>
 
                     <View style={[styles.trustBox, { backgroundColor: 'rgba(16, 185, 129, 0.05)' }]}>
-                        <ShieldCheck size={20} color="#10b981" />
+                        <ShieldCheck size={20} color={theme.success} />
                         <Text style={[styles.trustText, { color: theme.textMuted }]}>
                             El pago se hace de forma segura con Stripe. Tu donación va al fondo de rescate Michicondrias y se confirma cuando el cobro se completa.
                         </Text>
@@ -295,9 +295,6 @@ const styles = StyleSheet.create({
         gap: spacing.md,
         marginTop: spacing.md,
         marginBottom: spacing.huge,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
         elevation: 8,
     },
     statusBox: {
@@ -311,7 +308,6 @@ const styles = StyleSheet.create({
     statusText: { fontSize: font.base, lineHeight: 19, textAlign: 'center' },
     statusLink: { fontSize: font.base, fontWeight: '800', marginTop: spacing.xs },
     submitBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
         fontWeight: '800',
     }

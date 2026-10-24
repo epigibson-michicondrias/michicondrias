@@ -112,7 +112,7 @@ export default function AgendarLaboratorioScreen() {
                                             onPress={() => setTime(t)}
                                             style={[styles.slot, { backgroundColor: sel ? theme.primary : theme.surface, borderColor: sel ? theme.primary : theme.border }]}
                                         >
-                                            <Text style={{ color: sel ? '#fff' : theme.text, fontWeight: '700' }}>{t}</Text>
+                                            <Text style={{ color: sel ? theme.onPrimary : theme.text, fontWeight: '700' }}>{t}</Text>
                                         </TouchableOpacity>
                                     );
                                 })}
@@ -139,7 +139,7 @@ export default function AgendarLaboratorioScreen() {
                             style={[styles.submit, { backgroundColor: theme.primary }, saving && { opacity: 0.7 }]}
                         >
                             <Check size={20} color={theme.onPrimary} />
-                            <Text style={styles.submitText}>{saving ? 'Enviando...' : 'Solicitar cita'}</Text>
+                            <Text style={[styles.submitText, { color: theme.onPrimary }]}>{saving ? 'Enviando...' : 'Solicitar cita'}</Text>
                         </TouchableOpacity>
                     </>
                 )}
@@ -157,5 +157,5 @@ const styles = StyleSheet.create({
     slot: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 12, borderWidth: 1 },
     input: { minHeight: 90, borderRadius: 14, borderWidth: 1, padding: spacing.lg, fontSize: font.base },
     submit: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.lg, borderRadius: 14 },
-    submitText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
+    submitText: { fontSize: font.xl, fontWeight: '800' },
 });

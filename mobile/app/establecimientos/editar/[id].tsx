@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
     submitText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '700',
     },

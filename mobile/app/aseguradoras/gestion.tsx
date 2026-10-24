@@ -373,7 +373,6 @@ const styles = StyleSheet.create({
         marginTop: spacing.sm,
     },
     createBtnText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '800',
     },
