@@ -90,13 +90,29 @@ async def create_checkout_session(
 async def create_subscription_session(
     pet_id: str,
     source: str | None = None,
+    db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """
     Create a Stripe Checkout Session for Michi-Tracker Pro subscription.
+    Solo el dueño de la mascota puede suscribirla (X4.1): sin este check, cualquiera podía
+    activar Michi-Tracker Pro — o asociar un `stripe_subscription_id` — en una mascota ajena.
     """
     if not settings.STRIPE_SECRET_KEY:
         raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+
+    # La mascota vive en el servicio `mascotas`; la BD es compartida, así que se lee con SQL crudo
+    # (el mismo patrón que usan carnet, core y laboratorio).
+    from sqlalchemy import text as _text
+    try:
+        row = db.execute(_text("SELECT owner_id FROM pets WHERE id = :pid"), {"pid": pet_id}).first()
+    except Exception:
+        db.rollback()
+        row = None
+    if row is None:
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    if str(row[0]) != str(user_id):
+        raise HTTPException(status_code=403, detail="Solo puedes suscribir tus propias mascotas")
 
     try:
         # Create a checkout session for a recurring payment

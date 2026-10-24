@@ -65,15 +65,22 @@ def resolve_report(
     return update_report(db, report_id=report_id, report_in=update_data)
 
 
-def _for_viewer(report, viewer_id: Optional[str]) -> LostPetReportOut:
-    """Lo que ve cada quien: el dueño todo; el resto sin el ID del collar ni su posición en vivo
-    (protege a la mascota de robos), y sin teléfono ni correo si no inició sesión."""
+def _for_viewer(report, viewer_id: Optional[str], is_admin: bool = False) -> LostPetReportOut:
+    """Lo que ve cada quien: el dueño y el admin todo; el resto sin el ID del collar ni su posición
+    en vivo (protege a la mascota de robos) y **sin teléfono ni correo** — el contacto solo lo ve quien
+    publicó el reporte (o un admin). Si no, cualquier cuenta autenticada podría cosechar contactos."""
     out = LostPetReportOut.model_validate(report)
     if viewer_id and viewer_id == report.reporter_id:
         return out
-    hidden = {"tracker_device_id": None, "current_lat": None, "current_lng": None}
-    if not viewer_id:
-        hidden.update(contact_phone=None, contact_email=None)
+    if is_admin:
+        return out
+    hidden = {
+        "tracker_device_id": None,
+        "current_lat": None,
+        "current_lng": None,
+        "contact_phone": None,
+        "contact_email": None,
+    }
     return out.model_copy(update=hidden)
 
 
@@ -81,6 +88,7 @@ def _for_viewer(report, viewer_id: Optional[str]) -> LostPetReportOut:
 def list_reports(
     db: Session = Depends(get_db),
     viewer_id: Optional[str] = Depends(deps.get_optional_user_id),
+    viewer_role: str = Depends(deps.get_optional_user_role),
     report_type: Optional[str] = None,
     status: str = "active",
     species: Optional[str] = None,
@@ -91,7 +99,7 @@ def list_reports(
     Retrieve all active lost/found pet reports. Public endpoint.
     """
     reports = get_reports(db, report_type=report_type, status=status, species=species, skip=skip, limit=limit)
-    return [_for_viewer(r, viewer_id) for r in reports]
+    return [_for_viewer(r, viewer_id, is_admin=viewer_role == "admin") for r in reports]
 
 
 @router.get("/mine", response_model=List[LostPetReportOut])
@@ -117,7 +125,7 @@ def read_report(
     report = get_report_by_id(db, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    return _for_viewer(report, viewer_id)
+    return _for_viewer(report, viewer_id, is_admin=viewer_role == "admin")
 
 
 @router.post("/", response_model=LostPetReportOut)

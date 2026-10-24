@@ -61,6 +61,22 @@ class UserKYCUpdateBase(BaseModel):
     proof_of_address_url: str
     verification_status: str = "PENDING"
 
+class UserSummaryResponse(BaseModel):
+    """Usuario sin documentos de identidad (KYC). Para listados: la app/admin no necesita
+    descargar el INE de todos en el listado; los documentos se piden en el detalle."""
+    id: str
+    email: EmailStr
+    full_name: Optional[str] = None
+    is_active: Optional[bool] = True
+    verification_status: Optional[str] = "UNVERIFIED"
+    role_id: Optional[str] = None
+    role_name: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
 class UserResponse(UserBase):
     id: str
     role_id: Optional[str] = None

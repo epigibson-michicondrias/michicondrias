@@ -235,10 +235,19 @@ def _soft_delete_pet(pet: Pet) -> None:
 
 @router.get("/adopted-from/{listing_id}", response_model=PetResponse)
 def get_pet_by_listing(listing_id: str, db: Session = Depends(get_db), identity: dict = Depends(identity_or_internal)) -> Any:
-    """Get the pet created from a specific adoption listing. Useful for verification."""
+    """Get the pet created from a specific adoption listing. Useful for verification.
+
+    Solo el dueño de la mascota, un admin o el token interno (X4.2): el `listing_id` viaja en
+    notificaciones y URLs, así que sin este check cualquiera podía leer los datos de cualquier mascota.
+    """
     pet = db.query(Pet).filter(Pet.adopted_from_listing_id == listing_id).first()
     if not pet:
         raise HTTPException(status_code=404, detail="No se encontró mascota vinculada a este listing")
+    # identity_or_internal → {"internal": bool, "user_id": str|None, "role": str}
+    if not identity.get("internal"):
+        viewer_id = identity.get("user_id")
+        if viewer_id != pet.owner_id and identity.get("role") != "admin":
+            raise HTTPException(status_code=403, detail="No puedes ver esta mascota")
     return pet
 
 @router.patch("/{pet_id}/subscription", response_model=PetResponse)

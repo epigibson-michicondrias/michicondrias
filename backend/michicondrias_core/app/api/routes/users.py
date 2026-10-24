@@ -10,7 +10,7 @@ from app.db.session import get_db
 from app.schemas.user import (
     UserCreate, 
     UserUpdate,
-    UserResponse, 
+    UserResponse, UserSummaryResponse, 
     UserMeResponse, 
     KYCPresignedUrlsResponse, 
     KYCPresignedUrl, 
@@ -225,7 +225,7 @@ def register_user(
     user = crud.crud_user.create_user(db=db, user=user_in)
     return user
 
-@router.get("/", response_model=List[UserResponse])
+@router.get("/", response_model=List[UserSummaryResponse])
 def read_users(
     db: Session = Depends(get_db),
     skip: int = 0,
@@ -241,7 +241,7 @@ def read_users(
     return users
 
 class UserPage(PydanticBaseModel):
-    items: List[UserResponse]
+    items: List[UserSummaryResponse]
     total: int
 
 

@@ -52,6 +52,14 @@ def require_admin(token: str = Depends(oauth2_scheme)) -> str:
         )
     return payload["sub"]
 
+def get_optional_user_role(token: str = Depends(oauth2_scheme)) -> str:
+    """Rol del visitante; "consumidor" si no hay sesión válida."""
+    try:
+        payload = _decode_token(token) if token else None
+    except HTTPException:
+        payload = None
+    return (payload or {}).get("role", "consumidor")
+
 def get_optional_user_id(token: str = Depends(oauth2_scheme)) -> str:
     if not token:
         return None
