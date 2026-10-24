@@ -356,7 +356,7 @@
 
 .step.completed .stepIcon {
   background: var(--color-success);
-  color: #fff;
+  color: var(--color-on-primary);
   border-color: var(--color-success);
 }
 

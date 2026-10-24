@@ -90,9 +90,9 @@ export default function MascotaAdopcionPage() {
       </div>
 
       <div className={local.badgeRow}>
-        {listing.is_emergency ? <Badge label="Urgente" color="var(--error)" variant="solid" /> : null}
-        {listing.is_sterilized ? <Badge label="Esterilizado" color="var(--primary)" /> : null}
-        {listing.is_vaccinated ? <Badge label="Vacunado" color="var(--success)" /> : null}
+        {listing.is_emergency ? <Badge label="Urgente" color="var(--color-error)" variant="solid" /> : null}
+        {listing.is_sterilized ? <Badge label="Esterilizado" color="var(--color-primary)" /> : null}
+        {listing.is_vaccinated ? <Badge label="Vacunado" color="var(--color-success)" /> : null}
         {listing.is_dewormed ? <Badge label="Desparasitado" color="var(--info)" /> : null}
       </div>
 

@@ -63,7 +63,10 @@ y sigue donde se quedó el otro.
 - [x] W2: espejos, `api.ts`, `tokens.css`, contextos Theme/Auth/Cart y kit base.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell`, `AuthShell` con login 2FA / registro / reset, redirects `/dashboard/*`.
-- [ ] W4: portar módulos (119 pantallas faltan) · W4-A consola de admin · W5 pulido y merge a `main` · W7 permisos editables.
+- [x] W4 (2026-10-23): módulos portados (P1–P3) + W4-A consola de admin.
+- [x] W5 homologación de diseño con la landing (2026-10-23): CSS legacy migrado a `tokens.css`+`theme.css`, 11 CSS
+  muertos y 5 componentes muertos borrados, `ErrorBoundary`/`Toaster`/`OfflineBanner` al criterio Midnight & Gold.
+- [ ] W5 cierre: hover/foco/atajos de escritorio, tablas admin, SEO de la landing, **merge a `main`** · W7 permisos editables.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 - [ ] Llevar `scripts/sync-mimo.sh` al worktree (llega al fusionar `main` en `web/espejo`).
 
@@ -82,6 +85,14 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Claude** — W5 homologación de diseño web con la landing en `web/espejo` (sin push): CSS legacy →
+  `tokens.css`+`theme.css` (`perfil`, `dashboard`, `modules`, `features/adopciones`), borrados 11 CSS muertos y los
+  componentes `Sidebar`/`MichiExplorer`/`CartDrawer`/`ConfirmModal`/`CustomSelect`, `ErrorBoundary`/`Toaster`/
+  `OfflineBanner` al estilo Midnight & Gold. `tsc` + ESLint + `build` en verde; revisión visual 375/1280 claro y
+  oscuro con mocks. Deudas: precio de producto en azul (no dorado), emojis-ícono en `types/`/`utils/` (espejo de la
+  app). **Siguiente:** W5 cierre (hover/foco/atajos, tablas, SEO landing) y merge a `main`. Detalle en
+  `PROGRESO_WEB.md`.
 
 - **2026-10-23 · Mimo** — W4 multiagente en `web/espejo` (`a4e7d4e`): Adopciones, Directorio/citas,
   Perdidas/reportes, Notificaciones, Búsqueda y Ayuda portados con hooks y features por módulo. Build

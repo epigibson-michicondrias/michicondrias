@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import { createLostPet } from "@/lib/legacy/services/mascotas";
 import dashStyles from "../../dashboard.module.css";
 import styles from "../../modules.module.css";
@@ -39,11 +40,14 @@ export default function ReportarPerdidaPage() {
     return (
         <>
             <div className={dashStyles["page-header"]}>
-                <h1 className={dashStyles["page-title"]}>🔍 Reportar mascota perdida</h1>
+                <h1 className={dashStyles["page-title"]}>
+                    <Search size={24} aria-hidden />
+                    Reportar mascota perdida
+                </h1>
                 <p className={dashStyles["page-subtitle"]}>Ayúdanos a encontrarla</p>
             </div>
             <form onSubmit={handleSubmit} className={styles["create-form"]}>
-                {error && <div style={{ color: "var(--error)", marginBottom: "1rem" }}>{error}</div>}
+                {error && <div className={styles["form-error"]}>{error}</div>}
                 <div className={styles["form-group"]}>
                     <label>Nombre de la mascota</label>
                     <input name="pet_name" placeholder="Nombre" required />

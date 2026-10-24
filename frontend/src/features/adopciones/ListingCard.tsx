@@ -45,7 +45,7 @@ export default function ListingCard({ listing, compact }: ListingCardProps) {
             {placeLine}
           </p>
         </div>
-        {listing.is_emergency ? <Badge label="Urgente" color="var(--error)" variant="solid" size="sm" /> : null}
+        {listing.is_emergency ? <Badge label="Urgente" color="var(--color-error)" variant="solid" size="sm" /> : null}
       </Link>
     );
   }
@@ -62,7 +62,7 @@ export default function ListingCard({ listing, compact }: ListingCardProps) {
         )}
         {listing.is_emergency ? (
           <span className={s.listingUrgent}>
-            <Badge label="Urgente" color="var(--error)" variant="solid" size="sm" />
+            <Badge label="Urgente" color="var(--color-error)" variant="solid" size="sm" />
           </span>
         ) : null}
       </div>

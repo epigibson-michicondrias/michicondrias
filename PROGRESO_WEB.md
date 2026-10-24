@@ -19,7 +19,7 @@ solo con la fase verificada y el visto bueno del usuario.
 | W3 | Navegación y esqueleto | `(auth)` + `(app)`, rutas iguales a la app, shell (sidebar / barra inferior), redirects `/dashboard/*` | ✅ 2026-10-23 |
 | W4 | Módulos (multiagente por lotes) | P1 → **W4-A Consola admin** → P2 → P3 | ✅ 2026-10-23 |
 | W4-A | Consola de administración | Admin de la app ampliado a escritorio + matriz de roles/permisos + "ver como rol" | ✅ 2026-10-23 |
-| W5 | Pulido de escritorio y cierre | hover/foco/atajos, tablas, SEO de la landing, borrar lo viejo, merge a `main` | ⬜ |
+| W5 | Pulido de escritorio y cierre | hover/foco/atajos, tablas, SEO de la landing, borrar lo viejo, merge a `main` | 🟡 homologación de diseño lista (2026-10-23) |
 | W6 | Continuo | `scripts/web-drift.sh` cada sesión; reflejar cambios de la app | ⬜ |
 | W7 | Permisos editables (etapa 2) | tabla `role_permissions` en core + edición en la consola; backend y app leen permisos | ⬜ (diseño aparte, con aprobación) |
 
@@ -103,6 +103,25 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
   `GET /users/{id}`, `users_count` en roles y borrado seguro de roles (ver `AUDITORIA_WEB.md`).
 
 ## Bitácora
+
+- **2026-10-23 — W5 homologación de diseño con la landing (Claude).**
+  - **Inventario real:** de los CSS modules legacy, **11 estaban muertos** (las pantallas ya usaban los de
+    `features/` o `pages.module.css`): `home`, `adopciones/*` (4), `carnet/*` (2), `perdidas/perdidas`,
+    `perfil/verificacion`, `tienda/producto`, `tienda/compras`. Se borraron.
+  - **Migrados a `tokens.css` + `theme.css`** (cero hex, cero variables de `globals.css`):
+    `perfil/perfil.module.css`, `dashboard.module.css` (recortado a las 3 clases vivas de `/perdidas/reportar`),
+    `modules.module.css` (formularios), `features/adopciones` (1 hex), `ErrorBoundary` (hex + emoji + botón a mano),
+    `ToasterProvider`, `OfflineBanner` (hex + emoji; ahora `useSyncExternalStore` y `WifiOff` de lucide).
+  - **Componentes muertos borrados** (knip + grep 0 usos): `Sidebar`, `MichiExplorer`, `tienda/CartDrawer`,
+    `ui/ConfirmModal`, `ui/CustomSelect` + sus CSS. `ErrorBoundary` pasa al kit (`Button` + tokens).
+  - Barrido final: **0 hex y 0 variables legacy** en CSS/TSX fuera de `features/landing` y `globals.css`.
+  - **Verificado:** `tsc` limpio, `eslint --quiet` 0 errores en los tocados, `next build` verde. Revisión visual con
+    mocks de API a 375×812 y 1280×800 en claro y oscuro: login, `/inicio`, `/adopciones`, `/perdidas`, `/tienda`,
+    `/tienda/producto/[id]` (con foto) y el kit. Capturas en `/tmp` (no commiteadas).
+  - **Deudas de UI encontradas:** el precio del producto usa `--color-primary` (azul) en vez del dorado de la landing;
+    los emojis-ícono de `types/` y `utils/formatters.ts` son espejo de la app y no se tocaron (deriva si se cambian
+    solo aquí). `/perfil` y el detalle de producto crashean con datos incompletos de mock (no es bug de producción).
+  - **Siguiente (W5):** hover/foco/atajos de escritorio, tablas admin, SEO de la landing y merge a `main`.
 
 - **2026-10-23 — Pulido post W4-A (`d960744`, Mimo).**
   - `AppOnlyNotice` pasa al kit base (`ScreenContainer` + `ScreenHeader` + `Card` + `EmptyState`) en vez de HTML suelto

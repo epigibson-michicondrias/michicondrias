@@ -1,5 +1,5 @@
 .container {
-    animation: fadeIn 0.4s ease-out;
+    animation: fadeIn 0.4s var(--ease-out);
 }
 
 @keyframes fadeIn {
@@ -19,24 +19,25 @@
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    padding: 1.75rem;
-    background: var(--bg-glass);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    margin-bottom: 2rem;
+    padding: var(--space-xxl);
+    background: var(--color-card);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    margin-bottom: var(--space-xxl);
 }
 
 .user-avatar {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: var(--primary-gradient);
+    background: var(--color-cta);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.75rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--color-on-cta);
     flex-shrink: 0;
 }
 
@@ -47,13 +48,13 @@
 .user-name {
     font-size: 1.35rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--color-text);
     margin: 0 0 0.15rem 0;
 }
 
 .user-email {
     font-size: 0.9rem;
-    color: var(--text-secondary);
+    color: var(--color-text-muted);
     margin: 0 0 0.6rem 0;
 }
 
@@ -70,9 +71,9 @@
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.3rem 0.75rem;
-    border-radius: var(--radius-full);
-    background: rgba(124, 58, 237, 0.12);
-    color: var(--primary-light);
+    border-radius: var(--radius-pill);
+    background: var(--color-badge-bg);
+    color: var(--color-badge-text);
 }
 
 .badge-verification {
@@ -81,8 +82,8 @@
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.3rem 0.75rem;
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-pill);
+    background: var(--color-overlay);
 }
 
 /* Cards Grid */
@@ -93,28 +94,30 @@
 }
 
 .action-card {
-    background: var(--bg-glass);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 2rem;
+    background: var(--color-card);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    padding: var(--space-xxl);
     display: flex;
     flex-direction: column;
-    transition: all var(--transition-base);
+    box-shadow: var(--shadow-card);
+    transition: transform var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
 }
 
 .action-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border-color: var(--color-line-hover);
+    box-shadow: var(--shadow-raised), 0 0 24px var(--color-card-glow);
 }
 
 .card-gradient {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(236, 72, 153, 0.06));
-    border-color: rgba(124, 58, 237, 0.2);
+    background: var(--color-secondary-light);
+    border-color: color-mix(in srgb, var(--color-secondary) 28%, transparent);
 }
 
 .card-success {
-    background: rgba(34, 197, 94, 0.04);
-    border-color: rgba(34, 197, 94, 0.2);
+    background: var(--color-success-light);
+    border-color: color-mix(in srgb, var(--color-success) 28%, transparent);
 }
 
 .card-icon {
@@ -125,13 +128,13 @@
 .card-title {
     font-size: 1.15rem;
     font-weight: 800;
-    color: #fff;
+    color: var(--color-text);
     margin: 0 0 0.5rem 0;
 }
 
 .card-desc {
     font-size: 0.9rem;
-    color: var(--text-secondary);
+    color: var(--color-text-muted);
     line-height: 1.5;
     margin: 0 0 1.5rem 0;
     flex: 1;

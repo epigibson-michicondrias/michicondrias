@@ -1,0 +1,52 @@
+/* Fallback de error global — tokens de theme.css (Midnight & Gold). */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-xxl);
+  text-align: center;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-pill);
+  background: var(--color-error-light);
+  color: var(--color-error);
+}
+
+.title {
+  font-size: var(--font-h1);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-md);
+  color: var(--color-text);
+}
+
+.desc {
+  max-width: 32rem;
+  margin: 0 0 var(--space-xxl);
+  color: var(--color-text-muted);
+  line-height: var(--leading-body);
+}
+
+.detail {
+  display: block;
+  margin-top: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--color-overlay);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  word-break: break-all;
+  color: var(--color-text-muted);
+}
