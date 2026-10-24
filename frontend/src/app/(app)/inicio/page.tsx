@@ -1,11 +1,22 @@
 "use client";
 
 /**
- * Inicio — espejo de `mobile/app/(tabs)/index.tsx`: saludo, mascotas, próximas citas y atajos del rol.
+ * Inicio — espejo de `mobile/app/(tabs)/index.tsx`, pero aprovechando el espacio de la web:
+ * hero con acento dorado, fila de KPIs, mascotas como tarjetas grandes y atajos en tarjetas.
  */
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CalendarDays, ChevronRight, PawPrint, Plus, Sparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarDays,
+  ChevronRight,
+  Heart,
+  PawPrint,
+  Plus,
+  ShieldCheck,
+  Sparkles,
+  Stethoscope,
+} from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import SectionHeader from "@/components/SectionHeader";
 import Card from "@/components/Card";
@@ -22,21 +33,74 @@ export default function InicioPage() {
   } = useHome();
   const router = useRouter();
 
+  const petsCount = pets.length;
+  const weekAppointments = upcomingAppointments.length;
+  const trackerCount = pets.filter((p: any) => p.has_active_subscription).length;
+
   return (
     <ScreenContainer>
-      <header className={s.homeHeader}>
+      {/* Hero: identidad de marca + acción principal */}
+      <header className={s.homeHero}>
+        <div className={s.homeHeroGlow} aria-hidden />
         <div>
           <p className={s.homeOverline}>{panelTitle}</p>
-          <h1 className={s.homeTitle}>
-            {greetingName ? `Hola, ${greetingName}` : "Hola"}
+          <h1 className={s.homeHeroTitle}>
+            Hola, <em>{greetingName || "amigo"}</em>
           </h1>
-          <p className={s.homeSubtitle}>¿Qué necesitas hoy para tus mascotas?</p>
+          <p className={s.homeHeroSub}>¿Qué necesitas hoy para tus mascotas?</p>
+          <div className={s.homeHeroCta}>
+            <Button
+              label="Agregar mascota"
+              fullWidth={false}
+              icon={<Plus size={16} />}
+              onPress={() => router.push("/mascotas/nuevo")}
+            />
+            <Button
+              label="Agendar cita"
+              variant="secondary"
+              fullWidth={false}
+              icon={<CalendarDays size={16} />}
+              onPress={() => router.push("/directorio")}
+            />
+            {isPro && (
+              <Button label="Herramientas" variant="ghost" fullWidth={false} onPress={goTools} />
+            )}
+          </div>
         </div>
-        {isPro && (
-          <Button label="Herramientas" variant="secondary" fullWidth={false} onPress={goTools} />
-        )}
       </header>
 
+      {/* KPIs: resumen visual de un vistazo */}
+      <div className={s.kpiRow}>
+        <div className={s.kpi}>
+          <span className={s.kpiIcon} style={{ background: "var(--color-accent-light)", color: "var(--color-accent)" }}>
+            <PawPrint size={20} />
+          </span>
+          <div>
+            <p className={s.kpiValue}>{petsLoading ? "—" : petsCount}</p>
+            <p className={s.kpiLabel}>{petsCount === 1 ? "Mascota" : "Mascotas"}</p>
+          </div>
+        </div>
+        <div className={s.kpi}>
+          <span className={s.kpiIcon} style={{ background: "var(--color-primary-light, var(--color-accent-light))", color: "var(--color-primary)" }}>
+            <CalendarDays size={20} />
+          </span>
+          <div>
+            <p className={s.kpiValue}>{appointmentsLoading ? "—" : weekAppointments}</p>
+            <p className={s.kpiLabel}>Próximas citas</p>
+          </div>
+        </div>
+        <div className={s.kpi}>
+          <span className={s.kpiIcon} style={{ background: "var(--color-success-light, var(--color-accent-light))", color: "var(--color-success)" }}>
+            <ShieldCheck size={20} />
+          </span>
+          <div>
+            <p className={s.kpiValue}>{petsLoading ? "—" : trackerCount}</p>
+            <p className={s.kpiLabel}>Con Michi-Tracker</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Mascotas: tarjetas grandes con foto */}
       <section>
         <SectionHeader
           title="Mis mascotas"
@@ -46,7 +110,7 @@ export default function InicioPage() {
         />
         {petsLoading ? (
           <div className={s.homeRow}>
-            {[0, 1].map((i) => <Skeleton key={i} height={72} borderRadius={12} />)}
+            {[0, 1, 2].map((i) => <Skeleton key={i} height={180} borderRadius={16} />)}
           </div>
         ) : petsError ? (
           // El banner de QueryErrorBanner ya explica el fallo: no fingir que no hay mascotas.
@@ -61,20 +125,20 @@ export default function InicioPage() {
           />
         ) : (
           <div className={s.homeRow}>
-            {pets.slice(0, 4).map((pet) => (
-              <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.homePet}>
-                <span className={s.homePetAvatar}>
+            {pets.slice(0, 6).map((pet) => (
+              <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.petCard}>
+                <div className={s.petCardMedia}>
                   {pet.photo_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={pet.photo_url} alt="" width={48} height={48} />
+                    <img src={pet.photo_url} alt={pet.name} loading="lazy" />
                   ) : (
-                    <PawPrint size={20} />
+                    <div className={s.petCardFallback}><PawPrint size={36} /></div>
                   )}
-                </span>
-                <span>
-                  <p className={s.homePetName}>{pet.name}</p>
-                  <p className={s.homePetMeta}>{pet.breed || pet.species}</p>
-                </span>
+                </div>
+                <div className={s.petCardBody}>
+                  <p className={s.petCardName}>{pet.name}</p>
+                  <p className={s.petCardMeta}>{pet.breed || pet.species}</p>
+                </div>
               </Link>
             ))}
             <button type="button" className={s.homePetAdd} onClick={() => router.push("/mascotas/nuevo")} aria-label="Agregar mascota">
@@ -84,6 +148,7 @@ export default function InicioPage() {
         )}
       </section>
 
+      {/* Próximas citas */}
       <section>
         <SectionHeader
           title="Próximas citas"
@@ -93,6 +158,8 @@ export default function InicioPage() {
         />
         {appointmentsLoading ? (
           <Skeleton height={64} borderRadius={12} />
+        ) : appointmentsError ? (
+          null
         ) : upcomingAppointments.length === 0 ? (
           <Card>
             <p className={s.homeEmptyLine}>No tienes citas próximas.</p>
@@ -122,14 +189,16 @@ export default function InicioPage() {
         )}
       </section>
 
+      {/* Atajos como tarjetas con ícono y acento */}
       <section>
         <SectionHeader title="Atajos" icon={<Sparkles size={18} />} />
-        <div className={s.toolGrid}>
+        <div className={s.kpiRow}>
           {quickActions.map((action) => (
-            <Link key={action.title} href={action.route || "/explorar"} className={s.toolLink}>
-              <span className={s.toolDot} style={{ background: action.color }} aria-hidden />
-              <action.icon size={18} color={action.color} />
-              <span>{action.title}</span>
+            <Link key={action.title} href={action.route || "/explorar"} className={s.toolCard}>
+              <span className={s.toolCardIcon} style={{ background: "var(--color-accent-light)", color: action.color }}>
+                <action.icon size={20} />
+              </span>
+              <span className={s.toolCardLabel}>{action.title}</span>
             </Link>
           ))}
         </div>

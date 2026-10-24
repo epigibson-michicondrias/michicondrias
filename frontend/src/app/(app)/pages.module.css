@@ -130,7 +130,7 @@
   margin-bottom: var(--space-xl);
 }
 .homeOverline {
-  margin: 0;
+  margin: 0 0 var(--space-xs);
   color: var(--color-text-muted);
   font-size: var(--font-xs);
   font-weight: 700;
@@ -242,4 +242,197 @@
   overflow-x: auto;
   padding-bottom: var(--space-sm);
   margin-bottom: var(--space-lg);
+}
+
+/* ── Inicio visual (web) ──────────────────────────────────────────────
+   La web tiene más espacio que la app: hero con acento dorado, KPIs,
+   mascotas como tarjetas grandes y atajos en tarjetas con ícono. */
+
+.homeHero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xl);
+  padding: var(--space-2xl) var(--space-xl) var(--space-2xl);
+  margin-bottom: var(--space-xl);
+  border-radius: var(--radius-xl);
+  /* Halo dorado suave: identidad de marca sin gritar. */
+  background:
+    radial-gradient(120% 140% at 100% 0%, var(--color-accent-light) 0%, transparent 55%),
+    linear-gradient(135deg, var(--color-surface) 0%, var(--color-background-secondary) 100%);
+  border: 1px solid var(--color-border);
+}
+.homeHeroGlow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  pointer-events: none;
+}
+.homeHeroGlow::after {
+  content: '';
+  position: absolute;
+  inset: auto -60px -80px auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.12;
+  filter: blur(8px);
+}
+.homeHeroTitle {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-text);
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+.homeHeroTitle em {
+  color: var(--color-accent);
+  font-style: normal;
+}
+.homeHeroSub {
+  margin: var(--space-sm) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-lg);
+  max-width: 42ch;
+}
+.homeHeroCta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+/* KPIs */
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.kpi {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+.kpiIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.kpiValue {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.kpiLabel {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+/* Mascotas como tarjeta grande con foto */
+.petCard {
+  display: block;
+  min-width: 200px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.petCard:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+.petCardMedia {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--color-background-secondary);
+  overflow: hidden;
+}
+.petCardMedia img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.petCardFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+.petCardBody {
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+.petCardName {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-lg);
+  font-weight: 700;
+}
+.petCardMeta {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+/* Atajos como tarjetas con ícono y acento */
+.toolCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.toolCard:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+.toolCardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.toolCardLabel {
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: var(--font-base);
+}
+
+@media (max-width: 640px) {
+  .homeHero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-xl) var(--space-lg);
+  }
 }
