@@ -17,7 +17,7 @@ import s from "../pages.module.css";
 
 export default function InicioPage() {
   const {
-    greetingName, pets, petsLoading, upcomingAppointments, appointmentsLoading,
+    greetingName, pets, petsLoading, petsError, upcomingAppointments, appointmentsLoading, appointmentsError,
     quickActions, panelTitle, isPro, goTools,
   } = useHome();
   const router = useRouter();
@@ -48,6 +48,9 @@ export default function InicioPage() {
           <div className={s.homeRow}>
             {[0, 1].map((i) => <Skeleton key={i} height={72} borderRadius={12} />)}
           </div>
+        ) : petsError ? (
+          // El banner de QueryErrorBanner ya explica el fallo: no fingir que no hay mascotas.
+          null
         ) : pets.length === 0 ? (
           <EmptyState
             icon={<PawPrint size={28} />}

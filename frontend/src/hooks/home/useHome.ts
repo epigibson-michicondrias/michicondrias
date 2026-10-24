@@ -58,13 +58,13 @@ export function useHome() {
   const { user } = useAuth();
   const role = normalizeRole(user?.role_name);
 
-  const { data: pets = [], isLoading: petsLoading } = useQuery({
+  const { data: pets = [], isLoading: petsLoading, isError: petsError } = useQuery({
     queryKey: ['user-pets', user?.id],
     queryFn: () => getUserPets(user!.id),
     enabled: !!user?.id,
   });
 
-  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
+  const { data: appointments = [], isLoading: appointmentsLoading, isError: appointmentsError } = useQuery({
     queryKey: ['user-appointments'],
     queryFn: getUserAppointments,
     enabled: !!user?.id,
@@ -93,8 +93,10 @@ export function useHome() {
     greetingName: user?.full_name?.split(' ')[0] || '',
     pets,
     petsLoading,
+    petsError,
     upcomingAppointments,
     appointmentsLoading,
+    appointmentsError,
     quickActions,
     panelTitle: ROLE_PANEL_TITLE[role] || 'Tu espacio',
     isPro: isProRole(role) || role === 'admin',
