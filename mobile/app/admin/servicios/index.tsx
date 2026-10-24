@@ -7,19 +7,11 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import SearchBar from '@/src/components/SearchBar';
+import EmptyState from '@/src/components/EmptyState';
 import { Briefcase, CheckCircle2, Layers } from 'lucide-react-native';
 import StatTile from '@/src/components/StatTile';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { spacing, font, layout } from '@/constants/design';
-
-const CATEGORY_COLORS: Record<string, string> = {
-    Médico: '#3b82f6',
-    Estética: '#8b5cf6',
-    Cuidado: '#f59e0b',
-    Consultas: '#3b82f6',
-    Preventiva: '#10b981',
-    Especialidad: '#ef4444',
-};
+import { spacing, type, layout, radius, shadow, tint } from '@/constants/design';
 
 export default function AdminServiciosScreen() {
     const { theme } = useTheme();
@@ -33,18 +25,18 @@ export default function AdminServiciosScreen() {
     } = useAdminServices();
 
     const renderServiceCard = ({ item }: { item: ClinicServiceItem }) => {
-        const color = CATEGORY_COLORS[item.category || ''] || '#6b7280';
+        const color = theme.primary;
         return (
-            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+                <View style={[styles.iconBox, { backgroundColor: color + tint.faint }]}>
                     <Briefcase size={22} color={color} />
                 </View>
                 <View style={styles.cardInfo}>
-                    <Text style={[styles.serviceName, { color: theme.text }]}>{item.name}</Text>
-                    <Text style={[styles.serviceCat, { color: theme.textMuted }]}>{item.category || 'Sin categoría'}{item.price != null ? ` • $${item.price}` : ''}</Text>
+                    <Text style={[type.bodyStrong, { color: theme.text }]}>{item.name}</Text>
+                    <Text style={[type.caption, { color: theme.textMuted }]}>{item.category || 'Sin categoría'}{item.price != null ? ` • $${item.price}` : ''}</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: item.is_active ? theme.success + '20' : '#f43f5e20' }]}>
-                    <Text style={[styles.statusText, { color: item.is_active ? theme.success : '#f43f5e' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
+                <View style={[styles.statusBadge, { backgroundColor: item.is_active ? theme.success + tint.faint : theme.error + tint.faint }]}>
+                    <Text style={[type.caption, { color: item.is_active ? theme.success : theme.error, fontWeight: '800' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
                 </View>
             </View>
         );
@@ -75,12 +67,19 @@ export default function AdminServiciosScreen() {
             </View>
 
             <FlatList
-            refreshControl={<AppRefreshControl />}
+                refreshControl={<AppRefreshControl />}
                 data={servicios}
                 renderItem={renderServiceCard}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                    <EmptyState
+                        icon={<Briefcase size={layout.icon.xl} color={theme.textMuted} />}
+                        title={searchText ? 'Sin resultados' : 'Sin servicios'}
+                        subtitle={searchText ? 'Prueba con otro término de búsqueda.' : 'Los servicios que registren las clínicas aparecerán aquí.'}
+                    />
+                }
             />
         </ScreenContainer>
     );
@@ -109,7 +108,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5, 
         marginBottom: spacing.lg,
         elevation: 3,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 10,
@@ -123,24 +121,10 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     cardInfo: { flex: 1, marginLeft: spacing.lg },
-    serviceName: { 
-        fontSize: font.xl, 
-        fontWeight: '800' 
-    },
-    serviceCat: { 
-        fontSize: font.md, 
-        fontWeight: '700', 
-        marginTop: spacing.xs 
-    },
     statusBadge: { 
         paddingHorizontal: spacing.md, 
         paddingVertical: spacing.sm, 
         borderRadius: 10 
-    },
-    statusText: { 
-        fontSize: font.xs, 
-        fontWeight: '800', 
-        textTransform: 'uppercase' 
     },
     moreBtn: { 
         width: 36, 

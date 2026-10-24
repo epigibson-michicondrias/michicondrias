@@ -8,7 +8,8 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Shield, Plus, Edit3, Trash2, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import EmptyState from '@/src/components/EmptyState';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function AdminRolesScreen() {
     const { theme } = useTheme();
@@ -71,11 +72,20 @@ export default function AdminRolesScreen() {
                 <LoadingOverlay message="Cargando roles..." />
             ) : (
                 <FlatList
-            refreshControl={<AppRefreshControl />}
+                    refreshControl={<AppRefreshControl />}
                     data={roles}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
+                    ListEmptyComponent={
+                        <EmptyState
+                            icon={<Shield size={layout.icon.xl} color={theme.textMuted} />}
+                            title="Sin roles"
+                            subtitle="Crea un rol para asignar permisos a los usuarios."
+                            actionLabel="Nuevo rol"
+                            onAction={() => handleAction()}
+                        />
+                    }
                 />
             )}
 

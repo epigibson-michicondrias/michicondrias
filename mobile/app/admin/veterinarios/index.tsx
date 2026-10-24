@@ -9,7 +9,8 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { UserCheck, Mail, Briefcase, Star, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import EmptyState from '@/src/components/EmptyState';
+import { font, spacing, layout } from '@/constants/design';
 
 export default function AdminVeterinariosScreen() {
     const { theme } = useTheme();
@@ -90,10 +91,11 @@ export default function AdminVeterinariosScreen() {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <UserCheck size={64} color={theme.textMuted} strokeWidth={1} />
-                            <Text style={[styles.emptyText, { color: theme.textMuted }]}>No hay veterinarios registrados.</Text>
-                        </View>
+                        <EmptyState
+                            icon={<UserCheck size={layout.icon.xl} color={theme.textMuted} />}
+                            title="Sin veterinarios"
+                            subtitle="Cuando los veterinarios se registren en el directorio aparecerán aquí."
+                        />
                     }
                 />
             )}
