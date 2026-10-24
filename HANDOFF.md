@@ -101,6 +101,8 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — **U6 Mascotas** cerrada (`output/u6-mascotas/`): `diagnostico-ia` a `FormField` con
+  validación inline, 0 hex y 0 `TextInput` en el módulo. Sigue **U7 Carnet**.
 - **2026-10-23 · Mimo** — **U5 Perfil** cerrada (`output/u5-perfil/`): `app/perfil/` con 0 hex, `eliminar-cuenta` a
   `AuthField` con validación inline. Sigue **U6 Mascotas**.
 - **2026-10-23 · Mimo** — **U4 Inicio/Explorar/Herramientas** cerrada (`output/u4-home/`): `EmptyState` con acción en

@@ -288,7 +288,11 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `FormField`+Skeleton; se quitan los 2 hex `#fff` de `seguridad-2fa`/`verificacion` (→ `theme.onPrimary`),
       `eliminar-cuenta` pasa a `AuthField` con validación inline y se borra un `showAlert` muerto en `partner` (el
       botón ya viene `disabled`). **0 hex** en todo `app/perfil/`. Verificado a 375 px: `output/u5-perfil/`.)
-- [ ] U6 Mascotas: ficha con pestañas, `PetForm`, diagnóstico IA (`FormSelect`, colores del tema).
+- [x] U6 Mascotas: ficha con pestañas, `PetForm`, diagnóstico IA (`FormSelect`, colores del tema). (2026-10-23, Mimo:
+      la ficha ya tenía Skeleton/EmptyState y `PetForm` ya usaba `FormField`; se migra `diagnostico-ia` de 4
+      `TextInput` a `FormField` con validación inline en los obligatorios, y se cambia un `#ffffff` del QR de
+      `PetPassportShare` por `theme.surface`. **0 hex y 0 `TextInput`** en `app/mascotas/` + `features/mascotas/`.
+      Verificado a 375 px: `output/u6-mascotas/`.)
 - [ ] U7 Carnet: partir `carnet/[id]` en `src/features/carnet/`, formularios con botón primario abajo, receta.
 - [x] U8 Tienda: tab, producto (extraer), carrito, compras, pedido. (2026-10-19, también vendedor)
 - [ ] U9 Notificaciones, búsqueda (ampliada a más dominios) y Ayuda.
@@ -953,4 +957,7 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - **2026-10-23** — **U5 Perfil**: `app/perfil/` queda con **0 hex** (`#fff` de botones → `theme.onPrimary`);
   `eliminar-cuenta` con `AuthField` y validación inline; sin `TextInput` a pelo en formularios; muerto un `showAlert`
   redundante en `partner`. Verificado a 375 px con mocks: `output/u5-perfil/`.
+- **2026-10-23** — **U6 Mascotas**: `diagnostico-ia` pasa de 4 `TextInput` a `FormField` (validación inline en
+  síntomas y tiempo de evolución) y `PetPassportShare` sin `#ffffff`. 0 hex y 0 `TextInput` en el módulo.
+  Verificado a 375 px: `output/u6-mascotas/`.
 

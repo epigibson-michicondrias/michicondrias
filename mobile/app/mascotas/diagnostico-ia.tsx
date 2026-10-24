@@ -1,18 +1,22 @@
 import React from 'react';
-import { StyleSheet, View, Text, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAIDiagnosis } from '@/src/hooks/mascotas/useAIDiagnosis';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Sparkles, AlertTriangle, ShieldAlert, Heart, Info, Clipboard, Activity } from 'lucide-react-native';
 import FormSelect from '@/src/components/forms/FormSelect';
+import FormField from '@/src/components/FormField';
 import SegmentedControl from '@/src/components/SegmentedControl';
 import Button from '@/src/components/Button';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
+import { validateRequired } from '@/src/utils/validators';
 import { spacing, radius, type, shadow, layout, font } from '@/constants/design';
 
 export default function DiagnosticoIAScreen() {
     const { theme } = useTheme();
+    const [symptomsError, setSymptomsError] = React.useState<string | null>(null);
+    const [durationError, setDurationError] = React.useState<string | null>(null);
     const {
         activeTab,
         setActiveTab,
@@ -41,6 +45,16 @@ export default function DiagnosticoIAScreen() {
         getTriageColor,
         goAddPet,
     } = useAIDiagnosis();
+
+    // Validación inline de los campos obligatorios del triage antes de llamar al hook.
+    const submitSymptomCheck = () => {
+        const e1 = validateRequired(symptoms, 'La descripción de los síntomas', 'f');
+        const e2 = validateRequired(durationHours, 'El tiempo de evolución');
+        setSymptomsError(e1.valid ? null : e1.message!);
+        setDurationError(e2.valid ? null : e2.message!);
+        if (!e1.valid || !e2.valid) return;
+        handleSymptomCheck();
+    };
 
     const triagePetOptions = [
         { label: 'Sin especificar', value: '' },
@@ -122,45 +136,29 @@ export default function DiagnosticoIAScreen() {
                             )}
                         </View>
 
-                        <View style={styles.formGroup}>
-                            <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
-                                ¿Qué síntomas presenta tu mascota? *
-                            </Text>
-                            <TextInput
-                                style={[
-                                    styles.textArea,
-                                    { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
-                                ]}
-                                multiline
-                                numberOfLines={4}
-                                placeholder="Describe detalladamente lo que notas (ej. vomito constante, decaído, no come)..."
-                                placeholderTextColor={theme.textMuted}
-                                value={symptoms}
-                                onChangeText={setSymptoms}
-                            />
-                        </View>
+                        <FormField
+                            label="¿Qué síntomas presenta tu mascota? *"
+                            value={symptoms}
+                            onChangeText={(t) => { setSymptoms(t); if (symptomsError) setSymptomsError(null); }}
+                            error={symptomsError}
+                            multiline
+                            numberOfLines={4}
+                            placeholder="Describe detalladamente lo que notas (ej. vomito constante, decaído, no come)..."
+                        />
 
-                        <View style={styles.formGroup}>
-                            <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
-                                ¿Hace cuántas horas comenzaron los síntomas? *
-                            </Text>
-                            <TextInput
-                                style={[
-                                    styles.input,
-                                    { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
-                                ]}
-                                keyboardType="numeric"
-                                placeholder="Ej. 12"
-                                placeholderTextColor={theme.textMuted}
-                                value={durationHours}
-                                onChangeText={setDurationHours}
-                            />
-                        </View>
+                        <FormField
+                            label="¿Hace cuántas horas comenzaron los síntomas? *"
+                            value={durationHours}
+                            onChangeText={(t) => { setDurationHours(t); if (durationError) setDurationError(null); }}
+                            error={durationError}
+                            keyboardType="numeric"
+                            placeholder="Ej. 12"
+                        />
 
                         <View style={styles.actionRow}>
                             <Button
                                 label={triageLoading ? 'Analizando síntomas...' : 'Iniciar Análisis Clínico'}
-                                onPress={handleSymptomCheck}
+                                onPress={submitSymptomCheck}
                                 loading={triageLoading}
                                 icon={<Sparkles size={layout.icon.md} color={theme.onPrimary} />}
                                 fullWidth
@@ -240,38 +238,20 @@ export default function DiagnosticoIAScreen() {
                                     />
                                 </View>
 
-                                <View style={styles.formGroup}>
-                                    <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
-                                        Alergias Conocidas (Opcional)
-                                    </Text>
-                                    <TextInput
-                                        style={[
-                                            styles.input,
-                                            { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
-                                        ]}
-                                        placeholder="Ej. Pollo, pescado, granos..."
-                                        placeholderTextColor={theme.textMuted}
-                                        value={allergies}
-                                        onChangeText={setAllergies}
-                                    />
-                                </View>
+                                <FormField
+                                    label="Alergias conocidas (opcional)"
+                                    value={allergies}
+                                    onChangeText={setAllergies}
+                                    placeholder="Ej. Pollo, pescado, granos..."
+                                />
 
-                                <View style={styles.formGroup}>
-                                    <Text style={[type.labelSentence, { color: theme.text, marginBottom: spacing.xs }]}>
-                                        Peso Objetivo en kg (Opcional)
-                                    </Text>
-                                    <TextInput
-                                        style={[
-                                            styles.input,
-                                            { backgroundColor: theme.inputBg, color: theme.text, borderColor: theme.borderLight },
-                                        ]}
-                                        keyboardType="decimal-pad"
-                                        placeholder="Ej. 8.5"
-                                        placeholderTextColor={theme.textMuted}
-                                        value={targetWeight}
-                                        onChangeText={setTargetWeight}
-                                    />
-                                </View>
+                                <FormField
+                                    label="Peso objetivo en kg (opcional)"
+                                    value={targetWeight}
+                                    onChangeText={setTargetWeight}
+                                    keyboardType="decimal-pad"
+                                    placeholder="Ej. 8.5"
+                                />
 
                                 <View style={styles.actionRow}>
                                     <Button

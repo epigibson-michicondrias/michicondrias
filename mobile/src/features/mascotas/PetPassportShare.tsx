@@ -53,7 +53,7 @@ export function PetPassportShare({ url, petName, onClose }: Props) {
                     </Text>
 
                     {/* QR siempre negro sobre blanco: si no, no se escanea (y sin contenido no se dibuja) */}
-                    <View style={[styles.qrBox, { borderColor: theme.border, backgroundColor: '#ffffff' }]}>
+                    <View style={[styles.qrBox, { borderColor: theme.border, backgroundColor: theme.surface }]}>
                         {!!url && <QRCode value={url} size={180} />}
                     </View>
 
