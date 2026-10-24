@@ -22,6 +22,7 @@ import ScreenHeader from "@/components/layout/ScreenHeader";
 import EmptyState from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import Button from "@/components/Button";
+import SearchBar from "@/components/SearchBar";
 import { usePets } from "@/hooks/mascotas/usePets";
 import type { Pet } from "@/types/mascotas";
 import s from "./mascotas.module.css";
@@ -89,12 +90,23 @@ export default function MascotasPage() {
   const { pets, isLoading, isEmpty, refetch } = usePets();
   const [view, setView] = useState<ViewMode>("grid");
   const [species, setSpecies] = useState<SpeciesFilter>("all");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"name" | "age" | "weight">("name");
   const router = useRouter();
 
   const filtered = useMemo(() => {
-    if (species === "all") return pets;
-    return pets.filter((p) => speciesKind(p.species) === species);
-  }, [pets, species]);
+    const q = query.trim().toLowerCase();
+    const base = pets.filter((p) => {
+      const okSpecies = species === "all" || speciesKind(p.species) === species;
+      const okQuery = !q || `${p.name} ${p.breed || ""} ${p.species}`.toLowerCase().includes(q);
+      return okSpecies && okQuery;
+    });
+    const sorted = [...base];
+    if (sort === "name") sorted.sort((a, b) => a.name.localeCompare(b.name, "es"));
+    else if (sort === "age") sorted.sort((a, b) => (a.age_months ?? 0) - (b.age_months ?? 0));
+    else sorted.sort((a, b) => (a.weight_kg ?? 0) - (b.weight_kg ?? 0));
+    return sorted;
+  }, [pets, species, query, sort]);
 
   const dogCount = pets.filter((p) => speciesKind(p.species) === "dog").length;
   const catCount = pets.filter((p) => speciesKind(p.species) === "cat").length;
@@ -131,10 +143,27 @@ export default function MascotasPage() {
         </div>
       ) : (
         <>
+          <div className={s.searchWrap}>
+            <SearchBar value={query} onChangeText={setQuery} placeholder="Buscar por nombre, raza…" />
+          </div>
+
           <div className={s.toolbar}>
             <p className={s.count}>
               {filtered.length} {filtered.length === 1 ? "mascota" : "mascotas"}
             </p>
+            <div className={s.sortWrap}>
+              <label className={s.sortLabel} htmlFor="pet-sort">Ordenar</label>
+              <select
+                id="pet-sort"
+                className={s.sortSelect}
+                value={sort}
+                onChange={(e) => setSort(e.target.value as typeof sort)}
+              >
+                <option value="name">Nombre</option>
+                <option value="age">Edad</option>
+                <option value="weight">Peso</option>
+              </select>
+            </div>
             <div className={s.viewToggle} role="group" aria-label="Modo de vista">
               {VIEW_OPTIONS.map(({ mode, label, icon: Icon }) => (
                 <button
@@ -235,6 +264,18 @@ export default function MascotasPage() {
                     </div>
                   </Link>
                 ),
+              )}
+              {/* Tile de alta: siempre visible en la rejilla */}
+              {(view === "grid" || view === "cards") && (
+                <button
+                  type="button"
+                  className={s.addTile}
+                  onClick={() => router.push("/mascotas/nuevo")}
+                  aria-label="Agregar mascota"
+                >
+                  <Plus size={28} />
+                  <span>Agregar mascota</span>
+                </button>
               )}
             </div>
           )}

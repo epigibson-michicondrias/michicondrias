@@ -124,6 +124,8 @@ function PetDetailContent() {
         )}
       </div>
 
+      <div className={s.detailLayout}>
+      <div className={s.detailSide}>
       <div className={s.hero}>
         {pet.photo_url ? (
           <Image src={pet.photo_url} alt={pet.name} width={148} height={148} className={s.heroPhotoBig} />
@@ -174,6 +176,9 @@ function PetDetailContent() {
         </div>
       )}
 
+      </div>
+
+      <div className={s.detailMain}>
       <SegmentedControl
         value={tab}
         onChange={setTab}
@@ -341,6 +346,8 @@ function PetDetailContent() {
           </div>
         </div>
       )}
+      </div>
+      </div>
     </ScreenContainer>
   );
 }
