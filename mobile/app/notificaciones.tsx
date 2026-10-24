@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
     Bell, CheckCheck, Heart, Package, MapPin, Calendar, Pill, Shield, FlaskConical, Flower2, Car, ChevronRight,
     Stethoscope, ShieldCheck, Syringe,
@@ -34,6 +35,7 @@ const TYPE_CONFIG: Record<string, { icon: typeof Bell; color: ThemeColorKey }> =
 const DEFAULT_CONFIG = { icon: Bell, color: 'accent' as ThemeColorKey };
 
 export default function NotificationsScreen() {
+    const router = useRouter();
     const { theme } = useTheme();
     const { notifications, isLoading, isError, unreadCount, getRoute, openNotification, handleMarkAllAsRead, isMarkingAll } = useNotifications();
 
@@ -114,6 +116,8 @@ export default function NotificationsScreen() {
                             icon={<Bell size={layout.icon.xl} color={theme.textMuted} />}
                             title="Sin notificaciones"
                             subtitle="Aquí verás avisos de tus citas, adopciones, pedidos y más."
+                            actionLabel="Explorar servicios"
+                            onAction={() => router.push('/(tabs)/explorar')}
                         />
                     }
                 />

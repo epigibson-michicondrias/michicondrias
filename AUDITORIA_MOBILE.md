@@ -309,9 +309,9 @@ Perfil / Herramientas → `/ayuda`. **No hay push** (`expo-notifications` no est
 
 | Pieza | Tipo | Estado | Hallazgo |
 |---|---|---|---|
-| app/notificaciones.tsx | pantalla | rota/incompleta | Lista y «marcar leída» funcionan. **Tocar una notificación nunca navega**: `NOTIFICATION_ROUTES` usa tipos que el backend no emite (este emite `general`, `alert`, `citas`, `seguros`, `laboratorio`, `funeraria`, `transportistas`). Mientras carga no muestra el header (sin salida). Tiene un «Reintentar» que repite el banner de error. Vacío hecho a mano. 6 hex |
-| app/busqueda/index.tsx | pantalla | **rota** | **El backend responde siempre 500**: `search.py:43` usa `LOWER(category)` y `products` no tiene esa columna (verificado en Supabase). Los productos salen sin subtítulo ni precio. Pull-to-refresh sin sentido en resultados. ~~3 resultados por tipo y sin «ver más»~~ ✅ F25 (6 dominios, «Ver todos» al módulo, tokens + EmptyState) |
-| app/ayuda.tsx | pantalla | funciona | ~~No usa ScreenContainer ni ScreenHeader (`paddingTop: 60`, sin safe area)~~ ✅ (F21) · ~~**FAQ falsas**: el botón «Solicitar adopción» no existe y promete transferencias y OXXO cuando Stripe solo acepta tarjeta~~ ✅ FAQ verídicas: «¡Quiero Adoptar!» y solo tarjeta (F21) · ~~`Linking.openURL` falla en silencio~~ ✅ aviso con el correo de soporte (F21). WhatsApp y teléfono quedan ocultos porque sus variables de entorno están vacías |
+| app/notificaciones.tsx | pantalla | funciona | ~~**Tocar una notificación nunca navega**~~ ✅ F5 (link + mapeo de tipos reales) · ~~header sin salida mientras carga~~ ✅ · ~~vacío hecho a mano / 6 hex~~ ✅ tokens, `SkeletonList`, `EmptyState` con acción (U9). Verificado U9: tap navega por `link` (cita → `/directorio/citas`, dosis → la mascota en Salud) |
+| app/busqueda/index.tsx | pantalla | funciona | ~~backend 500~~ ✅ F4 · ~~3 resultados y sin «ver más»~~ ✅ F25 (6 dominios, «Ver todos») · ~~TextInput a pelo~~ ✅ U9 (`SearchBar`, limpiar resetea el debounce) · pull-to-refresh sin sentido en resultados (no se puso) |
+| app/ayuda.tsx | pantalla | funciona | ~~Sin ScreenContainer/ScreenHeader~~ ✅ (F21) · ~~FAQ falsas~~ ✅ (F21) · ~~`Linking` silencioso~~ ✅ (F21) · ~~TextInput a pelo / tarjetas a mano~~ ✅ U9 (`SearchBar`, `SectionHeader`/`Card`, `EmptyState` con «Limpiar búsqueda»). WhatsApp y teléfono ocultos sin variables de entorno |
 | hooks notifications / search | hook | rota / funciona | Mapeo de tipos equivocado. «Marcar todas» hace N `PATCH`. No hay contador de no leídas. Están muertos: barrels, `useSearch.ts`, `types/notifications.ts` y un `TYPE_CONFIG` duplicado |
 | src/services/alerts.ts | servicio | parte muerta | Es de Mi clínica, no del usuario. 4 funciones muertas (vía `useAlerts`) |
 | backend core notifications / search | backend | funciona / **rota** | Notificaciones: faltan `read-all`, `unread-count` y el campo `link`; la tabla está vacía en producción. Ecommerce no emite ninguna. Búsqueda: error 500 y **expone clínicas y productos no aprobados** |
@@ -324,9 +324,9 @@ Arreglos:
 - [x] P0 La búsqueda da 500 (`backend/michicondrias_core/app/api/routes/search.py:43`)
 - [x] P0 Las notificaciones no navegan (`src/hooks/notifications/useNotifications.ts:31-37`)
 - [x] P0 El punto de la campana es falso (`(tabs)/index.tsx:75`)
-- [ ] P1 ~~La búsqueda expone contenido no aprobado~~ ✅; ~~FAQ falsas (`ayuda.tsx:12-13`)~~ ✅ (F21); ~~sin header durante la carga~~ ✅
+- [x] P1 ~~La búsqueda expone contenido no aprobado~~ ✅; ~~FAQ falsas (`ayuda.tsx:12-13`)~~ ✅ (F21); ~~sin header durante la carga~~ ✅
 - [ ] P1 Entradas duplicadas; tarjetas sin destino que parecen tocables; ~~`Linking` silencioso~~ ✅ (F21); productos sin precio
-- [ ] P2 EmptyState, tokens, quitar el refresh de búsqueda, tipar `services/search.ts`, Ayuda con componentes base
+- [ ] P2 ~~EmptyState, tokens~~ ✅ (U9); quitar el refresh de búsqueda (no se puso), tipar `services/search.ts`, ~~Ayuda con componentes base~~ ✅ (U9)
 
 ---
 

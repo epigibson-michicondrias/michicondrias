@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search, X, PawPrint, Heart, MapPin, Building2, Footprints, ShoppingBag, ChevronRight } from 'lucide-react-native';
+import { Search, PawPrint, Heart, MapPin, Building2, Footprints, ShoppingBag, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useGlobalSearch, SEARCH_TABS, type SearchTab, type SearchResultItem } from '@/src/hooks/search/useGlobalSearch';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -9,6 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { SkeletonList } from '@/src/components/Skeleton';
 import EmptyState from '@/src/components/EmptyState';
 import FilterChip from '@/src/components/FilterChip';
+import SearchBar from '@/src/components/SearchBar';
 import { spacing, radius, type, layout } from '@/constants/design';
 
 const TAB_ICONS: Record<SearchTab, typeof PawPrint> = {
@@ -115,30 +116,13 @@ export default function BusquedaScreen() {
             <ScreenHeader title="Buscar" showBack={true} />
 
             <View style={styles.searchContainer}>
-                <View style={[styles.searchInputRow, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-                    <Search size={layout.icon.md} color={theme.textMuted} />
-                    <TextInput
-                        style={[type.body, styles.searchInput, { color: theme.text }]}
-                        value={query}
-                        onChangeText={setQuery}
-                        placeholder="Buscar en Michicondrias…"
-                        placeholderTextColor={theme.textMuted}
-                        autoFocus
-                        autoCorrect={false}
-                        returnKeyType="search"
-                        accessibilityLabel="Buscar"
-                    />
-                    {query.length > 0 && (
-                        <TouchableOpacity
-                            onPress={clearSearch}
-                            style={styles.clearBtn}
-                            accessibilityRole="button"
-                            accessibilityLabel="Borrar búsqueda"
-                        >
-                            <X size={layout.icon.md} color={theme.textMuted} />
-                        </TouchableOpacity>
-                    )}
-                </View>
+                <SearchBar
+                    value={query}
+                    // Limpiar con el botón de la barra (o al dejar el campo vacío) también resetea el debounce
+                    onChangeText={(text) => (text.length === 0 ? clearSearch() : setQuery(text))}
+                    placeholder="Buscar en Michicondrias…"
+                    autoFocus
+                />
             </View>
 
             <ScrollView
@@ -173,25 +157,6 @@ const styles = StyleSheet.create({
     searchContainer: {
         paddingHorizontal: layout.screenPadding,
         marginBottom: spacing.md,
-    },
-    searchInputRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderRadius: radius.md,
-        paddingLeft: spacing.lg,
-        minHeight: layout.inputHeight,
-        gap: spacing.md,
-    },
-    searchInput: {
-        flex: 1,
-        paddingVertical: spacing.md,
-    },
-    clearBtn: {
-        width: layout.minTouch,
-        height: layout.minTouch,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     tabsScroll: {
         flexGrow: 0,

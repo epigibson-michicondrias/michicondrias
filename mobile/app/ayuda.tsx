@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Linking } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Search, MessageCircle, Mail, Phone, ExternalLink, ChevronRight, ShieldCheck } from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import SectionHeader from '@/src/components/SectionHeader';
+import Card from '@/src/components/Card';
+import SearchBar from '@/src/components/SearchBar';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
 import EmptyState from '@/src/components/EmptyState';
-import { spacing, radius, type, layout } from '@/constants/design';
+import { spacing, radius, type, layout, tint } from '@/constants/design';
 import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_WHATSAPP, TERMS_URL, PRIVACY_URL } from '@/src/constants/support';
 
 // FAQ verídicas: describen lo que la app tiene hoy (el botón de adopción es «¡Quiero Adoptar!» y
@@ -46,22 +49,23 @@ export default function HelpScreen() {
             <ScreenHeader title="Centro de Ayuda" onBack={() => router.back()} />
 
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-                <View style={[styles.searchBar, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
-                    <Search size={20} color={theme.textMuted} />
-                    <TextInput
-                        placeholder="Busca una solución..."
-                        placeholderTextColor={theme.textMuted}
-                        style={[styles.searchInput, { color: theme.text }]}
-                        value={query}
-                        onChangeText={(v) => { setQuery(v); setExpanded(null); }}
-                    />
-                </View>
+                <SearchBar
+                    value={query}
+                    onChangeText={(v) => { setQuery(v); setExpanded(null); }}
+                    placeholder="Busca una solución…"
+                />
 
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>PREGUNTAS FRECUENTES</Text>
-                    <View style={[styles.card, { borderColor: theme.border }, { backgroundColor: theme.surface }]}>
+                    <SectionHeader title="Preguntas frecuentes" overline />
+                    <Card flush>
                         {faqs.length === 0 && (
-                            <EmptyState icon={<Search size={32} color={theme.textMuted} />} title="Sin resultados" subtitle="No encontramos preguntas con esa búsqueda." />
+                            <EmptyState
+                                icon={<Search size={layout.icon.xl} color={theme.textMuted} />}
+                                title="Sin resultados"
+                                subtitle="No encontramos preguntas con esa búsqueda."
+                                actionLabel="Limpiar búsqueda"
+                                onAction={() => { setQuery(''); setExpanded(null); }}
+                            />
                         )}
                         {faqs.map((faq, index) => {
                             const isOpen = expanded === index;
@@ -71,29 +75,29 @@ export default function HelpScreen() {
                                     style={index < faqs.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }}
                                 >
                                     <TouchableOpacity style={styles.faqItem} onPress={() => setExpanded(isOpen ? null : index)} accessibilityRole="button" accessibilityState={{ expanded: isOpen }}>
-                                        <Text style={[styles.faqQuestion, { color: theme.text }]}>{faq.question}</Text>
-                                        <ChevronRight size={18} color={theme.textMuted} style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }} />
+                                        <Text style={[type.subtitle, styles.faqQuestion, { color: theme.text }]}>{faq.question}</Text>
+                                        <ChevronRight size={layout.icon.md} color={theme.textMuted} style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }} />
                                     </TouchableOpacity>
                                     {isOpen && (
-                                        <Text style={{ color: theme.textMuted, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, lineHeight: 20 }}>{faq.answer}</Text>
+                                        <Text style={[type.body, styles.faqAnswer, { color: theme.textMuted }]}>{faq.answer}</Text>
                                     )}
                                 </View>
                             );
                         })}
-                    </View>
+                    </Card>
                 </View>
 
                 <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>CONTACTO DIRECTO</Text>
+                    <SectionHeader title="Contacto directo" overline />
                     <View style={styles.contactGrid}>
                         {!!SUPPORT_WHATSAPP && (
-                            <ContactBtn icon={MessageCircle} label="WhatsApp" color={theme.success} theme={theme}
+                            <ContactBtn icon={MessageCircle} label="WhatsApp" color={theme.success}
                                 onPress={() => open(`https://wa.me/${SUPPORT_WHATSAPP.replace(/\D/g, '')}`)} />
                         )}
-                        <ContactBtn icon={Mail} label="Email" color={theme.info} theme={theme}
+                        <ContactBtn icon={Mail} label="Email" color={theme.info}
                             onPress={() => open(`mailto:${SUPPORT_EMAIL}?subject=Ayuda%20Michicondrias`)} />
                         {!!SUPPORT_PHONE && (
-                            <ContactBtn icon={Phone} label="Teléfono" color={theme.secondary} theme={theme}
+                            <ContactBtn icon={Phone} label="Teléfono" color={theme.secondary}
                                 onPress={() => open(`tel:${SUPPORT_PHONE}`)} />
                         )}
                     </View>
@@ -101,16 +105,16 @@ export default function HelpScreen() {
 
                 {!!TERMS_URL && (
                     <TouchableOpacity accessibilityRole="button" style={[styles.footerCard, { borderColor: theme.border }, { backgroundColor: theme.surface }]} onPress={() => open(TERMS_URL)}>
-                        <ExternalLink size={20} color={theme.primary} />
-                        <Text style={[styles.footerCardText, { color: theme.text }]}>Términos y Condiciones</Text>
-                        <ChevronRight size={18} color={theme.textMuted} />
+                        <ExternalLink size={layout.icon.md} color={theme.primary} />
+                        <Text style={[type.subtitle, styles.footerCardText, { color: theme.text }]}>Términos y Condiciones</Text>
+                        <ChevronRight size={layout.icon.md} color={theme.textMuted} />
                     </TouchableOpacity>
                 )}
                 {!!PRIVACY_URL && (
                     <TouchableOpacity accessibilityRole="button" style={[styles.footerCard, { borderColor: theme.border }, { backgroundColor: theme.surface }]} onPress={() => open(PRIVACY_URL)}>
-                        <ShieldCheck size={20} color={theme.primary} />
-                        <Text style={[styles.footerCardText, { color: theme.text }]}>Aviso de Privacidad</Text>
-                        <ChevronRight size={18} color={theme.textMuted} />
+                        <ShieldCheck size={layout.icon.md} color={theme.primary} />
+                        <Text style={[type.subtitle, styles.footerCardText, { color: theme.text }]}>Aviso de Privacidad</Text>
+                        <ChevronRight size={layout.icon.md} color={theme.textMuted} />
                     </TouchableOpacity>
                 )}
             </ScrollView>
@@ -118,13 +122,14 @@ export default function HelpScreen() {
     );
 }
 
-function ContactBtn({ icon: Icon, label, color, theme, onPress }: any) {
+function ContactBtn({ icon: Icon, label, color, onPress }: { icon: typeof MessageCircle; label: string; color: string; onPress: () => void }) {
+    const { theme } = useTheme();
     return (
         <TouchableOpacity style={[styles.contactBtn, { borderColor: theme.border }, { backgroundColor: theme.surface }]} onPress={onPress} accessibilityRole="button" accessibilityLabel={`Contactar por ${label}`}>
-            <View style={[styles.iconBox, { backgroundColor: color + '15' }]}>
-                <Icon size={24} color={color} />
+            <View style={[styles.iconBox, { backgroundColor: color + tint.soft }]}>
+                <Icon size={layout.icon.lg} color={color} />
             </View>
-            <Text style={[styles.contactLabel, { color: theme.text }]}>{label}</Text>
+            <Text style={[type.caption, styles.contactLabel, { color: theme.text }]}>{label}</Text>
         </TouchableOpacity>
     );
 }
@@ -132,45 +137,25 @@ function ContactBtn({ icon: Icon, label, color, theme, onPress }: any) {
 const styles = StyleSheet.create({
     scroll: {
         padding: spacing.xl,
-        gap: spacing.huge || 32,
-    },
-    searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        minHeight: layout.minTouch + 8,
-        paddingHorizontal: spacing.lg,
-        borderRadius: radius.lg,
-        gap: spacing.md,
-        borderWidth: 1,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: type.body.fontSize,
+        gap: spacing.huge,
     },
     section: {
         gap: spacing.md,
-    },
-    sectionTitle: {
-        fontSize: type.label.fontSize,
-        fontWeight: '800',
-        letterSpacing: 1,
-        marginLeft: spacing.xs,
-    },
-    card: {
-        borderRadius: radius.xl,
-        overflow: 'hidden',
-        borderWidth: 1,
     },
     faqItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: spacing.xl,
+        minHeight: layout.minTouch,
     },
     faqQuestion: {
         flex: 1,
-        fontSize: type.subtitle.fontSize,
         fontWeight: '700',
+    },
+    faqAnswer: {
+        paddingHorizontal: spacing.lg,
+        paddingBottom: spacing.lg,
     },
     contactGrid: {
         flexDirection: 'row',
@@ -184,16 +169,16 @@ const styles = StyleSheet.create({
         gap: spacing.md,
         borderWidth: 1,
         justifyContent: 'center',
+        minHeight: layout.minTouch + spacing.xl,
     },
     iconBox: {
-        width: 54,
-        height: 54,
+        width: layout.iconBox.lg + spacing.md,
+        height: layout.iconBox.lg + spacing.md,
         borderRadius: radius.lg,
         justifyContent: 'center',
         alignItems: 'center',
     },
     contactLabel: {
-        fontSize: type.caption.fontSize,
         fontWeight: '700',
     },
     footerCard: {
@@ -203,10 +188,10 @@ const styles = StyleSheet.create({
         borderRadius: radius.xl,
         gap: spacing.lg,
         borderWidth: 1,
+        minHeight: layout.minTouch + spacing.lg,
     },
     footerCardText: {
         flex: 1,
-        fontSize: type.subtitle.fontSize,
         fontWeight: '700',
     }
 });

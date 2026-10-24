@@ -44,7 +44,7 @@ y sigue donde se quedó el otro.
 
 | Frente | Estado |
 |---|---|
-| App móvil | Fases 0–3 ✅ · Fase 4 🟡 (F1–F27 hechos en P1) · Fase 5 🟡 (U1–U2 ✅, U3–U11 pendientes). Detalle: `PROGRESO_MOBILE.md` |
+| App móvil | Fases 0–3 ✅ · Fase 4 ✅ en P1 (F1–F27) · Fase 5 🟡 (U1–U9 ✅, U10–U11 pendientes). Detalle: `PROGRESO_MOBILE.md` |
 | Backend | En producción y desplegando bien. Pendiente de seguridad X1 (abajo) |
 | Web app (`main`) | Código viejo (50 páginas bajo `/dashboard`) + landing nueva en `/`. Build en verde desde `3eb2f9e`. Rastreo y donaciones simulados desactivados |
 | Web espejo (`web/espejo`) | W0 ✅ W1 ✅ W2 ✅ **W3 ✅**: rutas iguales a la app (`(auth)`/`(app)`, sin `/dashboard`), shell sidebar/barra inferior, AuthShell + login 2FA, redirects. Build 52 páginas en verde. **37 de 156** pantallas de la app tienen página (contenido legacy a portar en W4) |
@@ -91,7 +91,7 @@ y sigue donde se quedó el otro.
 - [ ] Cada cambio de landing: copiar al repo `michicondrias-landing`, `npx next build`, push.
 
 **App móvil** (detalle con IDs en `PROGRESO_MOBILE.md` → Backlog)
-- [ ] Bloque A (Fase 4 en P1), Bloque B (auditoría P2/P3: A1–A5), Bloque C (U3–U11 y APK único). Ver Anexo A §8.
+- [ ] Bloque A (Fase 4 en P1), Bloque B (auditoría P2/P3: A1–A5), Bloque C (U10 APK único y U11). U3–U9 ✅. Ver Anexo A §8.
 
 **Varios**
 - [ ] Mimo: `mimo mcp auth supabase` y `mimo mcp auth expo` (OAuth, una vez).
@@ -101,6 +101,11 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **U9 Notificaciones, Búsqueda y Ayuda** cerrada: `busqueda` y `ayuda` migran su `TextInput`
+  al componente `SearchBar` (con `autoFocus`); limpiar desde la barra resetea también el debounce (`clearSearch`).
+  `notificaciones` gana acción en el vacío («Explorar servicios») y se verificó que cada aviso navega por su `link`
+  (cita → `/directorio/citas`, dosis → la ficha en Salud). `ayuda` a `SectionHeader`/`Card` + `EmptyState` accionable.
+  Estilos huérfanos borrados; **0 hex** en las 3 pantallas. Capturas: `output/u9-notif/`. Sigue **U10 APK único**.
 - **2026-10-23 · Mimo** — **U7 Carnet** cerrada: 4 hex de `receta/[id]` a tokens; 0 hex en el módulo. Sigue **U9**
   (U8 Tienda ya estaba hecho).
 - **2026-10-23 · Mimo** — **U6 Mascotas** cerrada (`output/u6-mascotas/`): `diagnostico-ia` a `FormField` con

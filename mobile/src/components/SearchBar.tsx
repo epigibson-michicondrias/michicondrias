@@ -10,9 +10,11 @@ interface SearchBarProps {
     placeholder?: string;
     /** Modo acceso: se ve igual pero solo abre otra pantalla de búsqueda (sin teclado aquí). */
     onPress?: () => void;
+    /** Enfoca el campo al montar (pantallas de búsqueda). */
+    autoFocus?: boolean;
 }
 
-export default function SearchBar({ value = '', onChangeText, placeholder, onPress }: SearchBarProps) {
+export default function SearchBar({ value = '', onChangeText, placeholder, onPress, autoFocus }: SearchBarProps) {
     const { theme } = useTheme();
 
     if (onPress) {
@@ -43,6 +45,7 @@ export default function SearchBar({ value = '', onChangeText, placeholder, onPre
                 returnKeyType="search"
                 accessibilityLabel={placeholder || 'Buscar'}
                 autoCorrect={false}
+                autoFocus={autoFocus}
             />
             {value.length > 0 ? (
                 <TouchableOpacity

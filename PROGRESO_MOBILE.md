@@ -5,7 +5,7 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 
 **Leyenda:** ⬜ pendiente · 🔍 auditado · 🟡 en progreso · ✅ hecho · ⏸️ bloqueado · — no aplica
 
-## Fase actual: **4 — Funcionalidad** (Fases 0, 2 y 3 ✅ · Fase 1 con P2/P3 pendientes) · ver `HANDOFF.md`
+## Fase actual: **5 — UI/UX premium** (Fases 0–4 ✅ en P1 · Fase 1 con P2/P3 pendientes) · ver `HANDOFF.md`
 
 | # | Fase | Estado |
 |---|---|---|
@@ -14,10 +14,10 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 | 2 | Limpieza | ✅ 2026-10-07 (quedan hooks muertos de módulos P2/P3, ver L9) |
 | 3 | Navegación y esqueleto | ✅ 2026-10-07 (N1–N7; ver N8) |
 | 4 | Funcionalidad faltante | 🟡 los 8 🚨 (F1–F8) hechos 2026-10-07 (F4/F5/F7/F8 **en producción**) · **F1–F27 ✅ (Fase 4 completa en P1)** |
-| 5 | UI/UX premium (+ APK con libs nativas) | ⬜ |
+| 5 | UI/UX premium (+ APK con libs nativas) | 🟡 U1–U9 ✅ · U10–U11 ⬜ |
 
-> **Siguiente:** ~~F26~~ ✅. Bloque B (auditoría P2/P3, A1–A5) o Fase 5 (U1 Tema). cierran el Bloque A. Después: Bloque B (auditoría P2/P3, tareas
-> A1–A5) y Fase 5 (U1 Tema primero). El detalle y el orden están en `HANDOFF.md` §8.
+> **Siguiente:** U10 APK único (libs nativas + push) o Bloque B (auditoría P2/P3, tareas A1–A5). El detalle y el
+> orden están en `HANDOFF.md` §8.
 
 ---
 
@@ -57,7 +57,7 @@ Columnas = fases 1 (Auditoría), 4 (Funcional) y 5 (UI premium). Limpieza y nave
 | P1 | Mascotas (`mascotas/`) | 5 | 🔍 | 🟡 | ⬜ | F16 ✅ (vacunas calculadas del carnet, Tracker con salida a facturación, compartir carnet con QR); falta F17 (IA) y la pasada U6 |
 | P1 | Carnet (`carnet/`) | 6 | 🔍 | 🟡 | ⬜ | F15 ✅ (vacunas y consultas se editan y borran con confirmación); F14 ✅ (avisos de dosis y refuerzos en la bandeja); falta la pasada U7 |
 | P1 | Tienda cliente (`tienda/`, sin vendedor) | 8 | 🔍 | ✅ | ✅ | F18–F20 ✅. U8 ✅ 2026-10-19: pestaña (favoritos, ordenar, cuadrícula/lista, agregar rápido, CartBar), producto, bolsa, compras con filtros, pedido con seguimiento y «Volver a comprar» |
-| P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ⬜ | ⬜ | Búsqueda da 500; notificaciones no navegan; FAQ falsas |
+| P1 | Notificaciones, Búsqueda, Ayuda | 3 | 🔍 | ✅ | ✅ | F4/F5/F25 ✅ (búsqueda ampliada, notificaciones navegan). U9 ✅ 2026-10-24: `SearchBar` en búsqueda y ayuda, 0 hex |
 | P2 | Directorio y citas | 6 | 🔍 | 🟡 | 🟡 | 2026-10-19: mis citas, agendar y clínica premium; falta `index`/`especialista`/`nuevo` |
 | P2 | Adopciones | 12 | 🔍 | 🟡 | ✅ | U ✅ 2026-10-19. Pendiente: KYC en backend; fusionar `solicitudes` y `ver-solicitudes` (requiere aprobación) |
 | P2 | Perdidas | 5 | 🔍 | ✅ | ✅ | 2026-10-19: detalle, crear/editar, mis reportes; privacidad en backend |
@@ -298,7 +298,14 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `footer` de `KeyboardScreen`; se corren los 4 hex de `receta/[id]` (texto de botón → `theme.onPrimary`,
       sombras a mano → `shadow.raised`/`shadow.card`). **0 hex** en `app/carnet/` + `features/carnet/`.)
 - [x] U8 Tienda: tab, producto (extraer), carrito, compras, pedido. (2026-10-19, también vendedor)
-- [ ] U9 Notificaciones, búsqueda (ampliada a más dominios) y Ayuda.
+- [x] U9 Notificaciones, búsqueda y Ayuda. (2026-10-24, Mimo: `busqueda` y `ayuda` migran su `TextInput` a pelo al
+      componente `SearchBar` (con `autoFocus` nuevo y botón de limpiar que resetea el debounce vía `clearSearch`);
+      `notificaciones` gana acción en el vacío («Explorar servicios»). Se borran los estilos huérfanos
+      `searchInputRow`/`searchInput`/`clearBtn` de `busqueda` y `ayuda` pasa a `SectionHeader`/`Card` con `EmptyState`
+      accionable («Limpiar búsqueda») y targets ≥ 44 px. **0 hex** en las 3 pantallas + `SearchBar`. Verificado con
+      sesión de prueba a 375×812: tap en notificación navega por `link` (cita → `/directorio/citas`, dosis → la ficha
+      de la mascota en Salud), «Marcar todas como leídas» limpia el badge, limpiar la búsqueda vuelve al estado
+      inicial y el filtro de FAQ muestra el vacío con acción. Capturas: `output/u9-notif/`.)
 - [ ] 📱 U10 APK único: `expo-image`, `expo-haptics`, FlashList, fuente propia, **`expo-notifications` (push + tabla
       `push_tokens` 🛠️)**, QR si es nativa; quitar deps sin uso; `npx expo install --check`.
 - [ ] U11 Evaluar Prettier (commit aparte) y Maestro (login, compra, adopción).
@@ -965,4 +972,13 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   Verificado a 375 px: `output/u6-mascotas/`.
 - **2026-10-23** — **U7 Carnet**: 4 hex de `receta/[id]` a tokens (`theme.onPrimary`, `shadow.raised`/`shadow.card`).
   Los formularios ya tenían el primario en el footer. 0 hex en el módulo.
+- **2026-10-24** — **U9 Notificaciones, Búsqueda y Ayuda**: `busqueda` y `ayuda` dejan el `TextInput` a pelo por el
+  componente `SearchBar` (prop nueva `autoFocus`; el botón de limpiar de la barra llama `clearSearch`, que resetea
+  también el debounce del hook). `notificaciones` suma acción al vacío («Explorar servicios» → Explorar). `ayuda`
+  pasa a `SectionHeader`/`Card`, con `EmptyState` accionable («Limpiar búsqueda») y targets ≥ 44 px. Estilos
+  huérfanos `searchInputRow`/`searchInput`/`clearBtn` borrados. **0 hex** en las 3 pantallas + `SearchBar`.
+  Verificado con sesión de prueba (`test.consumidor`) a 375×812: tap en notificación navega por su `link` (cita →
+  `/directorio/citas`, dosis → la mascota en la pestaña Salud), «Marcar todas como leídas» limpia los puntos y el
+  badge, limpiar la búsqueda vuelve al estado inicial y el filtro de FAQ muestra el vacío con acción. `tsc` y ESLint
+  limpios. Capturas: `output/u9-notif/`. Sigue U10 (APK único).
 
