@@ -1,3 +1,4 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -14,7 +15,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: str = "5433"
 
-    SECRET_KEY: str = "super_secreto_cambiar_en_produccion" 
+    SECRET_KEY: str = ""  # X8.2: sin default; se toma de la variable de entorno SECRET_KEY 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
     # Tarifas y reglas de viaje (todas ajustables por entorno)
@@ -39,6 +40,18 @@ class Settings(BaseSettings):
         if self.DATABASE_URL:
             return self.DATABASE_URL
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+    
+
+    @model_validator(mode="after")
+    def _require_secret_key(self):
+        """Fail-closed: sin SECRET_KEY no se pueden firmar JWT y el servicio no debe arrancar (X8.2)."""
+        if not self.SECRET_KEY:
+            raise ValueError(
+                "Falta la variable de entorno SECRET_KEY. Sin ella no se pueden firmar ni verificar "
+                "los JWT. Genera una con: python -c \"import secrets; print(secrets.token_urlsafe(64))\""
+            )
+        return self
 
     class Config:
         case_sensitive = True
