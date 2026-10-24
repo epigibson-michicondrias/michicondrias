@@ -118,12 +118,13 @@ def update_my_clinic(
     db: Session = Depends(get_db),
     clinic_in: ClinicUpdate,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Update a clinic. Only the owner or admin can edit."""
     clinic = crud.crud_clinic.get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="No tienes permisos para editar esta clínica")
     return crud.crud_clinic.update_clinic(db, clinic, clinic_in)
 
