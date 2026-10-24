@@ -94,10 +94,10 @@ y sigue donde se quedó el otro.
 - [ ] Bloque A (Fase 4 en P1), Bloque B (auditoría P2/P3: A1–A5), Bloque C (U10 APK único y U11). U3–U9 ✅. Ver Anexo A §8.
 
 **Backend**
-- [ ] **Push tokens** (2026-10-24): tabla `push_tokens` en core (migración `e7c4a9b2d6f8` aditiva) + endpoints
-  `POST|DELETE|GET /push-tokens` y emisor `notify_user_push`. **Tras el deploy hay que correr
-  `scripts/vm.sh migrate core`** (`alembic upgrade head` de core) antes de usar los endpoints.
-  Falta el envío real por FCM: hay que conectar `notify_user_push` con Firebase (credenciales de FCM pendientes).
+- [x] **Push tokens** (2026-10-24, `8e97b97`): tabla `push_tokens` en core (migración `e7c4a9b2d6f8` aditiva) +
+  endpoints `POST|DELETE|GET /push-tokens` y emisor `notify_user_push`. **Desplegado y migrado** (17/17 servicios OK;
+  los endpoints devuelven 401 sin sesión). Falta el envío real por FCM: hay que conectar `notify_user_push` con
+  Firebase (credenciales de FCM pendientes).
 
 **Varios**
 - [ ] Mimo: `mimo mcp auth supabase` y `mimo mcp auth expo` (OAuth, una vez).
