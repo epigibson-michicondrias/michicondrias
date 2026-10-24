@@ -135,6 +135,12 @@ export const ROLE_TOOLS: Record<string, RoleTool[]> = {
         t('admin-users', 'Usuarios', 'Gestión de cuentas', '/admin/usuarios', accents.info, Users),
         t('admin-roles', 'Roles', 'Permisos y accesos', '/admin/roles', accents.services, Shield),
         t('admin-config', 'Configuración', 'Ajustes del sistema', '/admin/config', accents.neutral, Settings),
+        t('admin-clinicas', 'Clínicas', 'Directorio y moderación', '/admin/clinicas', accents.health, Building),
+        t('admin-productos', 'Productos', 'Catálogo de la tienda', '/admin/productos', accents.shop, ShoppingBag),
+        t('admin-mascotas', 'Mascotas', 'Fichas y carnet', '/admin/mascotas', accents.warning, Heart),
+        t('admin-servicios', 'Servicios', 'Catálogo de clínicas', '/admin/servicios', accents.teal, Stethoscope),
+        t('admin-categorias', 'Categorías', 'Organización de la tienda', '/admin/categorias', accents.neutral, Boxes),
+        t('admin-veterinarios', 'Veterinarios', 'Profesionales del directorio', '/admin/veterinarios', accents.info, Users),
     ],
 };
 
