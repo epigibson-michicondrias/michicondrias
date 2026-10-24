@@ -1,6 +1,8 @@
 import React from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useServiciosPro } from '@/src/hooks/servicios-pro/useServiciosPro';
@@ -99,7 +101,7 @@ export default function ServiciosProScreen() {
             {isLoading ? (
                 <SkeletonList count={4} />
             ) : (
-                <FlatList
+                <FlashList
             refreshControl={<AppRefreshControl />}
                     data={filteredData as any}
                     keyExtractor={(item) => item.id}

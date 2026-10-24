@@ -3,7 +3,8 @@
  * Before/after photos, grooming file info, session notes
  */
 import React from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { Scissors, Calendar, Clock, FileText, Droplets, Heart, AlertTriangle } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';

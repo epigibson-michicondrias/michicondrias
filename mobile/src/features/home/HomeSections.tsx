@@ -2,7 +2,8 @@
  * Secciones de Inicio: atajos en cuadrícula, carrusel de mascotas y próximas citas.
  */
 import React from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { Image } from 'expo-image';
 import { Plus, PawPrint, Calendar, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import Badge from '@/src/components/Badge';
@@ -99,7 +100,7 @@ export function PetCarousel({ pets, loading, onAdd, onOpen }: {
                 >
                     <View style={[styles.petPhoto, { backgroundColor: theme.primary + tint.faint }]}>
                         {pet.photo_url ? (
-                            <Image source={{ uri: pet.photo_url }} style={styles.fill} resizeMode="cover" />
+                            <Image source={{ uri: pet.photo_url }} style={styles.fill} contentFit="cover" transition={200} />
                         ) : (
                             <PawPrint size={layout.icon.lg} color={theme.primary} strokeWidth={1.5} />
                         )}

@@ -5,6 +5,7 @@ import { getCurrentUser } from '../services/auth';
 import { saveCachedUser, getCachedUser, clearStoredSession } from '../lib/sessionStorage';
 import { ApiError, getToken, setToken, setUnauthorizedHandler } from '../lib/api';
 import { clearStoredCart } from '../lib/cartStorage';
+import { registerPushToken, unregisterPushToken } from '../services/push';
 import { showAlert, notifySessionExpired } from '@/src/components/AppAlert';
 
 interface AuthContextType {
@@ -59,6 +60,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => setUnauthorizedHandler(null);
     }, [endSession]);
 
+    // Deja el token de push apuntando a esta cuenta. Nunca bloquea el flujo: si el endpoint
+    // /push-tokens aún no existe o no hay permisos, registerPushToken se traga el error.
+    const syncPushToken = useCallback(() => {
+        registerPushToken().catch(() => {});
+    }, []);
+
     useEffect(() => {
         const restoreSession = async () => {
             try {
@@ -66,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (!token) return;
                 try {
                     setUser(await getCurrentUser());
+                    syncPushToken();
                 } catch (error) {
                     if (isInvalidSession(error)) {
                         await endSession();
@@ -80,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         };
         restoreSession();
-    }, [setUser, endSession]);
+    }, [setUser, endSession, syncPushToken]);
 
     const loadUser = useCallback(async () => {
         setUser(await getCurrentUser());
@@ -93,10 +101,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Nada de la sesión anterior debe verse con la nueva cuenta
             queryClient.clear();
             await loadUser();
+            syncPushToken();
         } finally {
             setIsLoading(false);
         }
-    }, [queryClient, loadUser]);
+    }, [queryClient, loadUser, syncPushToken]);
 
     const reloadUser = useCallback(async () => {
         try {
@@ -119,6 +128,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             // Cierre voluntario: además se borran el carrito y la dirección guardados de esta cuenta
             if (userRef.current) await clearStoredCart(userRef.current.id);
+            // El token de push se retira del backend antes de soltar la sesión (no bloquea si falla)
+            await unregisterPushToken();
             await endSession();
         } finally {
             setIsLoading(false);

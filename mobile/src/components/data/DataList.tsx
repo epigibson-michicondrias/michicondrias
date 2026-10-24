@@ -1,17 +1,21 @@
 /**
- * DataList — Generic themed FlatList with loading/empty/refresh states
- * Replaces repeated loading/empty/FlatList boilerplate across all list screens
+ * DataList — Lista genérica del tema con estados de carga/vacío/refresh.
+ * Reemplaza el boilerplate de loading/empty/FlatList que se repetía en todas las pantallas de listado.
+ *
+ * Implementación: **FlashList** (reciclado, listas largas) para una columna; **FlatList** para
+ * cuadrículas (`numColumns > 1`), porque FlashList v2 no soporta `columnWrapperStyle` y las
+ * cuadrículas dependen del `gap` entre columnas. Ver PROGRESO_MOBILE.md · U10.
  */
 import React from 'react';
 import {
     FlatList,
     FlatListProps,
-    View,
     Text,
     RefreshControl,
     StyleSheet,
     ViewStyle,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '@/src/hooks/useTheme';
 import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
@@ -69,7 +73,7 @@ export default function DataList<T>({
     skeleton,
     skeletonCount = 4,
     skeletonVariant = 'list',
-    ...flatListProps
+    ...listProps
 }: DataListProps<T>) {
     const { theme } = useTheme();
 
@@ -97,27 +101,30 @@ export default function DataList<T>({
             />
         );
 
-    return (
-        <FlatList
-            data={isLoading ? [] : data}
-            renderItem={renderItem}
-            contentContainerStyle={[styles.listContent, contentStyle]}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponent={header}
-            ListEmptyComponent={placeholder}
-            refreshControl={
-                onRefresh ? (
-                    <RefreshControl
-                        refreshing={isRefreshing || false}
-                        onRefresh={onRefresh}
-                        tintColor={theme.primary}
-                        colors={[theme.primary]}
-                    />
-                ) : undefined
-            }
-            {...flatListProps}
-        />
-    );
+    const sharedProps = {
+        data: isLoading ? [] : data,
+        renderItem: renderItem as any,
+        contentContainerStyle: [styles.listContent, contentStyle] as any,
+        showsVerticalScrollIndicator: false,
+        ListHeaderComponent: header,
+        ListEmptyComponent: placeholder,
+        refreshControl: onRefresh ? (
+            <RefreshControl
+                refreshing={isRefreshing || false}
+                onRefresh={onRefresh}
+                tintColor={theme.primary}
+                colors={[theme.primary]}
+            />
+        ) : undefined,
+    };
+
+    // Cuadrículas: FlatList (necesita `columnWrapperStyle` para el gap entre columnas).
+    if (listProps.numColumns && listProps.numColumns > 1) {
+        return <FlatList {...sharedProps} {...(listProps as FlatListProps<T>)} />;
+    }
+
+    // Lista larga de una columna: FlashList recicla filas y aguanta miles de ítems.
+    return <FlashList {...sharedProps} {...(listProps as object)} />;
 }
 
 const styles = StyleSheet.create({

@@ -3,7 +3,8 @@
  * Replaces duplicated image picker logic across mascotas/nuevo, adopciones/nuevo, etc.
  */
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, X } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -63,7 +64,7 @@ export default function FormImagePicker({
                     { height: previewHeight },
                     circular && { width: previewHeight, borderRadius: previewHeight / 2 }
                 ]}>
-                    <Image source={{ uri: imageUri }} style={styles.preview} />
+                    <Image source={{ uri: imageUri }} style={styles.preview} contentFit="cover" transition={150} />
                     <TouchableOpacity
                         style={[
                             styles.changeBtn, 

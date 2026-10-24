@@ -7,7 +7,8 @@
  *   <MediaRow imageUrl={…} fallbackIcon={Dog} title={…} lines={[…]} onPress={…} accessibilityLabel={…} />
  */
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import type { IconComponent } from '@/src/components/IconButton';
@@ -37,7 +38,7 @@ interface MediaBaseProps {
 
 function Photo({ imageUrl, fallbackIcon: Icon, fallbackColor, iconSize, style }: Pick<MediaBaseProps, 'imageUrl' | 'fallbackIcon' | 'fallbackColor'> & { iconSize: number; style: object }) {
     const { theme } = useTheme();
-    if (imageUrl) return <Image source={{ uri: imageUrl }} style={style} resizeMode="cover" accessibilityIgnoresInvertColors />;
+    if (imageUrl) return <Image source={{ uri: imageUrl }} style={style} contentFit="cover" transition={200} accessibilityIgnoresInvertColors />;
     return (
         <View style={[style, styles.fallback, { backgroundColor: fallbackColor ? fallbackColor + tint.faint : theme.backgroundSecondary }]}>
             <Icon size={iconSize} color={fallbackColor || theme.textMuted} strokeWidth={1.5} />

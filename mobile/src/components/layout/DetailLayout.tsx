@@ -11,7 +11,8 @@
  *   </ScreenContainer>
  */
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, useWindowDimensions, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, useWindowDimensions, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/src/hooks/useTheme';
 import BackButton from '@/src/components/BackButton';
@@ -56,7 +57,7 @@ export function DetailPhoto({ images, fallbackIcon: Fallback, fallbackLabel, res
                     {fallbackLabel ? <Text style={[type.caption, { color: theme.textMuted }]}>{fallbackLabel}</Text> : null}
                 </>
             ) : uris.length === 1 ? (
-                <Image source={{ uri: uris[0] }} style={styles.image} resizeMode={resizeMode} accessibilityLabel={accessibilityLabel} />
+                <Image source={{ uri: uris[0] }} style={styles.image} contentFit={resizeMode} transition={200} accessibilityLabel={accessibilityLabel} />
             ) : (
                 <>
                     <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} onScroll={onScroll} scrollEventThrottle={32}>
@@ -65,7 +66,8 @@ export function DetailPhoto({ images, fallbackIcon: Fallback, fallbackLabel, res
                                 key={`${uri}-${i}`}
                                 source={{ uri }}
                                 style={{ width, height }}
-                                resizeMode={resizeMode}
+                                contentFit={resizeMode}
+                                transition={200}
                                 accessibilityLabel={accessibilityLabel ? `${accessibilityLabel}, foto ${i + 1} de ${uris.length}` : undefined}
                             />
                         ))}

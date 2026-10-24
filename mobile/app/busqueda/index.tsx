@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Search, PawPrint, Heart, MapPin, Building2, Footprints, ShoppingBag, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -99,7 +100,7 @@ export default function BusquedaScreen() {
             );
         }
         return (
-            <FlatList
+            <FlashList
                 data={activeResults}
                 renderItem={renderResultItem}
                 keyExtractor={(item) => item.id}

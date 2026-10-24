@@ -2,7 +2,8 @@
  * Detalle de clínica: datos, contacto rápido, servicios (cada uno agenda directo) y reseñas.
  */
 import React from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPin, Phone, Globe, Clock, Star, AlertTriangle, Calendar, Hospital, Share2, MessageCircle, Navigation, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';

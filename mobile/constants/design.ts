@@ -85,22 +85,36 @@ export const font = {
 /**
  * Tipografía premium: jerarquía refinada, pesos cuidados, letter-spacing sutil.
  * display/h1 para héroes, h2/title para secciones, body para lectura, label para micro-textos.
+ *
+ * La familia es **Hanken Grotesk** (marca; se carga en `app/_layout.tsx`). Cada peso es un archivo
+ * estático de `@expo-google-fonts/hanken-grotesk`, así que el peso va en el `fontFamily` y NO en
+ * `fontWeight` (combinarlos hace que iOS/Android caigan a la fuente del sistema).
  */
+export const families = {
+    regular: 'HankenGrotesk_400Regular',
+    medium: 'HankenGrotesk_500Medium',
+    semibold: 'HankenGrotesk_600SemiBold',
+    bold: 'HankenGrotesk_700Bold',
+    extrabold: 'HankenGrotesk_800ExtraBold',
+    /** Monoespaciada (identificadores, códigos); no es de la marca. */
+    mono: 'SpaceMono',
+} as const;
+
 export const type = {
-    display: { fontSize: scaled(28), fontWeight: '700', letterSpacing: -0.6 } as TextStyle,
+    display: { fontFamily: families.extrabold, fontSize: scaled(28), letterSpacing: -0.6 } as TextStyle,
     /** Título de `ScreenHeader`. */
-    screenTitle: { fontSize: scaled(19), fontWeight: '800', letterSpacing: -0.3 } as TextStyle,
-    h1: { fontSize: scaled(22), fontWeight: '700', letterSpacing: -0.4 } as TextStyle,
-    h2: { fontSize: scaled(18), fontWeight: '700', letterSpacing: -0.2 } as TextStyle,
-    title: { fontSize: scaled(16), fontWeight: '600', letterSpacing: -0.1 } as TextStyle,
-    subtitle: { fontSize: scaled(14), fontWeight: '600' } as TextStyle,
-    body: { fontSize: scaled(13), fontWeight: '400', lineHeight: scaled(19) } as TextStyle,
-    bodyStrong: { fontSize: scaled(13), fontWeight: '600', lineHeight: scaled(19) } as TextStyle,
-    caption: { fontSize: scaled(11), fontWeight: '500', lineHeight: scaled(15) } as TextStyle,
-    label: { fontSize: scaled(10), fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' } as TextStyle,
+    screenTitle: { fontFamily: families.extrabold, fontSize: scaled(19), letterSpacing: -0.3 } as TextStyle,
+    h1: { fontFamily: families.bold, fontSize: scaled(22), letterSpacing: -0.4 } as TextStyle,
+    h2: { fontFamily: families.bold, fontSize: scaled(18), letterSpacing: -0.2 } as TextStyle,
+    title: { fontFamily: families.semibold, fontSize: scaled(16), letterSpacing: -0.1 } as TextStyle,
+    subtitle: { fontFamily: families.semibold, fontSize: scaled(14) } as TextStyle,
+    body: { fontFamily: families.regular, fontSize: scaled(13), lineHeight: scaled(19) } as TextStyle,
+    bodyStrong: { fontFamily: families.semibold, fontSize: scaled(13), lineHeight: scaled(19) } as TextStyle,
+    caption: { fontFamily: families.medium, fontSize: scaled(11), lineHeight: scaled(15) } as TextStyle,
+    label: { fontFamily: families.bold, fontSize: scaled(10), letterSpacing: 1, textTransform: 'uppercase' } as TextStyle,
     /** Etiqueta de campo en tipo oración (sin versalitas): para formularios y controles. */
-    labelSentence: { fontSize: scaled(12), fontWeight: '600' } as TextStyle,
-    button: { fontSize: scaled(13), fontWeight: '600', letterSpacing: 0.1 } as TextStyle,
+    labelSentence: { fontFamily: families.semibold, fontSize: scaled(12) } as TextStyle,
+    button: { fontFamily: families.semibold, fontSize: scaled(13), letterSpacing: 0.1 } as TextStyle,
 } as const;
 
 /** Medidas de layout comunes. Premium: más compactas, elegantes. */

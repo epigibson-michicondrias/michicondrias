@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useRef, useCallb
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Product } from '../services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
+import { hapticSuccess } from '@/src/lib/haptics';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { cartKey, addressKey, removeLegacyCartKeys } from '../lib/cartStorage';
 
@@ -105,6 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             }
             return [...prevItems, { product, quantity: toAdd }];
         });
+        hapticSuccess();
         return toAdd;
     };
 

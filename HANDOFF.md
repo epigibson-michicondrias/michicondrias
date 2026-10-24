@@ -108,6 +108,13 @@ y sigue donde se quedó el otro.
 
 **App móvil** (detalle con IDs en `PROGRESO_MOBILE.md` → Backlog)
 - [ ] Bloque A (Fase 4 en P1), Bloque B (auditoría P2/P3: A1–A5), Bloque C (U10 APK único y U11). U3–U9 ✅. Ver Anexo A §8.
+- [ ] **U10 — lo que falta** (el cableado JS ya está, ver Bitácora 2026-10-24):
+  1. Tipografía fina: ~15 pantallas con `fontWeight` suelto (`app/carnet/receta/[id]`, `app/mi-clinica/config|historial`…)
+     siguen en fuente del sistema → pasarlas a `type.*` o `families.*` de `constants/design.ts`.
+  2. Hápticos en el resto de mutaciones de éxito/borrado (usar `src/lib/haptics.ts`).
+  3. Unificar `DataList` en FlashList si la lib gana `columnWrapperStyle` (hoy las cuadrículas se quedan en FlatList).
+  4. **Build del APK** (acción del usuario): las libs nativas nuevas **no salen por OTA** — hay que hacer build nativo.
+  5. QR nativo y credenciales FCM (el envío real de push, `notify_user_push`, sigue sin Firebase).
 
 **Backend**
 - [x] **Push tokens** (2026-10-24, `8e97b97`): tabla `push_tokens` en core (migración `e7c4a9b2d6f8` aditiva) +
@@ -123,6 +130,28 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **U10 parcial: cableado JS de las libs nativas del APK único** (`app.config.js` intacto).
+  - **expo-image** en 24 archivos que cargan foto de red, con `contentFit` + `transition`. Lo más rentable:
+    `MediaCard.Photo`, `DetailPhoto` (`layout/DetailLayout`) y `FormImagePicker` — arrastran la mayoría de listas.
+  - **FlashList** en `DataList` (listas de 1 columna → cubre 27 pantallas) y en `notificaciones`, `busqueda`,
+    `tienda/compras`, `servicios-pro`. **Las cuadrículas siguen en FlatList** (`tienda-tab`, `mascotas`,
+    `adopciones`): FlashList v2 no implementa `columnWrapperStyle`. Nota de API: **FlashList 2.x no pide
+    `estimatedItemSize`** (auto-medida) — la guía v1 no aplica.
+  - **expo-haptics** vía `src/lib/haptics.ts` (`hapticSuccess`/`hapticWarning`/`hapticToggle`, no-op en web) en:
+    `CartContext.addToCart`, marcar notificaciones leídas, toggles de `admin/config` y `funeraria/gestion`,
+    `usePetForm.handleSubmit`, `eliminar-cuenta`.
+  - **expo-notifications**: `src/services/push.ts` (`registerPushToken` al entrar/restaurar sesión,
+    `unregisterPushToken` al cerrar) + `push.web.ts` stub. Ya apunta al endpoint desplegado de Mimo
+    (`POST|DELETE /push-tokens`); el registro es silencioso si falla, no bloquea el arranque.
+  - **Hanken Grotesk** (`@expo-google-fonts/hanken-grotesk`, 400/500/600/700/800) cargada en `app/_layout.tsx`;
+    `constants/design.ts` exporta `families` y los tokens `type.*` llevan `fontFamily` (sin `fontWeight`, que
+    rompe la carga de la fuente).
+  - **Deps retiradas** (knip + grep a 0): `axios`, `expo-symbols`, `react-native-get-location`.
+    `@teovilla/react-native-web-maps` se queda (alias de `babel.config.js` para maps en web; knip es falso positivo).
+  - **Verificado**: `npm run check` con **0 errores** (57 warnings previos), `expo install --check` en verde,
+    `expo start --web` → HTTP 200 sin errores ni avisos nuevos.
+  - **Falta de U10** (en §3 · App móvil): tipografía fina en pantallas con `fontWeight` suelto, más hápticos,
+    unificar grids, **build del APK** (el usuario) y credenciales FCM.
 - **2026-10-24 · Claude** — **Auditoría de seguridad X2–X8 del backend (solo lectura, sin tocar código):**
   - Entregable: [`docs/SEGURIDAD_X2_X8.md`](docs/SEGURIDAD_X2_X8.md) — 15 hallazgos (1 P0, 10 P1, 4 P2), tabla con
     `archivo:línea`, impacto y corrección propuesta. **No se aplicó ningún arreglo.**

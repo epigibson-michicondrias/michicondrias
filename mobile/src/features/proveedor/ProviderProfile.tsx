@@ -3,7 +3,8 @@
  * Hero + stats + bio + servicios + reseñas + CTA. Patrón común UX-001.
  */
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { Star, MapPin } from 'lucide-react-native';
 import { DetailFooter } from '@/src/components/layout/DetailLayout';
 import Button from '@/src/components/Button';
@@ -26,7 +27,7 @@ export function ProviderHero({ photoUrl, name, subtitle, rating, reviewCount, ac
         <View style={styles.hero}>
             <View style={[styles.avatarContainer, { backgroundColor: color + '20' }]}>
                 {photoUrl ? (
-                    <Image source={{ uri: photoUrl }} style={styles.avatar} />
+                    <Image source={{ uri: photoUrl }} style={styles.avatar} contentFit="cover" transition={200} />
                 ) : (
                     <Text style={[styles.avatarText, { color }]}>{name.charAt(0).toUpperCase()}</Text>
                 )}

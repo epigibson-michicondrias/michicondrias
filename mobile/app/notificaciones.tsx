@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import {
     Bell, CheckCheck, Heart, Package, MapPin, Calendar, Pill, Shield, FlaskConical, Flower2, Car, ChevronRight,
@@ -104,7 +105,7 @@ export default function NotificationsScreen() {
             {isLoading ? (
                 <SkeletonList count={4} />
             ) : (
-                <FlatList
+                <FlashList
                     refreshControl={<AppRefreshControl />}
                     data={notifications}
                     keyExtractor={(item) => item.id}

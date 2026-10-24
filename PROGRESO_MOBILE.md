@@ -306,8 +306,17 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       sesión de prueba a 375×812: tap en notificación navega por `link` (cita → `/directorio/citas`, dosis → la ficha
       de la mascota en Salud), «Marcar todas como leídas» limpia el badge, limpiar la búsqueda vuelve al estado
       inicial y el filtro de FAQ muestra el vacío con acción. Capturas: `output/u9-notif/`.)
-- [ ] 📱 U10 APK único: `expo-image`, `expo-haptics`, FlashList, fuente propia, **`expo-notifications` (push + tabla
-      `push_tokens` 🛠️)**, QR si es nativa; quitar deps sin uso; `npx expo install --check`.
+- [ ] 📱 **U10 APK único** (🟡 parcial, 2026-10-24 · Mimo): **cableado JS listo** — `expo-image` en todo lo que carga
+      foto de red (24 archivos: `MediaCard`, `DetailLayout`, `FormImagePicker`, `PetCards`, `HomeSections`,
+      `CartItemRow`, `ProviderProfile` + 17 pantallas), FlashList en `DataList` (listas de 1 columna; las cuadrículas
+      con `numColumns` se quedan en FlatList porque FlashList v2 no soporta `columnWrapperStyle`) y en
+      `notificaciones`/`busqueda`/`compras`/`servicios-pro`, `expo-haptics` vía `src/lib/haptics.ts` (carrito, marcar
+      notificación leída, toggles de admin/funeraria, alta de mascota, eliminar cuenta), `expo-notifications` con
+      `src/services/push.ts` + `push.web.ts` (registro al entrar/restaurar sesión, baja al cerrar) y **Hanken Grotesk**
+      cargada (`@expo-google-fonts/hanken-grotesk`, 400/500/600/700/800) con `fontFamily` en los tokens `type.*`.
+      Deps sin uso retiradas (`axios`, `expo-symbols`, `react-native-get-location`); `@teovilla/react-native-web-maps`
+      se queda (alias de babel para maps en web). **Falta:** finos de tipografía en pantallas con `fontWeight` suelto
+      (ver abajo), más mutaciones con háptico, QR si procede, y **build del APK** (requiere acción del usuario).
 - [ ] U11 Evaluar Prettier (commit aparte) y Maestro (login, compra, adopción).
 
 ## Decisiones
@@ -981,4 +990,36 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   `/directorio/citas`, dosis → la mascota en la pestaña Salud), «Marcar todas como leídas» limpia los puntos y el
   badge, limpiar la búsqueda vuelve al estado inicial y el filtro de FAQ muestra el vacío con acción. `tsc` y ESLint
   limpios. Capturas: `output/u9-notif/`. Sigue U10 (APK único).
+- **2026-10-24** — **U10 (parcial): cableado de las libs nativas.** `app.config.js` ya traía plugins y versiones
+  (`1.2.0` / `versionCode` 9 / `runtimeVersion` 1.1.0) — no se tocó. **expo-image**: `Image` de RN → `expo-image`
+  con `contentFit` + `transition` en **todo lo que carga foto de red** (24 archivos). Lo más rentable fueron los
+  componentes compartidos — `MediaCard.Photo`, `DetailPhoto` de `layout/DetailLayout` y `FormImagePicker` — que
+  arrastran de por sí la mayoría de listas (adopciones, perdidas, tienda, mascotas). No se tocaron íconos de lucide
+  ni el `require(...)` del logo de login. **FlashList**: `DataList` pasa a `FlashList` para listas de una columna
+  (cubre las 27 pantallas que lo usan: pedidos, aseguradoras, admin, citas…); las **cuadrículas se quedan en
+  FlatList** (`numColumns` de `tienda-tab`, `mascotas`, `adopciones`) porque FlashList v2 no implementa
+  `columnWrapperStyle` y el `gap` entre columnas vive ahí. Además `notificaciones`, `busqueda`, `tienda/compras` y
+  `servicios-pro` pasan su `FlatList` propio a `FlashList`. Ojo de versión: **FlashList 2.x NO necesita
+  `estimatedItemSize`** (auto-medida; la API v1 no aplica). **expo-haptics**: helper `src/lib/haptics.ts`
+  (`hapticSuccess`/`hapticWarning`/`hapticToggle`, no-op en web) cableado en las mutaciones de impacto nombradas en
+  la tarea: `CartContext.addToCart`, marcar notificaciones leídas, toggles de `admin/config` y `funeraria/gestion`,
+  `usePetForm.handleSubmit` y `eliminar-cuenta`. **expo-notifications**: `src/services/push.ts` registra el token
+  (`POST /push-tokens`) al entrar y al restaurar sesión y lo da de baja (`DELETE /push-tokens/{token}`) al cerrar;
+  todo envuelto para que el arranque nunca se rompa si el endpoint aún no está desplegado. `push.web.ts` es un stub
+  que evita cargar el módulo en web (silencia el aviso «push token listeners not supported on web»). El backend del
+  endpoint ya está en `main` (otro agente; falta migración + deploy). **Fuente**: se instala
+  `@expo-google-fonts/hanken-grotesk` y se carga en `app/_layout.tsx` junto a `SpaceMono`; `constants/design.ts`
+  exporta `families` y los tokens `type.*` llevan `fontFamily` en lugar de `fontWeight` (combinarlos hace caer al
+  sistema). **Deps sin uso retiradas** (knip + grep a 0): `axios`, `expo-symbols`, `react-native-get-location`;
+  `@teovilla/react-native-web-maps` es falso positivo de knip (alias de `babel.config.js` para maps en web) y se
+  queda. **Verificado**: `npm run check` con **0 errores** (57 warnings, todos previos), `npx expo install --check`
+  en verde, `knip` sin dependencias muertas reales, y `expo start --web` responde 200 sin errores ni avisos nuevos.
+  **Pendiente de U10 (siguiente pasada):**
+  1. **Tipografía fina**: ~15 pantallas con `fontWeight` suelto en `StyleSheet` (`app/carnet/receta/[id]`,
+     `app/mi-clinica/config|historial`, etc.) siguen con la fuente del sistema; hay que pasarlas a `type.*` o a
+     `families.*` (exportado en `constants/design.ts` para eso).
+  2. **Hápticos**: el resto de mutaciones de éxito/borrado (son ~25 hooks) pueden adoptar `src/lib/haptics.ts`.
+  3. **`DataList` en cuadrícula**: si FlashList gana `columnWrapperStyle`, unificar en FlashList.
+  4. **Build del APK** (acción del usuario): las libs nativas nuevas requieren build nativo nuevo — no sale por OTA.
+  5. QR nativo y credenciales FCM si procede.
 

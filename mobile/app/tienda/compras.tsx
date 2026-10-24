@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, View, FlatList, ActivityIndicator, ScrollView } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, ScrollView } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Package, ShoppingBag, CalendarDays, Clock, SearchX } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -82,7 +83,7 @@ export default function ComprasScreen() {
             {isLoading ? (
                 <View style={styles.list}><SkeletonList count={5} inset={false} /></View>
             ) : (
-                <FlatList
+                <FlashList
                     refreshControl={<AppRefreshControl />}
                     data={visible}
                     keyExtractor={(item) => item.id}

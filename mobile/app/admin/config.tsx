@@ -7,6 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, ShieldCheck, Zap, Globe, Bell, Database, HardDrive, Cpu, Cloud, Lock } from 'lucide-react-native';
 import { font, spacing } from '@/constants/design';
+import { hapticToggle } from '@/src/lib/haptics';
 
 export default function AdminConfigScreen() {
     const { theme } = useTheme();
@@ -126,7 +127,7 @@ function ConfigRow({ icon: Icon, label, desc, value, onToggle, theme, isLast }: 
             </View>
             <Switch
                 value={value}
-                onValueChange={onToggle}
+                onValueChange={() => { hapticToggle(); onToggle(); }}
                 trackColor={{ false: '#334155', true: theme.primary }}
                 thumbColor="#f8fafc"
             />

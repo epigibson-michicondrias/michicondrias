@@ -14,6 +14,7 @@ import Button from '@/src/components/Button';
 import AuthField from '@/src/components/AuthField';
 import { validateRequired } from '@/src/utils/validators';
 import { font, spacing, layout } from '@/constants/design';
+import { hapticWarning } from '@/src/lib/haptics';
 
 /** Eliminación de cuenta (requisito de Apple/Google): confirma con la contraseña actual y, si aplica, el código 2FA. */
 export default function EliminarCuentaScreen() {
@@ -34,6 +35,7 @@ export default function EliminarCuentaScreen() {
         try {
             await deleteMyAccount(password, needsCode ? code.trim() : undefined);
             // signOut limpia token, caché y carrito; la guarda de app/_layout.tsx lleva a /login
+            hapticWarning();
             await signOut();
             showAlert({ type: 'success', title: 'Cuenta eliminada', message: 'Tu cuenta y tus datos personales fueron eliminados. Gracias por haber sido parte de Michicondrias.' });
         } catch (error: any) {

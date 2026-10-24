@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import WebMapView from '../../src/components/WebMapView';
 import { PetfriendlyPlace } from '../../src/services/petfriendly';
 import { usePlaces } from '@/src/hooks/petfriendly/usePlaces';

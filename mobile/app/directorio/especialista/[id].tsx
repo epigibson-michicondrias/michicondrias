@@ -2,7 +2,8 @@
  * Perfil de especialista: datos, contacto rápido, clínica donde atiende, servicios (agendar) y reseñas.
  */
 import React from 'react';
-import { StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Phone, Star, ShieldCheck, Calendar, Share2, MessageCircle, Building2, ChevronRight, UserX, Stethoscope } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';

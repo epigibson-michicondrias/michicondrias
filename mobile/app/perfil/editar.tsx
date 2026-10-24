@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { Camera, UserRound } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProfile, BIO_MAX } from '@/src/hooks/perfil/useProfile';

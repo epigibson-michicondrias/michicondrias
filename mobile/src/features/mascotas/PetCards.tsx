@@ -5,7 +5,8 @@
  * - `PetDetailCard`: tarjeta grande con foto, datos y acceso a editar.
  */
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { Cat, Dog, ChevronRight, Settings } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { getSpeciesLabel, getGenderLabel, formatAge, formatWeight, capitalize } from '@/src/utils/formatters';
@@ -29,7 +30,7 @@ const summaryOf = (pet: Pet) => [breedOf(pet), hasAge(pet) ? formatAge(pet.age_m
 function PetPhoto({ pet, style, iconSize }: { pet: Pet; style: object; iconSize: number }) {
     const { theme } = useTheme();
     if (pet.photo_url) {
-        return <Image source={{ uri: pet.photo_url }} style={style} resizeMode="cover" accessibilityIgnoresInvertColors />;
+        return <Image source={{ uri: pet.photo_url }} style={style} contentFit="cover" transition={200} accessibilityIgnoresInvertColors />;
     }
     const SpeciesIcon = pet.species === 'gato' ? Cat : Dog;
     return (

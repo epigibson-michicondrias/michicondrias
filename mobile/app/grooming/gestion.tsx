@@ -9,12 +9,12 @@ import {
     View,
     Text,
     TouchableOpacity,
-    Image,
     ScrollView,
     TextInput,
     Modal,
     ActivityIndicator,
 } from 'react-native';
+import { Image } from 'expo-image';
 import {
     Scissors,
     Camera,

@@ -14,6 +14,7 @@ import {
   markAllNotificationsAsRead,
 } from '@/src/services/notifications';
 import type { Notification } from '@/src/types/notifications';
+import { hapticToggle } from '@/src/lib/haptics';
 
 const NOTIFICATIONS_KEY = ['notifications'] as const;
 const UNREAD_COUNT_KEY = ['notifications', 'unread-count'] as const;
@@ -121,6 +122,7 @@ export function useNotifications() {
   const markAsReadMutation = useMutation({
     mutationFn: (notificationId: string) => markNotificationAsRead(notificationId),
     onMutate: (notificationId: string) => optimisticRead([notificationId]),
+    onSuccess: () => hapticToggle(),
     onError: (_err, _id, context) => rollback(context),
     onSettled: refreshAll,
   });
@@ -128,6 +130,7 @@ export function useNotifications() {
   const markAllMutation = useMutation({
     mutationFn: markAllNotificationsAsRead,
     onMutate: () => optimisticRead('all'),
+    onSuccess: () => hapticToggle(),
     onError: (_err, _vars, context) => rollback(context),
     onSettled: refreshAll,
   });

@@ -12,6 +12,7 @@ import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { showAlert } from '@/src/components/AppAlert';
 import { Calendar, Clock, Inbox, PawPrint, Plus } from 'lucide-react-native';
 import { font, spacing, layout } from '@/constants/design';
+import { hapticToggle, hapticWarning } from '@/src/lib/haptics';
 
 export default function GestionScreen() {
     const { theme } = useTheme();
@@ -27,7 +28,7 @@ export default function GestionScreen() {
             buttonText: 'Sí, rechazar',
             showCancel: true,
             cancelText: 'Volver',
-            onButtonPress: () => changeBookingStatus(id, 'cancelled'),
+            onButtonPress: () => { hapticWarning(); changeBookingStatus(id, 'cancelled'); },
         });
 
     const ActionBtn = ({ label, onPress, color, filled }: { label: string; onPress: () => void; color: string; filled?: boolean }) => (
@@ -145,7 +146,7 @@ export default function GestionScreen() {
                                         <Switch
                                             accessibilityLabel={`Publicar ${svc.name}`}
                                             value={!!svc.is_active}
-                                            onValueChange={(v) => toggleServiceActive(svc.id, v)}
+                                            onValueChange={(v) => { hapticToggle(); toggleServiceActive(svc.id, v); }}
                                             trackColor={{ true: theme.primary, false: theme.border }}
                                         />
                                     </View>

@@ -2,7 +2,8 @@
  * CartItemRow — Artículo de la bolsa: foto, nombre, precio unitario, cantidad (− en 1 lo quita) y subtotal.
  */
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
 import { Package } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import QuantityStepper from '@/src/components/QuantityStepper';
@@ -26,7 +27,7 @@ export default function CartItemRow({ item, onOpen, onChangeQuantity, onMaxReach
         <View style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
             <TouchableOpacity onPress={onOpen} accessibilityRole="button" accessibilityLabel={`Ver ${product.name}`}>
                 {product.image_url ? (
-                    <Image source={{ uri: product.image_url }} style={styles.thumb} />
+                    <Image source={{ uri: product.image_url }} style={styles.thumb} contentFit="cover" transition={150} />
                 ) : (
                     <View style={[styles.thumb, styles.thumbFallback, { backgroundColor: theme.backgroundSecondary }]}>
                         <Package size={layout.icon.lg} color={theme.textMuted} strokeWidth={1.5} />

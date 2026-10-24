@@ -2,7 +2,7 @@ export default {
   "expo": {
     "name": "Michicondrias",
     "slug": "mobile",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     // "michicondrias" es el esquema que usan el backend (APP_DEEP_LINK_SCHEME: retorno de Stripe, reset de contraseña);
@@ -26,7 +26,7 @@ export default {
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.michicondrias.mobile",
-      "versionCode": 8,
+      "versionCode": 9,
       "newArchEnabled": false,
       "config": {
         "googleMaps": {
@@ -41,11 +41,19 @@ export default {
     },
     "plugins": [
       "expo-router",
+      "expo-image",
+      "expo-font",
       [
         "expo-updates",
         {
           "checkOnLaunch": "ALWAYS",
           "enabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#e9c883"
         }
       ],
       [
@@ -64,7 +72,7 @@ export default {
         "expo-channel-name": "production"
       }
     },
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": "1.1.0",
     "extra": {
       "eas": {
         "projectId": "c72bd27d-390a-4496-b147-196b189cc981"

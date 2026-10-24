@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Linking } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Linking } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useAdminVerifications } from '@/src/hooks/admin/useAdminVerifications';
@@ -33,7 +34,7 @@ export default function AdminVerificacionesScreen() {
                     onPress={() => (url.startsWith('https://') ? Linking.openURL(url) : Promise.reject()).catch(() => showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El enlace del documento venció o no es válido. Recarga la lista.' }))}
                     accessibilityLabel="Abrir documento"
                 >
-                    <Image source={{ uri: url }} style={styles.docImage} resizeMode="cover" />
+                    <Image source={{ uri: url }} style={styles.docImage} contentFit="cover" />
                     <View style={styles.docOverlay}>
                         <ExternalLink size={18} color={theme.onHero} />
                     </View>

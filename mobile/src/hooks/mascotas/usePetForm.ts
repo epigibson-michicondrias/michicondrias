@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { createPet, getMascotasPresignedUrl } from '@/src/services/mascotas';
 import { showAlert } from '@/src/components/AppAlert';
+import { hapticSuccess } from '@/src/lib/haptics';
 import { getFileExtension, getS3Url } from '@/src/utils/helpers';
 import type { PetFormData } from '@/src/types/mascotas';
 import { PET_FORM_DEFAULTS } from '@/src/types/mascotas';
@@ -107,6 +108,7 @@ export function usePetForm() {
             queryClient.invalidateQueries({ queryKey: ['user-pets'] });
             queryClient.invalidateQueries({ queryKey: ['my-pets-carnet'] });
 
+            hapticSuccess();
             showAlert({
                 type: 'success',
                 title: '¡Éxito!',

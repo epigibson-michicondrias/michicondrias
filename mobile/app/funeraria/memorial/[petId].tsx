@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, FlatList, Image } from 'react-native';
+import { StyleSheet, View, Text, FlatList } from 'react-native';
+import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useMemorial } from '@/src/hooks/funerary/useMemorial';
@@ -57,7 +58,7 @@ export default function MemorialScreen() {
                     source={{ uri: item.photo_url }}
                     accessibilityLabel="Foto del recuerdo"
                     style={{ width: '100%', height: 200, borderRadius: 12, marginBottom: spacing.lg, backgroundColor: theme.border }}
-                    resizeMode="cover"
+                    contentFit="cover"
                 />
             )}
 
