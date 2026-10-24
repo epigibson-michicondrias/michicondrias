@@ -128,8 +128,8 @@ function ConfigRow({ icon: Icon, label, desc, value, onToggle, theme, isLast }: 
             <Switch
                 value={value}
                 onValueChange={() => { hapticToggle(); onToggle(); }}
-                trackColor={{ false: '#334155', true: theme.primary }}
-                thumbColor="#f8fafc"
+                trackColor={{ false: theme.textMuted, true: theme.primary }}
+                thumbColor={theme.backgroundSecondary}
             />
         </View>
     );
@@ -180,10 +180,6 @@ const styles = StyleSheet.create({
         overflow: 'hidden', 
         borderWidth: 1,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     row: { 
         flexDirection: 'row', 

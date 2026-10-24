@@ -10,7 +10,7 @@ import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Plus, Package, Edit2, Trash2, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { accents, font, spacing } from '@/constants/design';
 
 export default function AdminCategoriasScreen() {
     const { theme } = useTheme();
@@ -120,7 +120,7 @@ export default function AdminCategoriasScreen() {
                                 {isSaving ? (
                                     <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
-                                    <Text style={styles.submitBtnText}>
+                                    <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>
                                         {editingCategory ? 'Guardar Cambios' : 'Crear Categoría'}
                                     </Text>
                                 )}
@@ -149,10 +149,6 @@ const styles = StyleSheet.create({
         borderWidth: 1, 
         gap: spacing.lg,
         elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     iconBox: { 
         width: 52, 
@@ -233,13 +229,10 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         marginTop: spacing.xxl, 
         elevation: 6,
-        shadowColor: '#8b5cf6',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
+        shadowColor: accents.services,
     },
     submitBtnText: { 
-        color: '#fff', 
+         
         fontSize: font.xl, 
         fontWeight: '800' 
     }

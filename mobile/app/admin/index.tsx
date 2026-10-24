@@ -17,7 +17,7 @@ import {
     AlertTriangle,
     Heart,
 } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { accents, font, layout, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -96,7 +96,7 @@ export default function AdminScreen() {
                     title: 'Analytics',
                     description: 'Análisis de plataforma',
                     icon: BarChart3,
-                    color: '#14b8a6',
+                    color: accents.teal,
                     route: '/admin/stats'
                 },
                 {
@@ -104,7 +104,7 @@ export default function AdminScreen() {
                     title: 'Ajustes',
                     description: 'General del sistema',
                     icon: Settings,
-                    color: '#64748b',
+                    color: theme.textMuted,
                     route: '/admin/config'
                 }
             ]
@@ -202,21 +202,21 @@ export default function AdminScreen() {
                     <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: spacing.md }]}>Acciones Urgentes</Text>
                     <View style={styles.quickGrid}>
                         <TouchableOpacity accessibilityRole="button" 
-                            style={[styles.quickCard, { backgroundColor: '#ef4444' }]}
+                            style={[styles.quickCard, { backgroundColor: theme.error }]}
                             onPress={() => router.push('/admin/moderacion')}
                         >
                             <AlertTriangle size={20} color={theme.onPrimary} />
-                            <Text style={styles.quickCardTitle}>Moderación</Text>
-                            <Text style={styles.quickCardDesc}>Pendientes</Text>
+                            <Text style={[styles.quickCardTitle, { color: theme.onPrimary }]}>Moderación</Text>
+                            <Text style={[styles.quickCardDesc, { color: theme.onPrimary + 'cc' }]}>Pendientes</Text>
                         </TouchableOpacity>
                         
                         <TouchableOpacity accessibilityRole="button" 
-                            style={[styles.quickCard, { backgroundColor: '#3b82f6' }]}
+                            style={[styles.quickCard, { backgroundColor: theme.primary }]}
                             onPress={() => router.push('/admin/verificaciones')}
                         >
                             <UserCheck size={20} color={theme.onPrimary} />
-                            <Text style={styles.quickCardTitle}>Identidad</Text>
-                            <Text style={styles.quickCardDesc}>Validar KYC</Text>
+                            <Text style={[styles.quickCardTitle, { color: theme.onPrimary }]}>Identidad</Text>
+                            <Text style={[styles.quickCardDesc, { color: theme.onPrimary + 'cc' }]}>Validar KYC</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -243,10 +243,6 @@ const styles = StyleSheet.create({
         gap: spacing.md,
         borderWidth: 1,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
     },
     statNumber: {
         fontSize: font.xxl,
@@ -317,15 +313,11 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         gap: spacing.sm,
         elevation: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
     },
     quickCardTitle: {
         fontSize: font.xl,
         fontWeight: '800',
-        color: '#fff',
+        
     },
     quickCardDesc: {
         fontSize: font.sm,

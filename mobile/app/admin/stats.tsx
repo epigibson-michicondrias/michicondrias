@@ -35,7 +35,7 @@ export default function AdminStatsScreen() {
                     <StatCard label="Pendientes" value={kpis!.pending_verifications} icon={<Activity size={20} color={theme.warning} />} color={theme.warning} theme={theme} />
                     <StatCard label="Admins" value={kpis!.system_admins} icon={<BarChart2 size={20} color={theme.info} />} color={theme.info} theme={theme} />
                     {kpis!.professionals !== undefined && <StatCard label="Profesionales" value={kpis!.professionals} icon={<ShieldCheck size={20} color={theme.info} />} color={theme.info} theme={theme} />}
-                    {kpis!.new_users_7d !== undefined && <StatCard label="Nuevos 7 días" value={kpis!.new_users_7d} icon={<TrendingUp size={20} color="#ec4899" />} color="#ec4899" theme={theme} />}
+                    {kpis!.new_users_7d !== undefined && <StatCard label="Nuevos 7 días" value={kpis!.new_users_7d} icon={<TrendingUp size={20} color={theme.accent} />} color={theme.accent} theme={theme} />}
                     {kpis!.new_users_30d !== undefined && <StatCard label="Nuevos 30 días" value={kpis!.new_users_30d} icon={<TrendingUp size={20} color={theme.secondary} />} color={theme.secondary} theme={theme} />}
                     {kpis!.active_users !== undefined && <StatCard label="Activos" value={kpis!.active_users} icon={<Activity size={20} color={theme.success} />} color={theme.success} theme={theme} />}
                 </View>
@@ -130,10 +130,6 @@ const styles = StyleSheet.create({
         borderRadius: 28, 
         borderWidth: 1,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     iconBox: { 
         width: 48, 
@@ -160,10 +156,6 @@ const styles = StyleSheet.create({
         borderRadius: 32, 
         borderWidth: 1,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
     },
     sectionHeader: { 
         flexDirection: 'row', 

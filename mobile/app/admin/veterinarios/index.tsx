@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import EmptyState from '@/src/components/EmptyState';
 import SearchBar from '@/src/components/SearchBar';
-import { font, spacing, layout } from '@/constants/design';
+import { font, layout, spacing, tint } from '@/constants/design';
 
 export default function AdminVeterinariosScreen() {
     const { theme } = useTheme();
@@ -39,7 +39,7 @@ export default function AdminVeterinariosScreen() {
                     colors={theme.heroGradient}
                     style={styles.avatarPlaceholder}
                 >
-                    <Text style={styles.avatarInitial}>{item.full_name?.charAt(0).toUpperCase() || 'V'}</Text>
+                    <Text style={[styles.avatarInitial, { color: theme.onPrimary }]}>{item.full_name?.charAt(0).toUpperCase() || 'V'}</Text>
                 </LinearGradient>
                 <View style={styles.info}>
                     <Text style={[styles.name, { color: theme.text }]}>{item.full_name}</Text>
@@ -48,13 +48,13 @@ export default function AdminVeterinariosScreen() {
                         <Text style={[styles.specialty, { color: theme.textMuted }]}>{item.specialty || 'Generalista'}</Text>
                     </View>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: '#10b98115' }]}>
+                <View style={[styles.statusBadge, { backgroundColor: theme.success + tint.faint }]}>
                     <UserCheck size={12} color={theme.success} />
                     <Text style={[styles.statusText, { color: theme.success }]}>ACTIVO</Text>
                 </View>
             </View>
 
-            <View style={styles.details}>
+            <View style={[styles.details, { borderTopColor: theme.border }]}>
                 <View style={styles.detailItem}>
                     <Mail size={14} color={theme.textMuted} />
                     <Text style={[styles.detailText, { color: theme.text }]}>{item.email || 'Sin correo'}</Text>
@@ -148,10 +148,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5, 
         gap: spacing.lg,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     cardHeader: { 
         flexDirection: 'row', 
@@ -168,7 +164,7 @@ const styles = StyleSheet.create({
     avatarInitial: {
         fontSize: font.h2,
         fontWeight: '800',
-        color: '#fff',
+        
     },
     info: { flex: 1 },
     name: { 
@@ -201,7 +197,7 @@ const styles = StyleSheet.create({
         gap: spacing.md,
         paddingVertical: spacing.xs,
         borderTopWidth: 1,
-        borderTopColor: '#ffffff10',
+        
         paddingTop: spacing.lg,
     },
     detailItem: { 

@@ -23,7 +23,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getRoleName, ALL_ROLES } from '@/src/constants/roles';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, tint } from '@/constants/design';
 
 export default function AdminUsersScreen() {
     const router = useRouter();
@@ -63,7 +63,7 @@ export default function AdminUsersScreen() {
                     colors={theme.heroGradient}
                     style={styles.avatar}
                 >
-                    <Text style={styles.avatarText}>{item.full_name.charAt(0).toUpperCase()}</Text>
+                    <Text style={[styles.avatarText, { color: theme.onPrimary }]}>{item.full_name.charAt(0).toUpperCase()}</Text>
                 </LinearGradient>
                 <View style={styles.userInfo}>
                     <Text style={[styles.userName, { color: theme.text }]} numberOfLines={1}>{item.full_name}</Text>
@@ -124,7 +124,7 @@ export default function AdminUsersScreen() {
                 </View>
                 
                 <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                    <View style={[styles.iconCircle, { backgroundColor: '#10b98115' }]}>
+                    <View style={[styles.iconCircle, { backgroundColor: theme.success + tint.faint }]}>
                         <ShieldCheck size={16} color={theme.success} />
                     </View>
                     <View>
@@ -309,10 +309,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
     },
     iconCircle: {
         width: 32,
@@ -363,10 +359,6 @@ const styles = StyleSheet.create({
         padding: spacing.lg,
         marginBottom: spacing.lg,
         elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
         borderWidth: 1,
     },
     userHeader: {
@@ -384,7 +376,7 @@ const styles = StyleSheet.create({
     avatarText: {
         fontSize: font.xxl,
         fontWeight: '800',
-        color: '#fff',
+        
     },
     userInfo: {
         flex: 1,
@@ -537,10 +529,6 @@ const styles = StyleSheet.create({
     },
     submitBtn: {
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
     },
     btnText: {
         fontSize: font.lg,

@@ -19,7 +19,7 @@ import {
     Save,
     X
 } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { font, spacing, tint } from '@/constants/design';
 
 export default function ClinicDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -161,11 +161,11 @@ export default function ClinicDetailScreen() {
                                 <View style={styles.mainMeta}>
                                     <Text style={[styles.name, { color: theme.text }]}>{clinic.name}</Text>
                                     <View style={styles.statusBadgeRow}>
-                                        <View style={[styles.statusBadge, { backgroundColor: '#10b98120' }]}>
+                                        <View style={[styles.statusBadge, { backgroundColor: theme.success + tint.faint }]}>
                                             <Text style={[styles.statusText, { color: theme.success }]}>ACTIVA</Text>
                                         </View>
                                         {clinic.is_24_hours && (
-                                            <View style={[styles.statusBadge, { backgroundColor: '#3b82f620' }]}>
+                                            <View style={[styles.statusBadge, { backgroundColor: theme.primary + tint.faint }]}>
                                                 <Text style={[styles.statusText, { color: theme.info }]}>24 HORAS</Text>
                                             </View>
                                         )}
@@ -220,7 +220,7 @@ export default function ClinicDetailScreen() {
                                 <Text style={[styles.btnActionText, { color: theme.onPrimary }]}>Editar Información</Text>
                             </TouchableOpacity>
                             <TouchableOpacity accessibilityRole="button" 
-                                style={[styles.btnAction, { backgroundColor: '#ef4444' }]}
+                                style={[styles.btnAction, { backgroundColor: theme.error }]}
                                 onPress={handleSuspend}
                             >
                                 <Text style={styles.btnActionText}>Suspender Clínica</Text>
@@ -277,10 +277,6 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         borderWidth: 1,
         elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
     },
     logoRow: {
         flexDirection: 'row',

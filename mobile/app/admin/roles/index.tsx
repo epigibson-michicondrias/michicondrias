@@ -29,7 +29,7 @@ export default function AdminRolesScreen() {
 
     const renderItem = ({ item }: { item: Role }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <View style={[styles.iconBox, { backgroundColor: (item.color || '#64748b') + '15' }]}>
+            <View style={[styles.iconBox, { backgroundColor: (item.color || theme.textMuted) + '15' }]}>
                 <Shield size={24} color={item.color || theme.primary} />
             </View>
             <View style={styles.cardInfo}>
@@ -131,7 +131,7 @@ export default function AdminRolesScreen() {
                                 {isSaving ? (
                                     <ActivityIndicator color={theme.onPrimary} />
                                 ) : (
-                                    <Text style={styles.submitBtnText}>
+                                    <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>
                                         {editingRole ? 'Guardar Cambios' : 'Crear Rol'}
                                     </Text>
                                 )}
@@ -160,10 +160,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5, 
         gap: spacing.lg,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     iconBox: { 
         width: 52, 
@@ -250,7 +246,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     submitBtnText: { 
-        color: '#fff', 
+         
         fontSize: font.xl, 
         fontWeight: '800' 
     },

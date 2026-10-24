@@ -89,10 +89,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5, 
         gap: spacing.lg,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     cardTop: { 
         flexDirection: 'row', 

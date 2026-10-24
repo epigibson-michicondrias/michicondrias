@@ -109,9 +109,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5, 
         marginBottom: spacing.lg,
         elevation: 3,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     iconBox: { 
         width: 52, 

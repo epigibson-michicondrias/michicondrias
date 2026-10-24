@@ -8,13 +8,14 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import { ChevronLeft, Bone, Shield } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { accents, font, spacing } from '@/constants/design';
 
-const SPECIES_COLORS: Record<string, string> = {
-    Perro: '#3b82f6',
-    Gato: '#8b5cf6',
-    Ave: '#10b981',
-    Conejo: '#f59e0b',
+// Colores por especie: se resuelven dentro del componente (theme es runtime).
+const SPECIES_ACCENT_KEY: Record<string, 'primary' | 'services' | 'success' | 'warning'> = {
+    Perro: 'primary',
+    Gato: 'services',
+    Ave: 'success',
+    Conejo: 'warning',
 };
 
 export default function AdminMascotasScreen() {
@@ -23,7 +24,8 @@ export default function AdminMascotasScreen() {
     const { mascotas, isLoading, isFetching, refetch, searchText, setSearchText, vaccinatedCount, ownerName } = useAdminPets();
 
     const renderPetCard = ({ item }: { item: Pet }) => {
-        const color = SPECIES_COLORS[item.species] || '#6b7280';
+        const key = SPECIES_ACCENT_KEY[item.species];
+        const color = key === 'services' ? accents.services : key === 'success' ? theme.success : key === 'warning' ? theme.warning : theme.primary;
         return (
             <TouchableOpacity accessibilityRole="button"
                 style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
@@ -112,10 +114,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
     },
     statVal: { 
         fontSize: font.h2, 
@@ -141,10 +139,7 @@ const styles = StyleSheet.create({
         borderWidth: 1.5, 
         justifyContent: 'center', 
         alignItems: 'center',
-        elevation: 4, 
-        shadowColor: '#000', 
-        shadowOffset: { width: 0, height: 4 }, 
-        shadowOpacity: 0.1, 
+        elevation: 4,    
         shadowRadius: 10 
     },
     list: { 
@@ -160,10 +155,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5, 
         marginBottom: spacing.lg,
         elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
     },
     avatarBox: { 
         width: 60, 

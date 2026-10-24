@@ -18,7 +18,7 @@ import {
     Activity,
 } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
-import { font, spacing } from '@/constants/design';
+import { accents, font, spacing, tint } from '@/constants/design';
 
 export default function AdminVerificacionesScreen() {
     const router = useRouter();
@@ -61,7 +61,7 @@ export default function AdminVerificacionesScreen() {
                         <Text style={[styles.userEmail, { color: theme.textMuted }]}>{item.email}</Text>
                     </View>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: '#f59e0b20' }]}>
+                <View style={[styles.statusBadge, { backgroundColor: theme.warning + tint.faint }]}>
                     <Activity size={10} color={theme.warning} />
                     <Text style={[styles.statusText, { color: theme.warning }]}>EN REVISIÓN</Text>
                 </View>
@@ -131,10 +131,6 @@ const styles = StyleSheet.create({
         marginBottom: spacing.xxl, 
         borderWidth: 1,
         elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
     },
     cardHeader: { 
         flexDirection: 'row', 
@@ -232,9 +228,7 @@ const styles = StyleSheet.create({
     },
     btnApprove: { 
         elevation: 6, 
-        shadowColor: '#8b5cf6', 
-        shadowOffset: { width: 0, height: 4 }, 
-        shadowOpacity: 0.3, 
+        shadowColor: accents.services,   
         shadowRadius: 10 
     },
     btnText: { 

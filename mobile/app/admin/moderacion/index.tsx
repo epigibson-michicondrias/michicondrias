@@ -22,7 +22,7 @@ import {
     FileText
 } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout, tint } from '@/constants/design';
+import { accents, font, layout, spacing, tint } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -48,7 +48,7 @@ export default function AdminModerationScreen() {
     const renderAdoptionItem = ({ item }: { item: any }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             {item.photo_url ? (
-                <Image source={{ uri: item.photo_url }} style={styles.cardCover} accessibilityLabel={item.name || 'Mascota en adopción'} />
+                <Image source={{ uri: item.photo_url }} style={[styles.cardCover, { backgroundColor: theme.backgroundSecondary }]} accessibilityLabel={item.name || 'Mascota en adopción'} />
             ) : (
                 <View style={[styles.cardCover, styles.coverFallback, { backgroundColor: theme.primary + tint.faint }]}>
                     <PawPrint size={layout.icon.xl} color={theme.primary} />
@@ -64,14 +64,14 @@ export default function AdminModerationScreen() {
                 <Text style={[styles.cardDesc, { color: theme.textMuted }]} numberOfLines={2}>{item.description}</Text>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.error + tint.faint }]}
                         onPress={() => handleAction('reject', 'adopciones', item.id, item.name)}
                     >
                         <XCircle size={18} color={theme.error} />
                         <Text style={[styles.btnActionText, { color: theme.error }]}>Rechazar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#10b98115' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.success + tint.faint }]}
                         onPress={() => handleAction('approve', 'adopciones', item.id, item.name)}
                     >
                         <CheckCircle2 size={18} color={theme.success} />
@@ -85,7 +85,7 @@ export default function AdminModerationScreen() {
     const renderProductItem = ({ item }: { item: any }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             {item.image_url ? (
-                <Image source={{ uri: item.image_url }} style={styles.cardCover} accessibilityLabel={item.name || 'Producto'} />
+                <Image source={{ uri: item.image_url }} style={[styles.cardCover, { backgroundColor: theme.backgroundSecondary }]} accessibilityLabel={item.name || 'Producto'} />
             ) : (
                 <View style={[styles.cardCover, styles.coverFallback, { backgroundColor: theme.primary + tint.faint }]}>
                     <Package size={layout.icon.xl} color={theme.primary} />
@@ -99,14 +99,14 @@ export default function AdminModerationScreen() {
                 <Text style={[styles.cardDesc, { color: theme.textMuted }]} numberOfLines={2}>{item.description}</Text>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.error + tint.faint }]}
                         onPress={() => handleAction('reject', 'ecommerce', item.id, item.name)}
                     >
                         <XCircle size={18} color={theme.error} />
                         <Text style={[styles.btnActionText, { color: theme.error }]}>Rechazar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#10b98115' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.success + tint.faint }]}
                         onPress={() => handleAction('approve', 'ecommerce', item.id, item.name)}
                     >
                         <CheckCircle2 size={18} color={theme.success} />
@@ -120,7 +120,7 @@ export default function AdminModerationScreen() {
     const renderLostPetItem = ({ item }: { item: any }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             {item.image_url ? (
-                <Image source={{ uri: item.image_url }} style={styles.cardCover} accessibilityLabel={item.pet_name || 'Mascota reportada'} />
+                <Image source={{ uri: item.image_url }} style={[styles.cardCover, { backgroundColor: theme.backgroundSecondary }]} accessibilityLabel={item.pet_name || 'Mascota reportada'} />
             ) : (
                 <View style={[styles.cardCover, styles.coverFallback, { backgroundColor: theme.primary + tint.faint }]}>
                     <PawPrint size={layout.icon.xl} color={theme.primary} />
@@ -148,14 +148,14 @@ export default function AdminModerationScreen() {
                 </Text>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.error + tint.faint }]}
                         onPress={() => handleAction('reject', 'perdidas', item.id, item.pet_name)}
                     >
                         <XCircle size={18} color={theme.error} />
                         <Text style={[styles.btnActionText, { color: theme.error }]}>Rechazar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#10b98115' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.success + tint.faint }]}
                         onPress={() => handleAction('approve', 'perdidas', item.id, item.pet_name)}
                     >
                         <CheckCircle2 size={18} color={theme.success} />
@@ -192,14 +192,14 @@ export default function AdminModerationScreen() {
                     </View>
                     <View style={styles.cardActions}>
                         <TouchableOpacity accessibilityRole="button"
-                            style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
+                            style={[styles.btnAction, { backgroundColor: theme.error + tint.faint }]}
                             onPress={() => handleAction('reject', 'directorio', item.id, item.name || item.full_name)}
                         >
                             <XCircle size={18} color={theme.error} />
                             <Text style={[styles.btnActionText, { color: theme.error }]}>Rechazar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity accessibilityRole="button"
-                            style={[styles.btnAction, { backgroundColor: '#10b98115' }]}
+                            style={[styles.btnAction, { backgroundColor: theme.success + tint.faint }]}
                             onPress={() => handleAction('approve', 'directorio', item.id, item.name || item.full_name)}
                         >
                             <CheckCircle2 size={18} color={theme.success} />
@@ -230,14 +230,14 @@ export default function AdminModerationScreen() {
                 </View>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.error + tint.faint }]}
                         onPress={() => handleAction('reject', 'solicitudes', item.id, `Solicitud de ${item.applicant_name || 'un solicitante'}`)}
                     >
                         <XCircle size={18} color={theme.error} />
                         <Text style={[styles.btnActionText, { color: theme.error }]}>Rechazar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity accessibilityRole="button"
-                        style={[styles.btnAction, { backgroundColor: '#10b98115' }]}
+                        style={[styles.btnAction, { backgroundColor: theme.success + tint.faint }]}
                         onPress={() => handleAction('approve', 'solicitudes', item.id, `Solicitud de ${item.applicant_name || 'un solicitante'}`)}
                     >
                         <CheckCircle2 size={18} color={theme.success} />
@@ -327,8 +327,8 @@ export default function AdminModerationScreen() {
                                     isActive && { backgroundColor: theme.primary, borderColor: theme.primary }
                                 ]}
                             >
-                                <Icon size={16} color={isActive ? '#fff' : theme.textMuted} />
-                                <Text style={[styles.tabText, { color: isActive ? '#fff' : theme.textMuted }]}>
+                                <Icon size={16} color={isActive ? theme.onPrimary : theme.textMuted} />
+                                <Text style={[styles.tabText, { color: isActive ? theme.onPrimary : theme.textMuted }]}>
                                     {tab.label}
                                 </Text>
                             </TouchableOpacity>
@@ -381,20 +381,15 @@ const styles = StyleSheet.create({
         overflow: 'hidden', 
         borderWidth: 1,
         elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
     },
     cardPadding: { padding: spacing.xl },
     coverFallback: {
         alignItems: 'center',
         justifyContent: 'center',
     },
-    cardCover: { 
-        width: '100%', 
+    cardCover: {
+        width: '100%',
         height: 180,
-        backgroundColor: '#f1f5f9' 
     },
     cardIconBox: { 
         width: 64, 
@@ -487,7 +482,7 @@ const styles = StyleSheet.create({
         marginTop: spacing.xs, 
         marginBottom: spacing.xl, 
         borderLeftWidth: 4, 
-        borderLeftColor: '#8b5cf6' 
+        borderLeftColor: accents.services 
     },
     notesText: { 
         fontSize: font.base, 
