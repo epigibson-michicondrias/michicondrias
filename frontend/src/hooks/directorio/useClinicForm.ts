@@ -61,7 +61,7 @@ export function useClinicForm() {
         type: "success",
         title: "Registro enviado",
         message: "Un administrador revisará la información. Te avisaremos cuando aparezca en el directorio.",
-        onButtonPress: () => router.push("/directorio/mi-clinica"),
+        onButtonPress: () => router.push("/mi-clinica"),
       });
     },
     onError: (e: Error) =>

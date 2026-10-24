@@ -63,7 +63,7 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 | P2 | Laboratorio | 3 | — | 🔍 | ✅ | ⬜ |
 | P2 | Funeraria | 10 | — | 🔍 | ✅ | ⬜ |
 | P2 | Donaciones | 1 | 1 | 🔍 | ⬜ | ⬜ |
-| P3 | Mi clínica | 14 | `directorio/mi-clinica` (con datos *mock*) | 🔍 | ⬜ | ⬜ |
+| P3 | Mi clínica | 14 | `directorio/mi-clinica` (con datos *mock*) | 🔍 | ✅ | ⬜ |
 | P3 | Servicios pro | 3 | `paseadores/registro`, `cuidadores/registro` | 🔍 | ✅ | ⬜ |
 | P3 | Tienda vendedor | 5 | dentro de `/dashboard/tienda` | 🔍 | ✅ | ⬜ |
 | P3 | Patrocinadores | 5 | — | 🔍 | ✅ | ⬜ |
@@ -103,6 +103,16 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
   `GET /users/{id}`, `users_count` en roles y borrado seguro de roles (ver `AUDITORIA_WEB.md`).
 
 ## Bitácora
+
+- **2026-10-23 — W4 P3: Mi clínica completa (Claude).**
+  - 14 rutas bajo `/mi-clinica` (panel, agenda, pacientes, ficha médica, configuración, servicios, veterinarios,
+    recetas, horarios, cirugías, inventario, laboratorio, videoconsultas y sucursales solo hospital). Los 12 hooks de
+    `mobile/src/hooks/clinica` portados a `hooks/clinica` (sin `any`; el formulario se llena del servidor sin
+    `setState` en efecto) + `useClinicPatients`. Piezas en `features/mi-clinica` (`ClinicGuard`, `PatientPicker`,
+    `DateTimeField`, `format`, estilos) y `components/Modal` nuevo en el kit.
+  - `/directorio/mi-clinica` (panel viejo con datos simulados) ahora redirige a `/mi-clinica`.
+  - Verificado: `tsc`, ESLint y `next build` (118 páginas) en verde. **P3 completo.**
+  - **Siguiente:** W4-A consola admin; luego W5 con la revisión del recorrido del consumidor que pidió el usuario.
 
 - **2026-10-23 — W4 P3: Tienda vendedor (Claude, `3063803`).**
   - `/tienda/vendedor` (panel con ventas cobradas, avisos y más vendidos), `productos` (catálogo con filtros
