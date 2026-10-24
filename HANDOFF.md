@@ -110,8 +110,10 @@ y sigue donde se quedó el otro.
     `login` devuelve 503 en `maintenance_mode` salvo admin; `POST /admin/system/database/sync` devuelve conteos reales.
   - app móvil: KYC aprobar sin confirmar / rechazar con confirmación; `useAdminProducts` con `admin/all` (ve ocultos);
     suspender/reactivar clínica cableado en `useAdminClinicDetail`.
-  - Verificado: `py_compile` de los archivos tocados y `tsc`/ESLint limpios en móvil. **Falta deploy + `alembic upgrade head`
-    de directorio** y cablear los mismos endpoints en la web espejo.
+  - Verificado: `py_compile` de los archivos tocados y `tsc`/ESLint limpios en móvil. **Desplegado** (`a5a383e` →
+    `deploy-oracle.yml` en verde) y migración `c4e8a1b2d3f4` aplicada en la VM (directorio en head). 17/17 servicios
+    activos; `/system/public` responde y los admin devuelven 401 sin sesión. Falta cablear los mismos endpoints en la
+    web espejo.
 - **2026-10-23 · Mimo** — Web espejo: pulido post W4-A (`d960744` + `68cb18d` en `web/espejo`, sin producción):
   `AppOnlyNotice` al kit base y `--app-bottom-inset` para que los pies fijos no queden detrás de la barra de pestañas.
   `tsc`/ESLint/`next build` en verde. Sigue W5 (recorrido del consumidor + CSS legacy).
