@@ -289,3 +289,11 @@ button.search { width: 100%; font: inherit; font-size: var(--font-base); text-al
 @media (prefers-reduced-motion: reduce) {
   .skeleton, .spinner { animation: none; }
 }
+
+/* Buscador: el input type="search" trae su propio botón de limpiar en Chrome
+   y se solapaba con el nuestro (dos "×"). Se oculta el nativo. */
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
