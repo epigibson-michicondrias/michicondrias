@@ -69,8 +69,9 @@ y sigue donde se quedó el otro.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [ ] W4: faltan Mi clínica (P3) y **W4-A consola admin**.
-  **Hechos:** P1 completo, Adopciones, Directorio, Perdidas, todo P2, Servicios pro, Patrocinadores y Tienda vendedor. ·
+- [ ] W4: falta **W4-A consola admin**. **Hechos:** P1, P2 y P3 completos (incluida Mi clínica). ·
+- [ ] Revisar el recorrido del **consumidor** en la web espejo: el usuario dice que hay muchas cosas que corregir
+  (pendiente de detallar; hacerlo antes del merge). ·
   W5 pulido y merge · W7 permisos.
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
@@ -89,6 +90,11 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Claude** — W4 Mi clínica completa en `web/espejo` (push, sin producción): 14 rutas `/mi-clinica/*`,
+  hooks `hooks/clinica`, `components/Modal`; `/directorio/mi-clinica` redirige. Build verde (118 páginas). P3
+  terminado. **Decisión del usuario:** terminar todo en la rama (falta W4-A admin y revisar al consumidor en la web
+  espejo) y fusionar a `main` al final; la web en producción sigue siendo la vieja hasta entonces.
 
 - **2026-10-23 · Claude** — W4 Tienda vendedor en `web/espejo` (`3063803`, push, sin producción): panel, catálogo,
   alta/edición de producto, pedidos y analíticas. `next build` verde (106 páginas). **Siguiente:** Mi clínica (14) y
