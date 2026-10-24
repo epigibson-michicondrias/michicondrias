@@ -54,7 +54,7 @@ def require_admin(token: str = Depends(oauth2_scheme)) -> str:
 def require_entrenador(token: str = Depends(oauth2_scheme)) -> str:
     payload = _decode_token(token)
     role = payload.get("role", "consumidor")
-    if role != "entrenador":
+    if role not in ("entrenador", "admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Se requiere rol de entrenador",

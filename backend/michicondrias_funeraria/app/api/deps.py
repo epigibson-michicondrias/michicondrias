@@ -48,7 +48,7 @@ class RoleChecker:
     def __call__(self, token: str = Depends(oauth2_scheme)) -> dict:
         payload = _decode_token(token)
         role = payload.get("role", "consumidor")
-        if role not in self.allowed_roles:
+        if role not in self.allowed_roles and role != "admin":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Se requiere uno de los siguientes roles: {', '.join(self.allowed_roles)}",

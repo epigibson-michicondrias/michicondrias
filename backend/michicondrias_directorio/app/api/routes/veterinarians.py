@@ -55,17 +55,18 @@ def update_my_vet_profile(
     db: Session = Depends(get_db),
     vet_in: VeterinarianUpdate,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Update a vet profile. Only the linked user can edit."""
     vet = crud.crud_clinic.get_veterinarian(db, vet_id)
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinario no encontrado")
-    if vet.user_id != user_id:
+    if vet.user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="No tienes permisos para editar este perfil")
     # Cambiar de clínica solo hacia una clínica propia (el vínculo con clínicas ajenas lo gestiona su dueño)
     if vet_in.clinic_id and vet_in.clinic_id != vet.clinic_id:
         target = crud.crud_clinic.get_clinic(db, vet_in.clinic_id)
-        if not target or target.owner_user_id != user_id:
+        if not target or target.owner_user_id != user_id and role != "admin":
             raise HTTPException(status_code=403, detail="No puedes asignar el perfil a esa clínica")
     return crud.crud_clinic.update_veterinarian(db, vet, vet_in)
 

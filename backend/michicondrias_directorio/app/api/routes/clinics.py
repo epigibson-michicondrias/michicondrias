@@ -133,12 +133,13 @@ def delete_my_clinic(
     clinic_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Delete a clinic. Only the owner can delete."""
     clinic = crud.crud_clinic.get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="No tienes permisos para eliminar esta clínica")
     crud.crud_clinic.remove_clinic(db, clinic_id)
     return {"message": "Clínica eliminada exitosamente"}
@@ -163,12 +164,13 @@ def manage_clinic_veterinarians(
     clinic_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Todos los veterinarios de la clínica (incluye los pendientes de aprobación). Solo el dueño."""
     clinic = crud.crud_clinic.get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="No tienes permisos para gestionar esta clínica")
     from app.models.clinic import Veterinarian
     return db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic_id).all()
@@ -180,12 +182,13 @@ def associate_veterinarian(
     vet_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Associate a veterinarian to the clinic. Only the clinic owner can perform this."""
     clinic = crud.crud_clinic.get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="No tienes permisos para gestionar este hospital")
     
     vet = crud.crud_clinic.get_veterinarian(db, vet_id)
@@ -204,12 +207,13 @@ def dissociate_veterinarian(
     vet_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Dissociate/remove a veterinarian from the clinic. Only the clinic owner can perform this."""
     clinic = crud.crud_clinic.get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="No tienes permisos para gestionar este hospital")
     
     vet = crud.crud_clinic.get_veterinarian(db, vet_id)

@@ -255,12 +255,13 @@ def reschedule_appointment(
     db: Session = Depends(get_db),
     reschedule_in: AppointmentReschedule,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Reschedule an appointment to a new date/time (Consumer)."""
     appt = crud_services.get_appointment(db, appointment_id)
     if not appt:
         raise HTTPException(status_code=404, detail="Cita no encontrada")
-    if appt.user_id != user_id:
+    if appt.user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="Solo puedes reagendar tus propias citas")
     try:
         appt = crud_services.reschedule_appointment(db, appointment_id, reschedule_in.date, reschedule_in.start_time)

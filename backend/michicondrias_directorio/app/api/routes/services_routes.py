@@ -42,12 +42,13 @@ def create_service(
     db: Session = Depends(get_db),
     service_in: ClinicServiceCreate,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Add a service to a clinic (Owner only)."""
     clinic = get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="Solo el dueño puede agregar servicios")
     return crud_services.create_clinic_service(db, clinic_id, service_in)
 
@@ -59,13 +60,14 @@ def update_service(
     db: Session = Depends(get_db),
     service_in: ClinicServiceUpdate,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Update a service (Owner only)."""
     svc = crud_services.get_service(db, service_id)
     if not svc:
         raise HTTPException(status_code=404, detail="Servicio no encontrado")
     clinic = get_clinic(db, svc.clinic_id)
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="Solo el dueño puede editar servicios")
     return crud_services.update_clinic_service(db, svc, service_in)
 
@@ -75,13 +77,14 @@ def delete_service(
     service_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Delete (deactivate) a service (Owner only)."""
     svc = crud_services.get_service(db, service_id)
     if not svc:
         raise HTTPException(status_code=404, detail="Servicio no encontrado")
     clinic = get_clinic(db, svc.clinic_id)
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="Solo el dueño puede eliminar servicios")
     crud_services.delete_clinic_service(db, service_id)
     return {"message": "Servicio eliminado exitosamente"}

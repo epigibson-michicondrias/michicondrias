@@ -55,7 +55,7 @@ def require_admin(token: str = Depends(oauth2_scheme)) -> str:
 def require_veterinario(token: str = Depends(oauth2_scheme)) -> str:
     payload = _decode_token(token)
     role = payload.get("role", "consumidor")
-    if role != "veterinario":
+    if role not in ("veterinario", "admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Se requiere rol de veterinario",
@@ -65,7 +65,7 @@ def require_veterinario(token: str = Depends(oauth2_scheme)) -> str:
 def require_laboratorio(token: str = Depends(oauth2_scheme)) -> str:
     payload = _decode_token(token)
     role = payload.get("role", "consumidor")
-    if role != "laboratorio":
+    if role not in ("laboratorio", "admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Se requiere rol de laboratorio",

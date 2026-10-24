@@ -44,7 +44,7 @@ def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
 def require_aseguradora(token: str = Depends(oauth2_scheme)) -> str:
     payload = _decode_token(token)
     role = payload.get("role", "consumidor")
-    if role != "aseguradora":
+    if role not in ("aseguradora", "admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Se requiere rol de aseguradora",
@@ -54,7 +54,7 @@ def require_aseguradora(token: str = Depends(oauth2_scheme)) -> str:
 def require_consumidor_or_aseguradora(token: str = Depends(oauth2_scheme)) -> dict:
     payload = _decode_token(token)
     role = payload.get("role", "consumidor")
-    if role not in ["consumidor", "aseguradora"]:
+    if role not in ["consumidor", "aseguradora", "admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Se requiere rol de consumidor o aseguradora",

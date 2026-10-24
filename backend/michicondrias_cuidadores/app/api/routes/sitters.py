@@ -462,3 +462,69 @@ def create_sit_review(
 def get_sitter_reviews(sitter_id: str, db: Session = Depends(get_db)) -> Any:
     """Get all reviews for a specific sitter."""
     return db.query(SitReview).filter(SitReview.sitter_id == sitter_id).order_by(SitReview.created_at.desc()).all()
+
+
+# --- ADMIN: verificación del profesional (X3) ---
+
+@router.post("/admin/{sitter_id}/verify", response_model=SitterResponse)
+def verify_sitter(
+    sitter_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Marca al cuidador como verificado por un administrador."""
+    sitter = db.query(Sitter).filter(Sitter.id == sitter_id).first()
+    if not sitter:
+        raise HTTPException(status_code=404, detail="Cuidador no encontrado")
+    sitter.is_verified = True
+    db.commit()
+    db.refresh(sitter)
+    return sitter
+
+
+@router.post("/admin/{sitter_id}/unverify", response_model=SitterResponse)
+def unverify_sitter(
+    sitter_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Quita la verificación del cuidador."""
+    sitter = db.query(Sitter).filter(Sitter.id == sitter_id).first()
+    if not sitter:
+        raise HTTPException(status_code=404, detail="Cuidador no encontrado")
+    sitter.is_verified = False
+    db.commit()
+    db.refresh(sitter)
+    return sitter
+
+
+@router.post("/admin/{sitter_id}/suspend", response_model=SitterResponse)
+def suspend_sitter(
+    sitter_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Suspende al cuidador: deja de aparecer en el directorio público."""
+    sitter = db.query(Sitter).filter(Sitter.id == sitter_id).first()
+    if not sitter:
+        raise HTTPException(status_code=404, detail="Cuidador no encontrado")
+    sitter.is_active = False
+    db.commit()
+    db.refresh(sitter)
+    return sitter
+
+
+@router.post("/admin/{sitter_id}/unsuspend", response_model=SitterResponse)
+def unsuspend_sitter(
+    sitter_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Reactiva al cuidador suspendido."""
+    sitter = db.query(Sitter).filter(Sitter.id == sitter_id).first()
+    if not sitter:
+        raise HTTPException(status_code=404, detail="Cuidador no encontrado")
+    sitter.is_active = True
+    db.commit()
+    db.refresh(sitter)
+    return sitter

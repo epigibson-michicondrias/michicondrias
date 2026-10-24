@@ -42,12 +42,13 @@ def set_schedule(
     db: Session = Depends(get_db),
     schedules_in: List[ClinicScheduleCreate],
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Set the entire weekly schedule for a clinic (Owner only)."""
     clinic = get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="Solo el dueño puede configurar el horario")
 
     results = crud_services.set_clinic_schedule(db, clinic_id, schedules_in)
@@ -93,12 +94,13 @@ def create_exception(
     db: Session = Depends(get_db),
     exc_in: ScheduleExceptionCreate,
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Add a schedule exception/holiday (Owner only)."""
     clinic = get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="Solo el dueño puede agregar excepciones")
 
     exc = crud_services.create_schedule_exception(db, clinic_id, exc_in)
@@ -119,12 +121,13 @@ def delete_exception(
     exception_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """Delete a schedule exception/holiday (Owner only)."""
     clinic = get_clinic(db, clinic_id)
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
-    if clinic.owner_user_id != user_id:
+    if clinic.owner_user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="Solo el dueño puede eliminar excepciones")
     if not crud_services.delete_schedule_exception(db, clinic_id, exception_id):
         raise HTTPException(status_code=404, detail="Excepción no encontrada")

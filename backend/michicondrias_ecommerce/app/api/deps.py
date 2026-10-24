@@ -57,6 +57,10 @@ def get_optional_user_id(token: str = Depends(oauth2_scheme)) -> str:
     except JWTError:
         return None
 
+def get_current_user_role(token: str = Depends(oauth2_scheme)) -> str:
+    payload = _decode_token(token)
+    return payload.get("role", "consumidor")
+
 def require_admin(token: str = Depends(oauth2_scheme)) -> str:
     payload = _decode_token(token)
     role = payload.get("role", "consumidor")

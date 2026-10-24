@@ -440,3 +440,69 @@ def create_walk_review(
 def get_walker_reviews(walker_id: str, db: Session = Depends(get_db)) -> Any:
     """Get all reviews for a specific walker."""
     return db.query(WalkReview).filter(WalkReview.walker_id == walker_id).order_by(WalkReview.created_at.desc()).all()
+
+
+# --- ADMIN: verificación del profesional (X3) ---
+
+@router.post("/admin/{walker_id}/verify", response_model=WalkerResponse)
+def verify_walker(
+    walker_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Marca al paseador como verificado por un administrador (solo lectura del directorio público)."""
+    walker = db.query(Walker).filter(Walker.id == walker_id).first()
+    if not walker:
+        raise HTTPException(status_code=404, detail="Paseador no encontrado")
+    walker.is_verified = True
+    db.commit()
+    db.refresh(walker)
+    return walker
+
+
+@router.post("/admin/{walker_id}/unverify", response_model=WalkerResponse)
+def unverify_walker(
+    walker_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Quita la verificación del paseador (suspensión temporal del sello de confianza)."""
+    walker = db.query(Walker).filter(Walker.id == walker_id).first()
+    if not walker:
+        raise HTTPException(status_code=404, detail="Paseador no encontrado")
+    walker.is_verified = False
+    db.commit()
+    db.refresh(walker)
+    return walker
+
+
+@router.post("/admin/{walker_id}/suspend", response_model=WalkerResponse)
+def suspend_walker(
+    walker_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Suspende al paseador: deja de aparecer en el directorio público."""
+    walker = db.query(Walker).filter(Walker.id == walker_id).first()
+    if not walker:
+        raise HTTPException(status_code=404, detail="Paseador no encontrado")
+    walker.is_active = False
+    db.commit()
+    db.refresh(walker)
+    return walker
+
+
+@router.post("/admin/{walker_id}/unsuspend", response_model=WalkerResponse)
+def unsuspend_walker(
+    walker_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Reactiva al paseador suspendido."""
+    walker = db.query(Walker).filter(Walker.id == walker_id).first()
+    if not walker:
+        raise HTTPException(status_code=404, detail="Paseador no encontrado")
+    walker.is_active = True
+    db.commit()
+    db.refresh(walker)
+    return walker
