@@ -24,13 +24,19 @@ export function useAdminVerifications() {
     });
 
     const handleAction = (userId: string, name: string, status: 'VERIFIED' | 'REJECTED') => {
+        // Aprobar es reversible (se puede rechazar después) y de bajo riesgo: se aplica sin confirmar.
+        // Rechazar sí confirma: el usuario pierde el acceso a la cuenta profesional.
+        if (status === 'VERIFIED') {
+            verifyMutation.mutate({ userId, status });
+            return;
+        }
         showAlert({
-            type: status === 'VERIFIED' ? 'info' : 'error',
-            title: status === 'VERIFIED' ? 'Aprobar Identidad' : 'Rechazar Identidad',
-            message: `¿Estás seguro de ${status === 'VERIFIED' ? 'APROBAR' : 'RECHAZAR'} la identidad de ${name}?`,
+            type: 'error',
+            title: 'Rechazar identidad',
+            message: `¿Rechazar la identidad de ${name}? No podrá activar la cuenta profesional hasta que vuelva a subir sus documentos.`,
             showCancel: true,
             cancelText: 'Cancelar',
-            buttonText: status === 'VERIFIED' ? 'Aprobar' : 'Rechazar',
+            buttonText: 'Rechazar',
             onButtonPress: () => verifyMutation.mutate({ userId, status }),
         });
     };

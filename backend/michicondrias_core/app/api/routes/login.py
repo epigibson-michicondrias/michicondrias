@@ -54,6 +54,14 @@ def login_access_token(
     if user.role and user.role.name:
         role_name = user.role.name
 
+    # Modo mantenimiento: solo el admin puede entrar (el resto ve el aviso en la app/web)
+    from app.api.routes.system import is_maintenance_mode
+    if is_maintenance_mode(db) and role_name != "admin":
+        raise HTTPException(
+            status_code=503,
+            detail="La aplicación está en mantenimiento. Inténtalo más tarde.",
+        )
+
     # Check 2FA
     if user.is_two_factor_enabled:
         # Generate short-lived temp token (5 minutes) containing subject and role

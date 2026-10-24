@@ -924,4 +924,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - **2026-10-23** — **OTA del login publicada** (pendiente de `HANDOFF.md` §3): canal `production`, runtime 1.0.0,
   update group `a84459e2-d146-42cd-a26e-0c4cc3b9b480`. Lleva `89a584e` (login con `onError` y paso 2FA, regresión de
   U3). `mobile/.env` verificado apuntando a `michicondrias.duckdns.org`.
+- **2026-10-23** — Consola admin (backend + app): `buyer_name` en `/orders/admin/all`; `GET /products/admin/all` con
+  ocultos del vendedor + `PATCH .../visibility`; `clinics.is_suspended` (migración `c4e8a1b2d3f4`) con suspend/unsuspend;
+  `GET /system/public` y modo mantenimiento real en el login. App: KYC aprobar sin confirmar / rechazar con
+  confirmación, `useAdminProducts` con `admin/all`, suspender clínica en `useAdminClinicDetail`. Archivos clave:
+  `backend/michicondrias_{ecommerce,directorio,core}/app/…`, `mobile/src/hooks/admin/*`, `mobile/src/services/{ecommerce,moderacion,directorio}.ts`.
 

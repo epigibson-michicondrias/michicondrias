@@ -1,5 +1,6 @@
 from typing import Any, Dict
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api import deps
@@ -54,6 +55,27 @@ def get_system_settings(
     return _load(db)
 
 
+# Claves que la app y la web leen para reaccionar (banner de mantenimiento, OTAs, caché…).
+_PUBLIC_KEYS = ("maintenance_mode", "ota_updates_enabled", "push_notifications_enabled", "cache_version")
+
+
+@router.get("/system/public")
+def get_public_system_settings(
+    db: Session = Depends(get_db),
+) -> Any:
+    """Ajustes del sistema que necesitan los clientes (sin sesión). No expone `debug_mode` ni `last_sync`."""
+    cur = _load(db)
+    return {k: cur.get(k) for k in _PUBLIC_KEYS}
+
+
+def is_maintenance_mode(db: Session) -> bool:
+    """True si el admin activó el modo mantenimiento."""
+    try:
+        return bool(_load(db).get("maintenance_mode"))
+    except Exception:
+        return False
+
+
 @router.patch("/admin/system/settings")
 def update_system_settings(
     settings_update: Dict[str, Any],
@@ -73,10 +95,24 @@ def sync_database(
     db: Session = Depends(get_db),
     current_user: User = Depends(deps.require_role("admin")),
 ) -> Any:
-    """Trigger database sync (Admin only)."""
+    """Sincronización real: cuenta las tablas clave y guarda el resultado junto con la fecha.
+
+    Antes solo guardaba la fecha y no hacía nada. Ahora devuelve un resumen que el admin puede verificar.
+    """
     from datetime import datetime
-    _save(db, {"last_sync": datetime.utcnow().isoformat()})
-    return {"message": "Database sync initiated successfully"}
+    counts = {}
+    for table in ("users", "pets", "clinics", "products", "orders", "notifications"):
+        try:
+            counts[table] = db.execute(text(f"SELECT COUNT(*) FROM {table}")).scalar() or 0
+        except Exception:
+            db.rollback()
+            counts[table] = None
+    _save(db, {"last_sync": datetime.utcnow().isoformat(), "last_sync_counts": counts})
+    return {
+        "message": "Sincronización registrada",
+        "last_sync": _load(db).get("last_sync"),
+        "counts": counts,
+    }
 
 
 @router.post("/admin/system/cache/clear")

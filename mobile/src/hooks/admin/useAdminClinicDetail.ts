@@ -1,10 +1,11 @@
 /**
  * useAdminClinicDetail — Business logic for the admin clinic detail screen
- * Manages clinic data fetching, edit mode, form state, and update mutation
+ * Manages clinic data fetching, edit mode, form state, update mutation, and suspend/unsuspend
  */
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getClinic, updateClinic } from '@/src/services/directorio';
+import { suspendClinic, unsuspendClinic } from '@/src/services/moderacion';
 import { showAlert } from '@/src/components/AppAlert';
 
 interface ClinicForm {
@@ -112,13 +113,36 @@ export function useAdminClinicDetail(id: string) {
 
     const startEditing = () => setIsEditing(true);
 
+    const suspendMutation = useMutation({
+        mutationFn: (suspended: boolean) => (suspended ? suspendClinic(id) : unsuspendClinic(id)),
+        onSuccess: (_, suspended) => {
+            queryClient.invalidateQueries({ queryKey: ['admin-clinic', id] });
+            queryClient.invalidateQueries({ queryKey: ['admin-clinics'] });
+            showAlert({
+                type: 'success',
+                title: suspended ? 'Clínica suspendida' : 'Clínica reactivada',
+                message: suspended
+                    ? 'Ya no aparece en el directorio público. Puedes reactivarla cuando quieras.'
+                    : 'Vuelve a aparecer en el directorio público.',
+            });
+        },
+        onError: () => showAlert({ type: 'error', title: 'No se pudo cambiar', message: 'Inténtalo de nuevo en un momento.' }),
+    });
+
     const handleSuspend = () => {
+        const suspended = !!clinic?.is_suspended;
+        if (suspended) {
+            suspendMutation.mutate(false);
+            return;
+        }
         showAlert({
             type: 'warning',
-            title: 'Suspender',
-            message: '¿Estás seguro de suspender esta clínica?',
+            title: 'Suspender clínica',
+            message: 'Dejará de aparecer en el directorio público. Sus datos y citas se conservan. ¿Continuar?',
             showCancel: true,
             cancelText: 'Cancelar',
+            buttonText: 'Suspender',
+            onButtonPress: () => suspendMutation.mutate(true),
         });
     };
 
@@ -129,10 +153,11 @@ export function useAdminClinicDetail(id: string) {
         isEditing,
         form,
         setForm,
-        isSaving: mutation.isPending,
+        isSaving: mutation.isPending || suspendMutation.isPending,
         handleSave,
         handleCancelEdit,
         startEditing,
         handleSuspend,
+        isSuspended: !!clinic?.is_suspended,
     };
 }

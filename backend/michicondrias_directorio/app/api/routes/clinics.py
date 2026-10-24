@@ -86,9 +86,9 @@ def read_clinic(
     clinic_id: str,
     db: Session = Depends(get_db),
 ) -> Any:
-    """Retrieve a specific clinic."""
+    """Retrieve a specific clinic. Las suspendidas no se muestran al público (el dueño las ve en /me)."""
     clinic = crud.crud_clinic.get_clinic(db, clinic_id)
-    if not clinic:
+    if not clinic or clinic.is_suspended:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     clinic.average_rating = crud.crud_clinic.get_clinic_average_rating(db, clinic.id)
     clinic.total_reviews = len(crud.crud_clinic.get_clinic_reviews(db, clinic.id))
@@ -256,5 +256,31 @@ def reject_clinic(
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica no encontrada")
     return {"message": "Clínica eliminada exitosamente"}
+
+
+@router.post("/admin/{clinic_id}/suspend", response_model=ClinicResponse)
+def suspend_clinic(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Suspender una clínica: deja de aparecer en el directorio público (Admin only). No borra datos."""
+    clinic = crud.crud_clinic.set_clinic_suspended(db, clinic_id, True)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    return clinic
+
+
+@router.post("/admin/{clinic_id}/unsuspend", response_model=ClinicResponse)
+def unsuspend_clinic(
+    clinic_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Reactivar una clínica suspendida (Admin only)."""
+    clinic = crud.crud_clinic.set_clinic_suspended(db, clinic_id, False)
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica no encontrada")
+    return clinic
 
 

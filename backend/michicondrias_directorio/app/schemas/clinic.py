@@ -25,6 +25,7 @@ class ClinicUpdate(ClinicBase):
 class ClinicResponse(ClinicBase):
     id: str
     is_approved: Optional[bool] = False
+    is_suspended: Optional[bool] = False
     average_rating: Optional[float] = 0.0
     total_reviews: Optional[int] = 0
     services: Optional[List[str]] = []

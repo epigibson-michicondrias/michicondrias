@@ -17,6 +17,8 @@ class Clinic(BaseModel):
     has_emergency = Column(Boolean, default=False)
     owner_user_id = Column(String(36), index=True, nullable=True) # Ligado al microservicio core
     is_approved = Column(Boolean, default=False, index=True)
+    # Suspendida por un admin: deja de aparecer en el directorio público (más suave que borrar).
+    is_suspended = Column(Boolean, default=False, nullable=False, server_default="false")
 
 class Veterinarian(BaseModel):
     __tablename__ = "veterinarians"

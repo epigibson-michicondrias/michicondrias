@@ -69,9 +69,13 @@ y sigue donde se quedó el otro.
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
 - [x] W4 completo (P1, P2, P3 y W4-A consola admin, 2026-10-23).
-- [ ] Backend que pidió la consola: suspender clínica (no hay endpoint), listar productos ocultos como admin,
-  `buyer_name` en `/orders/admin/all`; los 4 interruptores de `/admin/config` y "sincronizar/limpiar caché" no tienen
-  efecto real (solo se guardan). Llevar a la app el cambio de KYC (aprobar sin confirmar, rechazar con confirmación).
+- [x] Backend que pidió la consola (2026-10-23, Mimo): `buyer_name` en `/orders/admin/all`; `GET /products/admin/all`
+  (incluye ocultos por el vendedor) + `PATCH /products/admin/{id}/visibility`; `POST /clinics/admin/{id}/suspend|unsuspend`
+  con `is_suspended` (migración `c4e8a1b2d3f4` de directorio — **correr `alembic upgrade head` tras el deploy**);
+  config con efecto real (`GET /system/public`, login bloqueado en `maintenance_mode` salvo admin, `sync_database`
+  devuelve conteos). **Falta cablear en la web espejo:** `suspendClinic`/`unsuspendClinic`, `getAdminProducts` y el
+  aviso de mantenimiento (la app móvil ya los usa).
+- [x] KYC en la app (2026-10-23, Mimo): aprobar sin confirmar, rechazar con confirmación (`useAdminVerifications`).
 - [ ] Pantallas portadas que aún usan CSS legacy (variables viejas y `#fff`, se ven mal en modo claro): dashboard/home,
   adopciones, carnet, perdidas, perfil, tienda/producto y compras, `(auth)/auth.module.css`. Componentes muertos
   candidatos a borrar: `Sidebar`, `tienda/CartDrawer`, `ui/ConfirmModal`, `ui/CustomSelect`. Entra en la revisión del
@@ -97,6 +101,17 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — **Backend de la consola admin** (en `main`, **sin deploy todavía**):
+  - ecommerce: `buyer_name` también en `/orders/admin/all`; `GET /products/admin/all` (filtros published/review/hidden/out)
+    y `PATCH /products/admin/{id}/visibility` para mostrar/ocultar productos del vendedor.
+  - directorio: columna `clinics.is_suspended` (**migración `c4e8a1b2d3f4`**, aditiva) + `POST /clinics/admin/{id}/suspend`
+    y `/unsuspend`. El directorio público y la búsqueda de core omiten las suspendidas.
+  - core: `GET /system/public` (mantenimiento, OTAs, push, `cache_version`) para que los clientes reaccionen;
+    `login` devuelve 503 en `maintenance_mode` salvo admin; `POST /admin/system/database/sync` devuelve conteos reales.
+  - app móvil: KYC aprobar sin confirmar / rechazar con confirmación; `useAdminProducts` con `admin/all` (ve ocultos);
+    suspender/reactivar clínica cableado en `useAdminClinicDetail`.
+  - Verificado: `py_compile` de los archivos tocados y `tsc`/ESLint limpios en móvil. **Falta deploy + `alembic upgrade head`
+    de directorio** y cablear los mismos endpoints en la web espejo.
 - **2026-10-23 · Mimo** — Web espejo: pulido post W4-A (`d960744` + `68cb18d` en `web/espejo`, sin producción):
   `AppOnlyNotice` al kit base y `--app-bottom-inset` para que los pies fijos no queden detrás de la barra de pestañas.
   `tsc`/ESLint/`next build` en verde. Sigue W5 (recorrido del consumidor + CSS legacy).

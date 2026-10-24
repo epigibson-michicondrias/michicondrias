@@ -21,6 +21,8 @@ export interface Clinic {
     has_emergency: boolean;
     owner_user_id: string | null;
     is_approved?: boolean;
+    /** Suspendida por un admin: no aparece en el directorio público. */
+    is_suspended?: boolean;
     average_rating?: number;
     total_reviews?: number;
     services?: string[];

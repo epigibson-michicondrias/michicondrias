@@ -57,6 +57,20 @@ export async function rejectClinic(clinicId: string): Promise<void> {
     });
 }
 
+/** Suspender una clínica: deja de aparecer en el directorio público. No borra datos. */
+export async function suspendClinic(clinicId: string): Promise<any> {
+    return apiFetch<any>("directorio", `/clinics/admin/${clinicId}/suspend`, {
+        method: "POST"
+    });
+}
+
+/** Reactivar una clínica suspendida. */
+export async function unsuspendClinic(clinicId: string): Promise<any> {
+    return apiFetch<any>("directorio", `/clinics/admin/${clinicId}/unsuspend`, {
+        method: "POST"
+    });
+}
+
 // --- Directorio (Veterinarios) ---
 export async function getPendingVeterinarians(): Promise<any[]> {
     return apiFetch<any[]>("directorio", "/veterinarians/admin/pending");

@@ -32,12 +32,13 @@ def global_search(
     # Solo las mascotas del propio usuario: no se exponen las de otras personas
     pets_result = db.execute(pets_query, {"q": search_term, "uid": user_id, "lim": RESULTS_PER_TYPE}).fetchall()
     
-    # Search clinics (solo las aprobadas por un admin, como en el directorio público)
+    # Search clinics (solo las aprobadas y no suspendidas, como en el directorio público)
     clinics_query = text("""
         SELECT id, name, city, address
         FROM clinics
         WHERE (LOWER(name) LIKE :q ESCAPE '\\' OR LOWER(city) LIKE :q ESCAPE '\\' OR LOWER(address) LIKE :q ESCAPE '\\')
         AND is_approved IS TRUE
+        AND COALESCE(is_suspended, FALSE) IS FALSE
         ORDER BY name
         LIMIT :lim
     """)

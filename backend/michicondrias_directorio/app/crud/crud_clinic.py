@@ -7,7 +7,7 @@ def get_clinic(db: Session, clinic_id: str):
     return db.query(Clinic).filter(Clinic.id == clinic_id).first()
 
 def get_clinics(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Clinic).filter(Clinic.is_approved == True).offset(skip).limit(limit).all()
+    return db.query(Clinic).filter(Clinic.is_approved == True, Clinic.is_suspended == False).offset(skip).limit(limit).all()
 
 def get_clinics_by_owner(db: Session, owner_user_id: str):
     return db.query(Clinic).filter(Clinic.owner_user_id == owner_user_id).all()
@@ -19,6 +19,15 @@ def approve_clinic(db: Session, clinic_id: str):
     db_clinic = get_clinic(db, clinic_id)
     if db_clinic:
         db_clinic.is_approved = True
+        db.commit()
+        db.refresh(db_clinic)
+    return db_clinic
+
+def set_clinic_suspended(db: Session, clinic_id: str, suspended: bool):
+    """Suspender (o reactivar) una clínica. No toca `is_approved`: la aprobación es otra cosa."""
+    db_clinic = get_clinic(db, clinic_id)
+    if db_clinic:
+        db_clinic.is_suspended = suspended
         db.commit()
         db.refresh(db_clinic)
     return db_clinic

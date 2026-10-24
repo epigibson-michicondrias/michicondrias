@@ -152,7 +152,11 @@ def read_all_orders(
     Retrieve all orders across the system (Admin only).
     """
     crud.crud_ecommerce.release_stale_pending_orders(db)
-    return crud.crud_ecommerce.get_all_orders(db, skip=skip, limit=limit)
+    orders = crud.crud_ecommerce.get_all_orders(db, skip=skip, limit=limit)
+    names = _user_names(db, {o.user_id for o in orders})
+    for o in orders:
+        o.buyer_name = names.get(str(o.user_id))
+    return orders
 
 @router.patch("/admin/{order_id}/status", response_model=OrderResponse)
 def update_order_status(

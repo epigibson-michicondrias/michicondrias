@@ -121,6 +121,26 @@ def get_pending_products(db: Session):
     products = db.query(Product).filter(Product.is_approved == False).all()
     return _batch_attach_ratings(db, products)
 
+
+def get_admin_products(db: Session, status: str = None, q: str = None, skip: int = 0, limit: int = 200):
+    """Todos los productos para el admin, incluidos los ocultos por el vendedor (`is_active=False`).
+
+    `status`: `published` | `review` | `hidden` | `out` | `all` (por defecto).
+    """
+    query = db.query(Product)
+    if status == "published":
+        query = query.filter(Product.is_active == True, Product.is_approved == True)  # noqa: E712
+    elif status == "review":
+        query = query.filter(Product.is_approved == False)  # noqa: E712
+    elif status == "hidden":
+        query = query.filter(Product.is_active == False)  # noqa: E712
+    elif status == "out":
+        query = query.filter(Product.stock <= 0)
+    if q:
+        query = query.filter(_fold(Product.name).like(f"%{_fold_text(q)}%"))
+    products = query.order_by(Product.updated_at.desc(), Product.name.asc()).offset(skip).limit(limit).all()
+    return _batch_attach_ratings(db, products)
+
 # ... (approve_product and others remain same, skipping to new Review CRUD)
 
 PURCHASED_STATUSES = ("paid", "confirmed", "shipped", "delivered")

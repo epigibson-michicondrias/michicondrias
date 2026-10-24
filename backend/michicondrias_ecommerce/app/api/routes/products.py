@@ -245,6 +245,38 @@ def get_product_reviews(
 
 # --- ADMIN ENDPOINTS FOR MODERATION ---
 
+@router.get("/admin/all", response_model=List[ProductResponse])
+def get_admin_products(
+    status: Optional[str] = Query(None, description="published | review | hidden | out | all"),
+    q: Optional[str] = Query(None, max_length=100),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(200, ge=1, le=500),
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Todos los productos para el admin, incluidos los ocultos por su vendedor (Admin only)."""
+    if status not in (None, "all", "published", "review", "hidden", "out"):
+        raise HTTPException(status_code=422, detail="Estado no válido")
+    return crud.crud_ecommerce.get_admin_products(db, status=status, q=q, skip=skip, limit=limit)
+
+
+@router.patch("/admin/{product_id}/visibility", response_model=ProductResponse)
+def set_product_visibility(
+    product_id: str,
+    is_active: bool,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Mostrar u ocultar un producto (Admin only). No borra: solo cambia `is_active`."""
+    product = crud.crud_ecommerce.get_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    product.is_active = is_active
+    db.commit()
+    db.refresh(product)
+    return product
+
+
 @router.get("/admin/pending", response_model=List[ProductResponse])
 def get_pending_products(
     db: Session = Depends(get_db),
