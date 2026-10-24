@@ -9,13 +9,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  Activity,
   ArrowLeft,
+  CalendarDays,
   ClipboardList,
   HeartPulse,
   LayoutGrid,
   PawPrint,
   Plus,
   Share2,
+  ShieldCheck,
   Syringe,
 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
@@ -122,9 +125,9 @@ function PetDetailContent() {
 
       <div className={s.hero}>
         {pet.photo_url ? (
-          <Image src={pet.photo_url} alt={pet.name} width={120} height={120} className={s.heroPhoto} />
+          <Image src={pet.photo_url} alt={pet.name} width={148} height={148} className={s.heroPhotoBig} />
         ) : (
-          <div className={s.heroPhotoFallback}><PawPrint size={48} /></div>
+          <div className={s.heroPhotoFallbackBig}><PawPrint size={56} /></div>
         )}
         <h1 className={s.heroName}>{pet.name}</h1>
         <p className={s.heroMeta}>
@@ -132,7 +135,43 @@ function PetDetailContent() {
             .filter(Boolean)
             .join(" · ")}
         </p>
+        {/* Badges: especie, edad y tracker — escaneables de un vistazo */}
+        <div className={s.heroBadgeRow}>
+          {pet.species && (
+            <span className={s.heroBadge}>{pet.species}</span>
+          )}
+          {pet.age_months != null && (
+            <span className={s.heroBadge}>{formatAge(pet.age_months)}</span>
+          )}
+          {pet.has_active_subscription && (
+            <span className={`${s.heroBadge} ${s.heroBadgeOn}`}>Michi-Tracker</span>
+          )}
+        </div>
       </div>
+
+      {/* Acciones rápidas del dueño */}
+      {isOwner && (
+        <div className={s.quickActions}>
+          <Button
+            label="Agregar vacuna"
+            variant="secondary"
+            fullWidth={false}
+            onPress={() => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}`)}
+          />
+          <Button
+            label="Agregar consulta"
+            variant="secondary"
+            fullWidth={false}
+            onPress={() => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}`)}
+          />
+          <Button
+            label="Compartir carnet"
+            variant="ghost"
+            fullWidth={false}
+            onPress={openShare}
+          />
+        </div>
+      )}
 
       <SegmentedControl
         value={tab}
@@ -143,20 +182,30 @@ function PetDetailContent() {
 
       {tab === "resumen" && (
         <>
-          <div className={s.statGrid}>
-            <div className={s.stat}>
-              <p className={s.statLabel}>Edad</p>
-              <p className={s.statValue}>{formatAge(pet.age_months)}</p>
+          {/* Stats como tarjetas con ícono */}
+          <div className={s.statGridVisual}>
+            <div className={s.statCard}>
+              <span className={s.statIcon}><CalendarDays size={20} /></span>
+              <div>
+                <p className={s.statCardValue}>{formatAge(pet.age_months)}</p>
+                <p className={s.statCardLabel}>Edad</p>
+              </div>
             </div>
-            <div className={s.stat}>
-              <p className={s.statLabel}>Peso</p>
-              <p className={s.statValue}>{pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</p>
+            <div className={s.statCard}>
+              <span className={s.statIcon}><Activity size={20} /></span>
+              <div>
+                <p className={s.statCardValue}>{pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</p>
+                <p className={s.statCardLabel}>Peso</p>
+              </div>
             </div>
-            <div className={s.stat}>
-              <p className={s.statLabel}>Vacunas</p>
-              <p className={`${s.statValue} ${health.vaccinesStatus === "al-dia" ? s.statOk : health.vaccinesStatus === "vencido" ? s.statBad : ""}`}>
-                {vaccinesLabel}
-              </p>
+            <div className={s.statCard}>
+              <span className={s.statIcon}><ShieldCheck size={20} /></span>
+              <div>
+                <p className={`${s.statCardValue} ${health.vaccinesStatus === "al-dia" ? s.statOk : health.vaccinesStatus === "vencido" ? s.statBad : ""}`}>
+                  {vaccinesLabel}
+                </p>
+                <p className={s.statCardLabel}>Vacunas</p>
+              </div>
             </div>
           </div>
 

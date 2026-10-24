@@ -521,3 +521,148 @@
 @media (max-width: 640px) {
   .trackerBadge { padding: 2px 6px; font-size: 9px; }
 }
+
+/* ── Ficha de mascota: mejoras visuales ───────────────────────────── */
+
+/* Hero: foto grande con anillo dorado y badges */
+.heroPhotoWrap {
+  position: relative;
+}
+.heroPhotoBig {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 3px var(--color-accent), var(--shadow-raised);
+}
+.heroPhotoFallbackBig {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent), var(--shadow-raised);
+}
+.heroBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  font-size: var(--font-xs);
+  font-weight: 700;
+}
+.heroBadgeOn {
+  background: var(--color-success);
+  color: #fff;
+}
+
+/* Acciones rápidas sobre la ficha */
+.quickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin: var(--space-lg) 0;
+}
+
+/* Stats como tarjetas con ícono */
+.statGridVisual {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+.statIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+.statCardValue {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--font-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.statCardLabel {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+/* Timeline de salud */
+.timeline {
+  position: relative;
+  margin: 0 0 var(--space-xl);
+  padding-left: var(--space-xl);
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--color-border);
+}
+.timelineItem {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+}
+.timelineDot {
+  position: absolute;
+  left: calc(-1 * var(--space-xl) + 2px);
+  top: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 3px solid var(--color-surface);
+}
+.timelineDotOk { background: var(--color-success); }
+.timelineDotWarn { background: var(--color-warning); }
+.timelineBody { flex: 1; min-width: 0; }
+.timelineTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: var(--font-base);
+}
+.timelineMeta {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+}
+
+@media (max-width: 640px) {
+  .heroPhotoBig, .heroPhotoFallbackBig { width: 112px; height: 112px; }
+}
