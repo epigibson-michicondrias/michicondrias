@@ -152,7 +152,7 @@
 
 .footer {
   position: sticky;
-  bottom: 0;
+  bottom: var(--app-bottom-inset);
   padding: var(--space-md) 0 var(--space-lg);
   background: linear-gradient(to top, var(--color-background) 70%, transparent);
 }

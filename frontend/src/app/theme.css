@@ -118,3 +118,17 @@
     --duration-base: 0ms;
   }
 }
+
+/* ── Espacio que ocupa la barra inferior (móvil) ───────────────────
+   Los pies fijos/pegajosos de las pantallas (p. ej. "Agendar", "Agregar a la bolsa") usan
+   `bottom: var(--app-bottom-inset)` para quedar ENCIMA de la barra de pestañas y no detrás. */
+:root {
+  --app-tabbar-height: 56px;
+  --app-bottom-inset: calc(var(--app-tabbar-height) + 2 * var(--space-sm) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  :root {
+    --app-bottom-inset: 0px;
+  }
+}
