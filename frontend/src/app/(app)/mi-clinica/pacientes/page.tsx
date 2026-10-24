@@ -14,7 +14,6 @@ import EmptyState from "@/components/EmptyState";
 import FilterChip from "@/components/FilterChip";
 import SearchBar from "@/components/SearchBar";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { formatDateMx } from "@/features/mi-clinica/format";
 import { useClinicPatients, type PatientFilter } from "@/hooks/clinica/useClinicPatients";
 import s from "@/features/mi-clinica/clinica.module.css";
@@ -26,11 +25,7 @@ const FILTERS: { key: PatientFilter; label: string }[] = [
 ];
 
 export default function PacientesPage() {
-  return (
-    <ClinicGuard>
-      <Pacientes />
-    </ClinicGuard>
-  );
+  return <Pacientes />;
 }
 
 function Pacientes() {

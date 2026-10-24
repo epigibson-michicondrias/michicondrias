@@ -13,18 +13,13 @@ import FormField from "@/components/FormField";
 import Modal from "@/components/Modal";
 import SearchBar from "@/components/SearchBar";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { useInventory } from "@/hooks/clinica/useInventory";
 import s from "@/features/mi-clinica/clinica.module.css";
 
 const int = (t: string) => Math.max(0, parseInt(t, 10) || 0);
 
 export default function InventarioPage() {
-  return (
-    <ClinicGuard>
-      <Inventario />
-    </ClinicGuard>
-  );
+  return <Inventario />;
 }
 
 function Inventario() {

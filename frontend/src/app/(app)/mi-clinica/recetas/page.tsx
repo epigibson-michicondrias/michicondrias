@@ -13,7 +13,6 @@ import EmptyState from "@/components/EmptyState";
 import FormField from "@/components/FormField";
 import Modal from "@/components/Modal";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import PatientPicker from "@/features/mi-clinica/PatientPicker";
 import { formatDateMx } from "@/features/mi-clinica/format";
 import { usePrescriptions } from "@/hooks/clinica/usePrescriptions";
@@ -27,11 +26,7 @@ const STATUS: Record<string, { label: string; color: string }> = {
 };
 
 export default function RecetasPage() {
-  return (
-    <ClinicGuard>
-      <Recetas />
-    </ClinicGuard>
-  );
+  return <Recetas />;
 }
 
 function Recetas() {

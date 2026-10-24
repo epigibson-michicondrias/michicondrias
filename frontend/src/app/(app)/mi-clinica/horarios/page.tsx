@@ -17,17 +17,12 @@ import FormSwitch from "@/components/forms/FormSwitch";
 import IconButton from "@/components/IconButton";
 import Modal from "@/components/Modal";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { formatDateMx, toISODate } from "@/features/mi-clinica/format";
 import { useSchedule } from "@/hooks/clinica/useSchedule";
 import s from "@/features/mi-clinica/clinica.module.css";
 
 export default function HorariosPage() {
-  return (
-    <ClinicGuard>
-      <Horarios />
-    </ClinicGuard>
-  );
+  return <Horarios />;
 }
 
 function Horarios() {

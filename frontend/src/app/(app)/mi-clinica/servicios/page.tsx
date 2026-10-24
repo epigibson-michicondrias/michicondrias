@@ -12,17 +12,12 @@ import EmptyState from "@/components/EmptyState";
 import FormField from "@/components/FormField";
 import Modal from "@/components/Modal";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { useClinicServices } from "@/hooks/clinica/useClinicServices";
 import { formatCurrency } from "@/utils/formatters";
 import s from "@/features/mi-clinica/clinica.module.css";
 
 export default function ServiciosPage() {
-  return (
-    <ClinicGuard>
-      <Servicios />
-    </ClinicGuard>
-  );
+  return <Servicios />;
 }
 
 function Servicios() {

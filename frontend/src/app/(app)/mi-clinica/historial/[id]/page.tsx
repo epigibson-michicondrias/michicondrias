@@ -14,17 +14,14 @@ import FormField from "@/components/FormField";
 import FormSection from "@/components/forms/FormSection";
 import IconButton from "@/components/IconButton";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { usePatientHistory } from "@/hooks/clinica/usePatientHistory";
 import s from "@/features/mi-clinica/clinica.module.css";
 
 export default function FichaMedicaPage() {
   return (
-    <ClinicGuard>
-      <Suspense fallback={<SkeletonList count={4} />}>
-        <FichaMedica />
-      </Suspense>
-    </ClinicGuard>
+    <Suspense fallback={<SkeletonList count={4} />}>
+      <FichaMedica />
+    </Suspense>
   );
 }
 

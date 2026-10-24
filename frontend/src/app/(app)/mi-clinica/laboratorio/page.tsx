@@ -13,7 +13,6 @@ import FormField from "@/components/FormField";
 import Modal from "@/components/Modal";
 import SegmentedControl from "@/components/SegmentedControl";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import PatientPicker from "@/features/mi-clinica/PatientPicker";
 import { formatDateMx } from "@/features/mi-clinica/format";
 import { useLaboratory } from "@/hooks/clinica/useLaboratory";
@@ -25,11 +24,7 @@ const TABS: { value: "pending" | "completed"; label: string; icon: typeof Clock 
 ];
 
 export default function LaboratorioPage() {
-  return (
-    <ClinicGuard>
-      <Laboratorio />
-    </ClinicGuard>
-  );
+  return <Laboratorio />;
 }
 
 function Laboratorio() {

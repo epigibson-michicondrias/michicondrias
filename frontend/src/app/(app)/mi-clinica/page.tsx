@@ -19,7 +19,6 @@ import EmptyState from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { normalizeRole } from "@/constants/roles";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { formatDateMx } from "@/features/mi-clinica/format";
 import { useMyClinic } from "@/hooks/directorio/useMyClinic";
 import { formatCurrency } from "@/utils/formatters";
@@ -28,11 +27,7 @@ import s from "@/features/mi-clinica/clinica.module.css";
 type Icon = ComponentType<{ size?: number }>;
 
 export default function MiClinicaPage() {
-  return (
-    <ClinicGuard>
-      <MiClinica />
-    </ClinicGuard>
-  );
+  return <MiClinica />;
 }
 
 function MiClinica() {

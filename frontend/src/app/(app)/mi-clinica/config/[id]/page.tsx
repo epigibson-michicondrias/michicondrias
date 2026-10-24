@@ -13,16 +13,11 @@ import FormImagePicker from "@/components/forms/FormImagePicker";
 import FormSection from "@/components/forms/FormSection";
 import FormSwitch from "@/components/forms/FormSwitch";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { useClinicConfig } from "@/hooks/clinica/useClinicConfig";
 import s from "@/features/mi-clinica/clinica.module.css";
 
 export default function ConfigClinicaPage() {
-  return (
-    <ClinicGuard>
-      <ConfigClinica />
-    </ClinicGuard>
-  );
+  return <ConfigClinica />;
 }
 
 function ConfigClinica() {

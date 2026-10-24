@@ -15,7 +15,6 @@ import FormField from "@/components/FormField";
 import Modal from "@/components/Modal";
 import SearchBar from "@/components/SearchBar";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import DateTimeField from "@/features/mi-clinica/DateTimeField";
 import PatientPicker from "@/features/mi-clinica/PatientPicker";
 import { useSurgeries } from "@/hooks/clinica/useSurgeries";
@@ -42,11 +41,7 @@ const TABS = [
 ];
 
 export default function CirugiasPage() {
-  return (
-    <ClinicGuard>
-      <Cirugias />
-    </ClinicGuard>
-  );
+  return <Cirugias />;
 }
 
 function Cirugias() {

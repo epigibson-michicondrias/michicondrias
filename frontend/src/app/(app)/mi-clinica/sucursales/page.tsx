@@ -15,16 +15,11 @@ import FormSwitch from "@/components/forms/FormSwitch";
 import IconButton from "@/components/IconButton";
 import Modal from "@/components/Modal";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { useBranches } from "@/hooks/clinica/useBranches";
 import s from "@/features/mi-clinica/clinica.module.css";
 
 export default function SucursalesPage() {
-  return (
-    <ClinicGuard hospitalOnly>
-      <Sucursales />
-    </ClinicGuard>
-  );
+  return <Sucursales />;
 }
 
 function Sucursales() {

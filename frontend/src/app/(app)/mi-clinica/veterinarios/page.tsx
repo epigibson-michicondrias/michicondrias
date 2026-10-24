@@ -15,16 +15,11 @@ import FormField from "@/components/FormField";
 import IconButton from "@/components/IconButton";
 import Modal from "@/components/Modal";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { useVeterinarians } from "@/hooks/clinica/useVeterinarians";
 import s from "@/features/mi-clinica/clinica.module.css";
 
 export default function VeterinariosPage() {
-  return (
-    <ClinicGuard>
-      <Veterinarios />
-    </ClinicGuard>
-  );
+  return <Veterinarios />;
 }
 
 function Veterinarios() {

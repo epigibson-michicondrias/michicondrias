@@ -15,7 +15,6 @@ import FormField from "@/components/FormField";
 import Modal from "@/components/Modal";
 import SearchBar from "@/components/SearchBar";
 import { SkeletonList } from "@/components/Skeleton";
-import ClinicGuard from "@/features/mi-clinica/ClinicGuard";
 import { statusTone } from "@/features/mi-clinica/format";
 import { useAgenda } from "@/hooks/clinica/useAgenda";
 import s from "@/features/mi-clinica/clinica.module.css";
@@ -29,11 +28,7 @@ const TABS = [
 ];
 
 export default function AgendaPage() {
-  return (
-    <ClinicGuard>
-      <Agenda />
-    </ClinicGuard>
-  );
+  return <Agenda />;
 }
 
 function Agenda() {

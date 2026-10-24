@@ -15,6 +15,37 @@ export interface AdminUser {
     specialty?: string;
 }
 
+export interface AdminRole {
+    id: string;
+    name: string;
+    description?: string | null;
+    /** Solo en `GET /roles/`. */
+    users_count?: number | null;
+    /** Rol que la plataforma usa por nombre: no se borra ni se renombra. */
+    is_system?: boolean | null;
+}
+
+export interface AdminUserDetail extends AdminUser {
+    id_front_url?: string | null;
+    id_back_url?: string | null;
+    proof_of_address_url?: string | null;
+}
+
+export interface UserSearchParams {
+    skip?: number;
+    limit?: number;
+    role?: string;
+    q?: string;
+    is_active?: boolean;
+    verification_status?: string;
+    order_by?: 'created_at_desc' | 'created_at_asc' | 'name_asc' | 'name_desc' | 'email_asc';
+}
+
+export interface UserPage {
+    items: AdminUser[];
+    total: number;
+}
+
 export interface UserStats {
     total_users: number;
     active_users: number;
@@ -33,6 +64,20 @@ class AdminUsersService {
     // Obtener todos los usuarios
     async getUsers(skip: number = 0, limit: number = 100): Promise<AdminUser[]> {
         return apiFetch('core', `${this.baseUrl}/?skip=${skip}&limit=${limit}`);
+    }
+
+    // Búsqueda paginada con filtros en el servidor (`GET /users/search`)
+    async searchUsers(params: UserSearchParams = {}): Promise<UserPage> {
+        const qs = new URLSearchParams();
+        Object.entries(params).forEach(([k, v]) => {
+            if (v !== undefined && v !== null && v !== '') qs.append(k, String(v));
+        });
+        return apiFetch('core', `${this.baseUrl}/search?${qs}`);
+    }
+
+    // Detalle de un usuario con documentos KYC firmados
+    async getUser(userId: string): Promise<AdminUserDetail> {
+        return apiFetch('core', `${this.baseUrl}/${userId}`);
     }
 
     // Obtener estadísticas de usuarios
@@ -82,18 +127,18 @@ class AdminUsersService {
     }
 
     // --- Roles ---
-    async getRoles(): Promise<any[]> {
+    async getRoles(): Promise<AdminRole[]> {
         return apiFetch('core', '/roles/');
     }
 
-    async createRole(data: any): Promise<any> {
+    async createRole(data: Pick<AdminRole, 'name' | 'description'>): Promise<AdminRole> {
         return apiFetch('core', '/roles/', {
             method: 'POST',
             body: JSON.stringify(data),
         });
     }
 
-    async updateRole(id: string, data: any): Promise<any> {
+    async updateRole(id: string, data: Partial<Pick<AdminRole, 'name' | 'description'>>): Promise<AdminRole> {
         return apiFetch('core', `/roles/${id}`, {
             method: 'PUT',
             body: JSON.stringify(data),
