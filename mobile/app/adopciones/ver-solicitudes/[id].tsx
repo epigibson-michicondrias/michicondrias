@@ -12,7 +12,7 @@ import { layout, spacing } from '@/constants/design';
 
 export default function VerSolicitudesScreen() {
     const { theme } = useTheme();
-    const { requests, listing, isLoading, refetch, isRefetching, pendingCount, openRequest } = useViewApplications();
+    const { requests, listing, isLoading, isError, refetch, isRefetching, pendingCount, openRequest } = useViewApplications();
 
     const renderItem = ({ item }: { item: AdoptionRequest }) => <RequestCard request={item} onPress={() => openRequest(item.id)} />;
 
@@ -32,6 +32,7 @@ export default function VerSolicitudesScreen() {
                 onRefresh={refetch}
                 isRefreshing={isRefetching}
                 emptyIcon={<Heart size={layout.icon.xl} color={theme.textMuted} strokeWidth={1.5} />}
+                isError={isError}
                 emptyTitle="Aún no hay interesados"
                 emptySubtitle={`Las solicitudes que recibas para ${listing?.name || 'esta mascota'} aparecerán aquí.`}
             />

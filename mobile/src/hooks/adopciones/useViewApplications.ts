@@ -13,7 +13,7 @@ export function useViewApplications() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
 
-    const { data = [], isLoading, refetch, isRefetching } = useQuery({
+    const { data = [], isLoading, isError, refetch, isRefetching } = useQuery({
         queryKey: ['listing-requests', id],
         queryFn: () => getListingRequests(id as string),
         enabled: !!id,
@@ -33,6 +33,7 @@ export function useViewApplications() {
         requests,
         listing,
         isLoading,
+        isError,
         refetch,
         isRefetching,
         pendingCount: data.filter((r) => r.status === 'PENDING').length,

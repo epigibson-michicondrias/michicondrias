@@ -43,6 +43,8 @@ interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'>
     emptySubtitle?: string;
     /** Empty state action label */
     emptyActionLabel?: string;
+    /** Si hay error, no pintes el vacío: el banner de ScreenContainer ya lo comunica. */
+    isError?: boolean;
     /** Empty state action handler */
     onEmptyAction?: () => void;
     /** Content container style */
@@ -68,6 +70,7 @@ export default function DataList<T>({
     emptySubtitle,
     emptyActionLabel,
     onEmptyAction,
+    isError = false,
     contentStyle,
     header,
     skeleton,

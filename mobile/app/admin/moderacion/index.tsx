@@ -15,6 +15,7 @@ import {
     Hospital,
     XCircle,
     PawPrint,
+    Package,
     AlertCircle,
     ShoppingBag,
     UserCircle,
@@ -46,7 +47,13 @@ export default function AdminModerationScreen() {
 
     const renderAdoptionItem = ({ item }: { item: any }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Image source={{ uri: item.photo_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=400' }} style={styles.cardCover} />
+            {item.photo_url ? (
+                <Image source={{ uri: item.photo_url }} style={styles.cardCover} accessibilityLabel={item.name || 'Mascota en adopción'} />
+            ) : (
+                <View style={[styles.cardCover, styles.coverFallback, { backgroundColor: theme.primary + tint.faint }]}>
+                    <PawPrint size={layout.icon.xl} color={theme.primary} />
+                </View>
+            )}
             <View style={styles.cardContent}>
                 <View style={styles.cardHeader}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>{item.name}</Text>
@@ -77,7 +84,13 @@ export default function AdminModerationScreen() {
 
     const renderProductItem = ({ item }: { item: any }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Image source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?q=80&w=400' }} style={styles.cardCover} />
+            {item.image_url ? (
+                <Image source={{ uri: item.image_url }} style={styles.cardCover} accessibilityLabel={item.name || 'Producto'} />
+            ) : (
+                <View style={[styles.cardCover, styles.coverFallback, { backgroundColor: theme.primary + tint.faint }]}>
+                    <Package size={layout.icon.xl} color={theme.primary} />
+                </View>
+            )}
             <View style={styles.cardContent}>
                 <View style={styles.cardHeader}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>{item.name}</Text>
@@ -106,14 +119,19 @@ export default function AdminModerationScreen() {
 
     const renderLostPetItem = ({ item }: { item: any }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Image 
-                source={{ uri: item.image_url || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=400' }} 
-                style={styles.cardCover} 
-            />
+            {item.image_url ? (
+                <Image source={{ uri: item.image_url }} style={styles.cardCover} accessibilityLabel={item.pet_name || 'Mascota reportada'} />
+            ) : (
+                <View style={[styles.cardCover, styles.coverFallback, { backgroundColor: theme.primary + tint.faint }]}>
+                    <PawPrint size={layout.icon.xl} color={theme.primary} />
+                </View>
+            )}
             <View style={styles.cardContent}>
                 <View style={styles.cardHeader}>
-                    <Text style={[styles.cardTitle, { color: theme.text }]}>{item.pet_name}</Text>
-                    <View style={[styles.badge, { backgroundColor: item.report_type === 'lost' ? theme.error + '15' : theme.info + '15' }]}>
+                    <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>
+                        {item.pet_name || 'Mascota sin nombre'}
+                    </Text>
+                    <View style={[styles.badge, { backgroundColor: (item.report_type === 'lost' ? theme.error : theme.info) + tint.faint }]}>
                         <Text style={[styles.badgeText, { color: item.report_type === 'lost' ? theme.error : theme.info }]}>
                             {item.report_type === 'lost' ? 'PERDIDO' : 'ENCONTRADO'}
                         </Text>
@@ -121,9 +139,13 @@ export default function AdminModerationScreen() {
                 </View>
                 <View style={styles.infoRowCompact}>
                     <MapPin size={12} color={theme.textMuted} />
-                    <Text style={[styles.userEmail, { color: theme.textMuted }]}>{item.last_seen_location}</Text>
+                    <Text style={[styles.userEmail, { color: theme.textMuted }]} numberOfLines={1}>
+                        {item.last_seen_location || 'Ubicación no indicada'}
+                    </Text>
                 </View>
-                <Text style={[styles.cardDesc, { color: theme.textMuted, marginTop: spacing.md }]} numberOfLines={2}>{item.description}</Text>
+                <Text style={[styles.cardDesc, { color: theme.textMuted, marginTop: spacing.md }]} numberOfLines={2}>
+                    {item.description || 'Sin descripción.'}
+                </Text>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"
                         style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
@@ -365,6 +387,10 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
     },
     cardPadding: { padding: spacing.xl },
+    coverFallback: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     cardCover: { 
         width: '100%', 
         height: 180,
