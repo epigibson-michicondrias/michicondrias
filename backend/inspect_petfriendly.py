@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import create_engine, text
 
-URL = "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require"
+URL = os.environ["DATABASE_URL"]
 
 def main():
     try:

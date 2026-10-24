@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Seed Live Test Data for Developer Accounts in MICHIcondrias
@@ -8,7 +9,7 @@ from datetime import datetime, date, time, timedelta
 import uuid
 import json
 
-DATABASE_URL = "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require"
+DATABASE_URL = os.environ["DATABASE_URL"]
 engine = create_engine(DATABASE_URL)
 
 # 1. Accounts & Pets Mapping

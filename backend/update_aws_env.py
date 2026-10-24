@@ -16,7 +16,7 @@ SERVICES = [
 ]
 
 # Using the Session Pooler URL strictly for IPv4 compatibility on AWS Lambda
-SUPABASE_URL = "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require"
+SUPABASE_URL = os.environ["DATABASE_URL"]
 
 for service_dir in SERVICES:
     print(f"\n--- Processing {service_dir} ---")

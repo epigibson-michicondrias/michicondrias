@@ -1,8 +1,9 @@
+import os
 #!/usr/bin/env python3
 import sys
 from sqlalchemy import create_engine, text
 
-DATABASE_URL = "postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres"
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 def run_migration():
     print("🚀 Iniciando migración para columnas de 2FA...")

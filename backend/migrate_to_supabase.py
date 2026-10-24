@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-URL = "postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres"
+URL = os.environ["DATABASE_URL"]
 
 # Set it in the environment so config.py picks it up
 os.environ["DATABASE_URL"] = URL

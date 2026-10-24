@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine, text
 
 # Use the connection string from the user's screenshot
-DATABASE_URL = "postgresql://neondb_owner:npg_QjveaCY3fGb4@ep-jolly-mouse-aihvxmyi-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 def diagnostic():
     try:

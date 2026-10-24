@@ -2,7 +2,7 @@
 import os
 from sqlalchemy import create_engine, inspect
 
-DATABASE_URL = "postgresql://neondb_owner:npg_QjveaCY3fGb4@ep-jolly-mouse-aihvxmyi-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 def check_lengths():
     try:

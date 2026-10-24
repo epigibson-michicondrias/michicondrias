@@ -20,7 +20,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 # Configuración de Supabase
-DATABASE_URL = "postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres"
+DATABASE_URL = "<TU_DATABASE_URL>"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -240,7 +240,7 @@ def get_clinic_alerts(
 from sqlalchemy import create_engine, text
 
 # Conexión a Supabase
-DATABASE_URL = "postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres"
+DATABASE_URL = "<TU_DATABASE_URL>"
 
 try:
     engine = create_engine(DATABASE_URL)
@@ -286,7 +286,7 @@ curl -X GET "http://localhost:8000/api/v1/clinics/{clinic_id}/alerts" \
 #### **A. Variables de entorno**
 ```bash
 # .env
-DATABASE_URL=postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres
+DATABASE_URL=<TU_DATABASE_URL>
 SUPABASE_URL=https://zaegmfufrzjmjiemrvvp.supabase.co
 SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_KEY=your_service_key

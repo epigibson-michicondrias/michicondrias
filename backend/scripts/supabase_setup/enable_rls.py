@@ -1,3 +1,4 @@
+import os
 import psycopg2
 
 TABLES_TO_SECURE = [
@@ -12,7 +13,7 @@ TABLES_TO_SECURE = [
 ]
 
 def enable_rls():
-    conn_str = "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+    conn_str = os.environ["DATABASE_URL"]
     conn = psycopg2.connect(conn_str)
     conn.autocommit = True
     cur = conn.cursor()

@@ -58,9 +58,10 @@ y sigue donde se quedó el otro.
 - [x] **Login web** (2026-10-23): el bundle publicado ya usa `https://michicondrias.duckdns.org` (antes el AWS viejo → «NetworkError»).
 - [x] **X1** (2026-10-23) 2FA saltable en 10 servicios: ya rechazan el token temporal (`is_temp`).
 - [x] **X2–X8** (2026-10-24): auditoría completa en `docs/SEGURIDAD_X2_X8.md` — **15 hallazgos (1 P0, 10 P1, 4 P2)**.
+  - [x] **P0 X8.1 — código limpio** (2026-10-24): `directorio/app/core/config.py` y 21 scripts ya leen de
+    `DATABASE_URL` (sin default de prod); docs y el propio informe redactados. **FALTA LA ROTACIÓN** (solo el usuario
+    puede hacerla en las consolas de Supabase/Neon): pasos en [`docs/ROTACION_CREDENCIALES.md`](docs/ROTACION_CREDENCIALES.md).
   - [ ] **Arreglos pendientes de esa auditoría** (prioridad):
-    - **P0 X8.1**: credenciales de Supabase/Neon en claro en el código (incl. `directorio/app/core/config.py:8` que se
-      despliega) → **rotar contraseñas** + sacarlas del código.
     - **P1 X8.2**: `SECRET_KEY` con default débil en todos los `config.py` → default vacío + rotar.
     - **P1 X4.1/X5.1**: `POST /payments/create-subscription-session/{pet_id}` sin check de dueño (activa
       Michi-Tracker Pro en mascotas ajenas vía webhook).

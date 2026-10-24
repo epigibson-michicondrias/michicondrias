@@ -459,7 +459,7 @@ aws lambda create-function \
   --timeout 30 \
   --memory-size 256 \
   --code S3Bucket=michicondrias-storage-1,S3Key=deployments/NOMBRE_SERVICIO.zip \
-  --environment "Variables={DATABASE_URL=postgresql://neondb_owner:npg_QjveaCY3fGb4@ep-jolly-mouse-aihvxmyi-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require,PROXY_PREFIX=/NOMBRE_SERVICIO,API_GATEWAY_URL=https://kowly51wia.execute-api.us-east-1.amazonaws.com}"
+  --environment "Variables={DATABASE_URL=<TU_DATABASE_URL>,PROXY_PREFIX=/NOMBRE_SERVICIO,API_GATEWAY_URL=https://kowly51wia.execute-api.us-east-1.amazonaws.com}"
 ```
 
 ### 2. Crear integración API Gateway

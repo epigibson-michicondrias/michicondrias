@@ -1,7 +1,8 @@
+import os
 from sqlalchemy import create_engine, text
 
 # Supabase Database URL
-DATABASE_URL = "postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres"
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 engine = create_engine(DATABASE_URL)
 

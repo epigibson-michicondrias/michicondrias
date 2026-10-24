@@ -2,7 +2,7 @@ import psycopg2
 import os
 import sys
 
-SUPABASE_URL = "postgresql://postgres:Michicondrias201094*@db.zaegmfufrzjmjiemrvvp.supabase.co:5432/postgres"
+SUPABASE_URL = os.environ["DATABASE_URL"]
 BACKUP_FILE = r"C:\Users\hackm\Downloads\neon-backup.sql"
 
 if not os.path.exists(BACKUP_FILE):

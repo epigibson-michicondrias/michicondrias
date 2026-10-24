@@ -1,3 +1,4 @@
+import os
 import psycopg2
 
 INDEXES_TO_CREATE = [
@@ -54,7 +55,7 @@ INDEXES_TO_CREATE = [
 ]
 
 def optimize_db():
-    conn_str = "postgresql://postgres.zaegmfufrzjmjiemrvvp:Michicondrias201094*@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
+    conn_str = os.environ["DATABASE_URL"]
     conn = psycopg2.connect(conn_str)
     conn.autocommit = True
     cur = conn.cursor()
