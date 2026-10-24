@@ -77,7 +77,11 @@ export function useAdminModeration() {
                     }
                     showAlert({ type: 'success', title: 'Éxito', message: 'Contenido procesado correctamente.' });
                 } catch (e) {
-                    showAlert({ type: 'error', title: 'Error', message: 'No se pudo completar la acción.' });
+                    showAlert({
+                        type: 'error',
+                        title: 'No se pudo completar',
+                        message: (e as any)?.message || 'El servidor rechazó la acción. Puede que el contenido ya haya sido moderado o que el servicio esté ocupado.',
+                    });
                 }
             }
         });

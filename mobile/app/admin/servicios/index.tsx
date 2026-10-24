@@ -12,6 +12,7 @@ import { Briefcase, CheckCircle2, Layers } from 'lucide-react-native';
 import StatTile from '@/src/components/StatTile';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { spacing, type, layout, radius, shadow, tint } from '@/constants/design';
+import { sentenceCase } from '@/src/utils/formatters';
 
 export default function AdminServiciosScreen() {
     const { theme } = useTheme();
@@ -33,7 +34,7 @@ export default function AdminServiciosScreen() {
                 </View>
                 <View style={styles.cardInfo}>
                     <Text style={[type.bodyStrong, { color: theme.text }]}>{item.name}</Text>
-                    <Text style={[type.caption, { color: theme.textMuted }]}>{item.category || 'Sin categoría'}{item.price != null ? ` • $${item.price}` : ''}</Text>
+                    <Text style={[type.caption, { color: theme.textMuted }]}>{sentenceCase(item.category) || 'Sin categoría'}{item.price != null ? ` • $${item.price}` : ''}</Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: item.is_active ? theme.success + tint.faint : theme.error + tint.faint }]}>
                     <Text style={[type.caption, { color: item.is_active ? theme.success : theme.error, fontWeight: '800' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>

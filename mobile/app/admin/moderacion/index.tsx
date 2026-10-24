@@ -21,7 +21,7 @@ import {
     FileText
 } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { font, spacing, layout, tint } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -193,26 +193,30 @@ export default function AdminModerationScreen() {
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.cardPadding}>
                 <View style={styles.cardHeader}>
-                    <View style={[styles.badge, { backgroundColor: '#f59e0b15' }]}>
+                    <View style={[styles.badge, { backgroundColor: theme.warning + tint.faint }]}>
                         <Text style={[styles.badgeText, { color: theme.warning }]}>SOLICITUD</Text>
                     </View>
-                    <Text style={[styles.dateText, { color: theme.textMuted }]}>Para: {item.pet_name}</Text>
+                    <Text style={[styles.dateText, { color: theme.textMuted }]}>Para: {item.pet_name || 'mascota'}</Text>
                 </View>
-                <Text style={[styles.cardTitle, { color: theme.text, marginTop: spacing.sm }]}>{item.applicant_name}</Text>
+                <Text style={[styles.cardTitle, { color: theme.text, marginTop: spacing.sm }]}>
+                    {item.applicant_name || 'Solicitante sin nombre'}
+                </Text>
                 <View style={[styles.notesBox, { backgroundColor: theme.background }]}>
-                    <Text style={[styles.notesText, { color: theme.textMuted }]}>«{item.reason}»</Text>
+                    <Text style={[styles.notesText, { color: theme.textMuted }]}>
+                        {item.reason ? `«${item.reason}»` : 'Sin mensaje del solicitante.'}
+                    </Text>
                 </View>
                 <View style={styles.cardActions}>
                     <TouchableOpacity accessibilityRole="button"
                         style={[styles.btnAction, { backgroundColor: '#ef444415' }]}
-                        onPress={() => handleAction('reject', 'solicitudes', item.id, `Solicitud de ${item.applicant_name}`)}
+                        onPress={() => handleAction('reject', 'solicitudes', item.id, `Solicitud de ${item.applicant_name || 'un solicitante'}`)}
                     >
                         <XCircle size={18} color={theme.error} />
                         <Text style={[styles.btnActionText, { color: theme.error }]}>Rechazar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity accessibilityRole="button"
                         style={[styles.btnAction, { backgroundColor: '#10b98115' }]}
-                        onPress={() => handleAction('approve', 'solicitudes', item.id, `Solicitud de ${item.applicant_name}`)}
+                        onPress={() => handleAction('approve', 'solicitudes', item.id, `Solicitud de ${item.applicant_name || 'un solicitante'}`)}
                     >
                         <CheckCircle2 size={18} color={theme.success} />
                         <Text style={[styles.btnActionText, { color: theme.success }]}>Aprobar</Text>

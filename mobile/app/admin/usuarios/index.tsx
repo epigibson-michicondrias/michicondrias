@@ -214,7 +214,7 @@ export default function AdminUsersScreen() {
                                     placeholderTextColor={theme.textMuted}
                                 />
 
-                                <Text style={[styles.inputLabel, { color: theme.textMuted }]}>EMAIL</Text>
+                                <Text style={[styles.inputLabel, { color: theme.textMuted }]}>Correo electrónico</Text>
                                 <TextInput
                                     style={[styles.modalInput, { backgroundColor: theme.backgroundSecondary, color: theme.text, borderColor: theme.border }]}
                                     value={formData.email}
@@ -458,8 +458,9 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     modalContent: {
-        width: '100%',
         maxHeight: '90%',
+        overflow: 'hidden',
+        width: '100%',
     },
     modalInner: {
         borderTopLeftRadius: 32,

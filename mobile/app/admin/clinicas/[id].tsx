@@ -83,7 +83,7 @@ export default function ClinicDetailScreen() {
                         <View style={[styles.formCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                             <Text style={[styles.formSectionTitle, { color: theme.text }]}>Contacto</Text>
                             <FormField label="Teléfono" value={form.phone} onChangeText={(v) => setForm({ ...form, phone: v })} theme={theme} keyboardType="phone-pad" />
-                            <FormField label="Email" value={form.email} onChangeText={(v) => setForm({ ...form, email: v })} theme={theme} keyboardType="email-address" />
+                            <FormField label="Correo electrónico" value={form.email} onChangeText={(v) => setForm({ ...form, email: v })} theme={theme} keyboardType="email-address" />
                             <FormField label="Sitio Web" value={form.website} onChangeText={(v) => setForm({ ...form, website: v })} theme={theme} keyboardType="url" />
                         </View>
 
@@ -141,7 +141,7 @@ export default function ClinicDetailScreen() {
                                 ) : (
                                     <Save size={18} color={theme.onPrimary} />
                                 )}
-                                <Text style={styles.btnActionText}>Guardar</Text>
+                                <Text style={[styles.btnActionText, { color: theme.onPrimary }]}>Guardar</Text>
                             </TouchableOpacity>
                         </View>
                     </>
@@ -178,7 +178,7 @@ export default function ClinicDetailScreen() {
                             <View style={styles.contactSection}>
                                 <DetailItem icon={MapPin} label="Dirección" value={clinic.address || 'No proporcionada'} theme={theme} />
                                 <DetailItem icon={Phone} label="Teléfono" value={clinic.phone || 'No proporcionado'} theme={theme} />
-                                <DetailItem icon={Mail} label="Email" value={clinic.email || 'No proporcionado'} theme={theme} />
+                                <DetailItem icon={Mail} label="Correo electrónico" value={clinic.email || 'No proporcionado'} theme={theme} />
                                 <DetailItem icon={Globe} label="Sitio Web" value={clinic.website || 'No proporcionado'} theme={theme} />
                                 <DetailItem icon={Clock} label="Emergencias" value={clinic.has_emergency ? 'Disponible' : 'No disponible'} theme={theme} />
                             </View>
@@ -217,7 +217,7 @@ export default function ClinicDetailScreen() {
                                 style={[styles.btnAction, { backgroundColor: theme.primary }]}
                                 onPress={startEditing}
                             >
-                                <Text style={styles.btnActionText}>Editar Información</Text>
+                                <Text style={[styles.btnActionText, { color: theme.onPrimary }]}>Editar Información</Text>
                             </TouchableOpacity>
                             <TouchableOpacity accessibilityRole="button" 
                                 style={[styles.btnAction, { backgroundColor: '#ef4444' }]}
@@ -390,7 +390,8 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     btnAction: {
-        height: 56,
+        flex: 1,
+        minHeight: 56,
         borderRadius: 20,
         flexDirection: 'row',
         justifyContent: 'center',
@@ -399,7 +400,6 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     btnActionText: {
-        color: '#fff',
         fontSize: font.xl,
         fontWeight: '800',
     },
@@ -463,6 +463,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: spacing.xl,
         marginTop: spacing.xl,
+        marginBottom: spacing.huge,
         gap: spacing.md,
     },
 });

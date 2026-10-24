@@ -37,7 +37,7 @@ export default function AdminRolesScreen() {
                 <Text style={[styles.roleDesc, { color: theme.textMuted }]}>{item.description}</Text>
                 <View style={styles.badgeRow}>
                     <View style={[styles.countBadge, { backgroundColor: theme.background }]}>
-                        <Text style={[styles.countText, { color: theme.text }]}>{item.users_count} Usuarios</Text>
+                        <Text style={[styles.countText, { color: theme.text }]}>{item.users_count} {item.users_count === 1 ? 'Usuario' : 'Usuarios'}</Text>
                     </View>
                 </View>
             </View>
@@ -203,7 +203,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)', 
         justifyContent: 'flex-end' 
     },
-    modalContent: { 
+    modalContent: {
+        maxHeight: '90%',
+        overflow: 'hidden',
         borderTopLeftRadius: 32, 
         borderTopRightRadius: 32, 
         padding: spacing.xxxl, 

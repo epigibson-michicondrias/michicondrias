@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { SkeletonList } from '@/src/components/Skeleton';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -10,6 +10,7 @@ import { UserCheck, Mail, Briefcase, Star, Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import EmptyState from '@/src/components/EmptyState';
+import SearchBar from '@/src/components/SearchBar';
 import { font, spacing, layout } from '@/constants/design';
 
 export default function AdminVeterinariosScreen() {
@@ -19,8 +20,17 @@ export default function AdminVeterinariosScreen() {
         isLoading,
         handleViewProfile,
         handleManage,
-        handleSearch,
     } = useAdminVets();
+
+    // Búsqueda local por nombre, correo o especialidad (antes el ícono del header no hacía nada)
+    const [searchText, setSearchText] = useState('');
+    const filtered = useMemo(() => {
+        const q = searchText.trim().toLowerCase();
+        if (!q) return vets;
+        return vets.filter((v: any) =>
+            `${v.full_name || ''} ${v.email || ''} ${v.specialty || ''}`.toLowerCase().includes(q),
+        );
+    }, [vets, searchText]);
 
     const renderItem = ({ item }: { item: AdminUser }) => (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -58,13 +68,13 @@ export default function AdminVeterinariosScreen() {
             <View style={styles.actions}>
                 <TouchableOpacity accessibilityRole="button" 
                     style={[styles.btn, { backgroundColor: theme.background }]}
-                    onPress={handleViewProfile}
+                    onPress={() => handleViewProfile(item.id)}
                 >
                     <Text style={[styles.btnText, { color: theme.text }]}>Ver Perfil</Text>
                 </TouchableOpacity>
                 <TouchableOpacity accessibilityRole="button" 
                     style={[styles.btn, { backgroundColor: theme.primary }]}
-                    onPress={handleManage}
+                    onPress={() => handleManage(item.id)}
                 >
                     <Text style={[styles.btnText, { color: theme.onPrimary }]}>Gestionar</Text>
                 </TouchableOpacity>
@@ -74,27 +84,28 @@ export default function AdminVeterinariosScreen() {
 
     return (
         <ScreenContainer>
-            <ScreenHeader
-                title="Veterinarios"
-                actionIcon={Search}
-                actionLabel="Buscar veterinario"
-                onAction={handleSearch}
-            />
+            <ScreenHeader title="Veterinarios" subtitle={`${vets.length} registrados`} />
+
+            <View style={styles.searchWrap}>
+                <SearchBar value={searchText} onChangeText={setSearchText} placeholder="Buscar por nombre, correo o especialidad…" />
+            </View>
 
             {isLoading ? (
                 <SkeletonList count={4} />
             ) : (
                 <FlatList
             refreshControl={<AppRefreshControl />}
-                    data={vets}
+                    data={filtered}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                     ListEmptyComponent={
                         <EmptyState
                             icon={<UserCheck size={layout.icon.xl} color={theme.textMuted} />}
-                            title="Sin veterinarios"
-                            subtitle="Cuando los veterinarios se registren en el directorio aparecerán aquí."
+                            title={searchText ? 'Sin resultados' : 'Sin veterinarios'}
+                            subtitle={searchText ? 'Prueba con otro término de búsqueda.' : 'Cuando los veterinarios se registren en el directorio aparecerán aquí.'}
+                            actionLabel={searchText ? 'Limpiar búsqueda' : undefined}
+                            onAction={searchText ? () => setSearchText('') : undefined}
                         />
                     }
                 />
@@ -104,6 +115,10 @@ export default function AdminVeterinariosScreen() {
 }
 
 const styles = StyleSheet.create({
+    searchWrap: {
+        paddingHorizontal: layout.screenPadding,
+        paddingBottom: spacing.md,
+    },
     list: { 
         padding: spacing.xl, 
         paddingBottom: 100,

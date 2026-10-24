@@ -189,7 +189,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.6)', 
         justifyContent: 'flex-end' 
     },
-    modalContent: { 
+    modalContent: {
+        maxHeight: '90%',
+        overflow: 'hidden',
         borderTopLeftRadius: 32, 
         borderTopRightRadius: 32, 
         padding: spacing.xxxl, 
