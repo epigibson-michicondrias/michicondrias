@@ -17,8 +17,8 @@ solo con la fase verificada y el visto bueno del usuario.
 | W1 | Auditoría web ↔ app | Mapa pantalla de la app → página web (existe/falta/sobra/difiere) + inventario de guardas de rol del backend | ✅ 2026-10-08 |
 | W2 | Núcleo espejo | types, services, roles/roleTools, api.ts, tokens → CSS, contextos, componentes base | ✅ (falta `KeyboardScreen`, `DatePicker`, `BottomSheet`, `MediaCard`…: se crean al portar el módulo que los use) |
 | W3 | Navegación y esqueleto | `(auth)` + `(app)`, rutas iguales a la app, shell (sidebar / barra inferior), redirects `/dashboard/*` | ✅ 2026-10-23 |
-| W4 | Módulos (multiagente por lotes) | P1 → **W4-A Consola admin** → P2 → P3 | ⬜ |
-| W4-A | Consola de administración | Admin de la app ampliado a escritorio + matriz de roles/permisos + "ver como rol" | ⬜ |
+| W4 | Módulos (multiagente por lotes) | P1 → **W4-A Consola admin** → P2 → P3 | ✅ 2026-10-23 |
+| W4-A | Consola de administración | Admin de la app ampliado a escritorio + matriz de roles/permisos + "ver como rol" | ✅ 2026-10-23 |
 | W5 | Pulido de escritorio y cierre | hover/foco/atajos, tablas, SEO de la landing, borrar lo viejo, merge a `main` | ⬜ |
 | W6 | Continuo | `scripts/web-drift.sh` cada sesión; reflejar cambios de la app | ⬜ |
 | W7 | Permisos editables (etapa 2) | tabla `role_permissions` en core + edición en la consola; backend y app leen permisos | ⬜ (diseño aparte, con aprobación) |
@@ -103,6 +103,16 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
   `GET /users/{id}`, `users_count` en roles y borrado seguro de roles (ver `AUDITORIA_WEB.md`).
 
 ## Bitácora
+
+- **2026-10-23 — W4-A consola admin + diseño de la landing (Claude + 4 agentes, `dcde5bc`…`dc2440d`).**
+  - Backend core (`c7369c6`): `/users/search`, `/users/{id}`, roles con `users_count`/`is_system` y borrado seguro.
+    Directorio (`2beae13`): el admin edita clínicas. **B1–B3 hechos**; B4 (motivo de rechazo KYC) sigue opcional.
+  - Guarda de rol global en `(app)/layout.tsx` con `ROUTE_ACCESS`.
+  - 18 rutas `/admin/*` (las de la app + `usuarios/[id]` y `pedidos`); `analytics` y `configuraciones` redirigen.
+  - `app/theme.css`: capa de diseño web (Hanken Grotesk, CTA dorado, radios/sombras/foco/movimiento de la landing)
+    sobre `tokens.css`; kit, shell, formularios, modal y AuthShell la usan.
+  - Verificado: `tsc` y `next build` (128 páginas). Falta revisión visual con sesión (admin y consumidor).
+  - **Siguiente (W5):** recorrido del consumidor y pantallas con CSS legacy (ver `HANDOFF.md` §3), luego merge.
 
 - **2026-10-23 — W4 P3: Mi clínica completa (Claude).**
   - 14 rutas bajo `/mi-clinica` (panel, agenda, pacientes, ficha médica, configuración, servicios, veterinarios,
