@@ -1,14 +1,22 @@
 "use client";
 
 /**
- * Mis Mascotas — espejo de `mobile/app/mascotas/index.tsx`. Lista con 3 modos de vista,
- * vacío con una sola acción y carga con esqueleto.
+ * Mis Mascotas — espejo de `mobile/app/mascotas/index.tsx`, con las mejoras visuales de la web:
+ * filtro por especie, foto con anillo de acento, badge del tracker, meta al hover y vacío ilustrado.
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { GalleryVertical, LayoutGrid, List, PawPrint, Plus, Settings2 } from "lucide-react";
+import {
+  Cat,
+  Dog,
+  GalleryVertical,
+  LayoutGrid,
+  List,
+  PawPrint,
+  Plus,
+} from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import EmptyState from "@/components/EmptyState";
@@ -19,12 +27,21 @@ import type { Pet } from "@/types/mascotas";
 import s from "./mascotas.module.css";
 
 type ViewMode = "grid" | "list" | "cards";
+type SpeciesFilter = "all" | "dog" | "cat";
 
 const VIEW_OPTIONS: { mode: ViewMode; label: string; icon: typeof LayoutGrid }[] = [
   { mode: "grid", label: "Cuadrícula", icon: LayoutGrid },
   { mode: "list", label: "Lista", icon: List },
   { mode: "cards", label: "Tarjetas", icon: GalleryVertical },
 ];
+
+/** El backend guarda la especie en español ("perro"/"gato") o inglés ("dog"/"cat"). */
+function speciesKind(species: string | null | undefined): SpeciesFilter | "other" {
+  const v = (species || "").toLowerCase();
+  if (v.startsWith("perr") || v === "dog" || v === "canine") return "dog";
+  if (v.startsWith("gat") || v === "cat" || v === "feline") return "cat";
+  return "other";
+}
 
 function formatAge(months: number | null): string {
   if (months == null || months < 0) return "—";
@@ -33,7 +50,8 @@ function formatAge(months: number | null): string {
   return `${years} ${years === 1 ? "año" : "años"}`;
 }
 
-function PetPhoto({ pet, size }: { pet: Pet; size: number }) {
+function PetPhoto({ pet, size, ring }: { pet: Pet; size: number; ring?: boolean }) {
+  const cls = ring ? `${s.petPhoto} ${s.photoRing}` : s.petPhoto;
   if (pet.photo_url) {
     return (
       <Image
@@ -41,14 +59,28 @@ function PetPhoto({ pet, size }: { pet: Pet; size: number }) {
         alt={pet.name}
         width={size}
         height={size}
-        className={s.petPhoto}
+        className={cls}
         style={{ width: size, height: size }}
       />
     );
   }
   return (
-    <div className={s.petPhotoFallback} style={{ width: size, height: size }}>
+    <div className={`${s.petPhotoFallback} ${ring ? s.photoRing : ""}`} style={{ width: size, height: size }}>
       <PawPrint size={Math.round(size * 0.4)} aria-hidden />
+    </div>
+  );
+}
+
+/** Foto + badge del tracker encima. */
+function PetAvatar({ pet, size, ring }: { pet: Pet; size: number; ring?: boolean }) {
+  return (
+    <div className={s.photoWrap}>
+      <PetPhoto pet={pet} size={size} ring={ring} />
+      {pet.has_active_subscription && (
+        <span className={s.trackerBadge} title="Michi-Tracker activo">
+          <PawPrint size={10} aria-hidden /> Tracker
+        </span>
+      )}
     </div>
   );
 }
@@ -56,7 +88,16 @@ function PetPhoto({ pet, size }: { pet: Pet; size: number }) {
 export default function MascotasPage() {
   const { pets, isLoading, isEmpty, refetch } = usePets();
   const [view, setView] = useState<ViewMode>("grid");
+  const [species, setSpecies] = useState<SpeciesFilter>("all");
   const router = useRouter();
+
+  const filtered = useMemo(() => {
+    if (species === "all") return pets;
+    return pets.filter((p) => speciesKind(p.species) === species);
+  }, [pets, species]);
+
+  const dogCount = pets.filter((p) => speciesKind(p.species) === "dog").length;
+  const catCount = pets.filter((p) => speciesKind(p.species) === "cat").length;
 
   return (
     <ScreenContainer>
@@ -75,18 +116,24 @@ export default function MascotasPage() {
           ))}
         </div>
       ) : isEmpty ? (
-        <EmptyState
-          icon={<PawPrint size={28} />}
-          title="Aún no tienes mascotas"
-          subtitle="Agrega a tu perro o gato para llevar su control, carnet y tracker."
-          actionLabel="Agregar mascota"
-          onAction={() => router.push("/mascotas/nuevo")}
-        />
+        // Vacío con ilustración: más cariño que un ícono suelto.
+        <div className={s.emptyWrap}>
+          <div className={s.emptyArt} aria-hidden>
+            <PawPrint size={56} strokeWidth={1.5} />
+          </div>
+          <EmptyState
+            icon={<PawPrint size={28} />}
+            title="Aún no tienes mascotas"
+            subtitle="Agrega a tu perro o gato para llevar su control, carnet y tracker."
+            actionLabel="Agregar mascota"
+            onAction={() => router.push("/mascotas/nuevo")}
+          />
+        </div>
       ) : (
         <>
           <div className={s.toolbar}>
             <p className={s.count}>
-              {pets.length} {pets.length === 1 ? "mascota" : "mascotas"}
+              {filtered.length} {filtered.length === 1 ? "mascota" : "mascotas"}
             </p>
             <div className={s.viewToggle} role="group" aria-label="Modo de vista">
               {VIEW_OPTIONS.map(({ mode, label, icon: Icon }) => (
@@ -104,51 +151,93 @@ export default function MascotasPage() {
             </div>
           </div>
 
-          <div className={view === "list" ? s.list : view === "cards" ? s.cards : s.grid}>
-            {pets.map((pet) =>
-              view === "list" ? (
-                <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.listRow}>
-                  <PetPhoto pet={pet} size={52} />
-                  <div className={s.listBody}>
+          {/* Filtro por especie */}
+          <div className={s.speciesFilter} role="group" aria-label="Filtrar por especie">
+            <button
+              type="button"
+              className={`${s.speciesChip} ${species === "all" ? s.speciesChipActive : ""}`}
+              onClick={() => setSpecies("all")}
+              aria-pressed={species === "all"}
+            >
+              <PawPrint size={14} aria-hidden /> Todos · {pets.length}
+            </button>
+            <button
+              type="button"
+              className={`${s.speciesChip} ${species === "dog" ? s.speciesChipActive : ""}`}
+              onClick={() => setSpecies("dog")}
+              aria-pressed={species === "dog"}
+            >
+              <Dog size={14} aria-hidden /> Perros · {dogCount}
+            </button>
+            <button
+              type="button"
+              className={`${s.speciesChip} ${species === "cat" ? s.speciesChipActive : ""}`}
+              onClick={() => setSpecies("cat")}
+              aria-pressed={species === "cat"}
+            >
+              <Cat size={14} aria-hidden /> Gatos · {catCount}
+            </button>
+          </div>
+
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={<PawPrint size={28} />}
+              title="Sin resultados"
+              subtitle={`No tienes ${species === "dog" ? "perros" : "gatos"} registrados.`}
+              actionLabel="Ver todos"
+              onAction={() => setSpecies("all")}
+            />
+          ) : (
+            <div className={view === "list" ? s.list : view === "cards" ? s.cards : s.grid}>
+              {filtered.map((pet) =>
+                view === "list" ? (
+                  <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.listRow}>
+                    <PetAvatar pet={pet} size={52} />
+                    <div className={s.listBody}>
+                      <p className={s.petName}>{pet.name}</p>
+                      <p className={s.petMeta}>
+                        {[pet.breed, formatAge(pet.age_months)].filter(Boolean).join(" · ")}
+                      </p>
+                      <p className={s.petMetaSm}>
+                        {[pet.gender, pet.weight_kg ? `${pet.weight_kg} kg` : null].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
+                  </Link>
+                ) : view === "cards" ? (
+                  <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.detailCard}>
+                    <PetAvatar pet={pet} size={170} ring />
+                    <div className={s.detailBody}>
+                      <p className={s.petName}>{pet.name}</p>
+                      <p className={s.petMeta}>{pet.breed || pet.species}</p>
+                      <dl className={s.stats}>
+                        <div><dt>Especie</dt><dd>{pet.species}</dd></div>
+                        <div><dt>Género</dt><dd>{pet.gender || "—"}</dd></div>
+                        <div><dt>Edad</dt><dd>{formatAge(pet.age_months)}</dd></div>
+                        <div><dt>Peso</dt><dd>{pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</dd></div>
+                      </dl>
+                      <p className={s.cardFooter}>
+                        {pet.has_active_subscription ? "Michi-Tracker Pro activo" : "Ver ficha, carnet y salud"}
+                      </p>
+                    </div>
+                  </Link>
+                ) : (
+                  // Grid: meta compacta al hover
+                  <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.gridCard}>
+                    <PetAvatar pet={pet} size={96} />
                     <p className={s.petName}>{pet.name}</p>
                     <p className={s.petMeta}>
                       {[pet.breed, formatAge(pet.age_months)].filter(Boolean).join(" · ")}
                     </p>
-                    <p className={s.petMetaSm}>
-                      {[pet.gender, pet.weight_kg ? `${pet.weight_kg} kg` : null].filter(Boolean).join(" · ")}
-                    </p>
-                  </div>
-                  {pet.has_active_subscription && <span className={s.trackerDot} title="Michi-Tracker activo" />}
-                </Link>
-              ) : view === "cards" ? (
-                <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.detailCard}>
-                  <PetPhoto pet={pet} size={170} />
-                  <div className={s.detailBody}>
-                    <p className={s.petName}>{pet.name}</p>
-                    <p className={s.petMeta}>{pet.breed || pet.species}</p>
-                    <dl className={s.stats}>
-                      <div><dt>Especie</dt><dd>{pet.species}</dd></div>
-                      <div><dt>Género</dt><dd>{pet.gender || "—"}</dd></div>
-                      <div><dt>Edad</dt><dd>{formatAge(pet.age_months)}</dd></div>
-                      <div><dt>Peso</dt><dd>{pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</dd></div>
-                    </dl>
-                    <p className={s.cardFooter}>
-                      {pet.has_active_subscription ? "Michi-Tracker Pro activo" : "Ver ficha, carnet y salud"}
-                    </p>
-                  </div>
-                </Link>
-              ) : (
-                <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.gridCard}>
-                  <PetPhoto pet={pet} size={96} />
-                  <p className={s.petName}>{pet.name}</p>
-                  <p className={s.petMeta}>
-                    {[pet.breed, formatAge(pet.age_months)].filter(Boolean).join(" · ")}
-                  </p>
-                  {pet.has_active_subscription && <span className={s.trackerDot} title="Michi-Tracker activo" />}
-                </Link>
-              ),
-            )}
-          </div>
+                    <div className={s.hoverMeta} aria-hidden>
+                      {[pet.species, pet.weight_kg ? `${pet.weight_kg} kg` : null, formatAge(pet.age_months)]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </div>
+                  </Link>
+                ),
+              )}
+            </div>
+          )}
 
           {view === "cards" && (
             <Button

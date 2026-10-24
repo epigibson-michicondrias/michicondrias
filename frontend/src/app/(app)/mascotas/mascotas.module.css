@@ -413,3 +413,111 @@
   flex-direction: column;
   gap: var(--space-sm);
 }
+
+/* ── Mis mascotas: mejoras visuales ───────────────────────────────── */
+
+/* Filtro por especie */
+.speciesFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+.speciesChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  min-height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.speciesChip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+.speciesChipActive {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.speciesChipActive:hover {
+  color: var(--color-on-accent);
+}
+
+/* Foto con anillo de acento + badge del tracker */
+.photoWrap {
+  position: relative;
+}
+.photoRing {
+  border-radius: inherit;
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+.trackerBadge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--color-success);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  box-shadow: var(--shadow-raised);
+  white-space: nowrap;
+}
+
+/* Info compacta al hacer hover (grid) */
+.gridCard {
+  position: relative;
+}
+.hoverMeta {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+  color: #fff;
+  font-size: var(--font-xs);
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+}
+.gridCard:hover .hoverMeta,
+.gridCard:focus-visible .hoverMeta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Vacío con ilustración */
+.emptyWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+}
+.emptyArt {
+  width: 132px;
+  height: 132px;
+  margin-bottom: var(--space-lg);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+@media (max-width: 640px) {
+  .trackerBadge { padding: 2px 6px; font-size: 9px; }
+}
