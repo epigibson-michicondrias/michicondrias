@@ -133,6 +133,13 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **X8.2 desplegado** (`bb87c03`, 17/17 OK): los 17 `config.py` ya no traen
+  `super_secreto_cambiar_en_produccion`; el default es vacío y un `model_validator` impide arrancar sin
+  `SECRET_KEY` (producción la tiene en `common.env`). **Pendiente del usuario:** rotar la clave si alguna vez
+  se firmó JWT con el default (está en el historial de git).
+- **2026-10-24 · Mimo** — **OTA** `d08da4ef-4125-409e-9974-da7b8b3938ab` (runtime `1.1.0`): `useRideTracking`
+  sin violar rules-of-hooks (el factory `useRideAction` → 4 `useMutation` explícitos con handlers compartidos).
+
 - **2026-10-24 · Mimo** — **X4/X5/X6 del backend desplegado** (`0c5541b`, 17/17 OK): dueño de la mascota en
   `create-subscription-session`, `GET /pets/adopted-from` con dueño/admin/interno, `UserSummaryResponse` sin KYC en
   `GET /users/` y `/search`, y teléfono/correo del denunciante en perdidas solo para el denunciante o admin.
