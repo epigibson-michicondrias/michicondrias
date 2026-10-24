@@ -1,6 +1,7 @@
 import { apiFetch } from "../lib/api";
 import { Listing, AdoptionRequest } from "./adopciones";
 import { LostPetReport } from "./perdidas";
+import type { Clinic } from "./directorio";
 
 // --- Adopciones ---
 export async function getPendingAdoptions(): Promise<Listing[]> {
@@ -54,6 +55,20 @@ export async function approveClinic(clinicId: string): Promise<any> {
 export async function rejectClinic(clinicId: string): Promise<void> {
     return apiFetch<void>("directorio", `/clinics/admin/${clinicId}/reject`, {
         method: "DELETE"
+    });
+}
+
+/** Suspender una clínica: deja de aparecer en el directorio público. No borra datos. */
+export async function suspendClinic(clinicId: string): Promise<Clinic> {
+    return apiFetch<Clinic>("directorio", `/clinics/admin/${clinicId}/suspend`, {
+        method: "POST"
+    });
+}
+
+/** Reactivar una clínica suspendida. */
+export async function unsuspendClinic(clinicId: string): Promise<Clinic> {
+    return apiFetch<Clinic>("directorio", `/clinics/admin/${clinicId}/unsuspend`, {
+        method: "POST"
     });
 }
 

@@ -70,7 +70,7 @@ function ConfigSkeleton() {
 }
 
 export default function AdminConfigPage() {
-  const { currentSettings, isLoading, toggleSetting, updatingKey, syncDatabase, clearCache, isSyncing, isClearing } =
+  const { currentSettings, isLoading, toggleSetting, updatingKey, syncDatabase, clearCache, isSyncing, isClearing, lastSyncResult, tableLabel } =
     useAdminConfig();
 
   return (
@@ -105,6 +105,16 @@ export default function AdminConfigPage() {
               <dt>Versión de caché</dt>
               <dd>{currentSettings.cache_version || "Sin dato"}</dd>
             </dl>
+            {lastSyncResult ? (
+              <dl className={s.kv} role="status" aria-label="Resultado de la sincronización">
+                <dt>Registros contados</dt>
+                <dd>
+                  {Object.entries(lastSyncResult.counts)
+                    .map(([table, n]) => `${tableLabel(table)}: ${n == null ? "—" : n}`)
+                    .join(" · ")}
+                </dd>
+              </dl>
+            ) : null}
             <div className={s.configActions}>
               <Button
                 label="Sincronizar base de datos"

@@ -60,7 +60,7 @@ export interface Order {
     shipping_address?: string;
     created_at: string;
     items?: OrderItem[];
-    /** Solo en los pedidos del vendedor (`/orders/seller/me`): nombre del comprador para el envío. */
+    /** Nombre del comprador para el envío: lo adjunta el backend en `/orders/admin/all` y `/orders/seller/me`. */
     buyer_name?: string | null;
 }
 

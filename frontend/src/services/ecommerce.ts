@@ -42,6 +42,24 @@ export async function getProducts({ category, sellerId, q, sort, ids, favorites,
     return apiFetch<Product[]>("ecommerce", `/products/${qs}`);
 }
 
+export type AdminProductFilter = "all" | "published" | "review" | "hidden" | "out";
+
+/** Todos los productos para el admin, incluidos los ocultos por su vendedor. */
+export async function getAdminProducts(status: AdminProductFilter = "all", q?: string): Promise<Product[]> {
+    const params = new URLSearchParams();
+    if (status && status !== "all") params.append("status", status);
+    if (q?.trim()) params.append("q", q.trim());
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    return apiFetch<Product[]>("ecommerce", `/products/admin/all${qs}`);
+}
+
+/** Mostrar u ocultar un producto (admin). No borra: solo cambia `is_active`. */
+export async function setProductVisibility(productId: string, isActive: boolean): Promise<Product> {
+    return apiFetch<Product>(`ecommerce`, `/products/admin/${productId}/visibility?is_active=${isActive}`, {
+        method: "PATCH",
+    });
+}
+
 // FAVORITOS (guardados en la cuenta)
 export async function getFavoriteProductIds(): Promise<string[]> {
     return apiFetch<string[]>("ecommerce", "/favorites/me");

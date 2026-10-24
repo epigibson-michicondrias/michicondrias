@@ -33,7 +33,7 @@ export default function AdminPedidosPage() {
       <ScreenHeader title="Pedidos" subtitle={`${o.total} ${o.total === 1 ? "pedido" : "pedidos"}${toShip ? ` · ${toShip} por enviar` : ""}`} />
 
       <div className={s.toolbar}>
-        <SearchBar value={o.searchText} onChangeText={o.setSearchText} placeholder="Buscar por folio o dirección de envío..." />
+        <SearchBar value={o.searchText} onChangeText={o.setSearchText} placeholder="Buscar por folio, comprador o dirección..." />
         <div className={s.chips}>
           {ADMIN_ORDER_FILTERS.map((f) => (
             <FilterChip key={f.key} label={f.label} count={o.count(f.key)} active={o.filter === f.key} onPress={() => o.setFilter(f.key)} />

@@ -1,17 +1,19 @@
 "use client";
 
 /**
- * Productos (`/admin/productos`): catálogo de la tienda con búsqueda y filtros por estado; fila → ficha del producto.
- * Espejo de `mobile/app/admin/productos/index.tsx` (allí "Inventario" y "Gestionar" solo mostraban avisos).
+ * Productos (`/admin/productos`): catálogo de la tienda con búsqueda y filtros por estado (incluidos los ocultos),
+ * y acción de mostrar/ocultar sin borrar. Fila → ficha del producto.
+ * Espejo de `mobile/app/admin/productos/index.tsx`.
  */
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Package, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Package, ShieldCheck } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Badge from "@/components/Badge";
 import EmptyState from "@/components/EmptyState";
 import FilterChip from "@/components/FilterChip";
+import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
 import { SkeletonList } from "@/components/Skeleton";
 import { useAdminProducts, type Product, type ProductFilter } from "@/hooks/admin/useAdminProducts";
@@ -23,6 +25,7 @@ const CHIPS: { key: ProductFilter; label: string }[] = [
   { key: "all", label: "Todos" },
   { key: "published", label: "Publicados" },
   { key: "review", label: "En revisión" },
+  { key: "hidden", label: "Ocultos" },
   { key: "out", label: "Agotados" },
 ];
 
@@ -73,12 +76,15 @@ export default function AdminProductosPage() {
                 <th>Precio</th>
                 <th>Existencias</th>
                 <th>Estado</th>
+                <th aria-label="Acciones" />
               </tr>
             </thead>
             <tbody>
               {p.products.map((prod) => {
                 const st = productStatus(prod);
                 const href = `/tienda/producto/${prod.id}`;
+                const busy = p.updatingId === prod.id;
+                const hidden = !prod.is_active;
                 return (
                   <tr key={prod.id} className={s.rowLink} onClick={() => router.push(href)}>
                     <td>
@@ -114,6 +120,18 @@ export default function AdminProductosPage() {
                     </td>
                     <td data-label="Estado">
                       <Badge label={st.label} color={st.color} size="sm" />
+                    </td>
+                    <td>
+                      <div className={s.cellActions} onClick={(e) => e.stopPropagation()}>
+                        <IconButton
+                          icon={hidden ? Eye : EyeOff}
+                          accessibilityLabel={hidden ? `Mostrar ${prod.name}` : `Ocultar ${prod.name}`}
+                          onPress={() => p.toggleVisibility(prod)}
+                          color={hidden ? "var(--color-success)" : "var(--color-text-muted)"}
+                          size="sm"
+                          disabled={!!p.updatingId && !busy}
+                        />
+                      </div>
                     </td>
                   </tr>
                 );

@@ -2,8 +2,9 @@
  * useAdminConfig — Business logic for the admin config screen
  * Manages system settings, toggle updates, sync, and cache operations
  */
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { systemService, SystemSettings } from '@/services/system';
+import { systemService, SystemSettings, type SyncResult } from '@/services/system';
 import { showAlert } from '@/components/AppAlert';
 import { errorMessage } from '@/features/servicios-pro/requestStatus';
 
@@ -20,8 +21,19 @@ export type ToggleKey = 'maintenance_mode' | 'debug_mode' | 'ota_updates_enabled
 
 const SETTINGS_KEY = ['admin-system-settings'];
 
+/** Etiquetas en español de las tablas que cuenta la sincronización. */
+const TABLE_LABELS: Record<string, string> = {
+    users: 'Usuarios',
+    pets: 'Mascotas',
+    clinics: 'Clínicas',
+    products: 'Productos',
+    orders: 'Pedidos',
+    notifications: 'Notificaciones',
+};
+
 export function useAdminConfig() {
     const queryClient = useQueryClient();
+    const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(null);
 
     const { data: settings, isLoading } = useQuery({
         queryKey: SETTINGS_KEY,
@@ -34,12 +46,13 @@ export function useAdminConfig() {
         onError: (error) => showAlert({ type: 'error', title: 'No se guardó el cambio', message: errorMessage(error, 'Inténtalo de nuevo.') }),
     });
 
-    // El backend responde en inglés: se muestra un texto propio y se recargan los ajustes (última sincronización / versión).
+    // El backend responde con la fecha y los conteos reales de las tablas: se muestran en la pantalla.
     const syncMutation = useMutation({
         mutationFn: systemService.syncDatabase,
-        onSuccess: () => {
+        onSuccess: (data) => {
+            setLastSyncResult(data);
             queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
-            showAlert({ type: 'success', title: 'Sincronización registrada', message: 'Se actualizó la fecha de la última sincronización.' });
+            showAlert({ type: 'success', title: 'Base de datos sincronizada', message: data.message || 'Se actualizó la fecha de la última sincronización.' });
         },
         onError: (error) => showAlert({ type: 'error', title: 'No se pudo sincronizar', message: errorMessage(error, 'Inténtalo de nuevo.') }),
     });
@@ -92,5 +105,8 @@ export function useAdminConfig() {
         clearCache,
         isSyncing: syncMutation.isPending,
         isClearing: cacheMutation.isPending,
+        /** Conteos de la última sincronización en esta sesión, para mostrarlos en la pantalla. */
+        lastSyncResult,
+        tableLabel: (key: string) => TABLE_LABELS[key] ?? key,
     };
 }

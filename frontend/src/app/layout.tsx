@@ -4,6 +4,7 @@ import ToasterProvider from "@/components/ui/ToasterProvider";
 import QueryProvider from "@/components/QueryProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import OfflineBanner from "@/components/ui/OfflineBanner";
+import MaintenanceBanner from "@/components/ui/MaintenanceBanner";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import "./tokens.css";
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <QueryProvider>
             <OfflineBanner />
+            <MaintenanceBanner />
             <ToasterProvider />
             {children}
           </QueryProvider>

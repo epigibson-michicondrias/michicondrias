@@ -1,12 +1,13 @@
 "use client";
 
 /**
- * Detalle de clínica (`/admin/clinicas/[id]`): ficha, edición y aprobación si está en revisión.
- * Espejo de `mobile/app/admin/clinicas/[id].tsx` (sin "Suspender": no hay endpoint y en la app no hacía nada).
+ * Detalle de clínica (`/admin/clinicas/[id]`): ficha, edición, aprobación si está en revisión y
+ * suspender/reactivar (`POST /clinics/admin/{id}/suspend|unsuspend`).
+ * Espejo de `mobile/app/admin/clinicas/[id].tsx`.
  */
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Building2, CheckCircle2, Pencil, SearchX } from "lucide-react";
+import { Building2, CheckCircle2, Pencil, SearchX, ShieldOff, ShieldCheck } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Badge from "@/components/Badge";
@@ -107,6 +108,7 @@ export default function AdminClinicaPage() {
                 <span className={s.cellTitle}>{cl.name}</span>
                 <div className={s.badges}>
                   <Badge label={approved ? "Verificada" : "En revisión"} color={approved ? "var(--color-success)" : "var(--color-warning)"} size="sm" />
+                  {d.isSuspended ? <Badge label="Suspendida" color="var(--color-error)" size="sm" /> : null}
                   {cl.is_24_hours ? <Badge label="24 h" color="var(--color-info)" size="sm" variant="outlined" /> : null}
                   {cl.has_emergency ? <Badge label="Urgencias" color="var(--color-error)" size="sm" variant="outlined" /> : null}
                 </div>
@@ -137,6 +139,27 @@ export default function AdminClinicaPage() {
               {!approved ? (
                 <Button label="Aprobar clínica" icon={<CheckCircle2 size={16} />} variant="secondary" fullWidth={false} onPress={d.handleApprove} loading={d.isApproving} />
               ) : null}
+              {d.isSuspended ? (
+                <Button
+                  label="Reactivar clínica"
+                  icon={<ShieldCheck size={16} />}
+                  variant="secondary"
+                  fullWidth={false}
+                  onPress={d.handleSuspend}
+                  loading={d.isSaving}
+                  disabled={d.isSaving}
+                />
+              ) : (
+                <Button
+                  label="Suspender"
+                  icon={<ShieldOff size={16} />}
+                  variant="danger"
+                  fullWidth={false}
+                  onPress={d.handleSuspend}
+                  loading={d.isSaving}
+                  disabled={d.isSaving}
+                />
+              )}
             </div>
           </section>
 

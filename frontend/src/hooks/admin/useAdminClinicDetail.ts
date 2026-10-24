@@ -1,13 +1,12 @@
 /**
- * useAdminClinicDetail — detalle de una clínica para el admin: datos, modo edición y aprobación.
- * Espejo de `mobile/src/hooks/admin/useAdminClinicDetail.ts`. En la app "Suspender" solo mostraba un aviso: no hay
- * endpoint para suspender, así que aquí se quitó. Si la clínica está en revisión se puede aprobar
- * (`POST /clinics/admin/{id}/approve`).
+ * useAdminClinicDetail — detalle de una clínica para el admin: datos, modo edición, aprobación y suspensión.
+ * Espejo de `mobile/src/hooks/admin/useAdminClinicDetail.ts`. Suspender/reactivar usa
+ * `POST /clinics/admin/{id}/suspend|unsuspend` (la clínica deja de aparecer en el directorio público).
  */
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getClinic, updateClinic, type Clinic } from '@/services/directorio';
-import { approveClinic } from '@/services/moderacion';
+import { approveClinic, suspendClinic, unsuspendClinic } from '@/services/moderacion';
 import { ApiError } from '@/lib/api';
 import { showAlert } from '@/components/AppAlert';
 import { errorMessage } from '@/features/servicios-pro/requestStatus';
@@ -112,6 +111,23 @@ export function useAdminClinicDetail(id: string) {
         },
     });
 
+    const suspendMutation = useMutation({
+        mutationFn: (suspended: boolean) => (suspended ? suspendClinic(id) : unsuspendClinic(id)),
+        onSuccess: (_, suspended) => {
+            invalidate();
+            showAlert({
+                type: 'success',
+                title: suspended ? 'Clínica suspendida' : 'Clínica reactivada',
+                message: suspended
+                    ? 'Ya no aparece en el directorio público. Puedes reactivarla cuando quieras.'
+                    : 'Vuelve a aparecer en el directorio público.',
+            });
+        },
+        onError: (e) => {
+            showAlert({ type: 'error', title: 'No se pudo cambiar', message: errorMessage(e, 'Intenta de nuevo en un momento.') });
+        },
+    });
+
     const updateField = <K extends keyof ClinicForm>(key: K, value: ClinicForm[K]) => {
         setForm((f) => ({ ...f, [key]: value }));
         if (key === 'name' && nameError) setNameError(null);
@@ -143,6 +159,23 @@ export function useAdminClinicDetail(id: string) {
         });
     };
 
+    const handleSuspend = () => {
+        const suspended = !!clinic?.is_suspended;
+        if (suspended) {
+            suspendMutation.mutate(false);
+            return;
+        }
+        showAlert({
+            type: 'warning',
+            title: 'Suspender clínica',
+            message: `"${clinic?.name ?? 'Esta clínica'}" dejará de aparecer en el directorio público. Sus datos y citas se conservan. ¿Continuar?`,
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Suspender',
+            onButtonPress: () => suspendMutation.mutate(true),
+        });
+    };
+
     return {
         clinic,
         isLoading,
@@ -153,11 +186,13 @@ export function useAdminClinicDetail(id: string) {
         setForm,
         updateField,
         nameError,
-        isSaving: mutation.isPending,
+        isSaving: mutation.isPending || suspendMutation.isPending,
         handleSave,
         handleCancelEdit,
         startEditing: () => setIsEditing(true),
         handleApprove,
         isApproving: approveMutation.isPending,
+        handleSuspend,
+        isSuspended: !!clinic?.is_suspended,
     };
 }
