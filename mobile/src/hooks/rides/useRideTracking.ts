@@ -46,32 +46,43 @@ export function useRideTracking(rideId: string) {
     queryClient.invalidateQueries({ queryKey: ['driver-ride-history'] });
   };
 
-  // Hook interno: cada acción del viaje es una mutación con el mismo manejo de éxito/error
-  const useRideAction = (fn: () => Promise<PetRide>, ok?: { title: string; message: string; goBack?: boolean }, failTitle = 'No se pudo completar') =>
-    useMutation({
-      mutationFn: fn,
-      onSuccess: (data) => {
-        queryClient.setQueryData(['ride', rideId], data);
-        refreshLists();
-        if (ok) {
-          showAlert({
-            type: 'success',
-            title: ok.title,
-            message: ok.message,
-            onButtonPress: ok.goBack ? () => router.back() : undefined,
-          });
-        }
-      },
-      onError: (e: any) => {
-        refreshLists();
-        showAlert({ type: 'error', title: failTitle, message: e?.message || 'Intenta de nuevo.' });
-      },
-    });
+  // Handlers compartidos (NO es hook: devuelve los callbacks de useMutation).
+  // Antes había un factory `useRideAction` que llamaba a useMutation dentro de una función local:
+  // violaba rules-of-hooks y era frágil si alguien lo llamaba en un branch. Ahora las 4 mutaciones
+  // se declaran arriba, en orden fijo, y comparten estos handlers.
+  const rideHandlers = (ok: { title: string; message: string; goBack?: boolean }, failTitle: string) => ({
+    onSuccess: (data: PetRide) => {
+      queryClient.setQueryData(['ride', rideId], data);
+      refreshLists();
+      showAlert({
+        type: 'success',
+        title: ok.title,
+        message: ok.message,
+        onButtonPress: ok.goBack ? () => router.back() : undefined,
+      });
+    },
+    onError: (e: any) => {
+      refreshLists();
+      showAlert({ type: 'error', title: failTitle, message: e?.message || 'Intenta de nuevo.' });
+    },
+  });
 
-  const acceptMutation = useRideAction(() => acceptRide(rideId), { title: 'Viaje aceptado', message: 'Dirígete al punto de recogida.' }, 'No se pudo aceptar');
-  const rejectMutation = useRideAction(() => rejectRide(rideId), { title: 'Solicitud rechazada', message: 'Avisamos al cliente.', goBack: true }, 'No se pudo rechazar');
-  const startMutation = useRideAction(() => startRide(rideId), { title: 'Viaje iniciado', message: 'Conduce con cuidado.' }, 'No se pudo iniciar');
-  const finishMutation = useRideAction(() => finishRide(rideId), { title: 'Viaje finalizado', message: 'Completaste el viaje.' }, 'No se pudo finalizar');
+  const acceptMutation = useMutation({
+    mutationFn: () => acceptRide(rideId),
+    ...rideHandlers({ title: 'Viaje aceptado', message: 'Dirígete al punto de recogida.' }, 'No se pudo aceptar'),
+  });
+  const rejectMutation = useMutation({
+    mutationFn: () => rejectRide(rideId),
+    ...rideHandlers({ title: 'Solicitud rechazada', message: 'Avisamos al cliente.', goBack: true }, 'No se pudo rechazar'),
+  });
+  const startMutation = useMutation({
+    mutationFn: () => startRide(rideId),
+    ...rideHandlers({ title: 'Viaje iniciado', message: 'Conduce con cuidado.' }, 'No se pudo iniciar'),
+  });
+  const finishMutation = useMutation({
+    mutationFn: () => finishRide(rideId),
+    ...rideHandlers({ title: 'Viaje finalizado', message: 'Completaste el viaje.' }, 'No se pudo finalizar'),
+  });
   const cancelMutation = useMutation({
     mutationFn: (reason?: string) => cancelRide(rideId, reason),
     onSuccess: (data) => {
