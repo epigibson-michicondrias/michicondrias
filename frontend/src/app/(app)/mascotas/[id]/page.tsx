@@ -256,6 +256,10 @@ function PetDetailContent() {
                 return (
                   <div key={v.id} className={s.timelineItem}>
                     <span className={`${s.timelineDot} ${vencido ? s.timelineDotWarn : s.timelineDotOk}`} aria-hidden />
+                    {/* El estado no se comunica solo con color: el texto lo dice. */}
+                    <span className={s.timelineStatus} style={{ color: vencido ? "var(--color-warning)" : "var(--color-success)" }}>
+                      {vencido ? "Refuerzo vencido" : "Al día"}
+                    </span>
                     <div className={s.timelineBody}>
                       <p className={s.timelineTitle}>{v.name}</p>
                       <p className={s.timelineMeta}>

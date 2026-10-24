@@ -94,22 +94,26 @@ export default function MascotasPage() {
   const [sort, setSort] = useState<"name" | "age" | "weight">("name");
   const router = useRouter();
 
-  const filtered = useMemo(() => {
+  // Base con la búsqueda aplicada (sin el filtro de especie): de aquí salen los conteos de los chips.
+  const searched = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const base = pets.filter((p) => {
-      const okSpecies = species === "all" || speciesKind(p.species) === species;
-      const okQuery = !q || `${p.name} ${p.breed || ""} ${p.species}`.toLowerCase().includes(q);
-      return okSpecies && okQuery;
-    });
+    return pets.filter(
+      (p) => !q || `${p.name} ${p.breed || ""} ${p.species}`.toLowerCase().includes(q),
+    );
+  }, [pets, query]);
+
+  const filtered = useMemo(() => {
+    const base = searched.filter((p) => species === "all" || speciesKind(p.species) === species);
     const sorted = [...base];
     if (sort === "name") sorted.sort((a, b) => a.name.localeCompare(b.name, "es"));
     else if (sort === "age") sorted.sort((a, b) => (a.age_months ?? 0) - (b.age_months ?? 0));
     else sorted.sort((a, b) => (a.weight_kg ?? 0) - (b.weight_kg ?? 0));
     return sorted;
-  }, [pets, species, query, sort]);
+  }, [searched, species, sort]);
 
-  const dogCount = pets.filter((p) => speciesKind(p.species) === "dog").length;
-  const catCount = pets.filter((p) => speciesKind(p.species) === "cat").length;
+  // Conteos facetados: reflejan la búsqueda, para que cada chip diga cuántas verías al pulsarlo.
+  const dogCount = searched.filter((p) => speciesKind(p.species) === "dog").length;
+  const catCount = searched.filter((p) => speciesKind(p.species) === "cat").length;
 
   return (
     <ScreenContainer>
@@ -188,7 +192,7 @@ export default function MascotasPage() {
               onClick={() => setSpecies("all")}
               aria-pressed={species === "all"}
             >
-              <PawPrint size={14} aria-hidden /> Todos · {pets.length}
+              <PawPrint size={14} aria-hidden /> Todos · {searched.length}
             </button>
             <button
               type="button"
