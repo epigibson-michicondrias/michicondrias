@@ -12,21 +12,21 @@ export default {
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#0f0522"
+      "backgroundColor": "#0b0e17"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0f0522",
+        "backgroundColor": "#0b0e17",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.michicondrias.mobile",
-      "versionCode": 9,
+      "versionCode": 10,
       "newArchEnabled": false,
       "config": {
         "googleMaps": {

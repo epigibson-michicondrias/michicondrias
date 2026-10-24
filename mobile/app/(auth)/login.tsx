@@ -94,7 +94,7 @@ export default function LoginScreen() {
             {/* Logo */}
             <View style={styles.logoSection}>
                 <View style={[styles.logoRing, { borderColor: theme.heroGlass }]}>
-                    <Image source={require('@/assets/images/logo.jpg')} style={styles.logoImage} resizeMode="contain" />
+                    <Image source={require('@/assets/images/logo.png')} style={styles.logoImage} resizeMode="contain" />
                 </View>
                 <Text style={[styles.appName, { color: theme.onHero }]}>Michicondrias</Text>
                 <View style={styles.taglineRow}>
