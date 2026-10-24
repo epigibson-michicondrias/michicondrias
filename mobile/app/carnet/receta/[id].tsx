@@ -8,7 +8,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ShoppingBag, Share2, Bell } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { font, spacing, layout, shadow } from '@/constants/design';
 
 
 export default function PrescriptionDetailScreen() {
@@ -31,7 +31,7 @@ export default function PrescriptionDetailScreen() {
                     onPress={() => router.back()}
                     accessibilityRole="button"
                 >
-                    <Text style={styles.backErrorBtnText}>Volver</Text>
+                    <Text style={[styles.backErrorBtnText, { color: theme.onPrimary }]}>Volver</Text>
                 </TouchableOpacity>
             </ScreenContainer>
         );
@@ -187,7 +187,7 @@ export default function PrescriptionDetailScreen() {
                         accessibilityLabel="Compartir receta"
                     >
                         <Share2 size={18} color={theme.onPrimary} />
-                        <Text style={styles.actionBtnText}>Compartir Receta</Text>
+                        <Text style={[styles.actionBtnText, { color: theme.onPrimary }]}>Compartir Receta</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -214,7 +214,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     backErrorBtnText: {
-        color: '#fff',
         fontWeight: 'bold',
     },
     scroll: {
@@ -228,11 +227,7 @@ const styles = StyleSheet.create({
         width: '100%',
         borderRadius: 28,
         borderWidth: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 4,
+        ...shadow.raised,
         overflow: 'hidden',
     },
     ticketHeader: {
@@ -392,14 +387,9 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
         paddingVertical: spacing.lg,
         borderRadius: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
-        elevation: 2,
+        ...shadow.card,
     },
     actionBtnText: {
-        color: '#fff',
         fontSize: font.base,
         fontWeight: '800',
     },

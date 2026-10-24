@@ -293,7 +293,10 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
       `TextInput` a `FormField` con validación inline en los obligatorios, y se cambia un `#ffffff` del QR de
       `PetPassportShare` por `theme.surface`. **0 hex y 0 `TextInput`** en `app/mascotas/` + `features/mascotas/`.
       Verificado a 375 px: `output/u6-mascotas/`.)
-- [ ] U7 Carnet: partir `carnet/[id]` en `src/features/carnet/`, formularios con botón primario abajo, receta.
+- [x] U7 Carnet: partir `carnet/[id]` en `src/features/carnet/`, formularios con botón primario abajo, receta.
+      (2026-10-23, Mimo: `carnet/[id]` ya era un redirect de 7 líneas (N7) y los formularios ya llevan el primario en el
+      `footer` de `KeyboardScreen`; se corren los 4 hex de `receta/[id]` (texto de botón → `theme.onPrimary`,
+      sombras a mano → `shadow.raised`/`shadow.card`). **0 hex** en `app/carnet/` + `features/carnet/`.)
 - [x] U8 Tienda: tab, producto (extraer), carrito, compras, pedido. (2026-10-19, también vendedor)
 - [ ] U9 Notificaciones, búsqueda (ampliada a más dominios) y Ayuda.
 - [ ] 📱 U10 APK único: `expo-image`, `expo-haptics`, FlashList, fuente propia, **`expo-notifications` (push + tabla
@@ -960,4 +963,6 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
 - **2026-10-23** — **U6 Mascotas**: `diagnostico-ia` pasa de 4 `TextInput` a `FormField` (validación inline en
   síntomas y tiempo de evolución) y `PetPassportShare` sin `#ffffff`. 0 hex y 0 `TextInput` en el módulo.
   Verificado a 375 px: `output/u6-mascotas/`.
+- **2026-10-23** — **U7 Carnet**: 4 hex de `receta/[id]` a tokens (`theme.onPrimary`, `shadow.raised`/`shadow.card`).
+  Los formularios ya tenían el primario en el footer. 0 hex en el módulo.
 

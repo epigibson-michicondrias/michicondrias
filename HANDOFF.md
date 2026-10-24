@@ -101,6 +101,8 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-23 · Mimo** — **U7 Carnet** cerrada: 4 hex de `receta/[id]` a tokens; 0 hex en el módulo. Sigue **U9**
+  (U8 Tienda ya estaba hecho).
 - **2026-10-23 · Mimo** — **U6 Mascotas** cerrada (`output/u6-mascotas/`): `diagnostico-ia` a `FormField` con
   validación inline, 0 hex y 0 `TextInput` en el módulo. Sigue **U7 Carnet**.
 - **2026-10-23 · Mimo** — **U5 Perfil** cerrada (`output/u5-perfil/`): `app/perfil/` con 0 hex, `eliminar-cuenta` a
