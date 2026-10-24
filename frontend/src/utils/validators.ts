@@ -8,10 +8,10 @@ export interface ValidationResult {
     message?: string;
 }
 
-/** Validate required field */
-export function validateRequired(value: string | undefined | null, fieldName: string): ValidationResult {
+/** Validate required field. `gender` concuerda el adjetivo: 'La contraseña' → 'f'. */
+export function validateRequired(value: string | undefined | null, fieldName: string, gender: 'm' | 'f' = 'm'): ValidationResult {
     if (!value || value.trim().length === 0) {
-        return { valid: false, message: `${fieldName} es obligatorio` };
+        return { valid: false, message: `${fieldName} es obligatori${gender === 'f' ? 'a' : 'o'}` };
     }
     return { valid: true };
 }
