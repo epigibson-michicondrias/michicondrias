@@ -2,7 +2,8 @@
 
 /**
  * Cabecera estándar (espejo de `mobile/src/components/layout/ScreenHeader.tsx`, mismas props): volver + título +
- * `actions`. Hero por defecto con el color que deduce la ruta (`useScreenAccent`); `variant="plain"` sin fondo.
+ * `actions`. Hero por defecto: panel de medianoche (como la landing) con el brillo del color que deduce la ruta
+ * (`useScreenAccent`; sin color, dorado de la marca); `variant="plain"` sin fondo.
  */
 import type { ComponentType, CSSProperties, ReactNode } from "react";
 import { useRouter } from "next/navigation";
@@ -59,7 +60,7 @@ export default function ScreenHeader({
 
   const back = onBack ?? (() => (window.history.length > 1 ? router.back() : router.replace("/")));
   const style = hero && color
-    ? ({ "--accent-gradient": `linear-gradient(135deg, ${color}, color-mix(in srgb, ${color} 55%, black))` } as CSSProperties)
+    ? ({ "--hero-accent": color } as CSSProperties)
     : undefined;
 
   return (

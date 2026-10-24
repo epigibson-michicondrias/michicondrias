@@ -98,6 +98,10 @@ export default function KitPage() {
           <ListRow icon={LogOut} label="Cerrar sesión" destructive />
         </section>
 
+        <Card onPress={() => undefined} accessibilityLabel="Tarjeta tocable">
+          <SectionHeader title="Tarjeta tocable" subtitle="Borde fino y brillo dorado al pasar el cursor, como en la landing" />
+        </Card>
+
         <Card elevated>
           <SectionHeader title="Formulario" subtitle="Validación inline" />
           <FormSection title="Datos de la mascota">

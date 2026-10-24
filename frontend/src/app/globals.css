@@ -1,56 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
 /* ============================
-   DESIGN SYSTEM - MICHICONDRIAS
+   DESIGN SYSTEM - MICHICONDRIAS (base global)
+   Los tokens viven en tokens.css (espejo generado de la app) y theme.css (capa propia de la web).
+   La fuente Hanken Grotesk la carga next/font en app/layout.tsx (--font-mg).
    ============================ */
 
 :root {
-  /* Primary Palette */
-  --primary: #7c3aed;
-  --primary-light: #a78bfa;
-  --primary-dark: #5b21b6;
-  --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-
-  /* Accent */
-  --accent: #f59e0b;
-  --accent-light: #fbbf24;
-
-  /* Neutrals */
-  --bg-primary: #0f0f1a;
-  --bg-secondary: #1a1a2e;
-  --bg-card: #16213e;
-  --bg-glass: rgba(22, 33, 62, 0.6);
-
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-
-  /* Status */
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
-
-  /* Borders & Shadows */
-  --border-color: rgba(148, 163, 184, 0.1);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 30px rgba(124, 58, 237, 0.15);
-
-  /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
-  --radius-full: 9999px;
-
-  /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Midnight & Gold — misma paleta que la app móvil (mobile/constants/palettes.ts, modo oscuro).
-     La landing ya la usa; el dashboard migrará a estos tokens en su rediseño. */
+  /* Midnight & Gold fijo (siempre oscuro): misma paleta que la app móvil en modo oscuro.
+     Lo usan la landing y, por medio de las variables heredadas de abajo, las pantallas viejas. */
   --mg-ink: #0b0e17;
   --mg-ink-2: #0f1320;
   --mg-surface: #131826;
@@ -59,14 +15,49 @@
   --mg-divider: rgba(255, 255, 255, 0.07);
   --mg-fg: #f5f1e8;
   --mg-fg-muted: #9aa3b5;
+  --mg-fg-subtle: #6f7890;
   --mg-gold: #e9c883;
+  --mg-gold-soft: #f3dba8;
   --mg-gold-deep: #b98a3e;
   --mg-on-gold: #101c3d;
   --mg-blue: #4f8cff;
+  --mg-blue-soft: #8fb4ff;
   --mg-navy: #1c2f6b;
   --mg-success: #3ecf9a;
   --mg-warning: #f2a541;
+  --mg-error: #f0716f;
+  --mg-info: #5aa9ff;
   --mg-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Variables heredadas (pantallas anteriores al kit). Antes eran violeta/rosa; ahora apuntan a Midnight & Gold
+     para que esas pantallas tomen la marca sin tocarlas. Siguen siendo de tema oscuro fijo: las pantallas que las
+     usan se migran a var(--color-*) una por una. No usar en código nuevo. */
+  --primary: var(--mg-blue);
+  --primary-light: var(--mg-blue-soft);
+  --primary-dark: var(--mg-navy);
+  --primary-gradient: linear-gradient(135deg, var(--mg-blue) 0%, var(--mg-navy) 100%);
+  --accent: var(--mg-gold);
+  --accent-light: var(--mg-gold-soft);
+  --bg-primary: var(--mg-ink);
+  --bg-secondary: var(--mg-ink-2);
+  --bg-card: var(--mg-surface);
+  --bg-glass: rgba(19, 24, 38, 0.6);
+  --text-primary: var(--mg-fg);
+  --text-secondary: var(--mg-fg-muted);
+  --text-muted: var(--mg-fg-subtle);
+  --success: var(--mg-success);
+  --warning: var(--mg-warning);
+  --error: var(--mg-error);
+  --info: var(--mg-info);
+  --border-color: var(--mg-divider);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 30px rgba(233, 200, 131, 0.14);
+  --radius-full: 9999px;
+  --transition-fast: 150ms var(--mg-ease-out);
+  --transition-base: 250ms var(--mg-ease-out);
+  --transition-slow: 400ms var(--mg-ease-out);
 }
 
 /* ============================
@@ -88,21 +79,42 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.6;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  background: var(--color-background);
+  color: var(--color-text);
+  line-height: var(--leading-body);
   min-height: 100vh;
 }
 
+/* Los controles no heredan la fuente por defecto: así toda la app usa Hanken Grotesk */
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: var(--tracking-snug);
+  text-wrap: balance;
+}
+
 a {
-  color: var(--primary-light);
+  color: var(--color-accent-strong);
   text-decoration: none;
-  transition: color var(--transition-fast);
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 a:hover {
-  color: var(--primary);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+::selection {
+  background: var(--color-accent-light);
+  color: var(--color-text);
 }
 
 img {
@@ -120,11 +132,11 @@ img {
 }
 
 /* ============================
-   UTILITIES
+   UTILIDADES HEREDADAS (pantallas viejas; no usar en código nuevo)
    ============================ */
 
 .gradient-text {
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, var(--mg-gold-soft) 0%, var(--mg-gold) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -135,13 +147,13 @@ img {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   padding: 2rem;
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .glass-card:hover {
-  transform: translateY(-4px);
+  border-color: var(--mg-line);
   box-shadow: var(--shadow-glow);
 }
 
@@ -150,46 +162,45 @@ img {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  min-height: var(--min-touch);
+  padding: 0 1.5rem;
   border-radius: var(--radius-full);
   font-family: inherit;
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   font-size: 0.95rem;
   cursor: pointer;
-  border: none;
-  transition: all var(--transition-base);
+  border: 1px solid transparent;
+  transition: background-color var(--transition-base), border-color var(--transition-base), color var(--transition-base);
 }
 
 .btn-primary {
-  background: var(--primary-gradient);
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+  background: var(--mg-gold);
+  color: var(--mg-on-gold);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(124, 58, 237, 0.6);
+  background: var(--mg-gold-soft);
 }
 
 .btn-secondary {
   background: transparent;
   color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  border-color: var(--mg-line);
 }
 
 .btn-secondary:hover {
-  background: rgba(124, 58, 237, 0.1);
-  border-color: var(--primary);
+  border-color: var(--mg-gold);
+  color: var(--mg-gold);
 }
 
 .btn-outline {
   background: transparent;
-  color: var(--primary-light);
-  border: 1px solid var(--primary);
+  color: var(--mg-gold);
+  border-color: var(--mg-gold);
 }
 
 .btn-outline:hover {
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(233, 200, 131, 0.1);
 }
 
 .container {
@@ -198,19 +209,19 @@ img {
   padding: 0 1.5rem;
 }
 
-/* Global Label Style */
+/* Etiqueta global (los formularios del kit traen la suya) */
 label {
   display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-size: var(--font-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
   margin-bottom: 0.3rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 /* Loading placeholder */
 .loading-text {
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
   text-align: center;
   padding: 2rem;
   animation: pulse-opacity 1.5s ease-in-out infinite;
@@ -228,24 +239,24 @@ label {
   }
 }
 
-/* Forms */
+/* Forms (heredado, tema oscuro fijo) */
 .form-input {
   width: 100%;
   padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: #fff;
+  border-radius: var(--radius-md);
+  color: var(--mg-fg);
   font-family: inherit;
   font-size: 0.95rem;
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
   margin-top: 0.4rem;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--primary-light);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+  border-color: var(--mg-gold);
+  box-shadow: 0 0 0 3px rgba(233, 200, 131, 0.2);
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -256,7 +267,7 @@ label {
 
 select.form-input option {
   background: var(--bg-card);
-  color: #fff;
+  color: var(--mg-fg);
 }
 
 /* ============================
@@ -291,18 +302,26 @@ select.form-input option {
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+    box-shadow: 0 0 20px rgba(233, 200, 131, 0.14);
   }
 
   50% {
-    box-shadow: 0 0 40px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 0 40px rgba(233, 200, 131, 0.28);
   }
 }
 
 .animate-fade-in {
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fadeInUp 0.6s var(--mg-ease-out) forwards;
 }
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-float,
+  .loading-text {
+    animation: none;
+  }
 }

@@ -3,7 +3,12 @@
 .root {
   position: relative;
   min-height: 100dvh;
-  background: var(--color-hero-gradient);
+  /* Mismo lienzo que la landing: tinta de medianoche con brillos dorado y azul (oscuro en ambos temas) */
+  background:
+    radial-gradient(70% 50% at 85% 0%, color-mix(in srgb, var(--color-hero-accent-default) 22%, transparent), transparent 70%),
+    radial-gradient(60% 45% at 0% 100%, color-mix(in srgb, var(--color-primary) 20%, transparent), transparent 70%),
+    var(--color-hero-surface);
+  color: var(--color-on-hero);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -13,7 +18,8 @@
 .deco2 {
   position: absolute;
   border-radius: 50%;
-  background: var(--color-hero-glass);
+  border: 1px solid var(--color-hero-line);
+  background: transparent;
   pointer-events: none;
 }
 

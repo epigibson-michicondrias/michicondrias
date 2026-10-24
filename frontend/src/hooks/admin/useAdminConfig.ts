@@ -12,49 +12,82 @@ const DEFAULT_SETTINGS: SystemSettings = {
     debug_mode: false,
     ota_updates_enabled: true,
     push_notifications_enabled: true,
-} as SystemSettings;
+    cache_version: '',
+    last_sync: '',
+};
+
+export type ToggleKey = 'maintenance_mode' | 'debug_mode' | 'ota_updates_enabled' | 'push_notifications_enabled';
+
+const SETTINGS_KEY = ['admin-system-settings'];
 
 export function useAdminConfig() {
     const queryClient = useQueryClient();
 
     const { data: settings, isLoading } = useQuery({
-        queryKey: ['admin-system-settings'],
+        queryKey: SETTINGS_KEY,
         queryFn: systemService.getSettings,
     });
 
     const updateMutation = useMutation({
         mutationFn: (data: Partial<SystemSettings>) => systemService.updateSettings(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-system-settings'] });
-        },
-        onError: (error) => showAlert({ type: 'error', title: 'Error', message: error.message })
+        onSuccess: (data) => queryClient.setQueryData(SETTINGS_KEY, data),
+        onError: (error) => showAlert({ type: 'error', title: 'No se guardó el cambio', message: errorMessage(error, 'Inténtalo de nuevo.') }),
     });
 
+    // El backend responde en inglés: se muestra un texto propio y se recargan los ajustes (última sincronización / versión).
     const syncMutation = useMutation({
         mutationFn: systemService.syncDatabase,
-        onSuccess: (data) => showAlert({ type: 'success', title: 'Éxito', message: errorMessage(data, 'Sincronización completada.') }),
-        onError: (error) => showAlert({ type: 'error', title: 'Error', message: error.message })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
+            showAlert({ type: 'success', title: 'Sincronización registrada', message: 'Se actualizó la fecha de la última sincronización.' });
+        },
+        onError: (error) => showAlert({ type: 'error', title: 'No se pudo sincronizar', message: errorMessage(error, 'Inténtalo de nuevo.') }),
     });
 
     const cacheMutation = useMutation({
         mutationFn: systemService.clearCache,
-        onSuccess: (data) => showAlert({ type: 'success', title: 'Éxito', message: errorMessage(data, 'Caché global limpiada.') }),
-        onError: (error) => showAlert({ type: 'error', title: 'Error', message: error.message })
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
+            showAlert({ type: 'success', title: 'Caché limpiada', message: 'Ya hay una nueva versión de caché.' });
+        },
+        onError: (error) => showAlert({ type: 'error', title: 'No se pudo limpiar la caché', message: errorMessage(error, 'Inténtalo de nuevo.') }),
     });
 
     const currentSettings = settings || DEFAULT_SETTINGS;
 
-    const toggleSetting = (key: keyof SystemSettings) => {
+    const toggleSetting = (key: ToggleKey) => {
         updateMutation.mutate({ [key]: !currentSettings[key] });
     };
 
-    const syncDatabase = () => syncMutation.mutate();
-    const clearCache = () => cacheMutation.mutate();
+    const syncDatabase = () =>
+        showAlert({
+            type: 'warning',
+            title: 'Sincronizar base de datos',
+            message: '¿Sincronizar la base de datos ahora?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Sincronizar',
+            onButtonPress: () => syncMutation.mutate(),
+        });
+
+    const clearCache = () =>
+        showAlert({
+            type: 'warning',
+            title: 'Limpiar caché',
+            message: 'Se generará una nueva versión de caché y los datos guardados quedarán obsoletos. ¿Continuar?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Limpiar caché',
+            onButtonPress: () => cacheMutation.mutate(),
+        });
 
     return {
         currentSettings,
+        hasSettings: !!settings,
         isLoading,
         toggleSetting,
+        /** Clave que se está guardando ahora (para deshabilitar ese interruptor). */
+        updatingKey: updateMutation.isPending ? (Object.keys(updateMutation.variables ?? {})[0] as ToggleKey | undefined) : undefined,
         syncDatabase,
         clearCache,
         isSyncing: syncMutation.isPending,

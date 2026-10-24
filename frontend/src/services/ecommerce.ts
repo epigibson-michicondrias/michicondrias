@@ -227,8 +227,8 @@ export async function deleteSubcategory(id: string): Promise<void> {
 
 // --- Admin Orders ---
 
-export async function getAdminOrders(): Promise<Order[]> {
-    return apiFetch<Order[]>("ecommerce", "/orders/admin/all");
+export async function getAdminOrders(limit = 200): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", `/orders/admin/all?limit=${limit}`);
 }
 
 export async function adminUpdateOrderStatus(orderId: string, status: string): Promise<Order> {

@@ -7,6 +7,8 @@ import OfflineBanner from "@/components/ui/OfflineBanner";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import "./tokens.css";
+// Capa propia de la web encima del espejo generado: lenguaje visual de la landing (ver theme.css).
+import "./theme.css";
 
 const hanken = Hanken_Grotesk({
   subsets: ["latin"],

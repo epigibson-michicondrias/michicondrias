@@ -123,7 +123,7 @@ export default function AdminUsuarioPage() {
               {docs.map((doc) => (
                 <a key={doc.label} href={doc.url!} target="_blank" rel="noopener noreferrer" className={s.doc}>
                   {/\.pdf(\?|$)/i.test(doc.url!) ? (
-                    <span className={s.docImg} style={{ display: "grid", placeItems: "center" }}>
+                    <span className={`${s.docImg} ${s.docPlaceholder}`}>
                       <FileText size={28} />
                     </span>
                   ) : (
