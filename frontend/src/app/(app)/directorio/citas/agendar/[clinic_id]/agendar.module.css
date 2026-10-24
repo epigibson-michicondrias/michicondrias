@@ -1,0 +1,189 @@
+.content {
+  display: grid;
+  gap: var(--space-xl);
+  padding-bottom: var(--space-xl);
+}
+
+.clinic {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.clinicInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.clinicName {
+  margin: 0;
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-md);
+  color: var(--color-text-muted);
+}
+
+.iconBox {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  flex-shrink: 0;
+}
+
+.badges {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.bodyText {
+  margin: 0;
+  font-size: var(--font-base);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.services {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.service {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-md);
+  min-height: var(--min-touch);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.service:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.service:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.service:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.serviceActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.serviceInfo {
+  flex: 1;
+  display: grid;
+  gap: var(--space-xxs);
+  min-width: 0;
+}
+
+.serviceName {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.serviceNameActive {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.serviceMeta {
+  font-size: var(--font-md);
+  color: var(--color-text-muted);
+}
+
+.servicePrice {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+.dateField {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.dateLabel {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.dateInput {
+  min-height: var(--min-touch);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-lg);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dateInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--color-error-light);
+}
+
+.footer {
+  position: sticky;
+  bottom: var(--app-bottom-inset);
+  padding: var(--space-md) 0 var(--space-lg);
+  background: linear-gradient(to top, var(--color-background) 70%, transparent);
+}

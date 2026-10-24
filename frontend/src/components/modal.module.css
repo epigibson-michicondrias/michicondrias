@@ -1,0 +1,69 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: var(--color-scrim);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.dialog {
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 2 * var(--space-lg));
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-card-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-floating);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-xl) var(--space-sm);
+}
+
+.titles {
+  flex: 1;
+  display: grid;
+  gap: var(--space-xxs);
+}
+
+.title {
+  font-size: var(--font-h3);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-snug);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.body {
+  overflow-y: auto;
+  padding: var(--space-sm) var(--space-xl) var(--space-xl);
+  display: grid;
+  gap: var(--space-md);
+  align-content: start;
+}
+
+.footer {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-lg) var(--space-xl);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.footer > * {
+  flex: 1;
+}

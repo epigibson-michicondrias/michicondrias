@@ -1,0 +1,27 @@
+// Generado por scripts/sync-mimo.sh desde .claude/skills y .mcp.json. No editar aquí.
+{
+  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "skills": {
+    "paths": [
+      ".claude/skills"
+    ]
+  },
+  "mcp": {
+    "context7": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=zaegmfufrzjmjiemrvvp&read_only=true"
+    },
+    "expo": {
+      "type": "remote",
+      "url": "https://mcp.expo.dev/mcp"
+    }
+  }
+}

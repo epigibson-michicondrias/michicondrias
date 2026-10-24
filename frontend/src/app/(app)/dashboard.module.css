@@ -1,0 +1,25 @@
+/* Cabeceras de página W3 (la única consumidora hoy es /perdidas/reportar). Tokens + theme.css. */
+
+.page-header {
+    margin-bottom: var(--space-xxl);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid var(--color-divider);
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    font-size: var(--font-h2);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: var(--space-xs);
+    line-height: var(--leading-tight);
+    color: var(--color-text);
+}
+
+.page-subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--font-lg);
+    line-height: var(--leading-body);
+}

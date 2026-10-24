@@ -43,7 +43,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             message: "Explora adopciones, la tienda y más funciones de la plataforma.",
             time: new Date(),
             read: false,
-            href: "/dashboard",
+            href: "/inicio",
         },
     ]);
 

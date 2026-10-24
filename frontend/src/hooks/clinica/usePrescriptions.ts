@@ -1,0 +1,125 @@
+import { useState, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getMyClinics } from '@/services/directorio';
+import { getClinicPatients } from '@/services/patients';
+import { getClinicPrescriptions, createPrescription, updatePrescriptionStatus, PrescriptionCreatePayload } from '@/services/prescriptions';
+import { useAuth } from '@/contexts/AuthContext';
+import { showAlert } from '@/components/AppAlert';
+import { errorMessage } from '@/features/servicios-pro/requestStatus';
+
+export function usePrescriptions() {
+    const queryClient = useQueryClient();
+    const { user } = useAuth();
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [loadingAction, setLoadingAction] = useState(false);
+    const [patientPickerVisible, setPatientPickerVisible] = useState(false);
+    const [patientSearch, setPatientSearch] = useState('');
+    const [newPresc, setNewPresc] = useState<PrescriptionCreatePayload>({
+        patientId: '',
+        veterinarianId: '',
+        medications: [{ name: '', dosage: '', frequency: '', duration: '' }],
+        notes: ''
+    });
+
+    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
+        queryKey: ['my-clinics'],
+        queryFn: getMyClinics,
+    });
+    const clinic = clinics[0];
+
+    // Pacientes reales de la clínica (una sola consulta; antes se pedía cada mascota por separado)
+    const { data: patients = [], isLoading: loadingPets } = useQuery({
+        queryKey: ['clinic-patients', clinic?.id],
+        queryFn: () => getClinicPatients(clinic!.id),
+        enabled: !!clinic?.id,
+    });
+    const resolvedPets = useMemo(() => patients.map((p) => ({ id: p.id, name: p.name, species: p.species || 'Mascota', breed: p.breed || undefined, owner: p.owner })), [patients]);
+
+    const filteredPets = useMemo(() => {
+        if (!patientSearch.trim()) return resolvedPets;
+        const q = patientSearch.toLowerCase();
+        return resolvedPets.filter(p => p.name.toLowerCase().includes(q) || (p.owner || '').toLowerCase().includes(q));
+    }, [resolvedPets, patientSearch]);
+
+    const { data: prescriptions = [], isLoading: loadingPrescriptions } = useQuery({
+        queryKey: ['clinic-prescriptions', clinic?.id],
+        queryFn: () => getClinicPrescriptions(clinic!.id),
+        enabled: !!clinic?.id,
+        refetchInterval: 30000,
+    });
+
+    const handleSavePrescription = async () => {
+        if (!newPresc.patientId || !newPresc.medications[0].name.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'Elige un paciente y escribe al menos un medicamento.' });
+            return;
+        }
+        setLoadingAction(true);
+        try {
+            await createPrescription(clinic!.id, {
+                ...newPresc,
+                veterinarianId: user?.id || '',
+            });
+            setModalVisible(false);
+            setNewPresc({
+                patientId: '',
+                veterinarianId: '',
+                medications: [{ name: '', dosage: '', frequency: '', duration: '' }],
+                notes: ''
+            });
+            showAlert({ type: 'success', title: 'Éxito', message: 'Receta emitida correctamente' });
+            queryClient.invalidateQueries({ queryKey: ['clinic-prescriptions', clinic?.id] });
+        } catch (error) {
+            showAlert({ type: 'error', title: 'Error', message: errorMessage(error, 'No se pudo crear la receta') });
+        } finally {
+            setLoadingAction(false);
+        }
+    };
+
+    const selectPatient = (petId: string) => {
+        setNewPresc({ ...newPresc, patientId: petId });
+        setPatientPickerVisible(false);
+        setPatientSearch('');
+    };
+
+    const statusMutation = useMutation({
+        mutationFn: ({ prescId, status }: { prescId: string; status: string }) =>
+            updatePrescriptionStatus(clinic!.id, prescId, status),
+        onSuccess: () => {
+            showAlert({ type: 'success', title: 'Éxito', message: 'Estado de receta actualizado' });
+            queryClient.invalidateQueries({ queryKey: ['clinic-prescriptions', clinic?.id] });
+        },
+        onError: () => {
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el estado' });
+        },
+    });
+
+    const handleUpdateStatus = (prescId: string, newStatus: string) => {
+        statusMutation.mutate({ prescId, status: newStatus });
+    };
+
+    return {
+        // State
+        modalVisible,
+        setModalVisible,
+        loadingAction,
+        patientPickerVisible,
+        setPatientPickerVisible,
+        patientSearch,
+        setPatientSearch,
+        newPresc,
+        setNewPresc,
+        // Data
+        loadingClinics,
+        loadingPrescriptions,
+        prescriptions,
+        resolvedPets,
+        filteredPets,
+        loadingPets,
+        // Actions
+        handleSavePrescription,
+        selectPatient,
+        handleUpdateStatus,
+        isUpdatingStatus: statusMutation.isPending,
+    };
+}

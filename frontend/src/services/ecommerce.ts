@@ -1,0 +1,268 @@
+import { apiFetch } from "../lib/api";
+import type {
+    Category, Product, Review, ReviewCreate, ReviewEligibility, OrderItem, Order, OrderCreate, Donation,
+} from "@/types/ecommerce";
+
+export type { Category, Product, Review, ReviewCreate, ReviewEligibility, OrderItem, Order, OrderCreate, Donation };
+
+// PRODUCTS
+export type ProductSort = "relevance" | "price_asc" | "price_desc" | "rating";
+
+export interface ProductQuery {
+    category?: string;
+    sellerId?: string;
+    /** Búsqueda en nombre y descripción (el backend ignora acentos y exige cada palabra). */
+    q?: string;
+    sort?: ProductSort;
+    /** Solo estos productos. Lista vacía = ninguno. */
+    ids?: string[];
+    /** Solo los favoritos del usuario con sesión. */
+    favorites?: boolean;
+    skip?: number;
+    limit?: number;
+}
+
+/** Página del catálogo en la pestaña Tienda. */
+export const PRODUCTS_PAGE_SIZE = 24;
+
+/** Catálogo público (activos y aprobados) con búsqueda, orden y paginación en el backend. */
+export async function getProducts({ category, sellerId, q, sort, ids, favorites, skip, limit }: ProductQuery = {}): Promise<Product[]> {
+    if (ids && ids.length === 0) return [];
+    const params = new URLSearchParams();
+    if (category) params.append("category", category);
+    if (sellerId) params.append("seller_id", sellerId);
+    if (q?.trim()) params.append("q", q.trim());
+    if (sort && sort !== "relevance") params.append("sort", sort);
+    if (ids) params.append("ids", ids.join(","));
+    if (favorites) params.append("favorites", "true");
+    if (skip) params.append("skip", String(skip));
+    if (limit) params.append("limit", String(limit));
+
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    return apiFetch<Product[]>("ecommerce", `/products/${qs}`);
+}
+
+export type AdminProductFilter = "all" | "published" | "review" | "hidden" | "out";
+
+/** Todos los productos para el admin, incluidos los ocultos por su vendedor. */
+export async function getAdminProducts(status: AdminProductFilter = "all", q?: string): Promise<Product[]> {
+    const params = new URLSearchParams();
+    if (status && status !== "all") params.append("status", status);
+    if (q?.trim()) params.append("q", q.trim());
+    const qs = params.toString() ? `?${params.toString()}` : "";
+    return apiFetch<Product[]>("ecommerce", `/products/admin/all${qs}`);
+}
+
+/** Mostrar u ocultar un producto (admin). No borra: solo cambia `is_active`. */
+export async function setProductVisibility(productId: string, isActive: boolean): Promise<Product> {
+    return apiFetch<Product>(`ecommerce`, `/products/admin/${productId}/visibility?is_active=${isActive}`, {
+        method: "PATCH",
+    });
+}
+
+// FAVORITOS (guardados en la cuenta)
+export async function getFavoriteProductIds(): Promise<string[]> {
+    return apiFetch<string[]>("ecommerce", "/favorites/me");
+}
+
+export async function addFavoriteProduct(productId: string): Promise<void> {
+    await apiFetch<void>("ecommerce", `/favorites/me/${productId}`, { method: "PUT" });
+}
+
+export async function removeFavoriteProduct(productId: string): Promise<void> {
+    await apiFetch<void>("ecommerce", `/favorites/me/${productId}`, { method: "DELETE" });
+}
+
+/** Sube varios a la vez (los que estaban solo en el teléfono) y devuelve la lista final. */
+export async function mergeFavoriteProducts(productIds: string[]): Promise<string[]> {
+    return apiFetch<string[]>("ecommerce", "/favorites/me/merge", {
+        method: "POST",
+        body: JSON.stringify({ product_ids: productIds }),
+    });
+}
+
+export async function getMyProducts(): Promise<Product[]> {
+    return apiFetch<Product[]>("ecommerce", "/products/seller/me");
+}
+
+export async function getProductPresignedUrl(ext: string): Promise<{ url: string; object_key: string; public_url: string }> {
+    return apiFetch<{ url: string; object_key: string; public_url: string }>("ecommerce", `/products/presigned-url?file_extension=${encodeURIComponent(ext)}`);
+}
+
+export async function getProduct(productId: string): Promise<Product> {
+    return apiFetch<Product>("ecommerce", `/products/${productId}`);
+}
+
+export async function createProduct(productData: Partial<Product>): Promise<Product> {
+    return apiFetch<Product>("ecommerce", "/products/", {
+        method: "POST",
+        body: JSON.stringify(productData),
+    });
+}
+
+export async function updateProduct(productId: string, data: Partial<Product>): Promise<Product> {
+    return apiFetch<Product>("ecommerce", `/products/${productId}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteProduct(productId: string): Promise<void> {
+    return apiFetch<void>("ecommerce", `/products/${productId}`, {
+        method: "DELETE",
+    });
+}
+
+// REVIEWS
+export async function getReviews(productId: string): Promise<Review[]> {
+    return apiFetch<Review[]>("ecommerce", `/products/${productId}/reviews`);
+}
+
+export async function getReviewEligibility(productId: string): Promise<ReviewEligibility> {
+    return apiFetch<ReviewEligibility>("ecommerce", `/products/${productId}/review-eligibility`);
+}
+
+// ORDERS
+export async function createOrder(data: OrderCreate): Promise<Order> {
+    return apiFetch<Order>("ecommerce", "/orders/", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+/** Página de "Mis compras" (el backend devuelve como máximo 50 por página). */
+export const MY_ORDERS_PAGE_SIZE = 20;
+
+export async function getMyOrders(skip = 0, limit = MY_ORDERS_PAGE_SIZE): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", `/orders/me?skip=${skip}&limit=${limit}`);
+}
+
+export async function getSellerOrders(): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", "/orders/seller/me");
+}
+
+export async function updateOrderStatus(orderId: string, status: string): Promise<Order> {
+    return apiFetch<Order>("ecommerce", `/orders/${orderId}/status?status=${status}`, {
+        method: "PATCH",
+    });
+}
+
+export async function getOrder(orderId: string): Promise<Order> {
+    return apiFetch<Order>("ecommerce", `/orders/${orderId}`);
+}
+
+// PAYMENTS & SUBSCRIPTIONS
+export async function createCheckoutSession(orderId: string): Promise<{ sessionId: string, url: string }> {
+    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-checkout-session/${orderId}?source=app`, {
+        method: "POST"
+    });
+}
+
+export async function createSubscriptionSession(petId: string): Promise<{ sessionId: string, url: string }> {
+    return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-subscription-session/${petId}?source=app`, {
+        method: "POST"
+    });
+}
+
+export async function createBillingPortalSession(): Promise<{ url: string }> {
+    return apiFetch<{ url: string }>("ecommerce", "/payments/billing/portal-session", {
+        method: "POST"
+    });
+}
+
+
+// DONATIONS
+/** Crea la donación (pendiente) y la sesión de Stripe Checkout; se marca "paid" por webhook. */
+export async function createDonationCheckout(amount: number, message?: string): Promise<{ donation_id: string; sessionId: string; url: string }> {
+    return apiFetch<{ donation_id: string; sessionId: string; url: string }>("ecommerce", "/donations/checkout", {
+        method: "POST",
+        body: JSON.stringify({ amount, message: message?.trim() || undefined, source: "app" }),
+    });
+}
+
+/** Estado de una donación (el backend verifica con Stripe si sigue pendiente). */
+export async function getDonation(donationId: string): Promise<Donation> {
+    return apiFetch<Donation>("ecommerce", `/donations/${donationId}`);
+}
+
+export async function getCategories(): Promise<Category[]> {
+    return apiFetch<Category[]>("ecommerce", "/categories/");
+}
+
+export async function createCategory(data: Partial<Category>): Promise<Category> {
+    return apiFetch<Category>("ecommerce", "/categories/", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function updateCategory(id: string, data: Partial<Category>): Promise<Category> {
+    return apiFetch<Category>("ecommerce", `/categories/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+    return apiFetch<void>("ecommerce", `/categories/${id}`, {
+        method: "DELETE",
+    });
+}
+
+// --- Subcategories ---
+
+export interface Subcategory {
+    id: string;
+    category_id: string;
+    name: string;
+    description: string | null;
+    image_url?: string | null;
+}
+
+export async function getSubcategories(categoryId: string): Promise<Subcategory[]> {
+    return apiFetch<Subcategory[]>("ecommerce", `/categories/${categoryId}/subcategories`);
+}
+
+export async function createSubcategory(data: Partial<Subcategory>): Promise<Subcategory> {
+    return apiFetch<Subcategory>("ecommerce", "/categories/subcategories", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function updateSubcategory(id: string, data: Partial<Subcategory>): Promise<Subcategory> {
+    return apiFetch<Subcategory>("ecommerce", `/categories/subcategories/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function deleteSubcategory(id: string): Promise<void> {
+    return apiFetch<void>("ecommerce", `/categories/subcategories/${id}`, {
+        method: "DELETE",
+    });
+}
+
+// --- Admin Orders ---
+
+export async function getAdminOrders(limit = 200): Promise<Order[]> {
+    return apiFetch<Order[]>("ecommerce", `/orders/admin/all?limit=${limit}`);
+}
+
+export async function adminUpdateOrderStatus(orderId: string, status: string): Promise<Order> {
+    return apiFetch<Order>("ecommerce", `/orders/admin/${orderId}/status?status=${status}`, {
+        method: "PATCH",
+    });
+}
+
+// --- Product Reviews (create) ---
+
+export async function createProductReview(
+    productId: string,
+    data: ReviewCreate
+): Promise<Review> {
+    return apiFetch<Review>("ecommerce", `/products/${productId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}

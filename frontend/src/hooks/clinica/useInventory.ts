@@ -1,0 +1,168 @@
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getMyClinics } from '@/services/directorio';
+import {
+    getClinicInventory, getCriticalInventory, addInventoryItem,
+    updateInventoryItem, deleteInventoryItem,
+    InventoryCreatePayload, InventoryItem
+} from '@/services/inventory';
+import { showAlert } from '@/components/AppAlert';
+
+export function useInventory() {
+    const queryClient = useQueryClient();
+
+    const [showSearch, setShowSearch] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const [editingItem, setEditingItem] = useState<Partial<InventoryItem> | null>(null);
+    const [loadingAction, setLoadingAction] = useState(false);
+    const [inventoryFilter, setInventoryFilter] = useState<'all' | 'critical'>('all');
+
+    const [newItem, setNewItem] = useState<InventoryCreatePayload>({
+        name: '', category: '', unit: 'unidad', currentStock: 0, minStock: 0
+    });
+
+    const { data: clinics = [], isLoading: loadingClinics } = useQuery({
+        queryKey: ['my-clinics'],
+        queryFn: getMyClinics,
+    });
+    const clinic = clinics[0];
+
+    const { data: inventory = [], isLoading: loadingInventory } = useQuery({
+        queryKey: ['clinic-inventory', clinic?.id],
+        queryFn: () => getClinicInventory(clinic!.id),
+        enabled: !!clinic?.id,
+        refetchInterval: 30000,
+    });
+
+    const { data: criticalInventory = [] } = useQuery({
+        queryKey: ['clinic-inventory-critical', clinic?.id],
+        queryFn: () => getCriticalInventory(clinic!.id),
+        enabled: !!clinic?.id && inventoryFilter === 'critical',
+        refetchInterval: 30000,
+    });
+
+    const isLoading = loadingClinics || (loadingInventory && !inventory.length);
+
+    const criticalItems = inventory.filter(item => item.isCritical || item.currentStock <= item.minStock);
+
+    const activeInventory = inventoryFilter === 'critical' ? criticalInventory : inventory;
+
+    const filteredInventory = inventory.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+    const toggleSearch = () => setShowSearch(!showSearch);
+
+    const handleSaveItem = async () => {
+        if (!newItem.name.trim() || !newItem.unit?.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'El nombre y la unidad son obligatorios.' });
+            return;
+        }
+        if ((newItem.currentStock ?? 0) < 0 || (newItem.minStock ?? 0) < 0) {
+            showAlert({ type: 'error', title: 'Cantidad inválida', message: 'El stock no puede ser negativo.' });
+            return;
+        }
+        setLoadingAction(true);
+        try {
+            await addInventoryItem(clinic!.id, { ...newItem, name: newItem.name.trim(), unit: newItem.unit?.trim() });
+            setModalVisible(false);
+            setNewItem({ name: '', category: '', unit: 'unidad', currentStock: 0, minStock: 0 });
+            showAlert({ type: 'success', title: 'Éxito', message: 'Producto agregado al inventario' });
+            queryClient.invalidateQueries({ queryKey: ['clinic-inventory', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-inventory-critical', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-alerts', clinic?.id] });
+        } catch (error) {
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo agregar el producto' });
+        } finally {
+            setLoadingAction(false);
+        }
+    };
+
+    const updateMutation = useMutation({
+        mutationFn: ({ itemId, data }: { itemId: string; data: Partial<InventoryItem> }) =>
+            updateInventoryItem(clinic!.id, itemId, data),
+        onSuccess: () => {
+            setEditModalVisible(false);
+            setEditingItem(null);
+            showAlert({ type: 'success', title: 'Éxito', message: 'Producto actualizado' });
+            queryClient.invalidateQueries({ queryKey: ['clinic-inventory', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-inventory-critical', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-alerts', clinic?.id] });
+        },
+        onError: () => {
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar el producto' });
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (itemId: string) => deleteInventoryItem(clinic!.id, itemId),
+        onSuccess: () => {
+            showAlert({ type: 'success', title: 'Éxito', message: 'Producto eliminado del inventario' });
+            queryClient.invalidateQueries({ queryKey: ['clinic-inventory', clinic?.id] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-inventory-critical', clinic?.id] });
+        },
+        onError: () => {
+            showAlert({ type: 'error', title: 'Error', message: 'No se pudo eliminar el producto' });
+        },
+    });
+
+    const handleEditItem = (item: InventoryItem) => {
+        setEditingItem({ ...item });
+        setEditModalVisible(true);
+    };
+
+    const handleUpdateItem = () => {
+        if (!editingItem?.id) return;
+        if ((editingItem.currentStock ?? 0) < 0 || (editingItem.minStock ?? 0) < 0) {
+            showAlert({ type: 'error', title: 'Cantidad inválida', message: 'El stock no puede ser negativo.' });
+            return;
+        }
+        updateMutation.mutate({ itemId: editingItem.id, data: { name: editingItem.name, category: editingItem.category, unit: editingItem.unit, currentStock: editingItem.currentStock, minStock: editingItem.minStock } });
+    };
+
+    const handleDeleteItem = (itemId: string) => {
+        showAlert({
+            type: 'warning',
+            title: 'Eliminar Producto',
+            message: '¿Estás seguro de que deseas eliminar este producto del inventario?',
+            showCancel: true,
+            cancelText: 'Cancelar',
+            buttonText: 'Eliminar',
+            onButtonPress: () => { setEditModalVisible(false); setEditingItem(null); deleteMutation.mutate(itemId); },
+        });
+    };
+
+    return {
+        // State
+        showSearch,
+        searchQuery,
+        setSearchQuery,
+        modalVisible,
+        setModalVisible,
+        editModalVisible,
+        setEditModalVisible,
+        editingItem,
+        setEditingItem,
+        loadingAction,
+        newItem,
+        setNewItem,
+        inventoryFilter,
+        setInventoryFilter,
+        // Data
+        isLoading,
+        criticalItems,
+        filteredInventory,
+        activeInventory,
+        // Actions
+        toggleSearch,
+        handleSaveItem,
+        handleEditItem,
+        handleUpdateItem,
+        handleDeleteItem,
+        isUpdating: updateMutation.isPending,
+        isDeleting: deleteMutation.isPending,
+    };
+}

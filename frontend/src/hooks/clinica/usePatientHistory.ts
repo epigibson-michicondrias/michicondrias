@@ -1,0 +1,135 @@
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { AppointmentItem, getAppointmentById } from '@/services/directorio';
+import { createRecord, MedicalRecordCreate } from '@/services/carnet';
+import { showAlert } from '@/components/AppAlert';
+import { errorMessage } from '@/features/servicios-pro/requestStatus';
+
+/** Medicamento de la receta mientras se captura (los números llegan como texto de los campos). */
+export interface PrescriptionRow {
+    medication_name: string;
+    dosage: string;
+    frequency_hours: number | string;
+    duration_days: number | string;
+    instructions: string;
+}
+
+export function usePatientHistory(id: string, appointmentId?: string) {
+    const router = useRouter();
+    const queryClient = useQueryClient();
+
+    const [loading, setLoading] = useState(false);
+    const [reason, setReason] = useState('');
+    const [diagnosis, setDiagnosis] = useState('');
+    const [treatment, setTreatment] = useState('');
+    const [weight, setWeight] = useState('');
+    const [temp, setTemp] = useState('');
+    const [notes, setNotes] = useState('');
+    const [prescriptions, setPrescriptions] = useState<PrescriptionRow[]>([]);
+
+    // La ruta es /historial/nuevo?appointment_id=... (o /historial/<id de cita>)
+    const effectiveAppointmentId = appointmentId || (id && id !== 'nuevo' ? id : undefined);
+    const { data: appointment } = useQuery<AppointmentItem>({
+        queryKey: ['appointment', effectiveAppointmentId],
+        queryFn: () => getAppointmentById(effectiveAppointmentId!),
+        enabled: !!effectiveAppointmentId,
+    });
+
+    // El motivo parte del servicio de la cita en cuanto llega (sin efecto)
+    const [syncedAppointment, setSyncedAppointment] = useState<AppointmentItem>();
+    if (appointment && appointment !== syncedAppointment) {
+        setSyncedAppointment(appointment);
+        setReason(appointment.service_name || '');
+    }
+
+    const addPrescriptionRow = () => {
+        setPrescriptions([...prescriptions, {
+            medication_name: '',
+            dosage: '',
+            frequency_hours: 8,
+            duration_days: 7,
+            instructions: ''
+        }]);
+    };
+
+    const updatePrescription = <K extends keyof PrescriptionRow>(index: number, field: K, value: PrescriptionRow[K]) => {
+        const newP = [...prescriptions];
+        newP[index] = { ...newP[index], [field]: value };
+        setPrescriptions(newP);
+    };
+
+    const removePrescription = (index: number) => {
+        setPrescriptions(prescriptions.filter((_, i) => i !== index));
+    };
+
+    const handleSave = async () => {
+        if (!reason.trim() || !diagnosis.trim()) {
+            showAlert({ type: 'error', title: 'Faltan datos', message: 'El motivo y el diagnóstico son obligatorios.' });
+            return;
+        }
+        if (!appointment?.pet_id) {
+            showAlert({ type: 'error', title: 'Paciente no identificado', message: 'No se pudo identificar la mascota de esta cita. Vuelve a la agenda e inténtalo de nuevo.' });
+            return;
+        }
+        const w = weight ? parseFloat(weight.replace(',', '.')) : undefined;
+        const t = temp ? parseFloat(temp.replace(',', '.')) : undefined;
+        if ((w !== undefined && (!Number.isFinite(w) || w <= 0 || w > 200)) || (t !== undefined && (!Number.isFinite(t) || t < 30 || t > 45))) {
+            showAlert({ type: 'error', title: 'Valores inválidos', message: 'Revisa el peso (kg) y la temperatura (°C).' });
+            return;
+        }
+        if (prescriptions.some(p => !String(p.medication_name || '').trim())) {
+            showAlert({ type: 'error', title: 'Receta incompleta', message: 'Cada medicamento necesita un nombre; elimina las filas vacías.' });
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const payload: MedicalRecordCreate = {
+                pet_id: appointment.pet_id,
+                reason_for_visit: reason.trim(),
+                diagnosis: diagnosis.trim(),
+                treatment: treatment.trim(),
+                weight_kg: w,
+                temperature_c: t,
+                notes,
+                appointment_id: effectiveAppointmentId,
+                prescriptions: prescriptions.map(p => ({
+                    ...p,
+                    frequency_hours: parseInt(String(p.frequency_hours), 10),
+                    duration_days: parseInt(String(p.duration_days), 10)
+                }))
+            };
+
+            await createRecord(payload);
+            queryClient.invalidateQueries({ queryKey: ['clinic-patients'] });
+            queryClient.invalidateQueries({ queryKey: ['pet-records'] });
+            queryClient.invalidateQueries({ queryKey: ['clinic-prescriptions'] });
+
+            showAlert({ type: 'success', title: 'Éxito', message: 'Ficha médica generada correctamente', onButtonPress: () => router.push('/mi-clinica/agenda') });
+        } catch (e) {
+            showAlert({ type: 'error', title: 'No se pudo guardar', message: errorMessage(e, 'No se pudo guardar la ficha médica.') });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return {
+        // State
+        loading,
+        reason, setReason,
+        diagnosis, setDiagnosis,
+        treatment, setTreatment,
+        weight, setWeight,
+        temp, setTemp,
+        notes, setNotes,
+        prescriptions,
+        // Data
+        appointment,
+        // Actions
+        addPrescriptionRow,
+        updatePrescription,
+        removePrescription,
+        handleSave,
+    };
+}

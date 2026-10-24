@@ -1,0 +1,477 @@
+import { apiFetch } from "../lib/api";
+
+export interface Clinic {
+    id: string;
+    name: string;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    phone: string | null;
+    email: string | null;
+    website: string | null;
+    description: string | null;
+    logo_url: string | null;
+    is_24_hours: boolean;
+    has_emergency: boolean;
+    owner_user_id: string | null;
+    is_approved?: boolean;
+    /** Suspendida por un admin: no aparece en el directorio público. */
+    is_suspended?: boolean;
+}
+
+export interface ClinicCreate {
+    name: string;
+    address?: string | null;
+    city?: string | null;
+    state?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    website?: string | null;
+    description?: string | null;
+    logo_url?: string | null;
+    is_24_hours?: boolean;
+    has_emergency?: boolean;
+}
+
+export interface Vet {
+    id: string;
+    first_name: string;
+    last_name: string;
+    specialty: string | null;
+    license_number: string | null;
+    phone: string | null;
+    email: string | null;
+    bio: string | null;
+    photo_url: string | null;
+    clinic_id: string | null;
+    user_id: string | null;
+    is_approved?: boolean;
+    average_rating?: number;
+    total_reviews?: number;
+}
+
+export interface ClinicReview {
+    id: string;
+    clinic_id: string;
+    user_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string | null;
+}
+
+export interface ClinicRating {
+    average_rating: number;
+    total_reviews: number;
+}
+
+export interface VetReview {
+    id: string;
+    vet_id: string;
+    user_id: string;
+    rating: number;
+    comment: string | null;
+    created_at: string | null;
+}
+
+export interface VetRating {
+    average_rating: number;
+    total_reviews: number;
+}
+
+// --- Clinics ---
+
+export async function getClinics(): Promise<Clinic[]> {
+    return apiFetch<Clinic[]>("directorio", "/clinics/");
+}
+
+export async function getClinic(id: string): Promise<Clinic> {
+    return apiFetch<Clinic>("directorio", `/clinics/${id}`);
+}
+
+export async function getMyClinics(): Promise<Clinic[]> {
+    return apiFetch<Clinic[]>("directorio", "/clinics/me");
+}
+
+export async function createClinic(clinic: ClinicCreate): Promise<Clinic> {
+    return apiFetch<Clinic>("directorio", "/clinics/", {
+        method: "POST",
+        body: JSON.stringify(clinic),
+    });
+}
+
+export async function updateClinic(id: string, clinic: Partial<ClinicCreate>): Promise<Clinic> {
+    return apiFetch<Clinic>("directorio", `/clinics/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(clinic),
+    });
+}
+
+export async function deleteClinic(id: string): Promise<void> {
+    return apiFetch<void>("directorio", `/clinics/${id}`, {
+        method: "DELETE",
+    });
+}
+
+// --- Veterinarians ---
+
+export async function getVets(clinicId?: string): Promise<Vet[]> {
+    const qs = clinicId ? `?clinic_id=${clinicId}` : "";
+    return apiFetch<Vet[]>("directorio", `/veterinarians/${qs}`);
+}
+
+/** Todos los veterinarios de mi clínica, incluidos los pendientes de aprobación (solo dueño). */
+export async function getManagedClinicVets(clinicId: string): Promise<Vet[]> {
+    return apiFetch<Vet[]>("directorio", `/clinics/${clinicId}/veterinarians/manage`);
+}
+
+export async function getVet(id: string): Promise<Vet> {
+    return apiFetch<Vet>("directorio", `/veterinarians/${id}`);
+}
+
+export async function createVet(vet: Omit<Vet, "id" | "user_id">): Promise<Vet> {
+    return apiFetch<Vet>("directorio", "/veterinarians/", {
+        method: "POST",
+        body: JSON.stringify(vet),
+    });
+}
+
+export async function updateVet(id: string, vet: Partial<Vet>): Promise<Vet> {
+    return apiFetch<Vet>("directorio", `/veterinarians/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(vet),
+    });
+}
+
+// --- Reviews ---
+
+export async function getClinicReviews(clinicId: string): Promise<ClinicReview[]> {
+    return apiFetch<ClinicReview[]>("directorio", `/reviews/clinics/${clinicId}/reviews`);
+}
+
+export async function createClinicReview(clinicId: string, rating: number, comment?: string): Promise<ClinicReview> {
+    return apiFetch<ClinicReview>("directorio", `/reviews/clinics/${clinicId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({ rating, comment: comment || null }),
+    });
+}
+
+export async function getClinicRating(clinicId: string): Promise<ClinicRating> {
+    return apiFetch<ClinicRating>("directorio", `/reviews/clinics/${clinicId}/rating`);
+}
+
+export async function getVetReviews(vetId: string): Promise<VetReview[]> {
+    return apiFetch<VetReview[]>("directorio", `/reviews/vets/${vetId}/reviews`);
+}
+
+export async function createVetReview(vetId: string, rating: number, comment?: string): Promise<VetReview> {
+    return apiFetch<VetReview>("directorio", `/reviews/vets/${vetId}/reviews`, {
+        method: "POST",
+        body: JSON.stringify({ rating, comment: comment || null }),
+    });
+}
+
+export async function getVetRating(vetId: string): Promise<VetRating> {
+    return apiFetch<VetRating>("directorio", `/reviews/vets/${vetId}/rating`);
+}
+
+// --- Services Catalog ---
+
+export interface ClinicServiceItem {
+    id: string;
+    clinic_id: string;
+    name: string;
+    description: string | null;
+    price: number | null;
+    duration_minutes: number;
+    category: string | null;
+    is_active: boolean;
+}
+
+export const MOCK_SERVICES: ClinicServiceItem[] = [
+    { id: "S-1", clinic_id: "C-1", name: "Consulta General", description: "Revisión médica general", price: 500, duration_minutes: 30, category: "Consultas", is_active: true },
+    { id: "S-2", clinic_id: "C-1", name: "Vacunación", description: "Aplicación de vacunas del esquema", price: 350, duration_minutes: 15, category: "Preventiva", is_active: true },
+    { id: "S-3", clinic_id: "C-1", name: "Odontología", description: "Limpieza dental profunda", price: 1200, duration_minutes: 60, category: "Especialidad", is_active: true }
+];
+
+export async function getAllServices(): Promise<ClinicServiceItem[]> {
+    return apiFetch<ClinicServiceItem[]>("directorio", "/catalog/admin/all");
+}
+
+export async function getClinicServices(clinicId: string): Promise<ClinicServiceItem[]> {
+    return apiFetch<ClinicServiceItem[]>("directorio", `/catalog/clinics/${clinicId}/services`);
+}
+
+export async function createClinicService(clinicId: string, data: { name: string; description?: string; price?: number; duration_minutes?: number; category?: string }): Promise<ClinicServiceItem> {
+    return apiFetch<ClinicServiceItem>("directorio", `/catalog/clinics/${clinicId}/services`, { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function updateClinicService(serviceId: string, data: Partial<ClinicServiceItem>): Promise<ClinicServiceItem> {
+    return apiFetch<ClinicServiceItem>("directorio", `/catalog/services/${serviceId}`, { method: "PUT", body: JSON.stringify(data) });
+}
+
+export async function deleteClinicService(serviceId: string): Promise<void> {
+    return apiFetch<void>("directorio", `/catalog/services/${serviceId}`, { method: "DELETE" });
+}
+
+// --- Schedule ---
+
+export interface ClinicScheduleItem {
+    id: string;
+    clinic_id: string;
+    day_of_week: number;
+    start_time: string;
+    end_time: string;
+    slot_duration_minutes: number;
+    is_active: boolean;
+}
+
+export async function getClinicSchedule(clinicId: string): Promise<ClinicScheduleItem[]> {
+    return apiFetch<ClinicScheduleItem[]>("directorio", `/schedule/clinics/${clinicId}/schedule`);
+}
+
+export async function setClinicSchedule(clinicId: string, schedules: { day_of_week: number; start_time: string; end_time: string; slot_duration_minutes?: number }[]): Promise<ClinicScheduleItem[]> {
+    return apiFetch<ClinicScheduleItem[]>("directorio", `/schedule/clinics/${clinicId}/schedule`, { method: "POST", body: JSON.stringify(schedules) });
+}
+
+// --- Appointments ---
+
+export interface AvailableSlot {
+    start_time: string;
+    end_time: string;
+}
+
+export interface AppointmentItem {
+    id: string;
+    clinic_id: string;
+    service_id: string;
+    pet_id: string;
+    user_id: string;
+    vet_id: string | null;
+    date: string;
+    start_time: string;
+    end_time: string;
+    status: string;
+    notes: string | null;
+    cancellation_reason?: string | null;
+    created_at: string | null;
+    service_name: string | null;
+    clinic_name: string | null;
+    pet_name?: string | null;
+    reason?: string | null;
+    is_emergency?: boolean;
+}
+
+export async function getAvailableSlots(clinicId: string, date: string, serviceId: string): Promise<AvailableSlot[]> {
+    return apiFetch<AvailableSlot[]>("directorio", `/appointments/clinics/${clinicId}/slots?date=${date}&service_id=${serviceId}`);
+}
+
+export async function createAppointment(data: { clinic_id: string; service_id: string; pet_id: string; date: string; start_time: string; notes?: string }): Promise<AppointmentItem> {
+    return apiFetch<AppointmentItem>("directorio", "/appointments/", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+export async function getMyAppointments(): Promise<AppointmentItem[]> {
+    return apiFetch<AppointmentItem[]>("directorio", "/appointments/me");
+}
+
+export async function getClinicAppointments(clinicId: string, status?: string): Promise<AppointmentItem[]> {
+    const query = status ? `?status=${status}` : "";
+    return apiFetch<AppointmentItem[]>("directorio", `/appointments/clinic/${clinicId}${query}`);
+}
+
+/** Citas asignadas al veterinario logueado (para su agenda, aunque no sea dueño de la clínica). */
+export async function getMyVetAppointments(): Promise<AppointmentItem[]> {
+    return apiFetch<AppointmentItem[]>("directorio", "/appointments/vet/me");
+}
+
+export async function getAppointmentById(id: string): Promise<AppointmentItem> {
+    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}`);
+}
+
+export async function confirmAppointment(id: string): Promise<AppointmentItem> {
+    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/confirm`, { method: "PUT" });
+}
+
+export async function completeAppointment(id: string): Promise<AppointmentItem> {
+    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/complete`, { method: "PUT" });
+}
+
+export async function cancelAppointment(id: string, reason?: string): Promise<AppointmentItem> {
+    // El backend espera AppointmentCancel como body JSON (no query): sin body → 422 (MO-016)
+    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/cancel`, {
+        method: 'PUT',
+        body: JSON.stringify({ cancellation_reason: reason ?? null }),
+    });
+}
+
+export async function rescheduleAppointment(id: string, date: string, startTime: string): Promise<AppointmentItem> {
+    return apiFetch<AppointmentItem>("directorio", `/appointments/${id}/reschedule`, { method: "PUT", body: JSON.stringify({ date, start_time: startTime }) });
+}
+
+// --- Surgeries ---
+
+export interface SurgeryItem {
+    id?: string;
+    clinic_id: string;
+    patient_id: string;
+    surgeon_id?: string;
+    surgery_name: string;
+    surgery_type: string;
+    scheduled_date: string; // ISO DateTime
+    estimated_duration?: number;
+    status: string; // "scheduled", "in-progress", "completed", "cancelled"
+    operating_room?: string;
+    pre_op_notes?: string;
+    created_at?: string;
+}
+
+export interface SurgeryCreate {
+    clinic_id: string;
+    patient_id: string;
+    surgeon_id?: string;
+    surgery_name: string;
+    surgery_type: string;
+    scheduled_date: string;
+    estimated_duration?: number;
+    operating_room?: string;
+    pre_op_notes?: string;
+}
+
+export async function getClinicSurgeries(clinicId: string): Promise<SurgeryItem[]> {
+    return apiFetch<SurgeryItem[]>("directorio", `/clinics/${clinicId}/surgeries`);
+}
+
+export async function updateSurgeryStatus(clinicId: string, surgeryId: string, status: string): Promise<SurgeryItem> {
+    return apiFetch<SurgeryItem>("directorio", `/clinics/${clinicId}/surgeries/${surgeryId}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ status }),
+    });
+}
+
+export async function createSurgery(data: SurgeryCreate): Promise<SurgeryItem> {
+    return apiFetch<SurgeryItem>("directorio", `/clinics/${data.clinic_id}/surgeries`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+
+
+// --- Hospital specific API calls ---
+
+export async function getHospitalClinics(): Promise<Clinic[]> {
+    return apiFetch<Clinic[]>("directorio", "/clinics/hospitals/clinics");
+}
+
+export async function getHospitalVeterinarians(): Promise<Vet[]> {
+    return apiFetch<Vet[]>("directorio", "/clinics/hospitals/veterinarians");
+}
+
+export async function associateVeterinarian(clinicId: string, vetId: string): Promise<Vet> {
+    return apiFetch<Vet>("directorio", `/clinics/${clinicId}/veterinarians/${vetId}`, {
+        method: "POST",
+    });
+}
+
+export async function dissociateVeterinarian(clinicId: string, vetId: string): Promise<{message: string}> {
+    return apiFetch<{message: string}>("directorio", `/clinics/${clinicId}/veterinarians/${vetId}`, {
+        method: "DELETE",
+    });
+}
+
+
+// --- Telemedicine / Consultations ---
+
+export interface ConsultationItem {
+    id: string;
+    clinic_id?: string;
+    vet_id?: string;
+    pet_id?: string;
+    scheduled_at: string;
+    status: string;
+    room_url?: string;
+    notes?: string;
+    created_at: string;
+}
+
+export interface ConsultationCreate {
+    clinic_id?: string;
+    vet_id?: string;
+    pet_id?: string;
+    scheduled_at: string;
+    notes?: string;
+}
+
+export async function bookConsultation(data: ConsultationCreate): Promise<ConsultationItem> {
+    return apiFetch<ConsultationItem>("directorio", "/consultations/", {
+        method: "POST",
+        body: JSON.stringify(data)
+    });
+}
+
+export async function getMyConsultations(): Promise<ConsultationItem[]> {
+    return apiFetch<ConsultationItem[]>("directorio", "/consultations/me");
+}
+
+export async function getVetConsultations(): Promise<ConsultationItem[]> {
+    return apiFetch<ConsultationItem[]>("directorio", "/consultations/vet/incoming");
+}
+
+export async function updateConsultationStatus(id: string, status: string): Promise<ConsultationItem> {
+    return apiFetch<ConsultationItem>("directorio", `/consultations/${id}/status?status=${status}`, {
+        method: "PATCH"
+    });
+}
+
+// --- Schedule Exceptions ---
+
+export interface ScheduleException {
+    id: string;
+    clinic_id: string;
+    date: string;
+    reason?: string | null;
+    is_closed: boolean;
+    custom_start?: string | null;
+    custom_end?: string | null;
+}
+
+export async function getScheduleExceptions(clinicId: string): Promise<ScheduleException[]> {
+    return apiFetch<ScheduleException[]>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions`);
+}
+
+export async function deleteScheduleException(clinicId: string, exceptionId: string): Promise<{ ok: boolean }> {
+    return apiFetch<{ ok: boolean }>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions/${exceptionId}`, {
+        method: "DELETE",
+    });
+}
+
+export async function addScheduleException(clinicId: string, data: Partial<ScheduleException>): Promise<ScheduleException> {
+    return apiFetch<ScheduleException>("directorio", `/schedule/clinics/${clinicId}/schedule/exceptions`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+}
+
+// --- Clinic Metrics & Alerts ---
+
+export async function getWeeklyMetrics(clinicId: string): Promise<any> {
+    return apiFetch<any>("directorio", `/clinics/${clinicId}/metrics/weekly`);
+}
+
+export async function getUnreadAlertCount(clinicId: string): Promise<{ count: number }> {
+    return apiFetch<{ count: number }>("directorio", `/clinics/${clinicId}/alerts/unread`);
+}
+
+export async function deleteAlert(alertId: string): Promise<void> {
+    return apiFetch<void>("directorio", `/clinics/alerts/${alertId}`, {
+        method: "DELETE",
+    });
+}
+
+// --- Surgeries (today) ---
+
+export async function getTodaySurgeries(clinicId: string): Promise<SurgeryItem[]> {
+    return apiFetch<SurgeryItem[]>("directorio", `/clinics/${clinicId}/surgeries/today`);
+}

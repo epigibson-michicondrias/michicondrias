@@ -1,0 +1,96 @@
+/* Notificaciones: tarjeta por aviso, con ícono de tipo y punto de no leída. */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.notifCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+
+.notifCard:hover:not(:disabled) {
+  border-color: var(--color-border);
+}
+
+.notifCardRead {
+  background: var(--color-background);
+}
+
+.notifCard:disabled {
+  cursor: default;
+}
+
+.iconBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-overlay-hover);
+}
+
+.notifContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.notifHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.notifTitle {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.unreadDot {
+  width: var(--space-sm);
+  height: var(--space-sm);
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+}
+
+.notifMessage {
+  margin: 0;
+  font-size: var(--font-base);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.notifTime {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}

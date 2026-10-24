@@ -1,17 +1,38 @@
-import Link from "next/link";
+"use client";
 
 /**
  * Aviso para funciones que la web todavía no implementa de forma segura y viven solo en la app.
  * Se usa en lugar de páginas que simulaban datos (rastreo GPS aleatorio, donaciones sin cobro).
  */
-export default function AppOnlyNotice({ title, message, backHref }: { title: string; message: string; backHref: string }) {
+import { useRouter } from "next/navigation";
+import { Smartphone } from "lucide-react";
+import ScreenContainer from "@/components/layout/ScreenContainer";
+import ScreenHeader from "@/components/layout/ScreenHeader";
+import Card from "@/components/Card";
+import EmptyState from "@/components/EmptyState";
+
+interface AppOnlyNoticeProps {
+  title: string;
+  message: string;
+  backHref: string;
+}
+
+export default function AppOnlyNotice({ title, message, backHref }: AppOnlyNoticeProps) {
+  const router = useRouter();
+  const goBack = () => router.push(backHref);
+
   return (
-    <div className="glass-card" style={{ maxWidth: 520, margin: "4rem auto", textAlign: "center" }}>
-      <h1 style={{ fontSize: "1.5rem", marginBottom: "0.75rem" }}>{title}</h1>
-      <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>{message}</p>
-      <Link href={backHref} className="btn btn-secondary">
-        Volver
-      </Link>
-    </div>
+    <ScreenContainer>
+      <ScreenHeader title={title} variant="plain" onBack={goBack} />
+      <Card>
+        <EmptyState
+          icon={<Smartphone size={32} aria-hidden />}
+          title="Solo en la app"
+          subtitle={message}
+          actionLabel="Volver"
+          onAction={goBack}
+        />
+      </Card>
+    </ScreenContainer>
   );
 }

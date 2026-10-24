@@ -1,0 +1,60 @@
+/* AuthShell — fondo hero del tema + contenido centrado (espejo del AuthShell de la app). */
+
+.root {
+  position: relative;
+  min-height: 100dvh;
+  /* Mismo lienzo que la landing: tinta de medianoche con brillos dorado y azul (oscuro en ambos temas) */
+  background:
+    radial-gradient(70% 50% at 85% 0%, color-mix(in srgb, var(--color-hero-accent-default) 22%, transparent), transparent 70%),
+    radial-gradient(60% 45% at 0% 100%, color-mix(in srgb, var(--color-primary) 20%, transparent), transparent 70%),
+    var(--color-hero-surface);
+  color: var(--color-on-hero);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.deco1,
+.deco2 {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--color-hero-line);
+  background: transparent;
+  pointer-events: none;
+}
+
+.deco1 {
+  top: -80px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+}
+
+.deco2 {
+  bottom: 120px;
+  left: -100px;
+  width: 200px;
+  height: 200px;
+}
+
+.scroll {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-xl);
+  padding: var(--space-huge) var(--space-xxxl);
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .scroll {
+    padding: var(--space-xxl) var(--space-lg);
+    justify-content: flex-start;
+    padding-top: var(--space-huge);
+  }
+}

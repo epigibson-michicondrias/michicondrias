@@ -47,7 +47,7 @@ y sigue donde se quedó el otro.
 | App móvil | Fases 0–3 ✅ · Fase 4 ✅ en P1 (F1–F27) · Fase 5 🟡 (U1–U9 ✅, U10–U11 pendientes). Detalle: `PROGRESO_MOBILE.md` |
 | Backend | En producción y desplegando bien. Pendiente de seguridad X1 (abajo) |
 | Web app (`main`) | Código viejo (50 páginas bajo `/dashboard`) + landing nueva en `/`. Build en verde desde `3eb2f9e`. Rastreo y donaciones simulados desactivados |
-| Web espejo (`web/espejo`) | W0 ✅ W1 ✅ W2 ✅ **W3 ✅**: rutas iguales a la app (`(auth)`/`(app)`, sin `/dashboard`), shell sidebar/barra inferior, AuthShell + login 2FA, redirects. Build 52 páginas en verde. **37 de 156** pantallas de la app tienen página (contenido legacy a portar en W4) |
+| Web espejo (`web/espejo`) | W0–W5 ✅ fusionada a `main` (2026-10-24): rutas iguales a la app, shell, AuthShell, W4 módulos + W4-A consola admin + W5 diseño homologado con la landing. 128 páginas en verde. |
 | Landing | Publicada (Next.js). 11 secciones, 28 funciones reales, fotos de Gemini con gatos al frente |
 
 ---
@@ -83,25 +83,22 @@ y sigue donde se quedó el otro.
   `a84459e2-d146-42cd-a26e-0c4cc3b9b480`. Commit `89a584e`.
 
 **Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
-- [x] W2 (`bd1831f`, `f72e123`): espejos, `api.ts`, `tokens.css`, contextos Theme/Auth/Cart y kit base.
+- [x] W2: espejos, `api.ts`, `tokens.css`, contextos Theme/Auth/Cart y kit base.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
-  `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
-  redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [x] W4 completo (P1, P2, P3 y W4-A consola admin, 2026-10-23).
-- [x] Backend que pidió la consola (2026-10-23, Mimo): `buyer_name` en `/orders/admin/all`; `GET /products/admin/all`
-  (incluye ocultos por el vendedor) + `PATCH /products/admin/{id}/visibility`; `POST /clinics/admin/{id}/suspend|unsuspend`
-  con `is_suspended` (migración `c4e8a1b2d3f4` de directorio — **correr `alembic upgrade head` tras el deploy**);
-  config con efecto real (`GET /system/public`, login bloqueado en `maintenance_mode` salvo admin, `sync_database`
-  devuelve conteos). **Falta cablear en la web espejo:** `suspendClinic`/`unsuspendClinic`, `getAdminProducts` y el
-  aviso de mantenimiento (la app móvil ya los usa).
-- [x] KYC en la app (2026-10-23, Mimo): aprobar sin confirmar, rechazar con confirmación (`useAdminVerifications`).
-- [ ] Pantallas portadas que aún usan CSS legacy (variables viejas y `#fff`, se ven mal en modo claro): dashboard/home,
-  adopciones, carnet, perdidas, perfil, tienda/producto y compras, `(auth)/auth.module.css`. Componentes muertos
-  candidatos a borrar: `Sidebar`, `tienda/CartDrawer`, `ui/ConfirmModal`, `ui/CustomSelect`. Entra en la revisión del
-  consumidor (W5). ·
-- [ ] Revisar el recorrido del **consumidor** en la web espejo: el usuario dice que hay muchas cosas que corregir
-  (pendiente de detallar; hacerlo antes del merge). ·
-  W5 pulido y merge · W7 permisos.
+  `AppShell`, `AuthShell` con login 2FA / registro / reset, redirects `/dashboard/*`.
+- [x] W4 (2026-10-23): módulos portados (P1–P3) + W4-A consola de admin.
+- [x] W5 homologación de diseño con la landing (2026-10-23): CSS legacy migrado a `tokens.css`+`theme.css`, 11 CSS
+  muertos y 5 componentes muertos borrados, `ErrorBoundary`/`Toaster`/`OfflineBanner` al criterio Midnight & Gold.
+- [x] Cableado de endpoints nuevos del backend (2026-10-24): suspender/reactivar clínica, productos ocultos
+  (chip Ocultos + mostrar/ocultar), `buyer_name` en pedidos, banner de mantenimiento (`/system/public`) y conteos
+  de sincronización en `/admin/config`.
+- [x] Backend que pidió la consola (2026-10-23, Mimo): `buyer_name`, `GET /products/admin/all`,
+  `PATCH .../visibility`, `POST /clinics/admin/{id}/suspend|unsuspend` (migración `c4e8a1b2d3f4`),
+  `GET /system/public`, login en `maintenance_mode`. **Desplegado.**
+- [x] KYC en la app (2026-10-23, Mimo): aprobar sin confirmar, rechazar con confirmación.
+- [ ] W5 cierre: hover/foco/atajos de escritorio, tablas admin, SEO de la landing, revisión del recorrido del
+  consumidor · W7 permisos editables.
+
 - [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
 
 **Landing**
@@ -303,7 +300,22 @@ y sigue donde se quedó el otro.
   `cuidadores/solicitudes` y `cuidadores/calendario`. `tsc` limpio, `next build` verde, ESLint limpio en lo nuevo
   (quedan errores legacy en `admin/*`). **Siguiente:** P3 (mi-clínica, servicios-pro, tienda vendedor,
   patrocinadores) y W4-A consola admin.
+- **2026-10-24 · Claude** — Cableado de endpoints nuevos del backend en `web/espejo` (sin push):
+  suspender/reactivar clínica (`is_suspended` + `POST /clinics/admin/{id}/suspend|unsuspend` con confirmación),
+  productos ocultos (`GET /products/admin/all` de un solo request, chip «Ocultos», mostrar/ocultar por fila),
+  `buyer_name` verificado en la tabla de pedidos, aviso de mantenimiento (`GET /system/public` + `MaintenanceBanner`)
+  y conteos de `POST /admin/system/database/sync` en `/admin/config`. `tsc` + ESLint + `build` (128 páginas) en
+  verde; revisión visual con mocks a 375/1280 claro y oscuro. **No se probaron mutaciones** (API de producción).
+  Detalle en `PROGRESO_WEB.md`. **Siguiente:** probar suspend/unsuspend y visibility contra un entorno de pruebas
+  (o con el usuario) y seguir con W5 cierre.
 
+- **2026-10-23 · Claude** — W5 homologación de diseño web con la landing en `web/espejo` (sin push): CSS legacy →
+  `tokens.css`+`theme.css` (`perfil`, `dashboard`, `modules`, `features/adopciones`), borrados 11 CSS muertos y los
+  componentes `Sidebar`/`MichiExplorer`/`CartDrawer`/`ConfirmModal`/`CustomSelect`, `ErrorBoundary`/`Toaster`/
+  `OfflineBanner` al estilo Midnight & Gold. `tsc` + ESLint + `build` en verde; revisión visual 375/1280 claro y
+  oscuro con mocks. Deudas: precio de producto en azul (no dorado), emojis-ícono en `types/`/`utils/` (espejo de la
+  app). **Siguiente:** W5 cierre (hover/foco/atajos, tablas, SEO landing) y merge a `main`. Detalle en
+  `PROGRESO_WEB.md`.
 - **2026-10-23 · Mimo** — W4 multiagente en `web/espejo` (`a4e7d4e`): Adopciones, Directorio/citas,
   Perdidas/reportes, Notificaciones, Búsqueda y Ayuda portados con hooks y features por módulo. Build
   verde. Donaciones = aviso «en la app» (sin cobro simulado). **Siguiente para Claude:** P2 restantes
@@ -346,7 +358,25 @@ y sigue donde se quedó el otro.
   componentes con las mismas props que la app (Button, Card, ListRow, FormField, ScreenHeader, AppAlert, RoleGuard…),
   estilos solo con `tokens.css`. Vitrina `/kit` revisada a 1280/375, claro y oscuro. Build y lint limpios. Siguiente:
   W3 (rutas iguales a la app con grupos `(auth)`/`(app)`, `AuthShell` y shell con barra lateral/inferior).
-- **2026-10-23 · Claude** — Seguridad X1: aseguradoras, cuidadores, paseadores, entrenadores, establecimientos,
+- **2026-10-23 · Mimo** — W4 Carnet + Perfil en `web/espejo`:
+  - **Carnet:** hooks `useVaccineForm`/`useConsultationForm`/`usePrescriptionDetail`, `CarnetItems`, páginas
+    `/carnet`, `/carnet/nueva-vacuna`, `/carnet/nueva-consulta`, `/carnet/receta/[id]` y redirect `/carnet/[pet_id]`.
+  - **Perfil:** hooks `useProfile`/`useAccount`/`use2FA`, páginas `/perfil`, `/perfil/editar`,
+    `/perfil/seguridad-2fa`, `/perfil/eliminar-cuenta`. Legacy sin portar: `partner`, `verificacion` (usan
+    `useKYC`/`usePartnerUpgrade` que aún no están en el espejo).
+  - Build verde. **Siguiente para Claude:** rehacer `perfil/partner` y `perfil/verificacion`; luego Tienda cliente,
+    Inicio/Explorar reales, Notificaciones/Búsqueda/Ayuda y Admin (W4-A).
+
+- **2026-10-23 · Mimo** — W4 módulo Mascotas en `web/espejo`: hooks espejo `usePets`/`usePetDetail`/`usePetForm`/
+  `usePetHealth`, `FormImagePicker`, utils `helpers`/`upload`/`payments`. Páginas `/mascotas` (3 vistas),
+  `/mascotas/[id]` (Resumen·Salud·Historial) y `/mascotas/nuevo`. Build verde. Falta editar, IA y carnet fino.
+
+- **2026-10-23 · Mimo** — Web espejo W3: grupos `(auth)` y `(app)` con rutas iguales a la app (Inicio en `/inicio`
+  porque `/` es la landing; deep links intactos); `AppShell` (sidebar `ROLE_TOOLS` + barra inferior + drawer);
+  `AuthShell` + hooks `useLogin`/`useRegister`/`usePasswordReset` (login 2FA, registro con login automático, reset
+  con código y `?token=`); `CartContext` espejo; redirects `/dashboard/*`. 47 páginas movidas con links reescritos.
+  Typecheck + eslint limpios en archivos nuevos, build verde (52 páginas), `web-drift.sh` 52 iguales / 0 difieren.
+  Siguiente: W4 (portar módulos P1).- **2026-10-23 · Claude** — Seguridad X1: aseguradoras, cuidadores, paseadores, entrenadores, establecimientos,
   estilistas, funeraria, laboratorio, patrocinadores y transportistas aceptaban el token temporal de 2FA (que ya lleva
   `role`), así que se podía saltar el 2FA. `_decode_token` ahora lo rechaza (403 «Se requiere completar la verificación
   2FA», igual que mascotas/core) y `get_optional_user_id` lo trata como sin sesión. Probado con JWT reales en los 10.

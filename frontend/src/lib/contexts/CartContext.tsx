@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Product, createOrder, Order } from "@/lib/services/ecommerce";
+import { Product, createOrder, Order } from "@/lib/legacy/services/ecommerce";
 import { toast } from "react-hot-toast";
 
 export interface CartItem {
@@ -106,7 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             toast.loading("Redirigiendo a pasarela de pago...", { id: "checkout" });
             
             // Using dynamically imported createCheckoutSession to avoid circular dependencies if any
-            const { createCheckoutSession } = await import('@/lib/services/ecommerce');
+            const { createCheckoutSession } = await import('@/lib/legacy/services/ecommerce');
             const stripeRes = await createCheckoutSession(order.id);
             
             toast.success("¡Orden lista para pago!", { id: "checkout" });

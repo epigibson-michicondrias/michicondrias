@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth";
+import { isAuthenticated } from "@/lib/legacy/auth";
 
 /** Si ya hay sesión, la landing no aplica: manda directo al panel. */
 export default function AuthRedirect() {
@@ -10,7 +10,7 @@ export default function AuthRedirect() {
 
   useEffect(() => {
     if (isAuthenticated()) {
-      router.replace("/dashboard");
+      router.replace("/inicio");
     }
   }, [router]);
 

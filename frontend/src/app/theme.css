@@ -1,0 +1,134 @@
+/*
+ * Capa de tema de la web (se carga DESPUÉS de tokens.css).
+ *
+ * tokens.css es un espejo generado de la app (scripts/web-tokens.py) y no se edita a mano. Aquí vive lo que es solo
+ * de la web para que la app web hable el mismo lenguaje visual que la landing pública (features/landing):
+ * tipografía Hanken Grotesk, botones en píldora con el dorado como acción principal, tarjetas de borde fino con
+ * brillo dorado al pasar el cursor, cabeceras de medianoche, vidrio en barras y foco dorado.
+ *
+ * Reglas:
+ * - Solo tokens nuevos o reajustes de escala pensados para pantalla grande. Los colores de marca siguen saliendo de
+ *   tokens.css; aquí solo se derivan variantes (hover, texto dorado legible, vidrio, brillo).
+ * - Mismo patrón de tema que tokens.css: claro en :root, oscuro por sistema salvo elección manual, y oscuro manual.
+ */
+
+:root {
+  /* Tipografía (la fuente la carga next/font en app/layout.tsx como --font-mg) */
+  --font-family: var(--font-mg), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: 15px;
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --tracking-tighter: -0.035em;
+  --tracking-tight: -0.025em;
+  --tracking-snug: -0.015em;
+  --tracking-wide: 0.08em;
+  --leading-tight: 1.1;
+  --leading-body: 1.55;
+
+  /* Escala tipográfica reajustada para escritorio: la de la app está pensada para 375 px y en web queda chica.
+     Mismos nombres que tokens.css para que todas las pantallas la hereden sin tocarlas. */
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-md: 13px;
+  --font-base: 14px;
+  --font-lg: 15px;
+  --font-xl: 16px;
+  --font-xxl: 17px;
+  --font-h3: 19px;
+  --font-h2: 22px;
+  --font-h1: clamp(24px, 1.6vw + 18px, 34px);
+  --font-display: clamp(30px, 2.4vw + 22px, 46px);
+
+  /* Forma */
+  --radius-card: 22px;
+  --radius-control: var(--radius-pill);
+  --size-control-sm: 36px;
+  --size-control-lg: 52px;
+  --size-icon-box: 40px;
+
+  /* Movimiento (mismo easing que la landing) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+
+  /* Foco */
+  --focus-width: 2px;
+  --focus-offset: 3px;
+
+  /* Midnight & Gold — claro (la landing solo existe en oscuro; esto es su adaptación a claro) */
+  --color-accent-strong: #7a5a1e;
+  --color-accent-hover: #c99c4f;
+  --color-cta: var(--color-accent);
+  --color-on-cta: var(--color-on-accent);
+  --color-cta-hover: var(--color-accent-hover);
+  --color-line: #ddd5c3;
+  --color-line-hover: rgba(184, 137, 58, 0.55);
+  --color-card-glow: rgba(184, 137, 58, 0.14);
+  --color-nav-glass: rgba(250, 248, 244, 0.82);
+  --color-scrim: rgba(20, 24, 36, 0.45);
+  --color-hero-surface: #101524;
+  --color-hero-line: rgba(233, 200, 131, 0.18);
+  --color-hero-accent-default: #e9c883;
+  --color-focus: #7a5a1e;
+  --shadow-card: 0 1px 2px rgba(20, 24, 36, 0.04);
+  --shadow-raised: 0 12px 28px -14px rgba(20, 24, 36, 0.22);
+  --shadow-floating: 0 28px 56px -24px rgba(20, 24, 36, 0.32);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-accent-strong: #e9c883;
+    --color-accent-hover: #f3dba8;
+    --color-line: rgba(233, 200, 131, 0.14);
+    --color-line-hover: rgba(233, 200, 131, 0.42);
+    --color-card-glow: rgba(233, 200, 131, 0.16);
+    --color-nav-glass: rgba(11, 14, 23, 0.72);
+    --color-scrim: rgba(0, 0, 0, 0.6);
+    --color-hero-surface: #0f1320;
+    --color-hero-line: rgba(233, 200, 131, 0.14);
+    --color-focus: #e9c883;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-raised: 0 16px 36px -16px rgba(0, 0, 0, 0.6);
+    --shadow-floating: 0 40px 80px -30px rgba(0, 0, 0, 0.75);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-accent-strong: #e9c883;
+  --color-accent-hover: #f3dba8;
+  --color-line: rgba(233, 200, 131, 0.14);
+  --color-line-hover: rgba(233, 200, 131, 0.42);
+  --color-card-glow: rgba(233, 200, 131, 0.16);
+  --color-nav-glass: rgba(11, 14, 23, 0.72);
+  --color-scrim: rgba(0, 0, 0, 0.6);
+  --color-hero-surface: #0f1320;
+  --color-hero-line: rgba(233, 200, 131, 0.14);
+  --color-focus: #e9c883;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-raised: 0 16px 36px -16px rgba(0, 0, 0, 0.6);
+  --shadow-floating: 0 40px 80px -30px rgba(0, 0, 0, 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+  }
+}
+
+/* ── Espacio que ocupa la barra inferior (móvil) ───────────────────
+   Los pies fijos/pegajosos de las pantallas (p. ej. "Agendar", "Agregar a la bolsa") usan
+   `bottom: var(--app-bottom-inset)` para quedar ENCIMA de la barra de pestañas y no detrás. */
+:root {
+  --app-tabbar-height: 56px;
+  --app-bottom-inset: calc(var(--app-tabbar-height) + 2 * var(--space-sm) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  :root {
+    --app-bottom-inset: 0px;
+  }
+}

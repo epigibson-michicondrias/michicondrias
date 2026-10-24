@@ -1,0 +1,31 @@
+/* Aviso de sin conexión — tokens + theme.css. */
+
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-error);
+  color: var(--color-on-primary);
+  text-align: center;
+  font-size: var(--font-base);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-raised);
+  animation: slideDown 0.3s var(--ease-out) forwards;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}

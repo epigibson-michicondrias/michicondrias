@@ -1,0 +1,22 @@
+.searchWrap {
+  margin-bottom: var(--space-md);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.resultCount {
+  margin: 0 0 var(--space-md);
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-lg);
+}

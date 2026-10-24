@@ -1,0 +1,15 @@
+/* Aviso de modo mantenimiento — tokens + theme.css. Solo informativo: no bloquea la navegación. */
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-warning);
+  color: var(--color-on-primary);
+  text-align: center;
+  font-size: var(--font-base);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-raised);
+}

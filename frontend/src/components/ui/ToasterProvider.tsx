@@ -2,6 +2,7 @@
 
 import { Toaster } from "react-hot-toast";
 
+/** Avisos flotantes — colores desde tokens (funcionan en claro y oscuro). */
 export default function ToasterProvider() {
     return (
         <Toaster
@@ -9,24 +10,24 @@ export default function ToasterProvider() {
             toastOptions={{
                 duration: 4000,
                 style: {
-                    background: "#1e1e24",
-                    color: "#fff",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    background: "var(--color-card)",
+                    color: "var(--color-text)",
+                    border: "1px solid var(--color-card-border)",
                     backdropFilter: "blur(10px)",
-                    borderRadius: "12px",
-                    padding: "16px",
-                    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-lg)",
+                    boxShadow: "var(--shadow-floating)",
                 },
                 success: {
                     iconTheme: {
-                        primary: "#10b981",
-                        secondary: "#1e1e24",
+                        primary: "var(--color-success)",
+                        secondary: "var(--color-on-primary)",
                     },
                 },
                 error: {
                     iconTheme: {
-                        primary: "#ef4444",
-                        secondary: "#1e1e24",
+                        primary: "var(--color-error)",
+                        secondary: "var(--color-on-primary)",
                     },
                 },
             }}

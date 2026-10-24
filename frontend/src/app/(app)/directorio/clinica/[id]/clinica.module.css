@@ -1,0 +1,145 @@
+.content {
+  display: grid;
+  gap: var(--space-lg);
+  padding-bottom: var(--space-xl);
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  text-align: center;
+}
+
+.logo {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  margin-bottom: var(--space-sm);
+}
+
+.logoImg {
+  object-fit: cover;
+}
+
+.name {
+  margin: 0;
+  font-size: var(--font-h1);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.metaStrong {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.metaMuted {
+  font-size: var(--font-base);
+  color: var(--color-text-muted);
+}
+
+.badges {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.section {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--font-h3);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.body {
+  margin: 0;
+  font-size: var(--font-base);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.services {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.service {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  min-height: var(--min-touch);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.service:hover {
+  border-color: var(--color-primary);
+}
+
+.service:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.serviceInfo {
+  flex: 1;
+  display: grid;
+  gap: var(--space-xxs);
+  min-width: 0;
+}
+
+.serviceName {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.serviceMeta {
+  font-size: var(--font-md);
+  color: var(--color-text-muted);
+}
+
+.servicePrice {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.footer {
+  position: sticky;
+  bottom: var(--app-bottom-inset);
+  padding: var(--space-md) 0 var(--space-lg);
+  background: linear-gradient(to top, var(--color-background) 70%, transparent);
+}

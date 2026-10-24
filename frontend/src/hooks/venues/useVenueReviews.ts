@@ -1,0 +1,143 @@
+/**
+ * useVenueReviews — reseñas, puntaje y cupones de un establecimiento.
+ * Espejo de `mobile/src/hooks/venues/useVenueReviews.ts`.
+ */
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  createReview,
+  getVenueReviews,
+  getVenueScore,
+  claimCoupon,
+  redeemCoupon,
+  type VenueReview,
+  type VenueReviewCreate,
+  type ClaimedCoupon,
+} from "@/services/venues";
+import { showAlert } from "@/components/AppAlert";
+
+export function useVenueReviews(venueId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState("");
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
+  const { data: reviews = [], isLoading: isLoadingReviews } = useQuery<VenueReview[]>({
+    queryKey: ["venue-reviews", venueId],
+    queryFn: () => getVenueReviews(venueId!),
+    enabled: !!venueId,
+  });
+
+  const { data: score, isLoading: isLoadingScore } = useQuery<{
+    venue_id: string;
+    average_rating: number;
+    reviews_count: number;
+  }>({
+    queryKey: ["venue-score", venueId],
+    queryFn: () => getVenueScore(venueId!),
+    enabled: !!venueId,
+  });
+
+  const reviewMutation = useMutation<VenueReview, Error, { venueId: string; data: VenueReviewCreate }>({
+    mutationFn: ({ venueId: vId, data }) => createReview(vId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["venue-reviews", venueId] });
+      queryClient.invalidateQueries({ queryKey: ["venue-score", venueId] });
+      setReviewText("");
+      setReviewRating(5);
+      setShowReviewForm(false);
+      showAlert({
+        type: "success",
+        title: "¡Reseña enviada!",
+        message: "Tu reseña ha sido publicada exitosamente.",
+      });
+    },
+    onError: (e) => {
+      showAlert({
+        type: "error",
+        title: "Error",
+        message: e.message || "No se pudo enviar la reseña. Intenta de nuevo.",
+      });
+    },
+  });
+
+  const claimCouponMutation = useMutation<ClaimedCoupon, Error, string>({
+    mutationFn: (vId) => claimCoupon(vId),
+    onSuccess: (data) => {
+      showAlert({
+        type: "success",
+        title: "Tu código personal",
+        message: `${data.coupon_code}\n\nMuéstralo al pagar en el establecimiento. Es solo para ti y se usa una vez.`,
+      });
+    },
+    onError: (e) => {
+      showAlert({
+        type: "error",
+        title: "No se pudo obtener el cupón",
+        message: e.message || "Inténtalo de nuevo.",
+      });
+    },
+  });
+
+  const redeemCouponMutation = useMutation<ClaimedCoupon, Error, string>({
+    mutationFn: (code) => redeemCoupon(code),
+    onSuccess: () => {
+      showAlert({
+        type: "success",
+        title: "¡Cupón canjeado!",
+        message: "El cupón del cliente quedó canjeado y ya no puede volver a usarse.",
+      });
+    },
+    onError: (e) => {
+      showAlert({
+        type: "error",
+        title: "Error",
+        message: e.message || "No se pudo canjear el cupón.",
+      });
+    },
+  });
+
+  const handleSubmitReview = () => {
+    if (!venueId) return;
+    if (reviewRating < 1 || reviewRating > 5) {
+      showAlert({ type: "error", title: "Error", message: "La calificación debe ser entre 1 y 5." });
+      return;
+    }
+    reviewMutation.mutate({
+      venueId,
+      data: {
+        rating: reviewRating,
+        review_text: reviewText.trim() || undefined,
+      },
+    });
+  };
+
+  const handleClaimCoupon = () => {
+    if (!venueId) return;
+    claimCouponMutation.mutate(venueId);
+  };
+
+  const handleRedeemCoupon = (code: string) => {
+    redeemCouponMutation.mutate(code);
+  };
+
+  return {
+    reviews,
+    isLoadingReviews,
+    score,
+    isLoadingScore,
+    reviewRating,
+    setReviewRating,
+    reviewText,
+    setReviewText,
+    showReviewForm,
+    setShowReviewForm,
+    handleSubmitReview,
+    isSubmittingReview: reviewMutation.isPending,
+    handleClaimCoupon,
+    isClaimingCoupon: claimCouponMutation.isPending,
+    handleRedeemCoupon,
+    isRedeemingCoupon: redeemCouponMutation.isPending,
+  };
+}

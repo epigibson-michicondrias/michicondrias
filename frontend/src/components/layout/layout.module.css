@@ -1,0 +1,71 @@
+/* Estructura de pantalla y avisos del kit web. Solo variables de tokens.css. */
+
+/* ScreenContainer */
+.screen { position: relative; min-height: 100%; padding: var(--screen-padding); background: var(--color-background); color: var(--color-text); }
+.noPadding { padding: 0; }
+
+/* ScreenHeader */
+.header { display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-xl); }
+/* Hero = panel de medianoche de la landing: fondo tinta, brillo del color del módulo arriba a la derecha y filo
+   dorado. Es oscuro en ambos temas (como la landing); el texto usa --color-on-hero. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: calc(var(--screen-padding) * -1) calc(var(--screen-padding) * -1) var(--space-xxl);
+  padding: var(--space-xxl) var(--screen-padding);
+  border-bottom: 1px solid var(--color-hero-line);
+  border-radius: 0 0 var(--radius-xxl) var(--radius-xxl);
+  background:
+    radial-gradient(90% 140% at 100% 0%, color-mix(in srgb, var(--hero-accent, var(--color-hero-accent-default)) 34%, transparent), transparent 62%),
+    radial-gradient(60% 120% at 0% 100%, color-mix(in srgb, var(--hero-accent, var(--color-hero-accent-default)) 12%, transparent), transparent 70%),
+    var(--color-hero-surface);
+  color: var(--color-on-hero);
+}
+.noPadding .hero { margin: 0 0 var(--space-xxl); }
+.titles { flex: 1; min-width: 0; }
+.title { font-size: var(--font-h1); font-weight: var(--weight-regular); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); text-wrap: balance; }
+.subtitle { margin-top: var(--space-xs); color: var(--color-text-muted); font-size: var(--font-lg); }
+.hero .subtitle { color: var(--color-on-hero-muted); }
+.actions { display: flex; gap: var(--space-sm); }
+
+/* QueryErrorBanner */
+.bannerWrap { position: fixed; left: var(--space-md); right: var(--space-md); bottom: var(--space-xl); z-index: 40; display: flex; justify-content: center; pointer-events: none; }
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: min(100%, 32rem);
+  padding: var(--space-md);
+  border: 1px solid color-mix(in srgb, var(--color-error) 40%, transparent);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-floating);
+  pointer-events: auto;
+}
+.bannerIcon { flex: none; color: var(--color-error); }
+.bannerText { flex: 1; }
+.bannerTitle { font-size: var(--font-base); font-weight: var(--weight-semibold); }
+.bannerSub { margin-top: var(--space-xxs); color: var(--color-text-muted); font-size: var(--font-md); }
+
+/* RoleGuard */
+.guard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-md); min-height: 60vh; padding: var(--space-huge); text-align: center; }
+.guardTitle { font-size: var(--font-h2); font-weight: var(--weight-regular); letter-spacing: var(--tracking-tight); }
+.guardText { max-width: 28rem; color: var(--color-text-muted); }
+
+/* AppAlert */
+.backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: var(--space-xl); background: var(--color-scrim); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.dialog {
+  width: min(100%, 24rem);
+  padding: var(--space-xxl);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-floating);
+  color: var(--color-text);
+  text-align: center;
+}
+.dialogIcon { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto var(--space-lg); border-radius: 50%; }
+.dialogTitle { font-size: var(--font-h2); font-weight: var(--weight-medium); letter-spacing: var(--tracking-snug); }
+.dialogMessage { margin-top: var(--space-sm); color: var(--color-text-muted); font-size: var(--font-base); line-height: 1.45; }
+.dialogActions { display: flex; gap: var(--space-md); margin-top: var(--space-xl); }

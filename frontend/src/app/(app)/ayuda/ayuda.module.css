@@ -1,0 +1,147 @@
+/* Ayuda: buscador de FAQ, acordeón, contactos y enlaces legales. */
+
+.scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-huge);
+}
+
+.searchWrap {
+  margin-bottom: var(--space-lg);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.faqCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.faqItemWrap:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.faqItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-xl);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.faqQuestion {
+  flex: 1;
+  font-size: var(--font-xxl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.faqChevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform 150ms ease;
+}
+
+.faqChevronOpen {
+  transform: rotate(90deg);
+}
+
+.faqAnswer {
+  margin: 0;
+  padding: 0 var(--space-xl) var(--space-xl);
+  font-size: var(--font-base);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.contactGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-md);
+}
+
+.contactBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  min-height: var(--min-touch);
+}
+
+.contactBtn:hover {
+  border-color: var(--c, var(--color-primary));
+}
+
+.iconBoxWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-lg);
+  color: var(--c, var(--color-primary));
+  background: color-mix(in srgb, var(--c, var(--color-primary)) 12%, transparent);
+}
+
+.contactLabel {
+  font-size: var(--font-md);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.footerCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  width: 100%;
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.footerCard:hover {
+  border-color: var(--color-primary);
+}
+
+.footerCardText {
+  flex: 1;
+  font-size: var(--font-xxl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.footerIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
