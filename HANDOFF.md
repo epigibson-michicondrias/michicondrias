@@ -69,7 +69,14 @@ y sigue donde se quedó el otro.
 - [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
   `AppShell` (sidebar + barra inferior + drawer de `ROLE_TOOLS`), `AuthShell` con login 2FA / registro / reset,
   redirects `/dashboard/*`. Build en verde (52 páginas). **Queda en `web/espejo` sin fusionar.**
-- [ ] W4: falta **W4-A consola admin**. **Hechos:** P1, P2 y P3 completos (incluida Mi clínica). ·
+- [x] W4 completo (P1, P2, P3 y W4-A consola admin, 2026-10-23).
+- [ ] Backend que pidió la consola: suspender clínica (no hay endpoint), listar productos ocultos como admin,
+  `buyer_name` en `/orders/admin/all`; los 4 interruptores de `/admin/config` y "sincronizar/limpiar caché" no tienen
+  efecto real (solo se guardan). Llevar a la app el cambio de KYC (aprobar sin confirmar, rechazar con confirmación).
+- [ ] Pantallas portadas que aún usan CSS legacy (variables viejas y `#fff`, se ven mal en modo claro): dashboard/home,
+  adopciones, carnet, perdidas, perfil, tienda/producto y compras, `(auth)/auth.module.css`. Componentes muertos
+  candidatos a borrar: `Sidebar`, `tienda/CartDrawer`, `ui/ConfirmModal`, `ui/CustomSelect`. Entra en la revisión del
+  consumidor (W5). ·
 - [ ] Revisar el recorrido del **consumidor** en la web espejo: el usuario dice que hay muchas cosas que corregir
   (pendiente de detallar; hacerlo antes del merge). ·
   W5 pulido y merge · W7 permisos.
@@ -90,6 +97,23 @@ y sigue donde se quedó el otro.
 ---
 
 ## 4. Bitácora compartida (más reciente arriba)
+
+- **2026-10-23 · Claude** — W4-A **terminada** y diseño homologado (`dc2440d` en `web/espejo`, push; build verde, 128
+  páginas). 18 rutas de admin. Diseño: `frontend/src/app/theme.css` (capa web sobre `tokens.css`; el espejo queda
+  intacto) con Hanken Grotesk, CTA dorado, tarjetas con brillo y navegación en vidrio; el primario vuelve a azul
+  cambiando `--color-cta`. Backend `2beae13`: el admin puede editar clínicas. Falta revisión visual con sesión.
+- **2026-10-23 · Claude** — W4-A consola admin (en curso):
+  - **Backend desplegado** (`c7369c6`, sin migraciones): `GET /users/search` (paginado con total y filtros),
+    `GET /users/{id}` (detalle + KYC firmado), `GET /roles/` con `users_count`/`is_system`; roles del sistema no se
+    borran ni renombran y un rol con usuarios no se borra. `GET /users/` quedó igual (la app lo usa). Probado.
+  - Web (`web/espejo`, `dcde5bc`, `f435930`): **guarda de rol global** en el layout de `(app)` con `ROUTE_ACCESS`
+    (antes la web no validaba ninguna zona de rol); hooks `hooks/admin`; panel `/admin`, `/admin/usuarios` (búsqueda
+    en servidor) y `/admin/usuarios/[id]`.
+  - 4 agentes en paralelo: roles + matriz de permisos/"ver como rol", verificaciones y moderación; stats, config y
+    categorías (+ redirects `analytics`→`stats`, `configuraciones`→`config`); clínicas, veterinarios, productos,
+    mascotas, servicios y pedidos; y **homologar el diseño de la web app con la landing** (tokens, kit y shell).
+  - Cuentas de prueba: `test.<rol>@example.com` (18, una por rol; verificadas). La contraseña está en
+    `scripts/seed_test_data.py` (local, no se sube al repo).
 
 - **2026-10-23 · Claude** — W4 Mi clínica completa en `web/espejo` (push, sin producción): 14 rutas `/mi-clinica/*`,
   hooks `hooks/clinica`, `components/Modal`; `/directorio/mi-clinica` redirige. Build verde (118 páginas). P3
