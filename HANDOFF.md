@@ -101,6 +101,14 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Mimo** — **Despliegue U3–U9 + landing + web espejo:**
+  - **OTA** canal `production`, update group `1419b06c-e96c-4cb8-9e5a-36f2437b5516` (commit `7203b0c`): Auth con
+    validación inline, Inicio/Explorar/Herramientas, Perfil, Mascotas, Carnet y Notificaciones/Búsqueda/Ayuda.
+  - **Landing** publicada (`1a0dd3c`): `NEXT_PUBLIC_APP_DOWNLOAD_URL` documentada + `.env.example`. Falta la foto
+    `pro-transporte` (Gemini, prompt 12) y setear la URL de descarga en Vercel cuando haya APK.
+  - **Web espejo** `web/espejo` pusheada hasta `87e29c8` (preview de Vercel, **sin fusionar a `main`**): suspender
+    clínica, productos ocultos, `buyer_name`, `MaintenanceBanner` y sync con conteos reales cableados. Build verde.
+  - **Fase 5 móvil:** U1–U9 ✅. Quedan U10 (APK, pide visto bueno) y U11.
 - **2026-10-24 · Mimo** — **U9 Notificaciones, Búsqueda y Ayuda** cerrada: `busqueda` y `ayuda` migran su `TextInput`
   al componente `SearchBar` (con `autoFocus`); limpiar desde la barra resetea también el debounce (`clearSearch`).
   `notificaciones` gana acción en el vacío («Explorar servicios») y se verificó que cada aviso navega por su `link`
