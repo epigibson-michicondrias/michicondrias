@@ -475,7 +475,7 @@ def create_program_review(
 
 @router.get("/admin/pending", response_model=List[TrainingProgramResponse])
 def admin_pending_programs(
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Listar programas no aprobados. Solo admin."""
@@ -485,7 +485,7 @@ def admin_pending_programs(
 @router.post("/admin/{program_id}/approve", response_model=TrainingProgramResponse)
 def admin_approve_program(
     program_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Aprobar un programa. Solo admin."""
@@ -501,7 +501,7 @@ def admin_approve_program(
 @router.post("/admin/{program_id}/reject", response_model=TrainingProgramResponse)
 def admin_reject_program(
     program_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Rechazar un programa (desactivarlo). Solo admin."""

@@ -442,7 +442,7 @@ def create_appointment_review(
 
 @router.get("/admin/pending", response_model=List[GroomingServiceOut])
 def admin_pending_services(
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Listar servicios inactivos (pendientes de aprobación). Solo admin."""
@@ -452,7 +452,7 @@ def admin_pending_services(
 @router.post("/admin/{service_id}/approve", response_model=GroomingServiceOut)
 def admin_approve_service(
     service_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Aprobar un servicio (activarlo). Solo admin."""
@@ -468,7 +468,7 @@ def admin_approve_service(
 @router.post("/admin/{service_id}/suspend", response_model=GroomingServiceOut)
 def admin_suspend_service(
     service_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Suspender un servicio (desactivarlo). Solo admin."""

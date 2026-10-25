@@ -150,7 +150,7 @@ def update_campaign(
 
 @router.get("/admin/pending", response_model=List[SponsorCampaignOut])
 def admin_pending_campaigns(
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Listar campañas inactivas (pendientes de aprobación). Solo admin."""
@@ -160,7 +160,7 @@ def admin_pending_campaigns(
 @router.post("/admin/{campaign_id}/approve", response_model=SponsorCampaignOut)
 def admin_approve_campaign(
     campaign_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Aprobar una campaña (activarla). Solo admin."""
@@ -176,7 +176,7 @@ def admin_approve_campaign(
 @router.post("/admin/{campaign_id}/suspend", response_model=SponsorCampaignOut)
 def admin_suspend_campaign(
     campaign_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Suspender una campaña (desactivarla). Solo admin."""

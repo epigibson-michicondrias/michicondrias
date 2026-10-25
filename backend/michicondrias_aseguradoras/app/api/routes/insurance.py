@@ -467,7 +467,7 @@ def verify_claim_receipt(
 
 @router.get("/admin/pending", response_model=List[schemas.InsurancePlanOut])
 def admin_pending_plans(
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Listar planes inactivos (pendientes de aprobación). Solo admin."""
@@ -477,7 +477,7 @@ def admin_pending_plans(
 @router.post("/admin/{plan_id}/approve", response_model=schemas.InsurancePlanOut)
 def admin_approve_plan(
     plan_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Aprobar un plan (activarlo). Solo admin."""
@@ -493,7 +493,7 @@ def admin_approve_plan(
 @router.post("/admin/{plan_id}/suspend", response_model=schemas.InsurancePlanOut)
 def admin_suspend_plan(
     plan_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Suspender un plan (desactivarlo). Solo admin."""

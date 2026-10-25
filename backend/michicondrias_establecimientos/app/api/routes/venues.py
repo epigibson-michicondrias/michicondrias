@@ -331,7 +331,7 @@ def read_venue_score(
 
 @router.get("/admin/pending", response_model=List[Venue])
 def admin_pending_venues(
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Listar establecimientos no aprobados. Solo admin."""
@@ -341,7 +341,7 @@ def admin_pending_venues(
 @router.post("/admin/{venue_id}/approve", response_model=Venue)
 def admin_approve_venue(
     venue_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Aprobar un establecimiento. Solo admin."""
@@ -357,7 +357,7 @@ def admin_approve_venue(
 @router.post("/admin/{venue_id}/reject", response_model=Venue)
 def admin_reject_venue(
     venue_id: str,
-    db: Session = Depends(deps.get_db),
+    db: Session = Depends(get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Rechazar un establecimiento (desactivarlo). Solo admin."""
