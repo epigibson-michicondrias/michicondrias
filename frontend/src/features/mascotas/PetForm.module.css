@@ -1,0 +1,53 @@
+/* Formulario de mascota en web: vista previa fija a la izquierda, campos a la derecha. */
+.form { display: flex; flex-direction: column; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+@media (min-width: 960px) {
+  .layout { grid-template-columns: 300px minmax(0, 1fr); gap: var(--space-huge); align-items: start; }
+  .aside { position: sticky; top: calc(var(--space-xl) + 64px); }
+}
+
+.aside { display: flex; flex-direction: column; gap: var(--space-md); }
+.previewCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+}
+.previewBody { display: flex; flex-direction: column; gap: var(--space-xs); padding-top: var(--space-lg); border-top: 1px solid var(--color-divider); }
+.previewName {
+  margin: 0;
+  font-size: var(--font-h3);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-snug);
+  overflow-wrap: anywhere;
+}
+.previewMeta { display: flex; align-items: center; gap: var(--space-xs); margin: 0; color: var(--color-text-muted); font-size: var(--font-md); }
+.previewFacts { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-top: var(--space-xs); }
+.fact {
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-light);
+  color: var(--color-accent-strong);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+}
+.hint { margin: 0; color: var(--color-text-muted); font-size: var(--font-sm); line-height: var(--leading-body); }
+
+.main { min-width: 0; }
+.grid2, .grid3 { display: grid; gap: var(--space-md) var(--space-lg); }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid2 > *, .grid3 > * { min-width: 0; }
+.grid2 input, .grid3 input { width: 100%; min-width: 0; }
+@media (max-width: 640px) {
+  .grid2 { grid-template-columns: 1fr; }
+}
