@@ -64,3 +64,6 @@ frontend/node_modules/
 backend/michicondrias_core/app/uploads/
 mobile/ts_errors.txt
 mobile/test-export.js
+
+# Capturas y salidas locales
+output/

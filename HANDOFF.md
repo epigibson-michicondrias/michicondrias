@@ -23,6 +23,68 @@ mano y corre los checks).
 
 ---
 
+## Guía para Mimo — cómo seguir el trabajo (léela completa cada vez que empieces)
+
+Si eres Mimo: esta sección es tu manual. Síguela paso a paso, sin saltarte ninguno. Si algo no está claro o vas a
+hacer algo de §7.6, **pregúntale al usuario antes**.
+
+### A. Al empezar el turno (siempre, en este orden)
+1. `git fetch && git status -sb` y `git log --oneline origin/main..main`. Si hay commits locales sin subir o archivos
+   modificados que no son tuyos, **no los subas**: pregúntale al usuario qué hacer con ellos.
+2. Lee de este archivo: §0 (regla de la web), §2 (estado), §3 (pendientes) y las 5 entradas más recientes de §9.
+3. Toma **una** tarea: la que pida el usuario o, si no pide nada, la primera sin hacer de §D (cola de Mimo).
+
+### B. Ciclo de cada tarea (los 8 pasos, siempre)
+1. **Entiende antes de tocar**: lee la pantalla de la app, la de la web, su hook, su service y el endpoint del backend.
+   Busca quién más lo usa (`grep -rn "<nombre>" mobile/src mobile/app frontend/src backend`).
+2. **Lógica compartida primero en la app y luego copia a la web**: `types/`, `services/` y hooks como `clinicalTimeline.ts`,
+   `useClinicalHistory.ts`, `prescriptionPlan.ts`, `petFormRules.ts` son **copia literal** (`cp mobile/src/... frontend/src/...`).
+   Comprueba con `scripts/web-drift.sh` que no hayas creado diferencias nuevas.
+3. **Web = diseño de escritorio (§0)**, nunca la pantalla del teléfono estirada. Reutiliza `components/Tabs`,
+   `components/DataTable`, `components/forms/FormActionsBar`, `components/Sparkline` y `lib/printElement`.
+   Modelo a copiar: Mis Mascotas (`frontend/src/app/(app)/mascotas/`, `frontend/src/features/mascotas/`) y la receta
+   (`frontend/src/app/(app)/carnet/receta/[id]/`).
+4. **Verifica de verdad**:
+   - App: `cd mobile && npm run check` (0 errores).
+   - Web: `cd frontend && npx tsc --noEmit -p . && npx eslint --quiet <archivos> && npm run build`.
+   - Capturas: `node scripts/capturas.js web /ruta` (web en `localhost:3001`) o `node scripts/capturas.js app /ruta`
+     (Expo Web en `localhost:3000`). **Abre y mira cada imagen** de `output/capturas/`: claro y oscuro, 1280 y 375,
+     sin «DESBORDE», sin textos cortados, una sola acción principal.
+   - Backend: prueba local con SQLite como `scripts/pruebas/recordatorios_carnet.py` o `resumen_historial.py`
+     (nunca escribas datos de prueba en producción).
+   - Si la pantalla muestra un dato, confírmalo contra la API real (con `curl` y el token de la cuenta de prueba).
+5. **Commit** con `git add <archivos>` explícitos, **incluidos los nuevos** (`git commit -- ruta` NO agrega archivos
+   nuevos: así se rompió un build de Vercel). Mensaje en español, convencional, con la línea `Co-Authored-By` del agente.
+6. **Despliega** (autorizado): `git push origin main` (comando de §1).
+   - Web: espera el estado de Vercel: `gh api repos/epigibson-michicondrias/michicondrias/commits/<sha>/statuses`
+     (contexto `Vercel – michicondrias` en `success`). `michicondrias-docs` falla siempre: ignóralo.
+   - Backend: `gh run watch <id> --exit-status`, luego `scripts/vm.sh migrate <svc>` si hubo migración y
+     `scripts/vm.sh status` (17 × http 200).
+   - App: OTA con el comando de §7.3.
+7. **Actualiza este archivo**: entrada en §9, quita de §3/§5 lo resuelto, agrega lo nuevo.
+8. **Responde al usuario**: qué cambió, cómo lo verificaste y qué quedó pendiente. Nada de «listo» sin haber visto las capturas.
+
+### C. Errores que ya pasaron (no los repitas)
+- Calcar la app en la web. Inventar textos o funciones (QR «para surtir en farmacia», clínica inventada, «te avisamos» sin
+  emisor). Mostrar un dato que no se cargó (el hero decía «Sin vacunas» porque la consulta estaba apagada en esa pestaña).
+- Subir commits ajenos sin revisarlos. Dejar archivos nuevos fuera del commit.
+- CSS Modules: cada selector necesita una clase (`tbody` suelto rompe el build). Imprimir con `window.print()` arrastra el
+  menú: usa `printElement`.
+- El dueño **no** edita el carnet (vacunas, consultas, recetas, laboratorio); sí edita los datos de su mascota
+  (incluidos Esterilizado y Desparasitado).
+
+### D. Cola de trabajo de Mimo (en este orden; hecho = cumple el ciclo B completo)
+1. **Web: Perfil** (`frontend/src/app/(app)/perfil/`) con criterio §0: dos columnas (datos y foto | seguridad, 2FA,
+   facturación, cuenta), formularios con `FormActionsBar`.
+2. **Web: Inicio** (`/inicio`): panel de escritorio (mascotas, próximas citas, recordatorios de dosis, accesos del rol).
+3. **Web: Directorio y citas**: lista de clínicas con filtros laterales y mapa/lista; «Mis citas» con `DataTable`.
+4. **Web: Tienda** (catálogo en rejilla con filtros laterales, ficha de producto a dos columnas, carrito lateral).
+5. **Web: Adopciones**, luego **consola admin** con `DataTable` en todas sus listas.
+6. **App: Bloque B** (auditoría UX de P2/P3, ver §3) con la skill `review-ux` o `ux-heuristics`.
+7. **Backend: seguridad X3.1–X3.3** (§3). Cambios aditivos; si alguno no lo es, pregunta antes.
+
+---
+
 ## 0. Regla de oro para la web (léela antes de tocar `frontend/`)
 
 **La web es espejo de la LÓGICA de la app, no de sus PANTALLAS.**
@@ -124,6 +186,18 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
 - [ ] B1–B4 backend aditivo para la consola: `GET /users/` con `total` y filtros, `GET /users/{id}`, `users_count` en
   roles y borrado seguro de roles, motivo de rechazo de KYC (opcional).
 - [ ] V2 entrada de `launch.json` para la web.
+
+**Recordatorios de medicamentos** (verificados el 2026-10-24: funcionan)
+- Cómo funcionan: al guardar una consulta con receta, carnet programa cada toma (`medication_reminders`, la primera al
+  recetar y luego cada `frequency_hours` durante `duration_days`); el job `carnet/app/jobs/reminders.py` revisa cada
+  5 min y manda «Hora del medicamento de …» a la bandeja de notificaciones del dueño (enlace a Salud); el dueño marca
+  la toma como dada. Producción: Meloxicam 5/5 tomas programadas y avisadas a tiempo.
+- [ ] **El aviso llega solo a la bandeja de la app, no como push al teléfono**: falta FCM (`notify_user_push`) y el APK
+  con `expo-notifications` (U10).
+- [ ] Recetas viejas sin tomas programadas (p. ej. «Enjuague bucal Clorhexidina», consulta del 15 oct): se crearon sin
+  pasar por `create_medical_record`. Rellenarlas es escribir en producción → **pedir permiso al usuario** antes.
+- [ ] Editar una consulta no cambia su receta (el formulario de edición no la muestra). Si se habilita, hay que
+  reprogramar las tomas.
 
 **App móvil**
 - [ ] **U10 — lo que falta:** **build del APK** (acción del usuario; las libs nativas no salen por OTA), credenciales FCM
@@ -244,7 +318,8 @@ cd mobile && npx expo start --web --port 3000   # revisar a 375×812, claro y os
 cd frontend && npx tsc --noEmit -p . && npx eslint --quiet <archivos> && npm run build
 scripts/web-drift.sh                            # deriva del espejo web ↔ app
 ```
-- Capturas de la web con Playwright: login con la cuenta de prueba consumidor de `users.md` contra `localhost:3001`.
+- Capturas: `node scripts/capturas.js web|app /ruta …` (cuenta de prueba consumidor de `users.md`, solo navega).
+- Pruebas locales de backend ya hechas: `scripts/pruebas/recordatorios_carnet.py`, `scripts/pruebas/resumen_historial.py`.
 - Backend sin tocar producción: `fastapi.testclient.TestClient` + SQLite en memoria, sobrescribiendo `get_db` y
   `deps.get_current_user_id`, con una `DATABASE_URL` falsa.
 - **Nunca** escribir datos de prueba en producción.
@@ -317,6 +392,11 @@ app/
 ## 9. Bitácora compartida (más reciente arriba)
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
+
+- **2026-10-24 · Claude** — **Recordatorios de medicamentos verificados** (producción y prueba local de punta a punta) y
+  arreglo: las tomas arrancan al recetar (antes un intervalo después; `8fd68e4`, desplegado, 17/17). La receta calcula
+  las tomas igual que el backend y aclara que el aviso llega a las notificaciones de la app. OTA `92191a52-…`.
+  **Preparado para Mimo**: sección «Guía para Mimo» arriba, `scripts/capturas.js` y `scripts/pruebas/*.py`.
 
 - **2026-10-24 · Claude** — **Receta médica premium** (app y web): documento con folio y estado, clínica y veterinario
   reales de la consulta (cédula y especialidad), paciente, diagnóstico, cada medicamento con dosis, frecuencia,
