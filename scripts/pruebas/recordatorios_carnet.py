@@ -4,7 +4,7 @@ programadas, el emisor avisa a tiempo y marcar como tomada.
 Uso: cd backend/michicondrias_carnet && DATABASE_URL=postgresql://u:p@127.0.0.1:1/x SECRET_KEY=x \
      ../.venv/bin/python ../../scripts/pruebas/recordatorios_carnet.py
 Debe imprimir dosis que empiezan en +0 h, una pasada que avisa la primera toma de cada medicamento, otra que no
-repite, «notificaciones: 4» y «tomada: 1».
+repite, «notificaciones: 4», «tomada: 1» y «OK» en todas las pruebas del interruptor de avisos.
 """
 import sys; sys.path.insert(0, '.')
 from datetime import datetime, timedelta, timezone
@@ -22,6 +22,7 @@ Base.metadata.create_all(eng, tables=[t for n, t in Base.metadata.tables.items()
 db = sessionmaker(bind=eng)()
 db.execute(text("ALTER TABLE medication_reminders ADD COLUMN notified_at TEXT"))
 db.execute(text("ALTER TABLE vaccines ADD COLUMN booster_notified_at TEXT"))
+db.execute(text("ALTER TABLE prescriptions ADD COLUMN reminders_enabled BOOLEAN NOT NULL DEFAULT 1"))
 db.execute(text("CREATE TABLE pets (id TEXT, owner_id TEXT, name TEXT)"))
 db.execute(text("CREATE TABLE notifications (id TEXT, user_id TEXT, title TEXT, message TEXT, type TEXT, is_read BOOLEAN, link TEXT)"))
 db.execute(text("CREATE TABLE veterinarians (id TEXT, user_id TEXT)"))
@@ -45,3 +46,38 @@ print("notificaciones:", db.execute(text("SELECT count(*) FROM notifications WHE
 print(db.execute(text("SELECT title, message, link FROM notifications LIMIT 1")).fetchone())
 r = db.execute(text("SELECT id FROM medication_reminders LIMIT 1")).scalar()
 crud_carnet.check_reminder(db, r); print("tomada:", db.execute(text("SELECT sent FROM medication_reminders WHERE id=:i"), {"i": r}).scalar())
+
+# ── Interruptor de avisos del dueño (PATCH /reminders/prescriptions/{id}) y tratamientos (GET …/treatments) ──
+from fastapi.testclient import TestClient
+from app.main import app
+from app.db.session import get_db
+from app.api.pet_access import get_identity
+app.dependency_overrides[get_db] = lambda: db
+c = TestClient(app)
+as_user = lambda uid, role="consumidor": app.dependency_overrides.__setitem__(get_identity, lambda: {"user_id": uid, "role": role})
+melox = next(p for p in rec.prescriptions if p.medication_name == "Meloxicam")
+
+def check(name, ok): print(("OK  " if ok else "FALLA ") + name)
+
+as_user("otro"); check("ajeno no puede cambiar los avisos (403)", c.patch(f"/api/v1/reminders/prescriptions/{melox.id}", json={"enabled": False}).status_code == 403)
+as_user("owner1"); r = c.patch(f"/api/v1/reminders/prescriptions/{melox.id}", json={"enabled": False}); check("dueño apaga los avisos", r.status_code == 200 and r.json()["reminders_enabled"] is False)
+before = db.execute(text("SELECT count(*) FROM notifications")).scalar()
+run_once(db, now + timedelta(hours=24, minutes=1))
+sent_melox = db.execute(text("SELECT count(*) FROM notifications WHERE message LIKE '%Meloxicam%'")).scalar()
+check("apagado: no llega el aviso de la 2.ª toma de Meloxicam", sent_melox == 1)
+check("apagado: los demás medicamentos sí avisan", db.execute(text("SELECT count(*) FROM notifications")).scalar() > before)
+
+# Receta vieja sin tomas (como la Clorhexidina): al activar, se programan desde la toma que toca
+old_date = (datetime.now(timezone.utc) - timedelta(days=9)).isoformat()
+db.execute(text("INSERT INTO medical_records (id, pet_id, date, reason_for_visit) VALUES ('mr-old','p1',:d,'Limpieza')"), {"d": old_date})
+db.execute(text("INSERT INTO prescriptions (id, medical_record_id, medication_name, dosage, frequency_hours, duration_days, reminders_enabled) VALUES ('rx-old','mr-old','Clorhexidina','10 ml',24,30,1)"))
+db.commit()
+r = c.patch("/api/v1/reminders/prescriptions/rx-old", json={"enabled": True}).json()
+check(f"receta vieja: se programan las tomas que faltan ({r['doses_created']} de 30)", 20 <= r["doses_created"] <= 22)
+r2 = c.patch("/api/v1/reminders/prescriptions/rx-old", json={"enabled": True}).json()
+check("activar otra vez no duplica tomas", r2["doses_created"] == 0)
+
+t = c.get("/api/v1/reminders/pet/p1/treatments").json()
+old = next(x for x in t if x["prescription_id"] == "rx-old")
+check("tratamientos: trae cada medicamento con sus tomas y el interruptor", len(t) == 4 and len(old["doses"]) == r["doses_created"] and old["reminders_enabled"] is True)
+check("tratamientos: Meloxicam aparece con avisos apagados", next(x for x in t if x["prescription_id"] == melox.id)["reminders_enabled"] is False)

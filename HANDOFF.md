@@ -194,8 +194,9 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
   la toma como dada. Producción: Meloxicam 5/5 tomas programadas y avisadas a tiempo.
 - [ ] **El aviso llega solo a la bandeja de la app, no como push al teléfono**: falta FCM (`notify_user_push`) y el APK
   con `expo-notifications` (U10).
-- [ ] Recetas viejas sin tomas programadas (p. ej. «Enjuague bucal Clorhexidina», consulta del 15 oct): se crearon sin
-  pasar por `create_medical_record`. Rellenarlas es escribir en producción → **pedir permiso al usuario** antes.
+- [ ] Recetas viejas sin tomas programadas (p. ej. «Enjuague bucal Clorhexidina», consulta del 15 oct): el backend ya
+  puede rellenarlas — `PATCH /reminders/prescriptions/{id}` con `enabled=true` programa las tomas que faltan sin tocar
+  la base a mano — pero **falta la UI** en app y web para que el dueño active los avisos de cada medicamento.
 - [ ] Editar una consulta no cambia su receta (el formulario de edición no la muestra). Si se habilita, hay que
   reprogramar las tomas.
 
@@ -392,6 +393,12 @@ app/
 ## 9. Bitácora compartida (más reciente arriba)
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
+
+- **2026-10-24 · Mimo** — **Cierre del bloque de recordatorios que dejó Claude sin commit**: endpoints
+  `GET /reminders/pet/{id}/treatments` y `PATCH /reminders/prescriptions/{id}` (el dueño activa/desactiva los avisos de
+  cada medicamento y, al activarlos en recetas viejas, se programan las tomas que faltan), emisor que respeta
+  `reminders_enabled`, migración aditiva `d7f3b8a1c925` y pruebas locales (8/8 OK). **Sin UI todavía** (app y web no
+  muestran el interruptor); el pendiente de recetas viejas queda como UI pendiente.
 
 - **2026-10-24 · Claude** — **Recordatorios de medicamentos verificados** (producción y prueba local de punta a punta) y
   arreglo: las tomas arrancan al recetar (antes un intervalo después; `8fd68e4`, desplegado, 17/17). La receta calcula

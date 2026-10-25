@@ -1,7 +1,8 @@
 """F14 — Emisor de recordatorios del carnet.
 
 Cada `REMINDERS_INTERVAL_SECONDS` manda a la bandeja del dueño (tabla `notifications`, misma BD que core):
-- **Dosis de medicamento** que ya tocan (`medication_reminders.remind_at` vencido, sin marcar como dada y sin aviso).
+- **Dosis de medicamento** que ya tocan (`medication_reminders.remind_at` vencido, sin marcar como dada y sin aviso),
+  solo si el dueño tiene los avisos activos en ese medicamento (`prescriptions.reminders_enabled`).
   Las dosis viejas (más de `MED_GRACE`) se marcan como avisadas sin notificar, para no inundar la bandeja.
 - **Refuerzos de vacuna** que vencen en los próximos `BOOSTER_LEAD` días (o vencieron hace menos de `BOOSTER_OVERDUE`).
   Un solo aviso por vacuna; si se cambia la fecha del refuerzo, `update_vaccine` limpia la marca y se vuelve a avisar.
@@ -71,6 +72,7 @@ def _send_medication_reminders(db: Session, now: datetime) -> int:
         "JOIN prescriptions p ON p.id = r.prescription_id "
         "LEFT JOIN pets ON pets.id = r.pet_id "
         "WHERE r.sent = false AND r.notified_at IS NULL AND r.remind_at <= :now "
+        "AND p.reminders_enabled IS NOT FALSE "
         "ORDER BY r.remind_at LIMIT 500"
     ), {"now": now.isoformat()}).fetchall()
     sent = 0
