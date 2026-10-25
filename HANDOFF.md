@@ -391,6 +391,14 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-25 · Mimo** — **Data dummy masiva + limpieza + Web Perfil**. Seed completo (~90 registros) en todos los
+  módulos con estados de flujo variados: adopciones (abierto/adoptado, aprobadas con admin), perdidas (lost/found ×
+  active/resolved), productos (19 únicos tras desactivar duplicados), planes de seguro (3 activos), tratamientos
+  (en-curso/por-iniciar/terminado), laboratorio (8 pruebas), estética, entrenamiento, funerarias, pet-friendly,
+  establecimientos, clínicas, veterinarios. Fixes de UI: CSS de aseguradoras (texto encimado), badges de perdidas
+  (`report_type` + `status` correctos). **Web Perfil** reescrito a dos columnas premium (§0): hero con avatar/rol,
+  datos personales en rejilla, actividad rápida, seguridad/2FA/facturación/soporte en columna derecha. Vercel ✅.
+
 - **2026-10-25 · Mimo** — **Tratamientos premium (web + app)**. Panel «Lo que toca hoy» tipo checklist de vidrio con
   checkbox por dosis, atrasadas resaltadas en dorado, botón «Marcar las N tomas». Tarjetas de tratamiento con barra
   de avance y badge de estado. Ficha de tratamiento reescrita como documento premium: hero con anillo de progreso,
