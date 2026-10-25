@@ -1,4 +1,4 @@
-"""Autorización sobre el carnet de una mascota: solo su dueño o un veterinario pueden escribir en él."""
+"""Autorización sobre el carnet de una mascota: lo leen su dueño y el equipo clínico; solo el equipo clínico lo escribe."""
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -26,11 +26,13 @@ def get_identity(token: str = Depends(_oauth2)) -> dict:
 
 
 def assert_can_write_pet_record(db: Session, pet_id: str, identity: dict) -> None:
+    """Escritura del carnet (vacunas, consultas, recetas): solo veterinario, clínica, hospital o admin.
+    El dueño no edita información médica: la registra el profesional que atiende a la mascota."""
     row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": pet_id}).first()
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mascota no encontrada")
-    if row[0] != identity["user_id"] and identity["role"] not in VET_ROLES:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo el dueño o un veterinario pueden modificar el carnet de esta mascota")
+    if identity["role"] not in VET_ROLES:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo un veterinario o una clínica pueden modificar el carnet de esta mascota")
 
 
 def assert_can_read_pet_record(db: Session, pet_id: str, identity: dict) -> None:
