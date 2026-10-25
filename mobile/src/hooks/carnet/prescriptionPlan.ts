@@ -26,7 +26,11 @@ export const prescriptionFolio = (recordId: string) => `RX-${recordId.slice(0, 8
 export function medicationPlan(recordDate: string, med: Prescription, now = new Date()): MedicationPlan {
     const start = new Date(recordDate);
     const end = new Date(start.getTime() + med.duration_days * DAY);
-    const dosesPerDay = med.frequency_hours > 0 ? Math.max(1, Math.round(24 / med.frequency_hours)) : 1;
+    const freq = med.frequency_hours > 0 ? med.frequency_hours : 24;
+    // Mismo cálculo que el backend al programar los recordatorios (carnet `create_medical_record`):
+    // una toma al recetar y luego cada `frequency_hours`, mientras caiga dentro de los días indicados
+    const totalDoses = Math.min(Math.floor((med.duration_days * 24) / freq), 400);
+    const dosesPerDay = 24 / freq;
     const elapsed = now.getTime() - start.getTime();
     const total = end.getTime() - start.getTime() || 1;
     const progress = Math.min(1, Math.max(0, elapsed / total));
@@ -36,7 +40,7 @@ export function medicationPlan(recordDate: string, med: Prescription, now = new 
         start,
         end,
         dosesPerDay,
-        totalDoses: dosesPerDay * med.duration_days,
+        totalDoses,
         progress,
         daysLeft: Math.max(0, Math.ceil((end.getTime() - now.getTime()) / DAY)),
         status,
@@ -60,6 +64,6 @@ export function prescriptionStatus(plans: MedicationPlan[]): TreatmentStatus {
     return 'terminado';
 }
 
-/** «Cada 8 h (3 al día)» */
+/** «Cada 8 h (3 al día)»; el «al día» solo cuando es un número entero mayor a 1. */
 export const frequencyLabel = (p: MedicationPlan) =>
-    `Cada ${p.med.frequency_hours} h${p.dosesPerDay > 1 ? ` (${p.dosesPerDay} al día)` : ''}`;
+    `Cada ${p.med.frequency_hours} h${p.dosesPerDay > 1 && Number.isInteger(p.dosesPerDay) ? ` (${p.dosesPerDay} al día)` : ''}`;

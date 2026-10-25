@@ -51,10 +51,10 @@ def create_medical_record(db: Session, record: MedicalRecordCreate, vet_id: str 
                 # Calculate how many doses are needed
                 doses_count = min(total_hours // db_prescription.frequency_hours, 400)  # tope para evitar miles de filas
                 
-                # Start remind time from *now* (or next interval)
+                # La primera toma es al recetar (el emisor la avisa en su siguiente pasada) y luego cada
+                # `frequency_hours`: N tomas dentro de los `duration_days`, como muestra la receta (prescriptionPlan.ts)
                 start_time = datetime.now(timezone.utc)
-                for i in range(1, doses_count + 1):
-                    # For example, every 8 hours
+                for i in range(doses_count):
                     remind_time = start_time + timedelta(hours=db_prescription.frequency_hours * i)
                     db_reminder = MedicationReminder(
                         prescription_id=db_prescription.id,

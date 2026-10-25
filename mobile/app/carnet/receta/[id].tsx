@@ -208,7 +208,7 @@ export default function PrescriptionDetailScreen() {
                             <View style={styles.row}>
                                 <Bell size={layout.icon.xs} color={theme.textMuted} />
                                 <Text style={[type.caption, styles.flex, { color: theme.textMuted }]}>
-                                    Te avisamos cuando toque cada dosis; márcalas como dadas en la pestaña Salud de {pet.name}.
+                                    Te avisamos en tus notificaciones de Michicondrias cuando toque cada dosis; márcalas como dadas en la pestaña Salud de {pet.name}.
                                 </Text>
                             </View>
                         )}

@@ -226,7 +226,7 @@ function RecetaContent() {
               </ul>
               {active.length > 0 && (
                 <p className={s.reminder}>
-                  <Bell size={14} aria-hidden /> Te avisamos cuando toque cada dosis; márcalas como dadas en la pestaña Salud de {pet.name}.
+                  <Bell size={14} aria-hidden /> Te avisamos en tus notificaciones de Michicondrias cuando toque cada dosis; márcalas como dadas en la pestaña Salud de {pet.name}.
                 </p>
               )}
             </section>
