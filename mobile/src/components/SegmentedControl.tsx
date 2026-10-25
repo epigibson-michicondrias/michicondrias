@@ -23,6 +23,8 @@ interface SegmentedControlProps<T extends string> {
 
 export default function SegmentedControl<T extends string>({ value, onChange, options, accessibilityLabel }: SegmentedControlProps<T>) {
     const { theme } = useTheme();
+    // Con más de 3 opciones los iconos aprietan el texto: solo texto
+    const showIcons = options.length <= 3;
     return (
         <View
             style={[styles.track, { backgroundColor: theme.backgroundSecondary, borderColor: theme.border }]}
@@ -43,8 +45,8 @@ export default function SegmentedControl<T extends string>({ value, onChange, op
                         accessibilityLabel={opt.label}
                         activeOpacity={press.normal}
                     >
-                        {Icon && <Icon size={layout.icon.sm} color={active ? theme.accent : theme.textMuted} />}
-                        <Text style={[type.bodyStrong, { color }]} numberOfLines={1}>{opt.label}</Text>
+                        {showIcons && Icon && <Icon size={layout.icon.sm} color={active ? theme.accent : theme.textMuted} />}
+                        <Text style={[type.caption, styles.label, { color }]} numberOfLines={1}>{opt.label}</Text>
                     </TouchableOpacity>
                 );
             })}
@@ -73,5 +75,8 @@ const styles = StyleSheet.create({
     },
     active: {
         borderWidth: 1,
+    },
+    label: {
+        fontWeight: '600',
     },
 });

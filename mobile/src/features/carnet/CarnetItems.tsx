@@ -334,7 +334,7 @@ const todayStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.md,
-        padding: spacing.lg,
+        padding: spacing.md,
         borderRadius: radius.lg,
     },
     emptyCheck: {
@@ -360,6 +360,7 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
     isSettingStart: boolean;
 }) {
     const { theme } = useTheme();
+    const router = useRouter();
     const [showHistory, setShowHistory] = useState(false);
     const [editingStart, setEditingStart] = useState(false);
     const [startInput, setStartInput] = useState(treatment.start_date?.slice(0, 10) ?? '');
@@ -370,6 +371,12 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
     const takenDoses = treatment.doses.filter((d) => d.sent);
 
     return (
+        <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => router.push({ pathname: '/carnet/tratamiento/[id]', params: { id: treatment.prescription_id } } as any)}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver ficha de ${treatment.medication_name}`}
+        >
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.rowBetween}>
                 <View style={styles.row}>
@@ -504,6 +511,7 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
                 </View>
             )}
         </View>
+        </TouchableOpacity>
     );
 }
 
@@ -556,6 +564,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: radius.lg,
         padding: spacing.lg,
+        overflow: 'hidden',
     },
     rowCard: {
         flexDirection: 'row',
