@@ -42,7 +42,7 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
                     onAction={health.canEdit ? health.addVaccine : undefined}
                 />
                 {health.loadingVaccines ? <LoadingRows /> : health.vaccines.length === 0 ? (
-                    <EmptyLine text={`Aún no hay vacunas registradas de ${petName}.`} />
+                    <EmptyLine text={health.canEdit ? `Aún no hay vacunas registradas de ${petName}.` : `Aún no hay vacunas de ${petName}. Las registra su veterinario en la consulta.`} />
                 ) : (
                     <View style={styles.list}>
                         {health.vaccines.map((v) => (
@@ -64,7 +64,7 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
                 ) : (
                     <View style={styles.list}>
                         {health.reminders.map((r) => (
-                            <ReminderItem key={r.id} reminder={r} onCheck={health.checkReminder} canCheck={health.canEdit} />
+                            <ReminderItem key={r.id} reminder={r} onCheck={health.checkReminder} canCheck={health.canCheckReminders} />
                         ))}
                     </View>
                 )}
@@ -102,9 +102,11 @@ export function PetHistoryTab({ health, petId }: { health: Health; petId: string
                 <EmptyState
                     icon={<ClipboardList size={layout.icon.xl} color={theme.textMuted} />}
                     title="Sin consultas"
-                    subtitle="Las visitas al veterinario, con diagnóstico y receta, aparecerán aquí."
-                    actionLabel={health.canEdit ? 'Registrar consulta' : undefined}
-                    onAction={health.canEdit ? health.addRecord : undefined}
+                    subtitle={health.canEdit
+                        ? 'Las visitas al veterinario, con diagnóstico y receta, aparecerán aquí.'
+                        : 'Cuando un veterinario atienda a tu mascota, su consulta aparecerá aquí.'}
+                    actionLabel={health.canEdit ? 'Registrar consulta' : health.isOwner ? 'Buscar veterinario' : undefined}
+                    onAction={health.canEdit ? health.addRecord : health.isOwner ? health.findVet : undefined}
                 />
             ) : (
                 <>

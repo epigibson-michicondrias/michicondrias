@@ -25,8 +25,10 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
     const role = normalizeRole(user?.role_name);
     const isOwner = !!pet && pet.owner_id === user?.id;
     const isClinical = CLINICAL_ROLES.includes(role);
-    // El dueño también registra vacunas y consultas de su mascota (el backend lo permite)
-    const canEdit = isOwner || isClinical;
+    // El carnet (vacunas, consultas, recetas) solo lo escribe el equipo clínico; el dueño lo consulta
+    const canEdit = isClinical;
+    // Marcar una dosis como tomada es del dueño (`POST /reminders/{id}/check` solo lo acepta a él)
+    const canCheckReminders = isOwner;
 
     const enabled = !!petId;
     const records = useQuery({
@@ -38,7 +40,8 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
     const vaccines = useQuery({
         queryKey: ['pet-vaccines', petId],
         queryFn: () => getVaccinesByPet(petId!),
-        enabled: enabled && section !== 'historial',
+        // Siempre: el estado de vacunas se muestra fuera de la pestaña Salud (Resumen en la app, hero en la web)
+        enabled,
     });
     const reminders = useQuery({
         queryKey: ['pet-reminders', petId],
@@ -141,6 +144,7 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
 
     return {
         canEdit,
+        canCheckReminders,
         isOwner,
         records: sortedRecords,
         loadingRecords: records.isLoading,
@@ -158,6 +162,8 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         editRecord: (id: string) => router.push(`/carnet/nueva-consulta?pet_id=${petId}&id=${id}`),
         editVaccine: (id: string) => router.push(`/carnet/nueva-vacuna?pet_id=${petId}&id=${id}`),
         confirmDeleteVaccine,
+        /** Sin consultas, el dueño busca quién la atienda (el carnet lo llena el veterinario). */
+        findVet: () => router.push('/directorio'),
         confirmDeleteRecord,
         openSymptomCheck: () => router.push(`/mascotas/diagnostico-ia?petId=${petId}`),
     };

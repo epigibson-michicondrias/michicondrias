@@ -4,6 +4,7 @@ import { Plus, Trash2, Info, Save } from 'lucide-react-native';
 import { useConsultationForm } from '@/src/hooks/carnet/useConsultationForm';
 import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import RoleGuard from '@/src/components/RoleGuard';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { DetailFooter } from '@/src/components/layout/DetailLayout';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
@@ -14,7 +15,16 @@ import Button from '@/src/components/Button';
 import Card from '@/src/components/Card';
 import { layout, radius, spacing, tint, type } from '@/constants/design';
 
+/** El carnet solo lo escribe el equipo clínico (el backend rechaza al dueño): ver ROUTE_ACCESS. */
 export default function NuevaConsultaScreen() {
+    return (
+        <RoleGuard roles={['veterinario', 'hospital']} message="El carnet lo registra el veterinario o la clínica que atiende a tu mascota.">
+            <ConsultationFormContent />
+        </RoleGuard>
+    );
+}
+
+function ConsultationFormContent() {
     const { theme } = useTheme();
     const f = useConsultationForm();
 

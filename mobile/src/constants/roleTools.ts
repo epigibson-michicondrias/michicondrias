@@ -194,6 +194,9 @@ export const ROUTE_ACCESS: { prefix: string; roles: string[] }[] = [
     { prefix: '/entrenadores/gestion', roles: ['entrenador'] },
     { prefix: '/entrenadores/nuevo-programa', roles: ['entrenador'] },
     { prefix: '/directorio/nuevo', roles: ['veterinario', 'hospital', 'admin'] },
+    // El carnet solo lo escribe el equipo clínico (carnet/app/api/pet_access.py)
+    { prefix: '/carnet/nueva-vacuna', roles: ['veterinario', 'hospital'] },
+    { prefix: '/carnet/nueva-consulta', roles: ['veterinario', 'hospital'] },
     { prefix: '/establecimientos/nuevo', roles: ['establecimiento'] },
     { prefix: '/establecimientos/editar', roles: ['establecimiento'] },
     { prefix: '/grooming/gestion', roles: ['estilista'] },
