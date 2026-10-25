@@ -1,31 +1,21 @@
 "use client";
 
 /**
- * Mis citas — listado con filtros, cancelar y reagendar.
- * Espejo de `mobile/app/directorio/citas/index.tsx`.
+ * Mis citas — tabla (`DataTable`) con filtros, cancelar y reagendar. Criterio §0.
  */
 import { useRouter } from "next/navigation";
 import {
-  AlertTriangle,
-  Ban,
-  Building2,
-  Calendar,
-  CalendarClock,
-  Clock,
-  FileText,
-  Info,
-  PawPrint,
-  RefreshCw,
+  AlertTriangle, Ban, Building2, Calendar, CalendarClock, Clock,
+  FileText, PawPrint, RefreshCw,
 } from "lucide-react";
-import type { ComponentType } from "react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
-import Card from "@/components/Card";
 import Badge from "@/components/Badge";
 import Button from "@/components/Button";
 import FilterChip from "@/components/FilterChip";
 import EmptyState from "@/components/EmptyState";
 import { SkeletonList } from "@/components/Skeleton";
+import DataTable, { type Column } from "@/components/DataTable";
 import {
   useAppointments,
   STATUS_CONFIG,
@@ -34,88 +24,6 @@ import {
 } from "@/hooks/directorio/useAppointments";
 import type { Appointment } from "@/services/citas";
 import s from "./citas.module.css";
-
-function Line({ icon: Icon, text, muted }: { icon: ComponentType<{ size?: number; color?: string }>; text: string; muted?: boolean }) {
-  return (
-    <div className={s.line}>
-      <Icon size={15} color="var(--color-text-muted)" />
-      <span className={muted ? s.lineMuted : s.lineText}>{text}</span>
-    </div>
-  );
-}
-
-function AppointmentCard({
-  item,
-  onCancel,
-  onReschedule,
-  cancelling,
-}: {
-  item: Appointment;
-  onCancel: (a: Appointment) => void;
-  onReschedule: (a: Appointment) => void;
-  cancelling: boolean;
-}) {
-  const status = STATUS_CONFIG[item.status] || STATUS_CONFIG.scheduled;
-  const color = `var(--color-${status.tone})`;
-  const { date, time } = formatDateTime(item.appointment_date);
-  const isActive = !["cancelled", "completed", "rescheduled"].includes(item.status);
-
-  return (
-    <Card>
-      <div className={s.body}>
-        <div className={s.head}>
-          <div className={s.iconBox}>
-            <Building2 size={20} color="var(--color-primary)" />
-          </div>
-          <div className={s.headInfo}>
-            <p className={s.clinicName}>{item.clinic_name || "Clínica"}</p>
-            {item.service_name ? <p className={s.serviceName}>{item.service_name}</p> : null}
-          </div>
-          <Badge label={status.label} color={color} size="sm" />
-        </div>
-
-        <div className={s.lines}>
-          <Line icon={Calendar} text={`${date}${time ? ` · ${time}` : ""}`} />
-          <Line icon={PawPrint} text={item.pet_name || "Mascota"} />
-          {item.reason ? <Line icon={FileText} text={item.reason} muted /> : null}
-        </div>
-
-        {item.is_emergency ? (
-          <Badge label="Emergencia" color="var(--color-error)" size="sm" icon={<AlertTriangle size={12} />} />
-        ) : null}
-
-        {item.status === "cancelled" && item.cancellation_reason ? (
-          <div className={s.note}>
-            <Info size={15} color="var(--color-error)" />
-            <span className={s.lineText}>Motivo: {item.cancellation_reason}</span>
-          </div>
-        ) : null}
-
-        {isActive ? (
-          <div className={s.actions}>
-            <Button
-              label="Reagendar"
-              variant="secondary"
-              size="sm"
-              icon={<CalendarClock size={15} />}
-              onPress={() => onReschedule(item)}
-              accessibilityLabel={`Reagendar la cita en ${item.clinic_name || "la clínica"}`}
-            />
-            <Button
-              label="Cancelar"
-              variant="secondary"
-              size="sm"
-              icon={<Ban size={15} color="var(--color-error)" />}
-              onPress={() => onCancel(item)}
-              disabled={cancelling}
-              accessibilityLabel={`Cancelar la cita en ${item.clinic_name || "la clínica"}`}
-            />
-          </div>
-        ) : null}
-      </div>
-    </Card>
-  );
-}
 
 export default function CitasPage() {
   const router = useRouter();
@@ -131,6 +39,78 @@ export default function CitasPage() {
     handleReschedule,
     cancelMutation,
   } = useAppointments();
+
+  const columns: Column<Appointment>[] = [
+    {
+      key: "clinic",
+      header: "Clínica",
+      render: (a) => (
+        <div>
+          <strong>{a.clinic_name || "Clínica"}</strong>
+          {a.service_name ? <span>{a.service_name}</span> : null}
+        </div>
+      ),
+    },
+    {
+      key: "date",
+      header: "Fecha",
+      render: (a) => {
+        const { date, time } = formatDateTime(a.appointment_date);
+        return <span>{date}{time ? ` · ${time}` : ""}</span>;
+      },
+    },
+    {
+      key: "pet",
+      header: "Mascota",
+      render: (a) => <span>{a.pet_name || "—"}</span>,
+    },
+    {
+      key: "reason",
+      header: "Motivo",
+      render: (a) => <span>{a.reason || "—"}</span>,
+    },
+    {
+      key: "status",
+      header: "Estado",
+      render: (a) => {
+        const status = STATUS_CONFIG[a.status] || STATUS_CONFIG.scheduled;
+        return (
+          <span>
+            <Badge label={status.label} color={`var(--color-${status.tone})`} size="sm" />
+            {a.is_emergency && (
+              <Badge label="Emergencia" color="var(--color-error)" size="sm" icon={<AlertTriangle size={12} />} />
+            )}
+          </span>
+        );
+      },
+    },
+  ];
+
+  const rowActions = (a: Appointment) => {
+    const isActive = !["cancelled", "completed", "rescheduled"].includes(a.status);
+    if (!isActive) return null;
+    return (
+      <div className={s.actions}>
+        <Button
+          label="Reagendar"
+          variant="ghost"
+          size="sm"
+          icon={<CalendarClock size={14} />}
+          onPress={() => handleReschedule(a)}
+          accessibilityLabel={`Reagendar la cita en ${a.clinic_name || "la clínica"}`}
+        />
+        <Button
+          label="Cancelar"
+          variant="ghost"
+          size="sm"
+          icon={<Ban size={14} color="var(--color-error)" />}
+          onPress={() => handleCancel(a)}
+          disabled={cancelMutation.isPending}
+          accessibilityLabel={`Cancelar la cita en ${a.clinic_name || "la clínica"}`}
+        />
+      </div>
+    );
+  };
 
   return (
     <ScreenContainer>
@@ -172,17 +152,13 @@ export default function CitasPage() {
           }
         />
       ) : (
-        <div className={s.list}>
-          {appointments.map((item) => (
-            <AppointmentCard
-              key={item.id}
-              item={item}
-              onCancel={handleCancel}
-              onReschedule={handleReschedule}
-              cancelling={cancelMutation.isPending}
-            />
-          ))}
-        </div>
+        <DataTable
+          caption="Citas médicas"
+          columns={columns}
+          rows={appointments}
+          rowKey={(a) => a.id}
+          rowActions={rowActions}
+        />
       )}
     </ScreenContainer>
   );

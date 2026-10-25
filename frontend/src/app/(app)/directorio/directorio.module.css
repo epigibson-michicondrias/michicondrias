@@ -20,3 +20,114 @@
   display: grid;
   gap: var(--space-lg);
 }
+
+/* ── Layout dos columnas con sidebar ── */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* ── Sidebar de filtros ── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  position: sticky;
+  top: calc(var(--space-xl) + 64px);
+}
+@media (max-width: 768px) {
+  .sidebar { position: static; }
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.filterTitle {
+  margin: 0;
+  font-size: var(--font-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.filterList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+/* ── Resultados ── */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+.resultsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+.resultCount {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── Toggle mapa/lista ── */
+.viewToggle {
+  display: flex;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.viewBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.viewBtn:hover { background: var(--color-overlay-hover, rgba(255,255,255,0.06)); }
+.viewActive {
+  background: var(--color-primary);
+  color: var(--color-on-primary, #fff);
+}
+
+/* ── Mapa placeholder ── */
+.mapPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xxl, 4rem);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--color-divider);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+.mapSub {
+  margin: 0;
+  font-size: var(--font-sm);
+}
