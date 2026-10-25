@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import or_, text, bindparam
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Any, List, Optional
 from datetime import date
 import uuid
 
@@ -394,7 +394,7 @@ def update_lab_order_status(
 
 @router.get("/admin/pending", response_model=List[LabTestCatalogOut])
 def admin_pending_tests(
-    db: Session = Depends(get_db),
+    db: Session = Depends(deps.get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Listar pruebas inactivas (pendientes de aprobación). Solo admin."""
@@ -404,7 +404,7 @@ def admin_pending_tests(
 @router.post("/admin/{test_id}/approve", response_model=LabTestCatalogOut)
 def admin_approve_test(
     test_id: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(deps.get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Aprobar una prueba (activarla). Solo admin."""
@@ -420,7 +420,7 @@ def admin_approve_test(
 @router.post("/admin/{test_id}/suspend", response_model=LabTestCatalogOut)
 def admin_suspend_test(
     test_id: str,
-    db: Session = Depends(get_db),
+    db: Session = Depends(deps.get_db),
     admin_id: str = Depends(deps.require_admin),
 ) -> Any:
     """Suspender una prueba (desactivarla). Solo admin."""
