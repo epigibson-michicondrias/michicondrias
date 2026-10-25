@@ -397,7 +397,9 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   (por-iniciar / en-curso / terminado). **Pestaña «Tratamientos»** propia en la ficha de la mascota (web), con
   tarjetas agrupadas por estado y **ficha de cada tratamiento en su URL** (`/carnet/tratamiento/[id]`): documento
   con datos, avance, línea de tiempo de cada toma y panel de acciones. Botón «Tomado» bloqueado hasta que toca la
-  dosis. Migración aditiva `a1b2c3d4e5f6`. Pruebas locales 15/15 OK.
+  dosis. Migración aditiva `a1b2c3d4e5f6`. Pruebas locales 15/15 OK. **Verificado en producción**: endpoint
+  `GET /reminders/treatments/{id}` responde, ficha renderiza a 1280 y 375 (claro/oscuro) sin desbordes. OTA
+  `0873d365-…` (runtime 1.1.0).
 
 - **2026-10-24 · Mimo** — **Interruptor de avisos de medicamentos (app + web)**: el dueño activa o desactiva los
   avisos de cada medicamento recetado en la pestaña Salud. Tarjeta por tratamiento con nombre, dosis/frecuencia/
