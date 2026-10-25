@@ -12,6 +12,7 @@ from app.models.mascotas import Pet
 from app.api import deps
 from app.core.config import settings
 from app.core.ai_triage import assess_symptoms, _norm
+from app.core.ai_history import summarize_history
 from app.core.passport_page import render_passport_page, render_passport_error, mask_policy_number
 from app.api.internal import require_internal_token, require_admin, identity_or_internal
 
@@ -436,6 +437,29 @@ def ai_symptom_check(
                 bits.append(f"{int(pet.age_months)} meses")
             pet_context = f"{pet.name} ({', '.join(bits)})"
     return assess_symptoms(user_id, req.symptom_description, req.duration_hours, pet_context)
+
+
+@router.post("/{pet_id}/ai/history-summary")
+def ai_history_summary(
+    pet_id: str,
+    db: Session = Depends(get_db),
+    identity: dict = Depends(identity_or_internal),
+) -> Any:
+    """Resumen del historial clínico (consultas, recetas, vacunas, laboratorio). Dueño o equipo clínico."""
+    if identity.get("internal"):
+        raise HTTPException(status_code=403, detail="Solo para usuarios")
+    pet = db.query(Pet).filter(Pet.id == pet_id, Pet.is_active.isnot(False)).first()
+    if not pet:
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    role = (identity.get("role") or "").lower()
+    if pet.owner_id != identity.get("user_id") and role not in VET_ROLES:
+        raise HTTPException(status_code=403, detail="Solo el dueño o el equipo clínico pueden ver este historial")
+    bits = [pet.species or "mascota"]
+    if pet.breed:
+        bits.append(pet.breed)
+    if pet.age_months:
+        bits.append(f"{int(pet.age_months)} meses")
+    return summarize_history(db, identity["user_id"], pet.id, pet.name, f"{pet.name} ({', '.join(bits)})")
 
 
 @router.post("/{pet_id}/ai/diet-plan")
