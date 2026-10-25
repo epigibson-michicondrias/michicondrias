@@ -1,16 +1,15 @@
 /**
- * Pestañas Salud e Historial de la ficha de la mascota (lo que antes era el carnet: app/carnet/[id].tsx).
+ * Pestaña Salud de la ficha de la mascota (lo que antes era el carnet: app/carnet/[id].tsx).
+ * La pestaña Historial vive en `PetHistoryTab.tsx`.
  */
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { Syringe, Pill, FlaskConical, ClipboardList, Sparkles } from 'lucide-react-native';
+import { Syringe, Pill, FlaskConical, Sparkles } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import SectionHeader from '@/src/components/SectionHeader';
-import EmptyState from '@/src/components/EmptyState';
 import Button from '@/src/components/Button';
 import { Skeleton } from '@/src/components/Skeleton';
-import WeightSparkline from '@/src/components/WeightSparkline';
-import { RecordItem, VaccineItem, ReminderItem, LabItem } from '@/src/features/carnet/CarnetItems';
+import { VaccineItem, ReminderItem, LabItem } from '@/src/features/carnet/CarnetItems';
 import type { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { spacing, radius, type, layout } from '@/constants/design';
 
@@ -87,42 +86,6 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
                     fullWidth
                     icon={<Sparkles size={layout.icon.md} color={theme.text} />}
                 />
-            )}
-        </View>
-    );
-}
-
-export function PetHistoryTab({ health, petId }: { health: Health; petId: string }) {
-    const { theme } = useTheme();
-    return (
-        <View style={styles.tab}>
-            {health.weightSeries.length >= 2 && <WeightSparkline data={health.weightSeries} color={theme.primary} />}
-
-            {health.loadingRecords ? <LoadingRows /> : health.records.length === 0 ? (
-                <EmptyState
-                    icon={<ClipboardList size={layout.icon.xl} color={theme.textMuted} />}
-                    title="Sin consultas"
-                    subtitle={health.canEdit
-                        ? 'Las visitas al veterinario, con diagnóstico y receta, aparecerán aquí.'
-                        : 'Cuando un veterinario atienda a tu mascota, su consulta aparecerá aquí.'}
-                    actionLabel={health.canEdit ? 'Registrar consulta' : health.isOwner ? 'Buscar veterinario' : undefined}
-                    onAction={health.canEdit ? health.addRecord : health.isOwner ? health.findVet : undefined}
-                />
-            ) : (
-                <>
-                    {health.canEdit && <Button label="Registrar consulta" onPress={health.addRecord} variant="secondary" fullWidth />}
-                    <View style={styles.list}>
-                        {health.records.map((r) => (
-                            <RecordItem
-                                key={r.id}
-                                record={r}
-                                petId={petId}
-                                onEdit={health.canEdit ? () => health.editRecord(r.id) : undefined}
-                                onDelete={health.canEdit ? () => health.confirmDeleteRecord(r.id, r.reason_for_visit) : undefined}
-                            />
-                        ))}
-                    </View>
-                </>
             )}
         </View>
     );

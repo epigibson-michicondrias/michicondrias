@@ -51,7 +51,8 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
     const labs = useQuery({
         queryKey: ['pet-lab-history', petId],
         queryFn: () => getPetLabHistory(petId!),
-        enabled: enabled && section === 'salud',
+        // Salud y la línea de tiempo de Historial
+        enabled: enabled && section !== null,
     });
 
     const sortedRecords = useMemo(

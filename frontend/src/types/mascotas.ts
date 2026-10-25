@@ -94,3 +94,25 @@ export const GENDER_OPTIONS = [
     { label: 'Macho', value: 'macho' },
     { label: 'Hembra', value: 'hembra' },
 ];
+
+/** Resumen del historial clínico (`POST /pets/{id}/ai/history-summary`). Los `facts` los calcula el servidor. */
+export interface HistorySummary {
+    analysis_source: string;
+    generated_at: string;
+    summary: string;
+    highlights: string[];
+    facts: {
+        visits: number;
+        first_visit: string | null;
+        last_visit: { date: string | null; reason: string; diagnosis: string | null } | null;
+        recent_reasons: string[];
+        weight: { current_kg: number; measured_on: string | null; change_kg: number | null; since: string | null } | null;
+        last_temperature_c: number | null;
+        active_medications: { name: string; dosage: string; every_hours: number; until: string | null }[];
+        vaccines_registered: number;
+        vaccines_overdue: { name: string; due: string | null }[];
+        vaccines_upcoming: { name: string; due: string | null }[];
+        lab_anomalies: { parameter: string; value: number; unit: string | null; reference: string | null; date: string | null }[];
+    };
+    disclaimer: string;
+}

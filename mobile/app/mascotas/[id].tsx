@@ -15,7 +15,8 @@ import { Award, Activity, Calendar, LayoutGrid, HeartPulse, ClipboardList, Share
 import SegmentedControl from '@/src/components/SegmentedControl';
 import { Skeleton } from '@/src/components/Skeleton';
 import { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
-import { PetHealthTab, PetHistoryTab } from '@/src/features/mascotas/PetHealthTabs';
+import { PetHealthTab } from '@/src/features/mascotas/PetHealthTabs';
+import { PetHistoryTab } from '@/src/features/mascotas/PetHistoryTab';
 import { PetPassportShare } from '@/src/features/mascotas/PetPassportShare';
 import { spacing, radius, type, shadow, layout } from '@/constants/design';
 
@@ -104,7 +105,7 @@ export default function PetProfileScreen() {
                     />
 
                     {tab === 'salud' && <View style={styles.tabBody}><PetHealthTab health={health} petName={pet.name} /></View>}
-                    {tab === 'historial' && <View style={styles.tabBody}><PetHistoryTab health={health} petId={pet.id} /></View>}
+                    {tab === 'historial' && <View style={styles.tabBody}><PetHistoryTab health={health} petId={pet.id} petName={pet.name} /></View>}
 
                     {tab === 'resumen' && (<>
                     {/* Stats Grid: Peso y Vacunas llevan a su detalle (Historial con la curva de peso, Salud con el carnet) */}

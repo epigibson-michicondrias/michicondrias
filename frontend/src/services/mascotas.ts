@@ -9,6 +9,7 @@ import type {
     SymptomCheckResponse,
     DietPlanRequest,
     DietPlanResponse,
+    HistorySummary,
 } from "../types/mascotas";
 
 // Re-export types for backward compatibility
@@ -24,6 +25,11 @@ export async function getAllPets(): Promise<Pet[]> {
 
 export async function getPetById(petId: string): Promise<Pet> {
     return apiFetch<Pet>("mascotas", `/pets/${petId}`);
+}
+
+/** Resumen del historial clínico (Michi-IA si está disponible; si no, automático con los mismos datos). */
+export async function getHistorySummary(petId: string): Promise<HistorySummary> {
+    return apiFetch<HistorySummary>("mascotas", `/pets/${petId}/ai/history-summary`, { method: "POST" });
 }
 
 export async function getMascotasPresignedUrl(ext: string): Promise<{ url: string; object_key: string }> {
