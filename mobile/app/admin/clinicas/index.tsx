@@ -7,7 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import { MapPin, Phone, Hospital } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing, layout } from '@/constants/design';
 
 export default function AdminClinicasScreen() {
     const router = useRouter();
@@ -79,7 +79,7 @@ export default function AdminClinicasScreen() {
 const styles = StyleSheet.create({
     list: { 
         padding: spacing.xl, 
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         paddingTop: spacing.md 
     },
     card: { 
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     cardInfo: { flex: 1 },
     clinicName: { 
         fontSize: font.xxl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     locationRow: { 
         flexDirection: 'row', 
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     },
     clinicLocation: { 
         fontSize: font.md, 
-        fontWeight: '700' 
+        fontFamily: families.bold 
     },
     moreBtn: { 
         width: 36, 
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     },
     statText: { 
         fontSize: font.base, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     badge: { 
         paddingHorizontal: spacing.md, 
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     },
     badgeText: { 
         fontSize: font.xs, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     cardActions: { 
         flexDirection: 'row', 
@@ -161,6 +161,6 @@ const styles = StyleSheet.create({
     },
     actionBtnText: { 
         fontSize: font.base, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     }
 });

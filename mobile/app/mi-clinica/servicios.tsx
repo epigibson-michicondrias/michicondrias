@@ -9,7 +9,8 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Plus, Pencil, Trash2, Clock, Tag, Briefcase, X, AlertTriangle } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing, layout } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 export default function ServiciosClinicaScreen() {
     const { theme } = useTheme();
@@ -73,7 +74,7 @@ export default function ServiciosClinicaScreen() {
 
             {loadingServices ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <SkeletonList count={3} />
                 </View>
             ) : (
                 <FlatList
@@ -159,36 +160,36 @@ export default function ServiciosClinicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    list: { padding: spacing.xxl, paddingBottom: 100 },
+    list: { padding: spacing.xxl, paddingBottom: layout.listClearance },
     card: { borderRadius: 28, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     cardMain: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
     iconBox: { width: 48, height: 48, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
     info: { flex: 1, gap: spacing.xs },
-    serviceName: { fontSize: font.xl, fontWeight: '800' },
-    serviceDesc: { fontSize: font.md, fontWeight: '600' },
+    serviceName: { fontSize: font.xl, fontFamily: families.extrabold },
+    serviceDesc: { fontSize: font.md, fontFamily: families.semibold },
     metaRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xs },
     metaItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-    metaText: { fontSize: font.xs, fontWeight: '700' },
+    metaText: { fontSize: font.xs, fontFamily: families.bold },
     priceBox: { alignItems: 'flex-end' },
-    priceText: { fontSize: font.xxl, fontWeight: '900' },
+    priceText: { fontSize: font.xxl, fontFamily: families.black },
     actions: { flexDirection: 'row', marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: 1, gap: spacing.lg },
     actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs, justifyContent: 'center' },
-    actionText: { fontSize: font.base, fontWeight: '700' },
+    actionText: { fontSize: font.base, fontFamily: families.bold },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     empty: { paddingTop: 100, alignItems: 'center', gap: spacing.xl },
-    emptyText: { fontSize: font.xl, fontWeight: '600', textAlign: 'center' },
+    emptyText: { fontSize: font.xl, fontFamily: families.semibold, textAlign: 'center' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: spacing.xxl, maxHeight: '85%' },
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xxl },
-    modalTitle: { fontSize: font.h2, fontWeight: '900' },
+    modalTitle: { fontSize: font.h2, fontFamily: families.black },
     modalScroll: { overflow: 'visible' },
     formGroup: { marginBottom: spacing.xl },
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.lg, fontWeight: '600' },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.lg, fontFamily: families.semibold },
     textArea: { height: 100, textAlignVertical: 'top', paddingVertical: spacing.lg },
     row: { flexDirection: 'row', gap: spacing.lg },
     inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1 },
-    smallInput: { flex: 1, height: '100%', fontSize: font.lg, fontWeight: '600' },
+    smallInput: { flex: 1, height: '100%', fontSize: font.lg, fontFamily: families.semibold },
     saveBtn: { height: 64, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: spacing.md, marginBottom: spacing.huge },
-    saveBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' }
+    saveBtnText: { fontSize: font.xl, fontFamily: families.extrabold }
 });

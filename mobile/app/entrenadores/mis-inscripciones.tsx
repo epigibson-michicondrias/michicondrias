@@ -8,7 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { BookOpen, PawPrint, Calendar, TrendingUp, ChevronRight } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 const STATUS_LABEL: Record<string, string> = { active: 'Activo', completed: 'Completado', cancelled: 'Cancelado', pending: 'Pendiente' };
 const statusColorOf = (status: string, theme: any): string =>
@@ -88,7 +88,7 @@ export default function MyEnrollmentsScreen() {
                         accessibilityLabel="Calificar programa"
                         style={{ paddingTop: spacing.md }}
                     >
-                        <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Calificar programa</Text>
+                        <Text style={{ color: theme.primary, fontFamily: families.extrabold, fontSize: font.base }}>Calificar programa</Text>
                     </TouchableOpacity>
                 )}
             </View>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     },
     programTitle: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     petRow: {
         flexDirection: 'row',
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     progressSection: { gap: spacing.sm },
     progressHeader: {
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     },
     progressLabel: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     progressBarBg: {
         height: 6,
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     },
     emptyTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     emptyDesc: {
         fontSize: font.base,
@@ -263,6 +263,6 @@ const styles = StyleSheet.create({
     },
     exploreButtonText: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 });

@@ -9,7 +9,7 @@ import { PawPrint } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { getMyClinics } from '@/src/services/directorio';
 import { getClinicPatients } from '@/src/services/patients';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 interface Props {
     value: string;
@@ -61,8 +61,8 @@ export default function PatientPicker({ value, onChange, label = 'Paciente *' }:
                                     onPress={() => onChange(p.id)}
                                     style={[styles.chip, { backgroundColor: sel ? theme.primary : theme.surface, borderColor: sel ? theme.primary : theme.border }]}
                                 >
-                                    <PawPrint size={14} color={sel ? '#fff' : theme.textMuted} />
-                                    <Text style={{ color: sel ? '#fff' : theme.text, fontWeight: '700', fontSize: font.base }} numberOfLines={1}>
+                                    <PawPrint size={14} color={sel ? theme.onPrimary : theme.textMuted} />
+                                    <Text style={{ color: sel ? theme.onPrimary : theme.text, fontFamily: families.bold, fontSize: font.base }} numberOfLines={1}>
                                         {p.name} · {p.owner}
                                     </Text>
                                 </TouchableOpacity>
@@ -76,7 +76,7 @@ export default function PatientPicker({ value, onChange, label = 'Paciente *' }:
 }
 
 const styles = StyleSheet.create({
-    label: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
+    label: { fontSize: font.md, fontFamily: families.bold, marginBottom: spacing.sm, marginTop: spacing.lg },
     search: { height: 44, borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, marginBottom: spacing.sm },
     row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     chip: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 999, borderWidth: 1, maxWidth: '100%', justifyContent: 'center' },

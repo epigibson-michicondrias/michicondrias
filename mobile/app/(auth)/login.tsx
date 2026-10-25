@@ -3,15 +3,16 @@
  * teclado y scroll centrado. Formulario con AuthField y validación inline.
  */
 import React, { useState, useRef } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Image, View, Text, ActivityIndicator, Animated } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, Image, View, Text, Animated } from 'react-native';
 import { useLogin } from '@/src/hooks/auth/useLogin';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, ShieldCheck, ArrowLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import AuthShell from '@/src/components/AuthShell';
 import AuthField from '@/src/components/AuthField';
+import Button from '@/src/components/Button';
 import { validateEmail, validateRequired } from '@/src/utils/validators';
-import { spacing, radius, type, layout, shadow } from '@/constants/design';
+import { families, radius, shadow, spacing, type } from '@/constants/design';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -151,22 +152,15 @@ export default function LoginScreen() {
                         <Text style={[styles.forgotText, { color: theme.primary }]}>¿Olvidaste tu contraseña?</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[styles.loginBtn, { backgroundColor: theme.primary }, isLoggingIn && { opacity: 0.7 }]}
+                    <Button
+                        label="Entrar"
+                        variant="primary"
+                        size="lg"
                         onPress={handleLogin}
-                        disabled={isLoggingIn}
-                        accessibilityRole="button"
-                        accessibilityLabel="Entrar"
-                    >
-                        {isLoggingIn ? (
-                            <ActivityIndicator color={theme.onPrimary} size="small" />
-                        ) : (
-                            <>
-                                <Text style={[styles.loginBtnText, { color: theme.onPrimary }]}>Entrar</Text>
-                                <ArrowRight size={20} color={theme.onPrimary} strokeWidth={2.5} />
-                            </>
-                        )}
-                    </TouchableOpacity>
+                        loading={isLoggingIn}
+                        iconRight={<ArrowRight size={20} color={theme.onPrimary} strokeWidth={2.5} />}
+                        style={{ borderRadius: radius.lg }}
+                    />
                 </Animated.View>
             )}
 
@@ -212,22 +206,15 @@ export default function LoginScreen() {
                         <Text style={[styles.otpError, { color: theme.error }]} accessibilityLiveRegion="polite">{otpError}</Text>
                     ) : null}
 
-                    <TouchableOpacity
-                        style={[styles.loginBtn, { backgroundColor: theme.success }, isVerifying2FA && { opacity: 0.7 }]}
+                    <Button
+                        label="Verificar"
+                        variant="primary"
+                        size="lg"
                         onPress={handleVerify2FA}
-                        disabled={isVerifying2FA}
-                        accessibilityRole="button"
-                        accessibilityLabel="Verificar código"
-                    >
-                        {isVerifying2FA ? (
-                            <ActivityIndicator color={theme.onPrimary} size="small" />
-                        ) : (
-                            <>
-                                <Text style={[styles.loginBtnText, { color: theme.onPrimary }]}>Verificar</Text>
-                                <ShieldCheck size={20} color={theme.onPrimary} />
-                            </>
-                        )}
-                    </TouchableOpacity>
+                        loading={isVerifying2FA}
+                        iconRight={<ShieldCheck size={20} color={theme.onPrimary} />}
+                        style={{ borderRadius: radius.lg, backgroundColor: theme.success }}
+                    />
                 </Animated.View>
             )}
 
@@ -256,29 +243,20 @@ const styles = StyleSheet.create({
         marginBottom: spacing.md,
     },
     logoImage: { width: 72, height: 72, borderRadius: 36 },
-    appName: { fontSize: type.title.fontSize, fontWeight: '800', letterSpacing: -0.5 },
+    appName: { fontSize: type.title.fontSize, fontFamily: families.extrabold, letterSpacing: -0.5 },
     taglineRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xs },
-    tagline: { fontSize: type.body.fontSize, fontWeight: '500' },
+    tagline: { fontSize: type.body.fontSize, fontFamily: families.medium },
     card: {
         borderRadius: radius.xl,
         borderWidth: 1,
         padding: spacing.xl,
     },
-    cardTitle: { fontSize: type.h1.fontSize, fontWeight: '800', marginBottom: spacing.xs },
+    cardTitle: { fontSize: type.h1.fontSize, fontFamily: families.extrabold, marginBottom: spacing.xs },
     cardSubtitle: { fontSize: type.body.fontSize, marginBottom: spacing.xl },
     forgotRow: { alignSelf: 'flex-end', marginBottom: spacing.xl, marginTop: spacing.md },
-    forgotText: { fontSize: type.caption.fontSize, fontWeight: '600' },
-    loginBtn: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: radius.lg,
-        minHeight: layout.minTouch + 8,
-        gap: spacing.sm,
-    },
-    loginBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
+    forgotText: { fontSize: type.caption.fontSize, fontFamily: families.semibold },
     backRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
-    backText: { fontSize: type.body.fontSize, fontWeight: '600' },
+    backText: { fontSize: type.body.fontSize, fontFamily: families.semibold },
     twoFAHeader: { alignItems: 'center', marginBottom: spacing.lg },
     twoFAIcon: {
         width: 64,
@@ -294,7 +272,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.xl,
         paddingVertical: spacing.lg,
         fontSize: type.h1.fontSize,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textAlign: 'center',
         letterSpacing: 8,
     },
@@ -306,5 +284,5 @@ const styles = StyleSheet.create({
     },
     footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl },
     footerLabel: { fontSize: type.body.fontSize },
-    footerLink: { fontSize: type.body.fontSize, fontWeight: '700' },
+    footerLink: { fontSize: type.body.fontSize, fontFamily: families.bold },
 });

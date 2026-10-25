@@ -10,7 +10,7 @@ import SearchBar from '@/src/components/SearchBar';
 import { showAlert } from '@/src/components/AppAlert';
 import { useTheme } from '@/src/hooks/useTheme';
 import EmptyState from '@/src/components/EmptyState';
-import { spacing, radius, type, layout, tint } from '@/constants/design';
+import { families, layout, radius, spacing, tint, type } from '@/constants/design';
 import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_WHATSAPP, TERMS_URL, PRIVACY_URL } from '@/src/constants/support';
 
 // FAQ verídicas: describen lo que la app tiene hoy (el botón de adopción es «¡Quiero Adoptar!» y
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     },
     faqQuestion: {
         flex: 1,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     faqAnswer: {
         paddingHorizontal: spacing.lg,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     contactLabel: {
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     footerCard: {
         flexDirection: 'row',
@@ -192,6 +192,6 @@ const styles = StyleSheet.create({
     },
     footerCardText: {
         flex: 1,
-        fontWeight: '700',
+        fontFamily: families.bold,
     }
 });

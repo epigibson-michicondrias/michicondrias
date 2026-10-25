@@ -10,7 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import RoleGuard from '@/src/components/RoleGuard';
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 const SIT_TYPE_LABELS: Record<string, string> = {
   hosting: 'Hospedaje en su casa',
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   navBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  monthText: { fontSize: font.xl, fontWeight: '800' },
+  monthText: { fontSize: font.xl, fontFamily: families.extrabold },
   dayHeaders: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: font.md,
-    fontWeight: '700',
+    fontFamily: families.bold,
   },
   calendarGrid: {
     flexDirection: 'row',
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  dayText: { fontSize: font.base, fontWeight: '600' },
+  dayText: { fontSize: font.base, fontFamily: families.semibold },
   dot: {
     width: 5,
     height: 5,
@@ -243,14 +243,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.screenPadding,
     marginTop: spacing.xxl,
   },
-  sectionTitle: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.md },
+  sectionTitle: { fontSize: font.xl, fontFamily: families.extrabold, marginBottom: spacing.md },
   emptyCard: {
     padding: spacing.xxl,
     borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
   },
-  emptyText: { fontSize: font.base, fontWeight: '600' },
+  emptyText: { fontSize: font.base, fontFamily: families.semibold },
   requestCard: {
     padding: spacing.lg,
     borderRadius: 16,
@@ -263,9 +263,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  reqId: { fontSize: font.base, fontWeight: '800' },
+  reqId: { fontSize: font.base, fontFamily: families.extrabold },
   reqDetails: { gap: spacing.sm },
   reqDetailRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   reqDetailText: { fontSize: font.base, flex: 1 },
-  reqPrice: { fontSize: font.xl, fontWeight: '800', marginTop: spacing.md },
+  reqPrice: { fontSize: font.xl, fontFamily: families.extrabold, marginTop: spacing.md },
 });

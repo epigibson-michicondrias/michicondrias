@@ -7,7 +7,7 @@ import { openStripeUrl } from '@/src/utils/payments';
 import { useTheme } from '@/src/hooks/useTheme';
 import { DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 const AMOUNTS = [50, 100, 200, 500];
 
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: -12,
     },
     amountsGrid: {
@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
     },
     amountText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     inputGroup: {
         gap: spacing.sm,
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     inputContainer: {
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: font.xxl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     textAreaContainer: {
         flexDirection: 'row',
@@ -304,11 +304,11 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
         alignItems: 'center',
     },
-    statusTitle: { fontSize: font.xl, fontWeight: '800', textAlign: 'center' },
+    statusTitle: { fontSize: font.xl, fontFamily: families.extrabold, textAlign: 'center' },
     statusText: { fontSize: font.base, lineHeight: 19, textAlign: 'center' },
-    statusLink: { fontSize: font.base, fontWeight: '800', marginTop: spacing.xs },
+    statusLink: { fontSize: font.base, fontFamily: families.extrabold, marginTop: spacing.xs },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     }
 });

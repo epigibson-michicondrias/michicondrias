@@ -3,7 +3,7 @@
  * o con correo + código de 6 dígitos. Validación inline por campo.
  */
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View, Text, ActivityIndicator } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { Lock, Eye, EyeOff, ArrowRight, CheckCircle, KeyRound, ShieldCheck, Mail } from 'lucide-react-native';
 import BackButton from '@/src/components/BackButton';
@@ -11,8 +11,9 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { usePasswordReset } from '@/src/hooks/auth/usePasswordReset';
 import AuthShell from '@/src/components/AuthShell';
 import AuthField from '@/src/components/AuthField';
+import Button from '@/src/components/Button';
 import { validateEmail, validateMinLength } from '@/src/utils/validators';
-import { spacing, radius, type, layout, shadow } from '@/constants/design';
+import { families, layout, radius, shadow, spacing, type } from '@/constants/design';
 
 type FieldKey = 'email' | 'code' | 'newPassword' | 'confirmPassword';
 
@@ -149,22 +150,15 @@ export default function ResetPasswordScreen() {
                             onSubmitEditing={handleReset}
                         />
 
-                        <TouchableOpacity
-                            style={[styles.submitBtn, { backgroundColor: theme.primary }, isWorking && { opacity: 0.7 }]}
+                        <Button
+                            label="Restablecer contraseña"
+                            variant="primary"
+                            size="lg"
                             onPress={handleReset}
-                            disabled={isWorking}
-                            accessibilityRole="button"
-                            accessibilityLabel="Restablecer contraseña"
-                        >
-                            {isWorking ? (
-                                <ActivityIndicator color={theme.onPrimary} size="small" />
-                            ) : (
-                                <>
-                                    <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>Restablecer contraseña</Text>
-                                    <ArrowRight size={18} color={theme.onPrimary} />
-                                </>
-                            )}
-                        </TouchableOpacity>
+                            loading={isWorking}
+                            iconRight={<ArrowRight size={18} color={theme.onPrimary} />}
+                            style={{ borderRadius: radius.lg, marginTop: spacing.sm }}
+                        />
                     </View>
                 </>
             ) : (
@@ -199,9 +193,9 @@ const styles = StyleSheet.create({
     backBtn: { marginBottom: spacing.lg },
     headerSection: { alignItems: 'center', marginBottom: spacing.xl },
     iconCircle: { width: 72, height: 72, borderRadius: 36, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.lg },
-    title: { fontSize: type.h1.fontSize, fontWeight: '900', letterSpacing: -0.5, textAlign: 'center' },
-    subtitle: { fontSize: type.body.fontSize, fontWeight: '500', marginTop: spacing.sm, textAlign: 'center', lineHeight: 20 },
+    title: { fontSize: type.h1.fontSize, fontFamily: families.black, letterSpacing: -0.5, textAlign: 'center' },
+    subtitle: { fontSize: type.body.fontSize, fontFamily: families.medium, marginTop: spacing.sm, textAlign: 'center', lineHeight: 20 },
     card: { borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1 },
     submitBtn: { minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.sm },
-    submitBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
+    submitBtnText: { fontSize: type.subtitle.fontSize, fontFamily: families.extrabold },
 });

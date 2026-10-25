@@ -5,8 +5,9 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { use2FA } from '@/src/hooks/perfil/use2FA';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
+import Button from '@/src/components/Button';
 import { Shield, ShieldCheck, ShieldOff, Eye, EyeOff, Smartphone, Copy } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function Seguridad2FAScreen() {
     const { theme } = useTheme();
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
     },
     statusTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.sm,
     },
     statusDescription: {
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.xxl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.sm,
     },
     cardDescription: {
@@ -269,14 +270,14 @@ const styles = StyleSheet.create({
     },
     qrActionText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     secretContainer: {
         marginTop: spacing.xs,
     },
     secretLabel: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         marginBottom: spacing.sm,
     },
     secretRow: {
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.lg,
         fontSize: font.h1,
-        fontWeight: '700',
+        fontFamily: families.bold,
         letterSpacing: 8,
         marginBottom: spacing.lg,
     },
@@ -310,7 +311,7 @@ const styles = StyleSheet.create({
     },
     primaryButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     dangerButton: {
         flexDirection: 'row',
@@ -323,7 +324,7 @@ const styles = StyleSheet.create({
     },
     dangerButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     bottomSpacer: {
         height: 40,

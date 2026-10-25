@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Star } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing, radius } from '@/constants/design';
 
 export interface ReviewItem {
     id: string;
@@ -61,7 +61,7 @@ export function ReviewForm({ prompt, submitting, onSubmit }: { prompt: string; s
                 accessibilityRole="button"
                 accessibilityLabel="Enviar reseña"
             >
-                {submitting ? <ActivityIndicator color={theme.onPrimary} /> : <Text style={styles.submitText}>Enviar reseña</Text>}
+                {submitting ? <ActivityIndicator color={theme.onPrimary} /> : <Text style={[styles.submitText, { color: theme.onPrimary }, { color: theme.onPrimary }]}>Enviar reseña</Text>}
             </TouchableOpacity>
         </View>
     );
@@ -123,22 +123,22 @@ export default function ReviewsSection({ title = 'Reseñas', average, count, rev
 }
 
 const styles = StyleSheet.create({
-    card: { marginHorizontal: layout.screenPadding, marginBottom: spacing.lg, padding: spacing.xl, borderRadius: 16, borderWidth: 1, gap: spacing.md },
+    card: { marginHorizontal: layout.screenPadding, marginBottom: spacing.lg, padding: spacing.xl, borderRadius: radius.lg, borderWidth: 1, gap: spacing.md },
     header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    title: { fontSize: font.xxl, fontWeight: '700' },
+    title: { fontSize: font.xxl, fontFamily: families.bold },
     avgBox: { alignItems: 'flex-end', gap: spacing.xxs },
-    avgText: { fontSize: font.md, fontWeight: '600' },
+    avgText: { fontSize: font.md, fontFamily: families.semibold },
     starsRow: { flexDirection: 'row', gap: spacing.xs },
     formWrap: { paddingBottom: spacing.md, borderBottomWidth: 1 },
     form: { gap: spacing.md },
-    formPrompt: { fontSize: font.lg, fontWeight: '700' },
-    input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.lg, minHeight: 70, textAlignVertical: 'top' },
-    submit: { height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    submitText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
+    formPrompt: { fontSize: font.lg, fontFamily: families.bold },
+    input: { borderWidth: 1, borderRadius: radius.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, fontSize: font.lg, minHeight: 70, textAlignVertical: 'top' },
+    submit: { height: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
+    submitText: { fontSize: font.lg, fontFamily: families.extrabold },
     empty: { fontSize: font.base },
     review: { borderTopWidth: 1, paddingTop: spacing.md, gap: spacing.xs },
     reviewHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    author: { fontSize: font.base, fontWeight: '700' },
+    author: { fontSize: font.base, fontFamily: families.bold },
     comment: { fontSize: font.base, lineHeight: 20 },
     date: { fontSize: font.sm },
 });

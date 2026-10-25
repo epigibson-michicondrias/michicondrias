@@ -119,14 +119,14 @@ export interface AdoptionContractCreate {
 
 /** Options for size selector */
 export const SIZE_OPTIONS = [
-    { label: 'Pequeño', value: 'small', icon: '🐾' },
-    { label: 'Mediano', value: 'medium', icon: '🐕' },
-    { label: 'Grande', value: 'large', icon: '🐕‍🦺' },
+    { label: 'Pequeño', value: 'small', icon: undefined },
+    { label: 'Mediano', value: 'medium' },
+    { label: 'Grande', value: 'large' },
 ];
 
 /** Options for energy level */
 export const ENERGY_OPTIONS = [
-    { label: 'Bajo', value: 'low', icon: '😴' },
-    { label: 'Medio', value: 'medium', icon: '🏃' },
-    { label: 'Alto', value: 'high', icon: '⚡' },
+    { label: 'Bajo', value: 'low' },
+    { label: 'Medio', value: 'medium' },
+    { label: 'Alto', value: 'high' },
 ];

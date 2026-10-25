@@ -4,7 +4,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, type } from '@/constants/design';
+import { layout, spacing, type, press } from '@/constants/design';
 
 interface SectionHeaderProps {
     title: string;
@@ -34,7 +34,14 @@ export default function SectionHeader({ title, subtitle, icon, actionLabel, onAc
                 </View>
             </View>
             {actionLabel && onAction ? (
-                <TouchableOpacity onPress={onAction} accessibilityRole="button" accessibilityLabel={actionLabel} hitSlop={8}>
+                <TouchableOpacity
+                    onPress={onAction}
+                    accessibilityRole="button"
+                    accessibilityLabel={actionLabel}
+                    activeOpacity={press.subtle}
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                    style={styles.action}
+                >
                     <Text style={[type.bodyStrong, { color: theme.primary }]}>{actionLabel}</Text>
                 </TouchableOpacity>
             ) : null}
@@ -45,4 +52,5 @@ export default function SectionHeader({ title, subtitle, icon, actionLabel, onAc
 const styles = StyleSheet.create({
     row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.md },
     left: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexShrink: 1 },
+    action: { minHeight: layout.minTouch, justifyContent: 'center', paddingHorizontal: spacing.sm },
 });

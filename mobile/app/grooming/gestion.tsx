@@ -12,7 +12,6 @@ import {
     ScrollView,
     TextInput,
     Modal,
-    ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
 import {
@@ -36,7 +35,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 const FILTERS: { key: ProviderFilter; label: string; icon: string }[] = [
     { key: 'all',         label: 'Todas',       icon: '' },
@@ -382,7 +381,7 @@ function getStatusColor(status: string | undefined, theme: any): { color: string
 const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
 
     // Filters
@@ -409,7 +408,7 @@ const styles = StyleSheet.create({
     },
     filterLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 
     // Card
@@ -436,7 +435,7 @@ const styles = StyleSheet.create({
     },
     cardService: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     cardDateRow: {
@@ -446,7 +445,7 @@ const styles = StyleSheet.create({
     },
     cardMeta: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     statusPill: {
         paddingHorizontal: spacing.md,
@@ -457,7 +456,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 
     // Photos
@@ -478,7 +477,7 @@ const styles = StyleSheet.create({
     },
     photoLabel: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 
     // Actions
@@ -498,7 +497,7 @@ const styles = StyleSheet.create({
     },
     actionLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 
     // Modal
@@ -521,11 +520,11 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     modalLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.sm,
         marginTop: spacing.md,
     },
@@ -547,7 +546,7 @@ const styles = StyleSheet.create({
     },
     photoPlaceholderText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     textArea: {
         borderRadius: 14,
@@ -565,6 +564,6 @@ const styles = StyleSheet.create({
     },
     saveBtnText: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, radius, type, tint } from '@/constants/design';
+import { families, radius, spacing, tint, type } from '@/constants/design';
 
 interface BadgeProps {
     label: string;
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
     badgeSm: {
         paddingVertical: spacing.xxs,
         paddingHorizontal: spacing.sm,
-        borderRadius: radius.xs,
+        borderRadius: radius.pill,
     },
     icon: { marginLeft: -spacing.xxs },
-    label: { fontWeight: '700' },
+    label: { fontFamily: families.bold },
 });

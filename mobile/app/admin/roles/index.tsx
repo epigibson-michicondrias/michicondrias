@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -9,7 +10,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Shield, Plus, Edit3, Trash2, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import EmptyState from '@/src/components/EmptyState';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function AdminRolesScreen() {
     const { theme } = useTheme();
@@ -128,13 +129,9 @@ export default function AdminRolesScreen() {
                                 disabled={isSaving}
                                 onPress={handleSubmit}
                             >
-                                {isSaving ? (
-                                    <ActivityIndicator color={theme.onPrimary} />
-                                ) : (
-                                    <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>
+                                <Button label="
                                         {editingRole ? 'Guardar Cambios' : 'Crear Rol'}
-                                    </Text>
-                                )}
+                                    " variant="primary" loading={isSaving} />
                             </TouchableOpacity>
                         </View>
                         </KeyboardScreen>
@@ -148,7 +145,7 @@ export default function AdminRolesScreen() {
 const styles = StyleSheet.create({
     list: { 
         padding: spacing.xl, 
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         paddingTop: spacing.md 
     },
     card: { 
@@ -172,11 +169,11 @@ const styles = StyleSheet.create({
     cardInfo: { flex: 1 },
     roleName: { 
         fontSize: font.xxl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     roleDesc: { 
         fontSize: font.md, 
-        fontWeight: '600', 
+        fontFamily: families.semibold, 
         marginTop: spacing.sm, 
         lineHeight: 18 
     },
@@ -191,7 +188,7 @@ const styles = StyleSheet.create({
     },
     countText: { 
         fontSize: font.xs, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     actions: { flexDirection: 'row', gap: spacing.xs },
     modalOverlay: { 
@@ -216,13 +213,13 @@ const styles = StyleSheet.create({
     },
     modalTitle: { 
         fontSize: font.h2, 
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         letterSpacing: -0.5 
     },
     form: { gap: spacing.md },
     label: { 
         fontSize: font.sm, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         letterSpacing: 1.2,
         marginLeft: spacing.xs,
     },
@@ -231,7 +228,7 @@ const styles = StyleSheet.create({
         padding: spacing.xl, 
         borderWidth: 1.5, 
         fontSize: font.lg,
-        fontWeight: '600' 
+        fontFamily: families.semibold 
     },
     textArea: { 
         height: 120, 
@@ -248,7 +245,7 @@ const styles = StyleSheet.create({
     submitBtnText: { 
          
         fontSize: font.xl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     editBtn: { 
         width: 40, 

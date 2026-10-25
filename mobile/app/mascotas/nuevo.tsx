@@ -11,13 +11,13 @@ export default function NuevaMascotaScreen() {
 
     return (
         <ScreenContainer style={{ backgroundColor: theme.background }}>
-            <ScreenHeader title="Nueva Mascota" />
+            <ScreenHeader title="Nueva mascota" />
             <PetForm
                 form={form}
                 updateField={updateField}
                 image={image}
                 setImage={setImage}
-                submitLabel="Registrar Mascota"
+                submitLabel="Registrar mascota"
                 onSubmit={handleSubmit}
                 busy={loading}
             />

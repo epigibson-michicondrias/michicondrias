@@ -11,7 +11,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Calendar, Settings, Activity, Stethoscope, ChevronRight, DollarSign, BarChart3 } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -88,7 +88,7 @@ export default function MiClinicaScreen() {
                                     </Text>
                                 </View>
                             </View>
-                            <Text style={[styles.ratingText, { color: theme.textMuted, fontSize: font.base, fontWeight: '600' }]} numberOfLines={2}>{clinic.address || 'Sin dirección registrada'}</Text>
+                            <Text style={[styles.ratingText, { color: theme.textMuted, fontSize: font.base, fontFamily: families.semibold }]} numberOfLines={2}>{clinic.address || 'Sin dirección registrada'}</Text>
                         </View>
                     </View>
 
@@ -157,7 +157,7 @@ export default function MiClinicaScreen() {
                     <View style={styles.activityHeader}>
                         <Text style={[styles.sectionTitle, { color: theme.text }]}>Citas Pendientes</Text>
                         <TouchableOpacity onPress={() => router.push('/mi-clinica/agenda' as any)} accessibilityRole="button" accessibilityLabel="Ver toda la agenda">
-                            <Text style={{ color: theme.primary, fontWeight: '700' }}>Ver todo</Text>
+                            <Text style={{ color: theme.primary, fontFamily: families.bold }}>Ver todo</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -213,7 +213,7 @@ function MenuItem({ icon: Icon, color, label, sub, onPress, theme }: {
 const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.huge },
     contentScroll: { flex: 1 },
-    content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xxl, paddingBottom: 100 },
+    content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xxl, paddingBottom: layout.listClearance },
     profileCard: {
         flexDirection: 'row',
         padding: spacing.lg,
@@ -227,8 +227,8 @@ const styles = StyleSheet.create({
     profileInfo: { flex: 1, gap: spacing.xs },
     statusBox: { flexDirection: 'row', alignItems: 'center' },
     statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6, alignSelf: 'flex-start' },
-    statusText: { fontSize: font.xs, fontWeight: '900' },
-    ratingText: { fontSize: font.md, fontWeight: '700' },
+    statusText: { fontSize: font.xs, fontFamily: families.black },
+    ratingText: { fontSize: font.md, fontFamily: families.bold },
     statsGrid: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xxxl },
     statItem: {
         flex: 1,
@@ -240,9 +240,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     statIconBox: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    statValue: { fontSize: font.xxl, fontWeight: '900' },
-    statLabel: { fontSize: font.xs, fontWeight: '700', textTransform: 'uppercase' },
-    sectionTitle: { fontSize: font.base, fontWeight: '900', marginBottom: spacing.lg, textTransform: 'uppercase', letterSpacing: 0.5 },
+    statValue: { fontSize: font.xxl, fontFamily: families.black },
+    statLabel: { fontSize: font.xs, fontFamily: families.bold, textTransform: 'uppercase' },
+    sectionTitle: { fontSize: font.base, fontFamily: families.black, marginBottom: spacing.lg, textTransform: 'uppercase', letterSpacing: 0.5 },
     menuGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.xxxl },
     menuItem: {
         width: Math.floor((width - 61) / 2),
@@ -252,17 +252,17 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     iconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    menuLabel: { fontSize: font.lg, fontWeight: '800' },
-    menuSub: { fontSize: font.sm, fontWeight: '600' },
+    menuLabel: { fontSize: font.lg, fontFamily: families.extrabold },
+    menuSub: { fontSize: font.sm, fontFamily: families.semibold },
     activityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     activityItem: { flexDirection: 'row', alignItems: 'center', padding: spacing.lg, borderRadius: 20, gap: spacing.lg, marginBottom: spacing.md, borderWidth: 1 },
     apptIcon: { width: 40, height: 40, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
     apptInfo: { flex: 1, gap: spacing.xxs },
-    apptTitle: { fontSize: font.base, fontWeight: '800' },
-    apptSub: { fontSize: font.sm, fontWeight: '600' },
+    apptTitle: { fontSize: font.base, fontFamily: families.extrabold },
+    apptSub: { fontSize: font.sm, fontFamily: families.semibold },
     metricsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xxxl },
     metricCard: { flex: 1, padding: spacing.lg, borderRadius: 20, borderWidth: 1, alignItems: 'center', gap: spacing.sm },
     metricIconBox: { width: 44, height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    metricValue: { fontSize: font.h2, fontWeight: '900' },
-    metricLabel: { fontSize: font.sm, fontWeight: '600', textAlign: 'center' },
+    metricValue: { fontSize: font.h2, fontFamily: families.black },
+    metricLabel: { fontSize: font.sm, fontFamily: families.semibold, textAlign: 'center' },
 });

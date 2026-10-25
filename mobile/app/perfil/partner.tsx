@@ -8,7 +8,7 @@ import { usePartnerUpgrade } from '@/src/hooks/perfil/usePartnerUpgrade';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/hooks/useTheme';
 import { ShieldCheck, ArrowRight, CheckCircle, AlertCircle, Clock, Award, Building2, Car, Coffee, Dog, FlaskConical, Flower2, GraduationCap, Heart, HeartHandshake, Home, Scissors, Shield, ShoppingBag, Stethoscope } from 'lucide-react-native';
-import { font, spacing, layout, radius, tint } from '@/constants/design';
+import { families, font, layout, radius, spacing, tint } from '@/constants/design';
 
 export default function PartnerOnboardingScreen() {
     const router = useRouter();
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     },
     kycTitle: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     kycDesc: {
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     },
     kycAction: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     roleCard: {
         padding: spacing.xl,
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     },
     roleTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     selectedBadge: {
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     },
     selectedText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     roleDesc: {
         fontSize: font.base,
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     },
     benefitsTitle: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.xs,
     },
     benefitItem: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     },
     upgradeButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     cancelButton: {
         alignItems: 'center',
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     },
     cancelButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     infoContainer: {
         padding: spacing.xxl,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     },
     infoTitle: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.xs,
     },
     infoText: {

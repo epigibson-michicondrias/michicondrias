@@ -13,7 +13,8 @@ import { getMyClinics } from '@/src/services/directorio';
 import { getClinicPatients, ClinicPatient } from '@/src/services/patients';
 import { formatDateMx } from '@/src/features/salud/format';
 import { Users, PawPrint, AlertTriangle } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 type Filter = 'all' | 'upcoming' | 'critical';
 
@@ -60,7 +61,7 @@ export default function PacientesScreen() {
                     </View>
                     {critical && (
                         <View style={[styles.badge, { backgroundColor: theme.errorLight }]}>
-                            <Text style={{ color: tone, fontWeight: '800', fontSize: font.sm }}>{item.alert_level === 'red' ? 'URGENTE' : 'EN OBSERVACIÓN'}</Text>
+                            <Text style={{ color: tone, fontFamily: families.extrabold, fontSize: font.sm }}>{item.alert_level === 'red' ? 'URGENTE' : 'EN OBSERVACIÓN'}</Text>
                         </View>
                     )}
                 </View>
@@ -76,7 +77,7 @@ export default function PacientesScreen() {
     if (loadingClinics) {
         return (
             <ScreenContainer style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color={theme.primary} />
+                <SkeletonList count={3} />
             </ScreenContainer>
         );
     }
@@ -103,7 +104,7 @@ export default function PacientesScreen() {
             </ScrollView>
 
             {isLoading ? (
-                <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.huge }} />
+                <SkeletonList count={3} />
             ) : (
                 <FlatList
                     data={list}
@@ -128,15 +129,15 @@ export default function PacientesScreen() {
 const styles = StyleSheet.create({
     search: { height: 46, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.base },
     chips: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, marginBottom: spacing.md },
-    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: layout.listClearance },
     card: { padding: spacing.lg, borderRadius: 18, borderWidth: 1, marginBottom: spacing.md },
     head: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     icon: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
-    name: { fontSize: font.xl, fontWeight: '800' },
+    name: { fontSize: font.xl, fontFamily: families.extrabold },
     sub: { fontSize: font.md, marginTop: spacing.xxs },
     badge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
     stats: { flexDirection: 'row', marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: 1 },
     stat: { flex: 1 },
-    statLabel: { fontSize: font.xs, fontWeight: '700', textTransform: 'uppercase' },
-    statValue: { fontSize: font.base, fontWeight: '700', marginTop: spacing.xs },
+    statLabel: { fontSize: font.xs, fontFamily: families.bold, textTransform: 'uppercase' },
+    statValue: { fontSize: font.base, fontFamily: families.bold, marginTop: spacing.xs },
 });

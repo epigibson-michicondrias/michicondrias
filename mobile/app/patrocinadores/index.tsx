@@ -11,7 +11,7 @@ import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function PatrocinadoresScreen() {
     const { theme } = useTheme();
@@ -25,8 +25,8 @@ export default function PatrocinadoresScreen() {
             onPress={() => { if (item.target_link) { recordCampaignClick(item.id).catch(() => {}); Linking.openURL(item.target_link).catch(() => {}); } }}
         >
             <View style={styles.cardHeader}>
-                <View style={[styles.iconContainer, { backgroundColor: '#f59e0b20' }]}>
-                    <Megaphone size={24} color="#f59e0b" />
+                <View style={[styles.iconContainer, { backgroundColor: theme.warningLight }]}>
+                    <Megaphone size={24} color={theme.warning} />
                 </View>
                 <View style={styles.cardInfo}>
                     <Text style={[styles.cardTitle, { color: theme.text }]}>{item.title}</Text>
@@ -123,11 +123,11 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     card: {
         padding: spacing.xl,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     cardLink: {
@@ -172,10 +172,10 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     statValue: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

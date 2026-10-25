@@ -14,7 +14,7 @@ import {
     normalizeStatus,
 } from '@/src/hooks/servicios-pro/requestStatus';
 import StatusBadge from './StatusBadge';
-import { radius, font, spacing } from '@/constants/design';
+import { families, font, radius, spacing } from '@/constants/design';
 
 interface Props {
     kind: RequestKind;
@@ -208,17 +208,17 @@ const styles = StyleSheet.create({
     card: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.lg, marginBottom: spacing.md },
     header: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     avatar: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-    avatarText: { fontSize: font.xxl, fontWeight: '800' },
+    avatarText: { fontSize: font.xxl, fontFamily: families.extrabold },
     headerInfo: { flex: 1 },
-    title: { fontSize: font.xl, fontWeight: '800' },
+    title: { fontSize: font.xl, fontFamily: families.extrabold },
     subtitle: { fontSize: font.base, marginTop: spacing.xxs },
     details: { gap: spacing.sm, marginTop: spacing.lg },
     row: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
     rowText: { flex: 1, fontSize: font.base, lineHeight: 18 },
     footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md, marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: 1 },
-    price: { fontSize: font.xxl, fontWeight: '800' },
+    price: { fontSize: font.xxl, fontFamily: families.extrabold },
     priceLabel: { fontSize: font.sm },
     actions: { flexDirection: 'row', gap: spacing.sm, flexShrink: 1, flexWrap: 'wrap', justifyContent: 'flex-end' },
     actionBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, minHeight: 44, borderRadius: radius.md, borderWidth: 1, justifyContent: 'center' },
-    actionText: { fontSize: font.base, fontWeight: '800' },
+    actionText: { fontSize: font.base, fontFamily: families.extrabold },
 });

@@ -11,7 +11,7 @@ import {
     STATUS_LABELS,
 } from '@/src/hooks/adopciones/useRefugeApplications';
 import type { AdoptionForm } from '@/src/types/adopciones';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 export default function RefugeApplicationsScreen() {
     const { theme } = useTheme();
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     statusBadge: {
         flexDirection: 'row',
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     cardBody: {
         gap: spacing.md,
@@ -188,11 +188,11 @@ const styles = StyleSheet.create({
     },
     infoLabel: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     infoValue: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     scoreContainer: {
         flexDirection: 'row',
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     },
     scoreText: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     reviewBtn: {
         flexDirection: 'row',
@@ -223,6 +223,6 @@ const styles = StyleSheet.create({
     },
     reviewBtnText: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

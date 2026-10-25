@@ -13,7 +13,7 @@ import FilterChip from '@/src/components/FilterChip';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Clock, ClipboardList, User, Activity } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function ProfessionalGestionScreen() {
     return (
@@ -98,8 +98,8 @@ function ProfessionalGestion() {
 const styles = StyleSheet.create({
     statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
     statBox: { flex: 1, flexDirection: 'row', padding: spacing.lg, borderRadius: 18, alignItems: 'center', gap: spacing.md, borderWidth: 1 },
-    statValue: { fontSize: font.xxl, fontWeight: '800' },
-    statLabel: { fontSize: font.sm, fontWeight: '700' },
+    statValue: { fontSize: font.xxl, fontFamily: families.extrabold },
+    statLabel: { fontSize: font.sm, fontFamily: families.bold },
     chips: { gap: spacing.sm, paddingBottom: spacing.lg },
-    list: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.lg, paddingBottom: layout.listClearance },
 });

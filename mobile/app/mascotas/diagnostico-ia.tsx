@@ -11,7 +11,7 @@ import SegmentedControl from '@/src/components/SegmentedControl';
 import Button from '@/src/components/Button';
 import KeyboardScreen from '../../src/components/KeyboardScreen';
 import { validateRequired } from '@/src/utils/validators';
-import { spacing, radius, type, shadow, layout, font } from '@/constants/design';
+import { families, font, layout, radius, shadow, spacing, type } from '@/constants/design';
 
 export default function DiagnosticoIAScreen() {
     const { theme } = useTheme();
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing.lg,
     },
     formContainer: {
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     formGroup: {
         marginBottom: spacing.lg,
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         borderWidth: 1,
         fontSize: font.lg,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     textArea: {
         minHeight: 120,
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
         paddingTop: spacing.md,
         borderWidth: 1,
         fontSize: font.lg,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         textAlignVertical: 'top',
     },
     actionRow: {
@@ -389,11 +389,11 @@ const styles = StyleSheet.create({
     },
     metricVal: {
         fontSize: font.xxl,
-        fontWeight: '900',
+        fontFamily: families.black,
     },
     metricLabel: {
         fontSize: font.xs,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textTransform: 'uppercase',
     },
 });

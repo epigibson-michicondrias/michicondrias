@@ -12,7 +12,7 @@ import SearchBar from '@/src/components/SearchBar';
 import { Stars } from '@/src/components/reviews/ReviewsSection';
 
 import { useAuth } from '@/src/contexts/AuthContext';
-import { font, spacing, layout, type } from '@/constants/design';
+import { families, font, layout, spacing, type } from '@/constants/design';
 
 export default function EstilistasScreen() {
     const router = useRouter();
@@ -149,14 +149,14 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     searchContainer: {
         marginBottom: spacing.xl,
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     card: {
         padding: spacing.xl,
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     cardDesc: {
@@ -200,6 +200,6 @@ const styles = StyleSheet.create({
     },
     metaText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

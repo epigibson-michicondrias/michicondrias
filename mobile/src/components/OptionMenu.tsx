@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Check, ChevronDown } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import type { IconComponent } from '@/src/components/IconButton';
-import { layout, radius, spacing, type } from '@/constants/design';
+import { layout, radius, spacing, type, press } from '@/constants/design';
 
 export interface MenuOption<T extends string> {
     value: T;
@@ -45,7 +45,7 @@ export default function OptionMenu<T extends string>({ value, onChange, options,
             <TouchableOpacity
                 style={[styles.trigger, { backgroundColor: theme.surface, borderColor: theme.border }]}
                 onPress={() => setOpen(true)}
-                activeOpacity={0.7}
+                activeOpacity={press.subtle}
                 hitSlop={{ top: 4, bottom: 4 }}
                 accessibilityRole="button"
                 accessibilityLabel={`${title}: ${current.label}`}

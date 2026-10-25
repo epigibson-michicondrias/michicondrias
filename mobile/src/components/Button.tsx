@@ -5,7 +5,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { layout, radius, shadow, spacing, type } from '@/constants/design';
+import { layout, radius, shadow, spacing, type, press } from '@/constants/design';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'gold';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -46,7 +46,7 @@ export default function Button({
         <TouchableOpacity
             onPress={onPress}
             disabled={inactive}
-            activeOpacity={0.85}
+            activeOpacity={press.strong}
             accessibilityRole="button"
             accessibilityLabel={accessibilityLabel || label}
             accessibilityState={{ disabled: !!inactive, busy: !!loading }}
@@ -81,8 +81,8 @@ export default function Button({
 
 const styles = StyleSheet.create({
     base: {
-        borderRadius: radius.sm,
-        paddingHorizontal: spacing.lg + 4,
+        borderRadius: radius.md,
+        paddingHorizontal: spacing.xl,
         alignItems: 'center',
         justifyContent: 'center',
     },

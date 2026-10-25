@@ -6,7 +6,7 @@ import { useAdminConfig } from '@/src/hooks/admin/useAdminConfig';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ChevronLeft, ShieldCheck, Zap, Globe, Bell, Database, HardDrive, Cpu, Cloud, Lock } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing, layout } from '@/constants/design';
 import { hapticToggle } from '@/src/lib/haptics';
 
 export default function AdminConfigScreen() {
@@ -23,7 +23,7 @@ export default function AdminConfigScreen() {
 
     if (isLoading) {
         return (
-            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
+            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: layout.headerClearance }}><SkeletonList count={4} /></View>
         );
     }
 
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     },
     scroll: { 
         padding: spacing.xl, 
-        paddingBottom: 60, 
+        paddingBottom: layout.headerClearance, 
         paddingTop: spacing.md,
         gap: spacing.xxl 
     },
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: { 
         fontSize: font.sm, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         letterSpacing: 1.2 
     },
     card: { 
@@ -196,11 +196,11 @@ const styles = StyleSheet.create({
     },
     rowLabel: { 
         fontSize: font.lg, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     rowDesc: { 
         fontSize: font.md, 
         marginTop: spacing.xxs, 
-        fontWeight: '600' 
+        fontFamily: families.semibold 
     },
 });

@@ -11,7 +11,7 @@ import EmptyState from '@/src/components/EmptyState';
 import { SkeletonList } from '@/src/components/Skeleton';
 import RideCard from '@/src/components/rides/RideCard';
 import { formatMoney } from '@/src/components/rides/rideStatus';
-import { radius, spacing, type } from '@/constants/design';
+import { radius, spacing, type, layout } from '@/constants/design';
 
 function Screen() {
   const { theme } = useTheme();
@@ -99,7 +99,7 @@ export default function HistorialConductorScreen() {
 
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: spacing.xl },
-  list: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
+  list: { paddingHorizontal: spacing.xl, paddingBottom: layout.listClearance },
   stats: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.xl },
   stat: { flex: 1, alignItems: 'center', gap: spacing.xs, padding: spacing.md, borderRadius: radius.lg },
   statIcon: { width: 36, height: 36, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },

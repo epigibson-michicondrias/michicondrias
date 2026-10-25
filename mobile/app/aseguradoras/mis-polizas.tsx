@@ -9,7 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import DataList from '@/src/components/data/DataList';
 import { Shield, ShieldCheck, ShieldX, Calendar, DollarSign, FileText, ChevronRight, Dog, Cat } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function MisPolizasScreen() {
     const router = useRouter();
@@ -108,7 +108,7 @@ export default function MisPolizasScreen() {
                                     <FileText size={14} color={tone.color} />
                                     <Text style={[styles.detailLabel, { color: theme.textMuted }]}>Reclamo</Text>
                                     <Text style={[styles.detailValue, { color: theme.text }]} numberOfLines={1}>${c.amount_claimed}</Text>
-                                    <Text style={{ color: tone.color, fontWeight: '700', fontSize: font.md }}>{tone.label}</Text>
+                                    <Text style={{ color: tone.color, fontFamily: families.bold, fontSize: font.md }}>{tone.label}</Text>
                                 </View>
                             );
                         })}
@@ -193,15 +193,15 @@ const styles = StyleSheet.create({
     },
     statValue: {
         fontSize: font.h1,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     statLabel: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     policyCard: {
         borderRadius: 16,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     },
     petName: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     petBreed: {
         fontSize: font.base,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     policyDetails: {
         padding: spacing.lg,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     },
     detailValue: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         flex: 1,
     },
     coverageBadge: {
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     },
     coverageText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         flex: 1,
     },
     policyStatusBadge: {
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     },
     policyStatusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     insureCta: {
         flexDirection: 'row',
@@ -292,6 +292,6 @@ const styles = StyleSheet.create({
     },
     insureCtaText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 });

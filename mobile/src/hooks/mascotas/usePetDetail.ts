@@ -3,19 +3,20 @@
  * Extracts data fetching from app/mascotas/[id].tsx
  */
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { getPetById, sharePetPassport } from '@/src/services/mascotas';
-import { createSubscriptionSession, createBillingPortalSession } from '@/src/services/ecommerce';
+import { createSubscriptionSession } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { openStripeUrl } from '@/src/utils/payments';
 import type { Pet } from '@/src/types/mascotas';
+import { useTrackerBilling } from './useTrackerBilling';
 
 export type PetTab = 'resumen' | 'salud' | 'historial';
 
 export function usePetDetail() {
-    const { id, tab: initialTab } = useLocalSearchParams<{ id: string; tab?: string }>();
+    const { id, tab: initialTab, subscription } = useLocalSearchParams<{ id: string; tab?: string; subscription?: string }>();
     const router = useRouter();
     const { user } = useAuth();
 
@@ -77,21 +78,20 @@ export function usePetDetail() {
     };
 
     // Con el Tracker activo la tarjeta abre la facturación: ahí se ve, cambia o cancela la suscripción
-    const billingMutation = useMutation({
-        mutationFn: createBillingPortalSession,
-        onSuccess: (data) => {
-            if (data.url) {
-                openStripeUrl(data.url).catch(() => {
-                    showAlert({ type: 'info', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });
-                });
-            }
-        },
-        onError: () => {
-            showAlert({ type: 'error', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });
-        },
-    });
+    const { openTrackerBilling, isOpeningBilling } = useTrackerBilling();
 
-    const openTrackerBilling = () => billingMutation.mutate();
+    // Regreso del pago de Stripe (deep link `mascotas/{id}?subscription=success|cancelled`): se avisa una sola vez
+    const notifiedReturn = useRef(false);
+    useEffect(() => {
+        if (!subscription || notifiedReturn.current) return;
+        notifiedReturn.current = true;
+        if (subscription === 'success') {
+            showAlert({ type: 'success', title: 'Michi-Tracker activado', message: 'El GPS puede tardar unos segundos en aparecer como activo.' });
+        } else {
+            showAlert({ type: 'info', title: 'Pago cancelado', message: 'No se hizo ningún cargo. Puedes activarlo cuando quieras.' });
+        }
+        router.setParams({ subscription: undefined });
+    }, [subscription, router]);
 
     // Pestaña visible: ?tab=salud|historial (enlaces desde Mi clínica, notificaciones o el carnet viejo)
     const [tab, setTab] = useState<PetTab>(
@@ -116,7 +116,7 @@ export function usePetDetail() {
         handleSubscribeMichiTracker,
         isSubscribing: subscriptionMutation.isPending,
         openTrackerBilling,
-        isOpeningBilling: billingMutation.isPending,
+        isOpeningBilling,
     };
 }
 

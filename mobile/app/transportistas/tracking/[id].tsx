@@ -15,7 +15,7 @@ import { Skeleton } from '@/src/components/Skeleton';
 import WebMapView, { type MapMarker } from '@/src/components/WebMapView';
 import { showAlert } from '@/src/components/AppAlert';
 import { formatDateTime, formatMoney, rideStatusInfo } from '@/src/components/rides/rideStatus';
-import { radius, spacing, type } from '@/constants/design';
+import { radius, spacing, type, layout } from '@/constants/design';
 
 function InfoRow({ icon: Icon, label, value, color }: { icon: any; label: string; value: string; color: string }) {
   const { theme } = useTheme();
@@ -260,7 +260,7 @@ export default function RideDetailScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   pad: { paddingHorizontal: spacing.xl },
-  content: { paddingHorizontal: spacing.xl, paddingBottom: 100, gap: spacing.md },
+  content: { paddingHorizontal: spacing.xl, paddingBottom: layout.listClearance, gap: spacing.md },
   statusCard: { gap: spacing.sm },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.sm },
   map: { height: 220, borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1 },

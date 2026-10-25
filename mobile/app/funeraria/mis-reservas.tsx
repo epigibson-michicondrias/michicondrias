@@ -10,7 +10,7 @@ import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { Calendar, Clock, FileText, Plus } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function MisReservasScreen() {
     const { theme } = useTheme();
@@ -61,7 +61,7 @@ export default function MisReservasScreen() {
                         onPress={() => handleCancel(item.id)}
                         style={[styles.cancelBtn, { borderColor: theme.error }]}
                     >
-                        <Text style={{ color: theme.error, fontWeight: '700', fontSize: font.base }}>Cancelar reserva</Text>
+                        <Text style={{ color: theme.error, fontFamily: families.bold, fontSize: font.base }}>Cancelar reserva</Text>
                     </TouchableOpacity>
                 )}
 
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.sm,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     card: {
         padding: spacing.xl,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.xs,
     },
     dateRow: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     statusBadge: {
         paddingHorizontal: spacing.md,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     cancelBtn: {
         marginTop: spacing.md,
@@ -187,6 +187,6 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: font.sm,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
 });

@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Modal, KeyboardAvoidingView, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -23,7 +24,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getRoleName, ALL_ROLES } from '@/src/constants/roles';
-import { font, spacing, tint } from '@/constants/design';
+import { families, font, spacing, tint } from '@/constants/design';
 
 export default function AdminUsersScreen() {
     const router = useRouter();
@@ -255,7 +256,7 @@ export default function AdminUsersScreen() {
                                             <Text style={[
                                                 styles.roleOptionText, 
                                                 { color: theme.textMuted },
-                                                formData.role_id === role.id && { color: role.color, fontWeight: '800' }
+                                                formData.role_id === role.id && { color: role.color, fontFamily: families.extrabold }
                                             ]}>
                                                 {role.label}
                                             </Text>
@@ -320,11 +321,11 @@ const styles = StyleSheet.create({
     },
     statVal: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     statLab: {
         fontSize: font.xs,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         textTransform: 'uppercase',
     },
     searchSection: {
@@ -348,7 +349,7 @@ const styles = StyleSheet.create({
     },
     filterText: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     usersList: {
         paddingHorizontal: spacing.xl,
@@ -375,7 +376,7 @@ const styles = StyleSheet.create({
     },
     avatarText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         
     },
     userInfo: {
@@ -385,7 +386,7 @@ const styles = StyleSheet.create({
     },
     userName: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     emailRow: {
@@ -395,7 +396,7 @@ const styles = StyleSheet.create({
     },
     userEmail: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     userMeta: {
         flexDirection: 'row',
@@ -411,7 +412,7 @@ const styles = StyleSheet.create({
     },
     roleText: {
         fontSize: font.xs,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textTransform: 'uppercase',
     },
     statusBadge: {
@@ -429,7 +430,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.xs,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textTransform: 'uppercase',
     },
     cardActions: {
@@ -468,14 +469,14 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     modalForm: {
         marginBottom: spacing.xxl,
     },
     inputLabel: {
         fontSize: font.sm,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.sm,
         marginTop: spacing.lg,
     },
@@ -484,7 +485,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         paddingHorizontal: spacing.lg,
         fontSize: font.lg,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         borderWidth: 1,
     },
     rolePickerGrid: {
@@ -510,7 +511,7 @@ const styles = StyleSheet.create({
     },
     roleOptionText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         flex: 1,
     },
     modalFooter: {
@@ -532,6 +533,6 @@ const styles = StyleSheet.create({
     },
     btnText: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

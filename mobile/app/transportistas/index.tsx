@@ -10,7 +10,7 @@ import { Car, Users, Snowflake, Box, CheckCircle2, Plus, Clock, User, Inbox, Rou
 import SearchBar from '@/src/components/SearchBar';
 import { SkeletonList } from '@/src/components/Skeleton';
 import EmptyState from '@/src/components/EmptyState';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function TransportistasScreen() {
     const { theme } = useTheme();
@@ -206,11 +206,11 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     card: {
         padding: spacing.xl,
@@ -236,12 +236,12 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     cardPlate: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         letterSpacing: 1,
     },
     availableBadge: {
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     },
     availableText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     tagsRow: {
         flexDirection: 'row',
@@ -272,6 +272,6 @@ const styles = StyleSheet.create({
     },
     tagText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

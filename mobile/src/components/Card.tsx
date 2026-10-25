@@ -4,7 +4,7 @@
 import React from 'react';
 import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { radius, shadow, spacing } from '@/constants/design';
+import { radius, shadow, spacing, press } from '@/constants/design';
 
 interface CardProps {
     children: React.ReactNode;
@@ -29,7 +29,7 @@ export default function Card({ children, onPress, flush, elevated, style, access
     if (onPress) {
         return (
             <TouchableOpacity
-                activeOpacity={0.85}
+                activeOpacity={press.strong}
                 onPress={onPress}
                 style={base}
                 accessibilityRole="button"

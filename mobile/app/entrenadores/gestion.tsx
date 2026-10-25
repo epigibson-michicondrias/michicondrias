@@ -9,7 +9,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import StatusBadge from '@/src/features/servicios-pro/StatusBadge';
 import { Plus, Users, Dumbbell, Calendar, ChevronRight } from 'lucide-react-native';
 import type { TrainingEnrollment } from '@/src/services/training';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 const statusColorOf = (status: string, theme: any): string =>
     ({ active: theme.success, completed: theme.info, cancelled: theme.error } as Record<string, string>)[status] || theme.warning;
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     },
     actionLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         flex: 1,
     },
     statsContainer: {
@@ -196,11 +196,11 @@ const styles = StyleSheet.create({
     },
     statNumber: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     statLabel: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
         marginTop: spacing.xs,
     },
     sectionHeader: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     listContent: {
         paddingHorizontal: layout.screenPadding,
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     enrollmentInfo: { flex: 1 },
     enrollmentPet: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     enrollmentProgram: {
         fontSize: font.md,
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     },
     statusLabel: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     enrollmentFooter: {
         flexDirection: 'row',
@@ -281,16 +281,16 @@ const styles = StyleSheet.create({
     },
     manageText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     emptyContainer: {
         alignItems: 'center',
-        paddingTop: 60,
+        paddingTop: layout.headerClearance,
         gap: spacing.md,
     },
     emptyTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     emptyDesc: {
         fontSize: font.base,

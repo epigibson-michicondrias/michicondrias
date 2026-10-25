@@ -1,5 +1,5 @@
 import React from 'react';
-import { spacing, radius, font } from '@/constants/design';
+import { families, font, radius, spacing } from '@/constants/design';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -78,12 +78,12 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.xs,
-        fontWeight: '900',
+        fontFamily: families.black,
         letterSpacing: 1,
     },
     currentWeight: {
         fontSize: font.xxl,
-        fontWeight: '900',
+        fontFamily: families.black,
     },
     svg: {
         marginTop: spacing.xs,
@@ -95,6 +95,6 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: font.xs,
-        fontWeight: '700',
+        fontFamily: families.bold,
     }
 });

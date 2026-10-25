@@ -9,7 +9,7 @@ import PetPicker from '@/src/features/salud/PetPicker';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Send, Info } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 export default function NuevoMemorialScreen() {
     const { theme } = useTheme();
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -137,6 +137,6 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

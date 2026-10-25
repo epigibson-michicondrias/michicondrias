@@ -12,7 +12,7 @@ import RoleGuard from '@/src/components/RoleGuard';
 import EmptyState from '@/src/components/EmptyState';
 import { Search, Star, ShieldCheck, MapPin, Dog, Cat, User, Users } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function ServiciosProScreen() {
     return (
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     },
     tabText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     searchSection: {
         paddingHorizontal: layout.screenPadding,
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     card: {
         padding: spacing.lg,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     },
     verifiedText: {
         fontSize: font.xs,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     mainInfo: {
         flex: 1,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     },
     name: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     ratingBox: {
         flexDirection: 'row',
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     locationRow: {
         flexDirection: 'row',
@@ -262,14 +262,14 @@ const styles = StyleSheet.create({
     },
     tagText: {
         fontSize: font.xs,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     price: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     priceUnit: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

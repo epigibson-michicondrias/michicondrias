@@ -7,7 +7,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Megaphone, Link, Info } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 export default function NuevoPatrocinadorScreen() {
     const router = useRouter();
@@ -106,8 +106,8 @@ export default function NuevoPatrocinadorScreen() {
                     />
                 </View>
 
-                <View style={[styles.infoBox, { backgroundColor: '#f59e0b10' }]}>
-                    <Info size={18} color="#f59e0b" />
+                <View style={[styles.infoBox, { backgroundColor: theme.warningLight }]}>
+                    <Info size={18} color={theme.warning} />
                     <Text style={[styles.infoText, { color: theme.textMuted }]}>
                         Las campañas de patrocinio ayudan a financiar alertas de mascotas perdidas y mejorar la plataforma.
                     </Text>
@@ -119,7 +119,7 @@ export default function NuevoPatrocinadorScreen() {
                     onPress={handleSubmit}
                 >
                     <Megaphone size={20} color={theme.onPrimary} />
-                    <Text style={styles.submitBtnText}>{loading ? "Creando..." : "Crear Campaña"}</Text>
+                    <Text style={[styles.submitBtnText, { color: theme.onPrimary }, { color: theme.onPrimary }]}>{loading ? "Creando..." : "Crear Campaña"}</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardScreen>
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -183,8 +183,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing.huge,
     },
     submitBtnText: {
-        color: '#fff',
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

@@ -11,7 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Zap, DollarSign, MapPin, PawPrint, Check } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function BoostAlertaScreen() {
     const { theme } = useTheme();
@@ -143,7 +143,7 @@ export default function BoostAlertaScreen() {
                         ) : (
                             <>
                                 <Zap size={20} color={theme.onPrimary} />
-                                <Text style={styles.submitText}>Impulsar Alerta</Text>
+                                <Text style={[styles.submitText, { color: theme.onPrimary }, { color: theme.onPrimary }]}>Impulsar Alerta</Text>
                             </>
                         )}
                     </TouchableOpacity>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     },
     petName: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     petSpecies: {
@@ -248,8 +248,7 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
     submitText: {
-        color: '#fff',
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 });

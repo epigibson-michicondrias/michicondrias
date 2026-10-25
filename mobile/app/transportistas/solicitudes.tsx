@@ -12,7 +12,7 @@ import SectionHeader from '@/src/components/SectionHeader';
 import { SkeletonList } from '@/src/components/Skeleton';
 import RideCard from '@/src/components/rides/RideCard';
 import type { PetRide } from '@/src/services/rides';
-import { spacing, type } from '@/constants/design';
+import { spacing, type, layout } from '@/constants/design';
 
 function Screen() {
   const { theme } = useTheme();
@@ -128,7 +128,7 @@ export default function SolicitudesConductorScreen() {
 
 const styles = StyleSheet.create({
   pad: { paddingHorizontal: spacing.xl },
-  list: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
+  list: { paddingHorizontal: spacing.xl, paddingBottom: layout.listClearance },
   sectionHead: { marginTop: spacing.md, marginBottom: spacing.sm, gap: spacing.xs },
   noLoc: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
 });

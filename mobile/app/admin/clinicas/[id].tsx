@@ -19,7 +19,7 @@ import {
     Save,
     X
 } from 'lucide-react-native';
-import { font, spacing, tint } from '@/constants/design';
+import { families, font, spacing, tint, layout } from '@/constants/design';
 
 export default function ClinicDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -41,7 +41,7 @@ export default function ClinicDetailScreen() {
 
     if (isLoading) {
         return (
-            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
+            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: layout.headerClearance }}><SkeletonList count={4} /></View>
         );
     }
 
@@ -50,7 +50,7 @@ export default function ClinicDetailScreen() {
             <View style={[styles.center, { backgroundColor: theme.background }]}>
                 <Text style={{ color: theme.textMuted }}>No se pudo cargar la información de la clínica.</Text>
                 <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} style={{ marginTop: spacing.xl }}>
-                    <Text style={{ color: theme.primary, fontWeight: 'bold' }}>Regresar</Text>
+                    <Text style={{ color: theme.primary, fontFamily: families.bold }}>Regresar</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     mainMeta: { flex: 1 },
     name: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.sm,
     },
     statusBadgeRow: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.xs,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     divider: {
         height: 1,
@@ -336,14 +336,14 @@ const styles = StyleSheet.create({
     detailInfo: { flex: 1 },
     detailLabel: {
         fontSize: font.xs,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
         marginBottom: spacing.xxs,
     },
     detailValue: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     section: {
         marginHorizontal: spacing.xl,
@@ -360,12 +360,12 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     description: {
         fontSize: font.base,
         lineHeight: 22,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     adminData: {
         flexDirection: 'row',
@@ -374,11 +374,11 @@ const styles = StyleSheet.create({
     },
     adminLabel: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     adminValue: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     actionRow: {
         paddingHorizontal: spacing.xl,
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     },
     btnActionText: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     // Edit form styles
     formCard: {
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     },
     formSectionTitle: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.lg,
     },
     fieldContainer: {
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     },
     fieldLabel: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
         marginBottom: spacing.sm,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingHorizontal: spacing.lg,
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     textArea: {
         borderRadius: 14,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         paddingVertical: spacing.md,
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
         minHeight: 100,
     },
     formRow: {
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     },
     switchLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     editActions: {
         flexDirection: 'row',

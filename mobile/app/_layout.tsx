@@ -6,6 +6,7 @@ import {
   HankenGrotesk_600SemiBold,
   HankenGrotesk_700Bold,
   HankenGrotesk_800ExtraBold,
+  HankenGrotesk_900Black,
 } from '@expo-google-fonts/hanken-grotesk';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -116,6 +117,7 @@ export default function RootLayout() {
     HankenGrotesk_600SemiBold,
     HankenGrotesk_700Bold,
     HankenGrotesk_800ExtraBold,
+    HankenGrotesk_900Black,
   });
 
   useEffect(() => {

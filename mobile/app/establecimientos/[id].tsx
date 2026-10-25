@@ -9,7 +9,8 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { Building2, MapPin, Tag, Star, MessageSquare, Gift, Send, X, Edit3 } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 export default function VenueDetailScreen() {
     const router = useRouter();
@@ -43,7 +44,7 @@ export default function VenueDetailScreen() {
             <ScreenContainer>
                 <ScreenHeader title="Establecimiento" />
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <SkeletonList count={3} />
                     <Text style={[styles.loadingText, { color: theme.textMuted }]}>Cargando información...</Text>
                 </View>
             </ScreenContainer>
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     },
     retryButtonText: {
         fontSize: font.xl,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     venueHeader: {
         alignItems: 'center',
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
     },
     venueName: {
         fontSize: font.h2,
-        fontWeight: '900',
+        fontFamily: families.black,
         textAlign: 'center',
     },
     scoreBadge: {
@@ -358,7 +359,7 @@ const styles = StyleSheet.create({
     },
     scoreValue: {
         fontSize: font.xxl,
-        fontWeight: '900',
+        fontFamily: families.black,
     },
     scoreCount: {
         fontSize: font.base,
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.lg,
     },
     locationRow: {
@@ -395,13 +396,13 @@ const styles = StyleSheet.create({
     },
     amenityKey: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         marginBottom: spacing.xs,
         textTransform: 'uppercase',
     },
     amenityValue: {
         fontSize: font.xl,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     discountCard: {
         flexDirection: 'row',
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
     },
     discountCode: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     discountDesc: {
         fontSize: font.base,
@@ -432,7 +433,7 @@ const styles = StyleSheet.create({
     },
     claimButtonText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     // Reviews
     reviewsSectionHeader: {
@@ -452,7 +453,7 @@ const styles = StyleSheet.create({
     },
     addReviewText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     reviewForm: {
         padding: spacing.lg,
@@ -463,7 +464,7 @@ const styles = StyleSheet.create({
     },
     reviewFormLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     starsRow: {
         flexDirection: 'row',
@@ -487,7 +488,7 @@ const styles = StyleSheet.create({
     },
     submitReviewText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     reviewsList: {
         gap: spacing.md,
@@ -529,7 +530,7 @@ const styles = StyleSheet.create({
     },
     infoValue: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     actionContainer: {
         paddingHorizontal: layout.screenPadding,
@@ -544,7 +545,7 @@ const styles = StyleSheet.create({
     },
     contactButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     footer: {
         height: 20,

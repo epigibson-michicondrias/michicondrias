@@ -12,7 +12,7 @@ import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, Clock, DollarSign, Info, Calendar } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function ProgramDetailScreen() {
     const router = useRouter();
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     },
     retryButtonText: {
         fontSize: font.xl,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     programHeader: {
         alignItems: 'center',
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     },
     programName: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textAlign: 'center',
     },
     programDesc: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     },
     statNumber: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginTop: spacing.sm,
     },
     statLabel: {
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.lg,
     },
     detailRow: {
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     },
     detailValue: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     benefitItem: {
         flexDirection: 'row',
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     },
     enrollButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     footer: {
         height: 20,

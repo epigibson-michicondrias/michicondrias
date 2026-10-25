@@ -8,7 +8,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import BackButton from '@/src/components/BackButton';
 import { Shield, Clock, DollarSign, CheckCircle, ArrowRight, PawPrint, Award, HeartHandshake } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing, layout } from '@/constants/design';
 
 export default function PlanDetailScreen() {
     const router = useRouter();
@@ -173,12 +173,12 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     scrollContent: {
         paddingHorizontal: spacing.xl,
         paddingTop: spacing.lg,
-        paddingBottom: 60,
+        paddingBottom: layout.headerClearance,
     },
     loadingContainer: {
         flex: 1,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     },
     loadingText: {
         fontSize: font.lg,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     errorContainer: {
         flex: 1,
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     },
     retryButtonText: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     heroCard: {
         alignItems: 'center',
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     },
     planName: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textAlign: 'center',
         marginBottom: spacing.sm,
     },
@@ -256,11 +256,11 @@ const styles = StyleSheet.create({
     },
     metricValue: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     metricLabel: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     section: {
         padding: spacing.xl,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     infoRow: {
         flexDirection: 'row',
@@ -296,12 +296,12 @@ const styles = StyleSheet.create({
     },
     infoLabel: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         marginBottom: spacing.xxs,
     },
     infoValue: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     speciesRow: {
         flexDirection: 'row',
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     },
     speciesText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     benefitItem: {
         flexDirection: 'row',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
         fontSize: font.base,
         lineHeight: 18,
         flex: 1,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     actionContainer: {
         marginTop: spacing.sm,
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     },
     ctaButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     footer: {
         height: 40,

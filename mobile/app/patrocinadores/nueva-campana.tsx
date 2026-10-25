@@ -7,7 +7,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormSection from '@/src/components/forms/FormSection';
 import { Megaphone, DollarSign, Link2, Type, Image } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function NuevaCampanaScreen() {
     const { theme } = useTheme();
@@ -109,7 +109,7 @@ export default function NuevaCampanaScreen() {
                         ) : (
                             <>
                                 <Megaphone size={20} color={theme.onPrimary} />
-                                <Text style={styles.submitText}>Crear Campaña</Text>
+                                <Text style={[styles.submitText, { color: theme.onPrimary }, { color: theme.onPrimary }]}>Crear Campaña</Text>
                             </>
                         )}
                     </TouchableOpacity>
@@ -169,8 +169,7 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
     submitText: {
-        color: '#fff',
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 });

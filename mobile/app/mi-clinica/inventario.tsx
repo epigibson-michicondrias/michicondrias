@@ -13,7 +13,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import ClinicRequired from '@/src/features/salud/ClinicRequired';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Package, AlertTriangle, PlusCircle, Box, Search, X } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function InventarioScreen() {
     const router = useRouter();
@@ -182,7 +182,7 @@ export default function InventarioScreen() {
                                 onPress={() => editingItem?.id && handleDeleteItem(editingItem.id)}
                                 style={{ marginTop: spacing.xl, alignItems: 'center', paddingVertical: spacing.md }}
                             >
-                                <Text style={{ color: theme.error, fontWeight: '800' }}>Eliminar producto</Text>
+                                <Text style={{ color: theme.error, fontFamily: families.extrabold }}>Eliminar producto</Text>
                             </TouchableOpacity>
                         </ScrollView>
                         <View style={styles.modalActions}>
@@ -204,8 +204,8 @@ export default function InventarioScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { padding: spacing.xxl, paddingBottom: 100 },
-    sectionTitle: { fontSize: font.lg, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: spacing.lg },
+    content: { padding: spacing.xxl, paddingBottom: layout.listClearance },
+    sectionTitle: { fontSize: font.lg, fontFamily: families.black, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: spacing.lg },
     alertSection: { marginBottom: spacing.xxxl },
     criticalCard: {
         flexDirection: 'row',
@@ -221,15 +221,15 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(239, 68, 68, 0.2)',
         justifyContent: 'center', alignItems: 'center'
     },
-    criticalName: { fontSize: font.base, fontWeight: '800' },
-    criticalStock: { fontSize: font.md, fontWeight: '700', color: '#ef4444', marginTop: spacing.xxs },
+    criticalName: { fontSize: font.base, fontFamily: families.extrabold },
+    criticalStock: { fontSize: font.md, fontFamily: families.bold, marginTop: spacing.xxs },
     actionsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     addBtn: {
         flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
         paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 12,
         justifyContent: 'center',
     },
-    addBtnText: { fontSize: font.md, fontWeight: '800' },
+    addBtnText: { fontSize: font.md, fontFamily: families.extrabold },
     itemCard: {
         flexDirection: 'row', alignItems: 'center',
         padding: spacing.lg, borderRadius: 20, borderWidth: 1,
@@ -240,20 +240,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center', alignItems: 'center'
     },
     itemInfo: { flex: 1 },
-    itemName: { fontSize: font.lg, fontWeight: '800' },
-    itemCategory: { fontSize: font.md, fontWeight: '600', marginTop: spacing.xxs },
+    itemName: { fontSize: font.lg, fontFamily: families.extrabold },
+    itemCategory: { fontSize: font.md, fontFamily: families.semibold, marginTop: spacing.xxs },
     stockInfo: { alignItems: 'flex-end' },
-    stockValue: { fontSize: font.h3, fontWeight: '900' },
-    stockUnit: { fontSize: font.sm, fontWeight: '700', textTransform: 'uppercase' },
+    stockValue: { fontSize: font.h3, fontFamily: families.black },
+    stockUnit: { fontSize: font.sm, fontFamily: families.bold, textTransform: 'uppercase' },
     searchContainer: { marginTop: spacing.lg, paddingHorizontal: layout.screenPadding },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '80%' },
-    modalTitle: { fontSize: font.h3, fontWeight: '900', marginBottom: spacing.xl },
-    inputLabel: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontWeight: '500' },
+    modalTitle: { fontSize: font.h3, fontFamily: families.black, marginBottom: spacing.xl },
+    inputLabel: { fontSize: font.md, fontFamily: families.bold, marginBottom: spacing.sm, marginTop: spacing.lg },
+    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontFamily: families.medium },
     modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.xxxl },
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    cancelBtnText: { fontSize: font.lg, fontWeight: '700' },
+    cancelBtnText: { fontSize: font.lg, fontFamily: families.bold },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
+    saveBtnText: { fontSize: font.lg, fontFamily: families.extrabold },
 });

@@ -8,7 +8,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Heart, Info, CheckCircle2 } from 'lucide-react-native';
 
 import { CREMATION_OPTIONS } from '@/src/services/funerary';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 export default function NuevoServicioScreen() {
     const { theme } = useTheme();
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     },
     typeText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     toggleItem: {
         flexDirection: 'row',
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     },
     toggleLabel: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     toggleDesc: {
         fontSize: font.md,
@@ -218,6 +218,6 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

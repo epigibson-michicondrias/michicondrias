@@ -11,7 +11,7 @@ import EmptyState from '@/src/components/EmptyState';
 import { Briefcase, CheckCircle2, Layers } from 'lucide-react-native';
 import StatTile from '@/src/components/StatTile';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { spacing, type, layout, radius, shadow, tint } from '@/constants/design';
+import { spacing, type, layout, radius, shadow, tint, families } from '@/constants/design';
 import { sentenceCase } from '@/src/utils/formatters';
 
 export default function AdminServiciosScreen() {
@@ -37,7 +37,7 @@ export default function AdminServiciosScreen() {
                     <Text style={[type.caption, { color: theme.textMuted }]}>{sentenceCase(item.category) || 'Sin categoría'}{item.price != null ? ` • $${item.price}` : ''}</Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: item.is_active ? theme.success + tint.faint : theme.error + tint.faint }]}>
-                    <Text style={[type.caption, { color: item.is_active ? theme.success : theme.error, fontWeight: '800' }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
+                    <Text style={[type.caption, { color: item.is_active ? theme.success : theme.error, fontFamily: families.extrabold }]}>{item.is_active ? 'Activo' : 'Pausado'}</Text>
                 </View>
             </View>
         );
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     },
     list: { 
         padding: spacing.xl, 
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         paddingTop: spacing.sm 
     },
     card: { 

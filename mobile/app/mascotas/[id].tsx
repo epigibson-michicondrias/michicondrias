@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePetDetail } from '@/src/hooks/mascotas/usePetDetail';
@@ -10,6 +10,7 @@ import ListRow from '@/src/components/ListRow';
 import SectionHeader from '@/src/components/SectionHeader';
 import EmptyState from '@/src/components/EmptyState';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
+import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Award, Activity, Calendar, LayoutGrid, HeartPulse, ClipboardList, Share2, Pencil, PawPrint, Satellite, Scissors, Flower2 } from 'lucide-react-native';
 import SegmentedControl from '@/src/components/SegmentedControl';
 import { Skeleton } from '@/src/components/Skeleton';
@@ -73,7 +74,7 @@ export default function PetProfileScreen() {
 
     return (
         <ScreenContainer>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} refreshControl={<AppRefreshControl />}>
                 <DetailPhoto
                     images={[pet.photo_url]}
                     fallbackIcon={PawPrint}
@@ -106,15 +107,16 @@ export default function PetProfileScreen() {
                     {tab === 'historial' && <View style={styles.tabBody}><PetHistoryTab health={health} petId={pet.id} /></View>}
 
                     {tab === 'resumen' && (<>
-                    {/* Stats Grid */}
+                    {/* Stats Grid: Peso y Vacunas llevan a su detalle (Historial con la curva de peso, Salud con el carnet) */}
                     <View style={styles.grid}>
                         <PetStat icon={<Calendar size={layout.icon.md} color={theme.accent} />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
-                        <PetStat icon={<Activity size={layout.icon.md} color={theme.secondary} />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} />
+                        <PetStat icon={<Activity size={layout.icon.md} color={theme.secondary} />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} onPress={() => setTab('historial')} />
                         <PetStat
                             icon={<Award size={layout.icon.md} color={theme.warning} />}
                             label="Vacunas"
                             value={VACCINE_STATUS_LABEL[health.vaccinesStatus] ?? 'Sin vacunas'}
                             theme={theme}
+                            onPress={() => setTab('salud')}
                         />
                     </View>
 
@@ -183,13 +185,20 @@ export default function PetProfileScreen() {
     );
 }
 
-function PetStat({ icon, label, value, theme }: { icon: any; label: string; value: string; theme: any }) {
-    return (
-        <View style={[styles.statItem, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+function PetStat({ icon, label, value, theme, onPress }: { icon: any; label: string; value: string; theme: any; onPress?: () => void }) {
+    const style = [styles.statItem, { backgroundColor: theme.surface, borderColor: theme.cardBorder }];
+    const body = (
+        <>
             {icon}
             <Text style={[type.label, { color: theme.textMuted }]} numberOfLines={1}>{label}</Text>
             <Text style={[type.bodyStrong, { color: theme.text }]} numberOfLines={1}>{value}</Text>
-        </View>
+        </>
+    );
+    if (!onPress) return <View style={style}>{body}</View>;
+    return (
+        <TouchableOpacity style={style} onPress={onPress} accessibilityRole="button" accessibilityLabel={`${label}: ${value}. Ver detalle`}>
+            {body}
+        </TouchableOpacity>
     );
 }
 

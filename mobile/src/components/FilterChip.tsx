@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, radius, type, layout } from '@/constants/design';
+import { spacing, radius, type, layout, press } from '@/constants/design';
 
 interface FilterChipProps {
     label: string;
@@ -28,7 +28,7 @@ export default function FilterChip({ label, active, onPress, color, icon, count 
                     : { backgroundColor: theme.surface, borderColor: theme.border },
             ]}
             onPress={onPress}
-            activeOpacity={0.7}
+            activeOpacity={press.subtle}
             accessibilityRole="button"
             accessibilityLabel={typeof count === 'number' ? `${label}, ${count}` : label}
             accessibilityState={{ selected: active }}
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.xs,
-        minHeight: 36,
+        minHeight: layout.minTouch,
         justifyContent: 'center',
     },
 });

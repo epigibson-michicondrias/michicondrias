@@ -2,6 +2,7 @@
  * Shared formatting utilities
  * Centralized to avoid duplication across screens
  */
+import { accents } from '@/constants/design';
 
 /**
  * Format a date string to a human-readable format
@@ -124,24 +125,24 @@ export function getStatusColor(status: string | undefined | null): { color: stri
         case 'APROBADO':
         case 'COMPLETED':
         case 'COMPLETADO':
-            return { color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' };
+            return { color: accents.health, bg: 'rgba(16, 185, 129, 0.15)' };
         case 'PENDING':
         case 'PENDIENTE':
         case 'EN_REVISION':
         case 'EN_PROCESO':
-            return { color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' };
+            return { color: accents.warning, bg: 'rgba(245, 158, 11, 0.15)' };
         case 'REJECTED':
         case 'RECHAZADO':
         case 'CANCELLED':
         case 'CANCELADO':
         case 'INACTIVE':
         case 'INACTIVO':
-            return { color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)' };
+            return { color: accents.community, bg: 'rgba(239, 68, 68, 0.15)' };
         case 'UNVERIFIED':
         case 'SIN_VERIFICAR':
-            return { color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' };
+            return { color: accents.neutral, bg: 'rgba(148, 163, 184, 0.15)' };
         default:
-            return { color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.15)' };
+            return { color: accents.neutral, bg: 'rgba(148, 163, 184, 0.15)' };
     }
 }
 

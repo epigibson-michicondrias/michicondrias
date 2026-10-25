@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, TextInput, Modal } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -10,7 +11,7 @@ import EmptyState from '@/src/components/EmptyState';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Plus, Package, Edit2, Trash2, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { accents, font, spacing } from '@/constants/design';
+import { accents, families, font, spacing, layout } from '@/constants/design';
 
 export default function AdminCategoriasScreen() {
     const { theme } = useTheme();
@@ -117,13 +118,9 @@ export default function AdminCategoriasScreen() {
                                 disabled={isSaving}
                                 onPress={handleSubmit}
                             >
-                                {isSaving ? (
-                                    <ActivityIndicator color={theme.onPrimary} />
-                                ) : (
-                                    <Text style={[styles.submitBtnText, { color: theme.onPrimary }]}>
+                                <Button label="
                                         {editingCategory ? 'Guardar Cambios' : 'Crear Categoría'}
-                                    </Text>
-                                )}
+                                    " variant="primary" loading={isSaving} />
                             </TouchableOpacity>
                         </View>
                         </KeyboardScreen>
@@ -137,7 +134,7 @@ export default function AdminCategoriasScreen() {
 const styles = StyleSheet.create({
     list: { 
         padding: spacing.xl, 
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         paddingTop: spacing.md 
     },
     card: { 
@@ -161,11 +158,11 @@ const styles = StyleSheet.create({
     cardInfo: { flex: 1 },
     categoryName: { 
         fontSize: font.xl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     categoryDesc: { 
         fontSize: font.md, 
-        fontWeight: '600', 
+        fontFamily: families.semibold, 
         marginTop: spacing.xs,
         lineHeight: 16,
     },
@@ -202,13 +199,13 @@ const styles = StyleSheet.create({
     },
     modalTitle: { 
         fontSize: font.h2, 
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         letterSpacing: -0.5 
     },
     form: { gap: spacing.md },
     label: { 
         fontSize: font.sm, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         letterSpacing: 1.2,
         marginLeft: spacing.xs,
     },
@@ -217,7 +214,7 @@ const styles = StyleSheet.create({
         padding: spacing.xl, 
         borderWidth: 1.5, 
         fontSize: font.lg,
-        fontWeight: '600' 
+        fontFamily: families.semibold 
     },
     textArea: { 
         height: 120, 
@@ -234,6 +231,6 @@ const styles = StyleSheet.create({
     submitBtnText: { 
          
         fontSize: font.xl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     }
 });

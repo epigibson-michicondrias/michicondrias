@@ -6,7 +6,7 @@ import { useKYC } from '@/src/hooks/perfil/useKYC';
 import { useTheme } from '@/src/hooks/useTheme';
 import { ShieldCheck, FileText, Camera, Images, CheckCircle2, AlertCircle, Info, ArrowRight } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 const DOC_HINTS: Record<string, string> = {
     id_front: 'INE, Pasaporte o Cédula',
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     },
     statusTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     statusDesc: {
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: -4,
     },
     docCard: {
@@ -196,12 +196,12 @@ const styles = StyleSheet.create({
     },
     docLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.xxs,
     },
     docStatus: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     docActions: {
         flexDirection: 'row',
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     },
     docButtonText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     infoBox: {
         flexDirection: 'row',
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     ctaRow: {
         flexDirection: 'row',

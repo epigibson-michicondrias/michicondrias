@@ -12,7 +12,7 @@ import DatePicker from '@/src/components/DatePicker';
 import PetPicker from '@/src/features/salud/PetPicker';
 import { toISODate } from '@/src/features/salud/format';
 import { DollarSign, Check, Heart, Info } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function ReservarScreen() {
     const { theme } = useTheme();
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         paddingHorizontal: layout.screenPadding,
         marginTop: spacing.lg,
         marginBottom: spacing.md,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     },
     serviceName: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     serviceDesc: {
         fontSize: font.base,
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     },
     tagText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     formSection: {
         marginTop: spacing.xxl,
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -283,6 +283,6 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

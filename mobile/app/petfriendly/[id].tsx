@@ -10,7 +10,7 @@ import { Skeleton } from '@/src/components/Skeleton';
 import { showAlert } from '@/src/components/AppAlert';
 import { MapPin, Phone, Globe, Star, Check, Bone, Info, Share2 } from 'lucide-react-native';
 import { shareContent } from '@/src/utils/share';
-import { font, layout, spacing } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function PetfriendlyDetalleScreen() {
     const { theme } = useTheme();
@@ -125,7 +125,7 @@ export default function PetfriendlyDetalleScreen() {
                             onPress={handleDelete}
                             style={{ alignSelf: 'flex-start', paddingVertical: spacing.sm, marginBottom: spacing.md }}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '800' }}>Eliminar este lugar</Text>
+                            <Text style={{ color: theme.error, fontFamily: families.extrabold }}>Eliminar este lugar</Text>
                         </TouchableOpacity>
                     )}
 
@@ -325,12 +325,12 @@ const styles = StyleSheet.create({
     },
     placeName: {
         fontSize: font.h1,
-        fontWeight: '900',
+        fontFamily: families.black,
         marginBottom: spacing.xs,
     },
     category: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textTransform: 'uppercase',
     },
     ratingCard: {
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     },
     ratingValue: {
         fontSize: font.xl,
-        fontWeight: '900',
+        fontFamily: families.black,
     },
     actionGrid: {
         flexDirection: 'row',
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     },
     actionLabel: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     section: {
         gap: spacing.lg,
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '900',
+        fontFamily: families.black,
     },
     description: {
         fontSize: font.lg,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     },
     serviceText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     addressCard: {
         flexDirection: 'row',
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
     },
     addressTitle: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     addressText: {
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     },
     hourDay: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     hourVal: {
         fontSize: font.base,
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     },
     bigRating: {
         fontSize: font.display,
-        fontWeight: '900',
+        fontFamily: families.black,
     },
     starsRow: {
         flexDirection: 'row',
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     },
     totalReviewsText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     summarySeparator: {
         width: 1,
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     summaryDescription: {
         fontSize: font.md,
         lineHeight: 18,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     writeReviewCard: {
         padding: spacing.xl,
@@ -479,12 +479,12 @@ const styles = StyleSheet.create({
     },
     writeReviewTitle: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     writeReviewSubtitle: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         marginBottom: spacing.lg,
     },
     interactiveStars: {
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
         height: 80,
         textAlignVertical: 'top',
         marginBottom: spacing.lg,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     submitReviewBtn: {
         height: 48,
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     },
     submitReviewBtnText: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     reviewsList: {
         gap: spacing.md,
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     },
     emptyReviewsText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         textAlign: 'center',
         paddingVertical: spacing.xl,
         fontStyle: 'italic',
@@ -547,11 +547,11 @@ const styles = StyleSheet.create({
     },
     reviewAvatarText: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     reviewUserName: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     reviewStarsRow: {
         flexDirection: 'row',
@@ -560,11 +560,11 @@ const styles = StyleSheet.create({
     },
     reviewDate: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     reviewCommentText: {
         fontSize: font.base,
         lineHeight: 19,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

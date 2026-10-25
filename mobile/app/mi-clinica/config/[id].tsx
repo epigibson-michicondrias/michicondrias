@@ -9,7 +9,8 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import { MapPin, Phone, Mail, Clock, ShieldCheck } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 export default function ConfigClinicaScreen() {
     const { id } = useLocalSearchParams();
@@ -22,7 +23,7 @@ export default function ConfigClinicaScreen() {
     if (loadingClinic) {
         return (
             <ScreenContainer style={styles.center}>
-                <ActivityIndicator size="large" color={theme.primary} />
+                <SkeletonList count={4} />
             </ScreenContainer>
         );
     }
@@ -157,21 +158,21 @@ const styles = StyleSheet.create({
     content: { paddingHorizontal: layout.screenPadding },
     logoSection: { alignItems: 'center', marginVertical: spacing.xxxl, gap: spacing.md },
     logoContainer: { position: 'relative' },
-    logoImage: { width: 100, height: 100, borderRadius: 50, borderWidth: 3, borderColor: '#7c3aed' },
-    cameraBtn: { position: 'absolute', bottom: 0, right: 0, width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#1e293b' },
-    logoHint: { fontSize: font.md, fontWeight: '600' },
-    sectionLabel: { fontSize: font.xxl, fontWeight: '900', marginBottom: spacing.xl, marginTop: spacing.md },
+    logoImage: { width: 100, height: 100, borderRadius: 50, borderWidth: 3 },
+    cameraBtn: { position: 'absolute', bottom: 0, right: 0, width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center', borderWidth: 2 },
+    logoHint: { fontSize: font.md, fontFamily: families.semibold },
+    sectionLabel: { fontSize: font.xxl, fontFamily: families.black, marginBottom: spacing.xl, marginTop: spacing.md },
     formGroup: { marginBottom: spacing.xxl },
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.md },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.xl, borderWidth: 1, fontSize: font.lg, fontWeight: '600' },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.md },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.xl, borderWidth: 1, fontSize: font.lg, fontFamily: families.semibold },
     textArea: { height: 120, paddingVertical: spacing.lg, textAlignVertical: 'top' },
     inputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1 },
-    rowInput: { flex: 1, fontSize: font.lg, fontWeight: '600' },
+    rowInput: { flex: 1, fontSize: font.lg, fontFamily: families.semibold },
     row: { flexDirection: 'row', gap: spacing.lg },
     switchCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.xl, borderRadius: 24, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     switchInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, flex: 1 },
-    switchLabel: { fontSize: font.lg, fontWeight: '800' },
-    switchSub: { fontSize: font.md, fontWeight: '600', marginTop: spacing.xxs },
+    switchLabel: { fontSize: font.lg, fontFamily: families.extrabold },
+    switchSub: { fontSize: font.md, fontFamily: families.semibold, marginTop: spacing.xxs },
     saveBtn: { height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: spacing.xl },
-    saveBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
+    saveBtnText: { fontSize: font.xl, fontFamily: families.extrabold },
 });

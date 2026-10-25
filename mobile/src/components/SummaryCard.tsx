@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useScreenAccent } from '@/src/hooks/useScreenAccent';
 import type { IconComponent } from '@/src/components/IconButton';
-import { accentGradient, layout, radius, shadow, spacing, type } from '@/constants/design';
+import { accentGradient, families, layout, radius, shadow, spacing, type } from '@/constants/design';
 
 interface SummaryCardProps {
     label: string;
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     card: { borderRadius: radius.xl, padding: spacing.xl, ...shadow.raised },
     top: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
     flex: { flex: 1, gap: spacing.xxs },
-    value: { fontWeight: '800' },
+    value: { fontFamily: families.extrabold },
     icon: {
         width: layout.iconBox.lg,
         height: layout.iconBox.lg,
@@ -78,5 +78,5 @@ const styles = StyleSheet.create({
     stats: { flexDirection: 'row', marginTop: spacing.lg, paddingTop: spacing.md, borderTopWidth: 1 },
     stat: { flex: 1, gap: spacing.xxs },
     statDivider: { borderLeftWidth: 1, paddingLeft: spacing.md },
-    bold: { fontWeight: '800' },
+    bold: { fontFamily: families.extrabold },
 });

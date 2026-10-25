@@ -18,7 +18,7 @@ import DataList from '@/src/components/data/DataList';
 import { createAppointmentReview } from '@/src/services/grooming';
 import type { GroomingAppointment } from '@/src/services/grooming';
 import { ReviewForm } from '@/src/components/reviews/ReviewsSection';
-import { accents, font, layout, spacing } from '@/constants/design';
+import { accents, families, font, layout, spacing } from '@/constants/design';
 
 // Se resuelve en runtime: theme/accents no existen fuera del componente.
 type StatusStyle = { label: string; color: string; bg: string };
@@ -136,7 +136,7 @@ export default function MisCitasGroomingScreen() {
                     ) : null}
                     {item.status === 'completed' && (
                         item.reviewed ? (
-                            <Text style={{ color: theme.textMuted, fontWeight: '700', fontSize: font.md }}>Reseñada</Text>
+                            <Text style={{ color: theme.textMuted, fontFamily: families.bold, fontSize: font.md }}>Reseñada</Text>
                         ) : (
                             <TouchableOpacity
                                 onPress={() => setReviewing(item)}
@@ -144,7 +144,7 @@ export default function MisCitasGroomingScreen() {
                                 accessibilityLabel="Calificar servicio"
                                 hitSlop={8}
                             >
-                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Calificar</Text>
+                                <Text style={{ color: theme.primary, fontFamily: families.extrabold, fontSize: font.base }}>Calificar</Text>
                             </TouchableOpacity>
                         )
                     )}
@@ -164,7 +164,7 @@ export default function MisCitasGroomingScreen() {
                             accessibilityLabel="Cancelar cita"
                             hitSlop={8}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: font.base }}>
+                            <Text style={{ color: theme.error, fontFamily: families.extrabold, fontSize: font.base }}>
                                 {cancellingId === item.id ? 'Cancelando...' : 'Cancelar'}
                             </Text>
                         </TouchableOpacity>
@@ -218,7 +218,7 @@ export default function MisCitasGroomingScreen() {
                             />
                         ) : null}
                         <TouchableOpacity onPress={() => setReviewing(null)} accessibilityRole="button" accessibilityLabel="Cerrar" style={{ alignSelf: 'center', paddingTop: spacing.lg }}>
-                            <Text style={{ color: theme.textMuted, fontWeight: '700' }}>Ahora no</Text>
+                            <Text style={{ color: theme.textMuted, fontFamily: families.bold }}>Ahora no</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     modalSheet: { padding: spacing.xxl, paddingBottom: spacing.xxxl, borderTopLeftRadius: 24, borderTopRightRadius: 24 },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
 
     // Tabs
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     },
     tabLabel: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     tabBadge: {
         paddingHorizontal: spacing.sm,
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     },
     tabBadgeText: {
         fontSize: font.md,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 
     // Card
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     },
     cardService: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     cardDateRow: {
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     },
     cardDate: {
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     cardBottom: {
         flexDirection: 'row',
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     skinReport: {
         flex: 1,

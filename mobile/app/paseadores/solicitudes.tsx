@@ -77,5 +77,5 @@ export default function WalkerRequestsScreen() {
 const styles = StyleSheet.create({
     search: { marginHorizontal: layout.screenPadding, marginBottom: spacing.md },
     chips: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.md },
-    list: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xs, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xs, paddingBottom: layout.listClearance },
 });

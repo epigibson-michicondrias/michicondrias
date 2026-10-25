@@ -13,7 +13,8 @@ import { CREMATION_OPTIONS } from '@/src/services/funerary';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useFuneraryProvider } from '@/src/hooks/funerary/useFuneraryProvider';
 import { FileText, Info, AlertTriangle, PawPrint } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 
 /** La funeraria solo puede reportar mascotas con una reserva suya vigente (lo exige el backend). */
@@ -25,7 +26,7 @@ function FuneralHomePetSelect({ value, onChange }: { value: string; onChange: (i
         <View>
             <Text style={[styles.label, { color: theme.text }]}>Mascota con reserva *</Text>
             {isLoadingBookings ? (
-                <ActivityIndicator color={theme.primary} style={{ alignSelf: 'flex-start' }} />
+                <SkeletonList count={2} />
             ) : reportable.length === 0 ? (
                 <Text style={{ color: theme.textMuted, fontSize: font.base }}>
                     No tienes reservas vigentes. Solo puedes reportar mascotas con una reserva de tu funeraria.
@@ -57,7 +58,7 @@ function PetChip({ label, selected, onPress }: { label: string; selected: boolea
             }}
         >
             <PawPrint size={14} color={selected ? theme.onPrimary : theme.textMuted} />
-            <Text style={{ color: selected ? theme.onPrimary : theme.text, fontWeight: '700', fontSize: font.base, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
+            <Text style={{ color: selected ? theme.onPrimary : theme.text, fontFamily: families.bold, fontSize: font.base, flexShrink: 1 }} numberOfLines={1}>{label}</Text>
         </TouchableOpacity>
     );
 }
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
     warningText: {
         flex: 1,
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         lineHeight: 18,
     },
     inputGroup: {
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
     },
     typeText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     infoBox: {
         flexDirection: 'row',
@@ -286,6 +287,6 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

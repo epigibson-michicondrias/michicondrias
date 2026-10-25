@@ -6,7 +6,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { layout, radius, spacing, type } from '@/constants/design';
+import { layout, radius, spacing, type, press } from '@/constants/design';
 
 export interface SegmentOption<T extends string> {
     value: T;
@@ -41,7 +41,7 @@ export default function SegmentedControl<T extends string>({ value, onChange, op
                         accessibilityRole="tab"
                         accessibilityState={{ selected: active }}
                         accessibilityLabel={opt.label}
-                        activeOpacity={0.8}
+                        activeOpacity={press.normal}
                     >
                         {Icon && <Icon size={layout.icon.sm} color={active ? theme.accent : theme.textMuted} />}
                         <Text style={[type.bodyStrong, { color }]} numberOfLines={1}>{opt.label}</Text>

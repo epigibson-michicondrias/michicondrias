@@ -9,7 +9,7 @@ import FilterChip from '@/src/components/FilterChip';
 import EmptyState from '@/src/components/EmptyState';
 import { SkeletonList } from '@/src/components/Skeleton';
 import RideCard from '@/src/components/rides/RideCard';
-import { spacing } from '@/constants/design';
+import { spacing, layout } from '@/constants/design';
 
 export default function MisViajesScreen() {
   const { theme } = useTheme();
@@ -72,5 +72,5 @@ export default function MisViajesScreen() {
 const styles = StyleSheet.create({
   chips: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.xl, marginBottom: spacing.md },
   pad: { paddingHorizontal: spacing.xl },
-  list: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
+  list: { paddingHorizontal: spacing.xl, paddingBottom: layout.listClearance },
 });

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Search, X } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing, radius, type, layout } from '@/constants/design';
+import { spacing, radius, type, layout, press } from '@/constants/design';
 
 interface SearchBarProps {
     value?: string;
@@ -21,12 +21,12 @@ export default function SearchBar({ value = '', onChangeText, placeholder, onPre
         return (
             <TouchableOpacity
                 onPress={onPress}
-                activeOpacity={0.8}
+                activeOpacity={press.normal}
                 accessibilityRole="search"
                 accessibilityLabel={placeholder || 'Buscar'}
                 style={[styles.container, { backgroundColor: theme.surface, borderColor: theme.border }]}
             >
-                <Search size={layout.icon.sm + 2} color={theme.textMuted} strokeWidth={2} />
+                <Search size={layout.icon.sm} color={theme.textMuted} strokeWidth={2} />
                 {/* Text y no TextInput: un input de solo lectura se queda con el clic en web */}
                 <Text style={[type.body, styles.input, { color: theme.textMuted }]} numberOfLines={1}>{placeholder || 'Buscar…'}</Text>
             </TouchableOpacity>
@@ -35,7 +35,7 @@ export default function SearchBar({ value = '', onChangeText, placeholder, onPre
 
     return (
         <View style={[styles.container, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Search size={layout.icon.sm + 2} color={theme.textMuted} strokeWidth={2} />
+            <Search size={layout.icon.sm} color={theme.textMuted} strokeWidth={2} />
             <TextInput
                 style={[type.body, styles.input, { color: theme.text }]}
                 value={value}
@@ -54,7 +54,7 @@ export default function SearchBar({ value = '', onChangeText, placeholder, onPre
                     accessibilityRole="button"
                     accessibilityLabel="Borrar búsqueda"
                 >
-                    <X size={layout.icon.sm + 2} color={theme.textMuted} />
+                    <X size={layout.icon.sm} color={theme.textMuted} />
                 </TouchableOpacity>
             ) : null}
         </View>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
         borderRadius: radius.lg,
         borderWidth: 1,
         paddingLeft: spacing.lg,
-        gap: spacing.sm + 2,
+        gap: spacing.sm,
     },
     input: {
         flex: 1,

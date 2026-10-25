@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -8,7 +9,7 @@ import { createPlan } from '../../src/services/insurance';
 import KeyboardScreen from '@/src/components/KeyboardScreen';
 import { Info, CheckCircle2 } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 export default function NuevoPlanScreen() {
     const router = useRouter();
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
     },
     speciesButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     infoBox: {
         flexDirection: 'row',
@@ -268,6 +269,6 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

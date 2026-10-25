@@ -13,7 +13,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import type { GroomingAppointment } from '@/src/services/grooming';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function HistorialGroomingScreen() {
     const { petId } = useLocalSearchParams<{ petId: string }>();
@@ -175,7 +175,7 @@ export default function HistorialGroomingScreen() {
 const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
 
     // Grooming file card
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     },
     fileTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     fileRow: {
         flexDirection: 'row',
@@ -211,11 +211,11 @@ const styles = StyleSheet.create({
     },
     fileLabel: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     fileValue: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         flex: 1,
     },
     allergyBadge: {
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     },
     allergyText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         flex: 1,
     },
     lastVisit: {
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     // Section title
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.lg,
     },
 
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     },
     sessionService: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     sessionDateRow: {
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     },
     sessionDate: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
 
     // Photos
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     },
     photoCaption: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 
     // Report

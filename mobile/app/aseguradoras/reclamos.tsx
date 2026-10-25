@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -17,7 +18,7 @@ import {
     AlertTriangle,
     Sparkles,
 } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function ReclamosScreen() {
     const { theme } = useTheme();
@@ -164,7 +165,7 @@ export default function ReclamosScreen() {
 const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     claimCard: {
         borderRadius: 16,
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     },
     claimId: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     claimReason: {
         fontSize: font.md,
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     claimDetails: {
         padding: spacing.lg,
@@ -222,12 +223,12 @@ const styles = StyleSheet.create({
     },
     detailValue: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         flex: 1,
     },
     receiptLink: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         flex: 1,
     },
     actionRow: {
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
     },
     rejectBtnText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     approveBtn: {
         flex: 1,
@@ -261,6 +262,6 @@ const styles = StyleSheet.create({
     },
     approveBtnText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 });

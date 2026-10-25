@@ -18,7 +18,7 @@ import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Skeleton } from '@/src/components/Skeleton';
 import { MediaRow } from '@/src/components/MediaCard';
 import { formatCurrency } from '@/src/utils/formatters';
-import { layout, radius, spacing, tint, type } from '@/constants/design';
+import { families, layout, radius, spacing, tint, type } from '@/constants/design';
 
 export default function VendedorAnalyticsScreen() {
   const router = useRouter();
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.huge, gap: spacing.lg },
   loading: { gap: spacing.lg },
   flex: { flex: 1 },
-  bold: { fontWeight: '800' },
+  bold: { fontFamily: families.extrabold },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg },
   cardTitle: { marginBottom: spacing.md },
   trend: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs, paddingHorizontal: spacing.sm, paddingVertical: spacing.xxs, borderRadius: radius.pill },

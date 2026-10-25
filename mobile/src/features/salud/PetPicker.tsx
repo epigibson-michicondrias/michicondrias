@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { PawPrint } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePets } from '@/src/hooks/mascotas/usePets';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 interface PetPickerProps {
     value: string;
@@ -37,7 +37,7 @@ export default function PetPicker({ value, onChange, label = 'Mascota *' }: PetP
                         onPress={() => router.push('/mascotas/nuevo' as any)}
                         style={[styles.emptyBtn, { backgroundColor: theme.primary }]}
                     >
-                        <Text style={styles.emptyBtnText}>Registrar mascota</Text>
+                        <Text style={[styles.emptyBtnText, { color: theme.onPrimary }, { color: theme.onPrimary }]}>Registrar mascota</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => refetch()} accessibilityRole="button" accessibilityLabel="Actualizar lista">
                         <Text style={[styles.link, { color: theme.primary }]}>Actualizar lista</Text>
@@ -62,8 +62,8 @@ export default function PetPicker({ value, onChange, label = 'Mascota *' }: PetP
                                     },
                                 ]}
                             >
-                                <PawPrint size={14} color={selected ? '#fff' : theme.textMuted} />
-                                <Text style={[styles.chipText, { color: selected ? '#fff' : theme.text }]} numberOfLines={1}>
+                                <PawPrint size={14} color={selected ? theme.onPrimary : theme.textMuted} />
+                                <Text style={[styles.chipText, { color: selected ? theme.onPrimary : theme.text }]} numberOfLines={1}>
                                     {pet.name}
                                 </Text>
                             </TouchableOpacity>
@@ -76,17 +76,17 @@ export default function PetPicker({ value, onChange, label = 'Mascota *' }: PetP
 }
 
 const styles = StyleSheet.create({
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.sm },
     row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     chip: {
         flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
         paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 999, borderWidth: 1, maxWidth: '100%',
         justifyContent: 'center',
     },
-    chipText: { fontSize: font.base, fontWeight: '700', flexShrink: 1 },
+    chipText: { fontSize: font.base, fontFamily: families.bold, flexShrink: 1 },
     empty: { padding: spacing.lg, borderRadius: 14, borderWidth: 1, gap: spacing.md, alignItems: 'flex-start' },
     emptyText: { fontSize: font.base },
     emptyBtn: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-    emptyBtnText: { color: '#fff', fontWeight: '700', fontSize: font.base },
-    link: { fontSize: font.base, fontWeight: '700' },
+    emptyBtnText: { fontFamily: families.bold, fontSize: font.base },
+    link: { fontSize: font.base, fontFamily: families.bold },
 });

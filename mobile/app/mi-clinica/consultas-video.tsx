@@ -13,7 +13,7 @@ import { Plus, Video, Calendar, Clock, VideoOff, ExternalLink, X } from 'lucide-
 import { Picker } from '@react-native-picker/picker';
 import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing, shadow } from '@/constants/design';
 
 export default function ConsultasVideoScreen() {
     const { theme } = useTheme();
@@ -82,7 +82,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnSecondary, { borderColor: theme.error, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'cancelled')}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: font.base }}>Cancelar</Text>
+                            <Text style={{ color: theme.error, fontFamily: families.extrabold, fontSize: font.base }}>Cancelar</Text>
                         </TouchableOpacity>
                     )}
 
@@ -91,7 +91,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnSecondary, { borderColor: theme.success, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'active')}
                         >
-                            <Text style={{ color: theme.success, fontWeight: '800', fontSize: font.base }}>Iniciar Sala</Text>
+                            <Text style={{ color: theme.success, fontFamily: families.extrabold, fontSize: font.base }}>Iniciar Sala</Text>
                         </TouchableOpacity>
                     )}
 
@@ -100,7 +100,7 @@ export default function ConsultasVideoScreen() {
                             style={[styles.btnSecondary, { borderColor: theme.primary, borderWidth: 1 }]}
                             onPress={() => handleStatusUpdate(item.id, 'completed')}
                         >
-                            <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Finalizar Consulta</Text>
+                            <Text style={{ color: theme.primary, fontFamily: families.extrabold, fontSize: font.base }}>Finalizar Consulta</Text>
                         </TouchableOpacity>
                     )}
 
@@ -110,7 +110,7 @@ export default function ConsultasVideoScreen() {
                             onPress={() => launchVideoRoom(item.room_url)}
                         >
                             <ExternalLink size={16} color={theme.onPrimary} />
-                            <Text style={styles.btnText}>Unirse al Video</Text>
+                            <Text style={[styles.btnText, { color: theme.onPrimary }, { color: theme.onPrimary }]}>Unirse al Video</Text>
                         </TouchableOpacity>
                     ) : (
                         <View style={styles.disabledRoom}>
@@ -253,47 +253,47 @@ export default function ConsultasVideoScreen() {
 
 const styles = StyleSheet.create({
     content: { flex: 1 },
-    listContainer: { padding: spacing.xxl, gap: spacing.lg, paddingBottom: 100 },
+    listContainer: { padding: spacing.xxl, gap: spacing.lg, paddingBottom: layout.listClearance },
     card: {
         padding: spacing.lg, borderRadius: 24, borderWidth: 1, gap: spacing.md,
-        elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+        ...shadow.card,
         shadowOpacity: 0.05, shadowRadius: 5,
     },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     roomBadgeContainer: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    cardTitle: { fontSize: font.lg, fontWeight: '800' },
+    cardTitle: { fontSize: font.lg, fontFamily: families.extrabold },
     statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6 },
-    statusText: { fontSize: font.xs, fontWeight: '800' },
+    statusText: { fontSize: font.xs, fontFamily: families.extrabold },
     cardBody: { gap: spacing.sm },
     timeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    timeText: { fontSize: font.base, fontWeight: '600' },
+    timeText: { fontSize: font.base, fontFamily: families.semibold },
     notesBox: { padding: spacing.md, borderRadius: 12, backgroundColor: 'rgba(128,128,128,0.08)', marginTop: spacing.sm },
-    notesLabel: { fontSize: font.xs, fontWeight: '800', letterSpacing: 0.5, marginBottom: spacing.xs },
-    notesText: { fontSize: font.md, fontWeight: '500', lineHeight: 16 },
+    notesLabel: { fontSize: font.xs, fontFamily: families.extrabold, letterSpacing: 0.5, marginBottom: spacing.xs },
+    notesText: { fontSize: font.md, fontFamily: families.medium, lineHeight: 16 },
     cardFooter: {
         flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center',
         borderTopWidth: 1, paddingTop: spacing.md, gap: spacing.md,
     },
     btnPrimary: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10 },
     btnSecondary: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-    btnText: { color: '#fff', fontWeight: '800', fontSize: font.base },
+    btnText: { fontFamily: families.extrabold, fontSize: font.base },
     disabledRoom: {
         flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
         paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10,
         backgroundColor: 'rgba(128,128,128,0.08)',
     },
-    disabledRoomText: { fontSize: font.md, fontWeight: '700' },
+    disabledRoomText: { fontSize: font.md, fontFamily: families.bold },
     modalContainer: { flex: 1 },
     modalHeader: {
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
         paddingHorizontal: layout.screenPadding, paddingVertical: spacing.xl,
         borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.2)',
     },
-    modalTitle: { fontSize: font.xxl, fontWeight: '800' },
-    saveBtnText: { fontSize: font.xl, fontWeight: '800' },
+    modalTitle: { fontSize: font.xxl, fontFamily: families.extrabold },
+    saveBtnText: { fontSize: font.xl, fontFamily: families.extrabold },
     formGroup: { marginBottom: spacing.xl },
-    label: { fontSize: font.md, fontWeight: '800', marginBottom: spacing.sm, textTransform: 'uppercase' },
+    label: { fontSize: font.md, fontFamily: families.extrabold, marginBottom: spacing.sm, textTransform: 'uppercase' },
     pickerContainer: { height: 54, borderRadius: 16, borderWidth: 1, justifyContent: 'center', overflow: 'hidden' },
-    input: { height: 52, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.base, fontWeight: '600' },
-    textArea: { height: 100, borderRadius: 16, paddingHorizontal: spacing.lg, paddingTop: spacing.md, borderWidth: 1, fontSize: font.base, fontWeight: '600', textAlignVertical: 'top' },
+    input: { height: 52, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.base, fontFamily: families.semibold },
+    textArea: { height: 100, borderRadius: 16, paddingHorizontal: spacing.lg, paddingTop: spacing.md, borderWidth: 1, fontSize: font.base, fontFamily: families.semibold, textAlignVertical: 'top' },
 });

@@ -7,6 +7,7 @@ import { getFileExtension, getS3Url } from '@/src/utils/helpers';
 import type { PetFormData } from '@/src/types/mascotas';
 import { PET_FORM_DEFAULTS } from '@/src/types/mascotas';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
+import { petToForm, toPetPayload } from './petFormRules';
 
 export function useEditPet() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,19 +29,7 @@ export function useEditPet() {
     // Populate form with existing data when loaded
     useEffect(() => {
         if (pet) {
-            setForm({
-                name: pet.name || '',
-                species: pet.species || 'perro',
-                breed: pet.breed || '',
-                age_months: pet.age_months != null ? String(pet.age_months) : '',
-                gender: pet.gender || 'macho',
-                description: pet.description || '',
-                is_vaccinated: pet.is_vaccinated ?? false,
-                is_sterilized: pet.is_sterilized ?? false,
-                is_dewormed: pet.is_dewormed ?? false,
-                weight_kg: pet.weight_kg != null ? String(pet.weight_kg) : '',
-                microchip_id: pet.microchip_number || '',
-            });
+            setForm(petToForm(pet));
             setImage(pet.photo_url);
         }
     }, [pet]);
@@ -63,45 +52,10 @@ export function useEditPet() {
         return getS3Url(object_key);
     };
 
+    /** Guarda los cambios (el formulario ya viene validado por `PetForm`). */
     const handleUpdate = async () => {
         if (!id) return;
-        const trimmedName = form.name.trim();
-        const trimmedBreed = form.breed.trim();
-        const trimmedDescription = form.description.trim();
-
-        if (!trimmedName) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre es obligatorio' });
-            return;
-        }
-        if (!trimmedBreed) {
-            showAlert({ type: 'error', title: 'Error', message: 'La raza es obligatoria' });
-            return;
-        }
-        if (!trimmedDescription) {
-            showAlert({ type: 'error', title: 'Error', message: 'La descripción es obligatoria' });
-            return;
-        }
-
-        let ageVal: number | null = null;
-        if (form.age_months.trim() !== '') {
-            const parsed = parseInt(form.age_months, 10);
-            if (isNaN(parsed) || parsed < 0) {
-                showAlert({ type: 'error', title: 'Error', message: 'La edad debe ser un número entero positivo o cero' });
-                return;
-            }
-            ageVal = parsed;
-        }
-
-        let weightVal: number | undefined = undefined;
-        if (form.weight_kg.trim() !== '') {
-            const normalized = form.weight_kg.trim().replace(',', '.');
-            const parsed = parseFloat(normalized);
-            if (isNaN(parsed) || parsed <= 0) {
-                showAlert({ type: 'error', title: 'Error', message: 'El peso debe ser un número mayor a cero' });
-                return;
-            }
-            weightVal = parsed;
-        }
+        const payload = toPetPayload(form);
 
         setIsUpdating(true);
         try {
@@ -110,20 +64,7 @@ export function useEditPet() {
                 photo_url = await uploadImage(image);
             }
 
-            await updatePet(id, {
-                name: trimmedName,
-                species: form.species,
-                breed: trimmedBreed,
-                age_months: ageVal,
-                gender: form.gender,
-                description: trimmedDescription,
-                is_vaccinated: form.is_vaccinated,
-                is_sterilized: form.is_sterilized,
-                is_dewormed: form.is_dewormed,
-                weight_kg: weightVal,
-                microchip_number: form.microchip_id.trim() || null,
-                photo_url,
-            });
+            await updatePet(id, { ...payload, photo_url });
 
             // Invalidate caches
             queryClient.invalidateQueries({ queryKey: ['pet-profile', id] });
@@ -131,15 +72,11 @@ export function useEditPet() {
             queryClient.invalidateQueries({ queryKey: ['user-pets'] });
             queryClient.invalidateQueries({ queryKey: ['my-pets-carnet'] });
 
-            showAlert({
-                type: 'success',
-                title: '¡Éxito!',
-                message: `${trimmedName} ha sido actualizado correctamente.`,
-            });
+            showAlert({ type: 'success', title: 'Cambios guardados', message: `Los datos de ${payload.name} están al día.` });
             router.back();
         } catch (error) {
             console.error(error);
-            showAlert({ type: 'error', title: 'Error', message: 'No se pudo actualizar la mascota. Revisa tu conexión e inténtalo de nuevo.' });
+            showAlert({ type: 'error', title: 'No se pudieron guardar los cambios', message: 'Revisa tu conexión e inténtalo de nuevo.' });
         } finally {
             setIsUpdating(false);
         }
@@ -180,6 +117,8 @@ export function useEditPet() {
         image,
         setImage,
         isLoadingPet,
+        /** Con Michi-Tracker Pro activo el backend no deja eliminarla (409): primero se cancela en facturación. */
+        hasTracker: !!pet?.has_active_subscription,
         isUpdating,
         isDeleting,
         handleUpdate,

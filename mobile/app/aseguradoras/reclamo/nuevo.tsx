@@ -18,7 +18,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import type { Pet } from '@/src/types/mascotas';
 import { Shield, FileText, DollarSign, PawPrint, Send, CheckCircle, AlertTriangle, Receipt, Sparkles, Dog, Cat } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function NuevoReclamoScreen() {
     const { theme } = useTheme();
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     section: {
         marginBottom: spacing.xxl,
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     petList: {
         gap: spacing.md,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     },
     petChipName: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     policyStatus: {
         flexDirection: 'row',
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     },
     policyStatusTitle: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     policyStatusDesc: {
         fontSize: font.md,
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
     amountField: {
         flex: 1,
         fontSize: font.h3,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     aiInfoBox: {
         flexDirection: 'row',
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     bottomSpacer: {
         height: 40,

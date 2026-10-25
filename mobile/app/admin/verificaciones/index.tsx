@@ -18,7 +18,7 @@ import {
     Activity,
 } from 'lucide-react-native';
 import { showAlert } from '@/src/components/AppAlert';
-import { accents, font, spacing, tint } from '@/constants/design';
+import { accents, families, font, spacing, tint, layout } from '@/constants/design';
 
 export default function AdminVerificacionesScreen() {
     const router = useRouter();
@@ -122,7 +122,7 @@ export default function AdminVerificacionesScreen() {
 const styles = StyleSheet.create({
     list: { 
         padding: spacing.xl, 
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         paddingTop: spacing.md 
     },
     card: { 
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     userInfo: { flex: 1 },
     userName: { 
         fontSize: font.xxl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     infoRow: { 
         flexDirection: 'row', 
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     },
     userEmail: { 
         fontSize: font.md, 
-        fontWeight: '700' 
+        fontFamily: families.bold 
     },
     statusBadge: { 
         flexDirection: 'row', 
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     },
     statusText: { 
         fontSize: font.xs, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     docsGrid: { 
         flexDirection: 'row', 
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     docItem: { flex: 1, gap: spacing.md },
     docLabel: { 
         fontSize: font.sm, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         textAlign: 'center' 
     },
     docPreview: { 
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     },
     docEmptyText: { 
         fontSize: font.xs, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     cardActions: { 
         flexDirection: 'row', 
@@ -233,6 +233,6 @@ const styles = StyleSheet.create({
     },
     btnText: { 
         fontSize: font.base, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     }
 });

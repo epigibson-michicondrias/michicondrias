@@ -13,7 +13,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import Button from '@/src/components/Button';
 import AuthField from '@/src/components/AuthField';
 import { validateRequired } from '@/src/utils/validators';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 import { hapticWarning } from '@/src/lib/haptics';
 
 /** Eliminación de cuenta (requisito de Apple/Google): confirma con la contraseña actual y, si aplica, el código 2FA. */
@@ -129,7 +129,7 @@ export default function EliminarCuentaScreen() {
 
 const styles = StyleSheet.create({
     warnCard: { flexDirection: 'row', gap: spacing.md, marginHorizontal: layout.screenPadding, marginBottom: spacing.xl, padding: spacing.lg, borderRadius: 16, borderWidth: 1 },
-    warnTitle: { fontSize: font.lg, fontWeight: '800' },
+    warnTitle: { fontSize: font.lg, fontFamily: families.extrabold },
     warnText: { fontSize: font.base, lineHeight: 20 },
     form: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.huge },
 });

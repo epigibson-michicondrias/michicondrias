@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { Image } from 'expo-image';
@@ -12,7 +13,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Users, Mail, Phone, Star, Edit, Trash2, X, Stethoscope, ShieldCheck } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function VeterinariosClinicaScreen() {
     const router = useRouter();
@@ -190,11 +191,7 @@ export default function VeterinariosClinicaScreen() {
                             {editingVet ? 'Editar Veterinario' : 'Agregar Veterinario'}
                         </Text>
                         <TouchableOpacity onPress={handleSave} disabled={loadingAction}>
-                            {loadingAction ? (
-                                <ActivityIndicator size="small" color={theme.primary} />
-                            ) : (
-                                <Text style={[styles.saveBtnText, { color: theme.primary }]}>Guardar</Text>
-                            )}
+                            <Button label="Guardar" variant="primary" loading={loadingAction} />
                         </TouchableOpacity>
                     </View>
 
@@ -244,22 +241,22 @@ const styles = StyleSheet.create({
     content: { flex: 1, paddingHorizontal: layout.screenPadding },
     statsContainer: { flexDirection: 'row', gap: spacing.lg, marginBottom: spacing.xxl },
     statCard: { flex: 1, padding: spacing.xl, borderRadius: 16, alignItems: 'center', gap: spacing.sm, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
-    statNumber: { fontSize: font.h2, fontWeight: '900' },
-    statLabel: { fontSize: font.md, fontWeight: '600' },
-    list: { paddingBottom: 100 },
+    statNumber: { fontSize: font.h2, fontFamily: families.black },
+    statLabel: { fontSize: font.md, fontFamily: families.semibold },
+    list: { paddingBottom: layout.listClearance },
     vetCard: { padding: spacing.xl, borderRadius: 16, marginBottom: spacing.lg, borderWidth: 1 },
     vetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.lg },
     vetInfo: { flexDirection: 'row', gap: spacing.lg, flex: 1 },
     vetAvatar: { width: 60, height: 60, borderRadius: 30 },
     vetDetails: { flex: 1 },
-    vetName: { fontSize: font.xxl, fontWeight: '800', marginBottom: spacing.xs },
-    vetSpecialty: { fontSize: font.base, fontWeight: '600', marginBottom: spacing.xs },
+    vetName: { fontSize: font.xxl, fontFamily: families.extrabold, marginBottom: spacing.xs },
+    vetSpecialty: { fontSize: font.base, fontFamily: families.semibold, marginBottom: spacing.xs },
     vetMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     ratingContainer: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-    ratingText: { fontSize: font.base, fontWeight: '600' },
+    ratingText: { fontSize: font.base, fontFamily: families.semibold },
     experienceText: { fontSize: font.base },
     statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
-    statusText: { fontSize: font.sm, fontWeight: '700' },
+    statusText: { fontSize: font.sm, fontFamily: families.bold },
     vetContact: { gap: spacing.sm, marginBottom: spacing.md },
     contactRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     contactText: { fontSize: font.base, flex: 1 },
@@ -271,12 +268,12 @@ const styles = StyleSheet.create({
     actionBtn: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: spacing.xl },
     modalContainer: { flex: 1 },
-    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xxl },
-    modalTitle: { fontSize: font.h3, fontWeight: '900' },
-    saveBtnText: { fontSize: font.xl, fontWeight: '700' },
+    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: layout.headerClearance, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xxl },
+    modalTitle: { fontSize: font.h3, fontFamily: families.black },
+    saveBtnText: { fontSize: font.xl, fontFamily: families.bold },
     formGroup: { marginBottom: spacing.xxl },
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
-    input: { height: 56, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontWeight: '600' },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontFamily: families.semibold },
     textArea: { height: 120, borderRadius: 12, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, borderWidth: 1, fontSize: font.xl, textAlignVertical: 'top' },
     modalFooter: { height: 40 },
 });

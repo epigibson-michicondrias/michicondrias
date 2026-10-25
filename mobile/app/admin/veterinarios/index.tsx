@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import EmptyState from '@/src/components/EmptyState';
 import SearchBar from '@/src/components/SearchBar';
-import { font, layout, spacing, tint } from '@/constants/design';
+import { families, font, layout, spacing, tint } from '@/constants/design';
 
 export default function AdminVeterinariosScreen() {
     const { theme } = useTheme();
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     },
     list: { 
         padding: spacing.xl, 
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         paddingTop: spacing.md 
     },
     center: { 
@@ -132,12 +132,12 @@ const styles = StyleSheet.create({
     },
     empty: { 
         alignItems: 'center', 
-        marginTop: 60, 
+        marginTop: layout.headerClearance, 
         paddingHorizontal: spacing.huge 
     },
     emptyText: { 
         fontSize: font.base, 
-        fontWeight: '700', 
+        fontFamily: families.bold, 
         marginTop: spacing.xl,
         textAlign: 'center' 
     },
@@ -163,13 +163,13 @@ const styles = StyleSheet.create({
     },
     avatarInitial: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         
     },
     info: { flex: 1 },
     name: { 
         fontSize: font.xxl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     row: { 
         flexDirection: 'row', 
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     },
     specialty: { 
         fontSize: font.base, 
-        fontWeight: '700' 
+        fontFamily: families.bold 
     },
     statusBadge: { 
         flexDirection: 'row', 
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     },
     statusText: { 
         fontSize: font.xs, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     details: { 
         gap: spacing.md,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     },
     detailText: { 
         fontSize: font.base, 
-        fontWeight: '700' 
+        fontFamily: families.bold 
     },
     actions: { 
         flexDirection: 'row', 
@@ -223,6 +223,6 @@ const styles = StyleSheet.create({
     },
     btnText: { 
         fontSize: font.base, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     }
 });

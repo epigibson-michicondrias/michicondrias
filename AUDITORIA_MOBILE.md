@@ -233,6 +233,21 @@ Arreglos:
 - [x] P1 Diagnóstico IA: vacío sin acción y error de peso sin CTA a editar (F17: vacío con «Agregar mascota», error de peso con «Editar mascota» y selector de mascota en el triage)
 - [ ] P2 `PetForm` común, Skeleton, `FormSelect`, `SegmentedTabs`, tokens, query keys unificadas
 
+### Heurísticas UX (Krug/Nielsen) — 2026-10-24 · Claude · **7/10** (revisión de código, sin capturas)
+Sin severidad 3–4. **Resuelto el mismo día** (ver bitácora de `PROGRESO_MOBILE.md`); falta la revisión visual a 375 px.
+- [x] S2 Interruptor «Vacunado» en `PetForm` contradice la ficha: el backend recalcula `is_vaccinated` con el carnet y pisa lo que marque el usuario (dos fuentes de verdad). Quitarlo del formulario.
+- [x] S2 Edad en meses (`PetForm` «Edad (meses)»): obliga a calcular (3 años = 36). Pedir años + meses (o fecha de nacimiento) y convertir en el hook.
+- [x] S2 Edad/peso inválidos solo se avisan con alerta (`usePetForm.ts`, `useEditPet.ts`) y la validación de obligatorios está duplicada (inline en `PetForm` + alertas en los hooks). Todo inline en `PetForm`.
+- [x] S2 Raza y descripción obligatorias aunque el backend no las pide: fricción en el alta. Hacerlas opcionales (sin raza → especie, ya lo hace `breedOf`).
+- [x] S2 «Eliminar mascota» con Michi-Tracker activo deja intentar y luego falla con 409. Si `has_active_subscription`, deshabilitar y ofrecer «Gestionar suscripción»; el aviso solo cuando aplica.
+- [x] S2 Tras registrar, `router.back()` + alerta «¡Éxito!»: ir a la ficha nueva (`router.replace`) con siguiente paso (agregar vacunas).
+- [x] S2 Volver de Stripe (`?subscription=`) no da ninguna confirmación en la ficha: leer el parámetro y mostrar «Michi-Tracker activado» / «Pago cancelado».
+- [x] S2 Resumen: «Vacunas» abre Salud y «Peso» abre Historial. Queda abierto: una acción primaria «Agendar cita» (el flujo de reserva exige elegir clínica antes; requiere decidir el destino).
+- [x] S1 Vista de tarjetas: engrane (`Settings`) para editar, la ficha usa lápiz (`Pencil`); además repite el editar de la ficha. Quitarlo o usar lápiz.
+- [x] S1 Tres modos de vista (cuadrícula/lista/tarjetas) para listas de 1–4 mascotas: sobra uno (tarjetas).
+- [x] S1 `editar/[id]` carga con `LoadingOverlay` a pantalla completa (debe ser Skeleton); botón guardar hecho a mano en `PetForm` en vez de `Button`; ficha sin pull-to-refresh.
+- [x] S1 Copys: «Nueva Mascota», «Registrar Mascota», «Guardar Cambios» en Title Case; títulos en mayúsculas («INFORMACIÓN BÁSICA», «ESPECIE»); placeholders de perro («Firulais», «Husky Siberiano») — gatos primero.
+
 ---
 
 ## Carnet — auditado 2026-10-07

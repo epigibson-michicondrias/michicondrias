@@ -8,7 +8,7 @@ import React from 'react';
 import { View, Text, TextInput, StyleSheet, type TextInputProps } from 'react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { layout, radius, spacing, type } from '@/constants/design';
+import { families, layout, radius, spacing, type } from '@/constants/design';
 
 interface AuthFieldProps extends Omit<TextInputProps, 'style'> {
     label: string;
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: type.caption.fontSize,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         marginLeft: spacing.xs,
     },
     inputRow: {

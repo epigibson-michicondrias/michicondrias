@@ -2,6 +2,7 @@
  * useAIDiagnosis — Hook for AI diagnosis screen
  * Extracts form state, API calls, and handlers from app/mascotas/diagnostico-ia.tsx
  */
+import { accents } from '@/constants/design';
 import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -127,11 +128,11 @@ export function useAIDiagnosis() {
     (urgency: string) => {
       switch (urgency.toLowerCase()) {
         case 'alta':
-          return '#ef4444';
+          return accents.community;
         case 'media':
-          return '#f59e0b';
+          return accents.warning;
         case 'baja':
-          return '#10b981';
+          return accents.health;
         default:
           return theme.primary;
       }

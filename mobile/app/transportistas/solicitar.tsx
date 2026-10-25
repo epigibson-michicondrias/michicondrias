@@ -16,7 +16,7 @@ import Card from '@/src/components/Card';
 import EmptyState from '@/src/components/EmptyState';
 import { SkeletonList } from '@/src/components/Skeleton';
 import { formatMoney } from '@/src/components/rides/rideStatus';
-import { radius, spacing, type, font, layout } from '@/constants/design';
+import { families, font, layout, radius, spacing, type } from '@/constants/design';
 
 export default function SolicitarTransporteScreen() {
   const { theme } = useTheme();
@@ -130,7 +130,7 @@ export default function SolicitarTransporteScreen() {
               accessibilityLabel="Usar mi ubicación como origen"
             >
               <LocateFixed size={14} color={theme.primary} />
-              <Text style={[type.caption, { color: theme.primary, fontWeight: '700' }]}>
+              <Text style={[type.caption, { color: theme.primary, fontFamily: families.bold }]}>
                 {isLocating ? 'Ubicando...' : 'Usar mi ubicación'}
               </Text>
             </TouchableOpacity>
@@ -322,15 +322,15 @@ export default function SolicitarTransporteScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   pad: { paddingHorizontal: spacing.xl },
-  scrollContent: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
+  scrollContent: { paddingHorizontal: layout.screenPadding, paddingBottom: layout.listClearance },
   selectionRow: { flexDirection: 'row', gap: spacing.md, paddingBottom: spacing.xs },
   selectionCard: { width: 120, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1.5, alignItems: 'center', gap: spacing.sm },
   driverCard: { width: 140, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1.5, alignItems: 'center', gap: spacing.sm },
   selectionIcon: { width: 44, height: 44, borderRadius: radius.md, justifyContent: 'center', alignItems: 'center' },
-  selectionName: { fontSize: font.base, fontWeight: '700' },
-  selectionSub: { fontSize: font.md, fontWeight: '500' },
+  selectionName: { fontSize: font.base, fontFamily: families.bold },
+  selectionSub: { fontSize: font.md, fontFamily: families.medium },
   inputGroup: { gap: spacing.sm, marginBottom: spacing.lg },
-  label: { fontSize: font.base, fontWeight: '700', marginLeft: spacing.xs },
+  label: { fontSize: font.base, fontFamily: families.bold, marginLeft: spacing.xs },
   inputWrapper: { position: 'relative' },
   inputIcon: { position: 'absolute', left: 16, top: 18, zIndex: 1 },
   input: { minHeight: 56, borderRadius: radius.lg, paddingHorizontal: spacing.lg, fontSize: font.lg, borderWidth: 1 },

@@ -13,7 +13,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import PetPicker from '@/src/features/salud/PetPicker';
 import { toISODate } from '@/src/features/salud/format';
 import { showAlert } from '@/src/components/AppAlert';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 const TIME_SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '16:00', '17:00'];
 
@@ -112,7 +112,7 @@ export default function AgendarLaboratorioScreen() {
                                             onPress={() => setTime(t)}
                                             style={[styles.slot, { backgroundColor: sel ? theme.primary : theme.surface, borderColor: sel ? theme.primary : theme.border }]}
                                         >
-                                            <Text style={{ color: sel ? theme.onPrimary : theme.text, fontWeight: '700' }}>{t}</Text>
+                                            <Text style={{ color: sel ? theme.onPrimary : theme.text, fontFamily: families.bold }}>{t}</Text>
                                         </TouchableOpacity>
                                     );
                                 })}
@@ -149,13 +149,13 @@ export default function AgendarLaboratorioScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { padding: spacing.xxl, gap: spacing.xl, paddingBottom: 60 },
+    content: { padding: spacing.xxl, gap: spacing.xl, paddingBottom: layout.headerClearance },
     summary: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: 16, borderWidth: 1 },
-    title: { fontSize: font.xl, fontWeight: '800' },
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
+    title: { fontSize: font.xl, fontFamily: families.extrabold },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.sm },
     slots: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     slot: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 12, borderWidth: 1 },
     input: { minHeight: 90, borderRadius: 14, borderWidth: 1, padding: spacing.lg, fontSize: font.base },
     submit: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.lg, borderRadius: 14 },
-    submitText: { fontSize: font.xl, fontWeight: '800' },
+    submitText: { fontSize: font.xl, fontFamily: families.extrabold },
 });

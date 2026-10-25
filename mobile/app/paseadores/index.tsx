@@ -11,7 +11,7 @@ import SearchBar from '@/src/components/SearchBar';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, layout, spacing, tint } from '@/constants/design';
+import { families, font, layout, spacing, tint } from '@/constants/design';
 
 export default function PaseadoresScreen() {
     const router = useRouter();
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textAlign: 'center',
         lineHeight: 18,
     },
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     walkerCard: {
         padding: spacing.xl,
@@ -203,14 +203,14 @@ const styles = StyleSheet.create({
     },
     avatarText: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     walkerInfo: {
         flex: 1,
     },
     walkerName: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     locationRow: {
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     walkerStats: {
         flexDirection: 'row',
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     },
     serviceText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     moreText: {
         fontSize: font.md,
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     },
     priceText: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     contactButton: {
         flexDirection: 'row',
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     },
     contactButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 
 });

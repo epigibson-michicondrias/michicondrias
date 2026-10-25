@@ -13,7 +13,7 @@
 import React from 'react';
 import { ActivityIndicator, TouchableOpacity, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { font, radius, layout, spacing } from '@/constants/design';
+import { families, font, layout, radius, spacing, press } from '@/constants/design';
 
 export type IconButtonVariant = 'subtle' | 'surface' | 'primary' | 'glass';
 
@@ -71,7 +71,7 @@ export default function IconButton({
             style={[styles.btn, isSmall && styles.small, current.box, disabled && styles.disabled, style]}
             onPress={onPress}
             disabled={isDisabled}
-            activeOpacity={0.7}
+            activeOpacity={press.subtle}
             accessibilityRole="button"
             accessibilityLabel={accessibilityLabel}
             accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     small: {
         width: layout.iconBox.md,
         height: layout.iconBox.md,
-        borderRadius: radius.sm + 2,
+        borderRadius: radius.sm,
     },
     badge: {
         position: 'absolute',
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     },
     badgeText: {
         fontSize: font.xs,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     disabled: {
         opacity: 0.5,

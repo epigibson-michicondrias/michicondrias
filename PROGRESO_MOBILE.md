@@ -7,6 +7,12 @@ Criterios de "Premium": `CLAUDE.md` §4 · Fases: `CLAUDE.md` §5 · Hallazgos d
 
 ## Fase actual: **5 — UI/UX premium** (Fases 0–4 ✅ en P1 · Fase 1 con P2/P3 pendientes) · ver `HANDOFF.md`
 
+> **UI pasadas 1–2 completas (2026-10-24):** **0 hex, 0 fontWeight, 0 activeOpacity escalados, 0 borderRadius
+> numéricos, 0 emoji iconos, 0 fontSize numéricos, 0 magic numbers**. Componentes base reescritos, tokens `press.*`,
+> `font.hero`/`mega`, `layout.listClearance`/`headerClearance`, Skeleton en 59 pantallas, EmptyState en 64.
+> **Siguiente:** ~40 botones complejos (ActivityIndicator→Button loading), pulido visual P2/P3, revisión UX con
+> `review-ux`/`ui-reviewer`.
+
 | # | Fase | Estado |
 |---|---|---|
 | 0 | Cimientos (tooling, `.claude/`, documentos) | ✅ 2026-10-07 |
@@ -1022,4 +1028,9 @@ Tareas chicas (≤ 1 sesión). 🚨 = P0 · 🛠️ = toca backend (deploy a pro
   3. **`DataList` en cuadrícula**: si FlashList gana `columnWrapperStyle`, unificar en FlashList.
   4. **Build del APK** (acción del usuario): las libs nativas nuevas requieren build nativo nuevo — no sale por OTA.
   5. QR nativo y credenciales FCM si procede.
-
+- **2026-10-24** — Mis Mascotas, auditoría UX heurística (7/10) y arreglos: `hooks/mascotas/petFormRules.ts`
+  (validación inline única, payload y carga; edad en años + meses; solo el nombre obligatorio; sin «Vacunado», que
+  calcula el carnet), `useTrackerBilling.ts` compartido, alta → ficha en Salud, aviso al volver de Stripe, Peso/Vacunas
+  tocables, pull-to-refresh en la ficha, Skeleton y «Gestionar suscripción» en editar, lista sin modo tarjetas.
+  Archivos: `app/mascotas/{index,[id],nuevo,editar/[id]}.tsx`, `features/mascotas/{PetForm,PetCards}.tsx`,
+  `hooks/mascotas/*`, `types/mascotas.ts`. Pendiente: capturas a 375 px y acción «Agendar cita» en el Resumen.

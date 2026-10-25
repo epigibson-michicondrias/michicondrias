@@ -13,7 +13,7 @@ import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import FilterChip from '@/src/components/FilterChip';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function EstablecimientosScreen() {
     const router = useRouter();
@@ -144,7 +144,7 @@ export default function EstablecimientosScreen() {
 const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     venueCard: {
         padding: spacing.xl,
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     },
     venueName: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     locationRow: {
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     },
     amenityText: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     discountBanner: {
         flexDirection: 'row',
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     },
     discountText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     discountDesc: {
         fontSize: font.md,

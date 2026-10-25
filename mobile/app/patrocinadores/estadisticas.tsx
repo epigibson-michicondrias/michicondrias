@@ -8,7 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { BarChart3, Eye, MousePointerClick, TrendingUp, DollarSign, Megaphone } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function EstadisticasScreen() {
     const { theme } = useTheme();
@@ -23,8 +23,8 @@ export default function EstadisticasScreen() {
     const renderStatsCards = () => (
         <View style={styles.statsGrid}>
             <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <View style={[styles.statIcon, { backgroundColor: '#3b82f620' }]}>
-                    <Eye size={20} color="#3b82f6" />
+                <View style={[styles.statIcon, { backgroundColor: theme.infoLight }]}>
+                    <Eye size={20} color={theme.info} />
                 </View>
                 <Text style={[styles.statValue, { color: theme.text }]}>
                     {metrics.totalViews.toLocaleString()}
@@ -33,8 +33,8 @@ export default function EstadisticasScreen() {
             </View>
 
             <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <View style={[styles.statIcon, { backgroundColor: '#10b98120' }]}>
-                    <MousePointerClick size={20} color="#10b981" />
+                <View style={[styles.statIcon, { backgroundColor: theme.successLight }]}>
+                    <MousePointerClick size={20} color={theme.success} />
                 </View>
                 <Text style={[styles.statValue, { color: theme.text }]}>
                     {metrics.totalClicks.toLocaleString()}
@@ -43,8 +43,8 @@ export default function EstadisticasScreen() {
             </View>
 
             <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <View style={[styles.statIcon, { backgroundColor: '#f59e0b20' }]}>
-                    <TrendingUp size={20} color="#f59e0b" />
+                <View style={[styles.statIcon, { backgroundColor: theme.warningLight }]}>
+                    <TrendingUp size={20} color={theme.warning} />
                 </View>
                 <Text style={[styles.statValue, { color: theme.text }]}>
                     {metrics.averageCTR.toFixed(1)}%
@@ -53,8 +53,8 @@ export default function EstadisticasScreen() {
             </View>
 
             <View style={[styles.statCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <View style={[styles.statIcon, { backgroundColor: '#ef444420' }]}>
-                    <DollarSign size={20} color="#ef4444" />
+                <View style={[styles.statIcon, { backgroundColor: theme.errorLight }]}>
+                    <DollarSign size={20} color={theme.error} />
                 </View>
                 <Text style={[styles.statValue, { color: theme.text }]}>
                     ${metrics.totalSpent.toLocaleString()}
@@ -78,8 +78,8 @@ export default function EstadisticasScreen() {
                 disabled
             >
                 <View style={styles.campaignHeader}>
-                    <View style={[styles.campaignIcon, { backgroundColor: '#f59e0b20' }]}>
-                        <Megaphone size={20} color="#f59e0b" />
+                    <View style={[styles.campaignIcon, { backgroundColor: theme.warningLight }]}>
+                        <Megaphone size={20} color={theme.warning} />
                     </View>
                     <View style={styles.campaignInfo}>
                         <Text style={[styles.campaignTitle, { color: theme.text }]} numberOfLines={1}>
@@ -88,11 +88,11 @@ export default function EstadisticasScreen() {
                         <View style={styles.statusRow}>
                             <View style={[
                                 styles.statusBadge,
-                                { backgroundColor: item.active ? '#10b98120' : '#ef444420' },
+                                { backgroundColor: item.active ? theme.successLight : theme.errorLight },
                             ]}>
                                 <Text style={[
                                     styles.statusText,
-                                    { color: item.active ? '#10b981' : '#ef4444' },
+                                    { color: item.active ? theme.success : theme.error },
                                 ]}>
                                     {item.active ? 'Activa' : 'Inactiva'}
                                 </Text>
@@ -103,17 +103,17 @@ export default function EstadisticasScreen() {
 
                 <View style={styles.metricsRow}>
                     <View style={[styles.metricItem, { backgroundColor: theme.background }]}>
-                        <Eye size={12} color="#3b82f6" />
+                        <Eye size={12} color={theme.info} />
                         <Text style={[styles.metricValue, { color: theme.text }]}>{views}</Text>
                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>vistas</Text>
                     </View>
                     <View style={[styles.metricItem, { backgroundColor: theme.background }]}>
-                        <MousePointerClick size={12} color="#10b981" />
+                        <MousePointerClick size={12} color={theme.success} />
                         <Text style={[styles.metricValue, { color: theme.text }]}>{clicks}</Text>
                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>clicks</Text>
                     </View>
                     <View style={[styles.metricItem, { backgroundColor: theme.background }]}>
-                        <TrendingUp size={12} color="#f59e0b" />
+                        <TrendingUp size={12} color={theme.warning} />
                         <Text style={[styles.metricValue, { color: theme.text }]}>{ctr}%</Text>
                         <Text style={[styles.metricLabel, { color: theme.textMuted }]}>CTR</Text>
                     </View>
@@ -185,7 +185,7 @@ export default function EstadisticasScreen() {
 const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     statsGrid: {
         flexDirection: 'row',
@@ -210,11 +210,11 @@ const styles = StyleSheet.create({
     },
     statValue: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     statLabel: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     campaignCard: {
         padding: spacing.xl,
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     },
     campaignTitle: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     statusRow: {
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     metricsRow: {
         flexDirection: 'row',
@@ -271,11 +271,11 @@ const styles = StyleSheet.create({
     },
     metricValue: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     metricLabel: {
         fontSize: font.xs,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     budgetRow: {
         flexDirection: 'row',
@@ -284,11 +284,11 @@ const styles = StyleSheet.create({
     },
     budgetLabel: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     budgetPercent: {
         fontSize: font.md,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     progressTrack: {
         height: 6,

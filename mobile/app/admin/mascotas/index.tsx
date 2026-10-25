@@ -8,7 +8,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import { ChevronLeft, Bone, Shield } from 'lucide-react-native';
-import { accents, font, spacing } from '@/constants/design';
+import { accents, families, font, spacing, layout } from '@/constants/design';
 
 // Colores por especie: se resuelven dentro del componente (theme es runtime).
 const SPECIES_ACCENT_KEY: Record<string, 'primary' | 'services' | 'success' | 'warning'> = {
@@ -117,11 +117,11 @@ const styles = StyleSheet.create({
     },
     statVal: { 
         fontSize: font.h2, 
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     statLab: { 
         fontSize: font.xs, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         letterSpacing: 0.5,
         marginTop: spacing.xxs,
         textTransform: 'uppercase',
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     },
     list: { 
         padding: spacing.xl, 
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         paddingTop: spacing.sm 
     },
     card: { 
@@ -172,16 +172,16 @@ const styles = StyleSheet.create({
     },
     petName: { 
         fontSize: font.xxl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     petDetails: { 
         fontSize: font.base, 
-        fontWeight: '700', 
+        fontFamily: families.bold, 
         marginTop: spacing.xxs 
     },
     ownerName: { 
         fontSize: font.md, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         marginTop: spacing.sm 
     }
 });

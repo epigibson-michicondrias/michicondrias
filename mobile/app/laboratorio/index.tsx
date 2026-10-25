@@ -14,7 +14,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { FlaskConical, Calendar, Clock, ChevronRight, X, Info, DollarSign, Activity, PawPrint, CheckCircle } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function LaboratorioScreen() {
     const router = useRouter();
@@ -103,7 +103,7 @@ export default function LaboratorioScreen() {
                 onPress={() => setView('estudios')}
                 style={{ marginTop: spacing.lg, backgroundColor: theme.primary, paddingVertical: spacing.md, paddingHorizontal: spacing.xl, borderRadius: 12 }}
             >
-                <Text style={{ color: theme.onPrimary, fontWeight: '800' }}>Ver estudios</Text>
+                <Text style={{ color: theme.onPrimary, fontFamily: families.extrabold }}>Ver estudios</Text>
             </TouchableOpacity>
         </View>
     );
@@ -154,7 +154,7 @@ export default function LaboratorioScreen() {
                                 <View style={styles.cardContent}>
                                     <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>{item.name}</Text>
                                     {!!item.description && <Text style={[styles.cardMetaText, { color: theme.textMuted }]} numberOfLines={2}>{item.description}</Text>}
-                                    <Text style={{ color: theme.primary, fontWeight: '800' }}>${Number(item.price).toFixed(2)} MXN</Text>
+                                    <Text style={{ color: theme.primary, fontFamily: families.extrabold }}>${Number(item.price).toFixed(2)} MXN</Text>
                                 </View>
                                 <ChevronRight size={20} color={theme.textMuted} />
                             </TouchableOpacity>
@@ -317,7 +317,7 @@ export default function LaboratorioScreen() {
                                             onPress={() => confirmCancel(selectedAppointment.id)}
                                             style={{ borderWidth: 1, borderColor: theme.error, borderRadius: 12, paddingVertical: spacing.md, alignItems: 'center', marginTop: spacing.md }}
                                         >
-                                            <Text style={{ color: theme.error, fontWeight: '700' }}>Cancelar cita</Text>
+                                            <Text style={{ color: theme.error, fontFamily: families.bold }}>Cancelar cita</Text>
                                         </TouchableOpacity>
                                     )}
                                 </View>
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     },
     summaryText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     loadingContainer: {
         flex: 1,
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     cardMeta: {
         flexDirection: 'row',
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     emptyContainer: {
         flex: 1,
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     },
     emptyTitle: {
         fontSize: font.xxl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     emptySubtitle: {
         fontSize: font.base,
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     closeBtn: {
         width: 36,
@@ -474,11 +474,11 @@ const styles = StyleSheet.create({
     },
     modalTestName: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     modalLabName: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     gridContainer: {
         borderRadius: 16,
@@ -497,12 +497,12 @@ const styles = StyleSheet.create({
     },
     gridLabel: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textTransform: 'uppercase',
     },
     gridValue: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginTop: spacing.xxs,
     },
     statusBadgeInline: {
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     },
     statusTextInline: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     priceRow: {
         flexDirection: 'row',
@@ -526,11 +526,11 @@ const styles = StyleSheet.create({
     priceLabel: {
         flex: 1,
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     priceValue: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     notesCard: {
         flexDirection: 'row',
@@ -541,12 +541,12 @@ const styles = StyleSheet.create({
     },
     notesTitle: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     notesText: {
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
         lineHeight: 18,
     },
     completedCard: {
@@ -558,12 +558,12 @@ const styles = StyleSheet.create({
     },
     completedTitle: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     completedText: {
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
         lineHeight: 18,
     },
 });

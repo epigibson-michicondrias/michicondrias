@@ -9,7 +9,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormSection from '@/src/components/forms/FormSection';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { Building2, MapPin, Tag, FileText, Plus } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function NuevoEstablecimientoScreen() {
     return (
@@ -172,6 +172,6 @@ const styles = StyleSheet.create({
     },
     submitText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 });

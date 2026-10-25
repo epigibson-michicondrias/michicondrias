@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import {
     StyleSheet,
@@ -16,7 +17,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import type { InsurancePlan } from '@/src/services/insurance';
 import type { Pet } from '@/src/types/mascotas';
 import { Shield, DollarSign, CheckCircle, PawPrint, Calculator, CreditCard, ArrowRight, Dog, Cat } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function CotizarScreen() {
     const { theme } = useTheme();
@@ -177,14 +178,7 @@ export default function CotizarScreen() {
                     disabled={!selectedPetId || !selectedPlanId || isCalculating}
                     onPress={handleCalculateQuote}
                 >
-                    {isCalculating ? (
-                        <ActivityIndicator color={theme.onPrimary} />
-                    ) : (
-                        <>
-                            <Calculator size={20} color={theme.onPrimary} />
-                            <Text style={styles.calculateBtnText}>Calcular Cotización</Text>
-                        </>
-                    )}
+                    <Button label="Calcular Cotización" variant="primary" icon={<Calculator size={20} color={theme.onPrimary} />} loading={isCalculating} disabled={!selectedPetId || !selectedPlanId} onPress={handleCalculateQuote} />
                 </TouchableOpacity>
 
                 {/* Quote Result */}
@@ -211,7 +205,7 @@ export default function CotizarScreen() {
                                 </Text>
                             </View>
                             <View style={[styles.quoteRow, styles.quoteHighlight, { backgroundColor: theme.primary + '10' }]}>
-                                <Text style={[styles.quoteLabel, { color: theme.text, fontWeight: '700' }]}>
+                                <Text style={[styles.quoteLabel, { color: theme.text, fontFamily: families.bold }]}>
                                     Cobertura máxima
                                 </Text>
                                 <Text style={[styles.quotePremium, { color: theme.success }]}>
@@ -225,14 +219,7 @@ export default function CotizarScreen() {
                             disabled={isSubscribing}
                             onPress={handleSubscribe}
                         >
-                            {isSubscribing ? (
-                                <ActivityIndicator color={theme.onPrimary} />
-                            ) : (
-                                <>
-                                    <Text style={styles.subscribeBtnText}>Contratar Seguro</Text>
-                                    <ArrowRight size={20} color={theme.onPrimary} />
-                                </>
-                            )}
+                            <Button label="Contratar Seguro" variant="gold" iconRight={<ArrowRight size={20} color={theme.onPrimary} />} loading={isSubscribing} onPress={handleSubscribe} />
                         </TouchableOpacity>
                     </View>
                 )}
@@ -246,7 +233,7 @@ export default function CotizarScreen() {
 const styles = StyleSheet.create({
     scrollContent: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     section: {
         marginBottom: spacing.xxl,
@@ -259,7 +246,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     petList: {
         gap: spacing.md,
@@ -278,7 +265,7 @@ const styles = StyleSheet.create({
     },
     petName: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     petBreed: {
         fontSize: font.sm,
@@ -317,7 +304,7 @@ const styles = StyleSheet.create({
     },
     planOptionName: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     planOptionDesc: {
         fontSize: font.md,
@@ -336,7 +323,7 @@ const styles = StyleSheet.create({
     },
     planStatText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     planStatLabel: {
         fontSize: font.xs,
@@ -355,7 +342,7 @@ const styles = StyleSheet.create({
     },
     switchLabel: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     switchDesc: {
         fontSize: font.md,
@@ -372,7 +359,7 @@ const styles = StyleSheet.create({
     },
     calculateBtnText: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     quoteCard: {
         borderRadius: 20,
@@ -395,7 +382,7 @@ const styles = StyleSheet.create({
     },
     quoteTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     quoteDetails: {
         padding: spacing.xl,
@@ -416,11 +403,11 @@ const styles = StyleSheet.create({
     },
     quoteValue: {
         fontSize: font.xl,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     quotePremium: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     subscribeBtn: {
         flexDirection: 'row',
@@ -434,7 +421,7 @@ const styles = StyleSheet.create({
     },
     subscribeBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     bottomSpacer: {
         height: 40,

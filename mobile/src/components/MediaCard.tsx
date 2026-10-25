@@ -12,7 +12,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import type { IconComponent } from '@/src/components/IconButton';
-import { layout, radius, shadow, spacing, tint, type } from '@/constants/design';
+import { layout, radius, shadow, spacing, tint, type, press } from '@/constants/design';
 
 export interface MediaLine {
     text: string;
@@ -74,7 +74,7 @@ export function MediaCard({ width, topLeft, topRight, title, lines, footer, onPr
         <TouchableOpacity
             style={[styles.card, { width, backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={onPress}
-            activeOpacity={0.88}
+            activeOpacity={press.strong}
             accessibilityRole="button"
             accessibilityLabel={accessibilityLabel}
         >
@@ -105,7 +105,7 @@ export function MediaRow({ corner, trailing, actions, title, lines, footer, onPr
         <TouchableOpacity
             style={[styles.rowMain, !actions && [styles.row, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]]}
             onPress={onPress}
-            activeOpacity={0.88}
+            activeOpacity={press.strong}
             accessibilityRole="button"
             accessibilityLabel={accessibilityLabel}
         >

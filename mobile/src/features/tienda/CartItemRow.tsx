@@ -9,7 +9,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import QuantityStepper from '@/src/components/QuantityStepper';
 import { formatCurrency } from '@/src/utils/formatters';
 import type { CartItem } from '@/src/contexts/CartContext';
-import { layout, radius, spacing, type } from '@/constants/design';
+import { families, layout, radius, spacing, type } from '@/constants/design';
 
 interface CartItemRowProps {
     item: CartItem;
@@ -62,5 +62,5 @@ const styles = StyleSheet.create({
     thumbFallback: { alignItems: 'center', justifyContent: 'center' },
     info: { flex: 1, gap: spacing.xxs },
     bottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.xs },
-    total: { fontWeight: '800' },
+    total: { fontFamily: families.extrabold },
 });

@@ -11,7 +11,7 @@ import Badge from '@/src/components/Badge';
 import { MediaCard, MediaRow } from '@/src/components/MediaCard';
 import { formatCurrency } from '@/src/utils/formatters';
 import type { Product } from '@/src/types/ecommerce';
-import { layout, radius, shadow, spacing, type } from '@/constants/design';
+import { families, layout, radius, shadow, spacing, type } from '@/constants/design';
 
 /** Existencias a partir de las cuales se avisa "últimas piezas". */
 export const LOW_STOCK = 5;
@@ -142,7 +142,7 @@ export function ProductListRow({ product, onPress, onQuickAdd, isFavorite, onTog
 
 const styles = StyleSheet.create({
     priceLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.xs, marginTop: spacing.xxs },
-    price: { fontWeight: '800', flexShrink: 1 },
+    price: { fontFamily: families.extrabold, flexShrink: 1 },
     rating: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs },
     quickAdd: {
         width: layout.iconBox.md,

@@ -9,7 +9,8 @@ import { AppointmentItem } from '@/src/services/directorio';
 import { CheckCircle2, X, MessageSquare, Stethoscope, AlertCircle, Clock, ClipboardList, Search } from 'lucide-react-native';
 import { statusTone } from '@/src/features/salud/format';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 export default function AgendaClinicaScreen() {
     const router = useRouter();
@@ -160,7 +161,7 @@ export default function AgendaClinicaScreen() {
                             <Text style={[
                                 styles.tabText,
                                 { color: theme.textMuted },
-                                filter === tab.key && { color: theme.primary, fontWeight: '800' }
+                                filter === tab.key && { color: theme.primary, fontFamily: families.extrabold }
                             ]}>
                                 {tab.label}
                             </Text>
@@ -171,7 +172,7 @@ export default function AgendaClinicaScreen() {
 
             {loadingAppts ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <SkeletonList count={3} />
                 </View>
             ) : (
                 <FlatList
@@ -226,7 +227,7 @@ export default function AgendaClinicaScreen() {
                                 style={[styles.modalBtn, { backgroundColor: theme.error }]}
                                 onPress={handleCancelSubmit}
                             >
-                                <Text style={styles.modalBtnTextDanger}>Confirmar Cierre</Text>
+                                <Text style={[styles.modalBtnTextDanger, { color: theme.onPrimary }, { color: theme.onPrimary }]}>Confirmar Cierre</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -240,36 +241,36 @@ const styles = StyleSheet.create({
     tabsRow: { marginBottom: spacing.md },
     tabsScroll: { paddingHorizontal: spacing.xl, gap: spacing.sm },
     tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    tabText: { fontSize: font.base, fontWeight: '600' },
+    tabText: { fontSize: font.base, fontFamily: families.semibold },
     list: { padding: spacing.xl, paddingBottom: spacing.huge },
     card: { borderRadius: 28, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
     dateBox: { width: 48, paddingVertical: spacing.md, borderRadius: 14, alignItems: 'center' },
-    dateDay: { fontSize: font.xxl, fontWeight: '900' },
-    dateMonth: { fontSize: font.xs, fontWeight: '800' },
+    dateDay: { fontSize: font.xxl, fontFamily: families.black },
+    dateMonth: { fontSize: font.xs, fontFamily: families.extrabold },
     headerInfo: { flex: 1, gap: spacing.xs },
-    serviceName: { fontSize: font.xl, fontWeight: '800' },
-    timeText: { fontSize: font.md, fontWeight: '600' },
+    serviceName: { fontSize: font.xl, fontFamily: families.extrabold },
+    timeText: { fontSize: font.md, fontFamily: families.semibold },
     statusBadge: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 12 },
-    statusLabel: { fontSize: font.xs, fontWeight: '800' },
+    statusLabel: { fontSize: font.xs, fontFamily: families.extrabold },
     notesBox: { flexDirection: 'row', padding: spacing.md, borderRadius: 16, marginTop: spacing.lg, gap: spacing.md, alignItems: 'center' },
-    notesText: { fontSize: font.md, fontWeight: '600', fontStyle: 'italic', flex: 1 },
+    notesText: { fontSize: font.md, fontFamily: families.semibold, fontStyle: 'italic', flex: 1 },
     actions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: 1 },
     actionBtn: { flex: 1, flexDirection: 'row', height: 44, borderRadius: 14, justifyContent: 'center', alignItems: 'center', gap: spacing.sm },
-    actionText: { fontSize: font.base, fontWeight: '700' },
+    actionText: { fontSize: font.base, fontFamily: families.bold },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     empty: { paddingTop: 100, alignItems: 'center', gap: spacing.xl },
-    emptyText: { fontSize: font.xl, fontWeight: '600', textAlign: 'center' },
+    emptyText: { fontSize: font.xl, fontFamily: families.semibold, textAlign: 'center' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', padding: spacing.xxl },
     modalContent: { borderRadius: 32, padding: spacing.xxl, paddingBottom: 0, gap: spacing.lg, overflow: 'hidden' },
     modalHeaderTitle: { alignItems: 'center', gap: spacing.sm },
-    modalTitle: { fontSize: font.h3, fontWeight: '900' },
-    modalSub: { fontSize: font.base, fontWeight: '600', textAlign: 'center', lineHeight: 20 },
-    reasonInput: { height: 100, borderRadius: 20, padding: spacing.lg, borderWidth: 1, textAlignVertical: 'top', fontSize: font.base, fontWeight: '600' },
+    modalTitle: { fontSize: font.h3, fontFamily: families.black },
+    modalSub: { fontSize: font.base, fontFamily: families.semibold, textAlign: 'center', lineHeight: 20 },
+    reasonInput: { height: 100, borderRadius: 20, padding: spacing.lg, borderWidth: 1, textAlignVertical: 'top', fontSize: font.base, fontFamily: families.semibold },
     modalActions: { flexDirection: 'row', marginHorizontal: -24, marginTop: spacing.sm },
     modalBtn: { flex: 1, height: 64, justifyContent: 'center', alignItems: 'center' },
-    modalBtnText: { fontSize: font.lg, fontWeight: '700' },
-    modalBtnTextDanger: { fontSize: font.lg, fontWeight: '800', color: '#fff' },
+    modalBtnText: { fontSize: font.lg, fontFamily: families.bold },
+    modalBtnTextDanger: { fontSize: font.lg, fontFamily: families.extrabold, },
     searchContainer: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.lg },
-    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontWeight: '600' }
+    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontFamily: families.semibold }
 });

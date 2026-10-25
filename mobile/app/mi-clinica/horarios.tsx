@@ -5,7 +5,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import { useSchedule, type ScheduleDay, type Holiday } from '@/src/hooks/clinica/useSchedule';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { spacing, font, layout } from '@/constants/design';
+import { families, font, layout, spacing, shadow } from '@/constants/design';
 import Button from '@/src/components/Button';
 
 import { Clock, Calendar, Plus, X, Info, Globe } from 'lucide-react-native';
@@ -172,7 +172,7 @@ export default function HorariosClinicaScreen() {
                         onPress={() => setHolidayModalVisible(true)}
                     >
                         <Plus size={16} color={theme.onPrimary} />
-                        <Text style={styles.addHolidayBtnText}>Agregar</Text>
+                        <Text style={[styles.addHolidayBtnText, { color: theme.onPrimary }, { color: theme.onPrimary }]}>Agregar</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -231,7 +231,7 @@ export default function HorariosClinicaScreen() {
                         </TouchableOpacity>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Agregar Día Festivo</Text>
                         <TouchableOpacity onPress={handleAddHoliday} accessibilityRole="button" accessibilityLabel="Guardar día festivo">
-                            <Text style={[styles.saveBtnText, { color: theme.primary }]}>Guardar</Text>
+                            <Text style={[styles.saveBtnText, { color: theme.onPrimary }, { color: theme.primary }]}>Guardar</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -325,63 +325,63 @@ export default function HorariosClinicaScreen() {
 
 const styles = StyleSheet.create({
     saveBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '700' },
+    saveBtnText: { fontSize: font.xl, fontFamily: families.bold },
     content: { flex: 1, paddingHorizontal: layout.screenPadding },
     infoCard: { flexDirection: 'row', padding: spacing.lg, borderRadius: 12, gap: spacing.md, marginBottom: spacing.xxl },
-    infoText: { flex: 1, fontSize: font.base, fontWeight: '600' },
-    sectionTitle: { fontSize: font.xxl, fontWeight: '900', marginBottom: spacing.lg },
+    infoText: { flex: 1, fontSize: font.base, fontFamily: families.semibold },
+    sectionTitle: { fontSize: font.xxl, fontFamily: families.black, marginBottom: spacing.lg },
     dayCard: { padding: spacing.xl, borderRadius: 16, marginBottom: spacing.md, borderWidth: 1 },
     dayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     dayInfo: { flex: 1 },
-    dayName: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.xs },
+    dayName: { fontSize: font.xl, fontFamily: families.extrabold, marginBottom: spacing.xs },
     statusBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8, alignSelf: 'flex-start' },
-    statusText: { fontSize: font.sm, fontWeight: '700' },
+    statusText: { fontSize: font.sm, fontFamily: families.bold },
     timeSettings: { gap: spacing.md },
     timeRow: { flexDirection: 'row', gap: spacing.lg },
     timeInput: { flex: 1 },
-    timeLabel: { fontSize: font.md, fontWeight: '600', marginBottom: spacing.sm },
+    timeLabel: { fontSize: font.md, fontFamily: families.semibold, marginBottom: spacing.sm },
     timeButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: 12, borderWidth: 1, justifyContent: 'center' },
-    timeText: { fontSize: font.lg, fontWeight: '600' },
+    timeText: { fontSize: font.lg, fontFamily: families.semibold },
     addBreakBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingVertical: spacing.md, borderRadius: 12 },
-    addBreakText: { fontSize: font.base, fontWeight: '600' },
+    addBreakText: { fontSize: font.base, fontFamily: families.semibold },
     holidaysHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     addHolidayBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 8, justifyContent: 'center' },
-    addHolidayBtnText: { color: '#fff', fontSize: font.base, fontWeight: '600' },
+    addHolidayBtnText: { fontSize: font.base, fontFamily: families.semibold },
     holidayCard: { flexDirection: 'row', padding: spacing.lg, borderRadius: 12, marginBottom: spacing.md, borderWidth: 1 },
     holidayInfo: { flex: 1 },
     holidayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-    holidayName: { fontSize: font.xl, fontWeight: '800' },
+    holidayName: { fontSize: font.xl, fontFamily: families.extrabold },
     deleteBtn: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
     holidayDetails: { gap: spacing.xs },
     holidayDate: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    holidayDateText: { fontSize: font.base, fontWeight: '600' },
+    holidayDateText: { fontSize: font.base, fontFamily: families.semibold },
     holidayReason: { fontSize: font.base },
     holidayStatus: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 8 },
-    holidayStatusText: { fontSize: font.sm, fontWeight: '700', color: '#ef4444' },
+    holidayStatusText: { fontSize: font.sm, fontFamily: families.bold },
     emergencyCard: { padding: spacing.xl, borderRadius: 16, borderWidth: 1 },
     emergencyHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
     emergencyInfo: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, flex: 1 },
-    emergencyTitle: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.xxs },
+    emergencyTitle: { fontSize: font.xl, fontFamily: families.extrabold, marginBottom: spacing.xxs },
     emergencySub: { fontSize: font.base },
     emergencyContact: { gap: spacing.xs },
     emergencyContactLabel: { fontSize: font.base },
-    emergencyPhone: { fontSize: font.xl, fontWeight: '700' },
+    emergencyPhone: { fontSize: font.xl, fontFamily: families.bold },
     saveBar: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, paddingBottom: spacing.huge },
     modalContainer: { flex: 1 },
-    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xxl },
-    modalTitle: { fontSize: font.h3, fontWeight: '900' },
+    modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: layout.headerClearance, paddingHorizontal: layout.screenPadding, paddingBottom: spacing.xxl },
+    modalTitle: { fontSize: font.h3, fontFamily: families.black },
     formGroup: { marginBottom: spacing.xxl },
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
-    input: { height: 56, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontWeight: '600' },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontFamily: families.semibold },
     textArea: { height: 100, borderRadius: 12, paddingHorizontal: spacing.lg, paddingTop: spacing.lg, borderWidth: 1, fontSize: font.xl, textAlignVertical: 'top' },
     modalFooter: { height: 40 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-    timePickerContent: { width: '80%', borderRadius: 24, padding: spacing.xxl, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.25, shadowRadius: 20, elevation: 10 },
+    timePickerContent: { width: '80%', borderRadius: 24, padding: spacing.xxl, ...shadow.floating },
     timePickerHeader: { alignItems: 'center', marginBottom: spacing.xl },
-    timePickerTitle: { fontSize: font.xxl, fontWeight: '800' },
+    timePickerTitle: { fontSize: font.xxl, fontFamily: families.extrabold },
     timePickerBody: { marginBottom: spacing.xxl },
-    timeInputModal: { height: 60, fontSize: font.display, fontWeight: '900', borderRadius: 16, borderWidth: 1, letterSpacing: 2 },
+    timeInputModal: { height: 60, fontSize: font.display, fontFamily: families.black, borderRadius: 16, borderWidth: 1, letterSpacing: 2 },
     timePickerActions: { flexDirection: 'row', gap: spacing.md },
     timePickerBtn: { flex: 1, height: 48, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    timePickerBtnText: { fontSize: font.lg, fontWeight: '700' }
+    timePickerBtnText: { fontSize: font.lg, fontFamily: families.bold }
 });

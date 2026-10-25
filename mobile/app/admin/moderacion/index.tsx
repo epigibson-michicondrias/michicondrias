@@ -22,7 +22,7 @@ import {
     FileText
 } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { accents, font, layout, spacing, tint } from '@/constants/design';
+import { accents, families, font, layout, spacing, tint } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     },
     tabText: { 
         fontSize: font.base, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     content: { flex: 1 },
     listContainer: { 
@@ -410,12 +410,12 @@ const styles = StyleSheet.create({
     },
     cardTitle: { 
         fontSize: font.xxl, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         flex: 1 
     },
     cardDesc: { 
         fontSize: font.base, 
-        fontWeight: '500', 
+        fontFamily: families.medium, 
         lineHeight: 19, 
         marginBottom: spacing.xl 
     },
@@ -426,11 +426,11 @@ const styles = StyleSheet.create({
     },
     badgeText: { 
         fontSize: font.xs, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     priceTag: { 
         fontSize: font.xl, 
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginLeft: spacing.md 
     },
     infoRow: { 
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     },
     userEmail: { 
         fontSize: font.md, 
-        fontWeight: '700' 
+        fontFamily: families.bold 
     },
     cardActions: { 
         flexDirection: 'row', 
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     },
     btnActionText: { 
         fontSize: font.base, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     btnActionSquare: {
         width: 50,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     },
     dateText: { 
         fontSize: font.sm, 
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     notesBox: { 
         padding: spacing.lg, 
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     },
     notesText: { 
         fontSize: font.base, 
-        fontWeight: '600', 
+        fontFamily: families.semibold, 
         fontStyle: 'italic',
         lineHeight: 18,
     }

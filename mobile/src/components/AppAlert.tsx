@@ -1,10 +1,14 @@
+/**
+ * AppAlert — modal de confirmación/aviso global (`showAlert`). Premium: tokens de diseño,
+ * tipografía de marca, botones reales y objetivos táctiles ≥ 44 px.
+ */
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, View, Text, TouchableOpacity, Dimensions, Modal } from 'react-native';
+import { Animated, StyleSheet, View, Text, TouchableOpacity, useWindowDimensions, Modal, Pressable } from 'react-native';
 import { CheckCircle, AlertTriangle, XCircle, Info, X } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { font, spacing } from '@/constants/design';
-
-const { width } = Dimensions.get('window');
+import { layout, radius, shadow, spacing, type } from '@/constants/design';
+import IconButton from '@/src/components/IconButton';
+import Button from '@/src/components/Button';
 
 export type AlertType = 'success' | 'error' | 'warning' | 'info';
 
@@ -23,7 +27,7 @@ interface InternalAlertConfig extends AlertConfig {
     visible: boolean;
 }
 
-const ICONS: Record<AlertType, any> = {
+const ICONS: Record<AlertType, React.ComponentType<{ size?: number; color?: string }>> = {
     success: CheckCircle,
     error: XCircle,
     warning: AlertTriangle,
@@ -62,10 +66,11 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
     const [alert, setAlert] = useState<InternalAlertConfig>({
         visible: false, type: 'info', title: '',
     });
-    const scale = useRef(new Animated.Value(0.8)).current;
+    const scale = useRef(new Animated.Value(0.9)).current;
     const opacity = useRef(new Animated.Value(0)).current;
     const backdrop = useRef(new Animated.Value(0)).current;
     const { theme } = useTheme();
+    const { width } = useWindowDimensions();
 
     useEffect(() => {
         globalSetAlert = setAlert;
@@ -81,7 +86,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
             ]).start();
         } else {
             Animated.parallel([
-                Animated.timing(scale, { toValue: 0.8, duration: 150, useNativeDriver: true }),
+                Animated.timing(scale, { toValue: 0.9, duration: 150, useNativeDriver: true }),
                 Animated.timing(opacity, { toValue: 0, duration: 150, useNativeDriver: true }),
                 Animated.timing(backdrop, { toValue: 0, duration: 150, useNativeDriver: true }),
             ]).start();
@@ -101,48 +106,49 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
         <>
             {children}
             <Modal transparent visible={alert.visible} animationType="none" statusBarTranslucent onRequestClose={dismiss}>
-                <Animated.View style={[styles.backdrop, { opacity: backdrop }]}>
-                    <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={dismiss} />
+                <Animated.View style={[styles.backdrop, { opacity: backdrop, backgroundColor: theme.overlay }]}>
+                    <Pressable style={StyleSheet.absoluteFill} onPress={dismiss} accessibilityRole="button" accessibilityLabel="Cerrar aviso" />
                     <Animated.View style={[styles.container, {
                         transform: [{ scale }], opacity,
                         backgroundColor: theme.surface,
                         borderColor: colors.primary + '30',
-                        shadowColor: colors.primary,
+                        maxWidth: 420,
+                        width: width - spacing.huge,
+                        ...shadow.floating,
                     }]}>
-                        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Cerrar" style={[styles.closeBtn, { backgroundColor: theme.overlay }]} onPress={dismiss}>
-                            <X size={18} color={theme.textMuted} />
-                        </TouchableOpacity>
+                        <IconButton
+                            icon={X}
+                            accessibilityLabel="Cerrar"
+                            onPress={dismiss}
+                            variant="subtle"
+                            size="sm"
+                            style={styles.closeBtn}
+                        />
 
                         <View style={[styles.iconCircle, { backgroundColor: colors.light }]}>
-                            <Icon size={32} color={colors.primary} />
+                            <Icon size={layout.icon.xl} color={colors.primary} />
                         </View>
 
-                        <Text accessibilityRole="header" style={[styles.title, { color: theme.text }]}>{alert.title}</Text>
+                        <Text accessibilityRole="header" style={[type.h2, styles.title, { color: theme.text }]}>{alert.title}</Text>
 
                         {alert.message && (
-                            <Text style={[styles.message, { color: theme.textMuted }]}>{alert.message}</Text>
+                            <Text style={[type.body, styles.message, { color: theme.textMuted }]}>{alert.message}</Text>
                         )}
 
                         {alert.showCancel && (
-                            <TouchableOpacity
-                                style={[styles.cancelButton, { borderColor: theme.border }]}
+                            <Button
+                                label={alert.cancelText || 'Cancelar'}
+                                variant="secondary"
                                 onPress={() => { dismiss(); alert.onCancel?.(); }}
-                                activeOpacity={0.85}
-                                accessibilityRole="button"
-                            >
-                                <Text style={[styles.cancelButtonText, { color: theme.textMuted }]}>
-                                    {alert.cancelText || 'Cancelar'}
-                                </Text>
-                            </TouchableOpacity>
+                                style={styles.action}
+                            />
                         )}
-                        <TouchableOpacity
-                            style={[styles.button, { backgroundColor: colors.primary }]}
+                        <Button
+                            label={alert.buttonText || 'Entendido'}
+                            variant={alert.type === 'error' ? 'danger' : alert.type === 'warning' ? 'gold' : 'primary'}
                             onPress={() => { dismiss(); alert.onButtonPress?.(); }}
-                            activeOpacity={0.85}
-                            accessibilityRole="button"
-                        >
-                            <Text style={[styles.buttonText, { color: alert.type === 'warning' ? theme.onAccent : theme.onPrimary }]}>{alert.buttonText || 'Entendido'}</Text>
-                        </TouchableOpacity>
+                            style={styles.action}
+                        />
                     </Animated.View>
                 </Animated.View>
             </Modal>
@@ -153,75 +159,40 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
 const styles = StyleSheet.create({
     backdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: spacing.xxxl,
+        paddingHorizontal: spacing.xl,
     },
     container: {
-        width: Math.min(width - 64, 420),
-        borderRadius: 28,
+        borderRadius: radius.xxl,
         borderWidth: 1,
-        padding: spacing.xxxl,
+        padding: spacing.xxl,
+        paddingTop: spacing.xxxl,
         alignItems: 'center',
-        shadowOffset: { width: 0, height: 16 },
-        shadowOpacity: 0.25,
-        shadowRadius: 32,
-        elevation: 16,
     },
     closeBtn: {
         position: 'absolute',
-        top: 16,
-        right: 16,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
+        top: spacing.sm,
+        right: spacing.sm,
     },
     iconCircle: {
-        width: 72,
-        height: 72,
-        borderRadius: 36,
+        width: layout.iconBox.lg + spacing.xl,
+        height: layout.iconBox.lg + spacing.xl,
+        borderRadius: radius.pill,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: spacing.xl,
+        marginBottom: spacing.lg,
     },
     title: {
-        fontSize: font.h3,
-        fontWeight: '900',
         textAlign: 'center',
         marginBottom: spacing.sm,
     },
     message: {
-        fontSize: font.base,
-        fontWeight: '500',
         textAlign: 'center',
-        lineHeight: 20,
-        marginBottom: spacing.xxl,
+        marginBottom: spacing.xl,
     },
-    cancelButton: {
+    action: {
         width: '100%',
-        height: 48,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1.5,
-        marginBottom: spacing.md,
-    },
-    cancelButtonText: {
-        fontSize: font.lg,
-        fontWeight: '700',
-    },
-    button: {
-        width: '100%',
-        height: 52,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        fontSize: font.xl,
-        fontWeight: '800',
+        marginTop: spacing.sm,
     },
 });

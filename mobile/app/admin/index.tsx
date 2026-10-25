@@ -17,7 +17,7 @@ import {
     AlertTriangle,
     Heart,
 } from 'lucide-react-native';
-import { accents, font, layout, spacing } from '@/constants/design';
+import { accents, families, font, layout, spacing } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -246,11 +246,11 @@ const styles = StyleSheet.create({
     },
     statNumber: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     statLabel: {
         fontSize: font.xs,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textTransform: 'uppercase',
     },
     groupSection: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
@@ -292,12 +292,12 @@ const styles = StyleSheet.create({
     },
     moduleTitle: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     moduleDescription: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     quickSection: {
         marginTop: spacing.xxxl,
@@ -316,12 +316,12 @@ const styles = StyleSheet.create({
     },
     quickCardTitle: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         
     },
     quickCardDesc: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         color: 'rgba(255,255,255,0.8)',
     },
 });

@@ -9,7 +9,7 @@ import DataList from '@/src/components/data/DataList';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { InsurancePlan } from '@/src/services/insurance';
 import { Shield, Clock, DollarSign, ChevronRight, Plus, CheckCircle } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function AseguradorasScreen() {
     const router = useRouter();
@@ -148,11 +148,11 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     planCard: {
         padding: spacing.xl,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     },
     planName: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     planDesc: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     },
     statText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginTop: spacing.xs,
     },
     statLabel: {
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     },
     speciesText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     activeTag: {
         flexDirection: 'row',
@@ -245,6 +245,6 @@ const styles = StyleSheet.create({
     },
     activeText: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

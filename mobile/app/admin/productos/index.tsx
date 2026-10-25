@@ -16,7 +16,7 @@ import FilterChip from '@/src/components/FilterChip';
 import Badge from '@/src/components/Badge';
 import EmptyState from '@/src/components/EmptyState';
 import { Eye, EyeOff, Check, X, ShoppingCart, PackageSearch } from 'lucide-react-native';
-import { layout, spacing, radius, type, shadow, tint } from '@/constants/design';
+import { families, layout, radius, shadow, spacing, tint, type } from '@/constants/design';
 
 const FILTERS: { key: ProductFilter; label: string }[] = [
     { key: 'all', label: 'Todos' },
@@ -78,7 +78,7 @@ export default function AdminProductosScreen() {
                                     disabled={busy}
                                 >
                                     <Check size={layout.icon.sm} color={theme.onPrimary} />
-                                    <Text style={[type.labelSentence, { color: theme.onPrimary, fontWeight: '700' }]}>Aprobar</Text>
+                                    <Text style={[type.labelSentence, { color: theme.onPrimary, fontFamily: families.bold }]}>Aprobar</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     accessibilityRole="button"
@@ -88,7 +88,7 @@ export default function AdminProductosScreen() {
                                     disabled={busy}
                                 >
                                     <X size={layout.icon.sm} color={theme.onPrimary} />
-                                    <Text style={[type.labelSentence, { color: theme.onPrimary, fontWeight: '700' }]}>Rechazar</Text>
+                                    <Text style={[type.labelSentence, { color: theme.onPrimary, fontFamily: families.bold }]}>Rechazar</Text>
                                 </TouchableOpacity>
                             </>
                         ) : (
@@ -100,7 +100,7 @@ export default function AdminProductosScreen() {
                                 disabled={busy}
                             >
                                 {isActive ? <EyeOff size={layout.icon.sm} color={theme.text} /> : <Eye size={layout.icon.sm} color={theme.text} />}
-                                <Text style={[type.labelSentence, { color: theme.text, fontWeight: '700' }]}>{isActive ? 'Ocultar' : 'Mostrar'}</Text>
+                                <Text style={[type.labelSentence, { color: theme.text, fontFamily: families.bold }]}>{isActive ? 'Ocultar' : 'Mostrar'}</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity
@@ -110,7 +110,7 @@ export default function AdminProductosScreen() {
                             onPress={() => router.push(`/tienda/producto/${item.id}` as any)}
                             disabled={busy}
                         >
-                            <Text style={[type.labelSentence, { color: theme.onPrimary, fontWeight: '700' }]}>Ver</Text>
+                            <Text style={[type.labelSentence, { color: theme.onPrimary, fontFamily: families.bold }]}>Ver</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -16,7 +16,7 @@ import { createPlace, getPetfriendlyPresignedUrl } from '../../src/services/petf
 import { useAuth } from '../../src/contexts/AuthContext';
 import { getS3Url, getFileExtension } from '@/src/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/src/utils/upload';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -194,7 +194,7 @@ export default function NuevoLugarScreen() {
                             onPress={locate}
                             style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }}
                         >
-                            <Text style={{ color: theme.primary, fontWeight: '800' }}>{location ? 'Actualizar mi ubicación' : 'Usar mi ubicación actual'}</Text>
+                            <Text style={{ color: theme.primary, fontFamily: families.extrabold }}>{location ? 'Actualizar mi ubicación' : 'Usar mi ubicación actual'}</Text>
                         </TouchableOpacity>
 
                         <FormField label="Ciudad" value={form.city} onChangeText={(t) => setForm({ ...form, city: t })} placeholder="Ej. Ciudad de México" />
@@ -275,13 +275,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 60,
+        paddingTop: layout.headerClearance,
         paddingHorizontal: spacing.xl,
         paddingBottom: spacing.xl,
     },
     title: {
         fontSize: font.xxl,
-        fontWeight: '900',
+        fontFamily: families.black,
     },
     scroll: {
         padding: spacing.xxl,
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     },
     imagePlaceholderText: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginTop: spacing.sm,
     },
     selectedImage: {
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
         marginLeft: spacing.xs,
     },
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     },
     catText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     mapWrapper: {
         height: 200,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     },
     amenityText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textAlign: 'center',
     },
     checkBadge: {
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     },
     sizeText: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     textArea: {
         height: 120,
@@ -428,6 +428,6 @@ const styles = StyleSheet.create({
     },
     saveBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

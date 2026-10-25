@@ -10,7 +10,7 @@ import FilterChip from '@/src/components/FilterChip';
 import { showAlert } from '@/src/components/AppAlert';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { FlaskConical, Calendar, AlertTriangle, Plus, X } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 type Tab = 'ordenes' | 'citas' | 'anomalias' | 'catalogo';
 const TABS: { key: Tab; label: string }[] = [
@@ -95,7 +95,7 @@ export default function LaboratorioGestionScreen() {
             accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={onPress}
             style={[styles.btn, { borderColor: color, backgroundColor: filled ? color : 'transparent' }, disabled && { opacity: 0.6 }]}
         >
-            <Text style={{ color: filled ? theme.onPrimary : color, fontWeight: '700', fontSize: font.base }}>{label}</Text>
+            <Text style={{ color: filled ? theme.onPrimary : color, fontFamily: families.bold, fontSize: font.base }}>{label}</Text>
         </TouchableOpacity>
     );
 
@@ -109,7 +109,7 @@ export default function LaboratorioGestionScreen() {
                 </View>
                 {tone && (
                     <View style={[styles.badge, { backgroundColor: tone.bg }]}>
-                        <Text style={{ color: tone.color, fontWeight: '700', fontSize: font.md }}>{tone.label}</Text>
+                        <Text style={{ color: tone.color, fontFamily: families.bold, fontSize: font.md }}>{tone.label}</Text>
                     </View>
                 )}
             </View>
@@ -256,7 +256,7 @@ export default function LaboratorioGestionScreen() {
                                 </View>
                             ))}
                             <TouchableOpacity accessibilityRole="button" onPress={() => setRows((r) => [...r, emptyRow()])} style={{ paddingVertical: spacing.sm }}>
-                                <Text style={{ color: theme.primary, fontWeight: '700' }}>+ Agregar parámetro</Text>
+                                <Text style={{ color: theme.primary, fontFamily: families.bold }}>+ Agregar parámetro</Text>
                             </TouchableOpacity>
                             <TextInput style={input} placeholder="URL del informe PDF (opcional)" autoCapitalize="none" keyboardType="url" placeholderTextColor={theme.textMuted} value={pdfUrl} onChangeText={setPdfUrl} />
                             <TouchableOpacity accessibilityRole="button" disabled={isUploadingResults} onPress={submitResults} style={[styles.submit, { backgroundColor: theme.primary }, isUploadingResults && { opacity: 0.7 }]}>
@@ -296,12 +296,12 @@ export default function LaboratorioGestionScreen() {
 
 const styles = StyleSheet.create({
     tabsRow: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, marginBottom: spacing.md },
-    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: layout.listClearance },
     card: { padding: spacing.lg, borderRadius: 16, borderWidth: 1, marginBottom: spacing.md },
     testRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     cardHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     cardIcon: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-    cardTitle: { fontSize: font.lg, fontWeight: '800' },
+    cardTitle: { fontSize: font.lg, fontFamily: families.extrabold },
     meta: { fontSize: font.base },
     badge: { paddingHorizontal: spacing.md, paddingVertical: spacing.xs, borderRadius: 8 },
     actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.lg },
@@ -312,5 +312,5 @@ const styles = StyleSheet.create({
     rowBox: { borderWidth: 1, borderRadius: 14, padding: spacing.md, gap: spacing.sm, marginBottom: spacing.md },
     input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: spacing.md, paddingVertical: spacing.md, fontSize: font.base },
     submit: { paddingVertical: spacing.lg, borderRadius: 14, alignItems: 'center', marginTop: spacing.md, marginBottom: spacing.xl },
-    submitText: { fontWeight: '800', fontSize: font.lg },
+    submitText: { fontFamily: families.extrabold, fontSize: font.lg },
 });

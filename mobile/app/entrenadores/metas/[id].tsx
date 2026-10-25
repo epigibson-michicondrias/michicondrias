@@ -28,7 +28,8 @@ import {
     ClipboardList,
     X,
 } from 'lucide-react-native';
-import { accents, font, layout, spacing } from '@/constants/design';
+import { accents, families, font, layout, spacing } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 // Resuelto en runtime: theme/accents no existen fuera del componente.
 type StatusInfo = { label: string; color: string; icon: any };
@@ -171,7 +172,7 @@ export default function GoalManagementScreen() {
                         )}
                     </View>
 
-                    {isGoalsLoading && <ActivityIndicator style={{ marginVertical: spacing.xxl }} color={theme.primary} />}
+                    {isGoalsLoading && <SkeletonList count={3} />}
                     {!isGoalsLoading && goals.length === 0 && (
                         <Text style={{ color: theme.textMuted, textAlign: 'center', marginVertical: spacing.xxl }}>
                             {isTrainer ? 'Aún no hay metas. Agrega la primera con el botón +.' : 'El entrenador aún no ha definido metas.'}
@@ -393,7 +394,7 @@ export default function GoalManagementScreen() {
 const styles = StyleSheet.create({
     enrollActions: { flexDirection: 'row', gap: spacing.md, marginHorizontal: layout.screenPadding, marginBottom: spacing.lg },
     enrollActionBtn: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.md, borderRadius: 14 },
-    enrollActionText: { fontSize: font.base, fontWeight: '800' },
+    enrollActionText: { fontSize: font.base, fontFamily: families.extrabold },
     progressCard: {
         marginHorizontal: layout.screenPadding,
         padding: spacing.xl,
@@ -409,7 +410,7 @@ const styles = StyleSheet.create({
     },
     progressTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     progressRow: {
         flexDirection: 'row',
@@ -426,7 +427,7 @@ const styles = StyleSheet.create({
     },
     progressPercent: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     progressStats: {
         flex: 1,
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
     },
     progressStatText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     progressBarBg: {
         height: 8,
@@ -457,7 +458,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     addGoalBtn: {
         width: 36,
@@ -490,7 +491,7 @@ const styles = StyleSheet.create({
     },
     goalName: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     goalStatusBadge: {
         alignSelf: 'flex-start',
@@ -500,7 +501,7 @@ const styles = StyleSheet.create({
     },
     goalStatusText: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     goalNotes: {
         fontSize: font.base,
@@ -521,7 +522,7 @@ const styles = StyleSheet.create({
     },
     reviewBtnText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     footer: { height: 40 },
 
@@ -546,12 +547,12 @@ const styles = StyleSheet.create({
     },
     modalTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     modalBody: { gap: spacing.md },
     modalLabel: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     modalInput: {
         paddingHorizontal: spacing.lg,
@@ -573,11 +574,11 @@ const styles = StyleSheet.create({
     },
     modalSubmitText: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     reviewGoalName: {
         fontSize: font.xxl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textAlign: 'center',
         marginBottom: spacing.sm,
     },
@@ -609,7 +610,7 @@ const styles = StyleSheet.create({
     },
     rejectBtnText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     approveBtn: {
         flex: 1,
@@ -622,6 +623,6 @@ const styles = StyleSheet.create({
     },
     approveBtnText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
 });

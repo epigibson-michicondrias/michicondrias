@@ -8,7 +8,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { ShoppingBag, Share2, Bell } from 'lucide-react-native';
-import { font, spacing, layout, shadow } from '@/constants/design';
+import { families, font, layout, shadow, spacing } from '@/constants/design';
 
 
 export default function PrescriptionDetailScreen() {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     },
     errorText: {
         fontSize: font.xl,
-        fontWeight: 'bold',
+        fontFamily: families.bold,
         marginBottom: spacing.lg,
     },
     backErrorBtn: {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     backErrorBtnText: {
-        fontWeight: 'bold',
+        fontFamily: families.bold,
     },
     scroll: {
         flex: 1,
@@ -253,12 +253,12 @@ const styles = StyleSheet.create({
     },
     ticketTitle: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         letterSpacing: 0.5,
     },
     ticketSubtitle: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     ticketMetaRow: {
         flexDirection: 'row',
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     },
     ticketMetaLabel: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     ticketBody: {
         padding: spacing.xxl,
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     },
     ticketSectionTitle: {
         fontSize: font.sm,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         letterSpacing: 1,
         marginBottom: spacing.lg,
     },
@@ -291,11 +291,11 @@ const styles = StyleSheet.create({
     },
     ticketLabel: {
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     ticketValue: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textAlign: 'right',
         flex: 1,
         marginLeft: spacing.lg,
@@ -308,12 +308,12 @@ const styles = StyleSheet.create({
     },
     ticketMedName: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.sm,
     },
     ticketMedDetails: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
         marginBottom: spacing.xxs,
     },
     ticketInstructionsContainer: {
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     },
     ticketInstructionsText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         fontStyle: 'italic',
         lineHeight: 18,
     },
@@ -363,13 +363,13 @@ const styles = StyleSheet.create({
     },
     barcodeText: {
         fontSize: font.md,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         letterSpacing: 2,
         marginTop: spacing.sm,
     },
     barcodeSubText: {
         fontSize: font.xs,
-        fontWeight: '500',
+        fontFamily: families.medium,
         textAlign: 'center',
         paddingHorizontal: layout.screenPadding,
     },
@@ -391,6 +391,6 @@ const styles = StyleSheet.create({
     },
     actionBtnText: {
         fontSize: font.base,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
 });

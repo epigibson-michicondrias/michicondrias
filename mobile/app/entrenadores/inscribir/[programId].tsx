@@ -6,7 +6,7 @@ import { useEnrollment } from '@/src/hooks/training/useEnrollment';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, DollarSign, Clock, PawPrint, CheckCircle, ArrowRight } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function EnrollPetScreen() {
     const { theme } = useTheme();
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     },
     programName: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textAlign: 'center',
         marginBottom: spacing.sm,
     },
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     },
     statChipText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     sectionContainer: {
         paddingHorizontal: layout.screenPadding,
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     sectionSubtitle: {
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     petInfo: { flex: 1 },
     petName: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     petBreed: {
         fontSize: font.base,
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     },
     enrollButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     footer: { height: 20 },
 });

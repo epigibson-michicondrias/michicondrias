@@ -8,7 +8,7 @@ import { Search, MapPin, ChevronRight, Stethoscope, Hospital, ShieldCheck, Clock
 import DataList from '@/src/components/data/DataList';
 import FilterChip from '@/src/components/FilterChip';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function DirectorioIndexScreen() {
     const router = useRouter();
@@ -132,7 +132,7 @@ export default function DirectorioIndexScreen() {
                     <View style={styles.cardInfoSubrows}>
                         <View style={styles.locationRow}>
                             <Stethoscope size={13} color={theme.primary} />
-                            <Text style={[styles.cardSubtitle, { color: theme.primary, fontWeight: '700' }]}>
+                            <Text style={[styles.cardSubtitle, { color: theme.primary, fontFamily: families.bold }]}>
                                 {item.specialty || "Médico Veterinario"}
                             </Text>
                         </View>
@@ -301,7 +301,7 @@ export default function DirectorioIndexScreen() {
 
 const styles = StyleSheet.create({
     filterScroll: { flexGrow: 0, marginBottom: spacing.sm },
-    resultCount: { fontSize: font.md, fontWeight: '600', marginBottom: spacing.sm },
+    resultCount: { fontSize: font.md, fontFamily: families.semibold, marginBottom: spacing.sm },
     container: { flex: 1 },
     headerTop: {
         flexDirection: 'row',
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
         borderWidth: 1.5,
     },
-    tabText: { fontSize: font.base, fontWeight: '800' },
+    tabText: { fontSize: font.base, fontFamily: families.extrabold },
     searchBar: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -334,14 +334,14 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         gap: spacing.md,
     },
-    searchInput: { flex: 1, fontSize: font.lg, fontWeight: '500' },
+    searchInput: { flex: 1, fontSize: font.lg, fontFamily: families.medium },
     filterRow: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: spacing.lg,
         gap: spacing.sm,
     },
-    list: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
+    list: { paddingHorizontal: layout.screenPadding, paddingBottom: layout.listClearance },
     card: {
         borderRadius: 20,
         padding: spacing.xl,
@@ -361,16 +361,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: 1.5,
     },
-    avatarText: { fontSize: font.h2, fontWeight: '800' },
+    avatarText: { fontSize: font.h2, fontFamily: families.extrabold },
     cardMainInfo: { flex: 1 },
-    cardTitle: { fontSize: font.xl, fontWeight: '800' },
+    cardTitle: { fontSize: font.xl, fontFamily: families.extrabold },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.xs,
         marginTop: spacing.xs,
     },
-    cardSubtitle: { fontSize: font.base, fontWeight: '500' },
+    cardSubtitle: { fontSize: font.base, fontFamily: families.medium },
     cardBody: { marginTop: spacing.lg },
     tagsRow: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },
     tag: {
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         justifyContent: 'center',
     },
-    tagText: { fontSize: font.sm, fontWeight: '700' },
+    tagText: { fontSize: font.sm, fontFamily: families.bold },
     description: { fontSize: font.base, lineHeight: 18, marginTop: spacing.md },
     certificationBox: {
         flexDirection: 'row',
@@ -393,8 +393,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginTop: spacing.md,
     },
-    certificationText: { fontSize: font.md, fontWeight: '700' },
-    emptyTitle: { fontSize: font.xxl, fontWeight: '800', marginTop: spacing.lg, marginBottom: spacing.sm },
+    certificationText: { fontSize: font.md, fontFamily: families.bold },
+    emptyTitle: { fontSize: font.xxl, fontFamily: families.extrabold, marginTop: spacing.lg, marginBottom: spacing.sm },
     cardInfoSubrows: {
         marginTop: spacing.xs,
         gap: spacing.xs,
@@ -406,11 +406,11 @@ const styles = StyleSheet.create({
     },
     ratingTextInline: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     ratingCountInline: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     cardServicesRow: {
         flexDirection: 'row',
@@ -422,11 +422,11 @@ const styles = StyleSheet.create({
     },
     servicesLabel: {
         fontSize: font.md,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     servicesListText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         flex: 1,
     },
 });

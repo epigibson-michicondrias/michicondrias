@@ -17,7 +17,7 @@ import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import Card from '@/src/components/Card';
 import CartItemRow from '@/src/features/tienda/CartItemRow';
-import { layout, shadow, spacing, type } from '@/constants/design';
+import { families, layout, shadow, spacing, type } from '@/constants/design';
 
 const MIN_ADDRESS_LENGTH = 10;
 
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     divider: { height: 1, marginVertical: spacing.xs },
     secure: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     flex: { flex: 1 },
-    bold: { fontWeight: '800' },
+    bold: { fontFamily: families.extrabold },
     footer: {
         flexDirection: 'row',
         alignItems: 'center',

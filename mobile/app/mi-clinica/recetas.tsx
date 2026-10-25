@@ -13,7 +13,8 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import ClinicRequired from '@/src/features/salud/ClinicRequired';
 import { FileText, Plus, AlertCircle, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing, layout } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 export default function RecetasScreen() {
     const { theme } = useTheme();
@@ -46,7 +47,7 @@ export default function RecetasScreen() {
                 <View style={styles.content}>
                     
                     {loadingPrescriptions ? (
-                        <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.huge }} />
+                        <SkeletonList count={3} />
                     ) : prescriptions.length === 0 ? (
                         <EmptyState
                             icon={<FileText size={40} color={theme.textMuted} />}
@@ -75,7 +76,7 @@ export default function RecetasScreen() {
                                 <View style={styles.medsContainer}>
                                     {presc.medications.map((med, idx) => (
                                         <View key={idx} style={styles.medRow}>
-                                            <View style={styles.medDot} />
+                                            <View style={[styles.medDot, { backgroundColor: theme.success }]} />
                                             <View style={{ flex: 1 }}>
                                                 <Text style={[styles.medName, { color: theme.text }]}>{med.name}</Text>
                                                 <Text style={[styles.medDetails, { color: theme.textMuted }]}>
@@ -133,7 +134,7 @@ export default function RecetasScreen() {
                                 style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.border, justifyContent: 'center' }]}
                                 onPress={() => setPatientPickerVisible(true)}
                             >
-                                <Text style={{ color: newPresc.patientId ? theme.text : theme.textMuted, fontSize: font.lg, fontWeight: '500' }}>
+                                <Text style={{ color: newPresc.patientId ? theme.text : theme.textMuted, fontSize: font.lg, fontFamily: families.medium }}>
                                     {newPresc.patientId
                                         ? resolvedPets.find(p => p.id === newPresc.patientId)?.name || `Paciente: ${newPresc.patientId.substring(0, 8)}...`
                                         : 'Seleccionar paciente'}
@@ -197,7 +198,7 @@ export default function RecetasScreen() {
                         </View>
 
                         {loadingPets ? (
-                            <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: spacing.huge }} />
+                            <SkeletonList count={3} />
                         ) : (
                             <FlatList
             refreshControl={<AppRefreshControl />}
@@ -233,7 +234,7 @@ export default function RecetasScreen() {
 
 const styles = StyleSheet.create({
     contentScroll: { flex: 1 },
-    content: { padding: spacing.xxl, paddingBottom: 100 },
+    content: { padding: spacing.xxl, paddingBottom: layout.listClearance },
     prescCard: {
         padding: spacing.lg, borderRadius: 20, borderWidth: 1,
         marginBottom: spacing.lg
@@ -241,32 +242,32 @@ const styles = StyleSheet.create({
     prescHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg },
     prescIcon: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
     prescInfo: { flex: 1 },
-    patientLabel: { fontSize: font.sm, fontWeight: '700', textTransform: 'uppercase', marginBottom: spacing.xxs },
-    dateLabel: { fontSize: font.base, fontWeight: '800' },
+    patientLabel: { fontSize: font.sm, fontFamily: families.bold, textTransform: 'uppercase', marginBottom: spacing.xxs },
+    dateLabel: { fontSize: font.base, fontFamily: families.extrabold },
     statusBadge: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 8 },
-    statusText: { fontSize: font.xs, fontWeight: '900' },
+    statusText: { fontSize: font.xs, fontFamily: families.black },
     medsContainer: { borderTopWidth: 1, borderTopColor: 'rgba(128,128,128,0.2)', paddingTop: spacing.lg },
     medRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, marginBottom: spacing.md },
-    medDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10b981', marginTop: spacing.sm },
-    medName: { fontSize: font.lg, fontWeight: '800' },
-    medDetails: { fontSize: font.base, fontWeight: '600', marginTop: spacing.xxs },
+    medDot: { width: 6, height: 6, borderRadius: 3, marginTop: spacing.sm },
+    medName: { fontSize: font.lg, fontFamily: families.extrabold },
+    medDetails: { fontSize: font.base, fontFamily: families.semibold, marginTop: spacing.xxs },
     notesBox: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md, borderRadius: 12, marginTop: spacing.xs },
-    notesText: { flex: 1, fontSize: font.md, fontWeight: '500', lineHeight: 18 },
+    notesText: { flex: 1, fontSize: font.md, fontFamily: families.medium, lineHeight: 18 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: spacing.xxl, paddingBottom: spacing.huge, maxHeight: '85%' },
-    modalTitle: { fontSize: font.h3, fontWeight: '900', marginBottom: spacing.xl },
-    inputLabel: { fontSize: font.md, fontWeight: '700', marginBottom: spacing.sm, marginTop: spacing.lg },
-    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontWeight: '500' },
+    modalTitle: { fontSize: font.h3, fontFamily: families.black, marginBottom: spacing.xl },
+    inputLabel: { fontSize: font.md, fontFamily: families.bold, marginBottom: spacing.sm, marginTop: spacing.lg },
+    input: { height: 50, borderWidth: 1, borderRadius: 14, paddingHorizontal: spacing.lg, fontSize: font.lg, fontFamily: families.medium },
     modalActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg },
     cancelBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)' },
-    cancelBtnText: { fontSize: font.lg, fontWeight: '700' },
+    cancelBtnText: { fontSize: font.lg, fontFamily: families.bold },
     saveBtn: { flex: 1, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-    saveBtnText: { color: '#fff', fontSize: font.lg, fontWeight: '800' },
+    saveBtnText: { fontSize: font.lg, fontFamily: families.extrabold },
     petPickerItem: { padding: spacing.lg, borderRadius: 16, borderWidth: 1, marginBottom: spacing.md },
     petPickerInfo: { flex: 1 },
-    petPickerName: { fontSize: font.xl, fontWeight: '800', marginBottom: spacing.xxs },
-    petPickerBreed: { fontSize: font.base, fontWeight: '500' },
+    petPickerName: { fontSize: font.xl, fontFamily: families.extrabold, marginBottom: spacing.xxs },
+    petPickerBreed: { fontSize: font.base, fontFamily: families.medium },
     statusActions: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.md },
     statusBtn: { flex: 1, paddingVertical: spacing.md, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-    statusBtnText: { fontSize: font.base, fontWeight: '800' },
+    statusBtnText: { fontSize: font.base, fontFamily: families.extrabold },
 });

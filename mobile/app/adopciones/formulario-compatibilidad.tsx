@@ -14,7 +14,7 @@ import {
     EXPERIENCE_OPTIONS,
     HOURS_OPTIONS,
 } from '@/src/hooks/adopciones/useCompatibilityForm';
-import { font, layout, radius, spacing } from '@/constants/design';
+import { families, font, layout, radius, spacing } from '@/constants/design';
 
 export default function FormularioCompatibilidadScreen() {
     const { theme } = useTheme();
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     },
     stepLabel: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
         marginBottom: spacing.xxl,
     },
     infoCard: {

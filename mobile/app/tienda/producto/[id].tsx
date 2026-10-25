@@ -16,7 +16,7 @@ import QuantityStepper from '@/src/components/QuantityStepper';
 import { Skeleton } from '@/src/components/Skeleton';
 import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import { ProductGridCard, LOW_STOCK } from '@/src/features/tienda/ProductCard';
-import { layout, radius, spacing, tint, type } from '@/constants/design';
+import { families, layout, radius, spacing, tint, type } from '@/constants/design';
 
 /** Ancho de las tarjetas del carrusel «También te puede gustar». */
 const RELATED_WIDTH = 150;
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     content: { paddingHorizontal: layout.screenPadding, paddingTop: spacing.xl, gap: spacing.xl },
     titleBlock: { gap: spacing.xs },
     priceRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md, marginTop: spacing.xs },
-    price: { fontWeight: '800' },
+    price: { fontFamily: families.extrabold },
     ratingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     benefits: {
         flexDirection: 'row',
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     benefit: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-    benefitText: { fontWeight: '700' },
+    benefitText: { fontFamily: families.bold },
     section: { gap: spacing.sm },
     reviews: { marginHorizontal: 0, marginBottom: 0 },
     relatedTitle: { paddingHorizontal: layout.screenPadding, marginTop: spacing.xl },

@@ -9,7 +9,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { formatDateMx } from '@/src/features/salud/format';
 import { cremationLabel } from '@/src/services/funerary';
 import { FileText, Download, Calendar, Heart, Shield } from 'lucide-react-native';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing } from '@/constants/design';
 
 export default function CertificadoScreen() {
     const { theme } = useTheme();
@@ -165,12 +165,12 @@ const styles = StyleSheet.create({
     },
     certificateTitle: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         textAlign: 'center',
     },
     certificateSubtitle: {
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
         marginTop: spacing.xs,
         marginBottom: spacing.xl,
     },
@@ -193,11 +193,11 @@ const styles = StyleSheet.create({
     },
     detailLabel: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     detailValue: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginTop: spacing.xxs,
     },
     downloadBtn: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     },
     downloadBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     disclaimer: {
         fontSize: font.md,

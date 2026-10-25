@@ -13,7 +13,8 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import FormSection from '@/src/components/forms/FormSection';
 import type { GroomingService } from '@/src/services/grooming';
 import type { Pet } from '@/src/types/mascotas';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 export default function AgendarGroomingScreen() {
     const { theme } = useTheme();
@@ -136,7 +137,7 @@ export default function AgendarGroomingScreen() {
                 {/* ── Service selector ───────────────────────── */}
                 <FormSection title="Elige un Servicio">
                     {servicesLoading ? (
-                        <ActivityIndicator color={theme.primary} style={styles.loader} />
+                        <SkeletonList count={2} />
                     ) : services.length === 0 ? (
                         <Text style={[styles.emptyText, { color: theme.textMuted }]}>
                             No hay servicios disponibles por el momento.
@@ -149,7 +150,7 @@ export default function AgendarGroomingScreen() {
                 {/* ── Pet selector ───────────────────────────── */}
                 <FormSection title="¿Para quién es la cita?">
                     {petsLoading ? (
-                        <ActivityIndicator color={theme.primary} style={styles.loader} />
+                        <SkeletonList count={2} />
                     ) : pets.length === 0 ? (
                         <Text style={[styles.emptyText, { color: theme.textMuted }]}>
                             Registra una mascota primero.
@@ -177,7 +178,7 @@ export default function AgendarGroomingScreen() {
                 {selectedServiceId ? (
                     <FormSection title="Horarios Disponibles">
                         {slotsLoading ? (
-                            <ActivityIndicator color={theme.primary} style={styles.loader} />
+                            <SkeletonList count={2} />
                         ) : availableSlots.length === 0 ? (
                             <View style={[styles.noSlotsCard, { backgroundColor: theme.warningLight }]}>
                                 <Clock size={18} color={theme.warning} />
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
     },
     serviceName: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     serviceDesc: {
@@ -307,7 +308,7 @@ const styles = StyleSheet.create({
     },
     servicePrice: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     serviceDuration: {
         fontSize: font.base,
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
     },
     petName: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textAlign: 'center',
     },
 
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
     },
     slotText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     noSlotsCard: {
         flexDirection: 'row',
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     },
     summaryTitle: {
         fontSize: font.lg,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     summaryDetail: {
@@ -425,7 +426,7 @@ const styles = StyleSheet.create({
     },
     bookBtnText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     bottomSpacer: {
         height: 60,

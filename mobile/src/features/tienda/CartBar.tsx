@@ -10,7 +10,7 @@ import { ChevronRight, ShoppingBag } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '@/src/contexts/CartContext';
 import { formatCurrency } from '@/src/utils/formatters';
-import { layout, radius, shadow, spacing, type } from '@/constants/design';
+import { families, layout, radius, shadow, spacing, type } from '@/constants/design';
 
 /** Alto que ocupa la barra (para el padding inferior de la lista). */
 export const CART_BAR_SPACE = layout.buttonHeight.lg + spacing.xxl;
@@ -67,5 +67,5 @@ const styles = StyleSheet.create({
         borderRadius: radius.pill,
     },
     flex: { flex: 1 },
-    bold: { fontWeight: '800' },
+    bold: { fontFamily: families.extrabold },
 });

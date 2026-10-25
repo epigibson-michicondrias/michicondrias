@@ -11,7 +11,7 @@ import { usePasswordReset } from '@/src/hooks/auth/usePasswordReset';
 import AuthShell from '@/src/components/AuthShell';
 import AuthField from '@/src/components/AuthField';
 import { validateEmail } from '@/src/utils/validators';
-import { spacing, radius, type, layout, shadow } from '@/constants/design';
+import { families, layout, radius, shadow, spacing, type } from '@/constants/design';
 
 export default function ForgotPasswordScreen() {
     const [email, setEmail] = useState('');
@@ -95,7 +95,7 @@ export default function ForgotPasswordScreen() {
                         </View>
                         <Text style={[styles.title, { color: theme.onHero }]}>¡Revisa tu correo!</Text>
                         <Text style={[styles.subtitle, { color: theme.onHeroMuted }]}>
-                            Si existe una cuenta con <Text style={{ fontWeight: '700' }}>{email}</Text>, recibirás un código de 6 dígitos.
+                            Si existe una cuenta con <Text style={{ fontFamily: families.bold }}>{email}</Text>, recibirás un código de 6 dígitos.
                         </Text>
                     </View>
 
@@ -149,20 +149,20 @@ const styles = StyleSheet.create({
     backBtn: { marginBottom: spacing.lg },
     headerSection: { alignItems: 'center', marginBottom: spacing.xl },
     iconCircle: { width: 72, height: 72, borderRadius: 36, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.lg },
-    title: { fontSize: type.h1.fontSize, fontWeight: '900', letterSpacing: -0.5, textAlign: 'center' },
-    subtitle: { fontSize: type.body.fontSize, fontWeight: '500', marginTop: spacing.sm, textAlign: 'center', lineHeight: 20 },
+    title: { fontSize: type.h1.fontSize, fontFamily: families.black, letterSpacing: -0.5, textAlign: 'center' },
+    subtitle: { fontSize: type.body.fontSize, fontFamily: families.medium, marginTop: spacing.sm, textAlign: 'center', lineHeight: 20 },
     card: { borderRadius: radius.xl, padding: spacing.xl, borderWidth: 1 },
-    cardTitle: { fontSize: type.h2.fontSize, fontWeight: '800', marginBottom: spacing.xs },
-    cardSubtitle: { fontSize: type.caption.fontSize, fontWeight: '500', marginBottom: spacing.lg, lineHeight: 20 },
+    cardTitle: { fontSize: type.h2.fontSize, fontFamily: families.extrabold, marginBottom: spacing.xs },
+    cardSubtitle: { fontSize: type.caption.fontSize, fontFamily: families.medium, marginBottom: spacing.lg, lineHeight: 20 },
     sendBtn: { minHeight: layout.minTouch + 8, borderRadius: radius.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, marginTop: spacing.sm },
-    sendBtnText: { fontSize: type.subtitle.fontSize, fontWeight: '800' },
+    sendBtnText: { fontSize: type.subtitle.fontSize, fontFamily: families.extrabold },
     tipsContainer: { gap: spacing.md, marginBottom: spacing.xl },
     tipItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     tipDot: { width: 8, height: 8, borderRadius: 4 },
-    tipText: { flex: 1, fontSize: type.caption.fontSize, fontWeight: '500', lineHeight: 18 },
+    tipText: { flex: 1, fontSize: type.caption.fontSize, fontFamily: families.medium, lineHeight: 18 },
     footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl },
-    footerLabel: { fontSize: type.body.fontSize, fontWeight: '500' },
-    footerLink: { fontSize: type.body.fontSize, fontWeight: '800' },
+    footerLabel: { fontSize: type.body.fontSize, fontFamily: families.medium },
+    footerLink: { fontSize: type.body.fontSize, fontFamily: families.extrabold },
     secondaryBtn: { minHeight: layout.minTouch, borderRadius: radius.lg, borderWidth: 1, alignItems: 'center', justifyContent: 'center', marginTop: spacing.md },
-    secondaryBtnText: { fontSize: type.body.fontSize, fontWeight: '700' },
+    secondaryBtnText: { fontSize: type.body.fontSize, fontFamily: families.bold },
 });

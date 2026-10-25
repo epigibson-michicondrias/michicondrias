@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import {
     StyleSheet,
@@ -24,7 +25,7 @@ import {
     CheckCircle,
     CheckCircle2,
 } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function GestionScreen() {
     const { theme } = useTheme();
@@ -252,11 +253,7 @@ export default function GestionScreen() {
                             disabled={isCreatingPlan}
                             onPress={handleCreatePlan}
                         >
-                            {isCreatingPlan ? (
-                                <ActivityIndicator color={theme.onPrimary} />
-                            ) : (
-                                <Text style={styles.createBtnText}>Crear Plan</Text>
-                            )}
+                            <Button label="Crear Plan" variant="primary" loading={isCreatingPlan} />
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -287,14 +284,14 @@ export default function GestionScreen() {
 const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     formContainer: {
         flex: 1,
     },
     formContent: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     formCard: {
         borderRadius: 20,
@@ -316,7 +313,7 @@ const styles = StyleSheet.create({
     },
     formTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     inputGroup: {
         gap: spacing.sm,
@@ -328,7 +325,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginLeft: spacing.xs,
     },
     input: {
@@ -363,7 +360,7 @@ const styles = StyleSheet.create({
     },
     speciesButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     createBtn: {
         height: 56,
@@ -374,7 +371,7 @@ const styles = StyleSheet.create({
     },
     createBtnText: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     planCard: {
         padding: spacing.xl,
@@ -400,7 +397,7 @@ const styles = StyleSheet.create({
     },
     planName: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xxs,
     },
     planDesc: {
@@ -417,7 +414,7 @@ const styles = StyleSheet.create({
     },
     activeText: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     planStats: {
         flexDirection: 'row',
@@ -435,7 +432,7 @@ const styles = StyleSheet.create({
     },
     statValue: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginTop: spacing.xs,
     },
     statLabel: {
@@ -456,6 +453,6 @@ const styles = StyleSheet.create({
     },
     speciesTagText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

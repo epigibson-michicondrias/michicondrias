@@ -15,7 +15,7 @@ import Button from '@/src/components/Button';
 import ListRow from '@/src/components/ListRow';
 import { MediaRow } from '@/src/components/MediaCard';
 import { formatCurrency } from '@/src/utils/formatters';
-import { layout, radius, spacing, tint, type } from '@/constants/design';
+import { families, layout, radius, spacing, tint, type } from '@/constants/design';
 
 export default function PedidoDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -180,7 +180,7 @@ export default function PedidoDetailScreen() {
 const styles = StyleSheet.create({
     content: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.huge, gap: spacing.lg },
     flex: { flex: 1 },
-    bold: { fontWeight: '800' },
+    bold: { fontFamily: families.extrabold },
     statusHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
     statusIcon: { width: layout.iconBox.lg, height: layout.iconBox.lg, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
     tracking: { borderTopWidth: 1, marginTop: spacing.lg, paddingTop: spacing.lg },

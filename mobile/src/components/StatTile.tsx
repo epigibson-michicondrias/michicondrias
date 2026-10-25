@@ -8,7 +8,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import type { IconComponent } from '@/src/components/IconButton';
-import { layout, radius, spacing, tint, type } from '@/constants/design';
+import { families, layout, radius, spacing, tint, type, press } from '@/constants/design';
 
 interface StatTileProps {
     icon: IconComponent;
@@ -50,7 +50,7 @@ export default function StatTile({ icon: Icon, value, label, color, onPress, act
         <TouchableOpacity
             style={boxStyle}
             onPress={onPress}
-            activeOpacity={0.8}
+            activeOpacity={press.normal}
             accessibilityRole="button"
             accessibilityLabel={`${label}: ${value}`}
             accessibilityState={{ selected: !!active }}
@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    value: { fontWeight: '800' },
-    label: { fontWeight: '700' },
+    value: { fontFamily: families.extrabold },
+    label: { fontFamily: families.bold },
 });

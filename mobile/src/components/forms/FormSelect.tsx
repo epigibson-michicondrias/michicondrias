@@ -1,17 +1,19 @@
 /**
- * FormSelect — Themed toggle selector for options like species, gender, size
- * Replaces repeated choiceBtn/genderBtn patterns across form screens
+ * FormSelect — selector de opciones temático (especie, género, tamaño, etc.).
+ * Reemplaza los patrones repetidos de choiceBtn/genderBtn en las pantallas de formulario.
  */
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useInFormSection } from '@/src/components/forms/FormSection';
-import { spacing, radius, type, font } from '@/constants/design';
+import type { IconComponent } from '@/src/components/IconButton';
+import { layout, spacing, radius, type, press } from '@/constants/design';
 
 interface SelectOption {
     label: string;
     value: string;
-    icon?: string; // Emoji or text icon
+    /** Icono de lucide (no emoji). */
+    icon?: IconComponent;
 }
 
 interface FormSelectProps {
@@ -19,7 +21,7 @@ interface FormSelectProps {
     options: SelectOption[];
     value: string;
     onChange: (value: string) => void;
-    /** If true, options scroll horizontally */
+    /** Si es true, las opciones scrollean horizontalmente. */
     horizontal?: boolean;
 }
 
@@ -31,6 +33,7 @@ export default function FormSelect({ label, options, value, onChange, horizontal
         <>
             {options.map((option) => {
                 const isActive = value === option.value;
+                const Icon = option.icon;
                 return (
                     <TouchableOpacity
                         key={option.value}
@@ -42,14 +45,17 @@ export default function FormSelect({ label, options, value, onChange, horizontal
                             },
                         ]}
                         onPress={() => onChange(option.value)}
-                        activeOpacity={0.7}
+                        activeOpacity={press.subtle}
+                        accessibilityRole="button"
+                        accessibilityLabel={option.label}
+                        accessibilityState={{ selected: isActive }}
                     >
-                        {option.icon ? (
-                            <Text style={styles.optionIcon}>{option.icon}</Text>
+                        {Icon ? (
+                            <Icon size={layout.icon.md} color={isActive ? theme.primary : theme.textMuted} />
                         ) : null}
                         <Text
                             style={[
-                                styles.optionLabel,
+                                type.bodyStrong,
                                 { color: isActive ? theme.primary : theme.textMuted },
                             ]}
                         >
@@ -63,7 +69,7 @@ export default function FormSelect({ label, options, value, onChange, horizontal
 
     return (
         <View style={[styles.container, inSection && styles.inSection]}>
-            <Text style={[styles.label, { color: theme.textMuted }]}>{label}</Text>
+            <Text style={[type.labelSentence, styles.label, { color: theme.textMuted }]}>{label}</Text>
             {horizontal ? (
                 <ScrollView
                     horizontal
@@ -85,7 +91,6 @@ const styles = StyleSheet.create({
     },
     inSection: { marginBottom: 0 },
     label: {
-        ...type.labelSentence,
         marginBottom: spacing.sm,
         marginLeft: spacing.xs,
     },
@@ -102,15 +107,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.xl,
-        paddingVertical: spacing.md,
+        minHeight: layout.minTouch,
         borderRadius: radius.md,
-        borderWidth: 1.5,
+        borderWidth: 1,
         gap: spacing.sm,
-    },
-    optionIcon: {
-        fontSize: font.xxl,
-    },
-    optionLabel: {
-        ...type.bodyStrong,
     },
 });

@@ -80,6 +80,9 @@ export const font = {
     h2: scaled(20),
     h1: scaled(22),
     display: scaled(26),
+    /** Números hero (estadísticas, ratings, contadores grandes). */
+    hero: scaled(36),
+    mega: scaled(48),
 } as const;
 
 /**
@@ -96,8 +99,25 @@ export const families = {
     semibold: 'HankenGrotesk_600SemiBold',
     bold: 'HankenGrotesk_700Bold',
     extrabold: 'HankenGrotesk_800ExtraBold',
+    black: 'HankenGrotesk_900Black',
     /** Monoespaciada (identificadores, códigos); no es de la marca. */
     mono: 'SpaceMono',
+} as const;
+
+/**
+ * Familia para un peso numérico de CSS. Usa esto en vez de `fontWeight`:
+ * `@expo-google-fonts/hanken-grotesk` carga cada peso como archivo estático, y combinar
+ * `fontFamily` + `fontWeight` hace que iOS/Android caigan a la fuente del sistema.
+ */
+export const weight = {
+    400: families.regular,
+    500: families.medium,
+    600: families.semibold,
+    700: families.bold,
+    800: families.extrabold,
+    900: families.black,
+    normal: families.regular,
+    bold: families.bold,
 } as const;
 
 export const type = {
@@ -123,10 +143,14 @@ export const layout = {
     screenPadding: scaled(18),
     /** Alto mínimo táctil (accesibilidad). */
     minTouch: 44,
-    /** Alto de botones. */
-    buttonHeight: { sm: scaled(34), md: scaled(42), lg: scaled(50) },
+    /** Alto de botones (≥ minTouch: accesibilidad). */
+    buttonHeight: { sm: scaled(40), md: scaled(46), lg: scaled(52) },
     /** Alto de inputs. */
     inputHeight: scaled(44),
+    /** Clearance para listas con FAB/CTA fijo abajo. */
+    listClearance: scaled(100),
+    /** Clearance de header plain (debajo de la barra de estado). */
+    headerClearance: scaled(60),
     /** Tamaño de iconos. */
     icon: { xs: scaled(12), sm: scaled(14), md: scaled(18), lg: scaled(22), xl: scaled(28) },
     /** Contenedor de icono en filas/tarjetas. */
@@ -199,6 +223,16 @@ export function accentGradient(accent: string): readonly [string, string] {
 
 /** Duraciones de animación (ms). */
 export const motion = { fast: 150, base: 220, slow: 360 } as const;
+
+/** Opacidad de feedback al presionar (TouchableOpacity `activeOpacity`). */
+export const press = {
+    /** Controles pequeños (iconos, chips, opciones). */
+    subtle: 0.7,
+    /** Controles medios (filas, tarjetas, switches). */
+    normal: 0.75,
+    /** Controles grandes (botones, CTAs). */
+    strong: 0.85,
+} as const;
 
 /** Opacidad para tintes de iconos/badges: `color + tint.soft` (hex alpha). */
 export const tint = { faint: '10', soft: '18', medium: '28', strong: '40' } as const;

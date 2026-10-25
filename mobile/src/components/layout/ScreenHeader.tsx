@@ -20,7 +20,7 @@ import BackButton from '@/src/components/BackButton';
 import IconButton, { type IconComponent } from '@/src/components/IconButton';
 import HeroBackground from '@/src/components/layout/HeroBackground';
 import type { ModuleKey } from '@/src/constants/modules';
-import { spacing, type, layout } from '@/constants/design';
+import { families, layout, spacing, type } from '@/constants/design';
 
 export interface HeaderAction {
     icon: IconComponent;
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     title: type.screenTitle,
     subtitle: {
         ...type.caption,
-        fontWeight: '500',
+        fontFamily: families.medium,
         marginTop: spacing.xxs,
     },
 });

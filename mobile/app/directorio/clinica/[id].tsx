@@ -18,7 +18,7 @@ import EmptyState from '@/src/components/EmptyState';
 import ReviewsSection from '@/src/components/reviews/ReviewsSection';
 import { ProviderSection } from '@/src/features/proveedor/ProviderProfile';
 import { formatCurrency } from '@/src/utils/formatters';
-import { layout, radius, spacing, tint, type } from '@/constants/design';
+import { families, layout, radius, spacing, tint, type } from '@/constants/design';
 
 function QuickAction({ icon: Icon, label, color, onPress }: { icon: IconComponent; label: string; color: string; onPress: () => void }) {
     const { theme } = useTheme();
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
         borderRadius: radius.md,
         borderWidth: 1,
     },
-    quickLabel: { fontWeight: '600' },
+    quickLabel: { fontFamily: families.semibold },
     services: { gap: spacing.sm },
     service: {
         flexDirection: 'row',

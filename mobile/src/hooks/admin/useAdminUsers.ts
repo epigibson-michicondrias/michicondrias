@@ -2,6 +2,7 @@
  * useAdminUsers — Business logic for the admin users screen
  * Wraps queries, mutations, search/filter state, and form state for user CRUD
  */
+import { accents } from '@/constants/design';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminUsersService, AdminUser } from '@/src/services/adminUsers';
@@ -164,7 +165,7 @@ export function useAdminUsers() {
 
     // Helpers
     const getRoleColorLocal = (role: string) => {
-        if (!role || role === 'unassigned' || role === 'desconocido') return '#6b7280';
+        if (!role || role === 'unassigned' || role === 'desconocido') return accents.neutral;
         return getRoleColorFor(role);
     };
 

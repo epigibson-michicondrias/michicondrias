@@ -11,7 +11,7 @@ import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { formatDateMx, statusTone } from '@/src/features/salud/format';
 import { showAlert } from '@/src/components/AppAlert';
 import { Calendar, Clock, Inbox, PawPrint, Plus } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 import { hapticToggle, hapticWarning } from '@/src/lib/haptics';
 
 export default function GestionScreen() {
@@ -39,7 +39,7 @@ export default function GestionScreen() {
             onPress={onPress}
             style={[styles.actionBtn, { borderColor: color, backgroundColor: filled ? color : 'transparent' }, isChangingStatus && { opacity: 0.6 }]}
         >
-            <Text style={{ color: filled ? theme.onPrimary : color, fontWeight: '700', fontSize: font.base }}>{label}</Text>
+            <Text style={{ color: filled ? theme.onPrimary : color, fontFamily: families.bold, fontSize: font.base }}>{label}</Text>
         </TouchableOpacity>
     );
 
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.sm,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     card: {
         padding: spacing.xl,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginBottom: spacing.xs,
     },
     metaRow: {
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     },
     metaText: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     statusBadge: {
         paddingHorizontal: spacing.md,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontSize: font.md,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     detailsRow: {
         flexDirection: 'row',
@@ -233,9 +233,9 @@ const styles = StyleSheet.create({
     },
     detailText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
-    sectionTitle: { fontSize: font.xxl, fontWeight: '800', marginBottom: spacing.md },
+    sectionTitle: { fontSize: font.xxl, fontFamily: families.extrabold, marginBottom: spacing.md },
     svcRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, borderRadius: 14, borderWidth: 1, marginBottom: spacing.md },
     actionsRow: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.lg, flexWrap: 'wrap' },
     actionBtn: { paddingVertical: spacing.md, paddingHorizontal: spacing.lg, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import Button from '@/src/components/Button';
@@ -7,7 +7,7 @@ import { usePatientHistory } from '@/src/hooks/clinica/usePatientHistory';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Plus, Trash2, Stethoscope, Pill, Save } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing, shadow } from '@/constants/design';
 
 export default function GenerarFichaMedicaScreen() {
     const { id, appointment_id } = useLocalSearchParams();
@@ -112,7 +112,7 @@ export default function GenerarFichaMedicaScreen() {
                             <Text style={[styles.sectionLabel, { color: theme.text }]}>Receta Médica</Text>
                             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Añadir medicamento" style={[styles.addPrescBtn, { backgroundColor: theme.primary + '15' }]} onPress={addPrescriptionRow}>
                                 <Plus size={16} color={theme.primary} />
-                                <Text style={{ color: theme.primary, fontWeight: '700' }}>Añadir Medicamento</Text>
+                                <Text style={{ color: theme.primary, fontFamily: families.bold }}>Añadir Medicamento</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -173,7 +173,7 @@ export default function GenerarFichaMedicaScreen() {
 
                         {prescriptions.length === 0 && (
                             <View style={[styles.emptyPresc, { borderColor: theme.border }]}>
-                                <Text style={{ color: theme.textMuted, fontWeight: '600' }}>No se han recetado medicamentos.</Text>
+                                <Text style={{ color: theme.textMuted, fontFamily: families.semibold }}>No se han recetado medicamentos.</Text>
                             </View>
                         )}
 
@@ -186,23 +186,23 @@ export default function GenerarFichaMedicaScreen() {
 }
 
 const styles = StyleSheet.create({
-    content: { paddingHorizontal: layout.screenPadding, paddingBottom: 100 },
+    content: { paddingHorizontal: layout.screenPadding, paddingBottom: layout.listClearance },
     infoBanner: { flexDirection: 'row', alignItems: 'center', padding: spacing.xl, borderRadius: 24, gap: spacing.lg, marginBottom: spacing.xxxl },
-    bannerTitle: { fontSize: font.xl, fontWeight: '800' },
-    bannerSub: { fontSize: font.md, fontWeight: '600' },
-    sectionLabel: { fontSize: font.xxl, fontWeight: '900', marginBottom: spacing.xl },
+    bannerTitle: { fontSize: font.xl, fontFamily: families.extrabold },
+    bannerSub: { fontSize: font.md, fontFamily: families.semibold },
+    sectionLabel: { fontSize: font.xxl, fontFamily: families.black, marginBottom: spacing.xl },
     formGroup: { marginBottom: spacing.xl },
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.md },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.xl, borderWidth: 1, fontSize: font.lg, fontWeight: '600' },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.md },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.xl, borderWidth: 1, fontSize: font.lg, fontFamily: families.semibold },
     textArea: { height: 120, paddingVertical: spacing.xl, textAlignVertical: 'top' },
     row: { flexDirection: 'row', gap: spacing.lg },
     sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xl, marginTop: spacing.md },
     addPrescBtn: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderRadius: 10, justifyContent: 'center' },
     prescCard: { padding: spacing.xl, borderRadius: 24, marginBottom: spacing.lg, gap: spacing.md, borderWidth: 1, borderColor: 'rgba(128,128,128,0.2)' },
     prescHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.sm },
-    prescTitle: { fontSize: font.base, fontWeight: '800', flex: 1 },
-    pInput: { height: 44, borderBottomWidth: 1, fontSize: font.base, fontWeight: '600' },
+    prescTitle: { fontSize: font.base, fontFamily: families.extrabold, flex: 1 },
+    pInput: { height: 44, borderBottomWidth: 1, fontSize: font.base, fontFamily: families.semibold },
     emptyPresc: { padding: spacing.xxxl, borderRadius: 20, borderStyle: 'dashed', borderWidth: 1, alignItems: 'center', marginBottom: spacing.xxl },
-    saveBtn: { height: 64, borderRadius: 24, flexDirection: 'row', gap: spacing.md, justifyContent: 'center', alignItems: 'center', marginTop: spacing.xl, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 12 },
-    saveBtnText: { color: '#fff', fontSize: font.xxl, fontWeight: '900' },
+    saveBtn: { height: 64, borderRadius: 24, flexDirection: 'row', gap: spacing.md, justifyContent: 'center', alignItems: 'center', marginTop: spacing.xl, ...shadow.floating },
+    saveBtnText: { fontSize: font.xxl, fontFamily: families.black },
 });

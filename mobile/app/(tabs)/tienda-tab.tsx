@@ -15,7 +15,7 @@ import ViewModeToggle from '@/src/components/ViewModeToggle';
 import { ProductGridCard, ProductListRow } from '@/src/features/tienda/ProductCard';
 import CartBar, { CART_BAR_SPACE } from '@/src/features/tienda/CartBar';
 import type { Product } from '@/src/types/ecommerce';
-import { layout, spacing, type } from '@/constants/design';
+import { families, layout, spacing, type } from '@/constants/design';
 
 const VIEW_OPTIONS = [
   { value: 'grid' as const, label: 'Ver en cuadrícula', icon: LayoutGrid },
@@ -152,6 +152,6 @@ const styles = StyleSheet.create({
   chipsScroll: { marginHorizontal: -layout.screenPadding },
   chips: { gap: spacing.sm, paddingHorizontal: layout.screenPadding, alignItems: 'center' },
   toolbar: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  count: { flex: 1, fontWeight: '700' },
+  count: { flex: 1, fontFamily: families.bold },
   footerLoader: { paddingVertical: spacing.lg },
 });

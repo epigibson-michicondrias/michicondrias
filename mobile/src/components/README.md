@@ -60,7 +60,7 @@ Validación: `@/src/utils/validators` (`validateRequired`, `validateEmail`, …)
 | `mascotas/PetForm` | Formulario común de mascota (alta y edición) |
 | `tienda/ProductCard` · `CartBar` · `CartItemRow` | Producto en cuadrícula/lista (favorito, agregar rápido), barra flotante de la bolsa, artículo de la bolsa |
 | `tienda/orderStatus` · `OrderTracking` · `SellerOrderCard` | Estados de pedido (fuente única), seguimiento del comprador, pedido visto por el vendedor |
-| `mascotas/PetCards` | Tarjetas de Mis mascotas: `PetGridCard`, `PetListRow`, `PetDetailCard` |
+| `mascotas/PetCards` | Tarjetas de Mis mascotas: `PetGridCard`, `PetListRow` |
 | `perdidas/ReportCard` | Reporte en cuadrícula (`ReportGridCard`) o lista (`ReportListRow`) |
 | `mascotas/PetHealthTabs` / `carnet/CarnetItems` | Pestañas Salud/Historial y renglones del carnet |
 | `tienda/PagoResultado` | Resultado del deep link de pago (éxito/cancelado) |

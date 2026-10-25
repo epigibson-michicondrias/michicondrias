@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, Switch } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
@@ -11,7 +12,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import { Plus, Building, MapPin, Phone, Mail, Globe, Clock, ShieldAlert, Edit, Trash2, X } from 'lucide-react-native';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing, shadow } from '@/constants/design';
 
 export default function SucursalesScreen() {
     const { theme } = useTheme();
@@ -141,11 +142,7 @@ export default function SucursalesScreen() {
                             {editingClinic ? 'Editar Clínica' : 'Registrar Clínica'}
                         </Text>
                         <TouchableOpacity onPress={handleSave} disabled={loadingAction}>
-                            {loadingAction ? (
-                                <ActivityIndicator size="small" color={theme.primary} />
-                            ) : (
-                                <Text style={[styles.saveBtnText, { color: theme.primary }]}>Guardar</Text>
-                            )}
+                            <Button label="Guardar" variant="primary" loading={loadingAction} />
                         </TouchableOpacity>
                     </View>
 
@@ -224,25 +221,25 @@ export default function SucursalesScreen() {
 
 const styles = StyleSheet.create({
     content: { flex: 1 },
-    listContainer: { padding: spacing.xxl, gap: spacing.lg, paddingBottom: 100 },
+    listContainer: { padding: spacing.xxl, gap: spacing.lg, paddingBottom: layout.listClearance },
     clinicCard: {
         padding: spacing.lg, borderRadius: 24, borderWidth: 1, gap: spacing.md,
-        elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+        ...shadow.card,
         shadowOpacity: 0.05, shadowRadius: 5,
     },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
     headerTitleContainer: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
-    clinicName: { fontSize: font.xl, fontWeight: '800' },
+    clinicName: { fontSize: font.xl, fontFamily: families.extrabold },
     badgeContainer: { flexDirection: 'row', gap: spacing.sm },
     badge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6 },
-    badgeText: { fontSize: font.xs, fontWeight: '800', textTransform: 'uppercase' },
+    badgeText: { fontSize: font.xs, fontFamily: families.extrabold, textTransform: 'uppercase' },
     cardBody: { gap: spacing.sm },
     infoRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    infoText: { fontSize: font.base, fontWeight: '600' },
+    infoText: { fontSize: font.base, fontFamily: families.semibold },
     cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, paddingTop: spacing.md },
     statusBox: {},
     approvalBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: 6 },
-    approvalText: { fontSize: font.xs, fontWeight: '800' },
+    approvalText: { fontSize: font.xs, fontFamily: families.extrabold },
     actionRow: { flexDirection: 'row', gap: spacing.sm },
     actionBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
     modalContainer: { flex: 1 },
@@ -251,18 +248,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: layout.screenPadding, paddingVertical: spacing.xl,
         borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.2)',
     },
-    modalTitle: { fontSize: font.xxl, fontWeight: '800' },
-    saveBtnText: { fontSize: font.xl, fontWeight: '800' },
+    modalTitle: { fontSize: font.xxl, fontFamily: families.extrabold },
+    saveBtnText: { fontSize: font.xl, fontFamily: families.extrabold },
     formGroup: { marginBottom: spacing.xl },
     row: { flexDirection: 'row', gap: spacing.md },
-    label: { fontSize: font.md, fontWeight: '800', marginBottom: spacing.sm, textTransform: 'uppercase' },
-    input: { height: 52, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.base, fontWeight: '600' },
-    textArea: { height: 100, borderRadius: 16, paddingHorizontal: spacing.lg, paddingTop: spacing.md, borderWidth: 1, fontSize: font.base, fontWeight: '600', textAlignVertical: 'top' },
+    label: { fontSize: font.md, fontFamily: families.extrabold, marginBottom: spacing.sm, textTransform: 'uppercase' },
+    input: { height: 52, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.base, fontFamily: families.semibold },
+    textArea: { height: 100, borderRadius: 16, paddingHorizontal: spacing.lg, paddingTop: spacing.md, borderWidth: 1, fontSize: font.base, fontFamily: families.semibold, textAlignVertical: 'top' },
     switchGroup: {
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
         padding: spacing.lg, borderRadius: 20, borderWidth: 1, marginBottom: spacing.lg,
     },
     switchLabelContainer: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-    switchTitle: { fontSize: font.base, fontWeight: '800' },
-    switchSubtitle: { fontSize: font.sm, fontWeight: '600' },
+    switchTitle: { fontSize: font.base, fontFamily: families.extrabold },
+    switchSubtitle: { fontSize: font.sm, fontFamily: families.semibold },
 });

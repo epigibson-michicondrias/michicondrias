@@ -10,7 +10,7 @@ import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
-import { font, layout, spacing, tint } from '@/constants/design';
+import { families, font, layout, spacing, tint } from '@/constants/design';
 
 export default function CuidadoresScreen() {
     const router = useRouter();
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: font.base,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textAlign: 'center',
         lineHeight: 18,
     },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     sitterCard: {
         padding: spacing.xl,
@@ -234,14 +234,14 @@ const styles = StyleSheet.create({
     },
     avatarText: {
         fontSize: font.h2,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     sitterInfo: {
         flex: 1,
     },
     sitterName: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     locationRow: {
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     sitterStats: {
         flexDirection: 'row',
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     },
     serviceText: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     bioText: {
         fontSize: font.base,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     },
     priceText: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     priceUnit: {
         fontSize: font.base,
@@ -326,6 +326,6 @@ const styles = StyleSheet.create({
     },
     contactButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

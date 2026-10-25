@@ -6,7 +6,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { radius, spacing, font } from '@/constants/design';
+import { families, font, radius, spacing } from '@/constants/design';
 import { getStatusColors, normalizeStatus, STATUS_LABELS } from '@/src/hooks/servicios-pro/requestStatus';
 
 interface Props {
@@ -38,5 +38,5 @@ export default function StatusBadge({ status, label, color, dot }: Props) {
 const styles = StyleSheet.create({
     badge: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs + 2, paddingHorizontal: spacing.md - 2, paddingVertical: spacing.xs + 1, borderRadius: radius.pill, alignSelf: 'flex-start' },
     dot: { width: 6, height: 6, borderRadius: 3 },
-    text: { fontSize: font.sm, fontWeight: '800' },
+    text: { fontSize: font.sm, fontFamily: families.extrabold },
 });

@@ -8,7 +8,7 @@ import { StyleSheet, View, KeyboardAvoidingView, Platform, ScrollView } from 're
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useTheme } from '@/src/hooks/useTheme';
-import { spacing } from '@/constants/design';
+import { spacing, radius } from '@/constants/design';
 
 interface AuthShellProps {
     children: React.ReactNode;
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         right: -60,
         width: 240,
         height: 240,
-        borderRadius: 120,
+        borderRadius: radius.pill,
     },
     deco2: {
         position: 'absolute',
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         left: -100,
         width: 200,
         height: 200,
-        borderRadius: 100,
+        borderRadius: radius.pill,
     },
     scroll: {
         flexGrow: 1,

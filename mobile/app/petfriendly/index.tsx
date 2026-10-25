@@ -13,7 +13,7 @@ import EmptyState from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import FilterChip from '@/src/components/FilterChip';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function PetfriendlyScreen() {
     const { theme } = useTheme();
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     chips: { paddingHorizontal: layout.screenPadding, gap: spacing.sm, paddingBottom: spacing.sm },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
         gap: spacing.md,
     },
     card: {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     },
     placeName: {
         fontSize: font.xl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         flex: 1,
     },
     rating: {
@@ -186,11 +186,11 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: font.md,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     category: {
         fontSize: font.sm,
-        fontWeight: '700',
+        fontFamily: families.bold,
         textTransform: 'uppercase',
         marginBottom: spacing.sm,
     },

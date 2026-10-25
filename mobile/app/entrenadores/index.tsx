@@ -9,7 +9,7 @@ import { Dumbbell, Clock, DollarSign, ChevronRight, Plus } from 'lucide-react-na
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function EntrenadoresScreen() {
     const router = useRouter();
@@ -136,11 +136,11 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     list: {
         paddingHorizontal: layout.screenPadding,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     programCard: {
         padding: spacing.xl,
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     },
     programName: {
         fontSize: font.xxl,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
         marginBottom: spacing.xs,
     },
     programDesc: {
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     },
     statText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
         marginTop: spacing.xs,
     },
     statLabel: {
@@ -219,6 +219,6 @@ const styles = StyleSheet.create({
     },
     trainerText: {
         fontSize: font.sm,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

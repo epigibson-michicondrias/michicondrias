@@ -4,12 +4,12 @@
  * Distingue "sin conexión" de otros errores y ofrece "Reintentar".
  */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useQueryClient, type Query } from '@tanstack/react-query';
 import { NavigationContext } from '@react-navigation/native';
 import { WifiOff, AlertCircle, RefreshCw } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
-import { shadow, font, spacing } from '@/constants/design';
+import { layout, radius, shadow, spacing, type, press } from '@/constants/design';
 import { ApiError } from '@/src/lib/api';
 
 const NETWORK_ERROR = /network request failed|failed to fetch|tiempo de espera|timeout|conexi[oó]n/i;
@@ -65,7 +65,6 @@ export default function QueryErrorBanner() {
             alive = false;
             unsubscribe();
         };
-         
     }, [queryClient]);
 
     const retry = useCallback(async () => {
@@ -75,7 +74,6 @@ export default function QueryErrorBanner() {
         } finally {
             setRetrying(false);
         }
-         
     }, [queryClient]);
 
     if (!focused || failed.count === 0) return null;
@@ -87,24 +85,26 @@ export default function QueryErrorBanner() {
                 accessibilityRole="alert"
                 style={[styles.banner, { backgroundColor: theme.surface, borderColor: theme.error }]}
             >
-                <Icon size={20} color={theme.error} />
+                <Icon size={layout.icon.md} color={theme.error} />
                 <View style={styles.textCol}>
-                    <Text style={[styles.title, { color: theme.text }]}>
+                    <Text style={[type.bodyStrong, { color: theme.text }]}>
                         {failed.offline ? 'Sin conexión' : 'No pudimos cargar la información'}
                     </Text>
-                    <Text style={[styles.subtitle, { color: theme.textMuted }]}>
+                    <Text style={[type.caption, styles.subtitle, { color: theme.textMuted }]}>
                         {failed.offline ? 'Revisa tu internet y vuelve a intentar.' : 'Inténtalo de nuevo en unos segundos.'}
                     </Text>
                 </View>
                 <TouchableOpacity
                     accessibilityRole="button"
                     accessibilityLabel="Reintentar la carga"
+                    accessibilityState={{ disabled: retrying, busy: retrying }}
                     onPress={retry}
                     disabled={retrying}
+                    activeOpacity={press.normal}
                     style={[styles.retry, { backgroundColor: theme.primary, opacity: retrying ? 0.6 : 1 }]}
                 >
-                    <RefreshCw size={14} color={theme.onPrimary} />
-                    <Text style={[styles.retryText, { color: theme.onPrimary }]}>{retrying ? 'Cargando…' : 'Reintentar'}</Text>
+                    <RefreshCw size={layout.icon.sm} color={theme.onPrimary} />
+                    <Text style={[type.button, styles.retryText, { color: theme.onPrimary }]}>{retrying ? 'Cargando…' : 'Reintentar'}</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -112,19 +112,26 @@ export default function QueryErrorBanner() {
 }
 
 const styles = StyleSheet.create({
-    wrap: { position: 'absolute', left: 12, right: 12, bottom: 16 },
+    wrap: { position: 'absolute', left: spacing.lg, right: spacing.lg, bottom: spacing.xl },
     banner: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.md,
         padding: spacing.md,
-        borderRadius: 14,
+        borderRadius: radius.lg,
         borderWidth: 1,
         ...shadow.floating,
     },
     textCol: { flex: 1 },
-    title: { fontSize: font.base, fontWeight: '700' },
-    subtitle: { fontSize: font.md, marginTop: spacing.xxs },
-    retry: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 10 },
-    retryText: { fontSize: font.md, fontWeight: '700' },
+    subtitle: { marginTop: spacing.xxs },
+    retry: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingHorizontal: spacing.md,
+        minHeight: layout.minTouch - 6,
+        borderRadius: radius.md,
+        justifyContent: 'center',
+    },
+    retryText: {},
 });

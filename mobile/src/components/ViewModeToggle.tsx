@@ -11,7 +11,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import type { IconComponent } from '@/src/components/IconButton';
-import { layout, radius, spacing } from '@/constants/design';
+import { layout, radius, spacing, press } from '@/constants/design';
 
 export interface ViewModeOption<T extends string> {
     value: T;
@@ -41,7 +41,7 @@ export default function ViewModeToggle<T extends string>({ value, onChange, opti
                         key={v}
                         style={[styles.segment, active && { backgroundColor: theme.surface, borderColor: theme.border }]}
                         onPress={() => onChange(v)}
-                        activeOpacity={0.8}
+                        activeOpacity={press.normal}
                         accessibilityRole="tab"
                         accessibilityLabel={label}
                         accessibilityState={{ selected: active }}
@@ -65,7 +65,8 @@ const styles = StyleSheet.create({
     },
     segment: {
         width: layout.iconBox.md,
-        height: layout.iconBox.sm + spacing.xs,
+        height: layout.minTouch,
+        minWidth: layout.minTouch,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: radius.sm,

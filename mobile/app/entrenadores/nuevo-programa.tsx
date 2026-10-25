@@ -5,7 +5,7 @@ import { useTrainerDashboard } from '@/src/hooks/training/useTrainerDashboard';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Dumbbell, FileText, DollarSign, Clock, Sparkles } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 
 export default function CreateProgramScreen() {
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     },
     illustrationTitle: {
         fontSize: font.h3,
-        fontWeight: '800',
+        fontFamily: families.extrabold,
     },
     illustrationSubtitle: {
         fontSize: font.base,
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     },
     labelText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     input: {
         paddingHorizontal: spacing.lg,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     },
     difficultyText: {
         fontSize: font.base,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
     actionContainer: {
         paddingHorizontal: layout.screenPadding,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     },
     submitButtonText: {
         fontSize: font.xl,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     footer: { height: 20 },
 });

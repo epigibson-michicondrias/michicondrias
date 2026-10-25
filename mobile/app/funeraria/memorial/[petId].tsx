@@ -11,7 +11,7 @@ import LoadingOverlay from '@/src/components/LoadingOverlay';
 import EmptyState from '@/src/components/EmptyState';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
 import { Heart, Feather, Plus, Calendar } from 'lucide-react-native';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing } from '@/constants/design';
 
 export default function MemorialScreen() {
     const { theme } = useTheme();
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     list: {
         paddingHorizontal: layout.screenPadding,
         paddingTop: spacing.xl,
-        paddingBottom: 100,
+        paddingBottom: layout.listClearance,
     },
     postCard: {
         padding: spacing.xl,
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     },
     postAuthor: {
         fontSize: font.lg,
-        fontWeight: '700',
+        fontFamily: families.bold,
     },
     dateRow: {
         flexDirection: 'row',
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     },
     postDate: {
         fontSize: font.md,
-        fontWeight: '500',
+        fontFamily: families.medium,
     },
     divider: {
         height: 1,
@@ -164,6 +164,6 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: font.md,
-        fontWeight: '600',
+        fontFamily: families.semibold,
     },
 });

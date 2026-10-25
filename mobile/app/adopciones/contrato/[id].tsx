@@ -8,7 +8,7 @@ import Button from '@/src/components/Button';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { FileCheck, PenTool } from 'lucide-react-native';
 import { useAdoptionContract } from '@/src/hooks/adopciones/useAdoptionContract';
-import { font, layout, radius, spacing } from '@/constants/design';
+import { families, font, layout, radius, spacing } from '@/constants/design';
 
 export default function AdoptionContractScreen() {
     const { theme } = useTheme();
@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
     },
     contractTitle: {
         fontSize: font.xxl,
-        fontWeight: '900',
+        fontFamily: families.black,
         textAlign: 'center',
     },
     contractSubtitle: {
         fontSize: font.base,
-        fontWeight: '500',
+        fontFamily: families.medium,
         textAlign: 'center',
     },
     contractBox: {

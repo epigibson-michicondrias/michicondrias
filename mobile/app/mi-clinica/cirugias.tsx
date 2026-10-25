@@ -1,3 +1,4 @@
+import Button from '@/src/components/Button';
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -11,7 +12,8 @@ import { SurgeryItem } from '@/src/services/directorio';
 import { Plus, MapPin, Clock, X, Calendar as CalendarIcon, HeartPulse, Search } from 'lucide-react-native';
 import DatePicker from '@/src/components/DatePicker';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { font, spacing, layout } from '@/constants/design';
+import { families, font, layout, spacing, shadow } from '@/constants/design';
+import { SkeletonList } from '@/src/components/Skeleton';
 
 type Tone = 'warning' | 'error' | 'success' | 'textMuted' | 'info';
 const STATUS_MAP: Record<string, { label: string; tone: Tone }> = {
@@ -108,7 +110,7 @@ export default function CirugiasScreen() {
                                 onPress={() => changeStatus(item.id!, 'in-progress')}
                                 style={[styles.statusBtn, { borderColor: theme.success }]}
                             >
-                                <Text style={{ color: theme.success, fontWeight: '800', fontSize: font.base }}>Iniciar</Text>
+                                <Text style={{ color: theme.success, fontFamily: families.extrabold, fontSize: font.base }}>Iniciar</Text>
                             </TouchableOpacity>
                         )}
                         {item.status === 'in-progress' && (
@@ -119,7 +121,7 @@ export default function CirugiasScreen() {
                                 onPress={() => changeStatus(item.id!, 'completed')}
                                 style={[styles.statusBtn, { borderColor: theme.primary }]}
                             >
-                                <Text style={{ color: theme.primary, fontWeight: '800', fontSize: font.base }}>Finalizar</Text>
+                                <Text style={{ color: theme.primary, fontFamily: families.extrabold, fontSize: font.base }}>Finalizar</Text>
                             </TouchableOpacity>
                         )}
                         <TouchableOpacity
@@ -129,7 +131,7 @@ export default function CirugiasScreen() {
                             onPress={() => changeStatus(item.id!, 'cancelled')}
                             style={[styles.statusBtn, { borderColor: theme.error }]}
                         >
-                            <Text style={{ color: theme.error, fontWeight: '800', fontSize: font.base }}>Cancelar</Text>
+                            <Text style={{ color: theme.error, fontFamily: families.extrabold, fontSize: font.base }}>Cancelar</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -179,7 +181,7 @@ export default function CirugiasScreen() {
                             <Text style={[
                                 styles.tabText,
                                 { color: theme.textMuted },
-                                filter === tab.key && { color: theme.primary, fontWeight: '800' }
+                                filter === tab.key && { color: theme.primary, fontFamily: families.extrabold }
                             ]}>
                                 {tab.label}
                             </Text>
@@ -190,7 +192,7 @@ export default function CirugiasScreen() {
 
             {isLoading ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.primary} />
+                    <SkeletonList count={3} />
                 </View>
             ) : (
                 <FlatList
@@ -261,7 +263,7 @@ export default function CirugiasScreen() {
                                             ]}
                                             onPress={() => setSurgType(t.id)}
                                         >
-                                            <Text style={{ color: surgType === t.id ? t.color : theme.textMuted, fontWeight: '700', fontSize: font.md }}>{t.label}</Text>
+                                            <Text style={{ color: surgType === t.id ? t.color : theme.textMuted, fontFamily: families.bold, fontSize: font.md }}>{t.label}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </View>
@@ -302,11 +304,7 @@ export default function CirugiasScreen() {
                                 onPress={handleCreate}
                                 disabled={isCreating}
                             >
-                                {isCreating ? (
-                                    <ActivityIndicator color={theme.onPrimary} />
-                                ) : (
-                                    <Text style={styles.submitBtnText}>Agendar Intervención</Text>
-                                )}
+                                <Button label="Agendar Intervención" variant="primary" loading={isCreating} />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -320,42 +318,42 @@ const styles = StyleSheet.create({
     tabsRow: { marginBottom: spacing.md },
     tabsScroll: { paddingHorizontal: spacing.xl, gap: spacing.sm },
     tab: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    tabText: { fontSize: font.base, fontWeight: '600' },
-    list: { padding: spacing.xl, paddingBottom: 100 },
+    tabText: { fontSize: font.base, fontFamily: families.semibold },
+    list: { padding: spacing.xl, paddingBottom: layout.listClearance },
     card: { borderRadius: 24, padding: spacing.xl, marginBottom: spacing.lg, borderWidth: 1 },
     cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
     headerInfo: { flex: 1, gap: spacing.sm },
     typeRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    typeText: { fontSize: font.sm, fontWeight: '800', textTransform: 'uppercase' },
-    serviceName: { fontSize: font.xxl, fontWeight: '800' },
+    typeText: { fontSize: font.sm, fontFamily: families.extrabold, textTransform: 'uppercase' },
+    serviceName: { fontSize: font.xxl, fontFamily: families.extrabold },
     roomRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-    timeText: { fontSize: font.md, fontWeight: '600' },
+    timeText: { fontSize: font.md, fontFamily: families.semibold },
     statusBadge: { paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 12 },
-    statusLabel: { fontSize: font.xs, fontWeight: '900', textTransform: 'uppercase' },
+    statusLabel: { fontSize: font.xs, fontFamily: families.black, textTransform: 'uppercase' },
     actions: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.lg, paddingTop: spacing.lg, borderTopWidth: 1 },
     timeBox: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    timeDetail: { fontSize: font.base, fontWeight: '700' },
+    timeDetail: { fontSize: font.base, fontFamily: families.bold },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     empty: { paddingTop: 100, alignItems: 'center', gap: spacing.xl },
-    emptyText: { fontSize: font.xl, fontWeight: '600', textAlign: 'center' },
+    emptyText: { fontSize: font.xl, fontFamily: families.semibold, textAlign: 'center' },
     statusActions: { flexDirection: 'row', gap: spacing.md, justifyContent: 'flex-end', marginTop: spacing.md },
     statusBtn: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-    fab: { position: 'absolute', bottom: 30, right: 24, width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 10 },
+    fab: { position: 'absolute', bottom: 30, right: 24, width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', ...shadow.floating },
     modalOverlay: { flex: 1, justifyContent: 'flex-end' },
     modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, height: '85%', padding: spacing.xxl, paddingBottom: 0 },
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.xxl },
-    modalTitle: { fontSize: font.h2, fontWeight: '900' },
-    modalSub: { fontSize: font.base, fontWeight: '600', marginTop: spacing.xs },
+    modalTitle: { fontSize: font.h2, fontFamily: families.black },
+    modalSub: { fontSize: font.base, fontFamily: families.semibold, marginTop: spacing.xs },
     closeBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
     formGroup: { marginBottom: spacing.xl },
     formRow: { flexDirection: 'row', gap: spacing.md },
-    label: { fontSize: font.base, fontWeight: '700', marginBottom: spacing.sm },
-    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontWeight: '600' },
+    label: { fontSize: font.base, fontFamily: families.bold, marginBottom: spacing.sm },
+    input: { height: 56, borderRadius: 16, paddingHorizontal: spacing.lg, borderWidth: 1, fontSize: font.xl, fontFamily: families.semibold },
     typeGrid: { flexDirection: 'row', gap: spacing.sm },
     typeBtn: { flex: 1, height: 48, borderRadius: 12, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
     modalFooter: { paddingVertical: spacing.xxl, borderTopWidth: 1 },
     submitBtn: { height: 64, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
-    submitBtnText: { color: '#fff', fontSize: font.xl, fontWeight: '800' },
+    submitBtnText: { fontSize: font.xl, fontFamily: families.extrabold },
     searchContainer: { paddingHorizontal: layout.screenPadding, paddingBottom: spacing.lg },
-    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontWeight: '600' }
+    searchInput: { height: 44, borderRadius: 12, paddingHorizontal: spacing.lg, borderWidth: 1, fontFamily: families.semibold }
 });

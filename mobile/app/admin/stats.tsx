@@ -7,7 +7,7 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import { Users, ShieldCheck, Activity, BarChart2, TrendingUp } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { font, spacing } from '@/constants/design';
+import { families, font, spacing, layout } from '@/constants/design';
 
 const { width } = Dimensions.get('window');
 
@@ -17,7 +17,7 @@ export default function AdminStatsScreen() {
 
     if (isLoading || !metrics) {
         return (
-            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: 60 }}><SkeletonList count={4} /></View>
+            <View style={{ flex: 1, backgroundColor: theme.background, paddingTop: layout.headerClearance }}><SkeletonList count={4} /></View>
         );
     }
 
@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
     },
     loadingText: { 
         fontSize: font.base, 
-        fontWeight: '700', 
+        fontFamily: families.bold, 
         letterSpacing: 0.5 
     },
     scroll: { 
         padding: spacing.xl, 
-        paddingBottom: 60, 
+        paddingBottom: layout.headerClearance, 
         paddingTop: spacing.md,
         gap: spacing.xxl 
     },
@@ -142,12 +142,12 @@ const styles = StyleSheet.create({
     },
     cardValue: { 
         fontSize: font.h1, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         letterSpacing: -0.5 
     },
     cardLabel: { 
         fontSize: font.xs, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         marginTop: spacing.xs, 
         letterSpacing: 1 
     },
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: { 
         fontSize: font.xxl, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     roleItem: { 
         marginBottom: spacing.xxl 
@@ -178,16 +178,16 @@ const styles = StyleSheet.create({
     },
     roleName: { 
         fontSize: font.base, 
-        fontWeight: '800', 
+        fontFamily: families.extrabold, 
         letterSpacing: 0.5 
     },
     rolePercentage: { 
         fontSize: font.base, 
-        fontWeight: '800' 
+        fontFamily: families.extrabold 
     },
     roleCount: { 
         fontSize: font.sm, 
-        fontWeight: '700', 
+        fontFamily: families.bold, 
         marginTop: spacing.sm, 
         textAlign: 'right' 
     },

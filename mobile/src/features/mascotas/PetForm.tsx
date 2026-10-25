@@ -1,19 +1,20 @@
 /**
  * PetForm — formulario común de mascota (alta y edición).
- * Comparte los campos entre `app/mascotas/nuevo` y `app/mascotas/editar/[id]` y adopta
- * `FormField` + `utils/validators` para la validación inline (U2). La pasada visual final va en U6.
+ * Comparte los campos entre `app/mascotas/nuevo` y `app/mascotas/editar/[id]`. Toda la validación es inline
+ * (`hooks/mascotas/petFormRules`): solo llama a `onSubmit` cuando no hay errores.
  */
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Check } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import FormField from '@/src/components/FormField';
+import Button from '@/src/components/Button';
 import FormImagePicker from '@/src/components/forms/FormImagePicker';
 import FormSelect from '@/src/components/forms/FormSelect';
 import FormSwitch from '@/src/components/forms/FormSwitch';
 import { SPECIES_OPTIONS, GENDER_OPTIONS, type PetFormData } from '@/src/types/mascotas';
-import { validateRequired } from '@/src/utils/validators';
-import { spacing, radius, font } from '@/constants/design';
+import { validatePetForm, type PetFormErrors } from '@/src/hooks/mascotas/petFormRules';
+import { layout, radius, spacing, type } from '@/constants/design';
 
 interface PetFormProps {
     form: PetFormData;
@@ -27,24 +28,18 @@ interface PetFormProps {
     children?: React.ReactNode;
 }
 
-/** Campos obligatorios en la app (el backend no exige raza ni descripción, pero el formulario sí). */
-const REQUIRED = [
-    { key: 'name', label: 'Nombre' },
-    { key: 'breed', label: 'Raza' },
-    { key: 'description', label: 'Descripción' },
-] as const;
-
 export default function PetForm({ form, updateField, image, setImage, submitLabel, onSubmit, busy, children }: PetFormProps) {
     const { theme } = useTheme();
-    const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
+    const [errors, setErrors] = useState<PetFormErrors>({});
 
-    /** Validación inline al enviar (utils/validators): marca los campos que faltan y no sigue. */
+    /** Al corregir un campo se quita su error. */
+    const change = (key: keyof PetFormData, value: string | boolean) => {
+        updateField(key, value);
+        if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
+    };
+
     const handleSubmit = () => {
-        const next: Record<string, string> = {};
-        for (const { key, label } of REQUIRED) {
-            const result = validateRequired(String(form[key] ?? ''), label);
-            if (!result.valid) next[key] = result.message!;
-        }
+        const next = validatePetForm(form);
         setErrors(next);
         if (Object.keys(next).length === 0) onSubmit();
     };
@@ -59,65 +54,75 @@ export default function PetForm({ form, updateField, image, setImage, submitLabe
                         onImageRemoved={() => setImage(null)}
                         aspect={[1, 1]}
                         previewHeight={120}
-                        placeholder="Subir Foto"
+                        placeholder="Subir foto"
                         circular
                     />
                 </View>
 
                 <View style={[styles.formCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.primary }]}>INFORMACIÓN BÁSICA</Text>
+                    <Text style={[type.title, { color: theme.text }]}>Datos básicos</Text>
 
                     <FormField
                         label="Nombre *"
-                        placeholder="Ej. Firulais"
+                        placeholder="Ej. Michi"
                         value={form.name}
-                        onChangeText={(t) => updateField('name', t)}
+                        onChangeText={(t) => change('name', t)}
                         error={errors.name}
                     />
                     <FormSelect
-                        label="Especie *"
+                        label="Especie"
                         options={SPECIES_OPTIONS}
                         value={form.species}
-                        onChange={(v) => updateField('species', v)}
+                        onChange={(v) => change('species', v)}
                     />
                     <FormSelect
                         label="Género"
                         options={GENDER_OPTIONS}
                         value={form.gender}
-                        onChange={(v) => updateField('gender', v)}
+                        onChange={(v) => change('gender', v)}
                     />
                     <FormField
-                        label="Raza *"
-                        placeholder="Ej. Husky Siberiano"
+                        label="Raza"
+                        placeholder="Ej. Siamés (opcional)"
                         value={form.breed}
-                        onChangeText={(t) => updateField('breed', t)}
+                        onChangeText={(t) => change('breed', t)}
                         error={errors.breed}
                     />
                     <View style={styles.row}>
                         <View style={styles.rowItem}>
                             <FormField
-                                label="Edad (meses)"
-                                placeholder="Ej. 12"
-                                keyboardType="numeric"
-                                value={form.age_months}
-                                onChangeText={(t) => updateField('age_months', t)}
+                                label="Edad (años)"
+                                placeholder="Ej. 3"
+                                keyboardType="number-pad"
+                                value={form.age_years}
+                                onChangeText={(t) => change('age_years', t)}
+                                error={errors.age_years}
                             />
                         </View>
                         <View style={styles.rowItem}>
                             <FormField
-                                label="Peso (kg)"
-                                placeholder="Ej. 12.5"
-                                keyboardType="decimal-pad"
-                                value={form.weight_kg}
-                                onChangeText={(t) => updateField('weight_kg', t)}
+                                label="Meses"
+                                placeholder="0 a 11"
+                                keyboardType="number-pad"
+                                value={form.age_months}
+                                onChangeText={(t) => change('age_months', t)}
+                                error={errors.age_months}
                             />
                         </View>
                     </View>
                     <FormField
-                        label="Descripción *"
-                        placeholder="Cuéntanos un poco de tu mascota..."
+                        label="Peso (kg)"
+                        placeholder="Ej. 4.5"
+                        keyboardType="decimal-pad"
+                        value={form.weight_kg}
+                        onChangeText={(t) => change('weight_kg', t)}
+                        error={errors.weight_kg}
+                    />
+                    <FormField
+                        label="Sobre tu mascota"
+                        placeholder="Carácter, manías, lo que le gusta… (opcional)"
                         value={form.description}
-                        onChangeText={(t) => updateField('description', t)}
+                        onChangeText={(t) => change('description', t)}
                         error={errors.description}
                         multiline
                         numberOfLines={4}
@@ -125,15 +130,14 @@ export default function PetForm({ form, updateField, image, setImage, submitLabe
                 </View>
 
                 <View style={[styles.formCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.primary }]}>SALUD Y REGISTRO</Text>
-                    <FormSwitch label="Vacunado" value={form.is_vaccinated} onChange={(v) => updateField('is_vaccinated', v)} />
-                    <FormSwitch label="Esterilizado" value={form.is_sterilized} onChange={(v) => updateField('is_sterilized', v)} />
-                    <FormSwitch label="Desparasitado" value={form.is_dewormed} onChange={(v) => updateField('is_dewormed', v)} />
+                    <Text style={[type.title, { color: theme.text }]}>Salud y registro</Text>
+                    <FormSwitch label="Esterilizado" value={form.is_sterilized} onChange={(v) => change('is_sterilized', v)} />
+                    <FormSwitch label="Desparasitado" value={form.is_dewormed} onChange={(v) => change('is_dewormed', v)} />
                     <FormField
                         label="Microchip"
                         placeholder="Opcional"
                         value={form.microchip_id}
-                        onChangeText={(t) => updateField('microchip_id', t)}
+                        onChangeText={(t) => change('microchip_id', t)}
                     />
                 </View>
 
@@ -141,21 +145,14 @@ export default function PetForm({ form, updateField, image, setImage, submitLabe
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: theme.borderLight }]}>
-                <TouchableOpacity
-                    style={[styles.saveBtn, { backgroundColor: theme.primary }, busy && styles.busy]}
+                <Button
+                    label={submitLabel}
                     onPress={handleSubmit}
-                    disabled={busy}
-                    accessibilityRole="button"
-                >
-                    {busy ? (
-                        <Text style={[styles.saveBtnText, { color: theme.onPrimary }]}>Guardando…</Text>
-                    ) : (
-                        <View style={styles.saveBtnRow}>
-                            <Check size={20} color={theme.onPrimary} />
-                            <Text style={[styles.saveBtnText, { color: theme.onPrimary }]}>{submitLabel}</Text>
-                        </View>
-                    )}
-                </TouchableOpacity>
+                    loading={busy}
+                    size="lg"
+                    fullWidth
+                    icon={<Check size={layout.icon.md} color={theme.onPrimary} />}
+                />
             </View>
         </KeyboardAvoidingView>
     );
@@ -177,11 +174,6 @@ const styles = StyleSheet.create({
     photoCard: {
         alignItems: 'center',
     },
-    sectionTitle: {
-        fontSize: font.md,
-        fontWeight: '800',
-        letterSpacing: 1,
-    },
     row: {
         flexDirection: 'row',
         gap: spacing.md,
@@ -192,21 +184,5 @@ const styles = StyleSheet.create({
     footer: {
         borderTopWidth: 1,
         padding: spacing.lg,
-    },
-    saveBtn: {
-        borderRadius: radius.md,
-        minHeight: 52,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    busy: { opacity: 0.7 },
-    saveBtnRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-    },
-    saveBtnText: {
-        fontSize: font.xl,
-        fontWeight: '800',
     },
 });

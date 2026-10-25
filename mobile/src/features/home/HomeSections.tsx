@@ -11,7 +11,7 @@ import EmptyState from '@/src/components/EmptyState';
 import { Skeleton } from '@/src/components/Skeleton';
 import type { IconComponent } from '@/src/components/IconButton';
 import { sentenceCase } from '@/src/utils/formatters';
-import { layout, radius, shadow, spacing, tint, type } from '@/constants/design';
+import { families, layout, radius, shadow, spacing, tint, type } from '@/constants/design';
 
 // ── Atajos ──────────────────────────────────────────────────────────
 
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    shortcutLabel: { textAlign: 'center', fontWeight: '600' },
+    shortcutLabel: { textAlign: 'center', fontFamily: families.semibold },
     carousel: { flexDirection: 'row', gap: spacing.md, paddingHorizontal: layout.screenPadding },
     addPet: {
         width: PET_CARD.width * 0.7,
