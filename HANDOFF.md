@@ -399,7 +399,8 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   (`report_type` + `status` correctos). **Web Perfil** reescrito a dos columnas premium (§0): hero con avatar/rol,
   datos personales en rejilla, actividad rápida, seguridad/2FA/facturación/soporte en columna derecha. **Web Inicio**
   a dos columnas: mascotas, citas y «Lo que toca hoy» con recordatorios de dosis (atrasadas destacadas) + accesos
-  del rol, herramientas pro y alertas. Vercel ✅.
+  del rol, herramientas pro y alertas. **Web Directorio y Citas**: filtros laterales + toggle mapa/lista en
+  directorio; «Mis citas» con DataTable. Vercel ✅.
 
 - **2026-10-25 · Mimo** — **Tratamientos premium (web + app)**. Panel «Lo que toca hoy» tipo checklist de vidrio con
   checkbox por dosis, atrasadas resaltadas en dorado, botón «Marcar las N tomas». Tarjetas de tratamiento con barra
