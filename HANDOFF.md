@@ -404,7 +404,8 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   tarjetas con precio grande/envío gratis/cuotas sin interés/rating, ficha con buy box a dos columnas. App móvil:
   mismas badges en tarjetas. **Tienda premium**: filtros precio/rating, hover effects con zoom y quick view,
   buy box con trust signals y entrega estimada. **Adopciones** con filtros laterales; **Admin productos** con
-  DataTable. Vercel ✅, OTA `5b6f0e19-…`.
+  DataTable. **Bloque B**: auditoría UX P2/P3 — header estilistas a rosa (era morado), funeraria sin duplicados.
+  Vercel ✅, OTA `f0d45434-…`.
 
 - **2026-10-25 · Mimo** — **Tratamientos premium (web + app)**. Panel «Lo que toca hoy» tipo checklist de vidrio con
   checkbox por dosis, atrasadas resaltadas en dorado, botón «Marcar las N tomas». Tarjetas de tratamiento con barra
