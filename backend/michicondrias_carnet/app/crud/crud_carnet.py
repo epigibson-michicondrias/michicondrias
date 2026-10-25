@@ -153,6 +153,7 @@ def check_reminder(db: Session, reminder_id: str):
     db_reminder = db.query(MedicationReminder).filter(MedicationReminder.id == reminder_id).first()
     if db_reminder:
         db_reminder.sent = True
+        db_reminder.taken_at = datetime.now(timezone.utc).isoformat()
         db.add(db_reminder)
         db.commit()
         db.refresh(db_reminder)

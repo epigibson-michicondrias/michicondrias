@@ -33,6 +33,8 @@ class Prescription(Base):
     frequency_hours = Column(Integer, nullable=False)  # e.g., 8 (every 8 hours)
     duration_days = Column(Integer, nullable=False)    # e.g., 5 (for 5 days)
     instructions = Column(Text, nullable=True)         # Extra notes like "con alimento"
+    # Fecha en que el dueño empieza el tratamiento (ISO string). Si es null, se usa la fecha de la consulta.
+    start_date = Column(String(50), nullable=True)
 
     medical_record = relationship("MedicalRecord", back_populates="prescriptions")
 
@@ -45,6 +47,7 @@ class MedicationReminder(Base):
     pet_id = Column(String(36), nullable=False, index=True)
     remind_at = Column(String(50), nullable=False, index=True)  # ISO datetime string (UTC)
     sent = Column(Boolean, default=False, index=True)
+    taken_at = Column(String(50), nullable=True)  # ISO datetime string (UTC) cuando el dueño marcó la toma
 
 class Vaccine(Base):
     __tablename__ = "vaccines"

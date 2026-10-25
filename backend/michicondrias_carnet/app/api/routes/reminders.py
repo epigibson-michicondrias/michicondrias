@@ -79,70 +79,105 @@ def _iso(value) -> str | None:
 
 @router.get("/pet/{pet_id}/treatments")
 def read_treatments(pet_id: str, db: Session = Depends(get_db), identity: dict = Depends(get_identity)) -> Any:
-    """Medicamentos recetados a la mascota, del más reciente al más antiguo, con sus tomas programadas."""
+    """Medicamentos recetados a la mascota, del más reciente al más antiguo, con sus tomas programadas.
+    Cada tratamiento trae `status` (por-iniciar / en-curso / terminado) calculado de las fechas."""
     assert_can_read_pet_record(db, pet_id, identity)
     rows = db.execute(text(
         "SELECT p.id, p.medication_name, p.dosage, p.frequency_hours, p.duration_days, p.instructions, "
-        "p.reminders_enabled, mr.id, mr.date "
+        "p.reminders_enabled, p.start_date, mr.id, mr.date "
         "FROM prescriptions p JOIN medical_records mr ON mr.id = p.medical_record_id "
         "WHERE mr.pet_id = :pid ORDER BY mr.date DESC"
     ), {"pid": pet_id}).fetchall()
     doses = db.execute(text(
-        "SELECT id, prescription_id, remind_at, sent FROM medication_reminders WHERE pet_id = :pid ORDER BY remind_at"
+        "SELECT id, prescription_id, remind_at, sent, taken_at FROM medication_reminders WHERE pet_id = :pid ORDER BY remind_at"
     ), {"pid": pet_id}).fetchall()
     by_rx: dict[str, list] = {}
     for d in doses:
-        by_rx.setdefault(d[1], []).append({"id": d[0], "remind_at": d[2], "sent": bool(d[3])})
+        by_rx.setdefault(d[1], []).append({"id": d[0], "remind_at": d[2], "sent": bool(d[3]), "taken_at": d[4]})
+
+    def _treatment_status(start_iso: str | None, record_iso: str, freq: int, days: int) -> str:
+        start_raw = start_iso or record_iso
+        start = start_raw if isinstance(start_raw, datetime) else datetime.fromisoformat(str(start_raw).replace("Z", "+00:00"))
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=timezone.utc)
+        end = start + timedelta(days=days or 0)
+        now = datetime.now(timezone.utc)
+        if now < start:
+            return "por-iniciar"
+        if now >= end:
+            return "terminado"
+        return "en-curso"
+
     return [
         {
             "prescription_id": r[0], "medication_name": r[1], "dosage": r[2], "frequency_hours": r[3],
             "duration_days": r[4], "instructions": r[5], "reminders_enabled": bool(r[6]) if r[6] is not None else True,
-            "record_id": r[7], "record_date": _iso(r[8]), "doses": by_rx.get(r[0], []),
+            "start_date": r[7], "record_id": r[8], "record_date": _iso(r[9]),
+            "status": _treatment_status(r[7], str(r[9]), r[3], r[4]),
+            "doses": by_rx.get(r[0], []),
         }
         for r in rows
     ]
 
 
-class RemindersToggle(BaseModel):
-    enabled: bool
+class PrescriptionUpdate(BaseModel):
+    enabled: bool | None = None
+    start_date: str | None = None  # ISO date/datetime; el dueño indica cuándo empieza el tratamiento
 
 
 @router.patch("/prescriptions/{prescription_id}")
 def set_prescription_reminders(
     prescription_id: str,
-    body: RemindersToggle,
+    body: PrescriptionUpdate,
     db: Session = Depends(get_db),
     identity: dict = Depends(get_identity),
 ) -> Any:
-    """El dueño activa o desactiva los avisos de un medicamento. Al activarlo, si la receta no tiene tomas
-    programadas (recetas anteriores al emisor), se programan desde la toma que toca ahora hasta el fin del tratamiento."""
+    """El dueño gestiona un medicamento recetado:
+    - `enabled`: activa o desactiva los avisos. Al activarlo, si no hay tomas programadas se crean.
+    - `start_date`: indica cuándo empieza el tratamiento (p. ej. cuando compró el medicamento).
+      Reprograma las tomas desde esa fecha; las tomas ya marcadas como tomadas se conservan como historial."""
     row = db.execute(text(
-        "SELECT p.frequency_hours, p.duration_days, mr.date, mr.pet_id, pets.owner_id "
+        "SELECT p.frequency_hours, p.duration_days, mr.date, mr.pet_id, pets.owner_id, p.start_date "
         "FROM prescriptions p JOIN medical_records mr ON mr.id = p.medical_record_id "
         "LEFT JOIN pets ON pets.id = mr.pet_id WHERE p.id = :id"
     ), {"id": prescription_id}).first()
     if not row:
         raise HTTPException(status_code=404, detail="Medicamento no encontrado")
-    freq, days, record_date, pet_id, owner_id = row
+    freq, days, record_date, pet_id, owner_id, current_start = row
     if owner_id != identity["user_id"]:
-        raise HTTPException(status_code=403, detail="Solo el dueño de la mascota decide si recibe los avisos")
+        raise HTTPException(status_code=403, detail="Solo el dueño de la mascota decide sobre sus tratamientos")
 
-    db.execute(text("UPDATE prescriptions SET reminders_enabled = :on WHERE id = :id"), {"on": body.enabled, "id": prescription_id})
-    created = 0
-    has_doses = db.execute(text("SELECT 1 FROM medication_reminders WHERE prescription_id = :id LIMIT 1"), {"id": prescription_id}).first()
-    if body.enabled and not has_doses and freq and freq > 0 and days and days > 0:
-        start = record_date if isinstance(record_date, datetime) else datetime.fromisoformat(str(record_date).replace("Z", "+00:00"))
-        if start.tzinfo is None:
-            start = start.replace(tzinfo=timezone.utc)
+    if body.enabled is not None:
+        db.execute(text("UPDATE prescriptions SET reminders_enabled = :on WHERE id = :id"), {"on": body.enabled, "id": prescription_id})
+
+    doses_created = 0
+    # Fecha de inicio efectiva: la que fija el dueño, o la de la consulta
+    start_raw = body.start_date or current_start or record_date
+    start = start_raw if isinstance(start_raw, datetime) else datetime.fromisoformat(str(start_raw).replace("Z", "+00:00"))
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+
+    if body.start_date is not None:
+        db.execute(text("UPDATE prescriptions SET start_date = :sd WHERE id = :id"), {"sd": body.start_date, "id": prescription_id})
+        # Reprogramar: borrar tomas no marcadas (las tomadas son historial) y recrear desde la nueva fecha
+        db.execute(text("DELETE FROM medication_reminders WHERE prescription_id = :id AND sent = false"), {"id": prescription_id})
+    elif body.enabled is True:
+        has_doses = db.execute(text("SELECT 1 FROM medication_reminders WHERE prescription_id = :id LIMIT 1"), {"id": prescription_id}).first()
+        if has_doses:
+            db.commit()
+            return {"prescription_id": prescription_id, "reminders_enabled": body.enabled, "doses_created": 0}
+
+    # (Re)programar tomas desde la fecha de inicio
+    if freq and freq > 0 and days and days > 0 and (body.start_date is not None or body.enabled is True):
         now = datetime.now(timezone.utc)
         total = min((days * 24) // freq, 400)
         for i in range(total):
             at = start + timedelta(hours=freq * i)
-            if at < now - timedelta(hours=freq):
-                continue  # tomas ya pasadas: no se inventa si se dieron o no
+            if body.start_date is None and at < now - timedelta(hours=freq):
+                continue  # sin fecha explícita: no se inventan tomas ya pasadas
             db.execute(text(
                 "INSERT INTO medication_reminders (id, prescription_id, pet_id, remind_at, sent) VALUES (:id, :rx, :pid, :at, false)"
             ), {"id": str(uuid.uuid4()), "rx": prescription_id, "pid": pet_id, "at": at.isoformat()})
-            created += 1
+            doses_created += 1
     db.commit()
-    return {"prescription_id": prescription_id, "reminders_enabled": body.enabled, "doses_created": created}
+    return {"prescription_id": prescription_id, "reminders_enabled": body.enabled, "doses_created": doses_created, "start_date": body.start_date}
