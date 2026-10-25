@@ -1,6 +1,7 @@
 /**
  * usePetForm — alta de mascota (`(app)/mascotas/nuevo`). Espejo de
  * `mobile/src/hooks/mascotas/usePetForm.ts` con `next/navigation` y `File` del navegador.
+ * La validación vive en `petFormRules` y la aplica `PetForm` antes de llamar a `handleSubmit`.
  */
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -12,6 +13,7 @@ import { getFileExtension, getS3Url } from '@/utils/helpers';
 import { uploadImageToPresignedUrl } from '@/utils/upload';
 import type { PetFormData } from '@/types/mascotas';
 import { PET_FORM_DEFAULTS } from '@/types/mascotas';
+import { toPetPayload } from './petFormRules';
 
 export function usePetForm() {
     const { user } = useAuth();
@@ -38,78 +40,28 @@ export function usePetForm() {
         return getS3Url(object_key);
     };
 
+    /** Registra la mascota (el formulario ya viene validado) y abre su ficha en Salud para el siguiente paso. */
     const handleSubmit = async () => {
-        const trimmedName = form.name.trim();
-        const trimmedBreed = form.breed.trim();
-        const trimmedDescription = form.description.trim();
-
-        if (!trimmedName) {
-            showAlert({ type: 'error', title: 'Error', message: 'El nombre es obligatorio' });
-            return;
-        }
-        if (!trimmedBreed) {
-            showAlert({ type: 'error', title: 'Error', message: 'La raza es obligatoria' });
-            return;
-        }
-        if (!trimmedDescription) {
-            showAlert({ type: 'error', title: 'Error', message: 'La descripción es obligatoria' });
-            return;
-        }
-
-        let ageVal: number | undefined;
-        if (form.age_months.trim() !== '') {
-            const parsed = parseInt(form.age_months, 10);
-            if (isNaN(parsed) || parsed < 0) {
-                showAlert({ type: 'error', title: 'Error', message: 'La edad debe ser un número entero positivo o cero' });
-                return;
-            }
-            ageVal = parsed;
-        }
-
-        let weightVal: number | undefined;
-        if (form.weight_kg.trim() !== '') {
-            const normalized = form.weight_kg.trim().replace(',', '.');
-            const parsed = parseFloat(normalized);
-            if (isNaN(parsed) || parsed <= 0) {
-                showAlert({ type: 'error', title: 'Error', message: 'El peso debe ser un número mayor a cero' });
-                return;
-            }
-            weightVal = parsed;
-        }
-
         if (!user) {
-            showAlert({ type: 'error', title: 'Error', message: 'Inicia sesión para registrar una mascota' });
+            showAlert({ type: 'error', title: 'Inicia sesión', message: 'Necesitas una sesión activa para registrar a tu mascota.' });
             return;
         }
 
         setLoading(true);
         try {
-            const photoUrl = await uploadImage();
-            await createPet({
-                name: trimmedName,
-                species: form.species,
-                breed: trimmedBreed,
-                age_months: ageVal,
-                gender: form.gender,
-                description: trimmedDescription,
-                is_vaccinated: form.is_vaccinated,
-                is_sterilized: form.is_sterilized,
-                is_dewormed: form.is_dewormed,
-                weight_kg: weightVal,
-                microchip_number: form.microchip_id.trim() || null,
-                photo_url: photoUrl,
-                owner_id: user.id,
-                is_active: true,
-            });
-            await queryClient.invalidateQueries({ queryKey: ['user-pets', user.id] });
-            showAlert({ type: 'success', title: '¡Listo!', message: `${trimmedName} ya es parte de tu familia.` });
-            router.replace('/mascotas');
-        } catch (error) {
+            const photo_url = await uploadImage();
+            const payload = toPetPayload(form);
+            const created = await createPet({ ...payload, owner_id: user.id, photo_url });
+            queryClient.invalidateQueries({ queryKey: ['user-pets'] });
+            queryClient.invalidateQueries({ queryKey: ['my-pets-carnet'] });
             showAlert({
-                type: 'error',
-                title: 'No pudimos registrarla',
-                message: error instanceof Error ? error.message : 'Inténtalo de nuevo.',
+                type: 'success',
+                title: `${payload.name} ya está en tu lista`,
+                message: 'Registra sus vacunas para tener su carnet al día.',
             });
+            router.replace(`/mascotas/${created.id}?tab=salud`);
+        } catch {
+            showAlert({ type: 'error', title: 'No se pudo registrar', message: 'Revisa tu conexión e inténtalo de nuevo.' });
         } finally {
             setLoading(false);
         }

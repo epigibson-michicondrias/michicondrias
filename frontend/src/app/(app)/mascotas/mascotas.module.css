@@ -234,8 +234,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-xl);
+  gap: var(--space-md);
   text-align: center;
 }
 
@@ -507,7 +506,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: var(--space-2xl) var(--space-lg);
+  padding: var(--space-huge) var(--space-lg);
 }
 .emptyArt {
   width: 132px;
@@ -572,17 +571,19 @@
 /* Acciones rápidas sobre la ficha */
 .quickActions {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-  margin: var(--space-lg) 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-md);
+  width: 100%;
+  margin-top: var(--space-xl);
 }
 
 /* Stats como tarjetas con ícono */
 .statGridVisual {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xxl);
 }
 .statCard {
   display: flex;
@@ -678,7 +679,7 @@
   .detailLayout {
     grid-template-columns: 340px minmax(0, 1fr);
     align-items: start;
-    gap: var(--space-2xl);
+    gap: var(--space-huge);
   }
   .detailSide {
     position: sticky;
@@ -686,8 +687,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-xl);
+    gap: var(--space-lg);
+    padding: var(--space-xxl) var(--space-xl);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
@@ -701,7 +702,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 .detailMain {
   min-width: 0;
@@ -769,4 +770,52 @@
     position: static;
     padding: var(--space-xs) 0 0;
   }
+}
+
+/* Zona de peligro de «Editar mascota» */
+.dangerCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent);
+  background: var(--color-surface);
+}
+
+.dangerTitle {
+  margin: 0;
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+.dangerText {
+  margin: 0;
+  font-size: var(--font-sm);
+  color: var(--color-text-muted);
+}
+
+/* Estado de la vacuna en texto (no solo color) */
+.statusOk { color: var(--color-success); }
+.statusWarn { color: var(--color-warning); }
+
+/* Tarjeta de stat que lleva a su pestaña */
+.statCardLink {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.statCardLink:hover { border-color: var(--color-accent); }
+.statCardLink:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+/* Editar y compartir: secundarias, lado a lado */
+.quickActionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
 }

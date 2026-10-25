@@ -61,6 +61,11 @@ spacing, radius, font = numbers("spacing"), numbers("radius"), numbers("font")
 layout = (CONST / "design.ts").read_text()
 min_touch = int(re.search(r"minTouch:\s*(\d+)", layout).group(1))
 screen_pad = int(re.search(r"screenPadding:\s*scaled\((\d+)\)", layout).group(1))
+list_clearance = int(re.search(r"listClearance:\s*scaled\((\d+)\)", layout).group(1))
+header_clearance = int(re.search(r"headerClearance:\s*scaled\((\d+)\)", layout).group(1))
+press_subtle = re.search(r"subtle:\s*([\d.]+)", layout)
+press_normal = re.search(r"normal:\s*([\d.]+)", layout)
+press_strong = re.search(r"strong:\s*([\d.]+)", layout)
 
 css = f"""/* Generado por scripts/web-tokens.py desde las copias espejo de la app. No editar a mano. */
 
@@ -70,6 +75,11 @@ css = f"""/* Generado por scripts/web-tokens.py desde las copias espejo de la ap
 {chr(10).join(f"  --font-{k}: {v}px;" for k, v in font.items())}
   --min-touch: {min_touch}px;
   --screen-padding: {screen_pad}px;
+  --list-clearance: {list_clearance}px;
+  --header-clearance: {header_clearance}px;
+  --press-subtle: {press_subtle.group(1) if press_subtle else '0.7'};
+  --press-normal: {press_normal.group(1) if press_normal else '0.75'};
+  --press-strong: {press_strong.group(1) if press_strong else '0.85'};
   --shadow-card: 0 1px 6px rgba(0, 0, 0, 0.04);
   --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-floating: 0 8px 20px rgba(0, 0, 0, 0.14);

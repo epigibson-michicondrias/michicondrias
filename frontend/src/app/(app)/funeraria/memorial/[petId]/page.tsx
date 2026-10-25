@@ -78,7 +78,7 @@ export default function MemorialPage() {
         </div>
       )}
 
-      <div style={{ marginTop: "1.25rem" }}>
+      <div style={{ marginTop: "var(--space-xl)" }}>
         <Button
           label={isRefetching ? "Actualizando…" : "Actualizar memorial"}
           variant="ghost"

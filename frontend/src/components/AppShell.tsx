@@ -122,7 +122,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       {/* Drawer móvil (herramientas pro) */}
       {drawerOpen && (
-        <div className={s.drawerBackdrop} onClick={() => setDrawerOpen(false)}>
+        <div className={s.drawerBackdrop} onClick={() => setDrawerOpen(false)} role="button" tabIndex={-1} aria-label="Cerrar">
           <aside className={s.drawer} onClick={(e) => e.stopPropagation()} aria-label="Herramientas">
             <div className={s.drawerHeader}>
               <p className={s.toolsTitle}>{toolsLabel}</p>

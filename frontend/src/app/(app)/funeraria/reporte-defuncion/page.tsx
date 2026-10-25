@@ -117,7 +117,7 @@ export default function ReporteDefuncionPage() {
             </span>
           </div>
 
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "var(--space-lg)" }}>
             <Button
               label={isSubmitting ? "Registrando..." : "Registrar Reporte"}
               onPress={handleSubmitReport}

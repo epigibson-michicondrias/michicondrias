@@ -81,7 +81,7 @@ export default function MisSolicitudesPage() {
                         <div className={`${local.banner} ${local.bannerSuccess}`}>
                           <div>
                             <strong>¡Felicidades! La adopción se finalizó.</strong>
-                            <p style={{ margin: "4px 0 0" }}>
+                            <p style={{ margin: "var(--space-xs) 0 0" }}>
                               {req.pet_name || "Tu nueva mascota"} ya está en tu perfil.{" "}
                               <Link href="/mascotas">Ver mis mascotas</Link>
                             </p>

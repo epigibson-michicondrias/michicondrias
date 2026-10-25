@@ -105,7 +105,7 @@ function ReclamosContent() {
         </div>
       )}
 
-      <div style={{ marginTop: "1.25rem" }}>
+      <div style={{ marginTop: "var(--space-xl)" }}>
         <Button
           label="Volver"
           variant="secondary"

@@ -205,7 +205,7 @@ export default function LaboratorioPage() {
       )}
 
       {view === "estudios" && tests.length > 0 ? (
-        <div style={{ marginTop: "1.25rem" }}>
+        <div style={{ marginTop: "var(--space-xl)" }}>
           <Button
             label="Mis citas"
             variant="secondary"

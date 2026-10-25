@@ -28,8 +28,15 @@
   --font-h2: 20px;
   --font-h1: 22px;
   --font-display: 26px;
+  --font-hero: 36px;
+  --font-mega: 48px;
   --min-touch: 44px;
   --screen-padding: 18px;
+  --list-clearance: 100px;
+  --header-clearance: 60px;
+  --press-subtle: 0.7;
+  --press-normal: 0.75;
+  --press-strong: 0.85;
   --shadow-card: 0 1px 6px rgba(0, 0, 0, 0.04);
   --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-floating: 0 8px 20px rgba(0, 0, 0, 0.14);

@@ -117,3 +117,26 @@ textarea.input { min-height: 96px; resize: vertical; }
 }
 .imageBtnGhost:hover { color: var(--color-error); }
 .imageInput { display: none; }
+
+/* FormActionsBar */
+.actionsBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin: 0 calc(var(--screen-padding) * -1);
+  padding: var(--space-md) var(--screen-padding);
+  border-top: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-background) 88%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.actionsNote { margin: 0; color: var(--color-text-muted); font-size: var(--font-sm); }
+.actionsButtons { display: flex; gap: var(--space-sm); margin-left: auto; }
+@media (max-width: 767px) {
+  /* Sobre la barra inferior de navegación del teléfono */
+  .actionsBar { bottom: 72px; }
+}

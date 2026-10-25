@@ -80,12 +80,39 @@ export const font = {
     h2: scaled(20),
     h1: scaled(22),
     display: scaled(26),
+    hero: scaled(36),
+    mega: scaled(48),
 } as const;
 
 /**
  * Tipografía premium: jerarquía refinada, pesos cuidados, letter-spacing sutil.
  * display/h1 para héroes, h2/title para secciones, body para lectura, label para micro-textos.
  */
+export const families = {
+    regular: 'HankenGrotesk_400Regular',
+    medium: 'HankenGrotesk_500Medium',
+    semibold: 'HankenGrotesk_600SemiBold',
+    bold: 'HankenGrotesk_700Bold',
+    extrabold: 'HankenGrotesk_800ExtraBold',
+    black: 'HankenGrotesk_900Black',
+    mono: 'SpaceMono',
+} as const;
+
+/**
+ * Familia para un peso numérico. En web `font-weight` funciona con variable fonts;
+ * el mapa se mantiene por paridad con la app.
+ */
+export const weight = {
+    400: families.regular,
+    500: families.medium,
+    600: families.semibold,
+    700: families.bold,
+    800: families.extrabold,
+    900: families.black,
+    normal: families.regular,
+    bold: families.bold,
+} as const;
+
 export const type = {
     display: { fontSize: scaled(28), fontWeight: '700', letterSpacing: -0.6 } as TextStyle,
     /** Título de `ScreenHeader`. */
@@ -113,6 +140,10 @@ export const layout = {
     buttonHeight: { sm: scaled(34), md: scaled(42), lg: scaled(50) },
     /** Alto de inputs. */
     inputHeight: scaled(44),
+    /** Clearance para listas con FAB/CTA fijo abajo. */
+    listClearance: scaled(100),
+    /** Clearance de header plain (debajo de la barra de estado). */
+    headerClearance: scaled(60),
     /** Tamaño de iconos. */
     icon: { xs: scaled(12), sm: scaled(14), md: scaled(18), lg: scaled(22), xl: scaled(28) },
     /** Contenedor de icono en filas/tarjetas. */
@@ -187,4 +218,11 @@ export function accentGradient(accent: string): readonly [string, string] {
 export const motion = { fast: 150, base: 220, slow: 360 } as const;
 
 /** Opacidad para tintes de iconos/badges: `color + tint.soft` (hex alpha). */
+/** Opacidad de feedback al presionar. */
+export const press = {
+    subtle: 0.7,
+    normal: 0.75,
+    strong: 0.85,
+} as const;
+
 export const tint = { faint: '10', soft: '18', medium: '28', strong: '40' } as const;

@@ -69,7 +69,7 @@ function NuevoServicioContent() {
         </span>
       </div>
 
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ marginTop: "var(--space-lg)" }}>
         <Button
           label={isCreatingService ? "Registrando..." : "Registrar Servicio"}
           onPress={handleCreateService}
@@ -78,7 +78,7 @@ function NuevoServicioContent() {
         />
       </div>
 
-      <div style={{ marginTop: "0.75rem" }}>
+      <div style={{ marginTop: "var(--space-md)" }}>
         <Button
           label="Cancelar"
           variant="ghost"

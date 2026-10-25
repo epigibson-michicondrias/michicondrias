@@ -170,7 +170,7 @@ function CotizarContent() {
       )}
 
       {quote ? (
-        <div style={{ marginTop: "0.75rem" }}>
+        <div style={{ marginTop: "var(--space-md)" }}>
           <Badge
             label="Cotización lista"
             color="var(--color-success)"

@@ -1,8 +1,14 @@
 # CLAUDE.md — Web (`frontend/`)
 
 La web es un **espejo de la app móvil**: mismas funciones, rutas, roles, colores y arquitectura, contra la misma API.
-Solo cambia la plataforma (barra lateral en escritorio, barra inferior bajo 768 px). Ante la duda, **la app manda**:
-mira cómo lo hace `mobile/` y replícalo.
+Solo cambia la plataforma (barra lateral en escritorio, barra inferior bajo 768 px). Ante la duda, **la app manda**
+en *qué* hace cada pantalla: mira cómo lo hace `mobile/` y replícalo.
+
+> **Espejo de lógica, no de pantallas.** Tipos, servicios, hooks, rutas y flujos son los de la app. La interfaz **no se
+> calca del teléfono**: misma línea de diseño (paleta *Midnight & Gold*, tipografía, tokens, tono) pero con
+> componentes y composición propios de la web — pensada primero para escritorio (1280 px) y que degrade bien a 375 px:
+> hero ancho, paneles laterales, pestañas subrayadas, tablas, formularios a dos columnas con barra de acciones,
+> estados `:hover`/foco. Si un componente web no existe, se crea en `src/components/`.
 
 > Antes de cualquier tarea lee [`../PROGRESO_WEB.md`](../PROGRESO_WEB.md) (fase W actual, módulos, decisiones) y la
 > sección del módulo en [`../AUDITORIA_WEB.md`](../AUDITORIA_WEB.md). Al terminar, actualiza ambos.
@@ -40,7 +46,7 @@ ESLint arrastra errores del código viejo (línea base en `PROGRESO_WEB.md`). Re
 | `src/lib/api.ts` | `mobile/src/lib/api.ts` | misma API (`API_URLS`, `ApiError`, `sessionExpired`, timeout); token en `localStorage` |
 | `src/contexts/` (Auth, Theme, Cart) | `mobile/src/contexts/` | misma interfaz pública |
 | `src/hooks/<modulo>/` | `mobile/src/hooks/<modulo>/` | misma lógica; `expo-router` → `next/navigation` |
-| `src/components/*` | `mobile/src/components/*` | **mismos nombres y props**, implementación web |
+| `src/components/*` | `mobile/src/components/*` | mismos nombres y props en los básicos (`Button`, `FormField`, `EmptyState`…); los de composición son propios de la web |
 
 - Un cambio en una copia espejo se hace **primero en la app** (o se anota para la otra sesión) y luego se copia. Nunca
   divergir a propósito: `scripts/web-drift.sh` tiene que salir limpio.

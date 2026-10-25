@@ -19,7 +19,7 @@ export interface Pet {
     is_vaccinated: boolean;
     is_sterilized: boolean;
     is_dewormed: boolean;
-    weight_kg?: number;
+    weight_kg?: number | null;
     microchip_number?: string | null;
 }
 
@@ -27,10 +27,11 @@ export interface PetFormData {
     name: string;
     species: string;
     breed: string;
+    /** Edad en años + meses sueltos (0–11); se guarda como `age_months` total. */
+    age_years: string;
     age_months: string;
     gender: string;
     description: string;
-    is_vaccinated: boolean;
     is_sterilized: boolean;
     is_dewormed: boolean;
     weight_kg: string;
@@ -39,12 +40,12 @@ export interface PetFormData {
 
 export const PET_FORM_DEFAULTS: PetFormData = {
     name: '',
-    species: 'perro',
+    species: 'gato',
     breed: '',
+    age_years: '',
     age_months: '',
     gender: 'macho',
     description: '',
-    is_vaccinated: false,
     is_sterilized: false,
     is_dewormed: false,
     weight_kg: '',
@@ -84,12 +85,12 @@ export interface DietPlanResponse {
 
 /** Options for species selector */
 export const SPECIES_OPTIONS = [
-    { label: 'Perro', value: 'perro', icon: '🐕' },
-    { label: 'Gato', value: 'gato', icon: '🐈' },
+    { label: 'Gato', value: 'gato' },
+    { label: 'Perro', value: 'perro' },
 ];
 
 /** Options for gender selector */
 export const GENDER_OPTIONS = [
-    { label: 'Macho', value: 'macho', icon: '♂️' },
-    { label: 'Hembra', value: 'hembra', icon: '♀️' },
+    { label: 'Macho', value: 'macho' },
+    { label: 'Hembra', value: 'hembra' },
 ];

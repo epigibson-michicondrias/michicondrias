@@ -152,7 +152,7 @@ function AgendarContent() {
             <Info size={14} aria-hidden /> La cita queda sujeta a confirmación del laboratorio.
           </div>
 
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "var(--space-lg)" }}>
             <Button
               label={isCreatingAppointment ? "Enviando…" : "Solicitar cita"}
               onPress={handleSubmit}

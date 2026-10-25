@@ -125,7 +125,7 @@ function GestionContent() {
         </div>
       )}
 
-      <div style={{ marginTop: "1.25rem" }}>
+      <div style={{ marginTop: "var(--space-xl)" }}>
         <Button
           label={isRefetching ? "Actualizando…" : "Actualizar lista"}
           variant="ghost"
@@ -134,7 +134,7 @@ function GestionContent() {
         />
       </div>
 
-      <div style={{ marginTop: "0.75rem" }}>
+      <div style={{ marginTop: "var(--space-md)" }}>
         <Button
           label="Volver"
           variant="secondary"

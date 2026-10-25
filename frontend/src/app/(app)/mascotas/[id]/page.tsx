@@ -6,19 +6,23 @@
  */
 import { Suspense } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Activity,
   ArrowLeft,
   CalendarDays,
+  Check,
   ClipboardList,
+  FlaskConical,
   HeartPulse,
   LayoutGrid,
   PawPrint,
-  Plus,
+  Pencil,
+  Pill,
+  Satellite,
   Share2,
   ShieldCheck,
+  Sparkles,
   Syringe,
 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
@@ -33,14 +37,18 @@ import { usePetDetail, type PetTab } from "@/hooks/mascotas/usePetDetail";
 import { usePetHealth } from "@/hooks/carnet/usePetHealth";
 import { copyText } from "@/utils/helpers";
 import { ItemActions, RecordItem, VaccineItem } from "@/features/carnet/CarnetItems";
-import { formatDate } from "@/utils/formatters";
+import { formatAge, formatDate, formatWeight, capitalize } from "@/utils/formatters";
 import s from "../mascotas.module.css";
 
-function formatAge(months: number | null): string {
-  if (months == null || months < 0) return "—";
-  if (months < 12) return `${months} ${months === 1 ? "mes" : "meses"}`;
-  const years = Math.floor(months / 12);
-  return `${years} ${years === 1 ? "año" : "años"}`;
+/** Resultado de laboratorio tal como lo devuelve `getPetLabHistory` (sin tipo en el servicio). */
+interface LabResult {
+  id?: string;
+  parameter_name: string;
+  measured_value: string | number;
+  unit?: string | null;
+  reference_range?: string | null;
+  is_anomaly?: boolean;
+  created_at?: string;
 }
 
 const TABS: { value: PetTab; label: string; icon: typeof LayoutGrid }[] = [
@@ -115,13 +123,6 @@ function PetDetailContent() {
         <button type="button" className={s.backBtn} onClick={() => router.back()} aria-label="Volver">
           <ArrowLeft size={20} />
         </button>
-        {isOwner && (
-          <div className={s.topActions}>
-            <button type="button" className={s.iconAction} onClick={openShare} aria-label="Compartir carnet">
-              <Share2 size={20} />
-            </button>
-          </div>
-        )}
       </div>
 
       <div className={s.detailLayout}>
@@ -134,45 +135,28 @@ function PetDetailContent() {
         )}
         <h1 className={s.heroName}>{pet.name}</h1>
         <p className={s.heroMeta}>
-          {[pet.breed, pet.gender === "hembra" ? "Hembra" : pet.gender === "macho" ? "Macho" : null]
+          {[pet.breed || capitalize(pet.species), pet.gender === "hembra" ? "Hembra" : pet.gender === "macho" ? "Macho" : null]
             .filter(Boolean)
             .join(" · ")}
         </p>
-        {/* Badges: especie, edad y tracker — escaneables de un vistazo */}
+        {/* Badges: especie y tracker (la edad ya está en el Resumen) */}
         <div className={s.heroBadgeRow}>
-          {pet.species && (
-            <span className={s.heroBadge}>{pet.species}</span>
-          )}
-          {pet.age_months != null && (
-            <span className={s.heroBadge}>{formatAge(pet.age_months)}</span>
-          )}
+          {pet.species && <span className={s.heroBadge}>{capitalize(pet.species)}</span>}
           {pet.has_active_subscription && (
             <span className={`${s.heroBadge} ${s.heroBadgeOn}`}>Michi-Tracker</span>
           )}
         </div>
       </div>
 
-      {/* Acciones rápidas del dueño */}
+      {/* Acciones del dueño: las de carnet arriba, editar y compartir como secundarias */}
       {isOwner && (
         <div className={s.quickActions}>
-          <Button
-            label="Agregar vacuna"
-            variant="secondary"
-            fullWidth={false}
-            onPress={() => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}`)}
-          />
-          <Button
-            label="Agregar consulta"
-            variant="secondary"
-            fullWidth={false}
-            onPress={() => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}`)}
-          />
-          <Button
-            label="Compartir carnet"
-            variant="ghost"
-            fullWidth={false}
-            onPress={openShare}
-          />
+          <Button label="Agregar vacuna" variant="secondary" icon={<Syringe size={18} />} onPress={health.addVaccine} />
+          <Button label="Agregar consulta" variant="secondary" icon={<ClipboardList size={18} />} onPress={health.addRecord} />
+          <div className={s.quickActionsRow}>
+            <Button label="Editar datos" variant="ghost" fullWidth={false} icon={<Pencil size={16} />} onPress={() => router.push(`/mascotas/editar/${pet.id}`)} />
+            <Button label="Compartir carnet" variant="ghost" fullWidth={false} icon={<Share2 size={16} />} onPress={openShare} />
+          </div>
         </div>
       )}
 
@@ -188,7 +172,7 @@ function PetDetailContent() {
 
       {tab === "resumen" && (
         <>
-          {/* Stats como tarjetas con ícono */}
+          {/* Stats: Peso y Vacunas llevan a su detalle (Historial con las consultas, Salud con el carnet) */}
           <div className={s.statGridVisual}>
             <div className={s.statCard}>
               <span className={s.statIcon}><CalendarDays size={20} /></span>
@@ -197,14 +181,14 @@ function PetDetailContent() {
                 <p className={s.statCardLabel}>Edad</p>
               </div>
             </div>
-            <div className={s.statCard}>
+            <button type="button" className={`${s.statCard} ${s.statCardLink}`} onClick={() => setTab("historial")} aria-label={`Peso: ${formatWeight(pet.weight_kg)}. Ver historial`}>
               <span className={s.statIcon}><Activity size={20} /></span>
               <div>
-                <p className={s.statCardValue}>{pet.weight_kg ? `${pet.weight_kg} kg` : "—"}</p>
+                <p className={s.statCardValue}>{formatWeight(pet.weight_kg)}</p>
                 <p className={s.statCardLabel}>Peso</p>
               </div>
-            </div>
-            <div className={s.statCard}>
+            </button>
+            <button type="button" className={`${s.statCard} ${s.statCardLink}`} onClick={() => setTab("salud")} aria-label={`Vacunas: ${vaccinesLabel}. Ver salud`}>
               <span className={s.statIcon}><ShieldCheck size={20} /></span>
               <div>
                 <p className={`${s.statCardValue} ${health.vaccinesStatus === "al-dia" ? s.statOk : health.vaccinesStatus === "vencido" ? s.statBad : ""}`}>
@@ -212,19 +196,21 @@ function PetDetailContent() {
                 </p>
                 <p className={s.statCardLabel}>Vacunas</p>
               </div>
-            </div>
+            </button>
           </div>
 
           {isOwner && (
             <ListRow
-              icon={HeartPulse}
+              icon={Satellite}
               label="Michi-Tracker Pro"
               desc={
-                pet.has_active_subscription
-                  ? "GPS activo · Gestionar suscripción"
-                  : "Activa el seguimiento GPS en tiempo real"
+                isSubscribing || isOpeningBilling
+                  ? "Abriendo…"
+                  : pet.has_active_subscription
+                    ? "GPS activo · Gestionar suscripción"
+                    : "Activa el seguimiento GPS en tiempo real"
               }
-              onPress={pet.has_active_subscription ? openTrackerBilling : handleSubscribeMichiTracker}
+              onPress={isSubscribing || isOpeningBilling ? undefined : pet.has_active_subscription ? openTrackerBilling : handleSubscribeMichiTracker}
             />
           )}
 
@@ -239,32 +225,28 @@ function PetDetailContent() {
 
       {tab === "salud" && (
         <>
-          <SectionHeader
-            title="Vacunas"
-            actionLabel={health.canEdit ? "Agregar" : undefined}
-            onAction={health.canEdit ? () => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}`) : undefined}
-          />
-          {health.isLoadingVaccines ? (
+          <SectionHeader title="Vacunas" />
+          {health.loadingVaccines ? (
             <Skeleton height={64} borderRadius={12} />
           ) : health.vaccines.length === 0 ? (
             <p className={s.emptyLine}>Aún no hay vacunas registradas de {pet.name}.</p>
           ) : (
             /* Timeline: la línea de tiempo del carnet — punto con estado, nombre, fecha y refuerzo. */
             <div className={s.timeline}>
-              {health.vaccines.map((v: any) => {
+              {health.vaccines.map((v) => {
                 const vencido = !!v.next_due_date && v.next_due_date.slice(0, 10) < new Date().toISOString().slice(0, 10);
                 return (
                   <div key={v.id} className={s.timelineItem}>
                     <span className={`${s.timelineDot} ${vencido ? s.timelineDotWarn : s.timelineDotOk}`} aria-hidden />
                     {/* El estado no se comunica solo con color: el texto lo dice. */}
-                    <span className={s.timelineStatus} style={{ color: vencido ? "var(--color-warning)" : "var(--color-success)" }}>
+                    <span className={`${s.timelineStatus} ${vencido ? s.statusWarn : s.statusOk}`}>
                       {vencido ? "Refuerzo vencido" : "Al día"}
                     </span>
                     <div className={s.timelineBody}>
                       <p className={s.timelineTitle}>{v.name}</p>
                       <p className={s.timelineMeta}>
                         {[
-                          v.applied_on ? `Aplicada el ${formatDate(v.applied_on)}` : null,
+                          v.date_administered ? `Aplicada el ${formatDate(v.date_administered)}` : null,
                           v.next_due_date ? `Refuerzo: ${formatDate(v.next_due_date)}` : null,
                           v.notes || null,
                         ].filter(Boolean).join(" · ")}
@@ -272,8 +254,8 @@ function PetDetailContent() {
                     </div>
                     {health.canEdit && (
                       <ItemActions
-                        onEdit={() => router.push(`/carnet/nueva-vacuna?pet_id=${pet.id}&id=${v.id}`)}
-                        onDelete={() => health.deleteVaccine(v.id)}
+                        onEdit={() => health.editVaccine(v.id)}
+                        onDelete={() => health.confirmDeleteVaccine(v.id, v.name)}
                         label={v.name}
                       />
                     )}
@@ -283,23 +265,78 @@ function PetDetailContent() {
             </div>
           )}
 
-          <SectionHeader title="Consulta con IA" />
-          <Button
-            label="Consultar síntomas con IA"
-            variant="secondary"
-            onPress={() => router.push(`/mascotas/diagnostico-ia?petId=${pet.id}`)}
-          />
+          <SectionHeader title="Medicamentos" />
+          {health.loadingReminders ? (
+            <Skeleton height={64} borderRadius={12} />
+          ) : health.reminders.length === 0 ? (
+            <p className={s.emptyLine}>Sin tratamientos activos. Aparecen aquí cuando una consulta incluye receta.</p>
+          ) : (
+            <div className={s.itemList}>
+              {health.reminders.map((r) => (
+                <div key={r.id} className={s.item}>
+                  <Pill size={20} aria-hidden />
+                  <div className={s.timelineBody}>
+                    <p className={s.itemTitle}>{r.medication_name}</p>
+                    <p className={s.itemMeta}>
+                      {r.dosage} · cada {r.frequency_hours} h · {r.duration_days} días · {r.sent ? "Tomado" : `Toca el ${formatDate(r.remind_at)}`}
+                    </p>
+                  </div>
+                  {!r.sent && health.canEdit && (
+                    <Button
+                      label="Marcar tomado"
+                      variant="secondary"
+                      size="sm"
+                      icon={<Check size={16} />}
+                      onPress={() => health.checkReminder(r.id)}
+                      accessibilityLabel={`Marcar ${r.medication_name} como tomado`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <SectionHeader title="Laboratorio" />
+          {health.loadingLabs ? (
+            <Skeleton height={64} borderRadius={12} />
+          ) : health.labResults.length === 0 ? (
+            <p className={s.emptyLine}>Sin resultados de laboratorio.</p>
+          ) : (
+            <div className={s.itemList}>
+              {(health.labResults as LabResult[]).map((r, i) => (
+                <div key={r.id ?? i} className={s.item}>
+                  <FlaskConical size={20} aria-hidden />
+                  <div className={s.timelineBody}>
+                    <p className={s.itemTitle}>
+                      {r.parameter_name}: {r.measured_value} {r.unit || ""}
+                      {r.is_anomaly ? " · Fuera de rango" : ""}
+                    </p>
+                    <p className={s.itemMeta}>
+                      {[r.reference_range ? `Rango normal: ${r.reference_range} ${r.unit || ""}` : null, r.created_at ? formatDate(r.created_at) : null]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {health.isOwner && (
+            <Button
+              label="Consultar síntomas con IA"
+              variant="secondary"
+              icon={<Sparkles size={18} />}
+              onPress={health.openSymptomCheck}
+            />
+          )}
         </>
       )}
 
       {tab === "historial" && (
         <>
-          <SectionHeader
-            title="Consultas"
-            actionLabel={health.canEdit ? "Registrar" : undefined}
-            onAction={health.canEdit ? () => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}`) : undefined}
-          />
-          {health.isLoadingRecords ? (
+          <SectionHeader title="Consultas" />
+          {health.loadingRecords ? (
             <Skeleton height={64} borderRadius={12} />
           ) : health.records.length === 0 ? (
             <EmptyState
@@ -307,7 +344,7 @@ function PetDetailContent() {
               title="Sin consultas"
               subtitle="Las visitas al veterinario, con diagnóstico y receta, aparecerán aquí."
               actionLabel={health.canEdit ? "Registrar consulta" : undefined}
-              onAction={health.canEdit ? () => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}`) : undefined}
+              onAction={health.canEdit ? health.addRecord : undefined}
             />
           ) : (
             <div className={s.itemList}>
@@ -316,8 +353,8 @@ function PetDetailContent() {
                   key={r.id}
                   record={r}
                   petId={pet.id}
-                  onEdit={health.canEdit ? () => router.push(`/carnet/nueva-consulta?pet_id=${pet.id}&id=${r.id}`) : undefined}
-                  onDelete={health.canEdit ? () => health.deleteRecord(r.id) : undefined}
+                  onEdit={health.canEdit ? () => health.editRecord(r.id) : undefined}
+                  onDelete={health.canEdit ? () => health.confirmDeleteRecord(r.id, r.reason_for_visit) : undefined}
                 />
               ))}
             </div>

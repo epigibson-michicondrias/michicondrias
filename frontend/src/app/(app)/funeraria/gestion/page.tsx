@@ -146,7 +146,7 @@ function GestionContent() {
         </div>
       )}
 
-      <div style={{ marginTop: "1.5rem" }}>
+      <div style={{ marginTop: "var(--space-xxl)" }}>
         <h2 style={{ margin: "0 0 0.75rem", fontSize: "1.05rem", color: "var(--color-text)" }}>
           Mis servicios
         </h2>
@@ -188,7 +188,7 @@ function GestionContent() {
         )}
       </div>
 
-      <div style={{ marginTop: "1.25rem" }}>
+      <div style={{ marginTop: "var(--space-xl)" }}>
         <Button
           label={isRefetching ? "Actualizando…" : "Actualizar solicitudes"}
           variant="ghost"

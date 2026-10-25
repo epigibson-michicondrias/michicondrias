@@ -148,7 +148,7 @@ export default function AseguradorasPage() {
       )}
 
       {!isLoading && plans.length > 0 && !isInsurer ? (
-        <div style={{ marginTop: "1.25rem" }}>
+        <div style={{ marginTop: "var(--space-xl)" }}>
           <Button
             label="Cotizar y contratar"
             onPress={() => router.push("/aseguradoras/cotizar")}

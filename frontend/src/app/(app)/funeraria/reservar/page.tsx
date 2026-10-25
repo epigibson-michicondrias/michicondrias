@@ -145,7 +145,7 @@ function ReservarContent() {
             </span>
           </div>
 
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "var(--space-lg)" }}>
             <Button
               label={isBooking ? "Reservando..." : "Confirmar Reserva"}
               onPress={handleBooking}

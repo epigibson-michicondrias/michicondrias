@@ -113,6 +113,20 @@ por el usuario). Mientras tanto, la consola funciona con lo que hay (paginación
 | `carnet/nueva-consulta`, `nueva-vacuna`, `receta/[id]` | `carnet/nuevo` (75 l.), formulario dentro de `[pet_id]`, — | difiere / falta |
 | — | `carnet/page.tsx` (índice) | sobra |
 
+#### Heurísticas UX de Mis Mascotas (web) — 2026-10-24 · Claude · antes **4/10**
+Revisado con capturas reales (`localhost:3001`, 1280 claro y 375 oscuro, cuenta de prueba consumidor). Arreglos el mismo día:
+- [x] S4 No había forma de editar ni eliminar una mascota: `/mascotas/editar/[id]` daba 404 (y el diagnóstico IA enlazaba ahí). Nueva página con `PetForm` común + zona de peligro.
+- [x] S3 Borrar vacuna o consulta sin confirmación → `confirmDeleteVaccine/Record` (espejo de la app).
+- [x] S3 Salud sin Medicamentos ni Laboratorio (la app sí los tiene) → `usePetHealth` espejo completo.
+- [x] S2 «Aplicada el…» nunca salía: leía `applied_on`, el campo es `date_administered`.
+- [x] S2 Formulario: interruptor «Vacunado» (lo calcula el carnet), edad en meses, raza y descripción obligatorias, alertas en vez de errores en el campo → `petFormRules` (espejo de la app).
+- [x] S2 Alta → regresaba a la lista; ahora abre la ficha en Salud. Volver de Stripe (`?subscription=`) ya avisa.
+- [x] S2 «Agregar vacuna» ×2 y «Compartir» ×2 (ícono + botón): un solo acceso por acción, «Editar datos» visible.
+- [x] S2 Michi-Tracker sin estado de carga (doble clic → dos sesiones de Stripe); ícono de corazón → satélite.
+- [x] S2 Lista: modo tarjetas, búsqueda/orden/filtro y tile «Agregar» con 1–4 mascotas → 2 vistas y herramientas desde 5; «Sin resultados» decía «No tienes gatos» al buscar. Desborde horizontal a 375 px (393 px).
+- [x] S1 Especie en minúscula cruda («gato»), edad sin meses («2 años» con 2 a 5 m), meta solo al hover, textos en Title Case, placeholders de perro.
+- [ ] Pendiente: acción principal «Agendar cita» (igual que en la app).
+
 ### Tienda (cliente)
 | App | Web | Estado |
 |---|---|---|

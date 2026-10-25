@@ -99,7 +99,7 @@ export default function MisReservasPage() {
         </div>
       )}
 
-      <div style={{ marginTop: "1.25rem" }}>
+      <div style={{ marginTop: "var(--space-xl)" }}>
         <Button
           label="Ver servicios"
           variant="secondary"

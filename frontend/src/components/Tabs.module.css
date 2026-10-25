@@ -1,0 +1,44 @@
+/* Pestañas subrayadas: línea base y subrayado dorado en la activa. */
+.tabs {
+  display: flex;
+  gap: var(--space-xl);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 44px;
+  padding: 0 var(--space-xxs);
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-base);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.tab:hover { color: var(--color-text); }
+.tab:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-xs); }
+.active { color: var(--color-text); border-bottom-color: var(--color-accent); }
+
+.count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-background-secondary);
+  color: var(--color-text-muted);
+  font-size: var(--font-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 20px;
+  text-align: center;
+}
+.active .count { background: var(--color-accent-light); color: var(--color-accent-strong); }

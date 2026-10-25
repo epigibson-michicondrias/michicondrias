@@ -75,7 +75,7 @@ export function AppAlertProvider({ children }: { children: ReactNode }) {
     <>
       {children}
       {alert && Icon ? (
-        <div className={l.backdrop} onClick={() => dismiss(alert.showCancel ? alert.onCancel : undefined)}>
+        <div className={l.backdrop} onClick={() => dismiss(alert.showCancel ? alert.onCancel : undefined)} role="button" tabIndex={-1} aria-label="Cerrar">
           <div
             className={l.dialog}
             role="alertdialog"

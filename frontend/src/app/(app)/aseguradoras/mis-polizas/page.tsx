@@ -46,13 +46,13 @@ export default function MisPolizasPage() {
       />
 
       <div className={local.summaryRow}>
-        <Card style={{ padding: "0.85rem 1rem" }}>
+        <Card style={{ padding: "var(--space-md) var(--space-lg)" }}>
           <div className={local.summaryCard} style={{ padding: 0 }}>
             <span className={local.summaryValue}>{insuredCount}</span>
             <span className={local.summaryLabel}>Aseguradas</span>
           </div>
         </Card>
-        <Card style={{ padding: "0.85rem 1rem" }}>
+        <Card style={{ padding: "var(--space-md) var(--space-lg)" }}>
           <div className={local.summaryCard} style={{ padding: 0 }}>
             <span className={local.summaryValue}>{uninsuredCount}</span>
             <span className={local.summaryLabel}>Sin seguro</span>
@@ -142,7 +142,7 @@ export default function MisPolizasPage() {
         </div>
       )}
 
-      <div style={{ marginTop: "1.25rem" }}>
+      <div style={{ marginTop: "var(--space-xl)" }}>
         <Button
           label="Ver planes disponibles"
           variant="secondary"

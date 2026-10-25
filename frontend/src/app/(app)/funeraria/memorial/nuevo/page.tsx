@@ -90,7 +90,7 @@ function NuevoMensajeContent() {
             </span>
           </div>
 
-          <div style={{ marginTop: "1rem" }}>
+          <div style={{ marginTop: "var(--space-lg)" }}>
             <Button
               label={isCreating ? "Publicando..." : "Publicar Mensaje"}
               onPress={handleCreatePost}

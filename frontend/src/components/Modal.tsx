@@ -34,7 +34,7 @@ export default function Modal({ open, title, subtitle, onClose, children, footer
 
   if (!open) return null;
   return (
-    <div className={s.overlay} onClick={onClose}>
+    <div className={s.overlay} onClick={onClose} role="button" tabIndex={-1} aria-label="Cerrar">
       <div
         className={s.dialog}
         role="dialog"

@@ -104,6 +104,20 @@ Columnas: Audit. (W1) · Port. (W4: portado desde la app) · Rev. (revisión vis
 
 ## Bitácora
 
+- **2026-10-24 — UI premium: tokens sincronizados y a11y web (Claude).** Tokens nuevos de la app (`families.black`,
+  `weight`, `press.*`, `font.hero`/`mega`, `layout.listClearance`/`headerClearance`) copiados a
+  `constants/design.ts` y `tokens.css` regenerado vía `scripts/web-tokens.py` (script actualizado para los nuevos).
+  Fixes web: 3 backdrops `div onClick` → `role="button"` + `aria-label` (Modal, AppShell, AppAlert), 15 `style={{}}`
+  con rem/px raw → `var(--space-*)`. Cero hex en components/app (landing mantiene identidad). `tsc` limpio,
+  `npm run build` en verde. En web `font-weight` funciona con variable fonts — no aplica el fix de `families` de la app.
+
+- **2026-10-24 — Mis Mascotas: auditoría UX heurística (4/10) y arreglos (Claude).** Capturas antes/después a
+  1280 y 375. Nueva `mascotas/editar/[id]` (antes 404) con `features/mascotas/PetForm.tsx` común al alta;
+  `hooks/mascotas/{petFormRules,useTrackerBilling,useEditPet}.ts` espejo de la app; `usePetHealth` espejo completo
+  (medicamentos, laboratorio, confirmación al borrar); ficha con acciones sin duplicar, stats tocables, aviso de Stripe;
+  lista con 2 vistas y herramientas solo con 5+ mascotas. `types/mascotas.ts` vuelve a ser copia literal. `tsc` y
+  ESLint limpios en lo tocado (quedan 2 `any` previos en `useAIDiagnosis.ts`); `npm run build` en verde (132 páginas).
+
 - **2026-10-24 — Cableado de endpoints nuevos del backend (Claude).**
   - **Suspender/reactivar clínica** (`/admin/clinicas/[id]`): `is_suspended` en `types/directorio.ts` y
     `services/directorio.ts`; `suspendClinic`/`unsuspendClinic` en `services/moderacion.ts`;
