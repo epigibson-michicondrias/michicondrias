@@ -6,7 +6,8 @@
  * evolución de peso y temperatura. Lógica en `useClinicalHistory` (espejo de la app).
  */
 import { useState } from "react";
-import { ClipboardList, Copy, FlaskConical, Printer, RefreshCw, SearchX, Sparkles, Syringe, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { ClipboardList, Copy, FileText, FlaskConical, Printer, RefreshCw, SearchX, Sparkles, Syringe, TrendingUp } from "lucide-react";
 import Button from "@/components/Button";
 import EmptyState from "@/components/EmptyState";
 import SearchBar from "@/components/SearchBar";
@@ -29,11 +30,17 @@ type Health = ReturnType<typeof usePetHealth>;
 const KIND_ICON: Record<TimelineKind, typeof ClipboardList> = { consulta: ClipboardList, vacuna: Syringe, laboratorio: FlaskConical };
 const KINDS: TimelineKind[] = ["consulta", "vacuna", "laboratorio"];
 
-function EventRow({ event, health }: { event: TimelineEvent; health: Health }) {
+function EventRow({ event, health, petId }: { event: TimelineEvent; health: Health; petId: string }) {
   const [open, setOpen] = useState(false);
   const Icon = KIND_ICON[event.kind];
   const canEdit = health.canEdit && (event.record || event.vaccine);
-  const hasDetails = event.details.length > 0;
+  const rx = event.record?.prescriptions ?? [];
+  // La receta va siempre a la vista (enlace propio); el desplegable solo lleva el resto del detalle
+  const details = event.details.filter((line) => !line.startsWith("Receta:"));
+  const hasDetails = details.length > 0;
+  const vitals = event.record
+    ? [event.record.weight_kg ? `${event.record.weight_kg} kg` : null, event.record.temperature_c ? `${event.record.temperature_c} °C` : null].filter(Boolean)
+    : [];
 
   return (
     <li className={`${h.event} ${h[event.kind]}`}>
@@ -58,15 +65,30 @@ function EventRow({ event, health }: { event: TimelineEvent; health: Health }) {
             />
           )}
         </div>
+        {(vitals.length > 0 || rx.length > 0) && (
+          <div className={h.tags}>
+            {vitals.map((v) => <span key={v} className={h.tag}>{v}</span>)}
+            {rx.length > 0 && <span className={`${h.tag} ${h.tagRx}`}>Receta</span>}
+          </div>
+        )}
+        {rx.length > 0 && event.record && (
+          <Link href={`/carnet/receta/${event.record.id}?petId=${petId}`} className={h.rxLink}>
+            <FileText size={16} aria-hidden />
+            <span>
+              <strong>Ver receta</strong>
+              <span className={h.rxMeds}>{rx.map((p) => `${p.medication_name} ${p.dosage}`).join(" · ")}</span>
+            </span>
+          </Link>
+        )}
         {hasDetails && (
           <>
             {open && (
               <ul className={h.details}>
-                {event.details.map((line) => <li key={line}>{line}</li>)}
+                {details.map((line) => <li key={line}>{line}</li>)}
               </ul>
             )}
             <button type="button" className={h.more} onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-              {open ? "Ocultar detalle" : `Ver detalle (${event.details.length})`}
+              {open ? "Ocultar detalle" : `Ver detalle (${details.length})`}
             </button>
           </>
         )}
@@ -135,7 +157,7 @@ export function PetHistoryPanel({ pet, health }: { pet: Pet; health: Health }) {
               <section key={g.key} aria-label={g.label}>
                 <h3 className={h.month}>{capitalize(g.label)}</h3>
                 <ol className={h.events}>
-                  {g.events.map((e) => <EventRow key={e.id} event={e} health={health} />)}
+                  {g.events.map((e) => <EventRow key={e.id} event={e} health={health} petId={pet.id} />)}
                 </ol>
               </section>
             ))}

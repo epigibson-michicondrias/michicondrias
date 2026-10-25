@@ -318,6 +318,10 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-24 · Claude** — **Web: la receta vuelve a verse en la consulta** del historial (la tarjeta nueva la dejaba
+  dentro de «Ver detalle» y sin enlace): etiqueta «Receta», signos visibles y enlace «Ver receta» a
+  `/carnet/receta/[id]` con los medicamentos. La app no cambió (usa `RecordItem`).
+
 - **2026-10-24 · Claude** — **Historial clínico con superpoderes** (app y web): línea de tiempo por mes (consultas con
   recetas, vacunas, laboratorio), búsqueda, filtros por tipo y periodo, evolución de peso y temperatura, y resumen del
   historial: backend `POST /pets/{id}/ai/history-summary` (`mascotas/app/core/ai_history.py`: hechos en el servidor,
