@@ -36,6 +36,10 @@ export interface TreatmentDose {
     taken_at?: string | null;
     /** Calculado en el hook (`select`): la dosis ya toca si es pasada o cae dentro de la próxima hora. */
     isDue?: boolean;
+    /** Calculado en el hook (`select`): la dosis ya pasó. */
+    isOverdue?: boolean;
+    /** Calculado en el hook (`select`): la dosis cae en el día de hoy. */
+    isToday?: boolean;
 }
 
 export type TreatmentStatus = 'por-iniciar' | 'en-curso' | 'terminado';

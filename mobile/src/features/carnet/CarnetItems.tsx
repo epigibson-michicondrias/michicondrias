@@ -3,14 +3,15 @@
  * (Antes vivían dentro de app/carnet/[id].tsx.)
  */
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
     Calendar, ChevronDown, ChevronUp, Weight, Thermometer, FileText, Syringe, Clock, Pill, Check, FlaskConical,
-    AlertCircle, Activity, Info, Pencil, Trash2,
+    AlertCircle, Activity, Info, Pencil, Trash2, Sun,
 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import IconButton from '@/src/components/IconButton';
+import Button from '@/src/components/Button';
 import { spacing, radius, type, layout } from '@/constants/design';
 import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
 import type { Treatment, TreatmentDose } from '@/src/services/reminders';
@@ -167,22 +168,184 @@ export function VaccineItem({ vaccine, onEdit, onDelete }: {
 }
 
 // ── Tratamiento: medicamento recetado con interruptor, historial y fecha de inicio ──
-function doseTimeLabel(dose: TreatmentDose) {
-    if (dose.sent) return 'Tomado';
-    const diffMs = new Date(dose.remind_at).getTime() - Date.now();
-    if (diffMs < 0) return 'Atrasado';
-    const hours = Math.round(diffMs / 3_600_000);
-    if (hours < 1) return 'En menos de 1 h';
-    if (hours < 24) return `En ${hours} h`;
-    const days = Math.round(diffMs / 86_400_000);
-    return days === 1 ? 'Mañana' : `En ${days} días`;
-}
-
 const formatDateTime = (iso?: string | null) => {
     if (!iso) return '';
     const d = new Date(iso);
     return `${d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })} ${d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
 };
+
+// ── Panel «Lo que toca hoy» — checklist premium ──
+export function TodayDoses({ treatments, onCheck, isChecking, canCheck }: {
+    treatments: Treatment[];
+    onCheck: (id: string) => void;
+    isChecking: boolean;
+    canCheck: boolean;
+}) {
+    const { theme } = useTheme();
+    const items: { dose: TreatmentDose; treatment: Treatment; overdue: boolean; label: string }[] = [];
+    for (const t of treatments) {
+        for (const d of t.doses) {
+            if (d.sent) continue;
+            if (d.isOverdue || d.isToday) {
+                const when = new Date(d.remind_at);
+                const time = when.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                items.push({ dose: d, treatment: t, overdue: !!d.isOverdue, label: d.isOverdue ? `${time} · atrasada` : time });
+            }
+        }
+    }
+    items.sort((a, b) => new Date(a.dose.remind_at).getTime() - new Date(b.dose.remind_at).getTime());
+
+    // Próxima toma futura para el estado vacío
+    let nextFuture: { t: Treatment; d: TreatmentDose } | null = null;
+    for (const t of treatments) {
+        for (const d of t.doses) {
+            if (!d.sent && !d.isOverdue && !d.isToday) { nextFuture = { t, d }; break; }
+        }
+        if (nextFuture) break;
+    }
+
+    const pending = items.filter((i) => !i.dose.sent);
+
+    return (
+        <View style={[todayStyles.panel, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <View style={todayStyles.header}>
+                <View style={todayStyles.headerLeft}>
+                    <Text style={[type.label, { color: theme.primary }]}>LO QUE TOCA HOY</Text>
+                    <Text style={[type.h2, todayStyles.headerTitle, { color: theme.text }]}>
+                        {items.length === 0 ? 'Todo al día' : `${pending.length} ${pending.length === 1 ? 'toma por dar' : 'tomas por dar'}`}
+                    </Text>
+                </View>
+                <View style={todayStyles.headerRight}>
+                    <Sun size={16} color={theme.accent} />
+                    <Text style={[type.caption, { color: theme.textMuted }]}>
+                        {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </Text>
+                </View>
+            </View>
+
+            {items.length === 0 ? (
+                <View style={[todayStyles.emptyOk, { backgroundColor: theme.successLight }]}>
+                    <View style={[todayStyles.emptyCheck, { backgroundColor: theme.success }]}>
+                        <Check size={18} color="#fff" />
+                    </View>
+                    <View style={todayStyles.flex}>
+                        <Text style={[type.subtitle, { color: theme.text }]}>Sin tomas pendientes hoy</Text>
+                        {nextFuture ? (
+                            <Text style={[type.caption, { color: theme.textMuted }]}>
+                                Próxima: {nextFuture.t.medication_name} · {formatDateTime(nextFuture.d.remind_at)}
+                            </Text>
+                        ) : (
+                            <Text style={[type.caption, { color: theme.textMuted }]}>No hay más tomas programadas.</Text>
+                        )}
+                    </View>
+                </View>
+            ) : (
+                <>
+                    <View style={todayStyles.list}>
+                        {items.map(({ dose, treatment, overdue, label }) => (
+                            <TouchableOpacity
+                                key={dose.id}
+                                disabled={isChecking || !canCheck}
+                                onPress={() => onCheck(dose.id)}
+                                accessibilityRole="button"
+                                accessibilityLabel={`Marcar ${treatment.medication_name} como tomado`}
+                                style={[
+                                    todayStyles.row,
+                                    { backgroundColor: overdue ? theme.accentLight : theme.overlayHover, borderColor: overdue ? theme.accent : theme.border },
+                                ]}
+                            >
+                                <View style={[todayStyles.checkbox, { borderColor: overdue ? theme.accent : theme.border }]}>
+                                    {isChecking ? <ActivityIndicator size="small" color={theme.primary} /> : null}
+                                </View>
+                                <View style={todayStyles.flex}>
+                                    <Text style={[type.subtitle, { color: theme.text }]}>{treatment.medication_name}</Text>
+                                    <Text style={[type.caption, { color: theme.textMuted }]}>{treatment.dosage} · {label}</Text>
+                                </View>
+                                {overdue && (
+                                    <View style={[todayStyles.badge, { backgroundColor: theme.primary }]}>
+                                        <Text style={[type.label, { color: theme.surface }]}>ATRASADA</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                    {pending.length > 1 && canCheck && (
+                        <Button
+                            label={`Marcar las ${pending.length} tomas`}
+                            variant="secondary"
+                            onPress={() => pending.forEach((i) => onCheck(i.dose.id))}
+                            disabled={isChecking}
+                            fullWidth
+                        />
+                    )}
+                </>
+            )}
+        </View>
+    );
+}
+
+const todayStyles = StyleSheet.create({
+    panel: {
+        borderRadius: radius.xl,
+        borderWidth: 1,
+        padding: spacing.xl,
+        gap: spacing.md,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: spacing.md,
+    },
+    headerLeft: { flex: 1, gap: 2 },
+    headerTitle: { marginTop: 2 },
+    headerRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        flexShrink: 0,
+    },
+    list: { gap: spacing.sm },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+        padding: spacing.md,
+        borderRadius: radius.lg,
+        borderWidth: 1,
+    },
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderRadius: 7,
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+    },
+    flex: { flex: 1, gap: 1 },
+    badge: {
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 2,
+        borderRadius: radius.pill,
+        flexShrink: 0,
+    },
+    emptyOk: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+        padding: spacing.lg,
+        borderRadius: radius.lg,
+    },
+    emptyCheck: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+    },
+});
 
 export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onToggle, canToggle, isToggling, onSetStartDate, canSetStart, isSettingStart }: {
     treatment: Treatment;
@@ -278,7 +441,7 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
             {/* Avance y próxima toma */}
             {total > 0 ? (
                 <Text style={[type.caption, styles.mt, { color: theme.textMuted }]}>
-                    {taken} de {total} tomas{nextDose ? ` · próxima ${doseTimeLabel(nextDose).toLowerCase()}` : ' · tratamiento terminado'}
+                    {taken} de {total} tomas{nextDose ? ` · próxima ${formatDateTime(nextDose.remind_at)}` : ' · tratamiento terminado'}
                 </Text>
             ) : (
                 <Text style={[type.caption, styles.mt, { color: theme.textMuted }]}>

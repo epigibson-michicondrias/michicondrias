@@ -11,11 +11,11 @@ import SectionHeader from '@/src/components/SectionHeader';
 import EmptyState from '@/src/components/EmptyState';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import AppRefreshControl from '@/src/components/AppRefreshControl';
-import { Award, Activity, Calendar, LayoutGrid, HeartPulse, ClipboardList, Share2, Pencil, PawPrint, Satellite, Scissors, Flower2 } from 'lucide-react-native';
+import { Award, Activity, Calendar, LayoutGrid, HeartPulse, ClipboardList, Pill, Share2, Pencil, PawPrint, Satellite, Scissors, Flower2 } from 'lucide-react-native';
 import SegmentedControl from '@/src/components/SegmentedControl';
 import { Skeleton } from '@/src/components/Skeleton';
 import { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
-import { PetHealthTab } from '@/src/features/mascotas/PetHealthTabs';
+import { PetHealthTab, PetTreatmentsTab } from '@/src/features/mascotas/PetHealthTabs';
 import { PetHistoryTab } from '@/src/features/mascotas/PetHistoryTab';
 import { PetPassportShare } from '@/src/features/mascotas/PetPassportShare';
 import { spacing, radius, type, shadow, layout } from '@/constants/design';
@@ -34,7 +34,7 @@ export default function PetProfileScreen() {
         shareUrl, openShare, closeShare,
         handleSubscribeMichiTracker, isSubscribing, openTrackerBilling, isOpeningBilling,
     } = usePetDetail();
-    const health = usePetHealth(pet?.id, pet, tab === 'resumen' ? null : tab);
+    const health = usePetHealth(pet?.id, pet, tab === 'resumen' ? null : tab === 'tratamientos' ? 'tratamientos' : tab);
 
     if (isLoading) return (
         <ScreenContainer>
@@ -100,11 +100,13 @@ export default function PetProfileScreen() {
                         options={[
                             { value: 'resumen', label: 'Resumen', icon: LayoutGrid },
                             { value: 'salud', label: 'Salud', icon: HeartPulse },
+                            { value: 'tratamientos', label: 'Tratamientos', icon: Pill },
                             { value: 'historial', label: 'Historial', icon: ClipboardList },
                         ]}
                     />
 
                     {tab === 'salud' && <View style={styles.tabBody}><PetHealthTab health={health} petName={pet.name} /></View>}
+                    {tab === 'tratamientos' && <View style={styles.tabBody}><PetTreatmentsTab health={health} /></View>}
                     {tab === 'historial' && <View style={styles.tabBody}><PetHistoryTab health={health} petId={pet.id} petName={pet.name} /></View>}
 
                     {tab === 'resumen' && (<>

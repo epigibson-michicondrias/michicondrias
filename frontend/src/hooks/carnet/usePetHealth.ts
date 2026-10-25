@@ -50,8 +50,9 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
             ...t,
             doses: t.doses.map((d) => ({
                 ...d,
-                /** La dosis ya toca si es pasada o cae dentro de la próxima hora. */
                 isDue: new Date(d.remind_at).getTime() - Date.now() <= 3_600_000,
+                isOverdue: new Date(d.remind_at).getTime() < Date.now(),
+                isToday: new Date(d.remind_at).toDateString() === new Date().toDateString(),
             })),
         })),
         enabled: enabled && (section === 'tratamientos' || section === 'salud'),

@@ -22,6 +22,7 @@ export function useTreatmentDetail() {
             doses: data.doses.map((d) => ({
                 ...d,
                 isDue: new Date(d.remind_at).getTime() - Date.now() <= 3_600_000,
+                isOverdue: new Date(d.remind_at).getTime() < Date.now(),
             })),
         }),
     });

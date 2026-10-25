@@ -243,6 +243,10 @@
 .treatmentGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: var(--space-md); }
 .treatmentCard { display: flex; flex-direction: column; gap: var(--space-xs); padding: var(--space-lg); border: 1px solid var(--color-divider); border-radius: var(--radius-lg); background: var(--color-surface); }
 .treatmentHeader { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
+.treatmentCard { display: flex; flex-direction: column; gap: var(--space-xs); padding: var(--space-lg); border: 1px solid var(--color-divider); border-radius: var(--radius-lg); background: var(--color-surface); text-decoration: none; color: inherit; transition: border-color 0.15s, box-shadow 0.15s; }
+.treatmentCard:hover { border-color: var(--color-primary); box-shadow: 0 4px 16px rgba(233, 200, 131, 0.12); }
+.progressTrack { height: 6px; border-radius: var(--radius-pill); background: var(--color-overlay-hover); overflow: hidden; margin: var(--space-xs) 0; }
+.progressFill { height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--color-primary), #c9a227); transition: width 0.3s; }
 .statusBadge { font-size: var(--font-xs); font-weight: 600; padding: 2px var(--space-sm); border-radius: var(--radius-pill); white-space: nowrap; }
 .statusActive { background: var(--color-primary-light); color: var(--color-primary); }
 .statusDone { background: var(--color-success-light); color: var(--color-success); }

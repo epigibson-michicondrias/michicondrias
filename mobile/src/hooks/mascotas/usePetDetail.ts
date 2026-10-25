@@ -13,7 +13,7 @@ import { openStripeUrl } from '@/src/utils/payments';
 import type { Pet } from '@/src/types/mascotas';
 import { useTrackerBilling } from './useTrackerBilling';
 
-export type PetTab = 'resumen' | 'salud' | 'historial';
+export type PetTab = 'resumen' | 'salud' | 'tratamientos' | 'historial';
 
 export function usePetDetail() {
     const { id, tab: initialTab, subscription } = useLocalSearchParams<{ id: string; tab?: string; subscription?: string }>();
@@ -95,7 +95,7 @@ export function usePetDetail() {
 
     // Pestaña visible: ?tab=salud|historial (enlaces desde Mi clínica, notificaciones o el carnet viejo)
     const [tab, setTab] = useState<PetTab>(
-        initialTab === 'salud' || initialTab === 'historial' ? initialTab : 'resumen',
+        initialTab === 'salud' || initialTab === 'historial' || initialTab === 'tratamientos' ? initialTab : 'resumen',
     );
 
     // La ficha también la abren admin (panel de mascotas) y veterinarios: solo el dueño edita o contrata servicios

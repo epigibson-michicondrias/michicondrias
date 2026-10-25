@@ -34,6 +34,7 @@ import type { usePetHealth } from "@/hooks/carnet/usePetHealth";
 import type { Pet } from "@/types/mascotas";
 import type { Vaccine } from "@/types/carnet";
 import { capitalize, formatAge, formatDate, formatWeight } from "@/utils/formatters";
+import { TodayDoses } from "./TodayDoses";
 import d from "./PetDetail.module.css";
 
 type Health = ReturnType<typeof usePetHealth>;
@@ -330,44 +331,24 @@ function TreatmentCard({ t, health }: { t: Health["treatments"][number]; health:
   const total = t.doses.length;
   const taken = t.doses.filter((x) => x.sent).length;
   const nextDose = t.doses.find((x) => !x.sent);
-  const takenDoses = t.doses.filter((x) => x.sent);
+  const progress = total ? taken / total : 0;
   return (
-    <div className={d.treatmentCard}>
+    <Link href={`/carnet/tratamiento/${t.prescription_id}`} className={d.treatmentCard}>
       <div className={d.treatmentHeader}>
-        <h3 className={d.treatmentName}>
-          <Link href={`/carnet/tratamiento/${t.prescription_id}`}>{t.medication_name}</Link>
-        </h3>
+        <h3 className={d.treatmentName}>{t.medication_name}</h3>
         <span className={`${d.statusBadge} ${t.status === "en-curso" ? d.statusActive : t.status === "terminado" ? d.statusDone : d.statusPending}`}>
           {t.status === "en-curso" ? "En curso" : t.status === "terminado" ? "Terminado" : "Por iniciar"}
         </span>
       </div>
       <p className={d.treatmentMeta}>{t.dosage} · cada {t.frequency_hours} h · {t.duration_days} días</p>
-      <p className={d.treatmentMeta}>
-        Inicio: {formatDate(t.start_date || t.record_date)}
-        {health.canCheckReminders && t.status !== "terminado" && (
-          <>
-            {" · "}
-            <button type="button" className={d.linkBtn} onClick={() => {
-              const v = window.prompt("Fecha de inicio (AAAA-MM-DD)", (t.start_date || t.record_date || "").slice(0, 10));
-              if (v) health.setStartDate(t.prescription_id, v);
-            }}>
-              Cambiar
-            </button>
-          </>
-        )}
-      </p>
-      <p className={d.treatmentMeta}>
-        {total > 0
-          ? `${taken} de ${total} tomas${nextDose ? ` · próxima ${formatDate(nextDose.remind_at)}` : " · todas registradas"}`
-          : "Sin tomas programadas"}
-      </p>
-      <div className={d.treatmentActions}>
-        {health.canCheckReminders && (
-          <FormSwitch label="Avisos" value={t.reminders_enabled} onChange={(v) => health.toggleReminders(t.prescription_id, v)} />
-        )}
-        <Link href={`/carnet/tratamiento/${t.prescription_id}`} className={d.linkBtn}>Ver ficha</Link>
+      <div className={d.progressTrack}>
+        <div className={d.progressFill} style={{ width: `${Math.round(progress * 100)}%` }} />
       </div>
-    </div>
+      <p className={d.treatmentMeta}>
+        {total > 0 ? `${taken} de ${total} tomas` : "Sin tomas"}
+        {nextDose ? ` · próxima ${formatDate(nextDose.remind_at)}` : ""}
+      </p>
+    </Link>
   );
 }
 
@@ -391,6 +372,12 @@ export function PetTreatments({ health }: { health: Health }) {
   }
   return (
     <div className={d.treatmentsLayout}>
+      <TodayDoses
+        treatments={health.treatments}
+        onCheck={health.checkReminder}
+        isChecking={health.isChecking}
+        canCheck={health.canCheckReminders}
+      />
       {(["en-curso", "por-iniciar", "terminado"] as const).map((status) => {
         const list = health.treatments.filter((t) => t.status === status);
         if (!list.length) return null;

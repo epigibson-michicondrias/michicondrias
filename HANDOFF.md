@@ -391,6 +391,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-25 · Mimo** — **Tratamientos premium (web + app)**. Panel «Lo que toca hoy» tipo checklist de vidrio con
+  checkbox por dosis, atrasadas resaltadas en dorado, botón «Marcar las N tomas». Tarjetas de tratamiento con barra
+  de avance y badge de estado. Ficha de tratamiento reescrita como documento premium: hero con anillo de progreso,
+  grid de datos con iconos, próxima toma destacada, línea de tiempo con conectores de color (verde/oro/gris) y chips
+  de estado, panel lateral con acciones e impresión. En la app: `TodayDoses` y `PetTreatmentsTab` nuevos, tab
+  «Tratamientos» en la ficha de la mascota. Paleta *Midnight & Gold* respetada en ambos temas.
+
 - **2026-10-25 · Mimo** — **Historial de tomas, estados de tratamiento y fecha de inicio** (backend + app + web).
   El dueño fija cuándo empieza el tratamiento (`PATCH` con `start_date`): las tomas se reprograman desde esa fecha y
   las ya tomadas quedan como historial. Cada toma guarda `taken_at`. `GET /treatments` trae `status`

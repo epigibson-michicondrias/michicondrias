@@ -3,13 +3,13 @@
  * La pestaña Historial vive en `PetHistoryTab.tsx`.
  */
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { Syringe, Pill, FlaskConical, Sparkles } from 'lucide-react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { Syringe, Pill, FlaskConical, Sparkles, Check, Sun, CheckCircle2 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import SectionHeader from '@/src/components/SectionHeader';
 import Button from '@/src/components/Button';
 import { Skeleton } from '@/src/components/Skeleton';
-import { VaccineItem, TreatmentItem, LabItem } from '@/src/features/carnet/CarnetItems';
+import { VaccineItem, TreatmentItem, LabItem, TodayDoses } from '@/src/features/carnet/CarnetItems';
 import type { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { spacing, radius, type, layout } from '@/constants/design';
 
@@ -111,6 +111,52 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
                     icon={<Sparkles size={layout.icon.md} color={theme.text} />}
                 />
             )}
+        </View>
+    );
+}
+
+/** Pestaña Tratamientos: panel «Hoy» + tratamientos agrupados por estado. */
+export function PetTreatmentsTab({ health }: { health: Health }) {
+    const { theme } = useTheme();
+    if (health.loadingTreatments) return <LoadingRows />;
+    if (!health.treatments.length) {
+        return <EmptyLine text="Sin tratamientos. Aparecen aquí cuando una consulta incluye receta." />;
+    }
+    return (
+        <View style={styles.tab}>
+            <TodayDoses
+                treatments={health.treatments}
+                onCheck={health.checkReminder}
+                isChecking={health.isChecking}
+                canCheck={health.canCheckReminders}
+            />
+            {(['en-curso', 'por-iniciar', 'terminado'] as const).map((status) => {
+                const list = health.treatments.filter((t) => t.status === status);
+                if (!list.length) return null;
+                const label = status === 'en-curso' ? 'En curso' : status === 'por-iniciar' ? 'Por iniciar' : 'Terminados';
+                return (
+                    <View key={status} style={styles.statusGroup}>
+                        <Text style={[type.label, { color: theme.textMuted }]}>{label}</Text>
+                        <View style={styles.list}>
+                            {list.map((t) => (
+                                <TreatmentItem
+                                    key={t.prescription_id}
+                                    treatment={t}
+                                    onCheck={health.checkReminder}
+                                    canCheck={health.canCheckReminders}
+                                    isChecking={health.isChecking}
+                                    onToggle={health.toggleReminders}
+                                    canToggle={health.canCheckReminders}
+                                    isToggling={health.isToggling}
+                                    onSetStartDate={health.setStartDate}
+                                    canSetStart={health.canCheckReminders}
+                                    isSettingStart={health.isSettingStart}
+                                />
+                            ))}
+                        </View>
+                    </View>
+                );
+            })}
         </View>
     );
 }
