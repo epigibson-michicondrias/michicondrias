@@ -23,6 +23,7 @@ import {
   Sparkles,
   Syringe,
 } from "lucide-react";
+import FormSwitch from "@/components/forms/FormSwitch";
 import Button from "@/components/Button";
 import EmptyState from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
@@ -273,24 +274,49 @@ export function PetHealth({ pet, health }: { pet: Pet; health: Health }) {
 
       <aside className={d.aside}>
         <Panel title="Medicamentos" icon={<Pill size={18} />}>
-          {health.loadingReminders ? (
+          {health.loadingTreatments ? (
             <Skeleton height={56} borderRadius={12} />
-          ) : health.reminders.length === 0 ? (
+          ) : health.treatments.length === 0 ? (
             <p className={d.muted}>Sin tratamientos activos. Aparecen aquí cuando una consulta incluye receta.</p>
           ) : (
             <ul className={d.rows}>
-              {health.reminders.map((r) => (
-                <li key={r.id} className={d.row}>
-                  <span className={d.cellMain}>
-                    <strong>{r.medication_name}</strong>
-                    <span>{r.dosage} · cada {r.frequency_hours} h · {r.duration_days} días</span>
-                    <span>{r.sent ? "Tomado" : `Toca el ${formatDate(r.remind_at)}`}</span>
-                  </span>
-                  {!r.sent && health.canCheckReminders && (
-                    <Button label="Tomado" size="sm" variant="secondary" fullWidth={false} onPress={() => health.checkReminder(r.id)} accessibilityLabel={`Marcar ${r.medication_name} como tomado`} />
-                  )}
-                </li>
-              ))}
+              {health.treatments.map((t) => {
+                const total = t.doses.length;
+                const taken = t.doses.filter((x) => x.sent).length;
+                const nextDose = t.doses.find((x) => !x.sent);
+                return (
+                  <li key={t.prescription_id} className={d.treatment}>
+                    <p className={d.treatmentName}>{t.medication_name}</p>
+                    <p className={d.treatmentMeta}>
+                      {t.dosage} · cada {t.frequency_hours} h · {t.duration_days} días
+                    </p>
+                    <p className={d.treatmentMeta}>
+                      {total > 0
+                        ? `${taken} de ${total} tomas${nextDose ? ` · próxima ${formatDate(nextDose.remind_at)}` : " · terminado"}`
+                        : "Sin tomas programadas"}
+                    </p>
+                    <div className={d.treatmentActions}>
+                      {health.canCheckReminders && (
+                        <FormSwitch
+                          label="Avisos"
+                          value={t.reminders_enabled}
+                          onChange={(v) => health.toggleReminders(t.prescription_id, v)}
+                        />
+                      )}
+                      {nextDose && health.canCheckReminders && (
+                        <Button
+                          label="Tomado"
+                          size="sm"
+                          variant="secondary"
+                          fullWidth={false}
+                          onPress={() => health.checkReminder(nextDose.id)}
+                          accessibilityLabel={`Marcar ${t.medication_name} como tomado`}
+                        />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </Panel>

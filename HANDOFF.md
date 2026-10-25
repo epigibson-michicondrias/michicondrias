@@ -194,9 +194,6 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
   la toma como dada. Producción: Meloxicam 5/5 tomas programadas y avisadas a tiempo.
 - [ ] **El aviso llega solo a la bandeja de la app, no como push al teléfono**: falta FCM (`notify_user_push`) y el APK
   con `expo-notifications` (U10).
-- [ ] Recetas viejas sin tomas programadas (p. ej. «Enjuague bucal Clorhexidina», consulta del 15 oct): el backend ya
-  puede rellenarlas — `PATCH /reminders/prescriptions/{id}` con `enabled=true` programa las tomas que faltan sin tocar
-  la base a mano — pero **falta la UI** en app y web para que el dueño active los avisos de cada medicamento.
 - [ ] Editar una consulta no cambia su receta (el formulario de edición no la muestra). Si se habilita, hay que
   reprogramar las tomas.
 
@@ -393,6 +390,13 @@ app/
 ## 9. Bitácora compartida (más reciente arriba)
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
+
+- **2026-10-24 · Mimo** — **Interruptor de avisos de medicamentos (app + web)**: el dueño activa o desactiva los
+  avisos de cada medicamento recetado en la pestaña Salud. Tarjeta por tratamiento con nombre, dosis/frecuencia/
+  duración, avance («3 de 5 tomas»), interruptor «Avisos» y botón «Tomado» para la próxima dosis. En web, panel
+  lateral de Medicamentos con `FormSwitch`; en app, `TreatmentItem` en `CarnetItems.tsx`. Lógica espejo en
+  `services/reminders.ts` (`getTreatments`, `setPrescriptionReminders`) y `usePetHealth`. Capturas verificadas a
+  1280 y 375, claro y oscuro. Resuelve el pendiente de recetas viejas sin tomas programadas.
 
 - **2026-10-24 · Mimo** — **Cierre del bloque de recordatorios que dejó Claude sin commit**: endpoints
   `GET /reminders/pet/{id}/treatments` y `PATCH /reminders/prescriptions/{id}` (el dueño activa/desactiva los avisos de

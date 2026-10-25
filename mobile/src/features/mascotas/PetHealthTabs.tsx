@@ -9,7 +9,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import SectionHeader from '@/src/components/SectionHeader';
 import Button from '@/src/components/Button';
 import { Skeleton } from '@/src/components/Skeleton';
-import { VaccineItem, ReminderItem, LabItem } from '@/src/features/carnet/CarnetItems';
+import { VaccineItem, TreatmentItem, LabItem } from '@/src/features/carnet/CarnetItems';
 import type { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { spacing, radius, type, layout } from '@/constants/design';
 
@@ -58,12 +58,19 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
 
             <View style={styles.section}>
                 <SectionHeader title="Medicamentos" icon={<Pill size={layout.icon.sm} color={theme.primary} />} />
-                {health.loadingReminders ? <LoadingRows /> : health.reminders.length === 0 ? (
+                {health.loadingTreatments ? <LoadingRows /> : health.treatments.length === 0 ? (
                     <EmptyLine text="Sin tratamientos activos. Aparecen aquí cuando una consulta incluye receta." />
                 ) : (
                     <View style={styles.list}>
-                        {health.reminders.map((r) => (
-                            <ReminderItem key={r.id} reminder={r} onCheck={health.checkReminder} canCheck={health.canCheckReminders} />
+                        {health.treatments.map((t) => (
+                            <TreatmentItem
+                                key={t.prescription_id}
+                                treatment={t}
+                                onCheck={health.checkReminder}
+                                canCheck={health.canCheckReminders}
+                                onToggle={health.toggleReminders}
+                                canToggle={health.canCheckReminders}
+                            />
                         ))}
                     </View>
                 )}

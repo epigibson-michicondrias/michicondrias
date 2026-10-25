@@ -13,7 +13,7 @@ import { useTheme } from '@/src/hooks/useTheme';
 import IconButton from '@/src/components/IconButton';
 import { spacing, radius, type, layout } from '@/constants/design';
 import type { MedicalRecord, Vaccine } from '@/src/services/carnet';
-import type { ReminderWithDetails } from '@/src/services/reminders';
+import type { Treatment, TreatmentDose } from '@/src/services/reminders';
 
 const formatDate = (iso?: string | null) =>
     iso ? new Date(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Sin fecha';
@@ -166,10 +166,10 @@ export function VaccineItem({ vaccine, onEdit, onDelete }: {
     );
 }
 
-// ── Recordatorio de medicamento (Salud) ─────────────────────────────
-function timeLabel(reminder: ReminderWithDetails) {
-    if (reminder.sent) return 'Tomado';
-    const diffMs = new Date(reminder.remind_at).getTime() - Date.now();
+// ── Tratamiento: medicamento recetado con interruptor de avisos (Salud) ──
+function doseTimeLabel(dose: TreatmentDose) {
+    if (dose.sent) return 'Tomado';
+    const diffMs = new Date(dose.remind_at).getTime() - Date.now();
     if (diffMs < 0) return 'Atrasado';
     const hours = Math.round(diffMs / 3_600_000);
     if (hours < 1) return 'En menos de 1 h';
@@ -178,39 +178,77 @@ function timeLabel(reminder: ReminderWithDetails) {
     return days === 1 ? 'Mañana' : `En ${days} días`;
 }
 
-export function ReminderItem({ reminder, onCheck, canCheck }: { reminder: ReminderWithDetails; onCheck: (id: string) => void; canCheck: boolean }) {
+export function TreatmentItem({ treatment, onCheck, canCheck, onToggle, canToggle }: {
+    treatment: Treatment;
+    onCheck: (id: string) => void;
+    canCheck: boolean;
+    onToggle: (prescriptionId: string, enabled: boolean) => void;
+    canToggle: boolean;
+}) {
     const { theme } = useTheme();
-    const overdue = !reminder.sent && new Date(reminder.remind_at).getTime() < Date.now();
-    const color = reminder.sent ? theme.success : overdue ? theme.error : theme.primary;
-    const when = new Date(reminder.remind_at);
+    const total = treatment.doses.length;
+    const taken = treatment.doses.filter((d) => d.sent).length;
+    const nextDose = treatment.doses.find((d) => !d.sent);
+    const allDone = total > 0 && !nextDose;
+
     return (
-        <View style={[styles.card, styles.rowCard, { backgroundColor: theme.surface, borderColor: overdue ? theme.error : theme.border }]}>
-            <View style={[styles.iconBox, { backgroundColor: theme.overlayHover }]}>
-                <Pill size={layout.icon.md} color={color} />
-            </View>
-            <View style={styles.flex}>
-                <View style={styles.rowBetween}>
-                    <Text style={[type.subtitle, styles.flex, { color: theme.text }]}>{reminder.medication_name}</Text>
-                    <Tag label={timeLabel(reminder)} color={color} />
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <View style={styles.rowBetween}>
+                <View style={styles.row}>
+                    <View style={[styles.iconBox, { backgroundColor: theme.primaryLight }]}>
+                        <Pill size={layout.icon.md} color={theme.primary} />
+                    </View>
+                    <View style={styles.flex}>
+                        <Text style={[type.subtitle, { color: theme.text }]}>{treatment.medication_name}</Text>
+                        <Text style={[type.caption, { color: theme.textMuted }]}>
+                            {treatment.dosage} · cada {treatment.frequency_hours} h · {treatment.duration_days} días
+                        </Text>
+                    </View>
                 </View>
-                <Text style={[type.caption, { color: theme.textMuted }]}>
-                    {reminder.dosage} · cada {reminder.frequency_hours} h · {reminder.duration_days} días
-                </Text>
-                <Text style={[type.caption, { color: theme.textMuted }]}>
-                    {when.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })} · {when.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-                {!reminder.sent && canCheck && (
+                {canToggle && (
                     <TouchableOpacity
-                        style={[styles.checkBtn, { backgroundColor: theme.primaryLight }]}
-                        onPress={() => onCheck(reminder.id)}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Marcar ${reminder.medication_name} como tomado`}
+                        onPress={() => onToggle(treatment.prescription_id, !treatment.reminders_enabled)}
+                        accessibilityRole="switch"
+                        accessibilityState={{ checked: treatment.reminders_enabled }}
+                        accessibilityLabel={`Avisos de ${treatment.medication_name}`}
+                        style={[
+                            styles.toggle,
+                            { backgroundColor: treatment.reminders_enabled ? theme.primary : theme.overlayHover, borderColor: treatment.reminders_enabled ? theme.primary : theme.border },
+                        ]}
                     >
-                        <Check size={layout.icon.sm} color={theme.primary} />
-                        <Text style={[type.bodyStrong, { color: theme.primary }]}>Marcar como tomado</Text>
+                        <View style={[styles.toggleThumb, { backgroundColor: theme.surface, transform: [{ translateX: treatment.reminders_enabled ? 18 : 2 }] }]} />
                     </TouchableOpacity>
                 )}
             </View>
+
+            {total > 0 ? (
+                <Text style={[type.caption, styles.mt, { color: theme.textMuted }]}>
+                    {taken} de {total} tomas{nextDose ? ` · próxima ${doseTimeLabel(nextDose).toLowerCase()}` : ' · tratamiento terminado'}
+                </Text>
+            ) : (
+                <Text style={[type.caption, styles.mt, { color: theme.textMuted }]}>
+                    Sin tomas programadas{treatment.reminders_enabled ? '' : ' · avisos apagados'}
+                </Text>
+            )}
+
+            {nextDose && canCheck && (
+                <TouchableOpacity
+                    style={[styles.checkBtn, { backgroundColor: theme.primaryLight }]}
+                    onPress={() => onCheck(nextDose.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Marcar ${treatment.medication_name} como tomado`}
+                >
+                    <Check size={layout.icon.sm} color={theme.primary} />
+                    <Text style={[type.bodyStrong, { color: theme.primary }]}>Marcar como tomado</Text>
+                </TouchableOpacity>
+            )}
+
+            {allDone && (
+                <View style={[styles.row, styles.mt]}>
+                    <Check size={layout.icon.xs} color={theme.success} />
+                    <Text style={[type.caption, { color: theme.success }]}>Todas las tomas registradas</Text>
+                </View>
+            )}
         </View>
     );
 }
@@ -336,5 +374,18 @@ const styles = StyleSheet.create({
         minHeight: layout.minTouch,
         borderRadius: radius.md,
         marginTop: spacing.sm,
+    },
+    toggle: {
+        width: 44,
+        height: 26,
+        borderRadius: radius.pill,
+        borderWidth: 1,
+        justifyContent: 'center',
+        padding: 2,
+    },
+    toggleThumb: {
+        width: 20,
+        height: 20,
+        borderRadius: radius.pill,
     },
 });

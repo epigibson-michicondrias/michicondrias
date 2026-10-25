@@ -9,7 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { normalizeRole } from '@/src/constants/roles';
 import { getRecordsByPet, getVaccinesByPet, deleteVaccine, deleteRecord } from '@/src/services/carnet';
-import { getRemindersWithDetails, checkReminder } from '@/src/services/reminders';
+import { getTreatments, setPrescriptionReminders, checkReminder, type Treatment } from '@/src/services/reminders';
 import { getPetLabHistory } from '@/src/services/laboratorio';
 import { showAlert } from '@/src/components/AppAlert';
 import type { Pet } from '@/src/types/mascotas';
@@ -42,9 +42,9 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         // Siempre: el estado de vacunas se muestra fuera de la pestaña Salud (Resumen en la app, hero en la web)
         enabled,
     });
-    const reminders = useQuery({
-        queryKey: ['pet-reminders', petId],
-        queryFn: () => getRemindersWithDetails(petId!),
+    const treatments = useQuery({
+        queryKey: ['pet-treatments', petId],
+        queryFn: () => getTreatments(petId!),
         enabled: enabled && section === 'salud',
     });
     const labs = useQuery({
@@ -83,9 +83,19 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
 
     const checkMutation = useMutation({
         mutationFn: checkReminder,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pet-reminders', petId] }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pet-treatments', petId] }),
         onError: (error: any) => {
             showAlert({ type: 'error', title: 'No se pudo marcar', message: error?.message || 'Inténtalo de nuevo.' });
+        },
+    });
+
+    /** El dueño activa o desactiva los avisos de un medicamento recetado. */
+    const toggleRemindersMutation = useMutation({
+        mutationFn: ({ prescriptionId, enabled }: { prescriptionId: string; enabled: boolean }) =>
+            setPrescriptionReminders(prescriptionId, enabled),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pet-treatments', petId] }),
+        onError: (error: any) => {
+            showAlert({ type: 'error', title: 'No se pudo cambiar', message: error?.message || 'Inténtalo de nuevo.' });
         },
     });
 
@@ -152,11 +162,13 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         vaccines: vaccines.data ?? [],
         loadingVaccines: vaccines.isLoading,
         vaccinesStatus,
-        reminders: reminders.data ?? [],
-        loadingReminders: reminders.isLoading,
+        treatments: treatments.data ?? [],
+        loadingTreatments: treatments.isLoading,
         labResults: labs.data ?? [],
         loadingLabs: labs.isLoading,
         checkReminder: (id: string) => checkMutation.mutate(id),
+        toggleReminders: (prescriptionId: string, enabled: boolean) =>
+            toggleRemindersMutation.mutate({ prescriptionId, enabled }),
         addRecord: () => router.push(`/carnet/nueva-consulta?pet_id=${petId}` as any),
         addVaccine: () => router.push(`/carnet/nueva-vacuna?pet_id=${petId}` as any),
         editRecord: (id: string) => router.push(`/carnet/nueva-consulta?pet_id=${petId}&id=${id}` as any),

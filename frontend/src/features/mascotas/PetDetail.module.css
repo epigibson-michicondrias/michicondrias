@@ -221,6 +221,13 @@
 .row + .row { border-top: 1px solid var(--color-divider); }
 .cellMain { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .cellMain span { color: var(--color-text-muted); font-size: var(--font-sm); }
+.rowActions { display: flex; align-items: center; gap: var(--space-md); flex-shrink: 0; }
+
+.treatment { display: flex; flex-direction: column; gap: var(--space-xs); padding: var(--space-sm) 0; }
+.treatment + .treatment { border-top: 1px solid var(--color-divider); }
+.treatmentName { margin: 0; font-size: var(--font-md); font-weight: 600; color: var(--color-text); line-height: 1.3; }
+.treatmentMeta { margin: 0; color: var(--color-text-muted); font-size: var(--font-sm); line-height: 1.4; }
+.treatmentActions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); margin-top: var(--space-xs); }
 
 .pill {
   display: inline-block;
