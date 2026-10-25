@@ -52,7 +52,7 @@ export default function EditarMascotaPage() {
 
   return (
     <ScreenContainer>
-      <ScreenHeader title="Editar mascota" />
+      <ScreenHeader title={`Editar a ${pet.name}`} />
       <PetForm
         form={form}
         updateField={updateField}
@@ -60,6 +60,7 @@ export default function EditarMascotaPage() {
         onImageChange={setImageFile}
         submitLabel="Guardar cambios"
         onSubmit={handleUpdate}
+        onCancel={() => router.back()}
         busy={isUpdating}
       >
         <section className={s.dangerCard} aria-labelledby="danger-title">
