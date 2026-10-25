@@ -33,18 +33,31 @@ function StockBadge({ stock }: { stock: number }) {
     return null;
 }
 
-/** Precio + calificación. */
+/** Precio + calificación + envío + cuotas (estilo marketplace). */
 function PriceLine({ product }: { product: Product }) {
     const { theme } = useTheme();
+    const installments = product.price >= 500 ? Math.ceil(product.price / 12) : 0;
     return (
-        <View style={styles.priceLine}>
-            <Text style={[type.title, styles.price, { color: theme.primary }]} numberOfLines={1}>{formatCurrency(product.price)}</Text>
-            {product.review_count > 0 ? (
-                <View style={styles.rating}>
-                    <Star size={layout.icon.xs} color={theme.accent} fill={theme.accent} />
-                    <Text style={[type.caption, { color: theme.textMuted }]}>{Number(product.average_rating).toFixed(1)}</Text>
-                </View>
-            ) : null}
+        <View style={styles.priceCol}>
+            <View style={styles.priceLine}>
+                <Text style={[type.title, styles.price, { color: theme.primary }]} numberOfLines={1}>{formatCurrency(product.price)}</Text>
+                {product.review_count > 0 ? (
+                    <View style={styles.rating}>
+                        <Star size={layout.icon.xs} color={theme.accent} fill={theme.accent} />
+                        <Text style={[type.caption, { color: theme.textMuted }]}>{Number(product.average_rating).toFixed(1)}</Text>
+                    </View>
+                ) : null}
+            </View>
+            {installments > 0 && (
+                <Text style={[type.caption, { color: theme.primary, fontWeight: '600' }]}>
+                    12x {formatCurrency(installments)} sin interés
+                </Text>
+            )}
+            {product.stock > 0 && product.price >= 300 && (
+                <Text style={[type.caption, { color: theme.success, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.3 }]}>
+                    Envío gratis
+                </Text>
+            )}
         </View>
     );
 }
@@ -141,7 +154,8 @@ export function ProductListRow({ product, onPress, onQuickAdd, isFavorite, onTog
 }
 
 const styles = StyleSheet.create({
-    priceLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.xs, marginTop: spacing.xxs },
+    priceCol: { gap: 2, marginTop: spacing.xxs },
+    priceLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.xs },
     price: { fontFamily: families.extrabold, flexShrink: 1 },
     rating: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs },
     quickAdd: {
