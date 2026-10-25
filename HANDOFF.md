@@ -400,7 +400,9 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   datos personales en rejilla, actividad rápida, seguridad/2FA/facturación/soporte en columna derecha. **Web Inicio**
   a dos columnas: mascotas, citas y «Lo que toca hoy» con recordatorios de dosis (atrasadas destacadas) + accesos
   del rol, herramientas pro y alertas. **Web Directorio y Citas**: filtros laterales + toggle mapa/lista en
-  directorio; «Mis citas» con DataTable. Vercel ✅.
+  directorio; «Mis citas» con DataTable. **Web Tienda marketplace**: estilo Mercado Libre/Amazon — sidebar de filtros,
+  tarjetas con precio grande/envío gratis/cuotas sin interés/rating, ficha con buy box a dos columnas. App móvil:
+  mismas badges en tarjetas. Vercel ✅, OTA `5b6f0e19-…`.
 
 - **2026-10-25 · Mimo** — **Tratamientos premium (web + app)**. Panel «Lo que toca hoy» tipo checklist de vidrio con
   checkbox por dosis, atrasadas resaltadas en dorado, botón «Marcar las N tomas». Tarjetas de tratamiento con barra
