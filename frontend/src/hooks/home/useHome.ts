@@ -10,6 +10,7 @@ import type { ComponentType } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserPets } from '@/services/mascotas';
 import { getUserAppointments } from '@/services/citas';
+import { getTreatments } from '@/services/reminders';
 import { normalizeRole, isProRole } from '@/constants/roles';
 import { getHomeTools, ROLE_PANEL_TITLE } from '@/constants/roleTools';
 
@@ -70,6 +71,39 @@ export function useHome() {
     enabled: !!user?.id,
   });
 
+  // Recordatorios de dosis: tratamientos de todas las mascotas
+  const petIds = pets.map((p: { id: string }) => p.id).filter(Boolean);
+  const { data: allTreatments = [], isLoading: treatmentsLoading } = useQuery({
+    queryKey: ['home-treatments', petIds.join(',')],
+    queryFn: async () => {
+      const lists = await Promise.all(petIds.map((id: string) => getTreatments(id).catch(() => [])));
+      return lists.flat();
+    },
+    enabled: petIds.length > 0,
+    select: (data) => data.map((t) => ({
+      ...t,
+      doses: t.doses.map((d) => ({
+        ...d,
+        isDue: new Date(d.remind_at).getTime() - Date.now() <= 3_600_000,
+        isOverdue: new Date(d.remind_at).getTime() < Date.now(),
+        isToday: new Date(d.remind_at).toDateString() === new Date().toDateString(),
+      })),
+    })),
+  });
+
+  // Dosis de hoy (atrasadas + las que caen hoy)
+  const todayDoses = useMemo(() => {
+    const list: { dose: typeof allTreatments[0]["doses"][0]; treatment: typeof allTreatments[0] }[] = [];
+    for (const t of allTreatments) {
+      for (const d of t.doses) {
+        if (!d.sent && (d.isOverdue || d.isToday)) {
+          list.push({ dose: d, treatment: t });
+        }
+      }
+    }
+    return list.sort((a, b) => new Date(a.dose.remind_at).getTime() - new Date(b.dose.remind_at).getTime());
+  }, [allTreatments]);
+
   const [now] = useState(() => Date.now());
   const upcomingAppointments = useMemo(() => {
     return appointments
@@ -97,6 +131,8 @@ export function useHome() {
     upcomingAppointments,
     appointmentsLoading,
     appointmentsError,
+    todayDoses,
+    treatmentsLoading,
     quickActions,
     panelTitle: ROLE_PANEL_TITLE[role] || 'Tu espacio',
     isPro: isProRole(role) || role === 'admin',

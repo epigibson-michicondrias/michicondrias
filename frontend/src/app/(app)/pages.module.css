@@ -456,3 +456,84 @@
     padding: var(--space-xl) var(--space-lg);
   }
 }
+
+/* ── Inicio: layout dos columnas ── */
+.homeLayout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-xl);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .homeLayout { grid-template-columns: 1fr; }
+}
+.homeCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  min-width: 0;
+}
+.homeAside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  min-width: 0;
+}
+
+/* Quick actions (columna lateral) */
+.homeQuickList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.homeQuickItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-divider);
+  text-decoration: none;
+  color: var(--color-text);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  transition: border-color 0.15s;
+}
+.homeQuickItem:hover { border-color: var(--color-primary); }
+.homeQuickIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.homeQuickArrow {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* Estados vacíos OK */
+.homeEmptyOk {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.homeEmptyOk svg {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+/* Alerta */
+.homeAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+.homeAlert svg {
+  color: var(--color-warning, var(--color-accent));
+  flex-shrink: 0;
+  margin-top: 2px;
+}

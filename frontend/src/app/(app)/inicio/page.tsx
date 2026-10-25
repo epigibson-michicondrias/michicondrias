@@ -1,21 +1,14 @@
 "use client";
 
 /**
- * Inicio — espejo de `mobile/app/(tabs)/index.tsx`, pero aprovechando el espacio de la web:
- * hero con acento dorado, fila de KPIs, mascotas como tarjetas grandes y atajos en tarjetas.
+ * Inicio — panel de escritorio a dos columnas: mascotas, citas y recordatorios de dosis a la izquierda;
+ * accesos del rol y actividad rápida a la derecha. Criterio §0.
  */
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  AlertTriangle,
-  CalendarDays,
-  ChevronRight,
-  Heart,
-  PawPrint,
-  Plus,
-  ShieldCheck,
-  Sparkles,
-  Stethoscope,
+  AlertTriangle, CalendarDays, Check, ChevronRight, Clock, Heart,
+  PawPrint, Pill, Plus, ShieldCheck, Sparkles, Stethoscope,
 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import SectionHeader from "@/components/SectionHeader";
@@ -26,20 +19,26 @@ import { Skeleton } from "@/components/Skeleton";
 import { useHome, STATUS_COLORS, STATUS_LABELS, formatDate } from "@/hooks/home/useHome";
 import s from "../pages.module.css";
 
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+}
+
 export default function InicioPage() {
   const {
-    greetingName, pets, petsLoading, petsError, upcomingAppointments, appointmentsLoading, appointmentsError,
+    greetingName, pets, petsLoading, petsError,
+    upcomingAppointments, appointmentsLoading, appointmentsError,
+    todayDoses, treatmentsLoading,
     quickActions, panelTitle, isPro, goTools,
   } = useHome();
   const router = useRouter();
 
   const petsCount = pets.length;
   const weekAppointments = upcomingAppointments.length;
-  const trackerCount = pets.filter((p: any) => p.has_active_subscription).length;
+  const trackerCount = pets.filter((p: { has_active_subscription?: boolean }) => p.has_active_subscription).length;
 
   return (
     <ScreenContainer>
-      {/* Hero: identidad de marca + acción principal */}
+      {/* Hero */}
       <header className={s.homeHero}>
         <div className={s.homeHeroGlow} aria-hidden />
         <div>
@@ -69,7 +68,7 @@ export default function InicioPage() {
         </div>
       </header>
 
-      {/* KPIs: resumen visual de un vistazo */}
+      {/* KPIs */}
       <div className={s.kpiRow}>
         <div className={s.kpi}>
           <span className={s.kpiIcon} style={{ background: "var(--color-accent-light)", color: "var(--color-accent)" }}>
@@ -100,109 +99,174 @@ export default function InicioPage() {
         </div>
       </div>
 
-      {/* Mascotas: tarjetas grandes con foto */}
-      <section>
-        <SectionHeader
-          title="Mis mascotas"
-          icon={<PawPrint size={18} />}
-          actionLabel="Ver todas"
-          onAction={() => router.push("/mascotas")}
-        />
-        {petsLoading ? (
-          <div className={s.homeRow}>
-            {[0, 1, 2].map((i) => <Skeleton key={i} height={180} borderRadius={16} />)}
-          </div>
-        ) : petsError ? (
-          // El banner de QueryErrorBanner ya explica el fallo: no fingir que no hay mascotas.
-          null
-        ) : pets.length === 0 ? (
-          <EmptyState
-            icon={<PawPrint size={28} />}
-            title="Aún no tienes mascotas"
-            subtitle="Agrega a tu perro o gato para llevar su control y carnet."
-            actionLabel="Agregar mascota"
-            onAction={() => router.push("/mascotas/nuevo")}
-          />
-        ) : (
-          <div className={s.homeRow}>
-            {pets.slice(0, 6).map((pet) => (
-              <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.petCard}>
-                <div className={s.petCardMedia}>
-                  {pet.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={pet.photo_url} alt={pet.name} loading="lazy" />
-                  ) : (
-                    <div className={s.petCardFallback}><PawPrint size={36} /></div>
-                  )}
-                </div>
-                <div className={s.petCardBody}>
-                  <p className={s.petCardName}>{pet.name}</p>
-                  <p className={s.petCardMeta}>{pet.breed || pet.species}</p>
-                </div>
-              </Link>
-            ))}
-            <button type="button" className={s.homePetAdd} onClick={() => router.push("/mascotas/nuevo")} aria-label="Agregar mascota">
-              <Plus size={22} />
-            </button>
-          </div>
-        )}
-      </section>
-
-      {/* Próximas citas */}
-      <section>
-        <SectionHeader
-          title="Próximas citas"
-          icon={<CalendarDays size={18} />}
-          actionLabel="Ver citas"
-          onAction={() => router.push("/directorio/citas")}
-        />
-        {appointmentsLoading ? (
-          <Skeleton height={64} borderRadius={12} />
-        ) : appointmentsError ? (
-          null
-        ) : upcomingAppointments.length === 0 ? (
-          <Card>
-            <p className={s.homeEmptyLine}>No tienes citas próximas.</p>
-            <Button
-              label="Agendar cita"
-              variant="secondary"
-              size="sm"
-              fullWidth={false}
-              onPress={() => router.push("/directorio")}
+      {/* Dos columnas */}
+      <div className={s.homeLayout}>
+        {/* ── Columna principal ── */}
+        <div className={s.homeCol}>
+          {/* Mascotas */}
+          <section>
+            <SectionHeader
+              title="Mis mascotas"
+              icon={<PawPrint size={18} />}
+              actionLabel="Ver todas"
+              onAction={() => router.push("/mascotas")}
             />
-          </Card>
-        ) : (
-          <div className={s.homeList}>
-            {upcomingAppointments.map((a) => (
-              <Link key={a.id} href="/directorio/citas" className={s.homeItem}>
-                <div>
-                  <p className={s.homePetName}>{a.clinic_name || "Clínica"}</p>
-                  <p className={s.homePetMeta}>{a.pet_name || "Mascota"} · {formatDate(a.appointment_date)}</p>
-                </div>
-                <span className={s.homeStatus} style={{ color: STATUS_COLORS[a.status] || "var(--color-text-muted)" }}>
-                  {STATUS_LABELS[a.status] || a.status}
-                </span>
-                <ChevronRight size={18} aria-hidden />
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+            {petsLoading ? (
+              <div className={s.homeRow}>
+                {[0, 1, 2].map((i) => <Skeleton key={i} height={160} borderRadius={16} />)}
+              </div>
+            ) : petsError ? null : pets.length === 0 ? (
+              <EmptyState
+                icon={<PawPrint size={28} />}
+                title="Aún no tienes mascotas"
+                subtitle="Agrega a tu perro o gato para llevar su control y carnet."
+                actionLabel="Agregar mascota"
+                onAction={() => router.push("/mascotas/nuevo")}
+              />
+            ) : (
+              <div className={s.homeRow}>
+                {pets.slice(0, 6).map((pet: { id: string; name: string; photo_url?: string | null; breed?: string | null; species?: string }) => (
+                  <Link key={pet.id} href={`/mascotas/${pet.id}`} className={s.petCard}>
+                    <div className={s.petCardMedia}>
+                      {pet.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={pet.photo_url} alt={pet.name} loading="lazy" />
+                      ) : (
+                        <div className={s.petCardFallback}><PawPrint size={36} /></div>
+                      )}
+                    </div>
+                    <div className={s.petCardBody}>
+                      <p className={s.petCardName}>{pet.name}</p>
+                      <p className={s.petCardMeta}>{pet.breed || pet.species}</p>
+                    </div>
+                  </Link>
+                ))}
+                <button type="button" className={s.homePetAdd} onClick={() => router.push("/mascotas/nuevo")} aria-label="Agregar mascota">
+                  <Plus size={22} />
+                </button>
+              </div>
+            )}
+          </section>
 
-      {/* Atajos como tarjetas con ícono y acento */}
-      <section>
-        <SectionHeader title="Atajos" icon={<Sparkles size={18} />} />
-        <div className={s.kpiRow}>
-          {quickActions.map((action) => (
-            <Link key={action.title} href={action.route || "/explorar"} className={s.toolCard}>
-              <span className={s.toolCardIcon} style={{ background: "var(--color-accent-light)", color: action.color }}>
-                <action.icon size={20} />
-              </span>
-              <span className={s.toolCardLabel}>{action.title}</span>
-            </Link>
-          ))}
+          {/* Próximas citas */}
+          <section>
+            <SectionHeader
+              title="Próximas citas"
+              icon={<CalendarDays size={18} />}
+              actionLabel="Ver citas"
+              onAction={() => router.push("/directorio/citas")}
+            />
+            {appointmentsLoading ? (
+              <Skeleton height={64} borderRadius={12} />
+            ) : appointmentsError ? null : upcomingAppointments.length === 0 ? (
+              <Card>
+                <p className={s.homeEmptyLine}>No tienes citas próximas.</p>
+                <Button
+                  label="Agendar cita"
+                  variant="secondary"
+                  size="sm"
+                  fullWidth={false}
+                  onPress={() => router.push("/directorio")}
+                />
+              </Card>
+            ) : (
+              <div className={s.homeList}>
+                {upcomingAppointments.map((a: { id: string; clinic_name?: string; pet_name?: string; appointment_date: string; status: string }) => (
+                  <Link key={a.id} href="/directorio/citas" className={s.homeItem}>
+                    <div>
+                      <p className={s.homePetName}>{a.clinic_name || "Clínica"}</p>
+                      <p className={s.homePetMeta}>{a.pet_name || "Mascota"} · {formatDate(a.appointment_date)}</p>
+                    </div>
+                    <span className={s.homeStatus} style={{ color: STATUS_COLORS[a.status] || "var(--color-text-muted)" }}>
+                      {STATUS_LABELS[a.status] || a.status}
+                    </span>
+                    <ChevronRight size={18} aria-hidden />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Recordatorios de dosis */}
+          <section>
+            <SectionHeader
+              title="Lo que toca hoy"
+              icon={<Pill size={18} />}
+              actionLabel={todayDoses.length > 0 ? "Ver tratamientos" : undefined}
+              onAction={todayDoses.length > 0 ? () => router.push("/mascotas") : undefined}
+            />
+            {treatmentsLoading ? (
+              <Skeleton height={80} borderRadius={12} />
+            ) : todayDoses.length === 0 ? (
+              <Card>
+                <div className={s.homeEmptyOk}>
+                  <Check size={18} />
+                  <p className={s.homeEmptyLine}>Sin tomas pendientes hoy.</p>
+                </div>
+              </Card>
+            ) : (
+              <div className={s.homeList}>
+                {todayDoses.slice(0, 5).map(({ dose, treatment }: { dose: { id: string; remind_at: string; isOverdue?: boolean }; treatment: { prescription_id: string; medication_name: string; dosage: string } }) => (
+                  <Link key={dose.id} href={`/carnet/tratamiento/${treatment.prescription_id}`} className={s.homeItem}>
+                    <div>
+                      <p className={s.homePetName}>{treatment.medication_name}</p>
+                      <p className={s.homePetMeta}>{treatment.dosage} · {formatTime(dose.remind_at)}</p>
+                    </div>
+                    {dose.isOverdue && (
+                      <span className={s.homeStatus} style={{ color: "var(--color-error)" }}>Atrasada</span>
+                    )}
+                    <ChevronRight size={18} aria-hidden />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
-      </section>
+
+        {/* ── Columna lateral: accesos del rol ── */}
+        <aside className={s.homeAside}>
+          <section>
+            <SectionHeader title="Accesos rápidos" icon={<Sparkles size={18} />} />
+            <div className={s.homeQuickList}>
+              {quickActions.map((action) => (
+                <Link key={action.title} href={action.route || "/explorar"} className={s.homeQuickItem}>
+                  <span className={s.homeQuickIcon} style={{ background: "var(--color-accent-light)", color: action.color }}>
+                    <action.icon size={18} />
+                  </span>
+                  <span>{action.title}</span>
+                  <ChevronRight size={14} className={s.homeQuickArrow} />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* Acciones de rol */}
+          {isPro && (
+            <section>
+              <SectionHeader title="Herramientas pro" icon={<Stethoscope size={18} />} />
+              <Card>
+                <p className={s.homeEmptyLine}>Accede a tu panel profesional.</p>
+                <Button label="Abrir herramientas" variant="secondary" fullWidth={false} onPress={goTools} />
+              </Card>
+            </section>
+          )}
+
+          {/* Alerta si hay mascotas sin vacunas */}
+          {pets.some((p: { is_vaccinated?: boolean }) => p.is_vaccinated === false) && (
+            <section>
+              <Card>
+                <div className={s.homeAlert}>
+                  <AlertTriangle size={18} />
+                  <div>
+                    <p className={s.homePetName}>Vacunas pendientes</p>
+                    <p className={s.homePetMeta}>Alguna de tus mascotas necesita vacunas.</p>
+                  </div>
+                </div>
+              </Card>
+            </section>
+          )}
+        </aside>
+      </div>
     </ScreenContainer>
   );
 }
