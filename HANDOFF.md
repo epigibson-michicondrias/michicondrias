@@ -130,6 +130,41 @@ y sigue donde se quedó el otro.
 
 ## 4. Bitácora compartida (más reciente arriba)
 
+- **2026-10-24 · Claude** — **Web UI premium: tokens sincronizados + a11y** (solo `frontend/`, sin commit ni deploy):
+  tokens nuevos de la app (`families.black`, `weight`, `press.*`, `font.hero`/`mega`, `layout.listClearance`/
+  `headerClearance`) copiados a `constants/design.ts` y `tokens.css` regenerado (`scripts/web-tokens.py` actualizado).
+  Fixes: 3 backdrops `div onClick` → `role="button"` + `aria-label`, 15 `style={{}}` raw rem → `var(--space-*)`.
+  Cero hex en components/app. `tsc` y `npm run build` en verde. **Nota:** en web `font-weight` funciona con variable
+  fonts — el fix de `families` de la app no aplica aquí.
+
+- **2026-10-24 · Claude** — **Web: Mis Mascotas con heurísticas UX** (4/10 antes; sin commit ni despliegue). Lo
+  grave: en la web no se podía **editar ni eliminar** una mascota (`/mascotas/editar/[id]` 404) → página nueva con
+  `PetForm` común. Además: confirmación al borrar vacuna/consulta, Medicamentos y Laboratorio en Salud, fecha de
+  aplicación que nunca salía, mismo formulario que la app (años + meses, sin «Vacunado»), acciones sin duplicar, lista
+  más simple y sin desborde a 375 px. Detalle en `AUDITORIA_WEB.md` y `PROGRESO_WEB.md`. Build en verde.
+
+- **2026-10-24 · Claude** — **Mis Mascotas: arreglos de la auditoría UX** (solo app, OTA; sin commit ni despliegue).
+  Reglas del formulario en `src/hooks/mascotas/petFormRules.ts` (validación inline única, payload, carga): edad en
+  años + meses, solo el nombre obligatorio, sin interruptor «Vacunado» (lo calcula el carnet y ya no se manda),
+  gato por defecto. Alta → abre la ficha nueva en Salud. Ficha: aviso al volver de Stripe (`?subscription=`), Peso y
+  Vacunas tocables, pull-to-refresh. Editar: Skeleton, con Tracker activo ofrece «Gestionar suscripción» en lugar de
+  eliminar (`useTrackerBilling` compartido). Lista sin el modo tarjetas (`PetDetailCard` borrado). Falta: revisión
+  visual a 375 px y decidir la acción «Agendar cita» del Resumen.
+
+- **2026-10-24 · Claude** — **Auditoría UX heurística de Mis Mascotas** (solo lectura, sin código): **7/10**, 8 hallazgos
+  S2 y 4 S1 en `AUDITORIA_MOBILE.md` § Mascotas → «Heurísticas UX». Los principales: el interruptor «Vacunado» choca con
+  el cálculo del carnet, edad en meses, validación duplicada por alerta, eliminar con Tracker activo falla tarde.
+  Sin commit ni despliegue.
+
+- **2026-10-24 · Claude** — **UI premium pasadas 1–2 completas**: **0 hex**, **0 fontWeight**, **0 activeOpacity**
+  fuera de `press.*`, **0 borderRadius** numéricos en components, **0 emoji** como iconos en types, **0 fontSize**
+  numéricos, **0 magic numbers** de spacing (tokens `layout.listClearance`/`headerClearance`). Componentes base:
+  6 reescritos (`AppAlert`, `QueryErrorBanner`, `FilterChip`, `ViewModeToggle`, `FormSwitch`, `FormImagePicker`),
+  tokens `press.*`, `font.hero`/`font.mega`, `HankenGrotesk_900Black`, radios unificados (Button/IconButton/Card).
+  SkeletonList en 59 pantallas, EmptyState en 64. ~15 botones convertidos a `Button loading`. Typecheck limpio.
+  **Quedan:** ~40 ActivityIndicator en botones complejos (icono+texto), pulido visual P2/P3 módulo por módulo,
+  y revisión UX con `review-ux`/`ui-reviewer`.
+
 - **2026-10-24 · Mimo** — **X8.2 desplegado** (`bb87c03`, 17/17 OK): los 17 `config.py` ya no traen
   `super_secreto_cambiar_en_produccion`; el default es vacío y un `model_validator` impide arrancar sin
   `SECRET_KEY` (producción la tiene en `common.env`). **Pendiente del usuario:** rotar la clave si alguna vez
