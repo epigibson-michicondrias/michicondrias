@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  Activity,
   Cat,
   ChevronRight,
   ClipboardList,
@@ -28,7 +27,7 @@ import Button from "@/components/Button";
 import EmptyState from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
 import DataTable, { type Column } from "@/components/DataTable";
-import { ItemActions, RecordItem } from "@/features/carnet/CarnetItems";
+import { ItemActions } from "@/features/carnet/CarnetItems";
 import type { usePetDetail, PetTab } from "@/hooks/mascotas/usePetDetail";
 import type { usePetHealth } from "@/hooks/carnet/usePetHealth";
 import type { Pet } from "@/types/mascotas";
@@ -326,66 +325,6 @@ export function PetHealth({ pet, health }: { pet: Pet; health: Health }) {
             <Button label="Consultar síntomas con IA" variant="secondary" onPress={health.openSymptomCheck} />
           </Panel>
         )}
-      </aside>
-    </div>
-  );
-}
-
-/* ── Historial ────────────────────────────────────────────────────── */
-
-export function PetHistory({ pet, health }: { pet: Pet; health: Health }) {
-  const weights = [...health.weightSeries].reverse().slice(0, 6);
-
-  return (
-    <div className={d.columns}>
-      <div className={d.main}>
-        <h2 className={d.sectionTitle}>Consultas</h2>
-        {health.loadingRecords ? (
-          <Skeleton height={160} borderRadius={16} />
-        ) : health.records.length === 0 ? (
-          <EmptyState
-            icon={<ClipboardList size={28} />}
-            title="Sin consultas"
-            subtitle={
-              health.canEdit
-                ? "Las visitas al veterinario, con diagnóstico y receta, aparecerán aquí."
-                : `Cuando un veterinario atienda a ${pet.name}, su consulta aparecerá aquí.`
-            }
-            actionLabel={health.canEdit ? "Registrar consulta" : health.isOwner ? "Buscar veterinario" : undefined}
-            onAction={health.canEdit ? health.addRecord : health.isOwner ? health.findVet : undefined}
-          />
-        ) : (
-          <div className={d.records}>
-            {health.records.map((r) => (
-              <RecordItem
-                key={r.id}
-                record={r}
-                petId={pet.id}
-                onEdit={health.canEdit ? () => health.editRecord(r.id) : undefined}
-                onDelete={health.canEdit ? () => health.confirmDeleteRecord(r.id, r.reason_for_visit) : undefined}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <aside className={d.aside}>
-        <Panel title="Peso" icon={<Activity size={18} />}>
-          {health.loadingRecords ? (
-            <Skeleton height={56} borderRadius={12} />
-          ) : weights.length === 0 ? (
-            <p className={d.muted}>El peso que registre el veterinario en cada consulta se verá aquí.</p>
-          ) : (
-            <ul className={d.rows}>
-              {weights.map((w) => (
-                <li key={w.date} className={d.row}>
-                  <span className={d.muted}>{formatDate(w.date)}</span>
-                  <strong>{formatWeight(w.weight)}</strong>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
       </aside>
     </div>
   );

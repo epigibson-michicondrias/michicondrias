@@ -17,7 +17,8 @@ import { showAlert } from "@/components/AppAlert";
 import { usePetDetail, type PetTab } from "@/hooks/mascotas/usePetDetail";
 import { usePetHealth } from "@/hooks/carnet/usePetHealth";
 import { copyText } from "@/utils/helpers";
-import { PetHero, PetSummary, PetHealth, PetHistory } from "@/features/mascotas/PetDetailSections";
+import { PetHero, PetSummary, PetHealth } from "@/features/mascotas/PetDetailSections";
+import { PetHistoryPanel } from "@/features/mascotas/PetHistoryPanel";
 import d from "@/features/mascotas/PetDetail.module.css";
 import s from "../mascotas.module.css";
 
@@ -80,7 +81,7 @@ function PetDetailContent() {
 
       {tab === "resumen" && <PetSummary pet={pet} isOwner={isOwner} health={health} detail={detail} onOpenTab={setTab} />}
       {tab === "salud" && <PetHealth pet={pet} health={health} />}
-      {tab === "historial" && <PetHistory pet={pet} health={health} />}
+      {tab === "historial" && <PetHistoryPanel pet={pet} health={health} />}
 
       {shareUrl && (
         <div className={s.modalBackdrop} role="dialog" aria-modal="true" aria-label={`Carnet de ${pet.name}`}>
