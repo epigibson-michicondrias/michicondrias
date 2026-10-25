@@ -59,7 +59,6 @@ en `mobile/src/constants/roleTools.ts` y el backend exige el rol en los endpoint
 mobile/        App Expo (app/ = pantallas con expo-router, src/ = hooks, servicios, componentes, constants/ = tema y tokens)
 backend/       Un directorio por microservicio: michicondrias_<servicio>/app + alembic/
 deploy/        Despliegue: Oracle (principal), AWS Lambda (alterno) y services.conf
-docs/          Documentación (Docusaurus) y auditorías
 scripts/       Utilidades de migración y datos de prueba
 .github/       Workflows de despliegue
 ```
@@ -141,4 +140,4 @@ La guía completa (puesta en marcha de la VM, Caddy, almacenamiento y cómo volv
 ## Documentación
 
 - [`deploy/README.md`](deploy/README.md): despliegue y operación.
-- [`archivo/`](archivo/README.md): auditorías, planes y reportes anteriores (solo historial).
+- `archivo/`: código y reportes anteriores (solo historial). El estado y los pendientes viven en [`HANDOFF.md`](HANDOFF.md).

@@ -10,8 +10,8 @@ en *qué* hace cada pantalla: mira cómo lo hace `mobile/` y replícalo.
 > hero ancho, paneles laterales, pestañas subrayadas, tablas, formularios a dos columnas con barra de acciones,
 > estados `:hover`/foco. Si un componente web no existe, se crea en `src/components/`.
 
-> Antes de cualquier tarea lee [`../PROGRESO_WEB.md`](../PROGRESO_WEB.md) (fase W actual, módulos, decisiones) y la
-> sección del módulo en [`../AUDITORIA_WEB.md`](../AUDITORIA_WEB.md). Al terminar, actualiza ambos.
+> Antes de cualquier tarea lee [`../HANDOFF.md`](../HANDOFF.md) (documento único: §0 regla web, §2 estado, §3
+> pendientes, §6 decisiones) y actualízalo en cada cambio. No crees otros `.md`.
 > Las reglas generales del repo siguen en [`../CLAUDE.md`](../CLAUDE.md) (idioma, intocables, commits).
 
 ## 1. Stack y comandos
@@ -28,7 +28,7 @@ generan *preview*.
 | Desarrollo | `npm run dev` (puerto **3001**; la app en Expo Web usa el 3000) |
 | Deriva del espejo contra la app (desde la raíz) | `scripts/web-drift.sh` (`-d` muestra los diffs) |
 
-ESLint arrastra errores del código viejo (línea base en `PROGRESO_WEB.md`). Regla mientras se reescribe:
+ESLint arrastra errores del código viejo (`src/lib/legacy/`). Regla mientras se reescribe:
 `typecheck` limpio, `build` en verde y **ningún error nuevo** en los archivos tocados (`npx eslint --quiet <archivos>`).
 
 ## 2. Arquitectura (igual que la app)

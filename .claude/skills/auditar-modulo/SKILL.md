@@ -1,11 +1,11 @@
 ---
 name: auditar-modulo
-description: Audita un módulo o flujo de la app móvil de Michicondrias (p. ej. adopciones, carnet, tienda) sin tocar código. Clasifica cada pantalla, hook y servicio en funciona / rota-incompleta / muerta, lo revisa contra el estándar premium de CLAUDE.md §3 y deja los hallazgos en AUDITORIA_MOBILE.md y el estado en PROGRESO_MOBILE.md. Úsala cuando el usuario pida auditar, revisar o analizar un módulo, flujo o pantallas de la app.
+description: Audita un módulo o flujo de la app móvil de Michicondrias (p. ej. adopciones, carnet, tienda) sin tocar código. Clasifica cada pantalla, hook y servicio en funciona / rota-incompleta / muerta, lo revisa contra el estándar premium de CLAUDE.md §3 y deja los hallazgos abiertos y el estado en HANDOFF.md (§5 y §2). Úsala cuando el usuario pida auditar, revisar o analizar un módulo, flujo o pantallas de la app.
 ---
 
 # Auditar un módulo de la app móvil
 
-Solo lectura sobre el código. Lo único que se escribe son `AUDITORIA_MOBILE.md` y `PROGRESO_MOBILE.md`.
+Solo lectura sobre el código. Lo único que se escribe es `HANDOFF.md` (§5 hallazgos abiertos, §2 estado y §9 bitácora).
 
 ## 1. Inventario
 - Pantallas: `mobile/app/<modulo>/**` (y pestañas o pantallas sueltas que entren en el flujo).
@@ -31,7 +31,7 @@ Solo lectura sobre el código. Lo único que se escribe son `AUDITORIA_MOBILE.md
 - Mide rápido: hex sueltos, `ActivityIndicator`, uso de tokens, número de líneas.
 
 ## 4. Registrar
-En `AUDITORIA_MOBILE.md`, una sección por módulo con esta forma:
+En `HANDOFF.md` §5, una entrada por módulo (solo lo abierto, breve) a partir de este análisis:
 
 ```
 ## <Módulo> — auditado AAAA-MM-DD
@@ -47,7 +47,7 @@ Backend: endpoints faltantes o a ajustar …
 Prioridad sugerida de arreglos: P0 (roto) → P1 (UX que confunde) → P2 (pulido visual)
 ```
 
-En `PROGRESO_MOBILE.md`: estado del módulo a 🔍 y una línea en la Bitácora.
+En `HANDOFF.md`: estado del módulo en §2 y una línea en §9 Bitácora.
 
 ## 5. Cerrar
 Resume al usuario lo más importante (roto primero) y la propuesta de rediseño si la hay. **No implementes nada**.

@@ -3,12 +3,12 @@
 Guía de trabajo para Claude en este repo. El objetivo actual es **llevar la app móvil a nivel premium**: 100% funcional,
 fácil de usar, visualmente consistente, sin botones ni flujos redundantes, con los servicios ajustados donde haga falta.
 
-> **Antes de cualquier tarea, lee [`HANDOFF.md`](HANDOFF.md) §1–§4** (contexto vivo compartido con Mimo: frentes,
-> pendientes y bitácora) y **actualízalo en cada cambio** antes de cerrar el turno (entrada en la bitácora + pendientes).
+> **Antes de cualquier tarea, lee [`HANDOFF.md`](HANDOFF.md)**: es el **único documento de trabajo** (estado, pendientes,
+> hallazgos, decisiones, guía operativa y bitácora, compartido con Mimo). **Actualízalo en cada cambio** antes de cerrar
+> el turno (ver §6). **No crees otros `.md`** de progreso, auditoría o informes: todo va en su sección de `HANDOFF.md`.
 >
-> **Después lee [`PROGRESO_MOBILE.md`](PROGRESO_MOBILE.md).** Ahí está la fase actual, el estado
-> de cada módulo y las decisiones ya tomadas. Los hallazgos detallados están en
-> [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md). **Al terminar, actualiza ambos** (ver §6).
+> **Web:** la web es espejo de la *lógica* de la app, **no de sus pantallas** (ver `HANDOFF.md` §0): misma línea de
+> diseño, pero componentes y composición propios de escritorio.
 
 Idioma: todo en español (textos de UI, commits, documentación). Nombres de variables/funciones en inglés, como ya
 están en el código.
@@ -21,9 +21,8 @@ están en el código.
   PostgreSQL en Supabase).
 - Arquitectura completa, roles, despliegue y APK: [`README.md`](README.md). No lo dupliques aquí.
 - **Web (`frontend/`, Next.js, publicada en Vercel):** espejo de la app contra la misma API. Tiene sus propias reglas
-  en [`frontend/CLAUDE.md`](frontend/CLAUDE.md) y su estado en [`PROGRESO_WEB.md`](PROGRESO_WEB.md) /
-  [`AUDITORIA_WEB.md`](AUDITORIA_WEB.md). Un push a `main` que toque `frontend/**` sale a producción en Vercel.
-- `archivo/` es **historial** y puede estar desactualizado: úsalo como pista, nunca como verdad.
+  en [`frontend/CLAUDE.md`](frontend/CLAUDE.md); su estado vive en `HANDOFF.md`. Un push a `main` que toque `frontend/**` sale a producción en Vercel.
+- `archivo/` es **historial** (código viejo) y puede estar desactualizado: úsalo como pista, nunca como verdad.
 - `.agents/` y `.mimocode/` son de herramientas anteriores; ignóralos.
 
 ### Mapa de la app móvil
@@ -68,8 +67,7 @@ Todos desde `mobile/`:
 | Emulador / dispositivo Android | `npx expo run:android` (o instalar el APK, ver README) |
 | Agregar dependencias | `npx expo install <paquete>` (elige la versión compatible con SDK 55; no uses `npm i` para libs de Expo/RN) |
 
-- ESLint arrastra 12 errores previos (línea base en `AUDITORIA_MOBILE.md`), así que `npm run check` falla hasta
-  limpiarlos en la Fase 2. Mientras tanto la regla es: `typecheck` limpio y **ningún error nuevo** de ESLint en los
+- Regla de lint: `typecheck` limpio y **ningún error nuevo** de ESLint en los
   archivos tocados (`npx eslint --quiet <archivos>`).
 - No hay tests automatizados todavía: la verificación es `npm run check` + revisión visual + recorrer el flujo.
 - Revisión visual: navegador integrado contra `localhost:3000`, viewport móvil (375×812), **claro y oscuro**.
@@ -137,19 +135,19 @@ Si una pantalla supera ~400 líneas, extrae secciones a `src/features/<modulo>/`
 ## 5. Fases del proyecto
 
 Se avanza **en orden**, **una fase (o un módulo de la fase) por sesión**, con commit al final. El estado de cada fase
-vive en `PROGRESO_MOBILE.md`.
+vive en `HANDOFF.md` §2.
 
 | # | Fase | Qué se hace | Herramientas |
 |---|---|---|---|
 | 0 | Cimientos | Tooling de verificación, `.claude/`, documentos | — ✅ |
-| 1 | Auditoría | Solo lectura. Por módulo: cada pantalla/hook/servicio → *funciona / rota-incompleta / muerta*, hallazgos UI/UX y redundancias en `AUDITORIA_MOBILE.md` | plan mode, skill `auditar-modulo`, agente `ui-reviewer`, `npm run deadcode` |
+| 1 | Auditoría | Solo lectura. Por módulo: cada pantalla/hook/servicio → *funciona / rota-incompleta / muerta*, hallazgos UI/UX y redundancias en `HANDOFF.md` §5 | plan mode, skill `auditar-modulo`, agente `ui-reviewer`, `npm run deadcode` |
 | 2 | Limpieza | Borrar lo muerto, con la auditoría como lista y **aprobación del usuario** por bloque | `npm run deadcode`, agente `code-reviewer` |
 | 3 | Navegación y esqueleto | Reestructurar rutas: grupo `(auth)`, 4–5 pestañas máximo, qué va en Inicio/Explorar/Perfil, eliminar pantallas duplicadas. **Propuesta aprobada antes de mover nada** | plan mode |
 | 4 | Funcionalidad faltante | Completar lo roto/incompleto y ajustar servicios | skills `nuevo-endpoint`, `nueva-pantalla` |
 | 5 | UI/UX premium | Design system primero (tokens, componentes, tipografía), luego pantallas módulo por módulo. Aquí entran juntas las libs nativas — `expo-image`, `expo-haptics`, FlashList, fuente propia vía `expo-font` — para sacar **un solo APK nuevo**; micro-interacciones con Reanimated (ya instalado) | skills `nueva-pantalla`, `review-ux`, agente `ui-reviewer` |
 
 ### Ciclo dentro de cada tarea
-1. **Leer** `PROGRESO_MOBILE.md` y la sección del módulo en `AUDITORIA_MOBILE.md`.
+1. **Leer** `HANDOFF.md` (estado del módulo en §2, pendientes en §3 y hallazgos en §5).
 2. **Planear** en plan mode si el cambio toca más de un par de archivos o mueve navegación.
 3. **Proponer**: rediseños de flujo, borrar/fusionar pantallas o cambiar navegación → **visto bueno del usuario antes
    de implementar**. El pulido visual no requiere aprobación.
@@ -162,12 +160,10 @@ vive en `PROGRESO_MOBILE.md`.
 
 ## 6. Cierre de sesión (siempre)
 
-- `HANDOFF.md`: entrada en §4 Bitácora compartida (fecha, agente, qué, commits, si se desplegó) y §3 Pendientes al día.
-  **En cada cambio, no solo al cerrar la sesión**: es lo que lee Mimo para seguir el trabajo.
-- `PROGRESO_MOBILE.md`: estado de la fase/módulo, entrada en la **Bitácora** (fecha, qué se hizo, archivos clave),
-  decisiones nuevas en **Decisiones**, pendientes en **Backlog**.
-- `AUDITORIA_MOBILE.md`: marcar hallazgos resueltos (`[x]`) y agregar los nuevos.
-- Si se movió la línea base (hex, tokens, skeletons, lint, knip), volver a medirla.
+Solo se actualiza **`HANDOFF.md`**, y **en cada cambio**, no solo al cerrar la sesión (es lo que lee Mimo):
+- §9 Bitácora: entrada arriba (fecha, agente, qué, archivos/commits, si se desplegó, qué quedó a medias).
+- §3 Pendientes y §5 Hallazgos: borrar lo resuelto, agregar lo nuevo.
+- §2 Estado y §6 Decisiones si cambiaron.
 
 ---
 

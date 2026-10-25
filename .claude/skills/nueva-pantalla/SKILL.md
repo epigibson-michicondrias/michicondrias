@@ -64,4 +64,4 @@ export default function XScreen() {
 ## Terminar
 1. `cd mobile && npm run check`.
 2. Revisar con la skill `review-ux` (captura 375×812, claro y oscuro).
-3. Actualizar `PROGRESO_MOBILE.md`.
+3. Actualizar `HANDOFF.md` (§2 estado, §9 bitácora).

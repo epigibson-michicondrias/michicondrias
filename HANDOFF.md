@@ -1,22 +1,46 @@
-# HANDOFF — Michicondrias (contexto vivo para Mimo y Claude)
+# HANDOFF — Michicondrias (documento único de trabajo)
 
-Este archivo es **la memoria compartida** entre los agentes que trabajan en Michicondrias: **Mimo** (Xiaomi, `mimo`) y
-**Claude Code**. El usuario alterna entre los dos cuando a uno se le acaba el uso, así que quien llegue lee esto primero
-y sigue donde se quedó el otro.
+**Este es el único documento de trabajo del proyecto.** Aquí viven el estado, los pendientes, las decisiones, la guía
+operativa y la bitácora de la app móvil, la web, el backend y la landing. Lo leen y lo actualizan **Mimo** (Xiaomi,
+`mimo`) y **Claude Code**. El usuario alterna entre los dos cuando a uno se le acaba el uso, así que quien llegue lee
+esto primero y sigue donde se quedó el otro.
 
-> ## ⚠️ Regla obligatoria: actualizar este archivo en CADA cambio
-> Cualquier agente, al terminar cualquier cambio (código, deploy, config, docs, decisión), **antes de cerrar el turno**:
-> 1. Agrega una entrada arriba en **§4 Bitácora compartida**: fecha, agente, qué se hizo, archivos/commits, si se
->    desplegó y qué quedó a medias.
-> 2. Mueve a hecho (o agrega) lo que corresponda en **§3 Pendientes**.
-> 3. Si cambió algo de §1–§2 (repos, URLs, estado de un frente), actualízalo.
-> 4. Incluye este archivo en el mismo commit del cambio.
->
-> Los documentos por frente (`PROGRESO_MOBILE.md`, `PROGRESO_WEB.md`, `AUDITORIA_*.md`) siguen teniendo el detalle;
-> aquí va el resumen para no perder el hilo.
+> ## ⚠️ Reglas de este documento
+> 1. **No crees otros `.md` de seguimiento** (progreso, auditorías, informes, revisiones). Todo va aquí, en su sección.
+>    Los únicos `.md` que existen aparte son `CLAUDE.md` / `frontend/CLAUDE.md` (reglas que cargan los agentes),
+>    los `README.md` y las skills/agentes de `.claude/`.
+> 2. **En CADA cambio**, antes de cerrar el turno:
+>    - agrega una entrada arriba en **§9 Bitácora** (fecha, agente, qué, archivos/commits, si se desplegó, qué quedó a medias);
+>    - marca o agrega lo que corresponda en **§3 Pendientes** y **§5 Hallazgos abiertos**;
+>    - si cambió el estado de un frente (§2) o una decisión (§6), actualízalo;
+>    - incluye este archivo en el mismo commit del cambio.
+> 3. Lo resuelto se **borra** de §3/§5 (queda en la bitácora y en git). Este documento describe el presente, no la historia.
+>    El historial de los documentos anteriores está en git: `git log --all -- PROGRESO_MOBILE.md AUDITORIA_MOBILE.md`.
 
-**Idioma:** todo en español (UI, commits, docs). Variables y funciones en inglés. Reglas completas: [`CLAUDE.md`](CLAUDE.md)
-(aplica a cualquier agente; los hooks de `.claude/` no corren en Mimo: respeta §3 Intocables a mano y corre los checks).
+**Idioma:** todo en español (UI, commits, docs). Variables y funciones en inglés. Reglas completas en
+[`CLAUDE.md`](CLAUDE.md) (aplican a cualquier agente; los hooks de `.claude/` no corren en Mimo: respeta los intocables a
+mano y corre los checks).
+
+---
+
+## 0. Regla de oro para la web (léela antes de tocar `frontend/`)
+
+**La web es espejo de la LÓGICA de la app, no de sus PANTALLAS.**
+
+| Se copia de la app (espejo) | NO se copia: se diseña para web |
+|---|---|
+| `types/`, `services/`, hooks (`src/hooks/<modulo>/`), `roleTools.ts`/`roles.ts`, rutas, flujos, textos de negocio, validaciones (`petFormRules`…) | La composición de cada página y los componentes de layout |
+| Tokens (paleta *Midnight & Gold*, tipografía Hanken Grotesk, espaciado, radios) | Pila de botones a lo ancho, `SegmentedControl` como pestañas, listas de teléfono estiradas a 1280 px |
+
+- **Misma línea de diseño, componentes propios de la web.** Se diseña primero para **escritorio (1280 px)** y se
+  comprueba que degrade bien a **375 px**: hero ancho, paneles laterales fijos (`sticky`), **pestañas subrayadas**
+  (`components/Tabs`), **tablas** (`components/DataTable`, que en teléfono pasa a tarjetas), **formularios a dos
+  columnas con barra de acciones fija** (`components/forms/FormActionsBar`), `:hover` y foco visibles.
+- Si falta un componente web, **se crea en `frontend/src/components/`** y se reutiliza. No se porta la pantalla móvil
+  tal cual y no se duplica toda la app en la web.
+- Ejemplo de referencia: **Mis Mascotas** (`frontend/src/features/mascotas/PetForm.tsx`: vista previa fija a la
+  izquierda, campos en rejilla, barra «Cancelar / Guardar» pegada al pie).
+- Reglas técnicas de la web: [`frontend/CLAUDE.md`](frontend/CLAUDE.md).
 
 ---
 
@@ -24,705 +48,325 @@ y sigue donde se quedó el otro.
 
 | Frente | Dónde | Producción | Cómo se despliega |
 |---|---|---|---|
-| App móvil (Expo) | `mobile/` del monorepo | APK + OTA (`expo-updates`) | OTA para JS; APK nuevo para nativo (ver Anexo A §3) |
-| Backend (17 FastAPI) | `backend/` del monorepo | `https://michicondrias.duckdns.org/<servicio>/api/v1` (VM Oracle) | push a `main` que toque `backend/**` → GitHub Actions `deploy-oracle.yml`. Migraciones: `alembic upgrade head` **a mano antes** |
-| Web app (Next.js 16) | `frontend/` del monorepo | https://michicondrias.vercel.app (Vercel, proyecto `michicondrias`, root `frontend/`) | push a `main` → Vercel. Variable `NEXT_PUBLIC_API_URL=https://michicondrias.duckdns.org` |
-| Rediseño de la web («web espejo») | worktree `../michicondrias-web`, rama `web/espejo` | *preview* de Vercel por rama | se fusiona a `main` solo con fase verificada y visto bueno del usuario. Plan: `PROGRESO_WEB.md` (en esa rama) |
-| Landing pública | repo aparte `../michicondrias-landing` (GitHub `michicondrias-landing-page`) | https://michicondrias-landing-page.vercel.app | push a `main` de ese repo → Vercel. **Fuente:** `frontend/src/features/landing/` + `frontend/public/landing/` del monorepo; se copian allá (sin `AuthRedirect.tsx`) |
-| Docs | proyecto Vercel `michicondrias-docs` | (Vercel) | automático |
+| App móvil (Expo SDK 55) | `mobile/` | APK + OTA (`expo-updates`, canal `production`, runtime `1.1.0`) | OTA para JS; APK nuevo para nativo (§7.3) |
+| Backend (17 FastAPI) | `backend/` | `https://michicondrias.duckdns.org/<servicio>/api/v1` (VM Oracle) | push a `main` que toque `backend/**` → `deploy-oracle.yml`. Migraciones: `scripts/vm.sh migrate <svc>` **justo después** del deploy |
+| Web app (Next.js 16) | `frontend/` | https://michicondrias.vercel.app (Vercel, proyecto `michicondrias`, root `frontend/`) | push a `main` → Vercel. `NEXT_PUBLIC_API_URL=https://michicondrias.duckdns.org` |
+| Landing pública | repo aparte `../michicondrias-landing` (GitHub `michicondrias-landing-page`) | https://michicondrias-landing-page.vercel.app | push a `main` de ese repo. **Fuente:** `frontend/src/features/landing/` + `frontend/public/landing/`; se copian allá (sin `AuthRedirect.tsx`) |
 
 - **GitHub:** cuenta `epigibson-michicondrias`. Push: `GH_TOKEN=$(gh auth token --user epigibson-michicondrias) git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin <rama>` (la cuenta activa de `gh` puede ser otra → 403).
-- **Autonomía:** el usuario autoriza desplegar (push a `main`, `alembic` en prod) y borrar código muerto verificado sin pedir permiso por bloque. Sí pregunta antes de rediseños de flujo, borrar pantallas o tocar intocables (Anexo A §6).
-- **Marca:** paleta *Midnight & Gold* (fondo `#0b0e17`, dorado `#e9c883`, azul `#4f8cff`). **Los gatos van primero** en fotos, ejemplos y textos ("gatos y perros"); los paseos son la excepción natural.
-- **Nada inventado en textos públicos:** ni cifras, ni testimonios, ni funciones que la app no tiene. Verificar en el código antes de prometer algo.
-- **Mimo:** `scripts/sync-mimo.sh` le pasa skills de `.claude/skills`, agentes de `.claude/agents` y MCP de `.mcp.json` a `.mimocode/`. Las skills de diseño (UI/UX Pro Max, `motion`) están enlazadas en `~/.agents/skills`.
-- **Local:** `next dev` con Turbopack falla en el monorepo por `postgres_data/` (de otro usuario): usar `next dev --webpack`. En el worktree y en el repo de la landing Turbopack sí funciona.
+- **Autonomía:** el usuario autoriza desplegar (push a `main`, migración aditiva en la VM, OTA) y borrar código muerto
+  verificado sin pedir permiso por bloque. Sí pregunta antes de lo de §7.6.
+- **Marca:** paleta *Midnight & Gold* (fondo `#0b0e17`, dorado `#e9c883`, azul `#4f8cff`). **Los gatos van primero** en
+  fotos, ejemplos y textos («gatos y perros»); los paseos son la excepción natural.
+- **Nada inventado en textos públicos:** ni cifras, ni testimonios, ni funciones que la app no tiene.
+- **Mimo:** `scripts/sync-mimo.sh` le pasa skills de `.claude/skills`, agentes de `.claude/agents` y MCP de `.mcp.json`
+  a `.mimocode/`. Las skills de diseño (UI/UX Pro Max, `motion`) están en `~/.agents/skills`.
+- **Local:** web en `npm run dev` (puerto **3001**; si Turbopack falla por `postgres_data/`, `next dev --webpack`). App en
+  Expo Web en el **3000**. Usuarios de prueba (producción, solo lectura): `users.md`.
+- Se ignoran `archivo/` y `.agents/` (historial). `.mimocode/` lo genera `sync-mimo.sh`.
 
 ---
 
-## 2. Estado por frente (al 2026-10-23)
+## 2. Estado por frente (al 2026-10-24)
 
 | Frente | Estado |
 |---|---|
-| App móvil | Fases 0–3 ✅ · Fase 4 ✅ en P1 (F1–F27) · Fase 5 🟡 (U1–U9 ✅, U10–U11 pendientes). Detalle: `PROGRESO_MOBILE.md` |
-| Backend | En producción y desplegando bien. Pendiente de seguridad X1 (abajo) |
-| Web app (`main`) | Código viejo (50 páginas bajo `/dashboard`) + landing nueva en `/`. Build en verde desde `3eb2f9e`. Rastreo y donaciones simulados desactivados |
-| Web espejo (`web/espejo`) | W0–W5 ✅ fusionada a `main` (2026-10-24): rutas iguales a la app, shell, AuthShell, W4 módulos + W4-A consola admin + W5 diseño homologado con la landing. 128 páginas en verde. |
-| Landing | Publicada (Next.js). 11 secciones, 28 funciones reales, fotos de Gemini con gatos al frente |
+| App móvil | Fases 0–4 ✅ en P1 (F1–F27) · Fase 1 (auditoría) P2/P3 parcial · Fase 5 🟡: U1–U9 ✅, U10 parcial (cableado JS listo, falta APK), U11 ⬜. UI pasadas 1–2: 0 hex, 0 `fontWeight`, 0 números sueltos. APK `versionCode 11` |
+| Backend | En producción, 17/17 OK. Seguridad: X1, X2, X3 (paseadores/cuidadores), X4.1/X4.2, X5.1, X6.1/X6.2, X8.1 (código) y X8.2 desplegados. Faltan los de §3 |
+| Web | W0–W5 en `main` (rutas iguales a la app, shell, consola admin, diseño homologado con la landing). **Nuevo criterio §0**: rehacer las páginas con composición de escritorio, módulo por módulo (empezó Mis Mascotas) |
+| Landing | Publicada. Falta la foto `pro-transporte` y el enlace de descarga |
+
+### Módulos de la app (P1 todo usuario · P2 consumidor secundario · P3 pro/admin)
+
+| Prio | Módulo | Estado |
+|---|---|---|
+| P1 | Auth, Pestañas, Perfil, Carnet | Funcional ✅; pasadas UI en tokens hechas; quedan hallazgos de §5 |
+| P1 | Mascotas | ✅ auditoría UX 2026-10-24 resuelta; falta acción «Agendar cita» en Resumen y revisión visual a 375 px |
+| P1 | Tienda cliente · Notificaciones/Búsqueda/Ayuda | ✅ (U8, U9) |
+| P2 | Directorio y citas · Adopciones · Perdidas · Paseadores/Cuidadores | Auditados, funcionales con hallazgos abiertos (§5) |
+| P2 | Pet-friendly/Establecimientos · Grooming/Estilistas · Entrenadores · Transportistas · Aseguradoras · Laboratorio · Funeraria · Donaciones | Barrido funcional en vivo OK (2026-10-17); auditoría de UX y fusiones pendientes |
+| P3 | Tienda vendedor | ✅ |
+| P3 | Mi clínica · Servicios pro · Patrocinadores · Admin | Funcionales; admin con acciones reales (2026-10-24); revisión UX pendiente |
+
+### Módulos de la web
+
+Todos portados (W4). Revisión con el criterio §0: **Mis Mascotas ✅** (lista con tarjetas/tabla, ficha con hero,
+pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); el resto ⬜.
 
 ---
 
 ## 3. Pendientes (prioridad de arriba hacia abajo)
 
-**Urgentes / seguridad**
-- [x] **Login web** (2026-10-23): el bundle publicado ya usa `https://michicondrias.duckdns.org` (antes el AWS viejo → «NetworkError»).
-- [x] **X1** (2026-10-23) 2FA saltable en 10 servicios: ya rechazan el token temporal (`is_temp`).
-- [x] **X2–X8** (2026-10-24): auditoría completa en `docs/SEGURIDAD_X2_X8.md` — **15 hallazgos (1 P0, 10 P1, 4 P2)**.
-  - [x] **P0 X8.1 — código limpio** (2026-10-24): `directorio/app/core/config.py` y 21 scripts ya leen de
-    `DATABASE_URL` (sin default de prod); docs y el propio informe redactados. **FALTA LA ROTACIÓN** (solo el usuario
-    puede hacerla en las consolas de Supabase/Neon): pasos en [`docs/ROTACION_CREDENCIALES.md`](docs/ROTACION_CREDENCIALES.md).
-  - [ ] **Arreglos pendientes de esa auditoría** (prioridad):
-    - [x] **P1 X2.1–X2.6 / X3.1–X3.2** (2026-10-24): admin ya pasa las 6 guards locales y hay endpoints de
-      verificación/suspensión en paseadores y cuidadores. **Desplegado.**
-    - **P1 X8.2**: `SECRET_KEY` con default débil en todos los `config.py` → default vacío + rotar.
-    - **P1 X4.1/X5.1**: `POST /payments/create-subscription-session/{pet_id}` sin check de dueño (activa
-      Michi-Tracker Pro en mascotas ajenas vía webhook).
-    - **P1 X4.2**: `GET /pets/adopted-from/{listing_id}` sin check de dueño.
-    - **P1 X6.2**: teléfono/correo del denunciante visible a cualquier autenticado en perdidas.
-    - **P1 X6.1**: URLs de KYC (INE, comprobante) de todos los usuarios en `GET /users/` y `/users/search`.
-    - **P1 X3.2**: paseadores/cuidadores se publican sin verificar (`is_verified` existe pero no se usa).
-    - **P1 X2.1–X2.5**: `admin` excluido de guardas de rol en aseguradoras, laboratorio, entrenadores,
-      patrocinadores y funeraria (no puede moderar).
-    - **P1 X3.1/X3.3**: 8 servicios con `require_admin` sin usar (sin moderación) + campañas de patrocinadores
-      publicadas sin aprobación.
-    - **P2**: certificados funerarios públicos (X4.3), owner checks que excluyen admin (X2.6), Dockerfiles como
-      root + `--reload` (X8.3), `GET /categories/init-db/seed` que escribe (X8.4).
+**Urgentes / seguridad (acción del usuario)**
+- [ ] **Rotar la contraseña de Supabase** (Database → Settings → Reset database password) y la de **Neon** (o borrar ese
+  proyecto si ya no se usa). Estuvieron en claro en el código y **siguen en el historial de git**. La nueva va solo en
+  `/etc/michicondrias/common.env` de la VM (`scripts/vm.sh shell`), reiniciar servicios y `scripts/vm.sh status`.
+  Opcional: purgar el historial con `git filter-repo` (rompe clones; solo después de rotar).
+- [ ] **Rotar `SECRET_KEY`** si alguna vez se firmaron JWT con el default viejo (está en el historial).
+- [ ] **`users.md` está versionado** con la contraseña común de las cuentas de prueba de producción: cambiarla o sacar el
+  archivo de git si el repo se comparte.
 
-**App móvil — publicar**
-- [x] **OTA del arreglo del login** (2026-10-23, Mimo): publicado en el canal `production` (runtime 1.0.0), update group
-  `a84459e2-d146-42cd-a26e-0c4cc3b9b480`. Commit `89a584e`.
+**Seguridad (backend, pendientes de la auditoría X2–X8)**
+- [ ] **X3.1** Moderación en los servicios que definen `require_admin` sin usarlo: entrenadores, establecimientos,
+  estilistas, laboratorio, patrocinadores, aseguradoras (`GET /admin/pending`, `approve|reject|suspend`).
+- [ ] **X3.2** Filtrar `is_verified == True` en los listados públicos de paseadores y cuidadores (el setter ya existe).
+- [ ] **X3.3** Campañas de patrocinadores nacen `active=True` sin aprobación → `is_approved=False` + cola de admin.
+- [ ] **X2.6/X5.2** Checks de dueño que excluyen al admin en adopciones, ecommerce, perdidas y venues (directorio ya lo acepta).
+- [ ] **X4.3** Certificados funerarios públicos (`funerary.py:312-360`): exigir auth y dueño/funeraria/admin.
+- [ ] **X8.3** Dockerfiles como root y con `--reload`. **X8.4** `GET /categories/init-db/seed` escribe (pasar a POST).
+- [ ] **X6.3/X7.1** (riesgo latente) schemas `User*` con URLs de KYC; f-strings con literales dentro de `text()`.
+- [ ] `npm audit` en `frontend/`: 6 vulnerabilidades (1 crítica).
 
-**Web espejo** (`../michicondrias-web`, leer `PROGRESO_WEB.md` y `frontend/CLAUDE.md` de esa rama)
-- [x] W2: espejos, `api.ts`, `tokens.css`, contextos Theme/Auth/Cart y kit base.
-- [x] W3 (2026-10-23): grupos `(auth)`/`(app)`, rutas iguales a la app (Inicio en `/inicio`; `/` queda la landing),
-  `AppShell`, `AuthShell` con login 2FA / registro / reset, redirects `/dashboard/*`.
-- [x] W4 (2026-10-23): módulos portados (P1–P3) + W4-A consola de admin.
-- [x] W5 homologación de diseño con la landing (2026-10-23): CSS legacy migrado a `tokens.css`+`theme.css`, 11 CSS
-  muertos y 5 componentes muertos borrados, `ErrorBoundary`/`Toaster`/`OfflineBanner` al criterio Midnight & Gold.
-- [x] Cableado de endpoints nuevos del backend (2026-10-24): suspender/reactivar clínica, productos ocultos
-  (chip Ocultos + mostrar/ocultar), `buyer_name` en pedidos, banner de mantenimiento (`/system/public`) y conteos
-  de sincronización en `/admin/config`.
-- [x] Backend que pidió la consola (2026-10-23, Mimo): `buyer_name`, `GET /products/admin/all`,
-  `PATCH .../visibility`, `POST /clinics/admin/{id}/suspend|unsuspend` (migración `c4e8a1b2d3f4`),
-  `GET /system/public`, login en `maintenance_mode`. **Desplegado.**
-- [x] KYC en la app (2026-10-23, Mimo): aprobar sin confirmar, rechazar con confirmación.
-- [ ] W5 cierre: hover/foco/atajos de escritorio, tablas admin, SEO de la landing, revisión del recorrido del
-  consumidor · W7 permisos editables.
+**Web (criterio §0)**
+- [ ] **8 commits locales de `main` sin subir** (web + app: UI premium, `PetForm` web, tokens, HANDOFF). Un push los
+  manda a Vercel: subirlos cuando el usuario revise la web. Más los cambios sin commit de esta sesión (ficha/lista web,
+  carnet en clientes, documentación unificada).
+- [ ] OTA de la app con la regla del carnet en clientes (hoy el backend ya rechaza al dueño con 403, pero la app
+  publicada aún le muestra «Agregar»/editar en Salud).
+- [ ] Siguientes módulos con el mismo criterio: Inicio, Perfil, Carnet, Tienda, Directorio/citas, Adopciones; consola admin con tablas.
+- [ ] W5 cierre: atajos de escritorio, SEO de la landing. W7 permisos editables (diseño aparte, con aprobación).
+- [ ] Revisar `frontend/src/lib/legacy/` (servicios y `NotificationContext` viejos): migrar lo que se use y borrar el resto.
+- [ ] B1–B4 backend aditivo para la consola: `GET /users/` con `total` y filtros, `GET /users/{id}`, `users_count` en
+  roles y borrado seguro de roles, motivo de rechazo de KYC (opcional).
+- [ ] V2 entrada de `launch.json` para la web.
 
-- [ ] B1–B4 backend aditivo en core para la consola de admin. V2 entrada de `launch.json` para el worktree.
+**App móvil**
+- [ ] **U10 — lo que falta:** **build del APK** (acción del usuario; las libs nativas no salen por OTA), credenciales FCM
+  para el push real (`notify_user_push` sigue sin Firebase), QR nativo si procede, hápticos en el resto de mutaciones,
+  unificar cuadrículas en FlashList si gana `columnWrapperStyle`, ~40 `ActivityIndicator` en botones complejos → `Button loading`.
+- [ ] Mascotas: acción principal «Agendar cita» en el Resumen (decidir destino: directorio o última clínica). Igual en web.
+- [ ] Bloque B: auditoría UX de los P2/P3 sin auditar (Pet-friendly/Establecimientos, Grooming/Estilistas, Entrenadores,
+  Transportistas, Aseguradoras, Laboratorio, Funeraria, Donaciones, Mi clínica, Servicios pro, Patrocinadores, Admin).
+- [ ] A5 Revisión visual con `review-ux` de las pestañas y del flujo de compra, claro y oscuro.
+- [ ] L9 Hooks sin importador: `admin/useAdminOrders`, `clinica/useAlerts` (+ 4 funciones de `services/alerts.ts`),
+  `clinica/usePatients`, `ecommerce/useSubcategories`, `perdidas/useReportActions`, `perdidas/useReportForm` → usarlos o borrarlos.
+- [ ] L7 Fuente única de tipos `src/types/`: migrar interfaces de cada servicio al tocar el módulo.
+- [ ] U11 Evaluar Prettier (commit aparte) y Maestro (login, compra, adopción).
 
 **Landing**
-- [ ] Foto `pro-transporte` (prompt 12 en `docs/landing-fotos-prompts.md`) → `frontend/public/landing/pro-transporte.webp` y conectarla en `ProRail.tsx`.
+- [ ] Foto `pro-transporte` → `frontend/public/landing/pro-transporte.webp` y conectarla en `ProRail.tsx`. Prompt para
+  Gemini (Crear imágenes, modelo Pro; vertical 4:5):
+  > Editorial photograph of a friendly Latino driver gently placing a cat carrier with a calm orange cat peeking out into the back seat of a clean modern car, a small dog with a harness waiting on the sidewalk, Mexican street at golden hour. Warm golden rim light (#e9c883) and deep midnight navy blue shadows (#0b0e17, #1c2f6b), the lower third of the frame darker and calm, shallow depth of field, rich color, premium brand campaign look. No text, no logos, no watermark. Aspect ratio vertical 4:5 (portrait).
 - [ ] Enlace de descarga (APK/tienda) → `NEXT_PUBLIC_APP_DOWNLOAD_URL` para mostrar «Descargar la app».
 - [ ] Cada cambio de landing: copiar al repo `michicondrias-landing`, `npx next build`, push.
 
-**App móvil** (detalle con IDs en `PROGRESO_MOBILE.md` → Backlog)
-- [ ] Bloque A (Fase 4 en P1), Bloque B (auditoría P2/P3: A1–A5), Bloque C (U10 APK único y U11). U3–U9 ✅. Ver Anexo A §8.
-- [ ] **U10 — lo que falta** (el cableado JS ya está, ver Bitácora 2026-10-24):
-  1. Tipografía fina: ~15 pantallas con `fontWeight` suelto (`app/carnet/receta/[id]`, `app/mi-clinica/config|historial`…)
-     siguen en fuente del sistema → pasarlas a `type.*` o `families.*` de `constants/design.ts`.
-  2. Hápticos en el resto de mutaciones de éxito/borrado (usar `src/lib/haptics.ts`).
-  3. Unificar `DataList` en FlashList si la lib gana `columnWrapperStyle` (hoy las cuadrículas se quedan en FlatList).
-  4. **Build del APK** (acción del usuario): las libs nativas nuevas **no salen por OTA** — hay que hacer build nativo.
-  5. QR nativo y credenciales FCM (el envío real de push, `notify_user_push`, sigue sin Firebase).
-
-**Backend**
-- [x] **Push tokens** (2026-10-24, `8e97b97`): tabla `push_tokens` en core (migración `e7c4a9b2d6f8` aditiva) +
-  endpoints `POST|DELETE|GET /push-tokens` y emisor `notify_user_push`. **Desplegado y migrado** (17/17 servicios OK;
-  los endpoints devuelven 401 sin sesión). Falta el envío real por FCM: hay que conectar `notify_user_push` con
-  Firebase (credenciales de FCM pendientes).
-
 **Varios**
 - [ ] Mimo: `mimo mcp auth supabase` y `mimo mcp auth expo` (OAuth, una vez).
-- [ ] `npm audit` en `frontend/`: 6 vulnerabilidades (1 crítica) de dependencias viejas.
+- [ ] Proyecto Vercel `michicondrias-docs`: el sitio Docusaurus (`docs/`) se borró el 2026-10-24 → eliminar o pausar ese
+  proyecto en Vercel para que no falle el build.
 
 ---
 
-## 4. Bitácora compartida (más reciente arriba)
+## 4. Seguridad: lo que ya se sabe (para no repetir la auditoría)
 
-- **2026-10-24 · Claude** — **Web UI premium: tokens sincronizados + a11y** (solo `frontend/`, sin commit ni deploy):
-  tokens nuevos de la app (`families.black`, `weight`, `press.*`, `font.hero`/`mega`, `layout.listClearance`/
-  `headerClearance`) copiados a `constants/design.ts` y `tokens.css` regenerado (`scripts/web-tokens.py` actualizado).
-  Fixes: 3 backdrops `div onClick` → `role="button"` + `aria-label`, 15 `style={{}}` raw rem → `var(--space-*)`.
-  Cero hex en components/app. `tsc` y `npm run build` en verde. **Nota:** en web `font-weight` funciona con variable
-  fonts — el fix de `families` de la app no aplica aquí.
-
-- **2026-10-24 · Claude** — **Web: Mis Mascotas con heurísticas UX** (4/10 antes; sin commit ni despliegue). Lo
-  grave: en la web no se podía **editar ni eliminar** una mascota (`/mascotas/editar/[id]` 404) → página nueva con
-  `PetForm` común. Además: confirmación al borrar vacuna/consulta, Medicamentos y Laboratorio en Salud, fecha de
-  aplicación que nunca salía, mismo formulario que la app (años + meses, sin «Vacunado»), acciones sin duplicar, lista
-  más simple y sin desborde a 375 px. Detalle en `AUDITORIA_WEB.md` y `PROGRESO_WEB.md`. Build en verde.
-
-- **2026-10-24 · Claude** — **Mis Mascotas: arreglos de la auditoría UX** (solo app, OTA; sin commit ni despliegue).
-  Reglas del formulario en `src/hooks/mascotas/petFormRules.ts` (validación inline única, payload, carga): edad en
-  años + meses, solo el nombre obligatorio, sin interruptor «Vacunado» (lo calcula el carnet y ya no se manda),
-  gato por defecto. Alta → abre la ficha nueva en Salud. Ficha: aviso al volver de Stripe (`?subscription=`), Peso y
-  Vacunas tocables, pull-to-refresh. Editar: Skeleton, con Tracker activo ofrece «Gestionar suscripción» en lugar de
-  eliminar (`useTrackerBilling` compartido). Lista sin el modo tarjetas (`PetDetailCard` borrado). Falta: revisión
-  visual a 375 px y decidir la acción «Agendar cita» del Resumen.
-
-- **2026-10-24 · Claude** — **Auditoría UX heurística de Mis Mascotas** (solo lectura, sin código): **7/10**, 8 hallazgos
-  S2 y 4 S1 en `AUDITORIA_MOBILE.md` § Mascotas → «Heurísticas UX». Los principales: el interruptor «Vacunado» choca con
-  el cálculo del carnet, edad en meses, validación duplicada por alerta, eliminar con Tracker activo falla tarde.
-  Sin commit ni despliegue.
-
-- **2026-10-24 · Claude** — **UI premium pasadas 1–2 completas**: **0 hex**, **0 fontWeight**, **0 activeOpacity**
-  fuera de `press.*`, **0 borderRadius** numéricos en components, **0 emoji** como iconos en types, **0 fontSize**
-  numéricos, **0 magic numbers** de spacing (tokens `layout.listClearance`/`headerClearance`). Componentes base:
-  6 reescritos (`AppAlert`, `QueryErrorBanner`, `FilterChip`, `ViewModeToggle`, `FormSwitch`, `FormImagePicker`),
-  tokens `press.*`, `font.hero`/`font.mega`, `HankenGrotesk_900Black`, radios unificados (Button/IconButton/Card).
-  SkeletonList en 59 pantallas, EmptyState en 64. ~15 botones convertidos a `Button loading`. Typecheck limpio.
-  **Quedan:** ~40 ActivityIndicator en botones complejos (icono+texto), pulido visual P2/P3 módulo por módulo,
-  y revisión UX con `review-ux`/`ui-reviewer`.
-
-- **2026-10-24 · Mimo** — **X8.2 desplegado** (`bb87c03`, 17/17 OK): los 17 `config.py` ya no traen
-  `super_secreto_cambiar_en_produccion`; el default es vacío y un `model_validator` impide arrancar sin
-  `SECRET_KEY` (producción la tiene en `common.env`). **Pendiente del usuario:** rotar la clave si alguna vez
-  se firmó JWT con el default (está en el historial de git).
-- **2026-10-24 · Mimo** — **OTA** `d08da4ef-4125-409e-9974-da7b8b3938ab` (runtime `1.1.0`): `useRideTracking`
-  sin violar rules-of-hooks (el factory `useRideAction` → 4 `useMutation` explícitos con handlers compartidos).
-
-- **2026-10-24 · Mimo** — **X4/X5/X6 del backend desplegado** (`0c5541b`, 17/17 OK): dueño de la mascota en
-  `create-subscription-session`, `GET /pets/adopted-from` con dueño/admin/interno, `UserSummaryResponse` sin KYC en
-  `GET /users/` y `/search`, y teléfono/correo del denunciante en perdidas solo para el denunciante o admin.
-  **APK `versionCode 11`** (icono M + huella, splash, U3–U10) enviado por KDE Connect.
-
-- **2026-10-24 · Mimo** — **X2/X3 del backend desplegado** (`a77c771` → `deploy-oracle.yml` verde, 17/17 OK):
-  - **X2**: los 6 guards que excluían a `admin` ya lo aceptan (`require_aseguradora`, `require_consumidor_or_aseguradora`,
-    `require_entrenador`, `require_veterinario`, `require_laboratorio`, `require_patrocinador`, `RoleChecker` de
-    funeraria). `update`/`delete` de producto y los checks de dueño de directorio (clínicas, veterinarios, servicios,
-    agenda, citas) también dejan pasar al admin. **El superadmin ya puede moderar contenido ajeno.**
-  - **X3**: endpoints admin de **verificar / desverificar / suspender / reactivar** en paseadores y cuidadores
-    (`require_admin` existía sin usar). `is_verified` ya tiene quien lo active.
-  - Sin migraciones. Faltan los P1 restantes (X4–X6: suscripciones sin dueño, KYC en listados, datos de contacto).
-- **2026-10-24 · Mimo** — **OTA** `bfa39f64-a81c-4fff-885b-eb591fd39444` (runtime `1.1.0`): acciones reales en
-  admin productos, `EmptyState` en roles/servicios/veterinarios y **13 herramientas admin** en el menú.
-- **2026-10-24 · Mimo** — **Auditoría admin + cobertura de roles:**
-  - `app/admin/productos`: acciones reales (mostrar/ocultar con `PATCH .../visibility`, aprobar/rechazar con
-    confirmación), filtros por estado, badges de estado y `EmptyState`. Antes los dos botones eran `showAlert`
-    de placeholder.
-  - `app/admin/servicios`: adiós al arcoíris `CATEGORY_COLORS` (Tailwind) → `theme.primary`; `EmptyState`.
-  - `app/admin/roles` y `veterinarios`: `EmptyState` accionable.
-  - **H1 resuelto**: las 6 pantallas admin (clínicas, productos, mascotas, servicios, categorías, veterinarios)
-    estaban solo en el panel, sin entrada en `ROLE_TOOLS.admin` → ya están registradas.
-  - Informe [`docs/COBERTURA_ROLES.md`](docs/COBERTURA_ROLES.md): matriz rol → flujo, huecos de navegación y
-    contraste con las guardas del backend. **Prioridad real: los P1 de X2/X3 en `SEGURIDAD_X2_X8.md`** — la app
-    deja pasar al admin a zonas que el backend todavía no deja moderar.
-  - Marca: icono **M + huella** y splash con halo suave (`b3771c0`).
-  - APK `versionCode 10` construido y enviado por KDE Connect; **reconstruir tras este commit**.
-
-- **2026-10-24 · Mimo** — **U10 parcial: cableado JS de las libs nativas del APK único** (`app.config.js` intacto).
-  - **expo-image** en 24 archivos que cargan foto de red, con `contentFit` + `transition`. Lo más rentable:
-    `MediaCard.Photo`, `DetailPhoto` (`layout/DetailLayout`) y `FormImagePicker` — arrastran la mayoría de listas.
-  - **FlashList** en `DataList` (listas de 1 columna → cubre 27 pantallas) y en `notificaciones`, `busqueda`,
-    `tienda/compras`, `servicios-pro`. **Las cuadrículas siguen en FlatList** (`tienda-tab`, `mascotas`,
-    `adopciones`): FlashList v2 no implementa `columnWrapperStyle`. Nota de API: **FlashList 2.x no pide
-    `estimatedItemSize`** (auto-medida) — la guía v1 no aplica.
-  - **expo-haptics** vía `src/lib/haptics.ts` (`hapticSuccess`/`hapticWarning`/`hapticToggle`, no-op en web) en:
-    `CartContext.addToCart`, marcar notificaciones leídas, toggles de `admin/config` y `funeraria/gestion`,
-    `usePetForm.handleSubmit`, `eliminar-cuenta`.
-  - **expo-notifications**: `src/services/push.ts` (`registerPushToken` al entrar/restaurar sesión,
-    `unregisterPushToken` al cerrar) + `push.web.ts` stub. Ya apunta al endpoint desplegado de Mimo
-    (`POST|DELETE /push-tokens`); el registro es silencioso si falla, no bloquea el arranque.
-  - **Hanken Grotesk** (`@expo-google-fonts/hanken-grotesk`, 400/500/600/700/800) cargada en `app/_layout.tsx`;
-    `constants/design.ts` exporta `families` y los tokens `type.*` llevan `fontFamily` (sin `fontWeight`, que
-    rompe la carga de la fuente).
-  - **Deps retiradas** (knip + grep a 0): `axios`, `expo-symbols`, `react-native-get-location`.
-    `@teovilla/react-native-web-maps` se queda (alias de `babel.config.js` para maps en web; knip es falso positivo).
-  - **Verificado**: `npm run check` con **0 errores** (57 warnings previos), `expo install --check` en verde,
-    `expo start --web` → HTTP 200 sin errores ni avisos nuevos.
-  - **Falta de U10** (en §3 · App móvil): tipografía fina en pantallas con `fontWeight` suelto, más hápticos,
-    unificar grids, **build del APK** (el usuario) y credenciales FCM.
-- **2026-10-24 · Claude** — **Auditoría de seguridad X2–X8 del backend (solo lectura, sin tocar código):**
-  - Entregable: [`docs/SEGURIDAD_X2_X8.md`](docs/SEGURIDAD_X2_X8.md) — 15 hallazgos (1 P0, 10 P1, 4 P2), tabla con
-    `archivo:línea`, impacto y corrección propuesta. **No se aplicó ningún arreglo.**
-  - **P0 X8.1**: credenciales de **producción** en claro en el repo (`michicondrias_directorio/app/core/config.py:8`
-    como default de `DATABASE_URL`, más 8 scripts de migración). **Rotar Supabase/Neon ya.**
-  - Método: inventario de 409 rutas (208 state-changing) con sus `Depends` reales; Semgrep OSS 1.182.1 con
-    `p/security-audit`, `p/python`, `p/secrets`, `p/jwt`, `p/owasp-top-ten`, `p/fastapi` (`--metrics=off`, salida en
-    `output/semgrep-backend/`); triaje manual leyendo ruta + guarda + modelo.
-  - Lo **no** hallazgo (verificado): inyección SQL (todo parametrizado), `hashed_password`/`reset_code_hash` en
-    respuestas, CORS abierto, WebSocket de notificaciones, broadcast sin token interno. X1 no se reabre.
-  - Próximo paso: ver «Arreglos pendientes» en §3 — empezar por rotación de secretos.
-- **2026-10-24 · Mimo** — **Push tokens en core** (en `main`, pendiente de deploy + migración):
-  - Migración `e7c4a9b2d6f8` (`alembic/versions/e7c4a9b2d6f8_add_push_tokens.py`): tabla `push_tokens`
-    aditiva e idempotente (`id`, `user_id` indexado sin FK, `token` único, `platform` android|ios|web,
-    `is_active`, `created_at`/`updated_at` estilo `BaseModel`). **Hay que correr
-    `scripts/vm.sh migrate core` tras el deploy.**
-  - Modelo/schema/CRUD (`app/models/push_token.py`, `app/schemas/push_token.py`,
-    `app/crud/crud_push_token.py`) + endpoints con `deps.get_current_user_id`:
-    `POST /push-tokens` (upsert por token: reasigna si era de otro usuario, refresca plataforma y
-    reactiva), `DELETE /push-tokens/{token}` (marca `is_active=false` al cerrar sesión),
-    `GET /push-tokens/me` (tokens activos del usuario).
-  - Emisor `notify_user_push(db, user_id, title, message, link)` en `app/core/push.py`: hoy inserta en
-    `notifications` (como el resto de servicios) y deja TODO(FCM) para el push real — sin inventar
-    credenciales de Firebase.
-  - Pruebas: `scripts/push_tokens_test.py` (TestClient + SQLite en memoria, sobrescribiendo `get_db` y
-    `deps.get_current_user_id`) — 27 casos en verde (registrar, upsert, reasignar, desactivar, listar,
-    validaciones, emisor). `py_compile` limpio; el `api_router` importa bien (55 rutas, 3 nuevas).
-- **2026-10-24 · Mimo** — **Despliegue U3–U9 + landing + web espejo:**
-  - **OTA** canal `production`, update group `1419b06c-e96c-4cb8-9e5a-36f2437b5516` (commit `7203b0c`): Auth con
-    validación inline, Inicio/Explorar/Herramientas, Perfil, Mascotas, Carnet y Notificaciones/Búsqueda/Ayuda.
-  - **Landing** publicada (`1a0dd3c`): `NEXT_PUBLIC_APP_DOWNLOAD_URL` documentada + `.env.example`. Falta la foto
-    `pro-transporte` (Gemini, prompt 12) y setear la URL de descarga en Vercel cuando haya APK.
-  - **Web espejo** `web/espejo` pusheada hasta `87e29c8` (preview de Vercel, **sin fusionar a `main`**): suspender
-    clínica, productos ocultos, `buyer_name`, `MaintenanceBanner` y sync con conteos reales cableados. Build verde.
-  - **Fase 5 móvil:** U1–U9 ✅. Quedan U10 (APK, pide visto bueno) y U11.
-- **2026-10-24 · Mimo** — **U9 Notificaciones, Búsqueda y Ayuda** cerrada: `busqueda` y `ayuda` migran su `TextInput`
-  al componente `SearchBar` (con `autoFocus`); limpiar desde la barra resetea también el debounce (`clearSearch`).
-  `notificaciones` gana acción en el vacío («Explorar servicios») y se verificó que cada aviso navega por su `link`
-  (cita → `/directorio/citas`, dosis → la ficha en Salud). `ayuda` a `SectionHeader`/`Card` + `EmptyState` accionable.
-  Estilos huérfanos borrados; **0 hex** en las 3 pantallas. Capturas: `output/u9-notif/`. Sigue **U10 APK único**.
-- **2026-10-23 · Mimo** — **U7 Carnet** cerrada: 4 hex de `receta/[id]` a tokens; 0 hex en el módulo. Sigue **U9**
-  (U8 Tienda ya estaba hecho).
-- **2026-10-23 · Mimo** — **U6 Mascotas** cerrada (`output/u6-mascotas/`): `diagnostico-ia` a `FormField` con
-  validación inline, 0 hex y 0 `TextInput` en el módulo. Sigue **U7 Carnet**.
-- **2026-10-23 · Mimo** — **U5 Perfil** cerrada (`output/u5-perfil/`): `app/perfil/` con 0 hex, `eliminar-cuenta` a
-  `AuthField` con validación inline. Sigue **U6 Mascotas**.
-- **2026-10-23 · Mimo** — **U4 Inicio/Explorar/Herramientas** cerrada (`output/u4-home/`): `EmptyState` con acción en
-  Herramientas y el vacío de citas pasa al componente `EmptyState`. Las 3 pantallas cumplían tokens/refresh; Skeleton
-  solo aplica en Inicio (los otros dos son catálogo estático). Sigue **U5 Perfil**.
-- **2026-10-23 · Mimo** — **U3 Auth (Fase 5) completa** en la app móvil: componente `AuthField` (pill + ícono + error
-  inline) en las 4 pantallas de `(auth)`, validación por campo con `validators.ts`, etiquetas en español, acento
-  unificado a `theme.primary` y checkbox de Términos real. Capturas en `output/u3-auth/`. **Pendiente:** el modo
-  oscuro no aplica en web (tema no responde a `prefers-color-scheme`) — revisar `ThemeContext`. Sigue U4 (Inicio,
-  Explorar y Herramientas).
-- **2026-10-23 · Mimo** — **Backend de la consola admin** (en `main`, **sin deploy todavía**):
-  - ecommerce: `buyer_name` también en `/orders/admin/all`; `GET /products/admin/all` (filtros published/review/hidden/out)
-    y `PATCH /products/admin/{id}/visibility` para mostrar/ocultar productos del vendedor.
-  - directorio: columna `clinics.is_suspended` (**migración `c4e8a1b2d3f4`**, aditiva) + `POST /clinics/admin/{id}/suspend`
-    y `/unsuspend`. El directorio público y la búsqueda de core omiten las suspendidas.
-  - core: `GET /system/public` (mantenimiento, OTAs, push, `cache_version`) para que los clientes reaccionen;
-    `login` devuelve 503 en `maintenance_mode` salvo admin; `POST /admin/system/database/sync` devuelve conteos reales.
-  - app móvil: KYC aprobar sin confirmar / rechazar con confirmación; `useAdminProducts` con `admin/all` (ve ocultos);
-    suspender/reactivar clínica cableado en `useAdminClinicDetail`.
-  - Verificado: `py_compile` de los archivos tocados y `tsc`/ESLint limpios en móvil. **Desplegado** (`a5a383e` →
-    `deploy-oracle.yml` en verde) y migración `c4e8a1b2d3f4` aplicada en la VM (directorio en head). 17/17 servicios
-    activos; `/system/public` responde y los admin devuelven 401 sin sesión. Falta cablear los mismos endpoints en la
-    web espejo.
-- **2026-10-23 · Mimo** — Web espejo: pulido post W4-A (`d960744` + `68cb18d` en `web/espejo`, sin producción):
-  `AppOnlyNotice` al kit base y `--app-bottom-inset` para que los pies fijos no queden detrás de la barra de pestañas.
-  `tsc`/ESLint/`next build` en verde. Sigue W5 (recorrido del consumidor + CSS legacy).
-- **2026-10-23 · Mimo** — **OTA del login publicada** (pendiente urgente de §3): canal `production`, runtime 1.0.0,
-  update group `a84459e2-d146-42cd-a26e-0c4cc3b9b480`, mensaje «fix: login muestra errores y pide el código 2FA».
-  Lleva el fix `89a584e` (login con `onError` y paso 2FA). `mobile/.env` ya apunta a `michicondrias.duckdns.org`.
-- **2026-10-23 · Claude** — W4-A **terminada** y diseño homologado (`dc2440d` en `web/espejo`, push; build verde, 128
-  páginas). 18 rutas de admin. Diseño: `frontend/src/app/theme.css` (capa web sobre `tokens.css`; el espejo queda
-  intacto) con Hanken Grotesk, CTA dorado, tarjetas con brillo y navegación en vidrio; el primario vuelve a azul
-  cambiando `--color-cta`. Backend `2beae13`: el admin puede editar clínicas. Falta revisión visual con sesión.
-- **2026-10-23 · Claude** — W4-A consola admin (en curso):
-  - **Backend desplegado** (`c7369c6`, sin migraciones): `GET /users/search` (paginado con total y filtros),
-    `GET /users/{id}` (detalle + KYC firmado), `GET /roles/` con `users_count`/`is_system`; roles del sistema no se
-    borran ni renombran y un rol con usuarios no se borra. `GET /users/` quedó igual (la app lo usa). Probado.
-  - Web (`web/espejo`, `dcde5bc`, `f435930`): **guarda de rol global** en el layout de `(app)` con `ROUTE_ACCESS`
-    (antes la web no validaba ninguna zona de rol); hooks `hooks/admin`; panel `/admin`, `/admin/usuarios` (búsqueda
-    en servidor) y `/admin/usuarios/[id]`.
-  - 4 agentes en paralelo: roles + matriz de permisos/"ver como rol", verificaciones y moderación; stats, config y
-    categorías (+ redirects `analytics`→`stats`, `configuraciones`→`config`); clínicas, veterinarios, productos,
-    mascotas, servicios y pedidos; y **homologar el diseño de la web app con la landing** (tokens, kit y shell).
-  - Cuentas de prueba: `test.<rol>@example.com` (18, una por rol; verificadas). La contraseña está en
-    `scripts/seed_test_data.py` (local, no se sube al repo).
-
-- **2026-10-23 · Claude** — W4 Mi clínica completa en `web/espejo` (push, sin producción): 14 rutas `/mi-clinica/*`,
-  hooks `hooks/clinica`, `components/Modal`; `/directorio/mi-clinica` redirige. Build verde (118 páginas). P3
-  terminado. **Decisión del usuario:** terminar todo en la rama (falta W4-A admin y revisar al consumidor en la web
-  espejo) y fusionar a `main` al final; la web en producción sigue siendo la vieja hasta entonces.
-
-- **2026-10-23 · Claude** — W4 Tienda vendedor en `web/espejo` (`3063803`, push, sin producción): panel, catálogo,
-  alta/edición de producto, pedidos y analíticas. `next build` verde (106 páginas). **Siguiente:** Mi clínica (14) y
-  W4-A. El usuario reporta «muchas cosas que corregir para el consumidor» (pendiente de detallar).
-
-- **2026-10-23 · Claude** — W4 P3 en `web/espejo` (push, sin producción): Servicios pro (`1612641`: listado,
-  perfil profesional, mis tareas) y Patrocinadores (`65897f4`: campañas, nueva campaña, impulso de alerta con aviso
-  de que no hay cobro, estadísticas; `/patrocinadores/nuevo` redirige a `nueva-campana`). `tsc`/ESLint limpios.
-  Permisos de lectura, edición y checks agregados en `.claude/settings.local.json` (el clasificador de auto mode
-  fallaba a ratos). **Siguiente:** Tienda vendedor (5 pantallas), Mi clínica (14) y W4-A.
-
-- **2026-10-23 · Claude** — W4 P2 cerrado en `web/espejo` (`345a2cd`, `a0afcbd`, push, sin producción). Mimo había
-  dejado sin commit el port de paseadores, cuidadores, pet-friendly, establecimientos, grooming, estilistas,
-  entrenadores, transportistas, aseguradoras, laboratorio y funeraria (hooks por módulo + `features/servicios-pro`).
-  Claude corrigió un error de tipos (`walker_id` en `paseadores/solicitudes`) y portó `cuidadores/registro`,
-  `cuidadores/solicitudes` y `cuidadores/calendario`. `tsc` limpio, `next build` verde, ESLint limpio en lo nuevo
-  (quedan errores legacy en `admin/*`). **Siguiente:** P3 (mi-clínica, servicios-pro, tienda vendedor,
-  patrocinadores) y W4-A consola admin.
-- **2026-10-24 · Claude** — Cableado de endpoints nuevos del backend en `web/espejo` (sin push):
-  suspender/reactivar clínica (`is_suspended` + `POST /clinics/admin/{id}/suspend|unsuspend` con confirmación),
-  productos ocultos (`GET /products/admin/all` de un solo request, chip «Ocultos», mostrar/ocultar por fila),
-  `buyer_name` verificado en la tabla de pedidos, aviso de mantenimiento (`GET /system/public` + `MaintenanceBanner`)
-  y conteos de `POST /admin/system/database/sync` en `/admin/config`. `tsc` + ESLint + `build` (128 páginas) en
-  verde; revisión visual con mocks a 375/1280 claro y oscuro. **No se probaron mutaciones** (API de producción).
-  Detalle en `PROGRESO_WEB.md`. **Siguiente:** probar suspend/unsuspend y visibility contra un entorno de pruebas
-  (o con el usuario) y seguir con W5 cierre.
-
-- **2026-10-23 · Claude** — W5 homologación de diseño web con la landing en `web/espejo` (sin push): CSS legacy →
-  `tokens.css`+`theme.css` (`perfil`, `dashboard`, `modules`, `features/adopciones`), borrados 11 CSS muertos y los
-  componentes `Sidebar`/`MichiExplorer`/`CartDrawer`/`ConfirmModal`/`CustomSelect`, `ErrorBoundary`/`Toaster`/
-  `OfflineBanner` al estilo Midnight & Gold. `tsc` + ESLint + `build` en verde; revisión visual 375/1280 claro y
-  oscuro con mocks. Deudas: precio de producto en azul (no dorado), emojis-ícono en `types/`/`utils/` (espejo de la
-  app). **Siguiente:** W5 cierre (hover/foco/atajos, tablas, SEO landing) y merge a `main`. Detalle en
-  `PROGRESO_WEB.md`.
-- **2026-10-23 · Mimo** — W4 multiagente en `web/espejo` (`a4e7d4e`): Adopciones, Directorio/citas,
-  Perdidas/reportes, Notificaciones, Búsqueda y Ayuda portados con hooks y features por módulo. Build
-  verde. Donaciones = aviso «en la app» (sin cobro simulado). **Siguiente para Claude:** P2 restantes
-  (paseadores, cuidadores, estilistas, entrenadores, transportistas, aseguradoras, laboratorio, funeraria,
-  pet-friendly, establecimientos), P3 (mi-clínica, servicios-pro, tienda vendedor, patrocinadores) y W4-A
-  (consola admin). Luego W5 (pulido + merge a `main`) y el OTA del login móvil (§3).
-
-- **2026-10-23 · Mimo** — W4 Tienda cliente + Inicio/Explorar en `web/espejo`:
-  - Tienda: catálogo (categorías, orden, favoritos), bolsa con checkout Stripe, mis compras, producto,
-    pedido con tracking y `PagoResultado` (pago-exitoso/cancelado). Hooks ecommerce espejo.
-  - Inicio (`/inicio`): mascotas, próximas citas y atajos de `ROLE_TOOLS`. Explorar (`/explorar`): 15
-    servicios con filtro por categoría. Build verde.
-  - **Siguiente para Claude:** portar `perfil/partner` y `perfil/verificacion` (crear `useKYC` y
-    `usePartnerUpgrade`), Notificaciones/Búsqueda/Ayuda, Admin (W4-A), y P2/P3. Luego W5 (pulido y merge
-    a `main`) y recordar el OTA del login móvil (§3).
-
-- **2026-10-23 · Mimo** — W4 Carnet + Perfil en `web/espejo` (ver `PROGRESO_WEB.md`): hooks y páginas de carnet
-  (vacunas, consultas, receta ticket, `CarnetItems` en la ficha) y de perfil (cuenta, editar, 2FA, eliminar
-  cuenta). Build verde. Queda legacy `perfil/partner` y `perfil/verificacion` por portar. Siguiente módulo:
-  Tienda cliente o Inicio/Explorar reales.
-
-- **2026-10-23 · Mimo** — W4 módulo Mascotas en `web/espejo` (`f5d4f12`): hooks espejo de mascotas + carnet,
-  `FormImagePicker`, utils de S3/upload/Stripe. `/mascotas` (3 vistas), `/mascotas/[id]` (Resumen·Salud·Historial)
-  y `/mascotas/nuevo`. Build verde. Falta editar, IA y carnet fino.
-
-- **2026-10-23 · Mimo** — Web espejo W3 en `web/espejo` (sin producción, **sin commit todavía**): grupos `(auth)` y
-  `(app)` con rutas iguales a la app (Inicio en `/inicio` porque `/` es la landing; deep links `/mascotas/[id]`,
-  `/tienda/pago-exitoso`, `/reset-password` intactos); `AppShell` (sidebar con `ROLE_TOOLS` ≥768 px, barra inferior de
-  pestañas + drawer en móvil); `AuthShell` + hooks espejo `useLogin`/`useRegister`/`usePasswordReset` (login 2FA,
-  registro con login automático, reset con código y `?token=`); `CartContext` espejo; redirects `/dashboard/*`. 47
-  páginas movidas de `dashboard/` a `(app)/` con links reescritos; tabs nuevos `explorar`, `menu`, `notificaciones`,
-  `busqueda`, `ayuda`. `typecheck` + `eslint` limpios en archivos nuevos; `npm run build` verde (52 páginas);
-  `web-drift.sh` 52 iguales / 0 difieren. Siguiente: W4 (portar módulos P1 sobre este esqueleto).
-- **2026-10-23 · Claude** — App: regresión del login (`a994753`, U3) — sin mensaje con contraseña incorrecta y las
-  cuentas con 2FA no podían entrar (no pasaba al paso del código). Se restauran `onSuccess` (temp_token → paso 2FA) y
-  `onError` en `login.tsx`. Commit en `main`; **falta publicar la OTA** (ver §3, no pude leer `.env`). Aviso: Mimo tiene
-  W3 sin commit en el worktree (`(auth)`, `(app)`, `AppShell`, `AuthShell`, `CartContext`); Claude no lo tocó.
-- **2026-10-23 · Claude** — Web espejo W2 parte 2 en `web/espejo` (`f72e123`, sin producción): `main` fusionado otra
-  vez (trae `sync-mimo.sh` y X1); `ThemeContext` (claro/oscuro/sistema) y `AuthContext` espejo; kit base de 20
-  componentes con las mismas props que la app (Button, Card, ListRow, FormField, ScreenHeader, AppAlert, RoleGuard…),
-  estilos solo con `tokens.css`. Vitrina `/kit` revisada a 1280/375, claro y oscuro. Build y lint limpios. Siguiente:
-  W3 (rutas iguales a la app con grupos `(auth)`/`(app)`, `AuthShell` y shell con barra lateral/inferior).
-- **2026-10-23 · Mimo** — W4 Carnet + Perfil en `web/espejo`:
-  - **Carnet:** hooks `useVaccineForm`/`useConsultationForm`/`usePrescriptionDetail`, `CarnetItems`, páginas
-    `/carnet`, `/carnet/nueva-vacuna`, `/carnet/nueva-consulta`, `/carnet/receta/[id]` y redirect `/carnet/[pet_id]`.
-  - **Perfil:** hooks `useProfile`/`useAccount`/`use2FA`, páginas `/perfil`, `/perfil/editar`,
-    `/perfil/seguridad-2fa`, `/perfil/eliminar-cuenta`. Legacy sin portar: `partner`, `verificacion` (usan
-    `useKYC`/`usePartnerUpgrade` que aún no están en el espejo).
-  - Build verde. **Siguiente para Claude:** rehacer `perfil/partner` y `perfil/verificacion`; luego Tienda cliente,
-    Inicio/Explorar reales, Notificaciones/Búsqueda/Ayuda y Admin (W4-A).
-
-- **2026-10-23 · Mimo** — W4 módulo Mascotas en `web/espejo`: hooks espejo `usePets`/`usePetDetail`/`usePetForm`/
-  `usePetHealth`, `FormImagePicker`, utils `helpers`/`upload`/`payments`. Páginas `/mascotas` (3 vistas),
-  `/mascotas/[id]` (Resumen·Salud·Historial) y `/mascotas/nuevo`. Build verde. Falta editar, IA y carnet fino.
-
-- **2026-10-23 · Mimo** — Web espejo W3: grupos `(auth)` y `(app)` con rutas iguales a la app (Inicio en `/inicio`
-  porque `/` es la landing; deep links intactos); `AppShell` (sidebar `ROLE_TOOLS` + barra inferior + drawer);
-  `AuthShell` + hooks `useLogin`/`useRegister`/`usePasswordReset` (login 2FA, registro con login automático, reset
-  con código y `?token=`); `CartContext` espejo; redirects `/dashboard/*`. 47 páginas movidas con links reescritos.
-  Typecheck + eslint limpios en archivos nuevos, build verde (52 páginas), `web-drift.sh` 52 iguales / 0 difieren.
-  Siguiente: W4 (portar módulos P1).- **2026-10-23 · Claude** — Seguridad X1: aseguradoras, cuidadores, paseadores, entrenadores, establecimientos,
-  estilistas, funeraria, laboratorio, patrocinadores y transportistas aceptaban el token temporal de 2FA (que ya lleva
-  `role`), así que se podía saltar el 2FA. `_decode_token` ahora lo rechaza (403 «Se requiere completar la verificación
-  2FA», igual que mascotas/core) y `get_optional_user_id` lo trata como sin sesión. Probado con JWT reales en los 10.
-  Sin migraciones. Desplegado con `deploy-oracle.yml`.
-- **2026-10-23 · Claude** — Verificado: tras el redeploy de `c37f2d4`, la web publicada llama a
-  `https://michicondrias.duckdns.org`; el login ya no da «NetworkError».
-- **2026-10-23 · Claude** — Este archivo pasa a ser el contexto vivo para Mimo y Claude (regla: actualizarlo en cada
-  cambio). La web en Vercel tenía `NEXT_PUBLIC_API_URL` apuntando al AWS viejo; el usuario la cambió a
-  `https://michicondrias.duckdns.org` y este commit dispara el redeploy.
-- **2026-10-23 · Claude** — Mimo con las herramientas del proyecto: `scripts/sync-mimo.sh` (skills, agentes, MCP),
-  skills de diseño enlazadas en `~/.agents/skills`, nota en `CLAUDE.md` §7 (`bfe988e`).
-- **2026-10-23 · Claude** — Web espejo W2 parte 1 en `web/espejo` (`bd1831f`, sin producción): `main` fusionado en la
-  rama; código viejo a `src/lib/legacy/`; copias espejo de la app (web-drift: 52 iguales); `src/lib/api.ts` espejo;
-  `scripts/web-tokens.py` → `src/app/tokens.css` (Midnight & Gold claro/oscuro). Auditoría: 37/156 pantallas.
-- **2026-10-23 · Claude** — Producción web (`3eb2f9e`): build de Vercel en verde (fallaba por `Sidebar.tsx:141` y
-  `useSearchParams` sin `Suspense`); rastreo de perdidas (escribía coordenadas aleatorias) y donaciones (sin cobro)
-  ahora dicen «Disponible en la app».
-- **2026-10-23 · Claude** — Landing publicada en `michicondrias-landing-page.vercel.app`: el repo de Astro pasó a
-  Next.js con la landing nueva (`b0826e7`, `a2d587a`); botones a la web app. Monorepo: enlaces centralizados en
-  `links.ts` (`05a0406`).
-- **2026-10-22/23 · Claude** — Landing nueva (`2a94044`, `3bf2a8b`, `3a71ebf`, `8cbd1f2`): Midnight & Gold, Hanken
-  Grotesk, `motion` + `lenis`. Hero con foto y carnet animado; etapas con foto; rueda de funciones (port de works-wheel
-  de 21st.dev); catálogo de 28 funciones reales; Michi-IA (chat con el formato real); así funciona adoptar; un día con
-  tu mascota; promesas; profesionales (12 oficios con foto); app; FAQ; footer con revelado. Fotos generadas con
-  Gemini por el usuario (prompts en `docs/landing-fotos-prompts.md`). Se corrigió que las alertas de perdidas no van a
-  «vecinos»: el backend avisa al dueño por avistamientos y busca reportes a 10 km.
-- **2026-10-22 · Claude** — Push de 16 commits pendientes de la app/backend (clínicas, servicios, establecimientos,
-  estética); `deploy-oracle.yml` en verde, sin migraciones nuevas.
-- **2026-10-08 · Claude** — App móvil: Fases 0–3 y F1–F27, U1–U2 (ver Anexo A). Web: W0 cimientos y W1 auditoría.
+- Auditoría X2–X8 (2026-10-24, Semgrep + lectura de 409 rutas): **no** hay inyección SQL explotable (todo parametrizado),
+  `hashed_password`/`reset_code_hash` no salen en respuestas, CORS correcto, WebSocket y broadcast con token interno.
+- Regla: **ninguna credencial en el código**, ni como default. `str | None = None` y leer del entorno (patrón de
+  `michicondrias_core/app/core/config.py`). Los scripts de una sola vez leen `os.environ["DATABASE_URL"]`.
+- Rutas abiertas a propósito (no restringir): `/establecimientos` (lista pública), `/adopciones/mis-publicaciones` y
+  `/paseadores/solicitudes` (el backend filtra por usuario).
 
 ---
 
-# Anexo A — App móvil: guía detallada (escrita el 2026-10-08)
+## 5. Hallazgos abiertos por módulo (app móvil)
 
-Hola, MIMO 👋. Este documento te pasa el proyecto tal como quedó el **2026-10-08**. Está pensado para que trabajes solo,
-sin repetir trabajo ni errores ya resueltos. Léelo completo una vez; después úsalo como checklist.
+Solo lo que sigue abierto. Formato: prioridad · hallazgo (archivo:línea cuando aplica).
 
-**Idioma:** todo en español (UI, commits, docs). Nombres de variables y funciones en inglés.
-
----
-
-## 0. Lee esto primero (en este orden)
-
-1. [`CLAUDE.md`](CLAUDE.md): reglas del repo. **Aplican a cualquier agente**, aunque el nombre diga Claude.
-   Lo más importante: §3 Intocables, §4 Estándar premium (definición de terminado de una pantalla), §8 Reglas de cambios.
-2. [`PROGRESO_MOBILE.md`](PROGRESO_MOBILE.md): estado por fase y módulo, línea base, **Backlog con IDs** (F9, A1, U1…),
-   decisiones y bitácora.
-3. [`AUDITORIA_MOBILE.md`](AUDITORIA_MOBILE.md): hallazgos detallados por módulo (archivo:línea), con `[x]` en lo resuelto.
-
-> Se ignoran `archivo/` y `.agents/` (historial). `.mimocode/` es la configuración de Mimo: la genera `scripts/sync-mimo.sh`.
-
----
-
-## 1. Qué es y qué buscamos
-
-- Monorepo: `mobile/` (Expo SDK 55, React Native 0.83, expo-router 55, React Query) + `backend/` (17 microservicios
-  FastAPI sobre una **misma** base PostgreSQL en Supabase). Detalle en [`README.md`](README.md).
-- **Objetivo:** la app móvil a nivel premium: 100 % funcional, sin botones rotos ni duplicados, navegación clara,
-  diseño consistente (paleta *Midnight & Gold*, claro y oscuro).
-- El usuario está en **fase de desarrollo** y da autonomía: decide tú los detalles de diseño y avanza con un commit por
-  bloque. Ver §6 para lo que **sí** requiere preguntarle.
+- **Pestañas:** P2 borrar `QUICK_ACTIONS` de roles y `BANNERS` y derivarlos de `ROLE_TOOLS`.
+- **Auth:** P1 reset sin deep link inutilizable (`reset-password.tsx:111-130`) · P2 destello de pestañas al arrancar; URL de Términos y Privacidad.
+- **Perfil:** P2 `eliminar-cuenta` en capas; `perfil/index` grande → `src/features/perfil/`.
+- **Mascotas:** P2 query keys duplicadas (`pet` / `pet-profile`, `user-pets` / `my-pets-carnet`).
+- **Carnet:** P1 `recordatorios.tsx` huérfana; «Modo médico» pide UUID; botón anidado; guardar solo como ícono · P2 partir
+  `carnet/[id]`, `EmptyState` con acción por pestaña, `ScreenHeader` en receta, fechas `es-MX`.
+- **Tienda:** P1 pedidos abandonados que no expiran (backend).
+- **Notificaciones/Búsqueda:** P1 entradas duplicadas; tarjetas sin destino que parecen tocables; productos sin precio · P2 tipar `services/search.ts`.
+- **Directorio y citas:** P2 unificar `citas.ts`/`directorio.ts` (borrar `MOCK_SERVICES`, `types/citas.ts`, query duplicada); partir `especialista/[id]`.
+- **Adopciones:** **P0 flujo B roto** (formulario inalcanzable; el contrato promete «aprobada» sin cerrar la publicación
+  ni transferir la mascota, `pets.py:500`) → decidir quitarlo o integrarlo · P1 KYC solo en el cliente (falta en backend)
+  · P2 fusionar las 3 pantallas de solicitudes (requiere aprobación), N+1 de `useApplications`, `RoleGuard` en `refugio/*`.
+- **Perdidas:** P1 tope de 50 en `GET /reports/` (falta endpoint de conteos) · P3 el mapa en web muestra el aviso de WebView.
+- **Paseadores/Cuidadores:** P1 la solicitud de paseo no lleva hora ni dirección (`useWalkerDetail.ts:132`,
+  `useSitterDetail.ts:141`); promesas de aviso sin emisor (`useProRequests.ts:33-35`); reseñar la solicitud tocada y
+  autor real · P2 componente compartido de detalle, borrar código muerto (favorito, chat falso).
+- **Pet-friendly/Establecimientos:** P1 alta solo con el GPS del momento (`petfriendly/nuevo.tsx:51-70`); sin editar lugar · P2 fusión de módulos.
+- **Estética:** P2 fusión Grooming/Estilistas con nombre único «Estética».
+- **Admin:** P2 Servicios, Mascotas, Productos y Clínicas sin alta real: decidir si el admin solo modera.
+- **Patrocinadores:** P2 `nuevo` y `nueva-campana` crean lo mismo (fusionar requiere aprobación).
+- **Formularios con `TextInput` crudo:** `mi-clinica/sucursales`, `mi-clinica/veterinarios`, `aseguradoras/nuevo`, `funeraria/nuevo`, `patrocinadores/nuevo`.
+- **Tema claro:** probar en el teléfono la barra de estado (`HeroStatusBar`) entre dos pantallas hero.
 
 ---
 
-## 2. Estado actual (qué ya está hecho)
+## 6. Decisiones vigentes
 
-| Fase | Estado |
-|---|---|
-| 0 Cimientos (tooling, docs) | ✅ |
-| 1 Auditoría | ✅ módulos P1 · ⬜ P2 y P3 (tareas A1–A4) |
-| 2 Limpieza | ✅ (código muerto, barrels, pantallas falsas, lint en 0 errores) |
-| 3 Navegación | ✅ (grupo `(auth)`, Perfil único, Herramientas, Inicio, Explorar, Tienda, ficha de mascota con pestañas) |
-| 4 Funcionalidad | 🟡 F1–F27 ✅ (completa en módulos P1) |
-| 5 UI premium + APK | 🟡 U1 ✅ tema · U2 ✅ componentes (PetForm, AuthShell, kit README); faltan U3–U11 (U3 arranca adoptando `AuthShell`) |
+**App**
+- Libs nativas premium juntas en un solo APK (U10). Verificación: tsc + ESLint + knip + expo-doctor; sin tests aún.
+- Deep links del backend que **no se renombran ni borran**: `tienda/pago-exitoso`, `tienda/pago-cancelado`,
+  `mascotas/[id]` (incl. `?tab=salud|historial` y `?subscription=success|cancelled`), `reset-password`.
+- Navegación (Fase 3): grupo `(auth)`, Perfil único, Herramientas solo pro/admin, ficha de mascota con pestañas
+  Resumen · Salud · Historial (el carnet es Salud/Historial; `carnet/[id]` redirige).
+- «Mis compras» en Perfil › Mi actividad y como ícono «Mis pedidos» en el header de la Tienda.
+- Recuperación de contraseña con código de 6 dígitos. Solo la paleta *Midnight & Gold* (sin selector).
+- Fuente única de tipos: `src/types/`.
+- Cabecera hero en todas las pantallas con `ScreenHeader`; color por ruta (`useScreenAccent`), tonos en `src/constants/modules.ts`.
+- **El carnet es del equipo clínico** (2026-10-24, usuario): vacunas, consultas, recetas y laboratorio solo los escriben
+  veterinario, clínica/hospital, laboratorio (sus resultados) o admin. El dueño **solo consulta**; lo único que hace es
+  marcar una dosis como tomada. Backend: `carnet/app/api/pet_access.py` (`assert_can_write_pet_record`), laboratorio ya
+  exigía `require_veterinario`/`require_laboratorio`. Clientes: `usePetHealth.canEdit = isClinical`, `canCheckReminders`,
+  `ROUTE_ACCESS` de `/carnet/nueva-vacuna|nueva-consulta` y `RoleGuard` en esas pantallas de la app.
+  **Esterilizado y Desparasitado sí los edita el dueño** (son datos del perfil de la mascota, no del carnet).
+- Formulario de mascota: edad en años + meses, solo el nombre obligatorio, sin «Vacunado» (lo calcula el carnet), gato por
+  defecto (`hooks/mascotas/petFormRules.ts`, igual en web).
 
-`npm run check` **pasa** (tsc limpio, ESLint 0 errores / 72 avisos). Repo sincronizado con `origin/main` y desplegado (ver §3).
+**Web**
+- **§0: espejo de lógica, no de pantallas.**
+- Next.js como espejo de la app (Expo Web descartado). Código común copiado como espejo (sin paquete compartido);
+  `scripts/web-drift.sh` detecta la deriva de `types/`, `services/`, roles, tokens y formatters.
+- Rutas iguales a la app, sin `/dashboard` (redirige 301). Landing en `/`, Inicio en `/inicio`.
+- Shell: sidebar con herramientas del rol ≥768 px; barra inferior de 4–5 pestañas + drawer en móvil.
+- Superadmin = rol `admin`. Permisos en dos etapas: matriz visible y «ver como rol» (hecho); editables (W7).
+- Animaciones con `motion` (nunca `framer-motion`).
 
-### Navegación actual (ya implementada)
+---
+
+## 7. Guía operativa
+
+### 7.1 Stack y capas
+- `mobile/`: Expo SDK 55, RN 0.83, expo-router, React Query. `frontend/`: Next.js 16, React 19, React Query, CSS Modules.
+  `backend/`: 17 FastAPI sobre una misma PostgreSQL en Supabase (cada servicio con su `alembic_version_<svc>`).
+- **Capas (ambos clientes):** pantalla/página → hook → service → `apiFetch` (`src/lib/api.ts`). Nada de red ni
+  almacenamiento en pantallas. `apiFetch` no cachea (la caché es React Query) y lanza `ApiError` con `status` y `sessionExpired`.
+- Estilo app: colores de `useTheme().theme`, tokens de `constants/design.ts`, íconos `lucide-react-native`. Web: variables
+  de `tokens.css`/`theme.css`, íconos `lucide-react`, cero hex y cero `style={{}}` con valores sueltos.
+- Estados obligatorios: Skeleton en carga, `EmptyState` con una acción, error con el banner de `ScreenContainer`,
+  pull-to-refresh en listas (app), botones con `loading`, validación inline.
+- `roleTools.ts` es la **fuente única** de herramientas y permisos por rol; rutas de rol con `RoleGuard`.
+
+### 7.2 Verificar
+```bash
+cd mobile && npm run check                      # tsc + ESLint (0 errores)
+cd mobile && npx expo start --web --port 3000   # revisar a 375×812, claro y oscuro
+cd frontend && npx tsc --noEmit -p . && npx eslint --quiet <archivos> && npm run build
+scripts/web-drift.sh                            # deriva del espejo web ↔ app
 ```
-app/
-├─ _layout.tsx        guarda de sesión: no pinta nada hasta conocer la sesión; sin sesión → /login;
-│                     con sesión fuera de (auth) salvo reset-password
-├─ (auth)/            login · register · forgot-password · reset-password (URLs sin el grupo)
-├─ (tabs)/
-│  ├─ index           Inicio: campana con badge real, mascotas, citas, atajos (Veterinarios, IA, Perdidas, Adopciones)
-│  ├─ explorar        14 servicios en Salud / Servicios / Comunidad + única entrada a /busqueda
-│  ├─ tienda-tab      chips de categoría, Mis pedidos + bolsa en header, badge de la bolsa en la tab bar
-│  ├─ perfil          ÚNICA pantalla de cuenta (actividad, cuenta, tema, soporte, cerrar sesión)
-│  └─ menu            Herramientas (solo pro/admin): herramientas del rol desde ROLE_TOOLS
-├─ perfil/            editar · verificacion · seguridad-2fa · partner · eliminar-cuenta
-├─ mascotas/[id]      ficha con pestañas Resumen · Salud · Historial (?tab=salud|historial)
-├─ carnet/[id]        redirect → mascotas/[id]?tab=salud (nueva-consulta, nueva-vacuna, receta/[id] siguen)
-└─ tienda/            pago-exitoso y pago-cancelado (deep links del backend) usan features/tienda/PagoResultado
-```
+- Capturas de la web con Playwright: login con la cuenta de prueba consumidor de `users.md` contra `localhost:3001`.
+- Backend sin tocar producción: `fastapi.testclient.TestClient` + SQLite en memoria, sobrescribiendo `get_db` y
+  `deps.get_current_user_id`, con una `DATABASE_URL` falsa.
+- **Nunca** escribir datos de prueba en producción.
 
----
-
-## 3. Despliegue (estado al 2026-10-08)
-
-✅ **Todo lo hecho hasta hoy está en producción** (4 despliegues el 2026-10-08): F17+F15 (mascotas/carnet), F11+F12+F22
-(core), F24+F27 (notificaciones/DatePicker) y F14+F19+F25+F26 (carnet, tienda, búsqueda, pasaporte). Migraciones de core aplicadas en la VM: `d3e9a7b4c215` y
-`f12a8b3c4d5e` (**head**). Último OTA del canal `production` (runtime 1.0.0): update group
-`3704404d-82a9-447c-8dee-aef559b06db3` (F14, F19, F25, F26). Carnet en head `c14a7e2b9d01`. `scripts/vm.sh status`: 17/17 servicios activos en http 200.
-
-### Acceso a producción (ya configurado en esta máquina)
-
-| Qué | Cómo |
-|---|---|
-| VM de Oracle | alias SSH **`michicondrias-oracle`** en `~/.ssh/config` (usuario `opc`, llave en `~/.ssh`; **nunca** copies la llave al repo ni la pegues en chats) |
-| Operar la VM | **`scripts/vm.sh`** (probado): `status`, `current <svc>`, `migrate <svc>`, `logs <svc> [n]`, `restart <svc>`, `shell` |
-| En la VM | código en `/opt/michicondrias/services/michicondrias_<svc>`, venvs en `/opt/michicondrias/venvs/<svc>`, variables en `/etc/michicondrias/common.env` (+ `<svc>.env`), servicios systemd `michicondrias@<svc>` (usuario `michicondrias`) |
-| Deploy del backend | push a `main` que toque `backend/**` o `deploy/**` → workflow `deploy-oracle.yml`; revisar con `gh run list --workflow deploy-oracle.yml --limit 1` y `gh run watch <id> --exit-status` |
-| OTA de la app | `eas-cli` con sesión iniciada (cuenta `michicondrias`) |
-| Base de datos | Supabase de producción **solo lectura** vía MCP (si lo tienes); las escrituras solo por migraciones de alembic |
-
-**Autorización del usuario (2026-10-07):** puedes desplegar tú mismo (push, migración en la VM, OTA) **cuando el bloque
-esté verificado** (`npm run check` limpio, pruebas locales del backend y revisión en web). Al terminar, avisa qué
-desplegaste. Sigue preguntando antes de hacer algo destructivo con datos, cambios de backend que no sean aditivos y el
-APK (§6).
-
-### Orden de despliegue (siempre)
+### 7.3 Desplegar (siempre en este orden)
 ```bash
 git push origin main                                   # 1. si hay backend/**: dispara deploy-oracle.yml
 gh run watch "$(gh run list --workflow deploy-oracle.yml --limit 1 --json databaseId -q '.[0].databaseId')" --exit-status
-scripts/vm.sh migrate <svc>                            # 2. solo si agregaste migración (justo después del deploy)
-scripts/vm.sh status                                   # 3. los 17 servicios: active + http 200
+scripts/vm.sh migrate <svc>                            # 2. solo si hay migración (justo después del deploy)
+scripts/vm.sh status                                   # 3. 17 servicios: active + http 200
 cd mobile && npx eas-cli update --channel production --environment production --platform android --message "…"   # 4. OTA (solo JS)
 ```
-- La migración va **después** del deploy (el deploy es quien copia el archivo a la VM) y **enseguida**: mientras tanto,
-  el código nuevo que lea la columna nueva falla. Las migraciones del repo son aditivas, así que no rompen el código viejo.
-- Antes del OTA confirma que `mobile/.env` apunta a `https://michicondrias.duckdns.org` (el bundle usa el `.env` local).
-- Si algo falla: `scripts/vm.sh logs <svc> 80`, corrige, vuelve a hacer push. No edites archivos a mano en la VM (el
-  siguiente deploy los pisa con `rsync --delete`).
+- VM Oracle: alias SSH `michicondrias-oracle`; `scripts/vm.sh` (`status`, `current`, `migrate`, `logs <svc> [n]`,
+  `restart`, `shell`). Código en `/opt/michicondrias/services/`, variables en `/etc/michicondrias/common.env`. No editar a
+  mano en la VM (el deploy hace `rsync --delete`). Nunca copies la llave SSH al repo.
+- Antes del OTA, `mobile/.env` debe apuntar a `https://michicondrias.duckdns.org`.
+- Migraciones nuevas aditivas (`ADD COLUMN IF NOT EXISTS`); **nunca editar las existentes**.
+
+### 7.4 Commits
+Chicos, en español, convencionales (`feat(mobile): …`, `fix(web): …`, `fix(backend): …`). Uno por bloque. Si tocaste
+backend, di en el mensaje si hay migración. Incluye este archivo.
+
+### 7.5 Kit disponible
+- **App** (`mobile/src/components/`, catálogo en `mobile/src/components/README.md`): `ScreenContainer`, `ScreenHeader`,
+  `Button`, `Card`, `ListRow`, `SectionHeader`, `FormField` + `forms/*`, `SegmentedControl`, `EmptyState`,
+  `Skeleton`/`SkeletonList`, `AppRefreshControl`, `KeyboardScreen`, `showAlert`, `DataList`, `MediaCard`, `BottomSheet`.
+- **Web** (`frontend/src/components/`): básicos con los mismos nombres y props (`Button`, `FormField`, `EmptyState`,
+  `Skeleton`, `ListRow`, `SectionHeader`, `SearchBar`, `showAlert`, `RoleGuard`…) **y propios de escritorio**: `Tabs`
+  (pestañas subrayadas), `DataTable` (tabla → tarjetas en teléfono), `forms/FormActionsBar` (barra fija Cancelar/Guardar).
+- Infraestructura que ya existe (no duplicar): `AuthContext` (sesión, `signOut` limpia caché y carrito), `CartContext`
+  por usuario, `useNotifications.resolveNotificationRoute`, `src/lib/haptics.ts`, `utils/payments.openStripeUrl`.
+
+### 7.6 Pregúntale al usuario ANTES de…
+- Agregar o quitar dependencias nativas o tocar `app.config.js` (APK nuevo).
+- Borrar una pantalla o ruta (buscar antes en `router.push`, `href`, `roleTools.ts` y `backend/`).
+- Rediseñar un flujo (el pulido visual no requiere aprobación).
+- Cambios de backend no aditivos o tocar datos reales de producción.
+- Tocar intocables (`CLAUDE.md` §3).
+
+### 7.7 Lecciones aprendidas
+1. knip da falsos positivos con `.web.ts` y rutas abiertas por string: `grep` antes de borrar.
+2. Al recortar un archivo con script, recorta solo el bloque exacto y corre `tsc`.
+3. Fechas al backend: el día a **mediodía local** en ISO (`atLocalNoon` en `useVaccineForm.ts`); mostrar con `'es-MX'`.
+4. SQLite devuelve fechas como texto y Postgres como objetos: helper `_iso()`.
+5. La guarda de sesión vive en `app/_layout.tsx` (no `Stack.Protected`).
+6. `QueryErrorBanner` ignora `ApiError.sessionExpired`; no compares con «No autorizado».
+7. En capturas largas de react-native-web la parte baja puede salir en blanco: hacer scroll o leer el árbol de accesibilidad.
+8. No inventes promesas en la UI (avisos que el backend no emite).
+9. Antes de exponer datos en endpoints públicos, filtra lo no aprobado y lo sensible.
+10. Web: en grids usa `minmax(0, 1fr)` y `min-width: 0` en los `<input>`, o desbordan a 375 px.
+11. Web: en `frontend/` `font-weight` funciona con fuentes variables; el arreglo de `families` de la app no aplica.
 
 ---
 
-## 4. Reglas de trabajo (resumen operativo de CLAUDE.md)
+## 8. Referencia rápida de la app
 
-- **Capas:** pantalla → hook (`src/hooks/<modulo>/`) → service (`src/services/`) → `apiFetch` (`src/lib/api.ts`).
-  Nada de `fetch`/`apiFetch`/SecureStore en pantallas.
-- **Tipos:** la fuente única es `src/types/<dominio>.ts` (decisión 2026-10-07). Cuando toques un módulo, mueve sus
-  interfaces del service a `src/types/` e impórtalas desde ahí.
-- **Imports:** de cada hook, directo a su archivo (`@/src/hooks/perfil/useAccount`). **Ya no hay barrels** `index.ts`.
-- **Estilo:** colores solo de `useTheme().theme` (`@/src/hooks/useTheme`), nunca `constants/Colors` ni
-  `ThemeContext` directo. Espaciado, radios, tipografía y tamaños desde `@/constants/design`
-  (`spacing`, `radius`, `type`, `layout`, `shadow`, `tint`). Cero hex nuevos. Íconos solo de `lucide-react-native`.
-- **Estados obligatorios:** carga con `Skeleton`, vacío con `EmptyState` (una acción), error ya lo cubre
-  `ScreenContainer` (incluye `QueryErrorBanner`), pull-to-refresh con `AppRefreshControl`, botones con `loading`.
-- **Backend:** mínimo y aditivo. Migraciones nuevas con `ADD COLUMN IF NOT EXISTS`; **nunca editar migraciones
-  existentes**. Cada servicio tiene su tabla de versiones (`alembic_version_<svc>`). Todos comparten la base, así que
-  leer otra tabla con SQL directo es válido (lo hacen carnet, laboratorio, etc.).
-- **OTA vs APK:** JS/estilos salen por OTA. Dependencias nativas, permisos o `app.config.js` piden APK nuevo: van
-  todas juntas en U10.
-- **Commits:** chicos, en español, convencionales (`feat(mobile): …`, `fix(backend): …`, `refactor(mobile): …`).
-  Uno por bloque. Un push a `main` con `backend/**` **despliega a producción**: hazlo solo con el bloque verificado y
-  siguiendo el orden de despliegue de §3.
-- **Cierre de cada bloque:** actualiza `PROGRESO_MOBILE.md` (checkbox del backlog + entrada en Bitácora) y marca `[x]`
-  en `AUDITORIA_MOBILE.md`.
-
-### Cómo verificar (sin herramientas especiales)
-```bash
-cd mobile && npm run check                              # obligatorio: tsc + ESLint (0 errores)
-cd mobile && npx eslint --quiet <archivos tocados>
-cd mobile && npx expo start --web --port 3000           # revisar en el navegador a 375×812, claro y oscuro
-cd mobile && npm run deadcode                           # knip (código muerto)
 ```
-- **Backend sin tocar producción:** prueba el router con `fastapi.testclient.TestClient` y una base SQLite en
-  memoria. Sobrescribe `get_db` y las dependencias de auth (`deps.get_current_user_id`) y crea las tablas con
-  `CREATE TABLE` a mano. Usa una `DATABASE_URL` falsa para que no se conecte a nada. Así se probaron F4, F5, F7 y F8.
-- **Datos de producción:** la base real está casi vacía (0 productos, 0 clínicas, 0 notificaciones). No crees datos de
-  prueba en producción ni hagas submits que escriban allá; prueba las escrituras en local.
+app/
+├─ _layout.tsx        guarda de sesión (sin sesión → /login)
+├─ (auth)/            login · register · forgot-password · reset-password
+├─ (tabs)/            index (Inicio) · explorar · tienda-tab · two (Perfil) · menu (Herramientas, solo pro/admin)
+├─ perfil/            editar · verificacion · seguridad-2fa · partner · eliminar-cuenta
+├─ mascotas/          index · nuevo · editar/[id] · [id] (Resumen · Salud · Historial) · diagnostico-ia
+├─ carnet/            [id] → mascotas/[id]?tab=salud · nueva-consulta · nueva-vacuna · receta/[id]
+└─ tienda/            pago-exitoso · pago-cancelado (deep links) …
+```
 
 ---
 
-## 5. Kit disponible (úsalo antes de crear algo nuevo)
+## 9. Bitácora compartida (más reciente arriba)
 
-**Componentes base** (`mobile/src/components/`):
-| Componente | Para qué | Notas |
-|---|---|---|
-| `layout/ScreenContainer` | contenedor de toda pantalla | trae `QueryErrorBanner` (reintentar) |
-| `layout/ScreenHeader` | header con atrás | `title`, `rightElement`, `onBack` |
-| `Button` | acción | `variant` primary/secondary/ghost/danger/gold, `size`, `loading`, `icon`, `fullWidth` |
-| `Card` | tarjeta | `onPress` la hace tocable, `elevated`, `flush` |
-| `ListRow` | fila de menú/ajustes | `icon`, `label`, `desc`, `color` (hex del tema), `badge`, `destructive` |
-| `SectionHeader` | título de sección | `overline`, `icon`, `actionLabel` + `onAction` |
-| `FormField` | campo de formulario | `error` y `hint` inline, acepta cualquier prop de `TextInput` |
-| `SegmentedControl` | 2–4 opciones / pestañas | genérico `<T>`: `value`, `onChange`, `options[{value,label,icon}]` |
-| `EmptyState` | vacío | `icon`, `title`, `subtitle`, `actionLabel` + `onAction` |
-| `Skeleton`, `SkeletonList` | carga | `import { Skeleton } from '@/src/components/Skeleton'` (sin default) |
-| `AppRefreshControl` | pull-to-refresh | refetch de las queries activas |
-| `KeyboardScreen` | formularios con scroll y teclado | |
-| `showAlert` (`AppAlert`) | alertas | `type`, `title`, `message`, `showCancel`, `onButtonPress` |
-| `DatePicker` | fechas | ⚠️ aún usa `Colors` (tarea F27) |
+Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
-**Piezas de pantalla** (`src/features/`): `tienda/PagoResultado`, `carnet/CarnetItems` (RecordItem, VaccineItem,
-ReminderItem, LabItem), `mascotas/PetHealthTabs` (PetHealthTab, PetHistoryTab).
+- **2026-10-24 · Claude** — **Carnet solo del equipo clínico** (regla del usuario): backend `pet_access.py` (el dueño ya
+  no escribe vacunas/consultas; probado: dueño 403, veterinario/clínica/admin OK), `usePetHealth` en app y web
+  (`canEdit` clínico, `canCheckReminders` del dueño, `findVet`), `ROUTE_ACCESS` + `RoleGuard` en
+  `carnet/nueva-vacuna|nueva-consulta`, vacíos del dueño con «Buscar veterinario». **Backend desplegado** (`a600829`,
+  solo ese commit sobre `origin/main`; `deploy-oracle.yml` verde, 17/17 http 200, verificado en la VM). Los 8 commits
+  locales de web/app se reacomodaron encima sin subir. Clientes sin commit ni OTA.
+- **2026-10-24 · Claude** — **Web Mis Mascotas con criterio §0 terminado**: ficha (`features/mascotas/PetDetailSections.tsx`
+  + `PetDetail.module.css`: hero con migas y acciones, `Tabs` con conteos, Resumen con datos en rejilla y panel lateral
+  de Tracker/servicios, Salud con `DataTable` de vacunas y panel de medicamentos/laboratorio/IA, Historial con peso),
+  lista (`PetList.module.css`: tarjetas con portada o tabla, «Agregar mascota» con texto en el hero). Arreglo: las
+  vacunas se piden siempre (antes el hero decía «Sin vacunas» en Historial; cambio también en la app).
+  `DataTable.module.css` con clases (CSS Modules no acepta selectores de etiqueta sueltos). `tsc` limpio.
 
-**Infraestructura que ya resuelve cosas (no la dupliques):**
-- `src/lib/api.ts` → `apiFetch` **no tiene caché propia** (la caché es React Query). Lanza `ApiError` con `status` y
-  `sessionExpired`. Si el backend rechaza el token vigente, avisa a `AuthContext`, que cierra la sesión y lleva a /login.
-  Quita el prefijo `"Value error, "` de los 422 de Pydantic.
-- `src/contexts/AuthContext.tsx` → copia local del usuario para abrir sin red. `signOut()` borra token, caché de React
-  Query y el carrito de esa cuenta. `useSessionSync` (montado en `app/_layout.tsx`) renueva el token.
-- `src/contexts/CartContext.tsx` + `src/lib/cartStorage.ts` → carrito y dirección **por usuario**.
-- `src/constants/roleTools.ts` → `ROLE_TOOLS`, `ROUTE_ACCESS`, `canAccessRoute`: **fuente única** de herramientas y
-  permisos por rol. Las rutas nuevas de rol se registran ahí y la pantalla lleva `RoleGuard`.
-- `src/constants/roles.ts` → `normalizeRole`, `isProRole`, `getRoleLabelFor`.
-- `src/hooks/notifications/useNotifications.ts` → `resolveNotificationRoute` (usa `link` del backend y, si no hay,
-  decide por tipo y rol) y `useUnreadNotificationCount` (badge). Las queries secundarias usan `meta: { silentError: true }`
-  para que su falla no saque el banner de error.
-
----
-
-## 6. Pregúntale al usuario ANTES de…
-
-- Agregar o quitar **dependencias nativas** o tocar `app.config.js`. Van juntas en U10 y requieren APK nuevo.
-- Borrar una **pantalla o ruta** que no esté en el mapa aprobado. Primero busca referencias en `router.push`, `href`,
-  `roleTools.ts` y `backend/`, porque pueden ser deep links.
-- Cambios de backend que **no sean aditivos** (renombrar o borrar columnas, cambiar contratos usados por la web).
-- Tocar **datos reales** de producción (borrar, corregir o sembrar registros) o cualquier migración que no sea aditiva.
-  El despliegue normal (push, migración aditiva y OTA) sí lo puedes hacer tú, según §3.
-
-**No renombres ni borres** estas rutas, que son deep links del backend: `tienda/pago-exitoso`, `tienda/pago-cancelado`,
-`mascotas/[id]`, `reset-password`.
-
----
-
-## 7. Lecciones aprendidas (errores que ya pasaron — evítalos)
-
-1. **knip da falsos positivos** con archivos `.web.ts` (Expo los resuelve por plataforma) y con rutas que se abren por
-   string. Siempre `grep` antes de borrar.
-2. **Al recortar un archivo con un script, no cortes "desde X hasta el final".** Pasó en `tienda/pedido/[id].tsx` y se
-   borró el `StyleSheet`. Recorta solo el bloque exacto y corre `tsc`.
-3. **Fechas al backend:** no mandes `'YYYY-MM-DD'` a un campo `datetime`. Se guarda 00:00 UTC y en México (UTC-6) se
-   muestra el día anterior. Manda el día a **mediodía local** en ISO (ver `atLocalNoon` en
-   `src/hooks/carnet/useVaccineForm.ts`). Muestra las fechas con locale `'es-MX'`.
-4. **Postgres vs SQLite en pruebas:** SQLite devuelve las fechas como texto y Postgres como objetos. Usa un helper tipo
-   `_iso()` (ver `backend/michicondrias_mascotas/.../pets.py`).
-5. **`Stack.Protected`** no se usó porque casi todas las rutas están sueltas en la raíz y solo protege las que se le
-   listan. La guarda vive en `app/_layout.tsx`. No la quites sin mover toda la app a un grupo.
-6. **Mensajes de error:** `QueryErrorBanner` ignora `ApiError.sessionExpired`. No vuelvas a comparar con el texto
-   "No autorizado", porque ya no existe.
-7. **react-native-web:** en las capturas largas la parte de abajo puede salir en blanco por el pintado perezoso. Usa
-   `scroll_to` o lee el árbol de accesibilidad antes de concluir que algo no se ve.
-8. **"Failed to load theme mode" en web** es conocido: `ThemeContext` usa SecureStore, que no existe en web. Se corrige en U1.
-9. **No inventes promesas en la UI** (avisos, notificaciones o recordatorios que el backend no emite). Ya se quitaron
-   varias; si un texto promete algo, verifica que exista el emisor.
-10. **Antes de exponer datos en endpoints públicos** (pasaporte, búsqueda), filtra lo no aprobado y lo sensible
-    (primas, reclamos, notas, IDs internos).
-
----
-
-## 8. Cola de trabajo (en este orden)
-
-El detalle de cada tarea está en `PROGRESO_MOBILE.md` → *Backlog por fase* y en `AUDITORIA_MOBILE.md`. 🛠️ = toca backend.
-
-### Bloque A — Terminar la Fase 4 en módulos P1 (recomendado primero)
-| ID | Tarea | Terminado cuando |
-|---|---|---|
-| ~~F9~~ ✅ | Auth en capas: `src/services/auth.ts` (con `API_URLS`, en vez de `lib/auth.ts` con URL a mano) + `src/hooks/auth/useLogin`, `useRegister`, `usePasswordReset`; hook `usePartnerUpgrade` para `perfil/partner.tsx`; helper común "guardar token + recargar usuario" (hoy duplicado en `useSessionSync` y `partner`) — hecho 2026-10-07 | ninguna pantalla de `(auth)` ni `partner` importa `lib/auth`, `apiFetch` o SecureStore |
-| ~~F10~~ ✅ | Registro con login automático + una línea hacia la cuenta profesional — hecho 2026-10-07 | tras registrarse cae en Inicio con sesión |
-| ~~F13~~ ✅ | Perfil: 2FA con QR (lib JS de QR en SVG; si es nativa, va a U10) + "Abrir en app autenticadora" + copiar clave; invalidar `['user-profile']`; `verificacion` con hook (`useKYC` ya existe: pásale la subida con cámara) y CTA "Activar cuenta pro" si está VERIFIED; `partner` muestra el estado del KYC antes de elegir rol — hecho 2026-10-07 | flujos recorridos en web sin errores |
-| ~~F16~~ ✅ | Mascotas: "Vacunas al día" calculado desde las vacunas (no del booleano manual), Michi-Tracker activo con salida (facturación o mapa), compartir carnet con QR (`handleShare` ya existe en `usePetDetail`, solo para el dueño) — hecho 2026-10-07 | ficha sin datos falsos |
-| ~~F17~~ ✅ | Diagnóstico IA: vacío con "Agregar mascota", error de "sin peso" con botón a editar, selector de mascota también en triage (`pet_id` opcional y aditivo en backend) — hecho 2026-10-07 | sin callejones sin salida |
-| ~~F18~~ ✅ | Tienda: hook `useCheckout` (`useMutation`, invalida `my-orders`/`store-products`/`product`), refrescar precio y stock del carrito al abrirlo, no vaciar la bolsa antes de pagar — hecho 2026-10-07 | sin lógica de red en `CartContext` |
-| ~~F20~~ ✅ | Stripe con `expo-web-browser` `openAuthSessionAsync` (ya está en `package.json`; confirmado: es dependencia declarada y ya se usa) — hecho 2026-10-07 (`utils/payments.openStripeUrl` en los 5 puntos que abren Stripe) | el pago vuelve a la app |
-| ~~F21~~ ✅ | Ayuda: FAQ verídicas (solo tarjeta, botón real "¡Quiero Adoptar!"), avisar si falla `Linking`, `ScreenContainer`/`ScreenHeader` — hecho 2026-10-07 | |
-| ~~F23~~ ✅ | Los `onError` de mutaciones no muestran error si `ApiError.sessionExpired` — hecho 2026-10-07 (corte central en `AppAlert.notifySessionExpired`) | un solo aviso al vencer la sesión |
-| ~~F15~~ 🛠️ ✅ | PUT/DELETE de vacunas y consultas (carnet) + UI con confirmación — hecho 2026-10-07 (GET por id, recálculo de `is_vaccinated`, editar desde los formularios y borrar con confirmación) | |
-| ~~F11~~ 🛠️ ✅ | Core: email sin distinguir mayúsculas (**antes** busca duplicados por mayúsculas en `users`), mensajes en español, contraseña mínima, `created_at` en `/users/me` — hecho 2026-10-07 (0 duplicados en producción; + `is_active` forzado en el registro) | |
-| ~~F12~~ 🛠️ ✅ | Recuperación con código de 6 dígitos (decisión tomada): endpoint en core + pantalla única de reset — hecho 2026-10-08 (**migración `f12a8b3c4d5e`: correr `alembic upgrade head` de core tras el deploy**; código HMAC de un solo uso + enlace conservado) | |
-| ~~F14~~ 🛠️ ✅ | Emisor de recordatorios y refuerzos (job + notificación con `link`) — hecho 2026-10-08 (`carnet/app/jobs/reminders.py`, migración `c14a7e2b9d01`) | |
-| ~~F19~~ 🛠️ ✅ | Tienda: liberar pedidos vencidos en `/orders/*`, notificar pago (tipo `store` + `link`), `can_review`, paginación — hecho 2026-10-08 (sin migración) | |
-| ~~F22~~ 🛠️ ✅ | Privacidad: limitar `GET /pets/{id}` a dueño / veterinario / admin — hecho 2026-10-08 (+ servicios internos; `pet_access` alineado con `VET_ROLES` también en la lectura) | |
-| ~~F24~~ 🛠️ ✅ | `link` en los emisores que faltan (directorio, laboratorio, aseguradoras, funeraria, transportistas). Solo **después** de aplicar la migración `d3e9a7b4c215` | |
-| ~~F25–F27~~ ✅ | ~~Búsqueda "ver todos" y más dominios; pasaporte legible y número de póliza enmascarado; `DatePicker` con tokens~~ — hecho 2026-10-08 | |
-
-### Bloque B — Auditoría P2/P3 (Fase 1 restante)
-Mismo formato de sección que ya usa `AUDITORIA_MOBILE.md` (tabla Pieza/Tipo/Estado/Hallazgo, redundancias, propuesta,
-backend, arreglos P0/P1/P2):
-- A1: Directorio y citas, Adopciones, Perdidas.
-- A2: Paseadores/Cuidadores (detalles casi gemelos → componente compartido), Pet-friendly vs Establecimientos (¿fusión?),
-  Grooming vs Estilistas.
-- A3: Entrenadores, Transportistas (`useRideTracking`), Aseguradoras, Laboratorio, Funeraria (copy sensible), Donaciones.
-- A4: Mi clínica, Servicios pro, Tienda vendedor, **Patrocinadores** (su `index` muestra presupuestos de campañas sin
-  `RoleGuard`; revisar permisos), Admin.
-- Resuelve también L9: 6 hooks sin importador. Decide si la pantalla debe usarlos o si se borran.
-
-### Bloque C — Fase 5 (UI premium)
-**U1 Tema primero:**
-- `warning` distinto de `accent`.
-- Un token de degradado del hero por modo, para reemplazar el `#1c2f6b` fijo de Inicio, Explorar y Tienda.
-- Acentos de dominio armonizados con *Midnight & Gold*, en lugar del arcoíris Tailwind de `roleTools`, `useHome` y `useExplore`.
-- `StatusBar` según el tema.
-- Guardar el tema en AsyncStorage.
-
-Después, U2–U9 pantalla por pantalla con el checklist de CLAUDE.md §4. Por último **U10**, el APK único con las libs
-nativas (`expo-image`, `expo-haptics`, FlashList, fuente propia, `expo-notifications` + tabla `push_tokens`), y **pídele
-el visto bueno al usuario antes**.
-
----
-
-## 9. Plantilla de cierre de cada bloque
-
-1. `cd mobile && npm run check` → 0 errores.
-2. Recorrer el flujo en web (375×812, claro y oscuro) sin escribir en producción.
-3. `PROGRESO_MOBILE.md`: marcar `[x]` en el backlog y agregar una entrada en la Bitácora con fecha, qué se hizo,
-   archivos clave, cómo se verificó y qué quedó pendiente.
-4. `AUDITORIA_MOBILE.md`: marcar `[x]` en los hallazgos resueltos.
-5. Commit convencional en español. Si tocaste backend, en el mensaje di si hay migración y que se corre antes del deploy.
-6. Si el cambio necesita deploy, despliégalo con el orden de §3 y avisa qué salió. Si necesita APK nuevo, anótalo y
-   pregúntale al usuario (U10).
-
-¡Éxito, compa! 🐾
+- **2026-10-24 · Claude** — **Documentación unificada**: este archivo absorbe `PROGRESO_MOBILE.md`, `AUDITORIA_MOBILE.md`,
+  `PROGRESO_WEB.md`, `AUDITORIA_WEB.md` y los informes de `docs/` (seguridad, rotación, permisos, roles, expertos,
+  prompts). Borrados también `NEXUS_CONTEXT.md`, `REVIEW_MIMO.md`, `archivo/*.md` y el sitio Docusaurus `docs/`.
+  `CLAUDE.md` y `frontend/CLAUDE.md` apuntan aquí; skills apuntan a este archivo.
+  Nueva regla §0 (web = espejo de lógica, no de pantallas). Sin commit.
+- **2026-10-24 · Claude** — **Web: criterio propio de escritorio** (pedido del usuario). Componentes nuevos `Tabs`,
+  `DataTable`, `forms/FormActionsBar`; `features/mascotas/PetForm.tsx` rehecho a dos columnas con vista previa fija y
+  barra de acciones; `nuevo`/`editar` con «Cancelar». `tsc` limpio. Falta rehacer ficha y lista (§3).
+- **2026-10-24 · Claude** — **Web: Mis Mascotas con heurísticas UX** (4/10 antes). Lo grave: no se podía editar ni
+  eliminar (`/mascotas/editar/[id]` 404) → página nueva. Confirmación al borrar vacuna/consulta, Medicamentos y
+  Laboratorio en Salud, fecha de aplicación que nunca salía (`date_administered`), formulario igual a la app, sin
+  desborde a 375 px. Build en verde.
+- **2026-10-24 · Claude** — **Web UI premium: tokens sincronizados + a11y**: tokens nuevos de la app en `tokens.css`,
+  3 backdrops accesibles, 15 `style={{}}` a variables. Build en verde.
+- **2026-10-24 · Claude** — **App: Mis Mascotas** auditoría UX (7/10) y arreglos: `petFormRules.ts`,
+  `useTrackerBilling.ts`, alta → ficha en Salud, aviso de Stripe, stats tocables, eliminar con Tracker → «Gestionar
+  suscripción», lista sin modo tarjetas. Solo OTA; sin commit.
+- **2026-10-24 · Claude** — **App UI pasadas 1–2**: 0 hex, 0 `fontWeight`, 0 `fontSize`/radios/espaciado numéricos,
+  6 componentes base reescritos, SkeletonList en 59 pantallas, EmptyState en 64.
+- **2026-10-24 · Mimo** — **X8.2 desplegado** (`bb87c03`): `SECRET_KEY` sin default; no arranca sin ella.
+- **2026-10-24 · Mimo** — **OTA** `d08da4ef-…` (runtime 1.1.0): `useRideTracking` sin violar rules-of-hooks.
+- **2026-10-24 · Mimo** — **X4/X5/X6 desplegado** (`0c5541b`): dueño en `create-subscription-session`,
+  `adopted-from` con dueño/admin, listados de usuarios sin KYC, contacto de perdidas solo para el denunciante o admin.
+  APK `versionCode 11`.
+- **2026-10-24 · Mimo** — **X2/X3 desplegado** (`a77c771`): admin pasa las guardas de rol y los checks de dueño de
+  directorio; verificar/suspender en paseadores y cuidadores.
+- **2026-10-24 · Mimo** — Admin con acciones reales (productos, roles, servicios, veterinarios); 13 herramientas admin
+  en el menú; icono M + huella. OTA `bfa39f64-…`.
+- **2026-10-24 · Mimo** — **U10 parcial**: `expo-image` (24 archivos), FlashList en `DataList`, `expo-haptics`,
+  `expo-notifications` (`services/push.ts`), Hanken Grotesk; deps sin uso retiradas.
+- **2026-10-24 · Mimo** — **Push tokens en core** (`8e97b97`, migración `e7c4a9b2d6f8`): `POST|DELETE|GET /push-tokens`
+  y `notify_user_push` (sin FCM aún). Desplegado y migrado.
+- **2026-10-24 · Claude** — Auditoría de seguridad X2–X8 (15 hallazgos: 1 P0, 10 P1, 4 P2); X8.1 limpiado en código.
+- **2026-10-23** — Web W0–W5 fusionada a `main`; login web corregido; X1 (2FA saltable) desplegado; OTA `a84459e2-…`.

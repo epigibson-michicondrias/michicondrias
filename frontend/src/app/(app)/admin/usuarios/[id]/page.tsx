@@ -2,7 +2,7 @@
 
 /**
  * Detalle de usuario (`/admin/usuarios/[id]`): datos, rol, estado, documentos KYC y acciones.
- * No existe en la app: la consola web va más allá (ver AUDITORIA_WEB.md, W4-A).
+ * No existe en la app: la consola web va más allá (W4-A, ver HANDOFF.md).
  */
 import { useParams, useRouter } from "next/navigation";
 import { CheckCircle2, FileText, Pencil, Power, SearchX, Trash2, XCircle } from "lucide-react";

@@ -153,7 +153,7 @@ roles profesionales entren sin pasar por la aprobación manual).
 
 - El fix P0 del carnet (`58d177e`) y los fixes B-02…B-05 están **commiteados/aplicados en la VM**.
 - **Falta `git push`** (las credenciales de GitHub de esta máquina solo tienen lectura). Cuando tengas permiso,
-  `git push origin main` sube todo. El detalle está en `PROGRESO_MOBILE.md` (Bitácora 2026-10-17).
+  `git push origin main` sube todo. El detalle está en git (`git log -- PROGRESO_MOBILE.md`, bitácora 2026-10-17).
 
 ---
 

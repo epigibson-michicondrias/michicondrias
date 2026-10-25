@@ -4,7 +4,7 @@
  *
  * Implementación: **FlashList** (reciclado, listas largas) para una columna; **FlatList** para
  * cuadrículas (`numColumns > 1`), porque FlashList v2 no soporta `columnWrapperStyle` y las
- * cuadrículas dependen del `gap` entre columnas. Ver PROGRESO_MOBILE.md · U10.
+ * cuadrículas dependen del `gap` entre columnas. Ver HANDOFF.md §3 · U10.
  */
 import React from 'react';
 import {

@@ -42,4 +42,4 @@ vacío y error. Usa `get_page_text`/`read_page` para verificar textos en vez de 
 
 ## Reportar
 Por pantalla: captura(s) + hallazgos priorizados **P0** (roto/bloquea) · **P1** (confunde o se ve mal) ·
-**P2** (pulido). Indicar archivo y, si se puede, la línea. Anotar el resultado en `PROGRESO_MOBILE.md`.
+**P2** (pulido). Indicar archivo y, si se puede, la línea. Anotar lo abierto en `HANDOFF.md` §5 y una línea en §9.

@@ -1,6 +1,6 @@
 /**
  * useAccount — pestaña Perfil: datos de la cuenta, estado de verificación, tema, facturación, legal y cierre de sesión.
- * Es el único lugar de la app con estas acciones (ver "Propuesta de navegación" en PROGRESO_MOBILE.md).
+ * Es el único lugar de la app con estas acciones (decisión de navegación, ver HANDOFF.md §6).
  */
 import { Linking } from 'react-native';
 import Constants from 'expo-constants';
