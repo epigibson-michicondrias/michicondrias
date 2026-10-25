@@ -136,7 +136,11 @@ textarea.input { min-height: 96px; resize: vertical; }
 }
 .actionsNote { margin: 0; color: var(--color-text-muted); font-size: var(--font-sm); }
 .actionsButtons { display: flex; gap: var(--space-sm); margin-left: auto; }
+.actionsButtons > * { white-space: nowrap; }
 @media (max-width: 767px) {
-  /* Sobre la barra inferior de navegación del teléfono */
+  /* Sobre la barra inferior de navegación del teléfono; la nota sobra (el asterisco ya está en el campo) */
   .actionsBar { bottom: 72px; }
+  .actionsNote { display: none; }
+  .actionsButtons { width: 100%; }
+  .actionsButtons > :last-child { flex: 1; }
 }

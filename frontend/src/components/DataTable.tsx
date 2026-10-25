@@ -33,30 +33,30 @@ export default function DataTable<T>({ columns, rows, rowKey, rowHref, rowAction
     <div className={s.wrap}>
       <table className={s.table}>
         <caption className={s.caption}>{caption}</caption>
-        <thead>
+        <thead className={s.thead}>
           <tr>
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={c.align === "right" ? s.right : undefined}>{c.header}</th>
+              <th key={c.key} scope="col" className={`${s.th} ${c.align === "right" ? s.right : ""}`}>{c.header}</th>
             ))}
-            {rowActions && <th scope="col"><span className={s.srOnly}>Acciones</span></th>}
+            {rowActions && <th scope="col" className={s.th}><span className={s.srOnly}>Acciones</span></th>}
           </tr>
         </thead>
-        <tbody>
+        <tbody className={s.tbody}>
           {rows.map((row) => {
             const href = rowHref?.(row);
             return (
-              <tr key={rowKey(row)} className={href ? s.linkRow : undefined}>
+              <tr key={rowKey(row)} className={`${s.tr} ${href ? s.linkRow : ""}`}>
                 {columns.map((c, i) => (
                   <td
                     key={c.key}
                     data-label={c.header}
-                    className={[c.align === "right" ? s.right : "", c.primary ? s.primary : ""].join(" ")}
+                    className={[s.td, c.align === "right" ? s.right : "", c.primary ? s.primary : ""].join(" ")}
                   >
                     {/* El enlace cubre toda la fila desde la primera celda (::after), sin anidar interactivos */}
                     {href && i === 0 ? <Link href={href} className={s.rowLink}>{c.render(row)}</Link> : c.render(row)}
                   </td>
                 ))}
-                {rowActions && <td className={s.actions}>{rowActions(row)}</td>}
+                {rowActions && <td className={`${s.td} ${s.actions}`}>{rowActions(row)}</td>}
               </tr>
             );
           })}

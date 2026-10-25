@@ -74,6 +74,7 @@ export default function EditarMascotaPage() {
             <Button
               label="Gestionar suscripción"
               variant="secondary"
+              fullWidth={false}
               icon={<CreditCard size={18} />}
               onPress={openTrackerBilling}
               loading={isOpeningBilling}
@@ -82,6 +83,7 @@ export default function EditarMascotaPage() {
             <Button
               label="Eliminar mascota"
               variant="danger"
+              fullWidth={false}
               icon={<Trash2 size={18} />}
               onPress={handleDelete}
               loading={isDeleting}
