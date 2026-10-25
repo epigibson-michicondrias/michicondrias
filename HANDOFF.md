@@ -396,7 +396,8 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   de avance y badge de estado. Ficha de tratamiento reescrita como documento premium: hero con anillo de progreso,
   grid de datos con iconos, próxima toma destacada, línea de tiempo con conectores de color (verde/oro/gris) y chips
   de estado, panel lateral con acciones e impresión. En la app: `TodayDoses` y `PetTreatmentsTab` nuevos, tab
-  «Tratamientos» en la ficha de la mascota. Paleta *Midnight & Gold* respetada en ambos temas.
+  «Tratamientos» en la ficha de la mascota. Paleta *Midnight & Gold* respetada en ambos temas. Web en Vercel ✅;
+  OTA `52110114-…` (runtime 1.1.0).
 
 - **2026-10-25 · Mimo** — **Historial de tomas, estados de tratamiento y fecha de inicio** (backend + app + web).
   El dueño fija cuándo empieza el tratamiento (`PATCH` con `start_date`): las tomas se reprograman desde esa fecha y
