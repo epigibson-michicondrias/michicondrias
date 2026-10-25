@@ -164,7 +164,7 @@ def _rules_summary(pet_name: str, facts: dict[str, Any]) -> tuple[str, list[str]
         parts.append(
             f"{pet_name} tiene {facts['visits']} consulta{'s' if facts['visits'] != 1 else ''} registrada"
             f"{'s' if facts['visits'] != 1 else ''}; la más reciente fue el {_human(lv['date'])} por «{lv['reason']}»"
-            + (f" (diagnóstico: {lv['diagnosis']})." if lv.get("diagnosis") else ".")
+            + (f" (diagnóstico: {lv['diagnosis'].strip().rstrip('.')})." if lv.get("diagnosis") else ".")
         )
     w = facts["weight"]
     if w:
