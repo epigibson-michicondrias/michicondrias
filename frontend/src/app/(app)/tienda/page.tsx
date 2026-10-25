@@ -3,11 +3,11 @@
 /**
  * Michi-Shop — catálogo con filtros laterales y rejilla de productos. Criterio §0.
  */
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, LayoutGrid, List, MapPin, Package, Plus, Search, ShoppingBag, SlidersHorizontal, Sparkles, Star, Truck, Zap } from "lucide-react";
+import { Heart, LayoutGrid, List, MapPin, Package, Plus, Search, ShoppingBag, SlidersHorizontal, Sparkles, Star, Truck, Zap, Eye, DollarSign, Filter } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import SearchBar from "@/components/SearchBar";
@@ -35,6 +35,11 @@ function ProductCard({
           <Image src={image_url} alt={name} width={200} height={200} className={s.cardImg} />
         ) : (
           <div className={s.cardImgFallback}><Package size={32} /></div>
+        )}
+        {viewMode !== "list" && (
+          <div className={s.cardOverlay}>
+            <span className={s.quickViewBtn}><Eye size={14} /> Ver producto</span>
+          </div>
         )}
       </Link>
       <div className={s.cardBody}>
@@ -71,6 +76,17 @@ function CatalogContent() {
   } = useShopTab();
   const { isFavorite, toggleFavorite } = useProductFavorites();
   const router = useRouter();
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [minRating, setMinRating] = useState(0);
+
+  // Filtrar productos por precio y rating localmente
+  const filteredProducts = products.filter((p) => {
+    if (priceMin && p.price < parseFloat(priceMin)) return false;
+    if (priceMax && p.price > parseFloat(priceMax)) return false;
+    if (minRating > 0 && p.average_rating < minRating) return false;
+    return true;
+  });
 
   return (
     <ScreenContainer>
@@ -114,6 +130,46 @@ function CatalogContent() {
           </div>
 
           <div className={s.filterSection}>
+            <h3 className={s.filterTitle}><DollarSign size={14} /> Precio</h3>
+            <div className={s.priceRange}>
+              <input
+                type="number"
+                className={s.priceInput}
+                placeholder="Mín"
+                value={priceMin}
+                onChange={(e) => setPriceMin(e.target.value)}
+                aria-label="Precio mínimo"
+              />
+              <span>—</span>
+              <input
+                type="number"
+                className={s.priceInput}
+                placeholder="Máx"
+                value={priceMax}
+                onChange={(e) => setPriceMax(e.target.value)}
+                aria-label="Precio máximo"
+              />
+            </div>
+          </div>
+
+          <div className={s.filterSection}>
+            <h3 className={s.filterTitle}><Star size={14} /> Rating</h3>
+            <div className={s.ratingFilter}>
+              {[0, 4, 3, 2].map((rating) => (
+                <button
+                  key={rating}
+                  type="button"
+                  className={`${s.ratingOption} ${minRating === rating ? s.active : ""}`}
+                  onClick={() => setMinRating(rating)}
+                >
+                  <span className={s.cardStars}>{rating === 0 ? "Todos" : "★".repeat(rating) + "☆".repeat(5 - rating)}</span>
+                  {rating > 0 && <span>{rating}+</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={s.filterSection}>
             <h3 className={s.filterTitle}><SlidersHorizontal size={14} /> Ordenar</h3>
             <select className={s.sortSelect} value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
               {SHOP_SORTS.map((o) => (
@@ -130,7 +186,7 @@ function CatalogContent() {
         {/* ── Resultados ── */}
         <div className={s.results}>
           <div className={s.resultsHeader}>
-            <p className={s.count}>{isLoading ? "Buscando…" : `${products.length} productos`}</p>
+            <p className={s.count}>{isLoading ? "Buscando…" : `${filteredProducts.length} productos`}</p>
             <div className={s.viewToggle} role="group" aria-label="Modo de vista">
               <button type="button" className={`${s.viewBtn} ${viewMode === "grid" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("grid")} aria-label="Ver en cuadrícula">
                 <LayoutGrid size={18} />
@@ -145,18 +201,18 @@ function CatalogContent() {
             <div className={viewMode === "list" ? s.gridList : s.grid}>
               {[0, 1, 2, 3].map((i) => <Skeleton key={i} height={200} borderRadius={16} />)}
             </div>
-          ) : products.length === 0 ? (
+          ) : filteredProducts.length === 0 ? (
             <EmptyState
               icon={<Search size={28} />}
-              title={hasFilters ? "Sin resultados" : "Aún no hay productos"}
-              subtitle={hasFilters ? "Prueba con otra búsqueda o categoría." : "Cuando el catálogo tenga productos aparecerán aquí."}
-              actionLabel={hasFilters ? "Quitar filtros" : undefined}
-              onAction={hasFilters ? clearFilters : undefined}
+              title={hasFilters || priceMin || priceMax || minRating > 0 ? "Sin resultados" : "Aún no hay productos"}
+              subtitle={hasFilters || priceMin || priceMax || minRating > 0 ? "Prueba con otra búsqueda, categoría o rango de precio." : "Cuando el catálogo tenga productos aparecerán aquí."}
+              actionLabel={hasFilters || priceMin || priceMax || minRating > 0 ? "Quitar filtros" : undefined}
+              onAction={hasFilters || priceMin || priceMax || minRating > 0 ? () => { clearFilters(); setPriceMin(""); setPriceMax(""); setMinRating(0); } : undefined}
             />
           ) : (
             <>
               <div className={`${viewMode === "list" ? s.gridList : s.grid} ${isUpdating ? s.updating : ""}`}>
-                {products.map((p) => (
+                {filteredProducts.map((p) => (
                   <div key={p.id} className={s.cardWrap}>
                     <ProductCard
                       {...p}

@@ -7,7 +7,7 @@ import { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Heart, Package, Plus, ShieldCheck, ShoppingBag, Star, Truck, Zap } from "lucide-react";
+import { ArrowLeft, Heart, Package, Plus, RotateCcw, ShieldCheck, ShoppingBag, Star, Truck, Zap, Check } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import EmptyState from "@/components/EmptyState";
 import Button from "@/components/Button";
@@ -23,6 +23,7 @@ function ProductoContent() {
     related, addToCart, cartCount, inCart, isOwner, isFavorite, toggleFavorite, userId,
   } = useProduct();
   const [qty, setQty] = useState(1);
+  const [deliveryDate] = useState(() => new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" }));
   const router = useRouter();
 
   if (isLoading) {
@@ -152,11 +153,27 @@ function ProductoContent() {
             {product.stock <= 0 ? (
               <Badge label="Agotado" color="var(--color-error)" size="sm" />
             ) : product.stock <= 5 ? (
-              <Badge label={`¡Últimas ${product.stock} piezas!`} color="var(--color-warning)" size="sm" />
+              <div className={s.stockUrgency}>
+                <span className={s.stockUrgencyDot} />
+                <Badge label={`¡Últimas ${product.stock} piezas!`} color="var(--color-error)" size="sm" />
+              </div>
             ) : (
               <span>Disponible · {product.stock} en stock</span>
             )}
           </div>
+
+          {/* Delivery estimate */}
+          {product.stock > 0 && (
+            <div className={s.deliveryEstimate}>
+              <Truck size={18} />
+              <div>
+                <span className={s.deliveryDate}>
+                  Llega el {deliveryDate}
+                </span>
+                <p>Envío estándar · Gratis en compras +$300</p>
+              </div>
+            </div>
+          )}
 
           <div className={s.buyActions}>
             {/* Cantidad */}
@@ -194,8 +211,31 @@ function ProductoContent() {
               </>
             )}
 
-            <div className={s.benefits}>
-              <span><ShieldCheck size={14} /> Pago seguro con Stripe</span>
+            <div className={s.divider} />
+
+            {/* Trust signals */}
+            <div className={s.trustSignals}>
+              <div className={s.trustItem}>
+                <span className={s.trustIcon}><ShieldCheck size={16} /></span>
+                <div>
+                  <strong>Pago seguro</strong>
+                  <p>Protección de compra garantizada</p>
+                </div>
+              </div>
+              <div className={s.trustItem}>
+                <span className={s.trustIcon}><Truck size={16} /></span>
+                <div>
+                  <strong>Envío rastreado</strong>
+                  <p>Recibe tu pedido en 2-5 días hábiles</p>
+                </div>
+              </div>
+              <div className={s.trustItem}>
+                <span className={s.trustIcon}><RotateCcw size={16} /></span>
+                <div>
+                  <strong>Devoluciones fáciles</strong>
+                  <p>30 días para cambiar de opinión</p>
+                </div>
+              </div>
             </div>
           </div>
 
