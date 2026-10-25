@@ -3,7 +3,7 @@
  * (Antes vivían dentro de app/carnet/[id].tsx.)
  */
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
     Calendar, ChevronDown, ChevronUp, Weight, Thermometer, FileText, Syringe, Clock, Pill, Check, FlaskConical,
@@ -166,7 +166,7 @@ export function VaccineItem({ vaccine, onEdit, onDelete }: {
     );
 }
 
-// ── Tratamiento: medicamento recetado con interruptor de avisos (Salud) ──
+// ── Tratamiento: medicamento recetado con interruptor, historial y fecha de inicio ──
 function doseTimeLabel(dose: TreatmentDose) {
     if (dose.sent) return 'Tomado';
     const diffMs = new Date(dose.remind_at).getTime() - Date.now();
@@ -178,7 +178,13 @@ function doseTimeLabel(dose: TreatmentDose) {
     return days === 1 ? 'Mañana' : `En ${days} días`;
 }
 
-export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onToggle, canToggle, isToggling }: {
+const formatDateTime = (iso?: string | null) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })} ${d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
+};
+
+export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onToggle, canToggle, isToggling, onSetStartDate, canSetStart, isSettingStart }: {
     treatment: Treatment;
     onCheck: (id: string) => void;
     canCheck: boolean;
@@ -186,12 +192,19 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
     onToggle: (prescriptionId: string, enabled: boolean) => void;
     canToggle: boolean;
     isToggling: boolean;
+    onSetStartDate: (prescriptionId: string, startDate: string) => void;
+    canSetStart: boolean;
+    isSettingStart: boolean;
 }) {
     const { theme } = useTheme();
+    const [showHistory, setShowHistory] = useState(false);
+    const [editingStart, setEditingStart] = useState(false);
+    const [startInput, setStartInput] = useState(treatment.start_date?.slice(0, 10) ?? '');
     const total = treatment.doses.length;
     const taken = treatment.doses.filter((d) => d.sent).length;
     const nextDose = treatment.doses.find((d) => !d.sent);
     const allDone = total > 0 && !nextDose;
+    const takenDoses = treatment.doses.filter((d) => d.sent);
 
     return (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -224,6 +237,45 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
                 )}
             </View>
 
+            {/* Fecha de inicio */}
+            <View style={[styles.row, styles.mt]}>
+                <Calendar size={layout.icon.xs} color={theme.textMuted} />
+                <Text style={[type.caption, { color: theme.textMuted }]}>
+                    Inicio: {treatment.start_date ? formatDate(treatment.start_date) : formatDate(treatment.record_date)}
+                </Text>
+                {canSetStart && treatment.status !== 'terminado' && !editingStart && (
+                    <TouchableOpacity onPress={() => setEditingStart(true)} accessibilityRole="button" accessibilityLabel="Cambiar fecha de inicio">
+                        <Text style={[type.caption, { color: theme.primary }]}>Cambiar</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {editingStart && (
+                <View style={[styles.row, styles.mt]}>
+                    <TextInput
+                        style={[styles.dateInput, { color: theme.text, borderColor: theme.border, backgroundColor: theme.overlayHover }]}
+                        value={startInput}
+                        onChangeText={setStartInput}
+                        placeholder="AAAA-MM-DD"
+                        placeholderTextColor={theme.textMuted}
+                        keyboardType="numbers-and-punctuation"
+                        accessibilityLabel="Fecha de inicio del tratamiento"
+                    />
+                    <TouchableOpacity
+                        disabled={isSettingStart || !startInput}
+                        onPress={() => { onSetStartDate(treatment.prescription_id, startInput); setEditingStart(false); }}
+                        style={[styles.saveBtn, { backgroundColor: theme.primary, opacity: isSettingStart || !startInput ? 0.5 : 1 }]}
+                        accessibilityRole="button"
+                    >
+                        <Text style={[type.bodyStrong, { color: theme.surface }]}>Guardar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setEditingStart(false)} accessibilityRole="button">
+                        <Text style={[type.caption, { color: theme.textMuted }]}>Cancelar</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {/* Avance y próxima toma */}
             {total > 0 ? (
                 <Text style={[type.caption, styles.mt, { color: theme.textMuted }]}>
                     {taken} de {total} tomas{nextDose ? ` · próxima ${doseTimeLabel(nextDose).toLowerCase()}` : ' · tratamiento terminado'}
@@ -258,6 +310,34 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
                 <View style={[styles.row, styles.mt]}>
                     <Check size={layout.icon.xs} color={theme.success} />
                     <Text style={[type.caption, { color: theme.success }]}>Todas las tomas registradas</Text>
+                </View>
+            )}
+
+            {/* Historial de tomas */}
+            {takenDoses.length > 0 && (
+                <TouchableOpacity
+                    onPress={() => setShowHistory((v) => !v)}
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: showHistory }}
+                    accessibilityLabel="Ver historial de tomas"
+                    style={[styles.row, styles.mt, { borderTopWidth: 1, borderTopColor: theme.border, paddingTop: spacing.sm }]}
+                >
+                    <Text style={[type.caption, { color: theme.primary }]}>
+                        {showHistory ? 'Ocultar historial' : `Ver historial (${takenDoses.length} ${takenDoses.length === 1 ? 'toma' : 'tomas'})`}
+                    </Text>
+                    {showHistory ? <ChevronUp size={layout.icon.xs} color={theme.primary} /> : <ChevronDown size={layout.icon.xs} color={theme.primary} />}
+                </TouchableOpacity>
+            )}
+            {showHistory && takenDoses.length > 0 && (
+                <View style={styles.historyList}>
+                    {takenDoses.map((d) => (
+                        <View key={d.id} style={styles.historyRow}>
+                            <Check size={layout.icon.xs} color={theme.success} />
+                            <Text style={[type.caption, { color: theme.textMuted }]}>
+                                {formatDateTime(d.taken_at || d.remind_at)} — Tomado
+                            </Text>
+                        </View>
+                    ))}
                 </View>
             )}
         </View>
@@ -398,5 +478,29 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         borderRadius: radius.pill,
+    },
+    dateInput: {
+        borderWidth: 1,
+        borderRadius: radius.md,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
+        minWidth: 110,
+        fontSize: 14,
+    },
+    saveBtn: {
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs,
+        borderRadius: radius.md,
+        minHeight: 32,
+        justifyContent: 'center',
+    },
+    historyList: {
+        marginTop: spacing.xs,
+        gap: spacing.xxs,
+    },
+    historyRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
     },
 });

@@ -391,6 +391,14 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-25 · Mimo** — **Historial de tomas, estados de tratamiento y fecha de inicio** (backend + app + web).
+  El dueño fija cuándo empieza el tratamiento (`PATCH` con `start_date`): las tomas se reprograman desde esa fecha y
+  las ya tomadas quedan como historial. Cada toma guarda `taken_at`. `GET /treatments` trae `status`
+  (por-iniciar / en-curso / terminado). **Pestaña «Tratamientos»** propia en la ficha de la mascota (web), con
+  tarjetas agrupadas por estado y **ficha de cada tratamiento en su URL** (`/carnet/tratamiento/[id]`): documento
+  con datos, avance, línea de tiempo de cada toma y panel de acciones. Botón «Tomado» bloqueado hasta que toca la
+  dosis. Migración aditiva `a1b2c3d4e5f6`. Pruebas locales 15/15 OK.
+
 - **2026-10-24 · Mimo** — **Interruptor de avisos de medicamentos (app + web)**: el dueño activa o desactiva los
   avisos de cada medicamento recetado en la pestaña Salud. Tarjeta por tratamiento con nombre, dosis/frecuencia/
   duración, avance («3 de 5 tomas»), interruptor «Avisos» y botón «Tomado» para la próxima dosis. En web, panel

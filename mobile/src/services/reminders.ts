@@ -32,9 +32,13 @@ export interface TreatmentDose {
     id: string;
     remind_at: string;
     sent: boolean;
+    /** ISO datetime cuando el dueño marcó la toma. */
+    taken_at?: string | null;
     /** Calculado en el hook (`select`): la dosis ya toca si es pasada o cae dentro de la próxima hora. */
     isDue?: boolean;
 }
+
+export type TreatmentStatus = 'por-iniciar' | 'en-curso' | 'terminado';
 
 /** Medicamento recetado con sus tomas programadas y el interruptor de avisos del dueño. */
 export interface Treatment {
@@ -45,13 +49,21 @@ export interface Treatment {
     duration_days: number;
     instructions: string | null;
     reminders_enabled: boolean;
+    /** Fecha en que el dueño empieza el tratamiento (ISO). Si es null, se usa la fecha de la consulta. */
+    start_date: string | null;
     record_id: string;
     record_date: string;
+    status: TreatmentStatus;
     doses: TreatmentDose[];
 }
 
 export async function getTreatments(petId: string): Promise<Treatment[]> {
     return apiFetch<Treatment[]>("carnet", `/reminders/pet/${petId}/treatments`);
+}
+
+/** Detalle de un solo tratamiento (para la página de ficha). */
+export async function getTreatmentDetail(prescriptionId: string): Promise<Treatment & { pet_id: string; diagnosis: string | null; reason_for_visit: string | null }> {
+    return apiFetch("carnet", `/reminders/treatments/${prescriptionId}`);
 }
 
 export async function setPrescriptionReminders(
@@ -61,6 +73,17 @@ export async function setPrescriptionReminders(
     return apiFetch("carnet", `/reminders/prescriptions/${prescriptionId}`, {
         method: "PATCH",
         body: JSON.stringify({ enabled }),
+    });
+}
+
+/** El dueño fija cuándo empieza el tratamiento; las tomas se reprograman desde esa fecha. */
+export async function setPrescriptionStartDate(
+    prescriptionId: string,
+    startDate: string,
+): Promise<{ prescription_id: string; doses_created: number; start_date: string }> {
+    return apiFetch("carnet", `/reminders/prescriptions/${prescriptionId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ start_date: startDate }),
     });
 }
 

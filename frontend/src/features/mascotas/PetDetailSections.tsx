@@ -277,51 +277,15 @@ export function PetHealth({ pet, health }: { pet: Pet; health: Health }) {
           {health.loadingTreatments ? (
             <Skeleton height={56} borderRadius={12} />
           ) : health.treatments.length === 0 ? (
-            <p className={d.muted}>Sin tratamientos activos. Aparecen aquí cuando una consulta incluye receta.</p>
+            <p className={d.muted}>Sin tratamientos. Aparecen aquí cuando una consulta incluye receta.</p>
           ) : (
-            <ul className={d.rows}>
-              {health.treatments.map((t) => {
-                const total = t.doses.length;
-                const taken = t.doses.filter((x) => x.sent).length;
-                const nextDose = t.doses.find((x) => !x.sent);
-                return (
-                  <li key={t.prescription_id} className={d.treatment}>
-                    <p className={d.treatmentName}>{t.medication_name}</p>
-                    <p className={d.treatmentMeta}>
-                      {t.dosage} · cada {t.frequency_hours} h · {t.duration_days} días
-                    </p>
-                    <p className={d.treatmentMeta}>
-                      {total > 0
-                        ? `${taken} de ${total} tomas${nextDose ? ` · próxima ${formatDate(nextDose.remind_at)}` : " · terminado"}`
-                        : "Sin tomas programadas"}
-                    </p>
-                    <div className={d.treatmentActions}>
-                      {health.canCheckReminders && (
-                        <FormSwitch
-                          label="Avisos"
-                          value={t.reminders_enabled}
-                          onChange={(v) => health.toggleReminders(t.prescription_id, v)}
-                        />
-                      )}
-                      {nextDose && health.canCheckReminders && nextDose.isDue && (
-                        <Button
-                          label={health.isChecking ? "Marcando…" : "Tomado"}
-                          size="sm"
-                          variant="secondary"
-                          fullWidth={false}
-                          disabled={health.isChecking}
-                          onPress={() => health.checkReminder(nextDose.id)}
-                          accessibilityLabel={`Marcar ${t.medication_name} como tomado`}
-                        />
-                      )}
-                    </div>
-                    {nextDose && health.canCheckReminders && !nextDose.isDue && (
-                      <p className={d.treatmentMeta}>Podrás marcarla cuando toque la dosis</p>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+            <p className={d.muted}>
+              {health.treatments.filter((t) => t.status === "en-curso").length} en curso ·{" "}
+              {health.treatments.filter((t) => t.status === "terminado").length} terminados.{" "}
+              <button type="button" className={d.linkBtn} onClick={() => window.dispatchEvent(new CustomEvent("pet-tab", { detail: "tratamientos" }))}>
+                Ver todos
+              </button>
+            </p>
           )}
         </Panel>
 
@@ -356,6 +320,91 @@ export function PetHealth({ pet, health }: { pet: Pet; health: Health }) {
           </Panel>
         )}
       </aside>
+    </div>
+  );
+}
+
+/* ── Tratamientos (pestaña propia) ─────────────────────────────────── */
+
+function TreatmentCard({ t, health }: { t: Health["treatments"][number]; health: Health }) {
+  const total = t.doses.length;
+  const taken = t.doses.filter((x) => x.sent).length;
+  const nextDose = t.doses.find((x) => !x.sent);
+  const takenDoses = t.doses.filter((x) => x.sent);
+  return (
+    <div className={d.treatmentCard}>
+      <div className={d.treatmentHeader}>
+        <h3 className={d.treatmentName}>
+          <Link href={`/carnet/tratamiento/${t.prescription_id}`}>{t.medication_name}</Link>
+        </h3>
+        <span className={`${d.statusBadge} ${t.status === "en-curso" ? d.statusActive : t.status === "terminado" ? d.statusDone : d.statusPending}`}>
+          {t.status === "en-curso" ? "En curso" : t.status === "terminado" ? "Terminado" : "Por iniciar"}
+        </span>
+      </div>
+      <p className={d.treatmentMeta}>{t.dosage} · cada {t.frequency_hours} h · {t.duration_days} días</p>
+      <p className={d.treatmentMeta}>
+        Inicio: {formatDate(t.start_date || t.record_date)}
+        {health.canCheckReminders && t.status !== "terminado" && (
+          <>
+            {" · "}
+            <button type="button" className={d.linkBtn} onClick={() => {
+              const v = window.prompt("Fecha de inicio (AAAA-MM-DD)", (t.start_date || t.record_date || "").slice(0, 10));
+              if (v) health.setStartDate(t.prescription_id, v);
+            }}>
+              Cambiar
+            </button>
+          </>
+        )}
+      </p>
+      <p className={d.treatmentMeta}>
+        {total > 0
+          ? `${taken} de ${total} tomas${nextDose ? ` · próxima ${formatDate(nextDose.remind_at)}` : " · todas registradas"}`
+          : "Sin tomas programadas"}
+      </p>
+      <div className={d.treatmentActions}>
+        {health.canCheckReminders && (
+          <FormSwitch label="Avisos" value={t.reminders_enabled} onChange={(v) => health.toggleReminders(t.prescription_id, v)} />
+        )}
+        <Link href={`/carnet/tratamiento/${t.prescription_id}`} className={d.linkBtn}>Ver ficha</Link>
+      </div>
+    </div>
+  );
+}
+
+export function PetTreatments({ health }: { health: Health }) {
+  if (health.loadingTreatments) {
+    return (
+      <div className={d.treatmentsLayout}>
+        <Skeleton height={120} borderRadius={16} />
+        <Skeleton height={120} borderRadius={16} />
+      </div>
+    );
+  }
+  if (!health.treatments.length) {
+    return (
+      <EmptyState
+        icon={<Pill size={28} />}
+        title="Sin tratamientos"
+        subtitle="Aparecen aquí cuando una consulta incluye receta."
+      />
+    );
+  }
+  return (
+    <div className={d.treatmentsLayout}>
+      {(["en-curso", "por-iniciar", "terminado"] as const).map((status) => {
+        const list = health.treatments.filter((t) => t.status === status);
+        if (!list.length) return null;
+        return (
+          <section key={status} className={d.statusGroup}>
+            <h2 className={d.statusLabel}>
+              {status === "en-curso" ? "En curso" : status === "por-iniciar" ? "Por iniciar" : "Terminados"}
+            </h2>
+            <div className={d.treatmentGrid}>
+              {list.map((t) => <TreatmentCard key={t.prescription_id} t={t} health={health} />)}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }

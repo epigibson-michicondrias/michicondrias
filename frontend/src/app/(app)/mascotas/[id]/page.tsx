@@ -7,7 +7,7 @@
  */
 import { Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { ClipboardList, HeartPulse, LayoutGrid, PawPrint } from "lucide-react";
+import { ClipboardList, HeartPulse, LayoutGrid, PawPrint, Pill } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import EmptyState from "@/components/EmptyState";
 import { Skeleton } from "@/components/Skeleton";
@@ -17,7 +17,7 @@ import { showAlert } from "@/components/AppAlert";
 import { usePetDetail, type PetTab } from "@/hooks/mascotas/usePetDetail";
 import { usePetHealth } from "@/hooks/carnet/usePetHealth";
 import { copyText } from "@/utils/helpers";
-import { PetHero, PetSummary, PetHealth } from "@/features/mascotas/PetDetailSections";
+import { PetHero, PetSummary, PetHealth, PetTreatments } from "@/features/mascotas/PetDetailSections";
 import { PetHistoryPanel } from "@/features/mascotas/PetHistoryPanel";
 import d from "@/features/mascotas/PetDetail.module.css";
 import s from "../mascotas.module.css";
@@ -26,7 +26,7 @@ function PetDetailContent() {
   const detail = usePetDetail();
   const { pet, isOwner, isLoading, error, tab, setTab, openShare, shareUrl, closeShare } = detail;
   const router = useRouter();
-  const health = usePetHealth(pet?.id, pet, tab === "salud" ? "salud" : tab === "historial" ? "historial" : null);
+  const health = usePetHealth(pet?.id, pet, tab === "salud" ? "salud" : tab === "tratamientos" ? "tratamientos" : tab === "historial" ? "historial" : null);
 
   if (isLoading) {
     return (
@@ -68,6 +68,7 @@ function PetDetailContent() {
   const tabs: { value: PetTab; label: string; icon: typeof LayoutGrid; count?: number }[] = [
     { value: "resumen", label: "Resumen", icon: LayoutGrid },
     { value: "salud", label: "Salud", icon: HeartPulse, count: health.loadingVaccines ? undefined : health.vaccines.length },
+    { value: "tratamientos", label: "Tratamientos", icon: Pill, count: tab === "tratamientos" && !health.loadingTreatments ? health.treatments.length : undefined },
     { value: "historial", label: "Historial", icon: ClipboardList, count: tab === "historial" && !health.loadingRecords ? health.records.length : undefined },
   ];
 
@@ -81,6 +82,7 @@ function PetDetailContent() {
 
       {tab === "resumen" && <PetSummary pet={pet} isOwner={isOwner} health={health} detail={detail} onOpenTab={setTab} />}
       {tab === "salud" && <PetHealth pet={pet} health={health} />}
+      {tab === "tratamientos" && <PetTreatments health={health} />}
       {tab === "historial" && <PetHistoryPanel pet={pet} health={health} />}
 
       {shareUrl && (

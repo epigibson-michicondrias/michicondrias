@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { normalizeRole } from '@/constants/roles';
 import { getRecordsByPet, getVaccinesByPet, deleteVaccine, deleteRecord } from '@/services/carnet';
-import { getTreatments, setPrescriptionReminders, checkReminder, type Treatment } from '@/services/reminders';
+import { getTreatments, setPrescriptionReminders, setPrescriptionStartDate, checkReminder, type Treatment } from '@/services/reminders';
 import { getPetLabHistory } from '@/services/laboratorio';
 import { showAlert } from '@/components/AppAlert';
 import type { Pet } from '@/types/mascotas';
@@ -18,7 +18,7 @@ import type { Pet } from '@/types/mascotas';
 /** Roles clínicos que el backend de carnet deja escribir (pet_access.VET_ROLES). */
 const CLINICAL_ROLES = ['veterinario', 'hospital', 'admin'];
 
-export function usePetHealth(petId: string | undefined, pet: Pet | undefined, section: 'salud' | 'historial' | null) {
+export function usePetHealth(petId: string | undefined, pet: Pet | undefined, section: 'salud' | 'tratamientos' | 'historial' | null) {
     const { user } = useAuth();
     const router = useRouter();
     const queryClient = useQueryClient();
@@ -54,7 +54,7 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
                 isDue: new Date(d.remind_at).getTime() - Date.now() <= 3_600_000,
             })),
         })),
-        enabled: enabled && section === 'salud',
+        enabled: enabled && (section === 'tratamientos' || section === 'salud'),
     });
     const labs = useQuery({
         queryKey: ['pet-lab-history', petId],
@@ -103,6 +103,19 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         mutationFn: ({ prescriptionId, enabled }: { prescriptionId: string; enabled: boolean }) =>
             setPrescriptionReminders(prescriptionId, enabled),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pet-treatments', petId] }),
+        onError: (error: Error) => {
+            showAlert({ type: 'error', title: 'No se pudo cambiar', message: error?.message || 'Inténtalo de nuevo.' });
+        },
+    });
+
+    /** El dueño fija cuándo empieza el tratamiento (p. ej. cuando compró el medicamento). */
+    const setStartDateMutation = useMutation({
+        mutationFn: ({ prescriptionId, startDate }: { prescriptionId: string; startDate: string }) =>
+            setPrescriptionStartDate(prescriptionId, startDate),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['pet-treatments', petId] });
+            showAlert({ type: 'success', title: 'Inicio actualizado', message: 'Las tomas se reprogramaron desde esa fecha.' });
+        },
         onError: (error: Error) => {
             showAlert({ type: 'error', title: 'No se pudo cambiar', message: error?.message || 'Inténtalo de nuevo.' });
         },
@@ -180,6 +193,9 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         toggleReminders: (prescriptionId: string, enabled: boolean) =>
             toggleRemindersMutation.mutate({ prescriptionId, enabled }),
         isToggling: toggleRemindersMutation.isPending,
+        setStartDate: (prescriptionId: string, startDate: string) =>
+            setStartDateMutation.mutate({ prescriptionId, startDate }),
+        isSettingStart: setStartDateMutation.isPending,
         addRecord: () => router.push(`/carnet/nueva-consulta?pet_id=${petId}`),
         addVaccine: () => router.push(`/carnet/nueva-vacuna?pet_id=${petId}`),
         editRecord: (id: string) => router.push(`/carnet/nueva-consulta?pet_id=${petId}&id=${id}`),

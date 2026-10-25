@@ -95,7 +95,10 @@ def read_treatments(pet_id: str, db: Session = Depends(get_db), identity: dict =
     for d in doses:
         by_rx.setdefault(d[1], []).append({"id": d[0], "remind_at": d[2], "sent": bool(d[3]), "taken_at": d[4]})
 
-    def _treatment_status(start_iso: str | None, record_iso: str, freq: int, days: int) -> str:
+    def _treatment_status(start_iso: str | None, record_iso: str, freq: int, days: int, rx_doses: list) -> str:
+        # Todas las tomas marcadas → terminado, aunque falten días por calendario
+        if rx_doses and all(d["sent"] for d in rx_doses):
+            return "terminado"
         start_raw = start_iso or record_iso
         start = start_raw if isinstance(start_raw, datetime) else datetime.fromisoformat(str(start_raw).replace("Z", "+00:00"))
         if start.tzinfo is None:
@@ -113,11 +116,42 @@ def read_treatments(pet_id: str, db: Session = Depends(get_db), identity: dict =
             "prescription_id": r[0], "medication_name": r[1], "dosage": r[2], "frequency_hours": r[3],
             "duration_days": r[4], "instructions": r[5], "reminders_enabled": bool(r[6]) if r[6] is not None else True,
             "start_date": r[7], "record_id": r[8], "record_date": _iso(r[9]),
-            "status": _treatment_status(r[7], str(r[9]), r[3], r[4]),
+            "status": _treatment_status(r[7], str(r[9]), r[3], r[4], by_rx.get(r[0], [])),
             "doses": by_rx.get(r[0], []),
         }
         for r in rows
     ]
+
+
+@router.get("/treatments/{prescription_id}")
+def read_treatment(prescription_id: str, db: Session = Depends(get_db), identity: dict = Depends(get_identity)) -> Any:
+    """Un solo tratamiento con sus tomas, para la página de detalle."""
+    row = db.execute(text(
+        "SELECT p.id, p.medication_name, p.dosage, p.frequency_hours, p.duration_days, p.instructions, "
+        "p.reminders_enabled, p.start_date, mr.id, mr.date, mr.pet_id, mr.diagnosis, mr.reason_for_visit "
+        "FROM prescriptions p JOIN medical_records mr ON mr.id = p.medical_record_id WHERE p.id = :id"
+    ), {"id": prescription_id}).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Medicamento no encontrado")
+    assert_can_read_pet_record(db, row[10], identity)
+    doses = db.execute(text(
+        "SELECT id, remind_at, sent, taken_at FROM medication_reminders WHERE prescription_id = :id ORDER BY remind_at"
+    ), {"id": prescription_id}).fetchall()
+    dose_list = [{"id": d[0], "remind_at": d[1], "sent": bool(d[2]), "taken_at": d[3]} for d in doses]
+    all_sent = bool(dose_list) and all(d["sent"] for d in dose_list)
+    start_raw = row[7] or row[9]
+    start = start_raw if isinstance(start_raw, datetime) else datetime.fromisoformat(str(start_raw).replace("Z", "+00:00"))
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+    end = start + timedelta(days=row[4] or 0)
+    now = datetime.now(timezone.utc)
+    status = "terminado" if all_sent or now >= end else ("por-iniciar" if now < start else "en-curso")
+    return {
+        "prescription_id": row[0], "medication_name": row[1], "dosage": row[2], "frequency_hours": row[3],
+        "duration_days": row[4], "instructions": row[5], "reminders_enabled": bool(row[6]) if row[6] is not None else True,
+        "start_date": row[7], "record_id": row[8], "record_date": _iso(row[9]), "pet_id": row[10],
+        "diagnosis": row[11], "reason_for_visit": row[12], "status": status, "doses": dose_list,
+    }
 
 
 class PrescriptionUpdate(BaseModel):

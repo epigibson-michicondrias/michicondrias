@@ -59,22 +59,37 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
             <View style={styles.section}>
                 <SectionHeader title="Medicamentos" icon={<Pill size={layout.icon.sm} color={theme.primary} />} />
                 {health.loadingTreatments ? <LoadingRows /> : health.treatments.length === 0 ? (
-                    <EmptyLine text="Sin tratamientos activos. Aparecen aquí cuando una consulta incluye receta." />
+                    <EmptyLine text="Sin tratamientos. Aparecen aquí cuando una consulta incluye receta." />
                 ) : (
-                    <View style={styles.list}>
-                        {health.treatments.map((t) => (
-                            <TreatmentItem
-                                key={t.prescription_id}
-                                treatment={t}
-                                onCheck={health.checkReminder}
-                                canCheck={health.canCheckReminders}
-                                isChecking={health.isChecking}
-                                onToggle={health.toggleReminders}
-                                canToggle={health.canCheckReminders}
-                                isToggling={health.isToggling}
-                            />
-                        ))}
-                    </View>
+                    <>
+                        {(['en-curso', 'por-iniciar', 'terminado'] as const).map((status) => {
+                            const list = health.treatments.filter((t) => t.status === status);
+                            if (!list.length) return null;
+                            const label = status === 'en-curso' ? 'En curso' : status === 'por-iniciar' ? 'Por iniciar' : 'Terminados';
+                            return (
+                                <View key={status} style={styles.statusGroup}>
+                                    <Text style={[type.label, { color: theme.textMuted }]}>{label}</Text>
+                                    <View style={styles.list}>
+                                        {list.map((t) => (
+                                            <TreatmentItem
+                                                key={t.prescription_id}
+                                                treatment={t}
+                                                onCheck={health.checkReminder}
+                                                canCheck={health.canCheckReminders}
+                                                isChecking={health.isChecking}
+                                                onToggle={health.toggleReminders}
+                                                canToggle={health.canCheckReminders}
+                                                isToggling={health.isToggling}
+                                                onSetStartDate={health.setStartDate}
+                                                canSetStart={health.canCheckReminders}
+                                                isSettingStart={health.isSettingStart}
+                                            />
+                                        ))}
+                                    </View>
+                                </View>
+                            );
+                        })}
+                    </>
                 )}
             </View>
 
@@ -108,6 +123,9 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     list: {
+        gap: spacing.sm,
+    },
+    statusGroup: {
         gap: spacing.sm,
     },
     emptyLine: {

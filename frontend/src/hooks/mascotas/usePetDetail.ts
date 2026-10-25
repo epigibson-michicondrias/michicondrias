@@ -13,7 +13,7 @@ import { openStripeUrl } from '@/utils/payments';
 import type { Pet } from '@/types/mascotas';
 import { useTrackerBilling } from './useTrackerBilling';
 
-export type PetTab = 'resumen' | 'salud' | 'historial';
+export type PetTab = 'resumen' | 'salud' | 'tratamientos' | 'historial';
 
 export function usePetDetail() {
     const params = useParams<{ id: string }>();
@@ -89,7 +89,7 @@ export function usePetDetail() {
     }, [subscription, id, router, refetch]);
 
     const [tab, setTab] = useState<PetTab>(
-        initialTab === 'salud' || initialTab === 'historial' ? initialTab : 'resumen',
+        initialTab === 'salud' || initialTab === 'historial' || initialTab === 'tratamientos' ? initialTab : 'resumen',
     );
 
     const isOwner = !!pet && !!user && pet.owner_id === user.id;
