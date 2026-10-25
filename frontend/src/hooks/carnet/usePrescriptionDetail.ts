@@ -6,6 +6,8 @@ import { useParams, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { getPetById } from '@/services/mascotas';
 import { getRecordsByPet } from '@/services/carnet';
+import { getClinic, getVet } from '@/services/directorio';
+import { prescriptionPlans, prescriptionStatus, prescriptionFolio } from './prescriptionPlan';
 
 export function usePrescriptionDetail() {
     const params = useParams<{ id: string }>();
@@ -27,11 +29,32 @@ export function usePrescriptionDetail() {
 
     const record = records.find((r) => r.id === recordId);
 
+    // Quién la emitió: clínica y veterinario reales de la consulta (si la consulta los trae)
+    const { data: clinic } = useQuery({
+        queryKey: ['clinic', record?.clinic_id],
+        queryFn: () => getClinic(record!.clinic_id!),
+        enabled: !!record?.clinic_id,
+        meta: { silentError: true },
+    });
+    const { data: vet } = useQuery({
+        queryKey: ['vet', record?.veterinarian_id],
+        queryFn: () => getVet(record!.veterinarian_id!),
+        enabled: !!record?.veterinarian_id,
+        meta: { silentError: true },
+    });
+
+    const plans = record ? prescriptionPlans(record) : [];
+
     return {
         recordId,
         petId: petIdStr,
         pet,
         record,
+        clinic,
+        vet,
+        plans,
+        status: prescriptionStatus(plans),
+        folio: prescriptionFolio(recordId ?? ''),
         loading: loadingPet || loadingRecords,
     };
 }

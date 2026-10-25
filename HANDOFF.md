@@ -318,6 +318,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-24 · Claude** — **Receta médica premium** (app y web): documento con folio y estado, clínica y veterinario
+  reales de la consulta (cédula y especialidad), paciente, diagnóstico, cada medicamento con dosis, frecuencia,
+  duración, tomas totales, fechas y avance, notas y firma. Fuera las promesas falsas («surtir en farmacia» con QR,
+  «Michicondrias Vet Clinica»). Web: panel lateral con avance e «Imprimir o guardar PDF» en ventana propia
+  (`src/lib/printElement.ts`, sale solo el documento en tema claro). Lógica espejo en `hooks/carnet/prescriptionPlan.ts`
+  + `usePrescriptionDetail` (ahora trae `clinic`, `vet`, `plans`, `status`, `folio`).
+
 - **2026-10-24 · Claude** — **Web: la receta vuelve a verse en la consulta** del historial (la tarjeta nueva la dejaba
   dentro de «Ver detalle» y sin enlace): etiqueta «Receta», signos visibles y enlace «Ver receta» a
   `/carnet/receta/[id]` con los medicamentos. La app no cambió (usa `RecordItem`).
