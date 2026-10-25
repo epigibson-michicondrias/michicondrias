@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * Michi-Shop — catálogo (espejo de `mobile/app/(tabs)/tienda-tab.tsx`).
+ * Michi-Shop — catálogo con filtros laterales y rejilla de productos. Criterio §0.
  */
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Heart, LayoutGrid, List, Package, Plus, Search, ShoppingBag, SlidersHorizontal } from "lucide-react";
+import { Heart, LayoutGrid, List, MapPin, Package, Plus, Search, ShoppingBag, SlidersHorizontal, Sparkles, Star, Truck, Zap } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import SearchBar from "@/components/SearchBar";
@@ -27,6 +27,7 @@ function ProductCard({
   average_rating: number; review_count: number;
   onQuickAdd?: () => void; canBuy: boolean; viewMode: ShopViewMode;
 }) {
+  const installments = price >= 500 ? Math.ceil(price / 12) : 0;
   return (
     <div className={viewMode === "list" ? s.cardList : s.card}>
       <Link href={`/tienda/producto/${id}`} className={s.cardMedia}>
@@ -37,14 +38,24 @@ function ProductCard({
         )}
       </Link>
       <div className={s.cardBody}>
+        {price >= 500 && <span className={s.cardBadge}>Oferta</span>}
         <Link href={`/tienda/producto/${id}`} className={s.cardName}>{name}</Link>
         <p className={s.cardPrice}>${price.toFixed(2)}</p>
-        <p className={s.cardMeta}>
-          {review_count > 0 ? `${average_rating.toFixed(1)} · ${review_count} opiniones` : "Sin opiniones"}
-          {stock <= 0 ? " · Agotado" : ""}
-        </p>
+        {installments > 0 && (
+          <p className={s.cardInstallments}>12x ${installments.toFixed(2)} sin interés</p>
+        )}
+        {stock > 0 && price >= 300 && (
+          <span className={s.cardShipping}><Truck size={12} /> Envío gratis</span>
+        )}
+        {review_count > 0 && (
+          <div className={s.cardRating}>
+            <span className={s.cardStars}>{"★".repeat(Math.round(average_rating))}{"☆".repeat(5 - Math.round(average_rating))}</span>
+            <span>{average_rating.toFixed(1)} ({review_count})</span>
+          </div>
+        )}
+        {stock <= 0 && <p className={s.cardMeta}>Agotado</p>}
         {onQuickAdd && canBuy && stock > 0 && (
-          <Button label="Agregar" size="sm" fullWidth={false} icon={<Plus size={16} />} onPress={onQuickAdd} />
+          <Button label="Agregar al carrito" size="sm" fullWidth icon={<Plus size={16} />} onPress={onQuickAdd} />
         )}
       </div>
     </div>
@@ -70,7 +81,6 @@ function CatalogContent() {
         rightElement={
           <div className={s.headerActions}>
             <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda/compras")} aria-label="Mis compras">
-              {/* Package (mis pedidos) vs ShoppingBag (bolsa): antes los dos usaban ShoppingBag y eran indistinguibles */}
               <Package size={20} />
             </button>
             <button type="button" className={s.iconBtn} onClick={() => router.push("/tienda/carrito")} aria-label="Abrir bolsa">
@@ -81,86 +91,102 @@ function CatalogContent() {
         }
       />
 
-      <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder="Buscar productos para tu michi…" />
+      <div className={s.layout}>
+        {/* ── Filtros laterales ── */}
+        <aside className={s.sidebar}>
+          <div className={s.searchWrap}>
+            <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder="Buscar productos…" />
+          </div>
 
-      <div className={s.chips}>
-        {categories.map((c) => (
-          <FilterChip
-            key={c.id}
-            label={c.label}
-            active={selectedCategory === c.id}
-            onPress={() => setSelectedCategory(c.id)}
-            icon={<c.icon size={14} />}
-          />
-        ))}
-      </div>
+          <div className={s.filterSection}>
+            <h3 className={s.filterTitle}><Sparkles size={14} /> Categorías</h3>
+            <div className={s.filterList}>
+              {categories.map((c) => (
+                <FilterChip
+                  key={c.id}
+                  label={c.label}
+                  active={selectedCategory === c.id}
+                  onPress={() => setSelectedCategory(c.id)}
+                  icon={<c.icon size={14} />}
+                />
+              ))}
+            </div>
+          </div>
 
-      <div className={s.toolbar}>
-        <p className={s.count}>{isLoading ? "Buscando…" : `${products.length} productos`}</p>
-        <div className={s.toolbarActions}>
-          <label className={s.sortLabel}>
-            <SlidersHorizontal size={16} aria-hidden />
+          <div className={s.filterSection}>
+            <h3 className={s.filterTitle}><SlidersHorizontal size={14} /> Ordenar</h3>
             <select className={s.sortSelect} value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
               {SHOP_SORTS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
-          </label>
-          <div className={s.viewToggle} role="group" aria-label="Modo de vista">
-            <button type="button" className={`${s.viewBtn} ${viewMode === "grid" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("grid")} aria-label="Ver en cuadrícula">
-              <LayoutGrid size={18} />
-            </button>
-            <button type="button" className={`${s.viewBtn} ${viewMode === "list" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("list")} aria-label="Ver como lista">
-              <List size={18} />
-            </button>
           </div>
+
+          {hasFilters && (
+            <Button label="Limpiar filtros" variant="ghost" size="sm" fullWidth onPress={clearFilters} />
+          )}
+        </aside>
+
+        {/* ── Resultados ── */}
+        <div className={s.results}>
+          <div className={s.resultsHeader}>
+            <p className={s.count}>{isLoading ? "Buscando…" : `${products.length} productos`}</p>
+            <div className={s.viewToggle} role="group" aria-label="Modo de vista">
+              <button type="button" className={`${s.viewBtn} ${viewMode === "grid" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("grid")} aria-label="Ver en cuadrícula">
+                <LayoutGrid size={18} />
+              </button>
+              <button type="button" className={`${s.viewBtn} ${viewMode === "list" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("list")} aria-label="Ver como lista">
+                <List size={18} />
+              </button>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className={viewMode === "list" ? s.gridList : s.grid}>
+              {[0, 1, 2, 3].map((i) => <Skeleton key={i} height={200} borderRadius={16} />)}
+            </div>
+          ) : products.length === 0 ? (
+            <EmptyState
+              icon={<Search size={28} />}
+              title={hasFilters ? "Sin resultados" : "Aún no hay productos"}
+              subtitle={hasFilters ? "Prueba con otra búsqueda o categoría." : "Cuando el catálogo tenga productos aparecerán aquí."}
+              actionLabel={hasFilters ? "Quitar filtros" : undefined}
+              onAction={hasFilters ? clearFilters : undefined}
+            />
+          ) : (
+            <>
+              <div className={`${viewMode === "list" ? s.gridList : s.grid} ${isUpdating ? s.updating : ""}`}>
+                {products.map((p) => (
+                  <div key={p.id} className={s.cardWrap}>
+                    <ProductCard
+                      {...p}
+                      viewMode={viewMode}
+                      canBuy={canBuy(p)}
+                      onQuickAdd={() => quickAdd(p)}
+                    />
+                    <button
+                      type="button"
+                      className={`${s.favBtn} ${isFavorite(p.id) ? s.favOn : ""}`}
+                      onClick={() => toggleFavorite(p.id)}
+                      aria-label={isFavorite(p.id) ? "Quitar de favoritos" : "Guardar en favoritos"}
+                    >
+                      <Heart size={16} fill={isFavorite(p.id) ? "currentColor" : "none"} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {hasMore && (
+                <Button
+                  label={isLoadingMore ? "Cargando…" : "Ver más"}
+                  variant="secondary"
+                  onPress={loadMore}
+                  loading={isLoadingMore}
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
-
-      {isLoading ? (
-        <div className={viewMode === "list" ? s.gridList : s.grid}>
-          {[0, 1, 2, 3].map((i) => <Skeleton key={i} height={200} borderRadius={16} />)}
-        </div>
-      ) : products.length === 0 ? (
-        <EmptyState
-          icon={<Search size={28} />}
-          title={hasFilters ? "Sin resultados" : "Aún no hay productos"}
-          subtitle={hasFilters ? "Prueba con otra búsqueda o categoría." : "Cuando el catálogo tenga productos aparecerán aquí."}
-          actionLabel={hasFilters ? "Quitar filtros" : undefined}
-          onAction={hasFilters ? clearFilters : undefined}
-        />
-      ) : (
-        <>
-          <div className={`${viewMode === "list" ? s.gridList : s.grid} ${isUpdating ? s.updating : ""}`}>
-            {products.map((p) => (
-              <div key={p.id} className={s.cardWrap}>
-                <ProductCard
-                  {...p}
-                  viewMode={viewMode}
-                  canBuy={canBuy(p)}
-                  onQuickAdd={() => quickAdd(p)}
-                />
-                <button
-                  type="button"
-                  className={`${s.favBtn} ${isFavorite(p.id) ? s.favOn : ""}`}
-                  onClick={() => toggleFavorite(p.id)}
-                  aria-label={isFavorite(p.id) ? "Quitar de favoritos" : "Guardar en favoritos"}
-                >
-                  <Heart size={16} fill={isFavorite(p.id) ? "currentColor" : "none"} />
-                </button>
-              </div>
-            ))}
-          </div>
-          {hasMore && (
-            <Button
-              label={isLoadingMore ? "Cargando…" : "Ver más"}
-              variant="secondary"
-              onPress={loadMore}
-              loading={isLoadingMore}
-            />
-          )}
-        </>
-      )}
     </ScreenContainer>
   );
 }
