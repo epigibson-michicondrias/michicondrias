@@ -323,7 +323,8 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   historial: backend `POST /pets/{id}/ai/history-summary` (`mascotas/app/core/ai_history.py`: hechos en el servidor,
   Claude solo redacta; sin clave, resumen automático; dueño o equipo clínico). Web: copiar e imprimir/PDF
   (`features/mascotas/printHistory.ts`), `components/Sparkline`. App: compartir con `Share`. Lógica espejo en
-  `hooks/carnet/clinicalTimeline.ts` + `useClinicalHistory.ts`. Commits `d53c189`, `c1826e4`, `a94222e`.
+  `hooks/carnet/clinicalTimeline.ts` + `useClinicalHistory.ts`. Commits `d53c189`, `c1826e4`, `a94222e`, `ef10a29`. Backend desplegado y probado en producción; web en Vercel; OTA
+  `f16ec9b0-77bb-42d3-866d-9aeae07cf49a`.
 
 - **2026-10-24 · Claude** — **Todo publicado**: push de `main` hasta `fe887bc` (8 commits previos + carnet en clientes
   `1508ef1`, web Mis Mascotas `d6a66b9`/`fe887bc`, docs unificados `e8758ab`). Vercel `michicondrias` ✅ (el primer
