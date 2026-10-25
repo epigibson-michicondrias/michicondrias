@@ -650,3 +650,66 @@
   gap: var(--space-md);
   margin-top: var(--space-xl);
 }
+
+/* ── Layout dos columnas con sidebar ── */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  position: sticky;
+  top: calc(var(--space-xl) + 64px);
+}
+@media (max-width: 768px) {
+  .sidebar { position: static; }
+}
+
+.searchWrap { margin-bottom: 0; }
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.filterTitle {
+  margin: 0;
+  font-size: var(--font-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.filterList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}
+.resultsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}

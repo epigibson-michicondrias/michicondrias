@@ -17,6 +17,7 @@ import FilterChip from "@/components/FilterChip";
 import IconButton from "@/components/IconButton";
 import SearchBar from "@/components/SearchBar";
 import { SkeletonList } from "@/components/Skeleton";
+import DataTable, { type Column } from "@/components/DataTable";
 import { useAdminProducts, type Product, type ProductFilter } from "@/hooks/admin/useAdminProducts";
 import { formatCurrency } from "@/utils/formatters";
 import { getS3Url } from "@/utils/helpers";
@@ -69,102 +70,101 @@ export default function AdminProductosPage() {
           onAction={p.filtering ? p.clearFilters : undefined}
         />
       ) : (
-        <div className={s.tableWrap}>
-          <table className={s.table}>
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th>Precio</th>
-                <th>Existencias</th>
-                <th>Estado</th>
-                <th aria-label="Acciones" />
-              </tr>
-            </thead>
-            <tbody>
-              {p.products.map((prod) => {
+        <DataTable
+          caption="Productos de la tienda"
+          rowKey={(prod) => prod.id}
+          rowHref={(prod) => `/tienda/producto/${prod.id}`}
+          columns={[
+            {
+              key: "product",
+              header: "Producto",
+              primary: true,
+              render: (prod) => (
+                <div className={s.who}>
+                  {prod.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- imagen del storage
+                    <img src={getS3Url(prod.image_url)} alt="" className={s.thumb} />
+                  ) : (
+                    <span className={s.thumb} aria-hidden><Package size={20} /></span>
+                  )}
+                  <div className={s.cellMain}>
+                    <strong>{prod.name}</strong>
+                    {prod.category?.name ? <span className={s.cellSub}>{prod.category.name}</span> : null}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: "price",
+              header: "Precio",
+              render: (prod) => <span className={s.nowrap}>{formatCurrency(prod.price)}</span>,
+            },
+            {
+              key: "stock",
+              header: "Existencias",
+              render: (prod) => (
+                prod.stock <= 0 ? (
+                  <Badge label="Agotado" color="var(--color-error)" size="sm" variant="outlined" />
+                ) : (
+                  <span className={prod.stock < 5 ? undefined : s.cellSub}>
+                    {prod.stock} {prod.stock === 1 ? "pieza" : "piezas"}
+                    {prod.stock < 5 ? " · pocas" : ""}
+                  </span>
+                )
+              ),
+            },
+            {
+              key: "status",
+              header: "Estado",
+              render: (prod) => {
                 const st = productStatus(prod);
-                const href = `/tienda/producto/${prod.id}`;
-                const busy = p.busyId === prod.id;
-                const isPending = prod.is_approved === false;
-                const hidden = !prod.is_active;
-                return (
-                  <tr key={prod.id} className={s.rowLink} onClick={() => router.push(href)}>
-                    <td>
-                      <div className={s.who}>
-                        {prod.image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element -- imagen del storage
-                          <img src={getS3Url(prod.image_url)} alt="" className={s.thumb} />
-                        ) : (
-                          <span className={s.thumb} aria-hidden>
-                            <Package size={20} />
-                          </span>
-                        )}
-                        <div className={s.cellMain}>
-                          <Link href={href} className={`${s.cellTitle} ${s.cellLink}`} onClick={(e) => e.stopPropagation()}>
-                            {prod.name}
-                          </Link>
-                          {prod.category?.name ? <span className={s.cellSub}>{prod.category.name}</span> : null}
-                        </div>
-                      </div>
-                    </td>
-                    <td data-label="Precio" className={s.nowrap}>
-                      {formatCurrency(prod.price)}
-                    </td>
-                    <td data-label="Existencias">
-                      {prod.stock <= 0 ? (
-                        <Badge label="Agotado" color="var(--color-error)" size="sm" variant="outlined" />
-                      ) : (
-                        <span className={prod.stock < 5 ? undefined : s.cellSub}>
-                          {prod.stock} {prod.stock === 1 ? "pieza" : "piezas"}
-                          {prod.stock < 5 ? " · pocas" : ""}
-                        </span>
-                      )}
-                    </td>
-                    <td data-label="Estado">
-                      <Badge label={st.label} color={st.color} size="sm" />
-                    </td>
-                    <td>
-                      <div className={s.cellActions} onClick={(e) => e.stopPropagation()}>
-                        {isPending ? (
-                          <>
-                            <Button
-                              label="Aprobar"
-                              icon={<Check size={16} />}
-                              size="sm"
-                              variant="secondary"
-                              fullWidth={false}
-                              onPress={() => p.approve(prod)}
-                              loading={busy}
-                              disabled={!!p.busyId && !busy}
-                            />
-                            <Button
-                              label="Rechazar"
-                              icon={<X size={16} />}
-                              size="sm"
-                              variant="danger"
-                              fullWidth={false}
-                              onPress={() => p.reject(prod)}
-                              disabled={!!p.busyId}
-                            />
-                          </>
-                        ) : (
-                          <IconButton
-                            icon={hidden ? Eye : EyeOff}
-                            accessibilityLabel={hidden ? `Mostrar ${prod.name}` : `Ocultar ${prod.name}`}
-                            onPress={() => p.toggleVisibility(prod)}
-                            color={hidden ? "var(--color-success)" : "var(--color-text-muted)"}
-                            size="sm"
-                            disabled={!!p.busyId && !busy}
-                          />
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                return <Badge label={st.label} color={st.color} size="sm" />;
+              },
+            },
+          ]}
+          rowActions={(prod) => {
+            const busy = p.busyId === prod.id;
+            const isPending = prod.is_approved === false;
+            const hidden = !prod.is_active;
+            return (
+              <div className={s.cellActions}>
+                {isPending ? (
+                  <>
+                    <Button
+                      label="Aprobar"
+                      icon={<Check size={16} />}
+                      size="sm"
+                      variant="secondary"
+                      fullWidth={false}
+                      onPress={() => p.approve(prod)}
+                      loading={busy}
+                      disabled={!!p.busyId && !busy}
+                    />
+                    <Button
+                      label="Rechazar"
+                      icon={<X size={16} />}
+                      size="sm"
+                      variant="danger"
+                      fullWidth={false}
+                      onPress={() => p.reject(prod)}
+                      disabled={!!p.busyId}
+                    />
+                  </>
+                ) : (
+                  <IconButton
+                    icon={hidden ? Eye : EyeOff}
+                    accessibilityLabel={hidden ? `Mostrar ${prod.name}` : `Ocultar ${prod.name}`}
+                    onPress={() => p.toggleVisibility(prod)}
+                    color={hidden ? "var(--color-success)" : "var(--color-text-muted)"}
+                    size="sm"
+                    disabled={!!p.busyId && !busy}
+                  />
+                )}
+              </div>
+            );
+          }}
+          rows={p.products}
+        />
       )}
     </ScreenContainer>
   );

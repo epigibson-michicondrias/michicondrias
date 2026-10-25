@@ -1,16 +1,17 @@
 "use client";
 
 /**
- * Adopciones — listado de mascotas en adopción con filtros.
- * Espejo de `mobile/app/adopciones/index.tsx`.
+ * Adopciones — dos columnas: filtros laterales + rejilla de mascotas en adopción.
+ * Criterio §0: composición de escritorio.
  */
 import { useRouter } from "next/navigation";
-import { Heart, LayoutGrid, List, Plus, FolderHeart, ClipboardList } from "lucide-react";
+import { Heart, LayoutGrid, List, MapPin, PawPrint, Plus, FolderHeart, ClipboardList, Search, Sparkles } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import EmptyState from "@/components/EmptyState";
 import SearchBar from "@/components/SearchBar";
 import FilterChip from "@/components/FilterChip";
+import Button from "@/components/Button";
 import { Skeleton } from "@/components/Skeleton";
 import ListingCard from "@/features/adopciones/ListingCard";
 import { useListings } from "@/hooks/adopciones/useListings";
@@ -31,6 +32,12 @@ export default function AdopcionesPage() {
     setViewMode,
     hasActiveFilters,
   } = useListings();
+
+  const clearFilters = () => {
+    setSearch("");
+    setSpeciesFilter("all");
+    setSizeFilter("all");
+  };
 
   return (
     <ScreenContainer>
@@ -57,66 +64,60 @@ export default function AdopcionesPage() {
         ]}
       />
 
-      <div className={local.filters}>
-        <SearchBar value={search} onChangeText={setSearch} placeholder="Busca por nombre, raza..." />
-        <div className={local.chipsRow}>
-          <FilterChip
-            label="Todos"
-            active={speciesFilter === "all" && sizeFilter === "all"}
-            onPress={() => {
-              setSpeciesFilter("all");
-              setSizeFilter("all");
-            }}
-          />
-          <FilterChip
-            label="Perros"
-            active={speciesFilter === "perro"}
-            onPress={() => setSpeciesFilter(speciesFilter === "perro" ? "all" : "perro")}
-          />
-          <FilterChip
-            label="Gatos"
-            active={speciesFilter === "gato"}
-            onPress={() => setSpeciesFilter(speciesFilter === "gato" ? "all" : "gato")}
-          />
-          <FilterChip
-            label="Grandes"
-            active={sizeFilter === "grande"}
-            onPress={() => setSizeFilter(sizeFilter === "grande" ? "all" : "grande")}
-          />
-        </div>
-      </div>
+      <div className={local.layout}>
+        {/* ── Filtros laterales ── */}
+        <aside className={local.sidebar}>
+          <div className={local.searchWrap}>
+            <SearchBar value={search} onChangeText={setSearch} placeholder="Buscar por nombre, raza…" />
+          </div>
 
-      {isLoading ? (
-        <div className={local.grid}>
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} height={240} borderRadius={16} />
-          ))}
-        </div>
-      ) : listings.length === 0 ? (
-        <EmptyState
-          icon={<Heart size={28} />}
-          title={hasActiveFilters ? "Sin resultados" : "Aún no hay mascotas en adopción"}
-          subtitle={
-            hasActiveFilters
-              ? "Prueba con otra búsqueda o quita los filtros."
-              : "Cuando un refugio publique una mascota aparecerá aquí."
-          }
-          actionLabel={hasActiveFilters ? "Quitar filtros" : "Dar en adopción"}
-          onAction={
-            hasActiveFilters
-              ? () => {
-                  setSearch("");
-                  setSpeciesFilter("all");
-                  setSizeFilter("all");
-                }
-              : () => router.push("/adopciones/nuevo")
-          }
-        />
-      ) : (
-        <>
-          <div className={local.toolbar}>
+          <div className={local.filterSection}>
+            <h3 className={local.filterTitle}><PawPrint size={14} /> Especie</h3>
+            <div className={local.filterList}>
+              {[
+                { key: "all", label: "Todas" },
+                { key: "perro", label: "Perros" },
+                { key: "gato", label: "Gatos" },
+              ].map((f) => (
+                <FilterChip
+                  key={f.key}
+                  label={f.label}
+                  active={speciesFilter === f.key}
+                  onPress={() => setSpeciesFilter(f.key)}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className={local.filterSection}>
+            <h3 className={local.filterTitle}><Sparkles size={14} /> Tamaño</h3>
+            <div className={local.filterList}>
+              {[
+                { key: "all", label: "Todos" },
+                { key: "pequeño", label: "Pequeño" },
+                { key: "mediano", label: "Mediano" },
+                { key: "grande", label: "Grande" },
+              ].map((f) => (
+                <FilterChip
+                  key={f.key}
+                  label={f.label}
+                  active={sizeFilter === f.key}
+                  onPress={() => setSizeFilter(f.key)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {hasActiveFilters && (
+            <Button label="Limpiar filtros" variant="ghost" size="sm" fullWidth onPress={clearFilters} />
+          )}
+        </aside>
+
+        {/* ── Resultados ── */}
+        <div className={local.results}>
+          <div className={local.resultsHeader}>
             <p className={local.count}>
-              {listings.length} {listings.length === 1 ? "mascota" : "mascotas"}
+              {isLoading ? "Buscando…" : `${listings.length} ${listings.length === 1 ? "mascota" : "mascotas"}`}
             </p>
             <div className={local.viewToggle} role="group" aria-label="Modo de vista">
               <button
@@ -140,13 +141,37 @@ export default function AdopcionesPage() {
             </div>
           </div>
 
-          <div className={viewMode === "list" ? local.list : local.grid}>
-            {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} compact={viewMode === "list"} />
-            ))}
-          </div>
-        </>
-      )}
+          {isLoading ? (
+            <div className={viewMode === "list" ? local.list : local.grid}>
+              {[0, 1, 2, 3].map((i) => (
+                <Skeleton key={i} height={240} borderRadius={16} />
+              ))}
+            </div>
+          ) : listings.length === 0 ? (
+            <EmptyState
+              icon={<Heart size={28} />}
+              title={hasActiveFilters ? "Sin resultados" : "Aún no hay mascotas en adopción"}
+              subtitle={
+                hasActiveFilters
+                  ? "Prueba con otra búsqueda o quita los filtros."
+                  : "Cuando un refugio publique una mascota aparecerá aquí."
+              }
+              actionLabel={hasActiveFilters ? "Quitar filtros" : "Dar en adopción"}
+              onAction={
+                hasActiveFilters
+                  ? clearFilters
+                  : () => router.push("/adopciones/nuevo")
+              }
+            />
+          ) : (
+            <div className={viewMode === "list" ? local.list : local.grid}>
+              {listings.map((listing) => (
+                <ListingCard key={listing.id} listing={listing} compact={viewMode === "list"} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </ScreenContainer>
   );
 }
