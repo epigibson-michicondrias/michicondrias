@@ -379,7 +379,7 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
         >
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.rowBetween}>
-                <View style={styles.row}>
+                <View style={[styles.row, { flex: 1, minWidth: 0 }]}>
                     <View style={[styles.iconBox, { backgroundColor: theme.primaryLight }]}>
                         <Pill size={layout.icon.md} color={theme.primary} />
                     </View>
@@ -574,6 +574,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.xs,
+        flexShrink: 1,
     },
     rowBetween: {
         flexDirection: 'row',
@@ -645,6 +646,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         justifyContent: 'center',
         padding: 2,
+        flexShrink: 0,
     },
     toggleThumb: {
         width: 20,

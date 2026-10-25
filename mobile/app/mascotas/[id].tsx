@@ -111,7 +111,7 @@ export default function PetProfileScreen() {
 
                     {tab === 'resumen' && (<>
                     {/* Stats Grid: Peso y Vacunas llevan a su detalle (Historial con la curva de peso, Salud con el carnet) */}
-                    <View style={styles.grid}>
+                    <View style={[styles.grid, styles.tabBody]}>
                         <PetStat icon={<Calendar size={layout.icon.md} color={theme.accent} />} label="Edad" value={formatAge(pet.age_months)} theme={theme} />
                         <PetStat icon={<Activity size={layout.icon.md} color={theme.secondary} />} label="Peso" value={formatWeight(pet.weight_kg)} theme={theme} onPress={() => setTab('historial')} />
                         <PetStat
