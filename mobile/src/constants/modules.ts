@@ -18,7 +18,7 @@ export const MODULE_ACCENTS = {
     // Servicios
     paseadores: accents.services,
     cuidadores: accents.brown,
-    estilistas: accents.orchid,
+    estilistas: accents.rose,
     entrenadores: accents.orange,
     transportistas: accents.purple,
     petfriendly: accents.green,
