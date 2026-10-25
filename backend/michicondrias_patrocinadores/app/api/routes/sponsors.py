@@ -145,3 +145,45 @@ def update_campaign(
     db.commit()
     db.refresh(campaign)
     return campaign
+
+# ── X3.1: Moderación admin (campañas) ──
+
+@router.get("/admin/pending", response_model=List[SponsorCampaignOut])
+def admin_pending_campaigns(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Listar campañas inactivas (pendientes de aprobación). Solo admin."""
+    return db.query(SponsorCampaign).filter(SponsorCampaign.active == False).all()
+
+
+@router.post("/admin/{campaign_id}/approve", response_model=SponsorCampaignOut)
+def admin_approve_campaign(
+    campaign_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Aprobar una campaña (activarla). Solo admin."""
+    campaign = crud_sponsor.get_campaign(db, campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaña no encontrada")
+    campaign.active = True
+    db.commit()
+    db.refresh(campaign)
+    return campaign
+
+
+@router.post("/admin/{campaign_id}/suspend", response_model=SponsorCampaignOut)
+def admin_suspend_campaign(
+    campaign_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Suspender una campaña (desactivarla). Solo admin."""
+    campaign = crud_sponsor.get_campaign(db, campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaña no encontrada")
+    campaign.active = False
+    db.commit()
+    db.refresh(campaign)
+    return campaign

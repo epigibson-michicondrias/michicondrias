@@ -108,14 +108,12 @@ export default function AseguradorasPage() {
                 <div className={local.statsRow}>
                   <div className={local.stat}>
                     <span className={local.statValue}>
-                      <DollarSign size={14} aria-hidden />
                       {formatCurrency(plan.coverage_limit)}
                     </span>
                     <span className={local.statLabel}>Cobertura</span>
                   </div>
                   <div className={local.stat}>
                     <span className={local.statValue}>
-                      <DollarSign size={14} aria-hidden />
                       {formatCurrency(plan.base_premium)}/mes
                     </span>
                     <span className={local.statLabel}>Prima</span>

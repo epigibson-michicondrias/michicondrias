@@ -202,8 +202,8 @@ def list_walkers(
     accepts_cats: Optional[bool] = None,
     db: Session = Depends(get_db),
 ) -> Any:
-    """List all active walkers with optional filters."""
-    query = db.query(Walker).filter(Walker.is_active == True)
+    """List all active and verified walkers with optional filters."""
+    query = db.query(Walker).filter(Walker.is_active == True, Walker.is_verified == True)
     if location:
         query = query.filter(Walker.location.ilike(f"%{location}%"))
     if accepts_dogs is not None:

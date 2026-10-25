@@ -470,3 +470,45 @@ def create_program_review(
         id=review.id, program_id=review.program_id, rating=review.rating, comment=review.comment,
         created_at=review.created_at, author_name=names.get(current_user_id) or "Usuario", is_mine=True,
     )
+
+# ── X3.1: Moderación admin (programas de entrenamiento) ──
+
+@router.get("/admin/pending", response_model=List[TrainingProgramResponse])
+def admin_pending_programs(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Listar programas no aprobados. Solo admin."""
+    return db.query(TrainingProgram).filter(TrainingProgram.is_approved == False).all()
+
+
+@router.post("/admin/{program_id}/approve", response_model=TrainingProgramResponse)
+def admin_approve_program(
+    program_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Aprobar un programa. Solo admin."""
+    program = db.query(TrainingProgram).filter(TrainingProgram.id == program_id).first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Programa no encontrado")
+    program.is_approved = True
+    db.commit()
+    db.refresh(program)
+    return program
+
+
+@router.post("/admin/{program_id}/reject", response_model=TrainingProgramResponse)
+def admin_reject_program(
+    program_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Rechazar un programa (desactivarlo). Solo admin."""
+    program = db.query(TrainingProgram).filter(TrainingProgram.id == program_id).first()
+    if not program:
+        raise HTTPException(status_code=404, detail="Programa no encontrado")
+    program.is_approved = False
+    db.commit()
+    db.refresh(program)
+    return program

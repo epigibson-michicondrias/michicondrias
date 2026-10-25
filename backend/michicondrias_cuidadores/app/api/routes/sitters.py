@@ -206,8 +206,8 @@ def list_sitters(
     accepts_cats: Optional[bool] = None,
     db: Session = Depends(get_db),
 ) -> Any:
-    """List all active sitters with optional filters."""
-    query = db.query(Sitter).filter(Sitter.is_active == True)
+    """List all active and verified sitters with optional filters."""
+    query = db.query(Sitter).filter(Sitter.is_active == True, Sitter.is_verified == True)
     if location:
         query = query.filter(Sitter.location.ilike(f"%{location}%"))
     if service_type:

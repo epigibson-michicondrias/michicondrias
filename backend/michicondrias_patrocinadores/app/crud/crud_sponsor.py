@@ -20,7 +20,7 @@ def create_campaign(db: Session, campaign_in: SponsorCampaignCreate, sponsor_id:
         target_link=campaign_in.target_link,
         budget_limit=campaign_in.budget_limit,
         spent=0.0,
-        active=True
+        active=False  # X3.3: nace inactiva hasta que un admin la apruebe
     )
     db.add(db_campaign)
     db.commit()

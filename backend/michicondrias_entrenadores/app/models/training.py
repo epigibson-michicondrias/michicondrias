@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, Date, DateTime, CheckConstraint, UniqueConstraint
+from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, Date, DateTime, CheckConstraint, UniqueConstraint, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.session import Base
@@ -13,6 +13,7 @@ class TrainingProgram(Base):
     description = Column(Text, nullable=True)
     price = Column(Float, nullable=False)
     duration_weeks = Column(Integer, default=4, nullable=False)
+    is_approved = Column(Boolean, default=True, nullable=False)  # X3.1
 
     goals = relationship("PetTrainingGoal", back_populates="program")
 

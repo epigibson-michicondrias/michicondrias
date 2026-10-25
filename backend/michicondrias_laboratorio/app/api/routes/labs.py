@@ -389,3 +389,45 @@ def update_lab_order_status(
     if order.requesting_vet_id:
         _notify(db, order.requesting_vet_id, "Orden de laboratorio actualizada", f"Tu orden ahora está: {labels.get(status_str, status_str)}.", link="/mi-clinica/laboratorio")
     return _orders_out(db, [order])[0]
+
+# ── X3.1: Moderación admin (catálogo de pruebas) ──
+
+@router.get("/admin/pending", response_model=List[LabTestCatalogOut])
+def admin_pending_tests(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Listar pruebas inactivas (pendientes de aprobación). Solo admin."""
+    return db.query(LabTestCatalog).filter(LabTestCatalog.is_active == False).all()
+
+
+@router.post("/admin/{test_id}/approve", response_model=LabTestCatalogOut)
+def admin_approve_test(
+    test_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Aprobar una prueba (activarla). Solo admin."""
+    test = db.query(LabTestCatalog).filter(LabTestCatalog.id == test_id).first()
+    if not test:
+        raise HTTPException(status_code=404, detail="Prueba no encontrada")
+    test.is_active = True
+    db.commit()
+    db.refresh(test)
+    return test
+
+
+@router.post("/admin/{test_id}/suspend", response_model=LabTestCatalogOut)
+def admin_suspend_test(
+    test_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Suspender una prueba (desactivarla). Solo admin."""
+    test = db.query(LabTestCatalog).filter(LabTestCatalog.id == test_id).first()
+    if not test:
+        raise HTTPException(status_code=404, detail="Prueba no encontrada")
+    test.is_active = False
+    db.commit()
+    db.refresh(test)
+    return test

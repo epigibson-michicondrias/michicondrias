@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Text, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Text, Integer, ForeignKey, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from app.db.session import Base
@@ -14,6 +14,7 @@ class PetFriendlyVenue(Base):
     amenities = Column(JSONB, nullable=True)
     discount_coupon = Column(String(50), nullable=True)
     discount_description = Column(Text, nullable=True)
+    is_approved = Column(Boolean, default=True, nullable=False)  # X3.1
 
 
 class ClaimedCoupon(Base):

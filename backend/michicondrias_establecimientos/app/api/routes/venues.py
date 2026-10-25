@@ -326,3 +326,45 @@ def read_venue_score(
         "average_rating": round(avg_rating, 2),
         "reviews_count": len(reviews)
     }
+
+# ── X3.1: Moderación admin (establecimientos) ──
+
+@router.get("/admin/pending", response_model=List[Venue])
+def admin_pending_venues(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Listar establecimientos no aprobados. Solo admin."""
+    return db.query(Venue).filter(Venue.is_approved == False).all()
+
+
+@router.post("/admin/{venue_id}/approve", response_model=Venue)
+def admin_approve_venue(
+    venue_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Aprobar un establecimiento. Solo admin."""
+    venue = db.query(Venue).filter(Venue.id == venue_id).first()
+    if not venue:
+        raise HTTPException(status_code=404, detail="Establecimiento no encontrado")
+    venue.is_approved = True
+    db.commit()
+    db.refresh(venue)
+    return venue
+
+
+@router.post("/admin/{venue_id}/reject", response_model=Venue)
+def admin_reject_venue(
+    venue_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Rechazar un establecimiento (desactivarlo). Solo admin."""
+    venue = db.query(Venue).filter(Venue.id == venue_id).first()
+    if not venue:
+        raise HTTPException(status_code=404, detail="Establecimiento no encontrado")
+    venue.is_approved = False
+    db.commit()
+    db.refresh(venue)
+    return venue

@@ -437,3 +437,45 @@ def create_appointment_review(
         id=review.id, appointment_id=review.appointment_id, rating=review.rating, comment=review.comment,
         created_at=review.created_at, author_name=names.get(current_user_id) or "Usuario", is_mine=True,
     )
+
+# ── X3.1: Moderación admin (servicios de grooming) ──
+
+@router.get("/admin/pending", response_model=List[GroomingServiceOut])
+def admin_pending_services(
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Listar servicios inactivos (pendientes de aprobación). Solo admin."""
+    return db.query(GroomingService).filter(GroomingService.is_active == False).all()
+
+
+@router.post("/admin/{service_id}/approve", response_model=GroomingServiceOut)
+def admin_approve_service(
+    service_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Aprobar un servicio (activarlo). Solo admin."""
+    service = db.query(GroomingService).filter(GroomingService.id == service_id).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Servicio no encontrado")
+    service.is_active = True
+    db.commit()
+    db.refresh(service)
+    return service
+
+
+@router.post("/admin/{service_id}/suspend", response_model=GroomingServiceOut)
+def admin_suspend_service(
+    service_id: str,
+    db: Session = Depends(get_db),
+    admin_id: str = Depends(deps.require_admin),
+) -> Any:
+    """Suspender un servicio (desactivarlo). Solo admin."""
+    service = db.query(GroomingService).filter(GroomingService.id == service_id).first()
+    if not service:
+        raise HTTPException(status_code=404, detail="Servicio no encontrado")
+    service.is_active = False
+    db.commit()
+    db.refresh(service)
+    return service
