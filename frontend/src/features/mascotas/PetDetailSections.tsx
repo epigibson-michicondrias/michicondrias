@@ -303,17 +303,21 @@ export function PetHealth({ pet, health }: { pet: Pet; health: Health }) {
                           onChange={(v) => health.toggleReminders(t.prescription_id, v)}
                         />
                       )}
-                      {nextDose && health.canCheckReminders && (
+                      {nextDose && health.canCheckReminders && nextDose.isDue && (
                         <Button
-                          label="Tomado"
+                          label={health.isChecking ? "Marcando…" : "Tomado"}
                           size="sm"
                           variant="secondary"
                           fullWidth={false}
+                          disabled={health.isChecking}
                           onPress={() => health.checkReminder(nextDose.id)}
                           accessibilityLabel={`Marcar ${t.medication_name} como tomado`}
                         />
                       )}
                     </div>
+                    {nextDose && health.canCheckReminders && !nextDose.isDue && (
+                      <p className={d.treatmentMeta}>Podrás marcarla cuando toque la dosis</p>
+                    )}
                   </li>
                 );
               })}

@@ -32,6 +32,8 @@ export interface TreatmentDose {
     id: string;
     remind_at: string;
     sent: boolean;
+    /** Calculado en el hook (`select`): la dosis ya toca si es pasada o cae dentro de la próxima hora. */
+    isDue?: boolean;
 }
 
 /** Medicamento recetado con sus tomas programadas y el interruptor de avisos del dueño. */

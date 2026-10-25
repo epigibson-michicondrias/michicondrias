@@ -178,12 +178,14 @@ function doseTimeLabel(dose: TreatmentDose) {
     return days === 1 ? 'Mañana' : `En ${days} días`;
 }
 
-export function TreatmentItem({ treatment, onCheck, canCheck, onToggle, canToggle }: {
+export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onToggle, canToggle, isToggling }: {
     treatment: Treatment;
     onCheck: (id: string) => void;
     canCheck: boolean;
+    isChecking: boolean;
     onToggle: (prescriptionId: string, enabled: boolean) => void;
     canToggle: boolean;
+    isToggling: boolean;
 }) {
     const { theme } = useTheme();
     const total = treatment.doses.length;
@@ -207,13 +209,14 @@ export function TreatmentItem({ treatment, onCheck, canCheck, onToggle, canToggl
                 </View>
                 {canToggle && (
                     <TouchableOpacity
+                        disabled={isToggling}
                         onPress={() => onToggle(treatment.prescription_id, !treatment.reminders_enabled)}
                         accessibilityRole="switch"
-                        accessibilityState={{ checked: treatment.reminders_enabled }}
+                        accessibilityState={{ checked: treatment.reminders_enabled, disabled: isToggling }}
                         accessibilityLabel={`Avisos de ${treatment.medication_name}`}
                         style={[
                             styles.toggle,
-                            { backgroundColor: treatment.reminders_enabled ? theme.primary : theme.overlayHover, borderColor: treatment.reminders_enabled ? theme.primary : theme.border },
+                            { backgroundColor: treatment.reminders_enabled ? theme.primary : theme.overlayHover, borderColor: treatment.reminders_enabled ? theme.primary : theme.border, opacity: isToggling ? 0.5 : 1 },
                         ]}
                     >
                         <View style={[styles.toggleThumb, { backgroundColor: theme.surface, transform: [{ translateX: treatment.reminders_enabled ? 18 : 2 }] }]} />
@@ -231,16 +234,24 @@ export function TreatmentItem({ treatment, onCheck, canCheck, onToggle, canToggl
                 </Text>
             )}
 
-            {nextDose && canCheck && (
+            {nextDose && canCheck && nextDose.isDue && (
                 <TouchableOpacity
-                    style={[styles.checkBtn, { backgroundColor: theme.primaryLight }]}
+                    disabled={isChecking}
+                    style={[styles.checkBtn, { backgroundColor: theme.primaryLight, opacity: isChecking ? 0.5 : 1 }]}
                     onPress={() => onCheck(nextDose.id)}
                     accessibilityRole="button"
+                    accessibilityState={{ disabled: isChecking }}
                     accessibilityLabel={`Marcar ${treatment.medication_name} como tomado`}
                 >
                     <Check size={layout.icon.sm} color={theme.primary} />
-                    <Text style={[type.bodyStrong, { color: theme.primary }]}>Marcar como tomado</Text>
+                    <Text style={[type.bodyStrong, { color: theme.primary }]}>{isChecking ? 'Marcando…' : 'Marcar como tomado'}</Text>
                 </TouchableOpacity>
+            )}
+
+            {nextDose && canCheck && !nextDose.isDue && (
+                <Text style={[type.caption, styles.mt, { color: theme.textMuted }]}>
+                    Podrás marcarla cuando toque la dosis
+                </Text>
             )}
 
             {allDone && (

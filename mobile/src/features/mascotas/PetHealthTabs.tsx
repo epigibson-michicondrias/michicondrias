@@ -68,8 +68,10 @@ export function PetHealthTab({ health, petName }: { health: Health; petName: str
                                 treatment={t}
                                 onCheck={health.checkReminder}
                                 canCheck={health.canCheckReminders}
+                                isChecking={health.isChecking}
                                 onToggle={health.toggleReminders}
                                 canToggle={health.canCheckReminders}
+                                isToggling={health.isToggling}
                             />
                         ))}
                     </View>

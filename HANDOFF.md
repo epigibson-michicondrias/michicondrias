@@ -397,7 +397,8 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   lateral de Medicamentos con `FormSwitch`; en app, `TreatmentItem` en `CarnetItems.tsx`. Lógica espejo en
   `services/reminders.ts` (`getTreatments`, `setPrescriptionReminders`) y `usePetHealth`. Capturas verificadas a
   1280 y 375, claro y oscuro. Resuelve el pendiente de recetas viejas sin tomas programadas. Web en Vercel ✅;
-  OTA `e03ac7cd-…` (runtime 1.1.0).
+  OTA `e03ac7cd-…` (runtime 1.1.0). **Refuerzo**: botón «Tomado» se bloquea mientras muta y solo aparece cuando la
+  dosis ya toca (vencida o dentro de la próxima hora); si no, «Podrás marcarla cuando toque la dosis».
 
 - **2026-10-24 · Mimo** — **Cierre del bloque de recordatorios que dejó Claude sin commit**: endpoints
   `GET /reminders/pet/{id}/treatments` y `PATCH /reminders/prescriptions/{id}` (el dueño activa/desactiva los avisos de

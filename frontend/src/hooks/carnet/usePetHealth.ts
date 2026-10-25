@@ -46,6 +46,14 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
     const treatments = useQuery({
         queryKey: ['pet-treatments', petId],
         queryFn: () => getTreatments(petId!),
+        select: (data) => data.map((t) => ({
+            ...t,
+            doses: t.doses.map((d) => ({
+                ...d,
+                /** La dosis ya toca si es pasada o cae dentro de la próxima hora. */
+                isDue: new Date(d.remind_at).getTime() - Date.now() <= 3_600_000,
+            })),
+        })),
         enabled: enabled && section === 'salud',
     });
     const labs = useQuery({
@@ -168,8 +176,10 @@ export function usePetHealth(petId: string | undefined, pet: Pet | undefined, se
         labResults: labs.data ?? [],
         loadingLabs: labs.isLoading,
         checkReminder: (id: string) => checkMutation.mutate(id),
+        isChecking: checkMutation.isPending,
         toggleReminders: (prescriptionId: string, enabled: boolean) =>
             toggleRemindersMutation.mutate({ prescriptionId, enabled }),
+        isToggling: toggleRemindersMutation.isPending,
         addRecord: () => router.push(`/carnet/nueva-consulta?pet_id=${petId}`),
         addVaccine: () => router.push(`/carnet/nueva-vacuna?pet_id=${petId}`),
         editRecord: (id: string) => router.push(`/carnet/nueva-consulta?pet_id=${petId}&id=${id}`),
