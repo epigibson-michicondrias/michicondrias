@@ -118,11 +118,6 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
 - [ ] `npm audit` en `frontend/`: 6 vulnerabilidades (1 crítica).
 
 **Web (criterio §0)**
-- [ ] **8 commits locales de `main` sin subir** (web + app: UI premium, `PetForm` web, tokens, HANDOFF). Un push los
-  manda a Vercel: subirlos cuando el usuario revise la web. Más los cambios sin commit de esta sesión (ficha/lista web,
-  carnet en clientes, documentación unificada).
-- [ ] OTA de la app con la regla del carnet en clientes (hoy el backend ya rechaza al dueño con 403, pero la app
-  publicada aún le muestra «Agregar»/editar en Salud).
 - [ ] Siguientes módulos con el mismo criterio: Inicio, Perfil, Carnet, Tienda, Directorio/citas, Adopciones; consola admin con tablas.
 - [ ] W5 cierre: atajos de escritorio, SEO de la landing. W7 permisos editables (diseño aparte, con aprobación).
 - [ ] Revisar `frontend/src/lib/legacy/` (servicios y `NotificationContext` viejos): migrar lo que se use y borrar el resto.
@@ -322,6 +317,11 @@ app/
 ## 9. Bitácora compartida (más reciente arriba)
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
+
+- **2026-10-24 · Claude** — **Todo publicado**: push de `main` hasta `fe887bc` (8 commits previos + carnet en clientes
+  `1508ef1`, web Mis Mascotas `d6a66b9`/`fe887bc`, docs unificados `e8758ab`). Vercel `michicondrias` ✅ (el primer
+  intento falló: `git commit -- ruta` no incluye archivos nuevos; usar `git add` antes). **OTA**
+  `1bd38d9f-1dc8-4237-8d9c-dadb3b7dfc20` (runtime 1.1.0). `michicondrias-docs` en Vercel falla (esperado: `docs/` borrado).
 
 - **2026-10-24 · Claude** — **Carnet solo del equipo clínico** (regla del usuario): backend `pet_access.py` (el dueño ya
   no escribe vacunas/consultas; probado: dueño 403, veterinario/clínica/admin OK), `usePetHealth` en app y web
