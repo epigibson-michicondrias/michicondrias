@@ -179,7 +179,7 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
 - [x] `npm audit` completado (2026-10-25): next 16.4.3, 0 vulnerabilidades.
 
 **Web (criterio §0)**
-- [ ] Siguientes módulos con el mismo criterio: Inicio, Perfil, Carnet, Tienda, Directorio/citas, Adopciones; consola admin con tablas.
+- [x] Módulos web con criterio §0 completados (2026-10-25): Inicio, Perfil, Carnet, Tienda, Directorio/citas, Adopciones, admin DataTable.
 - [ ] W5 cierre: atajos de escritorio, SEO de la landing. W7 permisos editables (diseño aparte, con aprobación).
 - [ ] Revisar `frontend/src/lib/legacy/` (servicios y `NotificationContext` viejos): migrar lo que se use y borrar el resto.
 - [ ] B1–B4 backend aditivo para la consola: `GET /users/` con `total` y filtros, `GET /users/{id}`, `users_count` en
