@@ -169,13 +169,12 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
   archivo de git si el repo se comparte.
 
 **Seguridad (backend, pendientes de la auditoría X2–X8)**
-- [ ] **X3.1** Moderación en los servicios que definen `require_admin` sin usarlo: entrenadores, establecimientos,
-  estilistas, laboratorio, patrocinadores, aseguradoras (`GET /admin/pending`, `approve|reject|suspend`).
-- [ ] **X3.2** Filtrar `is_verified == True` en los listados públicos de paseadores y cuidadores (el setter ya existe).
-- [ ] **X3.3** Campañas de patrocinadores nacen `active=True` sin aprobación → `is_approved=False` + cola de admin.
-- [ ] **X2.6/X5.2** Checks de dueño que excluyen al admin en adopciones, ecommerce, perdidas y venues (directorio ya lo acepta).
-- [ ] **X4.3** Certificados funerarios públicos (`funerary.py:312-360`): exigir auth y dueño/funeraria/admin.
-- [ ] **X8.3** Dockerfiles como root y con `--reload`. **X8.4** `GET /categories/init-db/seed` escribe (pasar a POST).
+- [x] **X3.1** Moderación admin completada (2026-10-25): endpoints en los 6 servicios.
+- [x] **X3.2** Completado (2026-10-25): listados filtran `is_verified == True`.
+- [x] **X3.3** Completado (2026-10-25): campañas nacen con `active=False`.
+- [x] **X2.6/X5.2** Completado (2026-10-25): checks incluyen admin.
+- [x] **X4.3** Completado (2026-10-25): certificados exigen auth.
+- [ ] **X8.3** Dockerfiles como root y con `--reload`. **X8.4** Completado: seed pasó a POST.
 - [ ] **X6.3/X7.1** (riesgo latente) schemas `User*` con URLs de KYC; f-strings con literales dentro de `text()`.
 - [ ] `npm audit` en `frontend/`: 6 vulnerabilidades (1 crítica).
 
