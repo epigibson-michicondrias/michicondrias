@@ -371,15 +371,15 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
     const takenDoses = treatment.doses.filter((d) => d.sent);
 
     return (
-        <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => router.push({ pathname: '/carnet/tratamiento/[id]', params: { id: treatment.prescription_id } } as any)}
-            accessibilityRole="button"
-            accessibilityLabel={`Ver ficha de ${treatment.medication_name}`}
-        >
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <View style={styles.rowBetween}>
-                <View style={[styles.row, { flex: 1, minWidth: 0 }]}>
+                <TouchableOpacity
+                    style={[styles.row, { flex: 1, minWidth: 0 }]}
+                    activeOpacity={0.7}
+                    onPress={() => router.push({ pathname: '/carnet/tratamiento/[id]', params: { id: treatment.prescription_id } } as any)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Ver ficha de ${treatment.medication_name}`}
+                >
                     <View style={[styles.iconBox, { backgroundColor: theme.primaryLight }]}>
                         <Pill size={layout.icon.md} color={theme.primary} />
                     </View>
@@ -389,7 +389,7 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
                             {treatment.dosage} · cada {treatment.frequency_hours} h · {treatment.duration_days} días
                         </Text>
                     </View>
-                </View>
+                </TouchableOpacity>
                 {canToggle && (
                     <TouchableOpacity
                         disabled={isToggling}
@@ -511,7 +511,6 @@ export function TreatmentItem({ treatment, onCheck, canCheck, isChecking, onTogg
                 </View>
             )}
         </View>
-        </TouchableOpacity>
     );
 }
 
