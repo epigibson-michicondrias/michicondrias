@@ -27,13 +27,13 @@ def web_url(kind: str, result: str, ref: str, session_id: str | None = None) -> 
     sid = f"session_id={session_id}" if session_id else ""
     if kind == "order":
         if result == "success":
-            return f"{base}/dashboard/tienda/pago-exitoso" + (f"?{sid}" if sid else "")
-        return f"{base}/dashboard/tienda/pago-cancelado"
+            return f"{base}/tienda/pago-exitoso" + (f"?{sid}" if sid else "")
+        return f"{base}/tienda/pago-cancelado"
     if kind == "subscription":
         state = "success" if result == "success" else "cancelled"
-        return f"{base}/dashboard/mascotas/{ref}?subscription={state}" + (f"&{sid}" if sid else "")
+        return f"{base}/mascotas/{ref}?subscription={state}" + (f"&{sid}" if sid else "")
     state = "success" if result == "success" else "cancelled"
-    return f"{base}/dashboard/donaciones?payment={state}&donation_id={ref}"
+    return f"{base}/donaciones?payment={state}&donation_id={ref}"
 
 
 def deep_link(kind: str, result: str, ref: str) -> str:
