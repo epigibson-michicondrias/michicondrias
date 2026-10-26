@@ -2,7 +2,7 @@
  * usePetDetail — Hook for pet detail screen logic
  * Extracts data fetching from app/mascotas/[id].tsx
  */
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { getPetById, sharePetPassport } from '@/src/services/mascotas';
@@ -19,6 +19,7 @@ export function usePetDetail() {
     const { id, tab: initialTab, subscription } = useLocalSearchParams<{ id: string; tab?: string; subscription?: string }>();
     const router = useRouter();
     const { user } = useAuth();
+    const queryClient = useQueryClient();
 
     const {
         data: pet,
@@ -60,12 +61,16 @@ export function usePetDetail() {
 
     const subscriptionMutation = useMutation({
         mutationFn: (petId: string) => createSubscriptionSession(petId),
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             if (data.url) {
-                openStripeUrl(data.url).catch(() => {
+                try {
+                    await openStripeUrl(data.url);
+                } catch {
                     showAlert({ type: 'error', title: 'Error', message: 'No se pudo iniciar la suscripción de Michi-Tracker' });
-                });
+                }
             }
+            queryClient.invalidateQueries({ queryKey: ['pet', id] });
+            queryClient.invalidateQueries({ queryKey: ['user-pets'] });
         },
         onError: () => {
             showAlert({ type: 'error', title: 'Error', message: 'No se pudo iniciar la suscripción de Michi-Tracker' });

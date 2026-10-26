@@ -113,9 +113,9 @@ export default function ProfileScreen() {
                         <ListRow
                             icon={CreditCard}
                             label="Facturación"
-                            desc={isOpeningBilling ? 'Abriendo…' : 'Suscripciones y métodos de pago'}
+                            desc="Suscripciones y métodos de pago"
                             color={theme.secondary}
-                            onPress={openBillingPortal}
+                            onPress={go('/perfil/facturacion')}
                         />
                         {canBecomePro && (
                             <ListRow icon={Handshake} label="Ser profesional" desc="Ofrece tus servicios en Michicondrias" color={theme.accent} onPress={go('/perfil/partner')} />

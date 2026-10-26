@@ -118,6 +118,7 @@ def read_report(
     report_id: str,
     db: Session = Depends(get_db),
     viewer_id: Optional[str] = Depends(deps.get_optional_user_id),
+    viewer_role: str = Depends(deps.get_optional_user_role),
 ) -> Any:
     """
     Get a specific report by ID.

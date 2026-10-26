@@ -14,7 +14,15 @@ export function useTrackerBilling() {
     const billingMutation = useMutation({
         mutationFn: createBillingPortalSession,
         onSuccess: (data) => {
-            if (data.url) openStripeUrl(data.url).catch(showUnavailable);
+            if (data.url) {
+                openStripeUrl(data.url).catch(showUnavailable);
+            } else if (data.demo) {
+                showAlert({
+                    type: 'info',
+                    title: 'Suscripción activa',
+                    message: data.message || 'Michi-Tracker Pro está activo. Para cancelarla o gestionarla, dirígete a Perfil > Facturación.',
+                });
+            }
         },
         onError: showUnavailable,
     });

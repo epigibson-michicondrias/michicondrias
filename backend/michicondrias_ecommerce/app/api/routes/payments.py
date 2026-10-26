@@ -99,9 +99,6 @@ async def create_subscription_session(
     Solo el dueño de la mascota puede suscribirla (X4.1): sin este check, cualquiera podía
     activar Michi-Tracker Pro — o asociar un `stripe_subscription_id` — en una mascota ajena.
     """
-    if not settings.STRIPE_SECRET_KEY:
-        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
-
     # La mascota vive en el servicio `mascotas`; la BD es compartida, así que se lee con SQL crudo
     # (el mismo patrón que usan carnet, core y laboratorio).
     from sqlalchemy import text as _text
@@ -115,13 +112,22 @@ async def create_subscription_session(
     if str(row[0]) != str(user_id):
         raise HTTPException(status_code=403, detail="Solo puedes suscribir tus propias mascotas")
 
+    success_url, cancel_url = checkout_urls.checkout_urls("subscription", pet_id, source)
+
+    if not settings.STRIPE_SECRET_KEY:
+        # Modo demo / desarrollo si Stripe no tiene claves configuradas:
+        # Activa la suscripción directamente para que el usuario pueda probar Michi-Tracker Pro sin error 503
+        logger.info(f"Modo demo: activando Michi-Tracker Pro para mascota {pet_id}")
+        _notify_mascotas_service(pet_id, True, f"sub_demo_{pet_id}")
+        clean_url = success_url.replace("{CHECKOUT_SESSION_ID}", f"demo_{pet_id}")
+        return {"sessionId": f"cs_demo_{pet_id}", "url": clean_url, "demo": True}
+
     try:
         # Create a checkout session for a recurring payment
         # Assuming you have a standard Price ID or you create it dynamically.
         # For this demo, we can use a hardcoded price_data for a test recurring item or create a Price on the fly.
         
         # NOTE: Stripe requires an existing Price object for subscriptions, or you can create one inline if using `price_data`.
-        success_url, cancel_url = checkout_urls.checkout_urls("subscription", pet_id, source)
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=[
@@ -296,13 +302,46 @@ def _notify_mascotas_service_by_sub(sub_id: str, active: bool):
         logger.error(f"Failed to revoke sub {sub_id}: {e}")
 
 
+@router.post("/cancel-subscription/{pet_id}")
+async def cancel_subscription(
+    pet_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+) -> Any:
+    """Cancela la suscripción de Michi-Tracker Pro de una mascota."""
+    from sqlalchemy import text as _text
+    try:
+        row = db.execute(_text("SELECT owner_id, stripe_subscription_id FROM pets WHERE id = :pid"), {"pid": pet_id}).first()
+    except Exception:
+        db.rollback()
+        row = None
+    if row is None:
+        raise HTTPException(status_code=404, detail="Mascota no encontrada")
+    if str(row[0]) != str(user_id):
+        raise HTTPException(status_code=403, detail="Solo puedes cancelar la suscripción de tus propias mascotas")
+
+    sub_id = row[1]
+    if sub_id and settings.STRIPE_SECRET_KEY and not str(sub_id).startswith("sub_demo_"):
+        try:
+            stripe.Subscription.delete(sub_id)
+        except Exception:
+            logger.warning(f"No se pudo cancelar la suscripción {sub_id} en Stripe", exc_info=True)
+
+    _notify_mascotas_service(pet_id, False, None)
+    return {"status": "cancelled", "pet_id": pet_id}
+
+
 @router.post("/billing/portal-session")
 async def create_billing_portal_session(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """Create a Stripe Billing Portal session for unified subscription/billing management."""
     if not settings.STRIPE_SECRET_KEY:
-        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+        return {
+            "url": None,
+            "demo": True,
+            "message": "Pasarela de pagos en modo desarrollo. Administra tus suscripciones desde la app.",
+        }
 
     safe_user_id = "".join(c for c in user_id if c.isalnum() or c == "-")
     try:

@@ -164,8 +164,14 @@ export async function createSubscriptionSession(petId: string): Promise<{ sessio
     });
 }
 
-export async function createBillingPortalSession(): Promise<{ url: string }> {
-    return apiFetch<{ url: string }>("ecommerce", "/payments/billing/portal-session", {
+export async function createBillingPortalSession(): Promise<{ url: string | null; demo?: boolean; message?: string }> {
+    return apiFetch<{ url: string | null; demo?: boolean; message?: string }>("ecommerce", "/payments/billing/portal-session", {
+        method: "POST"
+    });
+}
+
+export async function cancelSubscription(petId: string): Promise<{ status: string; pet_id: string }> {
+    return apiFetch<{ status: string; pet_id: string }>("ecommerce", `/payments/cancel-subscription/${petId}`, {
         method: "POST"
     });
 }

@@ -46,6 +46,8 @@ export function useAccount() {
                 openStripeUrl(data.url).catch(() => {
                     showAlert({ type: 'info', title: 'No se pudo abrir', message: 'El portal de facturación no está disponible ahora. Inténtalo más tarde.' });
                 });
+            } else if (data.demo) {
+                showAlert({ type: 'info', title: 'Modo de prueba', message: data.message || 'La pasarela de pagos está en modo de prueba.' });
             }
         },
         onError: () => {
