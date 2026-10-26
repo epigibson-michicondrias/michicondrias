@@ -176,7 +176,7 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
 - [x] **X4.3** Completado (2026-10-25): certificados exigen auth.
 - [ ] **X8.3** Dockerfiles como root y con `--reload`. **X8.4** Completado: seed pasó a POST.
 - [ ] **X6.3/X7.1** (riesgo latente) schemas `User*` con URLs de KYC; f-strings con literales dentro de `text()`.
-- [ ] `npm audit` en `frontend/`: 6 vulnerabilidades (1 crítica).
+- [x] `npm audit` completado (2026-10-25): next 16.4.3, 0 vulnerabilidades.
 
 **Web (criterio §0)**
 - [ ] Siguientes módulos con el mismo criterio: Inicio, Perfil, Carnet, Tienda, Directorio/citas, Adopciones; consola admin con tablas.
