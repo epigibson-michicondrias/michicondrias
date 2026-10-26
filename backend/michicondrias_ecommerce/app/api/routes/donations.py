@@ -21,8 +21,6 @@ from app.schemas.ecommerce import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 @router.get("/", response_model=List[DonationResponse])
 def read_donations(
@@ -69,25 +67,27 @@ def create_donation_checkout(
     )
     try:
         success_url, cancel_url = checkout_urls.checkout_urls("donation", donation.id, body.source)
-        session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[{
-                "price_data": {
-                    "currency": "mxn",
-                    "product_data": {
-                        "name": "Donación Michicondrias",
-                        "description": "Fondo de rescate y cuidado de michis",
+        client = stripe.StripeClient(settings.STRIPE_SECRET_KEY)
+        session = client.v1.checkout.sessions.create(
+            params={
+                "line_items": [{
+                    "price_data": {
+                        "currency": "mxn",
+                        "product_data": {
+                            "name": "Donación Michicondrias",
+                            "description": "Fondo de rescate y cuidado de michis",
+                        },
+                        "unit_amount": amount_cents,
                     },
-                    "unit_amount": amount_cents,
-                },
-                "quantity": 1,
-            }],
-            mode="payment",
-            success_url=success_url,
-            cancel_url=cancel_url,
-            client_reference_id=donation.id,
-            expires_at=int(time.time()) + 31 * 60,
-            metadata={"kind": "donation", "donation_id": donation.id, "user_id": user_id or ""},
+                    "quantity": 1,
+                }],
+                "mode": "payment",
+                "success_url": success_url,
+                "cancel_url": cancel_url,
+                "client_reference_id": donation.id,
+                "expires_at": int(time.time()) + 31 * 60,
+                "metadata": {"kind": "donation", "donation_id": donation.id, "user_id": user_id or ""},
+            }
         )
     except Exception:
         logger.exception("Stripe donation session creation failed")

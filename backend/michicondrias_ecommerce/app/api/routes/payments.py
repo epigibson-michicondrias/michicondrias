@@ -18,8 +18,10 @@ from app.core import checkout_urls
 
 router = APIRouter()
 
-# Initialize Stripe
-stripe.api_key = settings.STRIPE_SECRET_KEY
+def get_stripe_client() -> stripe.StripeClient | None:
+    if not settings.STRIPE_SECRET_KEY:
+        return None
+    return stripe.StripeClient(settings.STRIPE_SECRET_KEY)
 
 @router.post("/create-checkout-session/{order_id}")
 async def create_checkout_session(
@@ -58,6 +60,7 @@ async def create_checkout_session(
                             "name": product.name,
                             "description": product.description or "Producto de Michicondrias Tienda",
                             "images": [product.image_url] if product.image_url else [],
+                            "tax_code": "txcd_20030000",
                         },
                         "unit_amount": round(item.price_at_purchase * 100),  # Stripe usa centavos (round evita 19.99*100=1998.99)
                     },
@@ -68,16 +71,21 @@ async def create_checkout_session(
             raise HTTPException(status_code=400, detail="El pedido no tiene productos disponibles para cobrar")
 
         success_url, cancel_url = checkout_urls.checkout_urls("order", order.id, source)
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=line_items,
-            mode="payment",
-            success_url=success_url,
-            cancel_url=cancel_url,
-            client_reference_id=order.id, # Link back to our DB order
-            # La sesión caduca justo antes de que el pedido pendiente libere su stock (mínimo permitido por Stripe: 30 min)
-            expires_at=int(time.time()) + 31 * 60,
-            metadata={"order_id": order.id, "user_id": user_id}
+        client = get_stripe_client()
+        if not client:
+            raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+
+        checkout_session = client.v1.checkout.sessions.create(
+            params={
+                "line_items": line_items,
+                "mode": "payment",
+                "automatic_tax": {"enabled": True},
+                "success_url": success_url,
+                "cancel_url": cancel_url,
+                "client_reference_id": order.id,  # Link back to our DB order
+                "expires_at": int(time.time()) + 31 * 60,
+                "metadata": {"order_id": order.id, "user_id": user_id},
+            }
         )
         return {"sessionId": checkout_session.id, "url": checkout_session.url}
     
@@ -128,29 +136,36 @@ async def create_subscription_session(
         # For this demo, we can use a hardcoded price_data for a test recurring item or create a Price on the fly.
         
         # NOTE: Stripe requires an existing Price object for subscriptions, or you can create one inline if using `price_data`.
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[
-                {
-                    "price_data": {
-                        "currency": "mxn",
-                        "product_data": {
-                            "name": "Michi-Tracker Pro",
-                            "description": "Suscripción mensual para rastreo GPS en tiempo real.",
+        client = get_stripe_client()
+        if not client:
+            raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+
+        checkout_session = client.v1.checkout.sessions.create(
+            params={
+                "line_items": [
+                    {
+                        "price_data": {
+                            "currency": "mxn",
+                            "product_data": {
+                                "name": "Michi-Tracker Pro",
+                                "description": "Suscripción mensual para rastreo GPS en tiempo real.",
+                                "tax_code": "txcd_10000000",
+                            },
+                            "unit_amount": 19900,  # $199.00 MXN
+                            "recurring": {
+                                "interval": "month"
+                            }
                         },
-                        "unit_amount": 19900, # $199.00 MXN
-                        "recurring": {
-                            "interval": "month"
-                        }
-                    },
-                    "quantity": 1,
-                }
-            ],
-            mode="subscription",
-            success_url=success_url,
-            cancel_url=cancel_url,
-            client_reference_id=pet_id, # We store pet_id here to know which pet to upgrade
-            metadata={"pet_id": pet_id, "user_id": user_id}
+                        "quantity": 1,
+                    }
+                ],
+                "mode": "subscription",
+                "automatic_tax": {"enabled": True},
+                "success_url": success_url,
+                "cancel_url": cancel_url,
+                "client_reference_id": pet_id,  # We store pet_id here to know which pet to upgrade
+                "metadata": {"pet_id": pet_id, "user_id": user_id}
+            }
         )
         return {"sessionId": checkout_session.id, "url": checkout_session.url}
     
@@ -208,46 +223,57 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid signature")
 
     # Handle the event
-    if event['type'] == 'checkout.session.completed':
+    if event['type'] in ('checkout.session.completed', 'checkout.session.async_payment_succeeded'):
         session = event['data']['object']
         mode = session.get('mode')
         meta = session.get('metadata') or {}
+        payment_status = session.get('payment_status')
 
-        if mode == 'payment' and meta.get('kind') == 'donation':
-            # Donación: solo se marca pagada si Stripe confirma el cobro (payment_status == 'paid')
-            donation_id = meta.get('donation_id') or session.get('client_reference_id')
-            db_donation = crud.crud_ecommerce.get_donation(db, donation_id) if donation_id else None
-            if db_donation and session.get('payment_status') == 'paid':
-                crud.crud_ecommerce.mark_donation_paid(db, db_donation)
-                logger.info(f"Donation {donation_id} marked as paid.")
+        # Fulfill only when session is not unpaid (or when subscription is active)
+        if payment_status != 'unpaid':
+            if mode == 'payment' and meta.get('kind') == 'donation':
+                donation_id = meta.get('donation_id') or session.get('client_reference_id')
+                db_donation = crud.crud_ecommerce.get_donation(db, donation_id) if donation_id else None
+                if db_donation and db_donation.status != 'paid':
+                    crud.crud_ecommerce.mark_donation_paid(db, db_donation)
+                    logger.info(f"Donation {donation_id} marked as paid.")
 
-        elif mode == 'payment':
-            # Regular Store Order
-            order_id = session.get('client_reference_id')
-            if order_id:
-                db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
-                # Solo pendientes (o cancelados por tiempo con pago tardío) pasan a pagado; un evento repetido no
-                # debe regresar a "paid" un pedido que ya fue enviado o entregado.
-                if db_order and db_order.status in ('pending', 'cancelled'):
-                    if db_order.status == 'cancelled':
-                        # El stock ya se había devuelto: se vuelve a apartar (sin bajar de 0)
-                        for item in db_order.items:
-                            product = crud.crud_ecommerce.get_product(db, item.product_id)
-                            if product:
-                                product.stock = max(0, (product.stock or 0) - item.quantity)
-                        logger.warning(f"Order {order_id} was cancelled but paid; reactivating.")
-                    db_order.status = 'paid'
-                    db.commit()
-                    logger.info(f"Order {order_id} marked as paid.")
-                    crud.crud_ecommerce.notify_order_paid(db, db_order)
-        
-        elif mode == 'subscription':
-            # Michi-Tracker Pro Subscription Setup
-            pet_id = session.get('client_reference_id')
-            subscription_id = session.get('subscription')
-            if pet_id and subscription_id:
-                logger.info(f"Activating Michi-Tracker Pro for pet {pet_id} (Sub: {subscription_id})")
-                _notify_mascotas_service(pet_id, True, subscription_id)
+            elif mode == 'payment':
+                # Regular Store Order
+                order_id = session.get('client_reference_id')
+                if order_id:
+                    db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
+                    # Solo pendientes (o cancelados por tiempo con pago tardío) pasan a pagado; un evento repetido no
+                    # debe regresar a "paid" un pedido que ya fue enviado o entregado.
+                    if db_order and db_order.status in ('pending', 'cancelled'):
+                        if db_order.status == 'cancelled':
+                            # El stock ya se había devuelto: se vuelve a apartar (sin bajar de 0)
+                            for item in db_order.items:
+                                product = crud.crud_ecommerce.get_product(db, item.product_id)
+                                if product:
+                                    product.stock = max(0, (product.stock or 0) - item.quantity)
+                            logger.warning(f"Order {order_id} was cancelled but paid; reactivating.")
+                        db_order.status = 'paid'
+                        db.commit()
+                        logger.info(f"Order {order_id} marked as paid.")
+                        crud.crud_ecommerce.notify_order_paid(db, db_order)
+            
+            elif mode == 'subscription':
+                # Michi-Tracker Pro Subscription Setup
+                pet_id = session.get('client_reference_id')
+                subscription_id = session.get('subscription')
+                if pet_id and subscription_id:
+                    logger.info(f"Activating Michi-Tracker Pro for pet {pet_id} (Sub: {subscription_id})")
+                    _notify_mascotas_service(pet_id, True, subscription_id)
+
+    elif event['type'] == 'checkout.session.async_payment_failed':
+        session = event['data']['object']
+        order_id = session.get('client_reference_id')
+        if order_id:
+            db_order = crud.crud_ecommerce.get_order(db, order_id=order_id)
+            if db_order and db_order.status == 'pending':
+                crud.crud_ecommerce.update_order_status(db, db_order, 'cancelled')
+                logger.warning(f"Async payment failed for order {order_id}; order cancelled.")
 
     elif event['type'] == 'checkout.session.expired':
         session = event['data']['object']
@@ -321,9 +347,10 @@ async def cancel_subscription(
         raise HTTPException(status_code=403, detail="Solo puedes cancelar la suscripción de tus propias mascotas")
 
     sub_id = row[1]
-    if sub_id and settings.STRIPE_SECRET_KEY and not str(sub_id).startswith("sub_demo_"):
+    client = get_stripe_client()
+    if sub_id and client and not str(sub_id).startswith("sub_demo_"):
         try:
-            stripe.Subscription.delete(sub_id)
+            client.v1.subscriptions.cancel(sub_id)
         except Exception:
             logger.warning(f"No se pudo cancelar la suscripción {sub_id} en Stripe", exc_info=True)
 
@@ -336,7 +363,8 @@ async def create_billing_portal_session(
     user_id: str = Depends(deps.get_current_user_id),
 ) -> Any:
     """Create a Stripe Billing Portal session for unified subscription/billing management."""
-    if not settings.STRIPE_SECRET_KEY:
+    client = get_stripe_client()
+    if not client:
         return {
             "url": None,
             "demo": True,
@@ -346,15 +374,17 @@ async def create_billing_portal_session(
     safe_user_id = "".join(c for c in user_id if c.isalnum() or c == "-")
     try:
         # El cliente de Stripe se busca por el user_id guardado en su metadata; nunca se toma uno ajeno
-        found = stripe.Customer.search(query=f"metadata['user_id']:'{safe_user_id}'", limit=1)
+        found = client.v1.customers.search(params={"query": f"metadata['user_id']:'{safe_user_id}'", "limit": 1})
         if found and len(found.data) > 0:
             customer_id = found.data[0].id
         else:
-            customer_id = stripe.Customer.create(metadata={"user_id": safe_user_id}).id
+            customer_id = client.v1.customers.create(params={"metadata": {"user_id": safe_user_id}}).id
 
-        session = stripe.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=f"{settings.FRONTEND_URL}/dashboard/billing",
+        session = client.v1.billing_portal.sessions.create(
+            params={
+                "customer": customer_id,
+                "return_url": f"{settings.FRONTEND_URL}/dashboard/billing",
+            }
         )
         return {"url": session.url}
     except Exception:
