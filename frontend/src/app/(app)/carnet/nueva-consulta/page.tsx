@@ -10,6 +10,7 @@ import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
 import FormField from "@/components/FormField";
 import FormSection from "@/components/forms/FormSection";
+import FormActionsBar from "@/components/forms/FormActionsBar";
 import Card from "@/components/Card";
 import { useConsultationForm } from "@/hooks/carnet/useConsultationForm";
 import s from "../../pages.module.css";
@@ -25,6 +26,7 @@ function NuevaConsultaForm() {
 
   return (
     <ScreenContainer>
+      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} noValidate>
       <ScreenHeader
         title={isEditing ? "Editar consulta" : "Nueva consulta"}
         subtitle="El dueño la ve en el carnet de su mascota"
@@ -141,12 +143,13 @@ function NuevaConsultaForm() {
         </FormSection>
       )}
 
-      <Button
-        label={isSaving ? "Guardando…" : "Guardar consulta"}
-        onPress={handleSave}
-        loading={isSaving}
-        icon={<Save size={20} />}
+      <FormActionsBar
+        submitLabel={isSaving ? "Guardando…" : "Guardar consulta"}
+        busy={isSaving}
+        onCancel={() => window.history.back()}
+        icon={<Save size={18} />}
       />
+      </form>
     </ScreenContainer>
   );
 }

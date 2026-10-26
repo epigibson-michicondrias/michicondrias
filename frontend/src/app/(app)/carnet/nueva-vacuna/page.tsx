@@ -10,6 +10,7 @@ import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
 import FormField from "@/components/FormField";
 import FormSection from "@/components/forms/FormSection";
+import FormActionsBar from "@/components/forms/FormActionsBar";
 import { useVaccineForm } from "@/hooks/carnet/useVaccineForm";
 
 function NuevaVacunaForm() {
@@ -21,6 +22,7 @@ function NuevaVacunaForm() {
 
   return (
     <ScreenContainer>
+      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} noValidate>
       <ScreenHeader title={isEditing ? "Editar vacuna" : "Nueva vacuna"} />
 
       <FormSection title="Datos de la vacuna">
@@ -64,12 +66,13 @@ function NuevaVacunaForm() {
         />
       </FormSection>
 
-      <Button
-        label={isSaving ? "Guardando…" : isEditing ? "Guardar cambios" : "Registrar vacuna"}
-        onPress={handleSave}
-        loading={isSaving}
-        icon={<Check size={20} />}
+      <FormActionsBar
+        submitLabel={isSaving ? "Guardando…" : isEditing ? "Guardar cambios" : "Registrar vacuna"}
+        busy={isSaving}
+        onCancel={() => window.history.back()}
+        icon={<Check size={18} />}
       />
+      </form>
     </ScreenContainer>
   );
 }
