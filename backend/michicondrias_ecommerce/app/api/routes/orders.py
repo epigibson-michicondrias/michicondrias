@@ -93,6 +93,7 @@ def read_order(
     order_id: str,
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
     Get order details.
@@ -101,7 +102,7 @@ def read_order(
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
-    if order.user_id != user_id and not _is_seller_of(db, order_id, user_id):
+    if order.user_id != user_id and not _is_seller_of(db, order_id, user_id) and role != "admin":
         raise HTTPException(status_code=403, detail="No puedes ver este pedido")
     return order
 

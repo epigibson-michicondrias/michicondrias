@@ -124,7 +124,7 @@ def update_existing_venue(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Establecimiento no encontrado"
         )
-    if db_venue.owner_id != owner_id:
+    if db_venue.owner_id != owner_id and role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tiene permisos para modificar este establecimiento"
@@ -147,7 +147,7 @@ def delete_existing_venue(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Establecimiento no encontrado"
         )
-    if db_venue.owner_id != owner_id:
+    if db_venue.owner_id != owner_id and role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tiene permisos para eliminar este establecimiento"

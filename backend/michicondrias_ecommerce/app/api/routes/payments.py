@@ -27,6 +27,7 @@ async def create_checkout_session(
     source: str | None = None,  # "app" => Stripe regresa a la app por deep link (ver core/checkout_urls.py)
     db: Session = Depends(get_db),
     user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
 ) -> Any:
     """
     Create a Stripe Checkout Session for a given order.
@@ -38,7 +39,7 @@ async def create_checkout_session(
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
-    if order.user_id != user_id:
+    if order.user_id != user_id and role != "admin":
         raise HTTPException(status_code=403, detail="No puedes pagar este pedido")
     if order.status != "pending":
         detail = "El pedido fue cancelado. Crea uno nuevo desde tu bolsa." if order.status == "cancelled" else "Order is already paid"
