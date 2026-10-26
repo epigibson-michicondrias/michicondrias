@@ -1,7 +1,7 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { Image } from 'expo-image';
-import { Camera, UserRound } from 'lucide-react-native';
+import { AlertTriangle, Camera, Check, UserRound, X } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useProfile, BIO_MAX } from '@/src/hooks/perfil/useProfile';
 import { useAvatar } from '@/src/hooks/perfil/useAvatar';
@@ -12,12 +12,16 @@ import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import { Skeleton } from '@/src/components/Skeleton';
 import { spacing, radius, type, layout } from '@/constants/design';
+import { useRouter } from 'expo-router';
 
 /** Datos personales: foto, nombre, teléfono, ubicación y bio. El resto de la cuenta está en la pestaña Perfil. */
 export default function EditarPerfilScreen() {
     const { theme } = useTheme();
+    const router = useRouter();
     const { profile, isLoading, formData, errors, updateField, handleSave, isSaving } = useProfile();
     const { avatarUrl, uploading, pickAndUpload } = useAvatar();
+
+    const errorList = Object.entries(errors).filter(([, v]) => !!v);
 
     return (
         <ScreenContainer>
@@ -29,6 +33,21 @@ export default function EditarPerfilScreen() {
                 </View>
             ) : (
                 <KeyboardScreen contentContainerStyle={styles.content}>
+                    {/* Resumen de errores */}
+                    {errorList.length > 0 && (
+                        <View style={[styles.errorSummary, { backgroundColor: theme.errorLight, borderColor: theme.error }]}>
+                            <AlertTriangle size={18} color={theme.error} />
+                            <View style={styles.flex}>
+                                <Text style={[type.bodyStrong, { color: theme.error }]}>
+                                    Corrige {errorList.length} {errorList.length === 1 ? 'campo' : 'campos'}
+                                </Text>
+                                {errorList.map(([field, msg]) => (
+                                    <Text key={field} style={[type.caption, { color: theme.error }]}>• {msg}</Text>
+                                ))}
+                            </View>
+                        </View>
+                    )}
+
                     <View style={styles.avatarBlock}>
                         <View style={[styles.avatar, { backgroundColor: theme.accentLight, borderColor: theme.accent }]}>
                             {avatarUrl ? (
@@ -102,7 +121,23 @@ export default function EditarPerfilScreen() {
                         </Text>
                     ) : null}
 
-                    <Button label="Guardar cambios" onPress={handleSave} loading={isSaving} size="lg" fullWidth style={styles.save} />
+                    {/* Acciones */}
+                    <View style={styles.actions}>
+                        <Button
+                            label="Cancelar"
+                            variant="ghost"
+                            onPress={() => router.back()}
+                            disabled={isSaving}
+                            style={styles.cancelBtn}
+                        />
+                        <Button
+                            label={isSaving ? 'Guardando…' : 'Guardar cambios'}
+                            onPress={handleSave}
+                            loading={isSaving}
+                            icon={<Check size={18} />}
+                            style={styles.save}
+                        />
+                    </View>
                 </KeyboardScreen>
             )}
         </ScreenContainer>
@@ -148,6 +183,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     save: {
+        flex: 1,
+    },
+    cancelBtn: {
+        flex: 1,
+    },
+    actions: {
+        flexDirection: 'row',
+        gap: spacing.md,
         marginTop: spacing.sm,
+    },
+    errorSummary: {
+        flexDirection: 'row',
+        gap: spacing.md,
+        padding: spacing.md,
+        borderRadius: radius.lg,
+        borderWidth: 1,
+    },
+    flex: {
+        flex: 1,
+        gap: spacing.xxs,
     },
 });
