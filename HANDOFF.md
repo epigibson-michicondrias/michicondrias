@@ -405,7 +405,9 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   mismas badges en tarjetas. **Tienda premium**: filtros precio/rating, hover effects con zoom y quick view,
   buy box con trust signals y entrega estimada. **Adopciones** con filtros laterales; **Admin productos** con
   DataTable. **Bloque B**: auditoría UX P2/P3 — header estilistas a rosa (era morado), funeraria sin duplicados.
-  Vercel ✅, OTA `f0d45434-…`.
+  **Seguridad X3.1–X3.3**: moderación admin en 6 servicios (pending/approve/reject/suspend), paseadores y
+  cuidadores filtran `is_verified`, campañas nacen inactivas. Migraciones `b2c3d4e5f6a7` y `c3d4e5f6a7b8`.
+  17/17 servicios OK. Vercel ✅, OTA `f0d45434-…`.
 
 - **2026-10-25 · Mimo** — **Tratamientos premium (web + app)**. Panel «Lo que toca hoy» tipo checklist de vidrio con
   checkbox por dosis, atrasadas resaltadas en dorado, botón «Marcar las N tomas». Tarjetas de tratamiento con barra
