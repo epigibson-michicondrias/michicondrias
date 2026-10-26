@@ -312,10 +312,13 @@ def update_booking_status(
 @router.get("/certificate/{death_id}/pdf", response_model=dict)
 def download_death_certificate(
     death_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id),
+    role: str = Depends(get_current_user_role),
 ):
     """
     Generate and retrieve the digital death certificate PDF URL/data.
+    X4.3: solo el dueño de la mascota, la funeraria asignada o un admin.
     """
     death_report = db.query(PetDeath).filter(PetDeath.id == death_id).first()
     if not death_report:
@@ -323,6 +326,11 @@ def download_death_certificate(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Reporte de defunción no encontrado."
         )
+    # X4.3: verificar permisos
+    pet_row = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": death_report.pet_id}).first()
+    owner_id = pet_row[0] if pet_row else None
+    if current_user_id != owner_id and current_user_id != death_report.funerary_id and role != "admin":
+        raise HTTPException(status_code=403, detail="No tienes permiso para ver este certificado")
     
     pet_row = db.execute(text("SELECT name FROM pets WHERE id = :pet_id"), {"pet_id": death_report.pet_id}).first()
     return {
@@ -339,11 +347,20 @@ def download_death_certificate(
 
 
 @router.get("/certificate/{death_id}/file")
-def certificate_file(death_id: str, db: Session = Depends(get_db)):
-    """PDF del certificado conmemorativo, generado al momento."""
+def certificate_file(
+    death_id: str,
+    db: Session = Depends(get_db),
+    current_user_id: str = Depends(get_current_user_id),
+    role: str = Depends(get_current_user_role),
+):
+    """PDF del certificado conmemorativo. X4.3: solo dueño/funeraria/admin."""
     death_report = db.query(PetDeath).filter(PetDeath.id == death_id).first()
     if not death_report:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reporte de defunción no encontrado.")
+    pet_owner = db.execute(text("SELECT owner_id FROM pets WHERE id = :pet_id"), {"pet_id": death_report.pet_id}).first()
+    owner_id = pet_owner[0] if pet_owner else None
+    if current_user_id != owner_id and current_user_id != death_report.funerary_id and role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tienes permiso para ver este certificado")
 
     # El nombre y la especie están en la tabla de mascotas; si no hay dato, el certificado sale con un nombre genérico
     pet_name, species = "Un michi querido", None

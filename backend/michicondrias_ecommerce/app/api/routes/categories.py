@@ -110,7 +110,7 @@ def delete_subcategory(
         raise HTTPException(status_code=404, detail="Subcategory not found")
     return crud.crud_category.remove_subcategory(db=db, subcategory_id=subcategory_id)
 
-@router.get("/init-db/seed")
+@router.post("/init-db/seed")
 def init_categories(db: Session = Depends(get_db), _admin_id: str = Depends(require_admin)) -> Any:
     """Initialize categories if table is empty."""
     import uuid
