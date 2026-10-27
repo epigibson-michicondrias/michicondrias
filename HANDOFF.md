@@ -399,7 +399,7 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   `payment_intent.succeeded` nunca marcaba `paid`. Fix: `_stripe_obj_to_dict` + `event_type`/`data` en todo el
   webhook. `confirm-payment-intent` acepta PI vacío y usa `orders.payment_intent_id`. `PagoResultado` (app+web)
   confirma el cobro al volver (respaldo). Pedido atascado `8cba47ae…` (PI `succeeded` en Stripe) → **paid**.
-  **Pendiente push (backend+web) + OTA.**
+  Deploy `40446937525` ✅ · OTA `01a17b81-bf50-73c1-9165-5d72d2c8beae` · Vercel ✅ en `4ab95b9`.
 
 - **2026-10-27 · Claude** — **Push + migrate + OTA + limpieza de tienda**. Push `b00acdd..1b14cb6`.
   Deploy Oracle `40445682623` ✅; `scripts/vm.sh migrate ecommerce` → head `c4f8a2e19b37`
