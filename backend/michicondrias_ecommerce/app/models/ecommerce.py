@@ -84,6 +84,8 @@ class Order(Base):
     total_amount = Column(Float, nullable=False)
     status = Column(String, default="pending") # pending, paid, shipped, delivered, cancelled
     shipping_address = Column(Text, nullable=True)
+    # PaymentIntent de Stripe reutilizado para no crear uno por cada intento de pago
+    payment_intent_id = Column(String, nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")

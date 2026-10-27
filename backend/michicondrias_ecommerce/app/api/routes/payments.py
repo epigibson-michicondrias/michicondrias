@@ -28,6 +28,14 @@ def get_publishable_key() -> str:
         raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
     return settings.STRIPE_PUBLISHABLE_KEY
 
+# Estados en los que un PaymentIntent se puede reconfirmar sin crear otro (evita un PI por intento).
+_REUSABLE_PI_STATUSES = frozenset({
+    "requires_payment_method",
+    "requires_confirmation",
+    "requires_action",
+})
+_CANCELABLE_PI_STATUSES = _REUSABLE_PI_STATUSES | {"requires_capture"}
+
 @router.post("/create-checkout-session/{order_id}")
 async def create_checkout_session(
     order_id: str,
@@ -132,6 +140,31 @@ async def create_payment_intent(
         raise HTTPException(status_code=400, detail="Monto inválido para cobrar")
 
     try:
+        # Reutiliza el PaymentIntent del pedido si sigue abierto: 50 reintentos = 1 PI, no 50.
+        if order.payment_intent_id:
+            try:
+                existing = client.v1.payment_intents.retrieve(order.payment_intent_id)
+            except Exception:
+                logger.warning("No se pudo leer el PaymentIntent previo %s; se crea uno nuevo", order.payment_intent_id)
+                existing = None
+            if existing is not None:
+                if (
+                    existing.status in _REUSABLE_PI_STATUSES
+                    and existing.amount == total_amount
+                    and existing.currency == "mxn"
+                ):
+                    return {
+                        "clientSecret": existing.client_secret,
+                        "paymentIntentId": existing.id,
+                        "amount": order.total_amount,
+                        "publishableKey": get_publishable_key(),
+                    }
+                if existing.status in _CANCELABLE_PI_STATUSES:
+                    try:
+                        client.v1.payment_intents.cancel(existing.id)
+                    except Exception:
+                        logger.warning("No se pudo cancelar el PaymentIntent previo %s", existing.id)
+
         intent = client.v1.payment_intents.create(
             params={
                 "amount": total_amount,
@@ -143,6 +176,8 @@ async def create_payment_intent(
                 },
             }
         )
+        order.payment_intent_id = intent.id
+        db.commit()
         return {
             "clientSecret": intent.client_secret,
             "paymentIntentId": intent.id,

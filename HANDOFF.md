@@ -394,10 +394,15 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **Un PaymentIntent por pedido, no por intento**. `create-payment-intent` reutiliza
+  `orders.payment_intent_id` si el PI sigue en `requires_*` y el monto coincide; si no, cancela el viejo y crea
+  uno nuevo (guardándolo). Migración aditiva `c4f8a2e19b37` (columna + índice). **Tras el push hay que correr
+  `scripts/vm.sh migrate ecommerce`.** Sin cambios de app/web en este bloque.
+
 - **2026-10-27 · Claude** — **«Pagar ahora» del pedido ya no abre el Stripe externo**. `useOrderDetail`
   (app + web): `payNow` navega a `/tienda/pago-nativo?order_id=…` en vez de `createCheckoutSession` +
-  `openStripeUrl`. Quitado `isPaying` de hook y UI. Verificado: `npm run check` 0 · `tsc`/ESLint 0 ·
-  `npm run build` verde. **Pendiente de commit + OTA (app) + push (web).**
+  `openStripeUrl`. Quitado `isPaying` de hook y UI. Commit `a92d0f5`. Verificado: `npm run check` 0 ·
+  `tsc`/ESLint 0 · `npm run build` verde. **Pendiente de OTA (app) + push (web).**
 
 - **2026-10-26 · Claude** — **Documentos legales (México)**. Web pública `/legal` + `/legal/[slug]` (10 documentos: términos,
   privacidad integral y simplificado, ARCO, aviso médico/IA, uso aceptable, adopciones/perdidas, pagos/reembolsos,
