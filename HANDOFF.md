@@ -160,6 +160,10 @@ pestañas y panel lateral, formulario a dos columnas; verificado a 1280 y 375); 
 ## 3. Pendientes (prioridad de arriba hacia abajo)
 
 **Urgentes / seguridad (acción del usuario)**
+- [ ] **Legal antes de publicar en tiendas**: llenar los `[POR COMPLETAR]` de `frontend/src/features/legal/legalConfig.ts`
+  (razón social, RFC, domicilio, correo de privacidad, jurisdicción), que un abogado mexicano revise los 10 textos
+  (sobre todo seguros, suscripción, contrato de adopción y donaciones) y declarar la URL de privacidad en Play/App Store.
+  Confirmar los proveedores del aviso (correo transaccional, mapas, videoconsulta) y subir a Vercel.
 - [ ] **Rotar la contraseña de Supabase** (Database → Settings → Reset database password) y la de **Neon** (o borrar ese
   proyecto si ya no se usa). Estuvieron en claro en el código y **siguen en el historial de git**. La nueva va solo en
   `/etc/michicondrias/common.env` de la VM (`scripts/vm.sh shell`), reiniciar servicios y `scripts/vm.sh status`.
@@ -390,6 +394,17 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **«Pagar ahora» del pedido ya no abre el Stripe externo**. `useOrderDetail`
+  (app + web): `payNow` navega a `/tienda/pago-nativo?order_id=…` en vez de `createCheckoutSession` +
+  `openStripeUrl`. Quitado `isPaying` de hook y UI. Verificado: `npm run check` 0 · `tsc`/ESLint 0 ·
+  `npm run build` verde. **Pendiente de commit + OTA (app) + push (web).**
+
+- **2026-10-26 · Claude** — **Documentos legales (México)**. Web pública `/legal` + `/legal/[slug]` (10 documentos: términos,
+  privacidad integral y simplificado, ARCO, aviso médico/IA, uso aceptable, adopciones/perdidas, pagos/reembolsos,
+  profesionales/vendedores, cookies) en `frontend/src/features/legal/` (datos de la empresa en `legalConfig.ts`).
+  App: `support.ts` ahora apunta por defecto a `/legal/terminos` y `/legal/privacidad` y Perfil abre `/legal`
+  (JS puro, sale por OTA). Typecheck/eslint/build ✅. **Sin commit ni deploy aún.** Falta: llenar `[POR COMPLETAR]` en
+  `legalConfig.ts` y revisión por abogado (ver §3).
 - **2026-10-27 · Claude** — **Push + deploy pagos (backend y web)**. Commits `db11214`…`c5cec74` a `main`.
   **Oracle** `deploy-oracle` run `40443849686` ✅ (30s); **17/17** servicios `active` + http 200 (sin migración).
   **Vercel** `michicondrias` ✅ (`5ETNQUJypo8…`); `/tienda/checkout-direccion`, `/tienda/pago-nativo` y

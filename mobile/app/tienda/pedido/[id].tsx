@@ -57,7 +57,7 @@ export default function PedidoDetailScreen() {
     const date = new Date(order.created_at).toLocaleDateString('es-MX', {
         day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
-    const busy = o.isPaying || o.isCancelling;
+    const busy = o.isCancelling;
 
     return (
         <ScreenContainer>
@@ -92,7 +92,6 @@ export default function PedidoDetailScreen() {
                             label={`Pagar ahora · ${formatCurrency(order.total_amount)}`}
                             icon={<CreditCard size={layout.icon.sm} color={theme.onPrimary} />}
                             onPress={o.payNow}
-                            loading={o.isPaying}
                             disabled={busy}
                             fullWidth
                         />

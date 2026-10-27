@@ -1,25 +1,23 @@
 /**
  * useOrderDetail — Hook to fetch order details by ID, con acciones del comprador (pagar / cancelar)
  */
-import { useState } from 'react';
 import { Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useCart } from '@/src/contexts/CartContext';
 import { SUPPORT_EMAIL } from '@/src/constants/support';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getOrder, createCheckoutSession, updateOrderStatus } from '@/src/services/ecommerce';
+import { getOrder, updateOrderStatus } from '@/src/services/ecommerce';
 import { showAlert } from '@/src/components/AppAlert';
-import { openStripeUrl } from '@/src/utils/payments';
 
 export function useOrderDetail(orderId: string) {
     const queryClient = useQueryClient();
-    const [isPaying, setIsPaying] = useState(false);
+    const router = useRouter();
 
     const { data: order, isLoading, error, refetch } = useQuery({
         queryKey: ['order-detail', orderId],
         queryFn: () => getOrder(orderId),
         enabled: !!orderId,
-        // Mientras el pedido espera el pago (se paga fuera de la app) se consulta seguido para ver el cambio a "Pagado"
+        // Mientras el pedido espera el pago se consulta seguido para ver el cambio a "Pagado"
         refetchInterval: (query) => (query.state.data?.status === 'pending' ? 5000 : false),
     });
 
@@ -52,21 +50,11 @@ export function useOrderDetail(orderId: string) {
         });
     };
 
-    /** Reintenta el pago de un pedido pendiente abriendo una nueva sesión de Stripe. */
-    const payNow = async () => {
-        setIsPaying(true);
-        try {
-            const session = await createCheckoutSession(orderId);
-            await openStripeUrl(session.url);
-        } catch (e: any) {
-            showAlert({ type: 'error', title: 'No se pudo iniciar el pago', message: e?.message || 'Inténtalo de nuevo en unos minutos.' });
-        } finally {
-            setIsPaying(false);
-            refreshLists();
-        }
+    /** Paga un pedido pendiente en la pasarela in-app (`pago-nativo`). */
+    const payNow = () => {
+        router.push({ pathname: '/tienda/pago-nativo', params: { order_id: orderId } } as any);
     };
 
-    const router = useRouter();
     const { addManyToCart } = useCart();
 
     /** Vuelve a poner en la bolsa los productos del pedido que sigan disponibles. */
@@ -115,7 +103,6 @@ export function useOrderDetail(orderId: string) {
         error,
         refetch,
         payNow,
-        isPaying,
         confirmCancel,
         isCancelling: cancelMutation.isPending,
     };

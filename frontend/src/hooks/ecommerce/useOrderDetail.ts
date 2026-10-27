@@ -2,18 +2,15 @@
  * useOrderDetail — detalle de pedido con acciones del comprador (pagar / cancelar).
  * Espejo de `mobile/src/hooks/ecommerce/useOrderDetail.ts`.
  */
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getOrder, createCheckoutSession, updateOrderStatus } from '@/services/ecommerce';
+import { getOrder, updateOrderStatus } from '@/services/ecommerce';
 import { showAlert } from '@/components/AppAlert';
-import { openStripeUrl } from '@/utils/payments';
 
 export function useOrderDetail(orderId: string) {
     const queryClient = useQueryClient();
     const router = useRouter();
-    const [isPaying, setIsPaying] = useState(false);
 
     const { data: order, isLoading, error, refetch } = useQuery({
         queryKey: ['order-detail', orderId],
@@ -48,17 +45,9 @@ export function useOrderDetail(orderId: string) {
         });
     };
 
-    const payNow = async () => {
-        setIsPaying(true);
-        try {
-            const session = await createCheckoutSession(orderId);
-            await openStripeUrl(session.url);
-        } catch (e) {
-            showAlert({ type: 'error', title: 'No se pudo iniciar el pago', message: (e as Error)?.message || 'Inténtalo de nuevo en unos minutos.' });
-        } finally {
-            setIsPaying(false);
-            refreshLists();
-        }
+    /** Paga un pedido pendiente en la pasarela in-app (`pago-nativo`). */
+    const payNow = () => {
+        router.push(`/tienda/pago-nativo?order_id=${orderId}`);
     };
 
     const { addManyToCart } = useCart();
@@ -87,7 +76,6 @@ export function useOrderDetail(orderId: string) {
         isLoading,
         error,
         refetch,
-        isPaying,
         cancelOrder: confirmCancel,
         isCancelling: cancelMutation.isPending,
         payNow,

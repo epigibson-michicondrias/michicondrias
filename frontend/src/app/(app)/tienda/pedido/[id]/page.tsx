@@ -22,7 +22,7 @@ import { formatCurrency } from "@/utils/formatters";
 import s from "../../tienda.module.css";
 
 function PedidoContent({ orderId }: { orderId: string }) {
-  const { order, isLoading, error, payNow, isPaying, cancelOrder, isCancelling, buyAgain } = useOrderDetail(orderId);
+  const { order, isLoading, error, payNow, cancelOrder, isCancelling, buyAgain } = useOrderDetail(orderId);
   const router = useRouter();
 
   if (isLoading) {
@@ -93,7 +93,6 @@ function PedidoContent({ orderId }: { orderId: string }) {
             <Button
               label={`Pagar ahora · ${total}`}
               onPress={payNow}
-              loading={isPaying}
             />
             <Button
               label="Cancelar pedido"
