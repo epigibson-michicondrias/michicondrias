@@ -394,6 +394,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **Push + migrate + OTA + limpieza de tienda**. Push `b00acdd..1b14cb6`.
+  Deploy Oracle `40445682623` ✅; `scripts/vm.sh migrate ecommerce` → head `c4f8a2e19b37`
+  (`orders.payment_intent_id`); 17/17 http 200. **OTA** Android `01a17b75-5dac-70d4-ba7f-3aafc6efb74d`
+  (grupo `5e487595-…`, «Pagar ahora» in-app). Vercel `a92d0f5`/`1b14cb6` ✅ (docs ❌ siempre).
+  **Limpieza tienda** user `hackminor@live.com.mx` (`954825ca-…`): borrados 12 pedidos, 13 order_items y
+  1 favorito; **donaciones (2) intactas**. Listo para probar el módulo desde cero.
+
 - **2026-10-27 · Claude** — **Un PaymentIntent por pedido, no por intento**. `create-payment-intent` reutiliza
   `orders.payment_intent_id` si el PI sigue en `requires_*` y el monto coincide; si no, cancela el viejo y crea
   uno nuevo (guardándolo). Migración aditiva `c4f8a2e19b37` (columna + índice). **Tras el push hay que correr
