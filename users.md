@@ -140,9 +140,9 @@ roles profesionales entren sin pasar por la aprobación manual).
 
 ### Notas de configuración (no son bugs de código)
 
-- **Stripe**: `STRIPE_SECRET_KEY` **no está configurado** en el servicio `ecommerce` de producción → el botón
-  «Proceder al pago» crea el pedido y luego muestra «Pagos no disponibles; tu carrito se conservó». Para probar el
-  pago real hay que poner la clave de Stripe en `/etc/michicondrias/ecommerce.env`.
+- **Stripe**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` y `STRIPE_PUBLISHABLE_KEY` **ya están en**
+  `/etc/michicondrias/common.env` (verificado 2026-10-27; la publishable coincide con la de la app y la web).
+  Si un endpoint de pago devuelve 503, revisar esas tres variables y reiniciar `michicondrias@ecommerce`.
 - **Moderación**: productos, adopciones y veterinarios nuevos quedan `is_approved: false` hasta que un admin los
   aprueba en `/admin/moderacion`. Es el flujo esperado.
 - **Reseñas**: el botón de reseña aparece solo si el usuario compró el producto (`can_review`).
