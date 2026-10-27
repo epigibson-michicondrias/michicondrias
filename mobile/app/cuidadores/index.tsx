@@ -1,20 +1,36 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Sitter } from '../../src/services/cuidadores';
 import { useSitters } from '@/src/hooks/cuidadores/useSitters';
 import { useTheme } from '@/src/hooks/useTheme';
-import { Star, MapPin, Clock, Home, ChevronRight, Shield } from 'lucide-react-native';
+import {
+    Star,
+    MapPin,
+    Clock,
+    Home,
+    ChevronRight,
+    Shield,
+    SlidersHorizontal,
+    X,
+    Dog,
+    Cat,
+    Trees,
+    Check,
+} from 'lucide-react-native';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import DataList from '@/src/components/data/DataList';
 import SearchBar from '@/src/components/SearchBar';
 import FilterChip from '@/src/components/FilterChip';
-import { families, font, layout, spacing, tint } from '@/constants/design';
+import BottomSheet from '@/src/components/BottomSheet';
+import Button from '@/src/components/Button';
+import { families, font, layout, radius, spacing, tint } from '@/constants/design';
 
 export default function CuidadoresScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
     const {
         sitters,
@@ -25,6 +41,16 @@ export default function CuidadoresScreen() {
         setSearchQuery,
         serviceFilter,
         setServiceFilter,
+        hasYardOnly,
+        setHasYardOnly,
+        acceptsDogsOnly,
+        setAcceptsDogsOnly,
+        acceptsCatsOnly,
+        setAcceptsCatsOnly,
+        verifiedOnly,
+        setVerifiedOnly,
+        clearFilters,
+        activeFiltersCount,
         hasActiveFilters,
     } = useSitters();
 
@@ -111,7 +137,6 @@ export default function CuidadoresScreen() {
                     </Text>
                     <Text style={[styles.priceUnit, { color: theme.textMuted }]}>/día</Text>
                 </View>
-                {/* Solo indicación visual: toda la tarjeta abre el perfil (un botón dentro de otro falla en web) */}
                 <View style={[styles.contactButton, { backgroundColor: theme.primary }]} accessible={false}>
                     <Text style={styles.contactButtonText}>Ver perfil</Text>
                     <ChevronRight size={16} color={theme.onPrimary} />
@@ -121,7 +146,7 @@ export default function CuidadoresScreen() {
     );
 
     const listHeader = (
-        <>
+        <View style={styles.headerContainer}>
             <View style={styles.actionButtons}>
                 <TouchableOpacity accessibilityRole="button"
                     style={[styles.actionButton, { backgroundColor: theme.surface, borderColor: theme.border }]}
@@ -137,20 +162,73 @@ export default function CuidadoresScreen() {
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.filtersContainer}>
-                <SearchBar
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    placeholder="Buscar por nombre o ubicación..."
-                />
-
-                <View style={styles.serviceFilterContainer}>
-                    <FilterChip label="Todos" active={serviceFilter === ''} onPress={() => setServiceFilter('')} />
-                    <FilterChip label="Hospedaje" active={serviceFilter === 'hosting'} onPress={() => setServiceFilter('hosting')} />
-                    <FilterChip label="Visitas a domicilio" active={serviceFilter === 'visiting'} onPress={() => setServiceFilter('visiting')} />
+            {/* Fila de búsqueda + botón de filtros homologado */}
+            <View style={styles.searchRow}>
+                <View style={styles.searchContainer}>
+                    <SearchBar
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholder="Buscar por nombre o ubicación..."
+                    />
                 </View>
+                <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel="Abrir filtros de cuidadores"
+                    style={[
+                        styles.filterIconButton,
+                        {
+                            backgroundColor: activeFiltersCount > 0 ? theme.primary : theme.surface,
+                            borderColor: activeFiltersCount > 0 ? theme.primary : theme.border,
+                        },
+                    ]}
+                    onPress={() => setIsFilterModalOpen(true)}
+                >
+                    <SlidersHorizontal
+                        size={19}
+                        color={activeFiltersCount > 0 ? theme.onPrimary : theme.text}
+                    />
+                    {activeFiltersCount > 0 && (
+                        <View style={[styles.filterBadge, { backgroundColor: theme.error }]}>
+                            <Text style={[styles.filterBadgeText, { color: '#FFFFFF' }]}>
+                                {activeFiltersCount}
+                            </Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
             </View>
-        </>
+
+            {/* Chips rápidos horizontales delgados */}
+            <View style={styles.quickFiltersWrapper}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsContainer}>
+                    {hasActiveFilters && (
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Limpiar filtros"
+                            style={[styles.clearPill, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                            onPress={clearFilters}
+                        >
+                            <X size={12} color={theme.textMuted} />
+                            <Text style={[styles.clearPillText, { color: theme.textMuted }]}>Limpiar</Text>
+                        </TouchableOpacity>
+                    )}
+                    <FilterChip label="Todos" active={serviceFilter === '' && !hasYardOnly && !verifiedOnly} onPress={clearFilters} />
+                    <FilterChip label="Hospedaje" active={serviceFilter === 'hosting'} onPress={() => setServiceFilter(serviceFilter === 'hosting' ? '' : 'hosting')} />
+                    <FilterChip label="Visitas" active={serviceFilter === 'visiting'} onPress={() => setServiceFilter(serviceFilter === 'visiting' ? '' : 'visiting')} />
+                    <FilterChip
+                        label="Con patio"
+                        icon={<Trees size={14} color={hasYardOnly ? theme.onPrimary : theme.warning} />}
+                        active={hasYardOnly}
+                        onPress={() => setHasYardOnly(!hasYardOnly)}
+                    />
+                    <FilterChip
+                        label="Verificados"
+                        icon={<Shield size={14} color={verifiedOnly ? theme.onPrimary : theme.success} />}
+                        active={verifiedOnly}
+                        onPress={() => setVerifiedOnly(!verifiedOnly)}
+                    />
+                </ScrollView>
+            </View>
+        </View>
     );
 
     return (
@@ -176,156 +254,480 @@ export default function CuidadoresScreen() {
                 }
                 contentStyle={styles.list}
             />
+
+            {/* Modal Premium Homologado para Cuidadores */}
+            <BottomSheet
+                visible={isFilterModalOpen}
+                onClose={() => setIsFilterModalOpen(false)}
+                title="Filtros de cuidadores"
+            >
+                <View style={styles.modalContent}>
+                    <View style={styles.modalSubHeader}>
+                        <Text style={[styles.modalSubTitle, { color: theme.textMuted }]}>
+                            Filtra por modalidad de cuidado, especies y confianza
+                        </Text>
+                        {activeFiltersCount > 0 && (
+                            <TouchableOpacity onPress={clearFilters} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                                <Text style={[styles.modalResetText, { color: theme.primary }]}>Limpiar todo</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                    {/* Modalidad de servicio */}
+                    <View style={styles.filterSectionGroup}>
+                        <Text style={[styles.filterGroupTitle, { color: theme.text }]}>Tipo de servicio</Text>
+                        <View style={styles.optionsGrid}>
+                            {[
+                                { key: '', label: 'Cualquier modalidad', desc: 'Hospedaje o visitas a domicilio', icon: Home },
+                                { key: 'hosting', label: 'Hospedaje en casa del cuidador', desc: 'Tu mascota duerme en su hogar', icon: Home },
+                                { key: 'visiting', label: 'Visitas a tu domicilio', desc: 'El cuidador va a tu casa', icon: Clock },
+                            ].map((item) => {
+                                const isSelected = serviceFilter === item.key;
+                                const IconComp = item.icon;
+                                return (
+                                    <TouchableOpacity
+                                        key={item.key}
+                                        style={[
+                                            styles.optionCard,
+                                            {
+                                                backgroundColor: isSelected ? theme.primary + '10' : theme.surface,
+                                                borderColor: isSelected ? theme.primary : theme.border,
+                                            },
+                                        ]}
+                                        onPress={() => setServiceFilter(item.key)}
+                                    >
+                                        <View style={[styles.optionIconBox, { backgroundColor: isSelected ? theme.primary + '20' : theme.background }]}>
+                                            <IconComp size={18} color={isSelected ? theme.primary : theme.textMuted} />
+                                        </View>
+                                        <View style={styles.optionDetails}>
+                                            <Text style={[styles.optionCardText, { color: isSelected ? theme.primary : theme.text, fontFamily: isSelected ? families.bold : families.medium }]}>
+                                                {item.label}
+                                            </Text>
+                                            <Text style={[styles.optionCardSub, { color: theme.textMuted }]}>
+                                                {item.desc}
+                                            </Text>
+                                        </View>
+                                        <View style={[styles.radioIndicator, { borderColor: isSelected ? theme.primary : theme.border }]}>
+                                            {isSelected && <View style={[styles.radioDot, { backgroundColor: theme.primary }]} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    </View>
+
+                    {/* Especies aceptadas */}
+                    <View style={styles.filterSectionGroup}>
+                        <Text style={[styles.filterGroupTitle, { color: theme.text }]}>Especies aceptadas</Text>
+                        <View style={styles.optionsRow}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.pillOption,
+                                    {
+                                        backgroundColor: acceptsDogsOnly ? theme.primary : theme.surface,
+                                        borderColor: acceptsDogsOnly ? theme.primary : theme.border,
+                                    },
+                                ]}
+                                onPress={() => setAcceptsDogsOnly(!acceptsDogsOnly)}
+                            >
+                                <Dog size={14} color={acceptsDogsOnly ? theme.onPrimary : theme.text} />
+                                <Text style={[styles.pillOptionText, { color: acceptsDogsOnly ? theme.onPrimary : theme.text, fontFamily: acceptsDogsOnly ? families.bold : families.medium }]}>
+                                    Acepta perros
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.pillOption,
+                                    {
+                                        backgroundColor: acceptsCatsOnly ? theme.primary : theme.surface,
+                                        borderColor: acceptsCatsOnly ? theme.primary : theme.border,
+                                    },
+                                ]}
+                                onPress={() => setAcceptsCatsOnly(!acceptsCatsOnly)}
+                            >
+                                <Cat size={14} color={acceptsCatsOnly ? theme.onPrimary : theme.text} />
+                                <Text style={[styles.pillOptionText, { color: acceptsCatsOnly ? theme.onPrimary : theme.text, fontFamily: acceptsCatsOnly ? families.bold : families.medium }]}>
+                                    Acepta gatos
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* Características y confianza */}
+                    <View style={styles.filterSectionGroup}>
+                        <Text style={[styles.filterGroupTitle, { color: theme.text }]}>Instalaciones y confianza</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionCard,
+                                {
+                                    backgroundColor: hasYardOnly ? theme.warning + '10' : theme.surface,
+                                    borderColor: hasYardOnly ? theme.warning : theme.border,
+                                },
+                            ]}
+                            onPress={() => setHasYardOnly(!hasYardOnly)}
+                        >
+                            <View style={[styles.optionIconBox, { backgroundColor: hasYardOnly ? theme.warning + '20' : theme.background }]}>
+                                <Trees size={18} color={hasYardOnly ? theme.warning : theme.textMuted} />
+                            </View>
+                            <View style={styles.optionDetails}>
+                                <Text style={[styles.optionCardText, { color: hasYardOnly ? theme.warning : theme.text, fontFamily: families.bold }]}>
+                                    Tiene patio o jardín privado
+                                </Text>
+                                <Text style={[styles.optionCardSub, { color: theme.textMuted }]}>
+                                    Espacio al aire libre para que jueguen
+                                </Text>
+                            </View>
+                            <View style={[styles.checkboxIndicator, { borderColor: hasYardOnly ? theme.warning : theme.border, backgroundColor: hasYardOnly ? theme.warning : 'transparent' }]}>
+                                {hasYardOnly && <Check size={12} color="#FFFFFF" />}
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.optionCard,
+                                {
+                                    backgroundColor: verifiedOnly ? theme.success + '10' : theme.surface,
+                                    borderColor: verifiedOnly ? theme.success : theme.border,
+                                },
+                            ]}
+                            onPress={() => setVerifiedOnly(!verifiedOnly)}
+                        >
+                            <View style={[styles.optionIconBox, { backgroundColor: verifiedOnly ? theme.success + '20' : theme.background }]}>
+                                <Shield size={18} color={verifiedOnly ? theme.success : theme.textMuted} />
+                            </View>
+                            <View style={styles.optionDetails}>
+                                <Text style={[styles.optionCardText, { color: verifiedOnly ? theme.success : theme.text, fontFamily: families.bold }]}>
+                                    Cuidador verificado
+                                </Text>
+                                <Text style={[styles.optionCardSub, { color: theme.textMuted }]}>
+                                    Identidad y antecedentes revisados por el equipo
+                                </Text>
+                            </View>
+                            <View style={[styles.checkboxIndicator, { borderColor: verifiedOnly ? theme.success : theme.border, backgroundColor: verifiedOnly ? theme.success : 'transparent' }]}>
+                                {verifiedOnly && <Check size={12} color="#FFFFFF" />}
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Footer */}
+                    <View style={styles.modalFooter}>
+                        <Button
+                            label="Restablecer"
+                            variant="secondary"
+                            onPress={clearFilters}
+                            style={styles.footerBtnHalf}
+                        />
+                        <Button
+                            label={`Ver ${sitters.length} ${sitters.length === 1 ? 'cuidador' : 'cuidadores'}`}
+                            variant="primary"
+                            onPress={() => setIsFilterModalOpen(false)}
+                            style={styles.footerBtnHalf}
+                        />
+                    </View>
+                </View>
+            </BottomSheet>
         </ScreenContainer>
     );
 }
 
 const styles = StyleSheet.create({
+    headerContainer: {
+        marginBottom: spacing.md,
+    },
     actionButtons: {
         flexDirection: 'row',
-        gap: spacing.md,
-        marginBottom: spacing.lg,
+        gap: spacing.sm,
+        marginBottom: spacing.sm,
     },
     actionButton: {
         flex: 1,
-        height: 56,
-        borderRadius: 16,
+        height: 48,
+        borderRadius: radius.md,
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1.5,
-        paddingHorizontal: spacing.md,
+        paddingHorizontal: spacing.sm,
     },
     actionButtonText: {
-        fontSize: font.base,
+        fontSize: font.sm,
         fontFamily: families.bold,
         textAlign: 'center',
-        lineHeight: 18,
     },
-    filtersContainer: {
-        marginBottom: spacing.xl,
-        gap: spacing.md,
-    },
-    serviceFilterContainer: {
+    searchRow: {
         flexDirection: 'row',
+        alignItems: 'center',
         gap: spacing.sm,
+    },
+    searchContainer: {
+        flex: 1,
+    },
+    filterIconButton: {
+        width: 46,
+        height: 46,
+        borderRadius: radius.md,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+    filterBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        minWidth: 18,
+        height: 18,
+        borderRadius: 9,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 4,
+    },
+    filterBadgeText: {
+        fontSize: 10,
+        fontFamily: families.bold,
+    },
+    quickFiltersWrapper: {
+        marginTop: spacing.xs,
+    },
+    chipsContainer: {
+        alignItems: 'center',
+        gap: spacing.xs,
+    },
+    clearPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 6,
+        borderRadius: radius.pill,
+        borderWidth: 1,
+    },
+    clearPillText: {
+        fontSize: font.xs,
+        fontFamily: families.medium,
     },
     list: {
         paddingHorizontal: layout.screenPadding,
         paddingBottom: layout.listClearance,
     },
     sitterCard: {
-        padding: spacing.xl,
-        borderRadius: 16,
-        marginBottom: spacing.lg,
+        padding: spacing.lg,
+        borderRadius: radius.lg,
+        marginBottom: spacing.md,
         borderWidth: 1,
     },
     sitterHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.lg,
-        gap: spacing.lg,
+        marginBottom: spacing.md,
     },
     avatarPlaceholder: {
-        width: 56,
-        height: 56,
-        borderRadius: 16,
-        justifyContent: 'center',
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: spacing.md,
     },
     avatarText: {
-        fontSize: font.h2,
-        fontFamily: families.extrabold,
+        fontSize: font.xl,
+        fontFamily: families.bold,
     },
     sitterInfo: {
         flex: 1,
     },
     sitterName: {
-        fontSize: font.xxl,
-        fontFamily: families.extrabold,
-        marginBottom: spacing.xs,
+        fontSize: font.lg,
+        fontFamily: families.bold,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.sm,
+        marginTop: 2,
     },
     locationText: {
-        fontSize: font.base,
+        fontSize: font.xs,
+        marginLeft: 4,
     },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.xs,
+        gap: 4,
     },
     ratingText: {
-        fontSize: font.base,
-        fontFamily: families.semibold,
+        fontSize: font.sm,
+        fontFamily: families.bold,
     },
     sitterStats: {
         flexDirection: 'row',
         gap: spacing.lg,
-        marginBottom: spacing.lg,
+        marginBottom: spacing.md,
     },
     statItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: spacing.sm,
+        gap: 6,
     },
     statText: {
-        fontSize: font.base,
+        fontSize: font.xs,
     },
     servicesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: spacing.sm,
+        gap: spacing.xs,
         marginBottom: spacing.md,
     },
     serviceTag: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: 4,
         paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.xs,
-        borderRadius: 6,
-        gap: spacing.xs,
-        justifyContent: 'center',
+        paddingVertical: 4,
+        borderRadius: radius.xs,
     },
     serviceText: {
-        fontSize: font.sm,
-        fontFamily: families.semibold,
+        fontSize: font.xs,
+        fontFamily: families.medium,
     },
     bioText: {
-        fontSize: font.base,
-        lineHeight: 20,
-        marginBottom: spacing.lg,
+        fontSize: font.sm,
+        lineHeight: 18,
+        marginBottom: spacing.md,
     },
     sitterFooter: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        paddingTop: spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: '#00000010',
     },
     priceContainer: {
         flexDirection: 'row',
         alignItems: 'baseline',
-        gap: spacing.xxs,
     },
     priceText: {
-        fontSize: font.xxl,
-        fontFamily: families.extrabold,
+        fontSize: font.xl,
+        fontFamily: families.bold,
     },
     priceUnit: {
-        fontSize: font.base,
+        fontSize: font.xs,
+        marginLeft: 2,
     },
     contactButton: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
-        paddingHorizontal: spacing.lg,
-        borderRadius: 8,
-        gap: spacing.sm,
-        justifyContent: 'center',
+        borderRadius: radius.md,
     },
     contactButtonText: {
-        fontSize: font.base,
-        fontFamily: families.semibold,
+        fontSize: font.xs,
+        fontFamily: families.bold,
+        color: '#FFFFFF',
+    },
+
+    // Modal
+    modalContent: {
+        gap: spacing.lg,
+        paddingBottom: spacing.xl,
+    },
+    modalSubHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    modalSubTitle: {
+        fontSize: font.xs,
+        flex: 1,
+        marginRight: spacing.sm,
+    },
+    modalResetText: {
+        fontSize: font.xs,
+        fontFamily: families.bold,
+    },
+    filterSectionGroup: {
+        gap: spacing.xs,
+    },
+    filterGroupTitle: {
+        fontSize: 13,
+        fontFamily: families.bold,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    optionsGrid: {
+        gap: spacing.xs,
+    },
+    optionsRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.xs,
+    },
+    pillOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        borderRadius: radius.pill,
+        borderWidth: 1,
+    },
+    pillOptionText: {
+        fontSize: font.sm,
+    },
+    optionCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: spacing.sm + 2,
+        borderRadius: radius.md,
+        borderWidth: 1,
+        gap: spacing.sm,
+    },
+    optionIconBox: {
+        width: 32,
+        height: 32,
+        borderRadius: radius.sm,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    optionDetails: {
+        flex: 1,
+    },
+    optionCardText: {
+        fontSize: font.sm,
+    },
+    optionCardSub: {
+        fontSize: font.xs,
+        marginTop: 2,
+    },
+    radioIndicator: {
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    radioDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+    },
+    checkboxIndicator: {
+        width: 18,
+        height: 18,
+        borderRadius: 4,
+        borderWidth: 1.5,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalFooter: {
+        flexDirection: 'row',
+        gap: spacing.sm,
+        marginTop: spacing.sm,
+    },
+    footerBtnHalf: {
+        flex: 1,
     },
 });

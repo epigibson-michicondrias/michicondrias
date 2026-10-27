@@ -77,6 +77,14 @@ export function useClinicsAndVets() {
     const resultsCount = currentData.length;
     const hasActiveFilters = filterService !== 'all' || filterSpecialty !== 'all' || filterCity !== 'all' || filterRating !== 'all' || searchQuery.length > 0;
 
+    const clearFilters = () => {
+        setSearchQuery('');
+        setFilterService('all');
+        setFilterSpecialty('all');
+        setFilterCity('all');
+        setFilterRating('all');
+    };
+
     return {
         // Data
         clinics, vets, filteredClinics, filteredVets, currentData, resultsCount,
@@ -95,6 +103,7 @@ export function useClinicsAndVets() {
         filterRating, setFilterRating,
         specialties, cities,
         hasActiveFilters,
+        clearFilters,
 
         // Auth
         canRegister, isMounted,

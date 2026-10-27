@@ -1,19 +1,40 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useClinicsAndVets } from '@/src/hooks/directorio/useClinicsAndVets';
 import type { Clinic, Vet } from '@/src/types/directorio';
-import { Search, MapPin, ChevronRight, Stethoscope, Hospital, ShieldCheck, Clock, Navigation, Star } from 'lucide-react-native';
+import {
+    MapPin,
+    ChevronRight,
+    Stethoscope,
+    Hospital,
+    ShieldCheck,
+    Clock,
+    Navigation,
+    Star,
+    SlidersHorizontal,
+    RotateCcw,
+    Sparkles,
+    Check,
+    X,
+} from 'lucide-react-native';
 import DataList from '@/src/components/data/DataList';
-import FilterChip from '@/src/components/FilterChip';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { families, font, layout, spacing } from '@/constants/design';
+import SegmentedControl from '@/src/components/SegmentedControl';
+import SearchBar from '@/src/components/SearchBar';
+import BottomSheet from '@/src/components/BottomSheet';
+import Button from '@/src/components/Button';
+import { families, font, layout, spacing, radius, type, shadow, press } from '@/constants/design';
 
 export default function DirectorioIndexScreen() {
     const router = useRouter();
     const { theme } = useTheme();
+    const [showFilterSheet, setShowFilterSheet] = useState(false);
+
     const {
+        clinics,
+        vets,
         filteredClinics,
         filteredVets,
         isLoading,
@@ -30,12 +51,18 @@ export default function DirectorioIndexScreen() {
         specialties,
         cities,
         hasActiveFilters,
+        clearFilters,
         resultsCount,
     } = useClinicsAndVets();
 
+    const activeFilterCount =
+        (filterService !== 'all' ? 1 : 0) +
+        (filterCity !== 'all' ? 1 : 0) +
+        (filterSpecialty !== 'all' ? 1 : 0);
+
     const renderClinicItem = ({ item }: { item: Clinic }) => (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+            style={[styles.card, shadow.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={() => router.push(`/directorio/clinica/${item.id}` as any)}
             activeOpacity={0.8}
         >
@@ -109,13 +136,12 @@ export default function DirectorioIndexScreen() {
                     </Text>
                 )}
             </View>
-
         </TouchableOpacity>
     );
 
     const renderVetItem = ({ item }: { item: Vet }) => (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
+            style={[styles.card, shadow.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
             onPress={() => router.push(`/directorio/especialista/${item.id}` as any)}
             activeOpacity={0.8}
         >
@@ -172,105 +198,233 @@ export default function DirectorioIndexScreen() {
     );
 
     const listHeaderComponent = (
-        <>
-            {/* Header */}
-
-            {/* Tabs */}
-            <View style={styles.tabsContainer}>
-                <TouchableOpacity
-                    style={[styles.tab, {
-                        backgroundColor: activeTab === 'clinics' ? theme.primary : theme.surface,
-                        borderColor: activeTab === 'clinics' ? theme.primary : theme.border,
-                    }]}
-                    onPress={() => setActiveTab('clinics')}
-                >
-                    <Hospital size={18} color={activeTab === 'clinics' ? theme.onPrimary : theme.textMuted} />
-                    <Text style={[styles.tabText, { color: activeTab === 'clinics' ? theme.onPrimary : theme.text }]}>
-                        Clínicas
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, {
-                        backgroundColor: activeTab === 'vets' ? theme.primary : theme.surface,
-                        borderColor: activeTab === 'vets' ? theme.primary : theme.border,
-                    }]}
-                    onPress={() => setActiveTab('vets')}
-                >
-                    <Stethoscope size={18} color={activeTab === 'vets' ? theme.onPrimary : theme.textMuted} />
-                    <Text style={[styles.tabText, { color: activeTab === 'vets' ? theme.onPrimary : theme.text }]}>
-                        Especialistas
-                    </Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Search */}
-            <View style={[styles.searchBar, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Search size={18} color={theme.textMuted} />
-                <TextInput
-                    placeholder={activeTab === 'clinics' ? "Buscar clínica o ciudad..." : "Buscar veterinario..."}
-                    placeholderTextColor={theme.textMuted}
-                    style={[styles.searchInput, { color: theme.text }]}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
+        <View style={styles.headerWrapper}>
+            {/* Pestañas: Clínicas / Especialistas en diseño segmentado elegante */}
+            <View style={styles.tabsSection}>
+                <SegmentedControl
+                    value={activeTab}
+                    onChange={(val) => {
+                        setActiveTab(val);
+                    }}
+                    options={[
+                        { value: 'clinics', label: 'Clínicas', icon: Hospital },
+                        { value: 'vets', label: 'Especialistas', icon: Stethoscope },
+                    ]}
+                    accessibilityLabel="Tipo de directorio"
                 />
             </View>
 
-            {/* Filters — Doctoralia style: scrollable chips */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll} contentContainerStyle={styles.filterRow}>
+            {/* Fila compacta de Búsqueda + Botón de Filtros */}
+            <View style={styles.searchRow}>
+                <View style={styles.searchFlex}>
+                    <SearchBar
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholder={
+                            activeTab === 'clinics'
+                                ? 'Buscar clínica o ciudad...'
+                                : 'Buscar por nombre o especialidad...'
+                        }
+                    />
+                </View>
+
+                {/* Botón de Filtros con contador */}
+                <TouchableOpacity
+                    style={[
+                        styles.filterButton,
+                        shadow.card,
+                        {
+                            backgroundColor: activeFilterCount > 0 ? theme.primaryLight : theme.surface,
+                            borderColor: activeFilterCount > 0 ? theme.primary : theme.borderLight,
+                        },
+                    ]}
+                    onPress={() => setShowFilterSheet(true)}
+                    activeOpacity={press.subtle}
+                    accessibilityRole="button"
+                    accessibilityLabel="Abrir filtros"
+                >
+                    <SlidersHorizontal
+                        size={18}
+                        color={activeFilterCount > 0 ? theme.primary : theme.text}
+                    />
+                    {activeFilterCount > 0 && (
+                        <View style={[styles.filterBadge, { backgroundColor: theme.primary }]}>
+                            <Text style={[styles.filterBadgeText, { color: theme.onPrimary }]}>
+                                {activeFilterCount}
+                            </Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
+            </View>
+
+            {/* Fila única y ligera de chips de acceso rápido (sin estorbar la pantalla) */}
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.quickChipsScroll}
+            >
                 {activeTab === 'clinics' ? (
                     <>
-                        {[
-                            { key: 'all', label: 'Todas' },
-                            { key: '24h', label: '24 Horas' },
-                            { key: 'emergencia', label: 'Urgencias' },
-                        ].map(f => (
-                            <FilterChip
-                                key={f.key}
-                                label={f.label}
-                                active={filterService === f.key}
-                                onPress={() => setFilterService(f.key)}
+                        <TouchableOpacity
+                            onPress={() => setFilterService(filterService === '24h' ? 'all' : '24h')}
+                            activeOpacity={press.subtle}
+                            style={[
+                                styles.quickChip,
+                                filterService === '24h'
+                                    ? { backgroundColor: theme.infoLight, borderColor: theme.info }
+                                    : { backgroundColor: theme.surface, borderColor: theme.borderLight },
+                            ]}
+                        >
+                            <Clock
+                                size={13}
+                                color={filterService === '24h' ? theme.info : theme.textMuted}
                             />
-                        ))}
+                            <Text
+                                style={[
+                                    type.caption,
+                                    {
+                                        color: filterService === '24h' ? theme.info : theme.text,
+                                        fontFamily: filterService === '24h' ? families.semibold : families.medium,
+                                    },
+                                ]}
+                            >
+                                24 Horas
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() =>
+                                setFilterService(filterService === 'emergencia' ? 'all' : 'emergencia')
+                            }
+                            activeOpacity={press.subtle}
+                            style={[
+                                styles.quickChip,
+                                filterService === 'emergencia'
+                                    ? { backgroundColor: theme.errorLight, borderColor: theme.error }
+                                    : { backgroundColor: theme.surface, borderColor: theme.borderLight },
+                            ]}
+                        >
+                            <Navigation
+                                size={13}
+                                color={filterService === 'emergencia' ? theme.error : theme.textMuted}
+                            />
+                            <Text
+                                style={[
+                                    type.caption,
+                                    {
+                                        color: filterService === 'emergencia' ? theme.error : theme.text,
+                                        fontFamily:
+                                            filterService === 'emergencia' ? families.semibold : families.medium,
+                                    },
+                                ]}
+                            >
+                                Urgencias
+                            </Text>
+                        </TouchableOpacity>
+
                         {cities.length > 1 && (
-                            <FilterChip
-                                label={filterCity === 'all' ? 'Ciudad' : filterCity}
-                                active={filterCity !== 'all'}
-                                icon={<MapPin size={layout.icon.sm} color={filterCity !== 'all' ? theme.onPrimary : theme.textMuted} />}
-                                onPress={() => {
-                                    const idx = cities.indexOf(filterCity);
-                                    setFilterCity(cities[(idx + 1) % cities.length]);
-                                }}
-                            />
+                            <TouchableOpacity
+                                onPress={() => setShowFilterSheet(true)}
+                                activeOpacity={press.subtle}
+                                style={[
+                                    styles.quickChip,
+                                    filterCity !== 'all'
+                                        ? { backgroundColor: theme.primaryLight, borderColor: theme.primary }
+                                        : { backgroundColor: theme.surface, borderColor: theme.borderLight },
+                                ]}
+                            >
+                                <MapPin
+                                    size={13}
+                                    color={filterCity !== 'all' ? theme.primary : theme.textMuted}
+                                />
+                                <Text
+                                    style={[
+                                        type.caption,
+                                        {
+                                            color: filterCity !== 'all' ? theme.primary : theme.text,
+                                            fontFamily: filterCity !== 'all' ? families.semibold : families.medium,
+                                        },
+                                    ]}
+                                >
+                                    {filterCity === 'all' ? 'Ciudad' : filterCity}
+                                </Text>
+                            </TouchableOpacity>
                         )}
                     </>
                 ) : (
-                    specialties.map(s => (
-                        <FilterChip
-                            key={s}
-                            label={s === 'all' ? 'Todas las especialidades' : s}
-                            active={filterSpecialty === s}
-                            onPress={() => setFilterSpecialty(s)}
-                        />
-                    ))
+                    specialties.slice(0, 5).map((s) => {
+                        const active = filterSpecialty === s;
+                        const label = s === 'all' ? 'Todas' : s;
+                        return (
+                            <TouchableOpacity
+                                key={s}
+                                onPress={() => setFilterSpecialty(s)}
+                                activeOpacity={press.subtle}
+                                style={[
+                                    styles.quickChip,
+                                    active
+                                        ? { backgroundColor: theme.primaryLight, borderColor: theme.primary }
+                                        : { backgroundColor: theme.surface, borderColor: theme.borderLight },
+                                ]}
+                            >
+                                <Sparkles
+                                    size={12}
+                                    color={active ? theme.primary : theme.textMuted}
+                                />
+                                <Text
+                                    style={[
+                                        type.caption,
+                                        {
+                                            color: active ? theme.primary : theme.text,
+                                            fontFamily: active ? families.semibold : families.medium,
+                                        },
+                                    ]}
+                                >
+                                    {label}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })
+                )}
+
+                {hasActiveFilters && (
+                    <TouchableOpacity
+                        onPress={clearFilters}
+                        activeOpacity={press.subtle}
+                        style={[styles.quickChip, styles.clearChip, { borderColor: theme.error + '40' }]}
+                    >
+                        <RotateCcw size={12} color={theme.error} />
+                        <Text style={[type.caption, { color: theme.error, fontFamily: families.semibold }]}>
+                            Limpiar
+                        </Text>
+                    </TouchableOpacity>
                 )}
             </ScrollView>
 
-            {/* Result count */}
-            <Text style={[styles.resultCount, { color: theme.textMuted }]}>
-                {resultsCount} resultado{resultsCount !== 1 ? 's' : ''}
-                {hasActiveFilters ? ' · filtros activos' : ''}
-            </Text>
-
-        </>
+            {/* Contador sutil que no roba protagonismo */}
+            <View style={styles.resultsBar}>
+                <Text style={[type.caption, { color: theme.textMuted }]}>
+                    {resultsCount} {resultsCount === 1 ? (activeTab === 'clinics' ? 'clínica' : 'especialista') : (activeTab === 'clinics' ? 'clínicas' : 'especialistas')} disponible{resultsCount !== 1 ? 's' : ''}
+                </Text>
+            </View>
+        </View>
     );
 
-    const emptyTitle = hasActiveFilters ? 'Sin resultados' : (activeTab === 'clinics' ? 'Aún no hay clínicas registradas' : 'Aún no hay especialistas registrados');
-    const emptySubtitle = hasActiveFilters ? 'No encontramos lo que buscas. Intenta con otros términos.' : 'Cuando se registren aparecerán aquí.';
-
+    const emptyTitle = hasActiveFilters
+        ? 'Sin resultados'
+        : activeTab === 'clinics'
+          ? 'Aún no hay clínicas registradas'
+          : 'Aún no hay especialistas registrados';
+    const emptySubtitle = hasActiveFilters
+        ? 'No encontramos coincidencias con los filtros seleccionados.'
+        : 'Cuando se registren aparecerán aquí.';
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            <ScreenHeader title="Directorio médico" subtitle="Encuentra salud de calidad para tu mejor amigo" />
+            <ScreenHeader
+                title="Directorio médico"
+                subtitle="Encuentra salud de calidad para tu mejor amigo"
+            />
 
             {activeTab === 'clinics' ? (
                 <DataList<Clinic>
@@ -295,55 +449,388 @@ export default function DirectorioIndexScreen() {
                     emptySubtitle={emptySubtitle}
                 />
             )}
+
+            {/* Hoja modal inferior premium de filtros completos */}
+            <BottomSheet
+                visible={showFilterSheet}
+                onClose={() => setShowFilterSheet(false)}
+                title={`Filtros de ${activeTab === 'clinics' ? 'Clínicas' : 'Especialistas'}`}
+                subtitle="Ajusta tus preferencias de búsqueda"
+                footer={
+                    <View style={styles.sheetFooter}>
+                        <Button
+                            label="Restablecer"
+                            variant="ghost"
+                            icon={<RotateCcw size={14} color={theme.text} />}
+                            onPress={clearFilters}
+                            disabled={!hasActiveFilters}
+                            style={styles.sheetFooterBtn}
+                        />
+                        <Button
+                            label={`Ver ${resultsCount} ${resultsCount === 1 ? (activeTab === 'clinics' ? 'clínica' : 'especialista') : (activeTab === 'clinics' ? 'clínicas' : 'especialistas')}`}
+                            icon={<Check size={16} color={theme.onPrimary} />}
+                            onPress={() => setShowFilterSheet(false)}
+                            style={styles.sheetFooterBtn}
+                        />
+                    </View>
+                }
+            >
+                <View style={styles.sheetContent}>
+                    {activeTab === 'clinics' ? (
+                        <>
+                            {/* Filtro: Servicios */}
+                            <View style={styles.sheetSection}>
+                                <View style={styles.sectionHeaderWrap}>
+                                    <View style={[styles.sectionBadge, { backgroundColor: theme.primaryLight }]}>
+                                        <Clock size={16} color={theme.primary} />
+                                    </View>
+                                    <View style={styles.flex}>
+                                        <Text style={[type.title, { color: theme.text }]}>Horario y urgencias</Text>
+                                        <Text style={[type.caption, { color: theme.textMuted }]}>
+                                            Filtra clínicas con guardia 24h o atención de emergencias
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={styles.sheetOptionsList}>
+                                    {[
+                                        {
+                                            key: 'all',
+                                            label: 'Todas las clínicas',
+                                            subtitle: 'Ver el catálogo completo sin restricciones de horario',
+                                            icon: Hospital,
+                                        },
+                                        {
+                                            key: '24h',
+                                            label: 'Abierto 24 Horas',
+                                            subtitle: 'Atención médica veterinaria continua día y noche',
+                                            icon: Clock,
+                                        },
+                                        {
+                                            key: 'emergencia',
+                                            label: 'Atención de Urgencias',
+                                            subtitle: 'Equipadas para estabilización crítica, quirófano y urgencias',
+                                            icon: Navigation,
+                                        },
+                                    ].map((opt) => {
+                                        const selected = filterService === opt.key;
+                                        const Icon = opt.icon;
+                                        return (
+                                            <TouchableOpacity
+                                                key={opt.key}
+                                                style={[
+                                                    styles.optionCard,
+                                                    selected
+                                                        ? {
+                                                              backgroundColor: theme.primaryLight,
+                                                              borderColor: theme.primary,
+                                                          }
+                                                        : {
+                                                              backgroundColor: theme.backgroundSecondary,
+                                                              borderColor: theme.borderLight,
+                                                          },
+                                                ]}
+                                                onPress={() => setFilterService(opt.key)}
+                                                activeOpacity={press.subtle}
+                                            >
+                                                <View
+                                                    style={[
+                                                        styles.radioCircle,
+                                                        selected
+                                                            ? { borderColor: theme.primary, backgroundColor: theme.primary }
+                                                            : { borderColor: theme.borderLight, backgroundColor: 'transparent' },
+                                                    ]}
+                                                >
+                                                    {selected && (
+                                                        <View
+                                                            style={[
+                                                                styles.radioDot,
+                                                                { backgroundColor: theme.onPrimary },
+                                                            ]}
+                                                        />
+                                                    )}
+                                                </View>
+
+                                                <View
+                                                    style={[
+                                                        styles.optionIconBox,
+                                                        { backgroundColor: theme.surface },
+                                                    ]}
+                                                >
+                                                    <Icon
+                                                        size={18}
+                                                        color={selected ? theme.primary : theme.textMuted}
+                                                    />
+                                                </View>
+
+                                                <View style={styles.optionTextContainer}>
+                                                    <Text
+                                                        style={[
+                                                            type.bodyStrong,
+                                                            { color: selected ? theme.primary : theme.text },
+                                                        ]}
+                                                    >
+                                                        {opt.label}
+                                                    </Text>
+                                                    <Text style={[type.caption, { color: theme.textMuted }]}>
+                                                        {opt.subtitle}
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                        );
+                                    })}
+                                </View>
+                            </View>
+
+                            {/* Filtro: Ciudades */}
+                            {cities.length > 1 && (
+                                <View style={styles.sheetSection}>
+                                    <View style={styles.sectionHeaderWrap}>
+                                        <View style={[styles.sectionBadge, { backgroundColor: theme.primaryLight }]}>
+                                            <MapPin size={16} color={theme.primary} />
+                                        </View>
+                                        <View style={styles.flex}>
+                                            <Text style={[type.title, { color: theme.text }]}>Ciudad o zona</Text>
+                                            <Text style={[type.caption, { color: theme.textMuted }]}>
+                                                Filtra clínicas en tu área geográfica
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <View style={styles.sheetOptionsList}>
+                                        {cities.map((city) => {
+                                            const selected = filterCity === city;
+                                            const label = city === 'all' ? 'Todas las ciudades' : city;
+                                            return (
+                                                <TouchableOpacity
+                                                    key={city}
+                                                    style={[
+                                                        styles.optionCard,
+                                                        selected
+                                                            ? {
+                                                                  backgroundColor: theme.primaryLight,
+                                                                  borderColor: theme.primary,
+                                                              }
+                                                            : {
+                                                                  backgroundColor: theme.backgroundSecondary,
+                                                                  borderColor: theme.borderLight,
+                                                              },
+                                                    ]}
+                                                    onPress={() => setFilterCity(city)}
+                                                    activeOpacity={press.subtle}
+                                                >
+                                                    <View
+                                                        style={[
+                                                            styles.radioCircle,
+                                                            selected
+                                                                ? { borderColor: theme.primary, backgroundColor: theme.primary }
+                                                                : { borderColor: theme.borderLight, backgroundColor: 'transparent' },
+                                                        ]}
+                                                    >
+                                                        {selected && (
+                                                            <View
+                                                                style={[
+                                                                    styles.radioDot,
+                                                                    { backgroundColor: theme.onPrimary },
+                                                                ]}
+                                                            />
+                                                        )}
+                                                    </View>
+
+                                                    <View
+                                                        style={[
+                                                            styles.optionIconBox,
+                                                            { backgroundColor: theme.surface },
+                                                        ]}
+                                                    >
+                                                        <MapPin
+                                                            size={18}
+                                                            color={selected ? theme.primary : theme.textMuted}
+                                                        />
+                                                    </View>
+
+                                                    <View style={styles.optionTextContainer}>
+                                                        <Text
+                                                            style={[
+                                                                type.bodyStrong,
+                                                                { color: selected ? theme.primary : theme.text },
+                                                            ]}
+                                                        >
+                                                            {label}
+                                                        </Text>
+                                                        <Text style={[type.caption, { color: theme.textMuted }]}>
+                                                            {city === 'all'
+                                                                ? 'Ver clínicas de cualquier ubicación'
+                                                                : `Ubicadas en ${city}`}
+                                                        </Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                            );
+                                        })}
+                                    </View>
+                                </View>
+                            )}
+                        </>
+                    ) : (
+                        /* Filtro: Especialidades */
+                        <View style={styles.sheetSection}>
+                            <View style={styles.sectionHeaderWrap}>
+                                <View style={[styles.sectionBadge, { backgroundColor: theme.primaryLight }]}>
+                                    <Stethoscope size={16} color={theme.primary} />
+                                </View>
+                                <View style={styles.flex}>
+                                    <Text style={[type.title, { color: theme.text }]}>Especialidad médica</Text>
+                                    <Text style={[type.caption, { color: theme.textMuted }]}>
+                                        Encuentra profesionales certificados según el área médica
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.sheetOptionsList}>
+                                {specialties.map((s) => {
+                                    const selected = filterSpecialty === s;
+                                    const label = s === 'all' ? 'Todas las especialidades' : s;
+                                    return (
+                                        <TouchableOpacity
+                                            key={s}
+                                            style={[
+                                                styles.optionCard,
+                                                selected
+                                                    ? {
+                                                          backgroundColor: theme.primaryLight,
+                                                          borderColor: theme.primary,
+                                                      }
+                                                    : {
+                                                          backgroundColor: theme.backgroundSecondary,
+                                                          borderColor: theme.borderLight,
+                                                      },
+                                            ]}
+                                            onPress={() => setFilterSpecialty(s)}
+                                            activeOpacity={press.subtle}
+                                        >
+                                            <View
+                                                style={[
+                                                    styles.radioCircle,
+                                                    selected
+                                                        ? { borderColor: theme.primary, backgroundColor: theme.primary }
+                                                        : { borderColor: theme.borderLight, backgroundColor: 'transparent' },
+                                                ]}
+                                            >
+                                                {selected && (
+                                                    <View
+                                                        style={[
+                                                            styles.radioDot,
+                                                            { backgroundColor: theme.onPrimary },
+                                                        ]}
+                                                    />
+                                                )}
+                                            </View>
+
+                                            <View
+                                                style={[
+                                                    styles.optionIconBox,
+                                                    { backgroundColor: theme.surface },
+                                                ]}
+                                            >
+                                                <Stethoscope
+                                                    size={18}
+                                                    color={selected ? theme.primary : theme.textMuted}
+                                                />
+                                            </View>
+
+                                            <View style={styles.optionTextContainer}>
+                                                <Text
+                                                    style={[
+                                                        type.bodyStrong,
+                                                        { color: selected ? theme.primary : theme.text },
+                                                    ]}
+                                                >
+                                                    {label}
+                                                </Text>
+                                                <Text style={[type.caption, { color: theme.textMuted }]}>
+                                                    {s === 'all'
+                                                        ? 'Cualquier especialidad o medicina general'
+                                                        : `Especialista en ${s}`}
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+                        </View>
+                    )}
+                </View>
+            </BottomSheet>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    filterScroll: { flexGrow: 0, marginBottom: spacing.sm },
-    resultCount: { fontSize: font.md, fontFamily: families.semibold, marginBottom: spacing.sm },
     container: { flex: 1 },
-    headerTop: {
+    flex: { flex: 1 },
+    headerWrapper: {
+        marginBottom: spacing.md,
+        gap: spacing.sm,
+    },
+    tabsSection: {
+        marginBottom: spacing.xs,
+    },
+    searchRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.sm,
+        gap: spacing.sm,
     },
-    tabsContainer: {
-        flexDirection: 'row',
-        marginBottom: spacing.lg,
-        gap: spacing.md,
-    },
-    tab: {
+    searchFlex: {
         flex: 1,
-        flexDirection: 'row',
+    },
+    filterButton: {
+        width: 44,
+        height: 44,
+        borderRadius: radius.md,
+        borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: spacing.lg,
-        borderRadius: 14,
-        gap: spacing.sm,
-        borderWidth: 1.5,
+        position: 'relative',
     },
-    tabText: { fontSize: font.base, fontFamily: families.extrabold },
-    searchBar: {
+    filterBadge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        minWidth: 18,
+        height: 18,
+        borderRadius: radius.pill,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 4,
+    },
+    filterBadgeText: {
+        fontSize: 10,
+        fontFamily: families.bold,
+    },
+    quickChipsScroll: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.md,
-        paddingHorizontal: spacing.lg,
-        height: 50,
-        borderRadius: 16,
-        borderWidth: 1.5,
-        gap: spacing.md,
+        gap: spacing.xs,
+        paddingVertical: spacing.xs,
     },
-    searchInput: { flex: 1, fontSize: font.lg, fontFamily: families.medium },
-    filterRow: {
+    quickChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing.lg,
-        gap: spacing.sm,
+        gap: spacing.xs,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs + 1,
+        borderRadius: radius.pill,
+        borderWidth: 1,
     },
-    list: { paddingHorizontal: layout.screenPadding, paddingBottom: layout.listClearance },
+    clearChip: {
+        backgroundColor: 'transparent',
+    },
+    resultsBar: {
+        paddingTop: spacing.xs,
+    },
+    list: {
+        paddingHorizontal: layout.screenPadding,
+        paddingBottom: layout.listClearance,
+    },
     card: {
-        borderRadius: 20,
+        borderRadius: radius.xl,
         padding: spacing.xl,
         marginBottom: spacing.lg,
         borderWidth: 1,
@@ -394,7 +881,6 @@ const styles = StyleSheet.create({
         marginTop: spacing.md,
     },
     certificationText: { fontSize: font.md, fontFamily: families.bold },
-    emptyTitle: { fontSize: font.xxl, fontFamily: families.extrabold, marginTop: spacing.lg, marginBottom: spacing.sm },
     cardInfoSubrows: {
         marginTop: spacing.xs,
         gap: spacing.xs,
@@ -427,6 +913,70 @@ const styles = StyleSheet.create({
     servicesListText: {
         fontSize: font.md,
         fontFamily: families.semibold,
+        flex: 1,
+    },
+    sheetContent: {
+        gap: spacing.xl,
+        paddingVertical: spacing.xs,
+    },
+    sheetSection: {
+        gap: spacing.md,
+    },
+    sectionHeaderWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+        marginBottom: spacing.xs,
+    },
+    sectionBadge: {
+        width: 36,
+        height: 36,
+        borderRadius: radius.md,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    sheetOptionsList: {
+        gap: spacing.sm,
+    },
+    optionCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.md,
+        borderRadius: radius.lg,
+        borderWidth: 1.5,
+        gap: spacing.md,
+    },
+    radioCircle: {
+        width: 20,
+        height: 20,
+        borderRadius: radius.pill,
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    radioDot: {
+        width: 8,
+        height: 8,
+        borderRadius: radius.pill,
+    },
+    optionIconBox: {
+        width: 38,
+        height: 38,
+        borderRadius: radius.md,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    optionTextContainer: {
+        flex: 1,
+        gap: 2,
+    },
+    sheetFooter: {
+        flexDirection: 'row',
+        gap: spacing.md,
+        alignItems: 'center',
+    },
+    sheetFooterBtn: {
         flex: 1,
     },
 });

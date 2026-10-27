@@ -18,6 +18,7 @@ export function useReports() {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<FilterType>('all');
     const [filterSpecies, setFilterSpecies] = useState('all');
+    const [hasTrackerOnly, setHasTrackerOnly] = useState(false);
 
     // Se traen todos los activos y se filtra aquí: así las cifras de las tarjetas no cambian al filtrar
     const { data: reports = [], isLoading, isError, refetch, isRefetching } = useQuery({
@@ -31,16 +32,32 @@ export function useReports() {
         queryFn: () => getReports(undefined, 'resolved'),
     });
 
+    const activeFiltersCount = useMemo(() => {
+        let count = 0;
+        if (filterType !== 'all') count++;
+        if (filterSpecies !== 'all') count++;
+        if (hasTrackerOnly) count++;
+        return count;
+    }, [filterType, filterSpecies, hasTrackerOnly]);
+
     const filteredReports = useMemo(() => {
         const source = filterType === 'resolved' ? resolvedReports : reports;
         return source.filter(r => {
             const matchesType = filterType === 'all' || filterType === 'resolved' || r.report_type === filterType;
-            const matchesSpecies = filterSpecies === 'all' || r.species === filterSpecies;
-            const matchesSearch = r.pet_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (r.last_seen_location?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-            return matchesType && matchesSpecies && matchesSearch;
+            const rSpecies = (r.species || '').toLowerCase();
+            const fSpecies = filterSpecies.toLowerCase();
+            const matchesSpecies = filterSpecies === 'all' || rSpecies === fSpecies ||
+                (fSpecies === 'perro' && (rSpecies === 'dog' || rSpecies === 'perro')) ||
+                (fSpecies === 'gato' && (rSpecies === 'cat' || rSpecies === 'gato'));
+            const matchesTracker = !hasTrackerOnly || !!r.has_tracker;
+            const q = searchQuery.trim().toLowerCase();
+            const matchesSearch = !q ||
+                r.pet_name.toLowerCase().includes(q) ||
+                (r.last_seen_location?.toLowerCase().includes(q) ?? false) ||
+                (r.breed?.toLowerCase().includes(q) ?? false);
+            return matchesType && matchesSpecies && matchesTracker && matchesSearch;
         });
-    }, [reports, resolvedReports, filterType, searchQuery, filterSpecies]);
+    }, [reports, resolvedReports, filterType, searchQuery, filterSpecies, hasTrackerOnly]);
 
     const stats = useMemo(() => ({
         lost: reports.filter(r => r.report_type === 'lost' && !r.is_resolved).length,
@@ -73,6 +90,7 @@ export function useReports() {
     const clearFilters = () => {
         setFilterType('all');
         setFilterSpecies('all');
+        setHasTrackerOnly(false);
         setSearchQuery('');
     };
 
@@ -92,10 +110,15 @@ export function useReports() {
         searchQuery,
         setSearchQuery,
         filterType,
+        setFilterType,
         toggleFilterType,
         filterSpecies,
+        setFilterSpecies,
         toggleFilterSpecies,
+        hasTrackerOnly,
+        setHasTrackerOnly,
         clearFilters,
+        activeFiltersCount,
 
         // View
         viewMode,
