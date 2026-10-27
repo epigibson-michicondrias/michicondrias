@@ -399,7 +399,8 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
   WebView fuera de tokens. Fixes: `CheckoutSteps` web (`features/tienda/CheckoutSteps` + `checkout.module.css`);
   checkout/pago usan steps + `optionCard`/`payAlert`/`guarantee`/`orderSummary*` en CSS; radio seleccionado con
   `primary`; WebView pay-button alineado a Button (52px, radius 12, weight 600, focus-visible, disabled 0.55);
-  un solo `.stepBtn` pill (espejo QuantityStepper). `tsc`/ESLint/build ✅. **Pendiente commit + push + OTA.**
+  un solo `.stepBtn` pill (espejo QuantityStepper). `tsc`/ESLint/build ✅. Commit `50c06da`. OTA
+  `01a17b9c-b51d-78ad-a6d3-6c169022926e` · Vercel ✅.
 
 - **2026-10-27 · Claude** — **Atrás desde el pedido ya no vuelve al checkout**. Tras pagar, «Ver mi pedido»
   dejaba carrito/entrega/pago en el historial. `PagoResultado` (app) hace `router.dismissAll()` antes de ir al
