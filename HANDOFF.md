@@ -390,13 +390,20 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **Env Stripe/Vercel lista**. Login Vercel con cuenta `epigibson-michicondrias`;
+  frontend linkeado al proyecto `michicondrias` (`.vercel/` gitignored). **VM** `/etc/michicondrias/common.env`
+  ya tenía las 3 claves (`sk_test`/`whsec`/`pk_test`, publishable = app/web, 107 chars). **Vercel**: la
+  `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` de production era **otra distinta** (`pk_test_51T79…` ≠ backend
+  `pk_test_51UUx…`) → reemplazada; también en development. `NEXT_PUBLIC_API_URL` ya era
+  `https://michicondrias.duckdns.org`. `common.env.example` documenta Stripe; `users.md` corrige la nota de
+  «secret no configurado». Listo para push (backend + Vercel).
+
 - **2026-10-26 · Claude** — **Backend + frontend de pagos revisados y commiteados**. Backend: endpoints
   `create-payment-intent`, `create-embedded-session`, `confirm-payment-intent`, webhook
-  `payment_intent.succeeded`; `STRIPE_PUBLISHABLE_KEY` en config (sin `pk_` hardcodeada) — **falta inyectar la env
-  en el servicio ecommerce** antes de usar pago nativo en prod. Frontend: `checkout-direccion` + `pago-nativo`
-  (Stripe Elements, Suspense, botón submit, orderId/order_id), carrito sin checkout muerto, servicios espejo.
-  Verificado: `py_compile` OK · `tsc` 0 · ESLint 0 en archivos tocados · `npm run build` verde (rutas
-  `/tienda/checkout-direccion` y `/tienda/pago-nativo`). **No commiteado aún** (push = deploy backend + Vercel).
+  `payment_intent.succeeded`; `STRIPE_PUBLISHABLE_KEY` en config (sin `pk_` hardcodeada). Frontend:
+  `checkout-direccion` + `pago-nativo` (Stripe Elements, Suspense, botón submit, orderId/order_id), carrito sin
+  checkout muerto, servicios espejo. Verificado: `py_compile` OK · `tsc` 0 · ESLint 0 en archivos tocados ·
+  `npm run build` verde (rutas `/tienda/checkout-direccion` y `/tienda/pago-nativo`).
 
 - **2026-10-25 · Claude** — **Mobile completo al git + OTA**. Commits: pagos P1–P2 (`e80e81a`, `69a1a6a`);
   componentes base + haptics/animations (`c81f126`); listas premium explorar/P2 (`3d8fa38`); mascotas + home +
