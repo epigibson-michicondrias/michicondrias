@@ -11,7 +11,7 @@ import { showAlert } from '@/src/components/AppAlert';
 import { createBillingPortalSession } from '@/src/services/ecommerce';
 import { openStripeUrl } from '@/src/utils/payments';
 import { getRoleLabelFor, isProRole, normalizeRole } from '@/src/constants/roles';
-import { PRIVACY_URL, TERMS_URL, SUPPORT_EMAIL } from '@/src/constants/support';
+import { LEGAL_URL, SUPPORT_EMAIL } from '@/src/constants/support';
 import type { VerificationStatus } from '@/src/types/auth';
 
 const VERIFICATION_COPY: Record<VerificationStatus, { badge?: string; desc: string }> = {
@@ -67,7 +67,7 @@ export function useAccount() {
         });
     };
 
-    const legalUrl = PRIVACY_URL || TERMS_URL;
+    const legalUrl = LEGAL_URL;
     const openLegal = () => {
         if (!legalUrl) return;
         Linking.openURL(legalUrl).catch(() => {

@@ -1,0 +1,140 @@
+/* Documentos legales públicos (/legal): lectura larga, columna angosta, sin menú de la app. */
+
+.shell {
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.header {
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.headerInner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.brand {
+  font-weight: 800;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: var(--space-huge) var(--space-xl);
+}
+
+.article h1,
+.indexTitle {
+  margin: var(--space-lg) 0 var(--space-xs);
+  font-size: var(--font-h1);
+  letter-spacing: -0.5px;
+}
+
+.meta {
+  margin: 0 0 var(--space-xxxl);
+  color: var(--color-text-muted);
+}
+
+.back {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.section {
+  margin-bottom: var(--space-xxxl);
+}
+
+.section h2 {
+  margin: 0 0 var(--space-md);
+  font-size: var(--font-h2);
+}
+
+.section p,
+.section li {
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+.section p {
+  margin: 0 0 var(--space-md);
+}
+
+.section ul {
+  margin: 0 0 var(--space-md);
+  padding-left: var(--space-xxl);
+}
+
+.section li {
+  margin-bottom: var(--space-xs);
+}
+
+.note {
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background-secondary);
+}
+
+.pending {
+  background: #fde68a;
+  color: #451a03;
+  padding: 0 var(--space-xs);
+  border-radius: var(--radius-xs);
+}
+
+.cards {
+  display: grid;
+  gap: var(--space-lg);
+  margin-top: var(--space-xxl);
+}
+
+.card {
+  display: block;
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.card:hover,
+.card:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.cardTitle {
+  margin: 0 0 var(--space-xs);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cardSummary {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.footer {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 var(--space-xl) var(--space-huge);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+  .cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
