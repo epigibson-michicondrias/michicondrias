@@ -59,9 +59,13 @@ export default function PedidoDetailScreen() {
     });
     const busy = o.isCancelling;
 
+    // Detalle del pedido nunca debe volver al checkout: sale a Mis compras
+    // (si no, el historial conserva carrito/entrega/pago de la compra que ya cerró).
+    const goBack = () => router.replace('/tienda/compras');
+
     return (
         <ScreenContainer>
-            <ScreenHeader title="Pedido" subtitle={ref} />
+            <ScreenHeader title="Pedido" subtitle={ref} onBack={goBack} />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Estado */}

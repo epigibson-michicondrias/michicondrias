@@ -54,8 +54,25 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
         });
     }, [ok, orderId, clearCart]);
 
-    const goToShop = () => router.replace('/(tabs)/tienda-tab' as any);
-    const goToOrder = () => router.replace((orderId ? `/tienda/pedido/${orderId}` : '/tienda/compras') as any);
+    // Tras el pago no debe quedar carrito/checkout en el historial: si no, “atrás”
+    // desde el pedido regresa al paso 1 de entrega.
+    const leaveCheckout = () => {
+        try {
+            router.dismissAll();
+        } catch {
+            // dismissAll no hace nada si solo hay una pantalla en la pila
+        }
+    };
+
+    const goToShop = () => {
+        leaveCheckout();
+        router.replace('/(tabs)/tienda-tab' as any);
+    };
+
+    const goToOrder = () => {
+        leaveCheckout();
+        router.push((orderId ? `/tienda/pedido/${orderId}` : '/tienda/compras') as any);
+    };
 
     return (
         <ScreenContainer>

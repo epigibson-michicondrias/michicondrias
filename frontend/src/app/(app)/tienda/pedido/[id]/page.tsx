@@ -56,9 +56,12 @@ function PedidoContent({ orderId }: { orderId: string }) {
       : order.status === "cancelled" ? "Total (sin cargo)"
         : "Total pagado";
 
+  // Nunca “atrás” al checkout: el detalle vive fuera del flujo de compra.
+  const goBack = () => router.replace("/tienda/compras");
+
   return (
     <ScreenContainer>
-      <ScreenHeader title="Pedido" subtitle={`#${String(order.id).slice(0, 8)}`} />
+      <ScreenHeader title="Pedido" subtitle={`#${String(order.id).slice(0, 8)}`} onBack={goBack} />
 
       <Card>
         <div className={s.priceRow}>

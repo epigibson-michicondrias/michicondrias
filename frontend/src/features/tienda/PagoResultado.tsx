@@ -53,9 +53,26 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
     });
   }, [ok, orderId, clearCart]);
 
+  const leaveCheckout = () => {
+    // Evita que “atrás” desde el pedido regrese al checkout (historial del navegador).
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      window.history.replaceState(null, "", window.location.href);
+    }
+  };
+
+  const goToShop = () => {
+    leaveCheckout();
+    router.replace("/tienda");
+  };
+
+  const goToOrder = () => {
+    leaveCheckout();
+    router.replace(orderId ? `/tienda/pedido/${orderId}` : "/tienda/compras");
+  };
+
   return (
     <ScreenContainer>
-      <ScreenHeader title={copy.header} onBack={() => router.push("/tienda")} />
+      <ScreenHeader title={copy.header} onBack={goToShop} />
       <div className={s.wrap}>
         <div className={`${s.icon} ${ok ? s.iconOk : s.iconBad}`}>
           <Icon size={40} />
@@ -67,9 +84,9 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
           <Button
             label={copy.cta}
             icon={<ShoppingBag size={18} />}
-            onPress={() => router.push(orderId ? `/tienda/pedido/${orderId}` : "/tienda/compras")}
+            onPress={goToOrder}
           />
-          <Button label="Volver a la tienda" variant="secondary" onPress={() => router.push("/tienda")} />
+          <Button label="Volver a la tienda" variant="secondary" onPress={goToShop} />
         </div>
 
         <p className={s.help}>¿Dudas? Escríbenos a {SUPPORT_EMAIL}</p>

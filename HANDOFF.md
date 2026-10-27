@@ -394,6 +394,11 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **Atrás desde el pedido ya no vuelve al checkout**. Tras pagar, «Ver mi pedido»
+  dejaba carrito/entrega/pago en el historial. `PagoResultado` (app) hace `router.dismissAll()` antes de ir al
+  pedido/tienda; detalle del pedido (app+web) el botón atrás → `replace` a Mis compras; web limpia el history
+  al salir del resultado de pago. `tsc`/ESLint 0. **Pendiente commit + push + OTA.**
+
 - **2026-10-27 · Claude** — **Webhook de Stripe roto → pedido pagado seguía en «pendiente»**. El SDK devuelve
   objetos Stripe (no dict): `session.get(...)` lanzaba `AttributeError` y el webhook respondía **500**, así que
   `payment_intent.succeeded` nunca marcaba `paid`. Fix: `_stripe_obj_to_dict` + `event_type`/`data` en todo el
