@@ -32,7 +32,9 @@ const COPY = {
 export default function PagoResultado({ variant }: { variant: keyof typeof COPY }) {
     const router = useRouter();
     const { theme } = useTheme();
-    const { orderId } = useLocalSearchParams<{ orderId?: string }>();
+    // El deep link del backend usa `orderId`; el WebView de pago-nativo y el return_url embebido usan `order_id`.
+    const params = useLocalSearchParams<{ orderId?: string; order_id?: string }>();
+    const orderId = params.orderId ?? params.order_id;
     const { clearCart } = useCart();
     const copy = COPY[variant];
     const ok = variant === 'success';
