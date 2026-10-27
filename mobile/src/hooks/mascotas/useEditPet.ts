@@ -112,6 +112,7 @@ export function useEditPet() {
     };
 
     return {
+        pet,
         form,
         updateField,
         image,

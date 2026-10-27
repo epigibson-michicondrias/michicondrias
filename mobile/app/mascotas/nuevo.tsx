@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/src/hooks/useTheme';
 import { usePetForm } from '@/src/hooks/mascotas/usePetForm';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -7,6 +8,7 @@ import PetForm from '@/src/features/mascotas/PetForm';
 
 export default function NuevaMascotaScreen() {
     const { theme } = useTheme();
+    const router = useRouter();
     const { form, updateField, image, setImage, loading, handleSubmit } = usePetForm();
 
     return (
@@ -19,6 +21,7 @@ export default function NuevaMascotaScreen() {
                 setImage={setImage}
                 submitLabel="Registrar mascota"
                 onSubmit={handleSubmit}
+                onCancel={() => router.back()}
                 busy={loading}
             />
         </ScreenContainer>

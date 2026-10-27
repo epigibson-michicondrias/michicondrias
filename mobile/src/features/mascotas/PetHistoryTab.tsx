@@ -4,28 +4,44 @@
  * peso y temperatura. Lógica en `useClinicalHistory` (espejo de la web).
  */
 import React from 'react';
-import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
-import { ClipboardList, FlaskConical, SearchX, Share2, Sparkles, Syringe, TrendingUp } from 'lucide-react-native';
+import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+    ClipboardList,
+    FlaskConical,
+    RotateCcw,
+    SearchX,
+    Share2,
+    SlidersHorizontal,
+    Sparkles,
+    Syringe,
+    TrendingUp,
+} from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import SearchBar from '@/src/components/SearchBar';
-import FilterChip from '@/src/components/FilterChip';
 import SectionHeader from '@/src/components/SectionHeader';
 import EmptyState from '@/src/components/EmptyState';
 import Button from '@/src/components/Button';
+import SegmentedControl, { type SegmentOption } from '@/src/components/SegmentedControl';
 import { Skeleton } from '@/src/components/Skeleton';
 import WeightSparkline from '@/src/components/WeightSparkline';
 import { showAlert } from '@/src/components/AppAlert';
 import { RecordItem, VaccineItem, LabItem } from '@/src/features/carnet/CarnetItems';
 import type { usePetHealth } from '@/src/hooks/carnet/usePetHealth';
 import { useClinicalHistory, historyReportText } from '@/src/hooks/carnet/useClinicalHistory';
-import { KIND_LABEL, PERIOD_LABEL, type TimelineEvent, type TimelineKind, type TimelinePeriod } from '@/src/hooks/carnet/clinicalTimeline';
+import { KIND_LABEL, type TimelineEvent, type TimelineKind, type TimelinePeriod } from '@/src/hooks/carnet/clinicalTimeline';
 import { capitalize, formatDate } from '@/src/utils/formatters';
-import { spacing, radius, type, layout } from '@/constants/design';
+import { spacing, radius, type, layout, shadow, families, press } from '@/constants/design';
 
 type Health = ReturnType<typeof usePetHealth>;
 
 const KINDS: TimelineKind[] = ['consulta', 'vacuna', 'laboratorio'];
-const PERIODS = Object.keys(PERIOD_LABEL) as TimelinePeriod[];
+
+const PERIOD_OPTIONS: SegmentOption<TimelinePeriod>[] = [
+    { value: 'todo', label: 'Todo' },
+    { value: '30d', label: '30 días' },
+    { value: '6m', label: '6 meses' },
+    { value: '12m', label: '1 año' },
+];
 
 function EventItem({ event, health, petId }: { event: TimelineEvent; health: Health; petId: string }) {
     if (event.record) {
@@ -80,7 +96,7 @@ function Vital({ label, unit, points, color }: { label: string; unit: string; po
 export function PetHistoryTab({ health, petId, petName }: { health: Health; petId: string; petName: string }) {
     const { theme } = useTheme();
     const ch = useClinicalHistory(petId, health);
-    const panel = [styles.panel, { backgroundColor: theme.surface, borderColor: theme.cardBorder }];
+    const panel = [styles.panel, shadow.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }];
 
     const share = async () => {
         if (!ch.summary) return;
@@ -155,29 +171,187 @@ export function PetHistoryTab({ health, petId, petName }: { health: Health; petI
                 </View>
             )}
 
-            <View style={styles.filters}>
-                <SearchBar value={ch.query} onChangeText={ch.setQuery} placeholder="Buscar motivo, medicamento o vacuna" />
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-                    {KINDS.map((k) => (
-                        <FilterChip
-                            key={k}
-                            label={KIND_LABEL[k]}
-                            active={ch.kinds.includes(k)}
-                            onPress={() => ch.toggleKind(k)}
-                            count={ch.counts[k]}
-                            icon={k === 'consulta'
-                                ? <ClipboardList size={layout.icon.xs} color={theme.textMuted} />
-                                : k === 'vacuna'
-                                    ? <Syringe size={layout.icon.xs} color={theme.textMuted} />
-                                    : <FlaskConical size={layout.icon.xs} color={theme.textMuted} />}
-                        />
-                    ))}
-                </ScrollView>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-                    {PERIODS.map((p) => (
-                        <FilterChip key={p} label={PERIOD_LABEL[p]} active={ch.period === p} onPress={() => ch.setPeriod(p)} />
-                    ))}
-                </ScrollView>
+            {/* Contenedor de filtros clínicos unificado y premium */}
+            <View
+                style={[
+                    styles.filtersCard,
+                    shadow.card,
+                    {
+                        backgroundColor: theme.surface,
+                        borderColor: theme.borderLight,
+                    },
+                ]}
+            >
+                {/* Cabecera de filtros */}
+                <View style={styles.filtersHeader}>
+                    <View style={styles.filtersHeaderTitle}>
+                        <SlidersHorizontal size={15} color={theme.primary} />
+                        <Text style={[type.bodyStrong, { color: theme.text }]}>
+                            Filtros clínicos
+                        </Text>
+                        {ch.hasFilters && (
+                            <View
+                                style={[
+                                    styles.activeFilterDot,
+                                    { backgroundColor: theme.primary },
+                                ]}
+                            />
+                        )}
+                    </View>
+
+                    {ch.hasFilters && (
+                        <TouchableOpacity
+                            onPress={ch.clearFilters}
+                            activeOpacity={press.subtle}
+                            style={styles.resetButton}
+                            accessibilityRole="button"
+                            accessibilityLabel="Restablecer filtros"
+                        >
+                            <RotateCcw size={12} color={theme.primary} />
+                            <Text
+                                style={[
+                                    type.caption,
+                                    { color: theme.primary, fontFamily: families.semibold },
+                                ]}
+                            >
+                                Restablecer
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+
+                {/* Buscador integrado */}
+                <SearchBar
+                    value={ch.query}
+                    onChangeText={ch.setQuery}
+                    placeholder="Buscar motivo, medicamento o vacuna..."
+                />
+
+                {/* Filtro por tipo de registro con chips temáticos */}
+                <View style={styles.filterSection}>
+                    <Text style={[type.caption, { color: theme.textMuted }]}>
+                        Tipo de registro
+                    </Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.kindsRow}
+                    >
+                        {KINDS.map((k) => {
+                            const active = ch.kinds.includes(k);
+                            const count = ch.counts[k] ?? 0;
+                            const Icon =
+                                k === 'consulta'
+                                    ? ClipboardList
+                                    : k === 'vacuna'
+                                      ? Syringe
+                                      : FlaskConical;
+                            const isEmpty = count === 0;
+
+                            return (
+                                <TouchableOpacity
+                                    key={k}
+                                    onPress={() => ch.toggleKind(k)}
+                                    activeOpacity={press.subtle}
+                                    style={[
+                                        styles.kindChip,
+                                        active
+                                            ? {
+                                                  backgroundColor: theme.primaryLight,
+                                                  borderColor: theme.primary,
+                                              }
+                                            : {
+                                                  backgroundColor: theme.backgroundSecondary,
+                                                  borderColor: theme.borderLight,
+                                              },
+                                        isEmpty && !active && styles.emptyKindChip,
+                                    ]}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`${KIND_LABEL[k]}, ${count} registros`}
+                                    accessibilityState={{ selected: active }}
+                                >
+                                    <Icon
+                                        size={layout.icon.xs}
+                                        color={
+                                            active
+                                                ? theme.primary
+                                                : isEmpty
+                                                  ? theme.textMuted + '80'
+                                                  : theme.textMuted
+                                        }
+                                    />
+                                    <Text
+                                        style={[
+                                            type.caption,
+                                            {
+                                                color: active
+                                                    ? theme.primary
+                                                    : isEmpty
+                                                      ? theme.textMuted
+                                                      : theme.text,
+                                                fontFamily: active
+                                                    ? families.semibold
+                                                    : families.medium,
+                                            },
+                                        ]}
+                                    >
+                                        {KIND_LABEL[k]}
+                                    </Text>
+                                    <View
+                                        style={[
+                                            styles.countBadge,
+                                            {
+                                                backgroundColor: active
+                                                    ? theme.primary
+                                                    : theme.surface,
+                                            },
+                                        ]}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.countText,
+                                                {
+                                                    color: active
+                                                        ? theme.onPrimary
+                                                        : theme.textMuted,
+                                                },
+                                            ]}
+                                        >
+                                            {count}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+
+                {/* Selector de período con SegmentedControl (100% responsive, sin scroll roto) */}
+                <View style={styles.filterSection}>
+                    <Text style={[type.caption, { color: theme.textMuted }]}>
+                        Periodo de tiempo
+                    </Text>
+                    <SegmentedControl
+                        value={ch.period}
+                        onChange={ch.setPeriod}
+                        options={PERIOD_OPTIONS}
+                        accessibilityLabel="Filtro de periodo de tiempo"
+                    />
+                </View>
+
+                {/* Contador de resultados */}
+                <View style={[styles.resultsStatusRow, { borderTopColor: theme.borderLight }]}>
+                    <Text style={[type.caption, { color: theme.textMuted }]}>
+                        {ch.filtered.length === ch.events.length
+                            ? `${ch.events.length} ${ch.events.length === 1 ? 'registro clínico' : 'registros clínicos'} en total`
+                            : `Mostrando ${ch.filtered.length} de ${ch.events.length} registros`}
+                    </Text>
+                    {ch.hasFilters && (
+                        <TouchableOpacity onPress={ch.clearFilters} activeOpacity={press.subtle}>
+                            <Text style={[type.caption, { color: theme.primary }]}>Limpiar</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
 
             {health.canEdit && <Button label="Registrar consulta" onPress={health.addRecord} variant="secondary" fullWidth />}
@@ -206,10 +380,75 @@ const styles = StyleSheet.create({
     tab: { gap: spacing.lg },
     flex: { flex: 1 },
     row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-    panel: { gap: spacing.md, padding: spacing.lg, borderRadius: radius.lg, borderWidth: 1 },
+    panel: { gap: spacing.md, padding: spacing.lg, borderRadius: radius.xl, borderWidth: 1 },
     vital: { gap: spacing.xs },
     vitalHead: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', gap: spacing.sm },
-    filters: { gap: spacing.sm },
-    chips: { gap: spacing.xs },
+    filtersCard: {
+        borderRadius: radius.xl,
+        borderWidth: 1,
+        padding: spacing.lg,
+        gap: spacing.md,
+    },
+    filtersHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    filtersHeaderTitle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+    },
+    activeFilterDot: {
+        width: 6,
+        height: 6,
+        borderRadius: radius.pill,
+        marginLeft: 2,
+    },
+    resetButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xxs,
+        paddingHorizontal: spacing.xs,
+        paddingVertical: spacing.xxs,
+    },
+    filterSection: {
+        gap: spacing.xs,
+    },
+    kindsRow: {
+        flexDirection: 'row',
+        gap: spacing.xs,
+    },
+    kindChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.xs + 2,
+        borderRadius: radius.pill,
+        borderWidth: 1,
+    },
+    emptyKindChip: {
+        opacity: 0.65,
+    },
+    countBadge: {
+        paddingHorizontal: 6,
+        paddingVertical: 1,
+        borderRadius: radius.pill,
+        minWidth: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    countText: {
+        fontSize: 10,
+        fontFamily: families.semibold,
+    },
+    resultsStatusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingTop: spacing.xs,
+        borderTopWidth: StyleSheet.hairlineWidth,
+    },
     group: { gap: spacing.sm },
 });

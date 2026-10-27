@@ -11,6 +11,7 @@ import EmptyState from '@/src/components/EmptyState';
 import { Skeleton } from '@/src/components/Skeleton';
 import type { IconComponent } from '@/src/components/IconButton';
 import { sentenceCase } from '@/src/utils/formatters';
+import { haptic } from '@/src/utils/haptics';
 import { families, layout, radius, shadow, spacing, tint, type } from '@/constants/design';
 
 // ── Atajos ──────────────────────────────────────────────────────────
@@ -36,7 +37,10 @@ export function ShortcutGrid({ items }: { items: Shortcut[] }) {
             {items.map(({ key, label, icon: Icon, color, onPress, hint }) => (
                 <TouchableOpacity
                     key={key}
-                    onPress={onPress}
+                    onPress={() => {
+                        haptic.selection();
+                        onPress();
+                    }}
                     activeOpacity={0.75}
                     accessibilityRole="button"
                     accessibilityLabel={hint ? `${label}. ${hint}` : label}
@@ -243,7 +247,10 @@ export function ServiceGrid({ items }: { items: ServiceItem[] }) {
             {items.map(({ key, title, subtitle, icon: Icon, color, onPress }) => (
                 <TouchableOpacity
                     key={key}
-                    onPress={onPress}
+                    onPress={() => {
+                        haptic.selection();
+                        onPress();
+                    }}
                     activeOpacity={0.8}
                     accessibilityRole="button"
                     accessibilityLabel={`${title}. ${subtitle}`}
