@@ -392,7 +392,8 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
 
 - **2026-10-25 · Claude** — **Mobile completo al git + OTA**. Commits: pagos P1–P2 (`e80e81a`, `69a1a6a`);
   componentes base + haptics/animations (`c81f126`); listas premium explorar/P2 (`3d8fa38`); mascotas + home +
-  ecommerce (`bc52e40`). `npm run check` 0 errores. Push a `main` + OTA production. **No se commiteó** `backend/`,
+  ecommerce (`bc52e40`); docs (`a7585de`). `npm run check` 0 errores. Push `73c9338..a7585de`. **OTA production**
+  Android `01a17b4a-97e6-732d-ba63-d237b978df3e` (grupo `dc9568ca-…`, runtime 1.1.0). **No se commiteó** `backend/`,
   `frontend/` ni `scripts/` (siguen en el working tree).
 
 - **2026-10-25 · Claude** — **UI pagos P2**. `CheckoutSteps` compartido; `Skeleton` en `pago-nativo`; quitado
