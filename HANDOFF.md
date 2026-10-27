@@ -390,6 +390,14 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-26 · Claude** — **Backend + frontend de pagos revisados y commiteados**. Backend: endpoints
+  `create-payment-intent`, `create-embedded-session`, `confirm-payment-intent`, webhook
+  `payment_intent.succeeded`; `STRIPE_PUBLISHABLE_KEY` en config (sin `pk_` hardcodeada) — **falta inyectar la env
+  en el servicio ecommerce** antes de usar pago nativo en prod. Frontend: `checkout-direccion` + `pago-nativo`
+  (Stripe Elements, Suspense, botón submit, orderId/order_id), carrito sin checkout muerto, servicios espejo.
+  Verificado: `py_compile` OK · `tsc` 0 · ESLint 0 en archivos tocados · `npm run build` verde (rutas
+  `/tienda/checkout-direccion` y `/tienda/pago-nativo`). **No commiteado aún** (push = deploy backend + Vercel).
+
 - **2026-10-25 · Claude** — **Mobile completo al git + OTA**. Commits: pagos P1–P2 (`e80e81a`, `69a1a6a`);
   componentes base + haptics/animations (`c81f126`); listas premium explorar/P2 (`3d8fa38`); mascotas + home +
   ecommerce (`bc52e40`); docs (`a7585de`). `npm run check` 0 errores. Push `73c9338..a7585de`. **OTA production**
