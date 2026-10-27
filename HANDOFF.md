@@ -397,7 +397,7 @@ Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.
 - **2026-10-27 · Claude** — **Atrás desde el pedido ya no vuelve al checkout**. Tras pagar, «Ver mi pedido»
   dejaba carrito/entrega/pago en el historial. `PagoResultado` (app) hace `router.dismissAll()` antes de ir al
   pedido/tienda; detalle del pedido (app+web) el botón atrás → `replace` a Mis compras; web limpia el history
-  al salir del resultado de pago. `tsc`/ESLint 0. **Pendiente commit + push + OTA.**
+  al salir del resultado de pago. Commit `fb69b0b`. OTA `01a17b8e-4063-7450-adee-4cd0c3b4aaf8` · Vercel ✅.
 
 - **2026-10-27 · Claude** — **Webhook de Stripe roto → pedido pagado seguía en «pendiente»**. El SDK devuelve
   objetos Stripe (no dict): `session.get(...)` lanzaba `AttributeError` y el webhook respondía **500**, así que
