@@ -5,13 +5,14 @@
  * No inventa datos del pedido: lleva al detalle real. Espejo de
  * `mobile/src/features/tienda/PagoResultado.tsx`.
  */
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, ShoppingBag, XCircle } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
 import { useCart } from "@/contexts/CartContext";
+import { confirmPaymentIntent } from "@/services/ecommerce";
 import { SUPPORT_EMAIL } from "@/constants/support";
 import s from "./pago.module.css";
 
@@ -40,9 +41,17 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
   const ok = variant === "success";
   const Icon = ok ? CheckCircle : XCircle;
 
+  // Confirma el cobro en el servidor (respaldo del webhook) y vacía la bolsa solo si el pago fue ok.
+  const confirmedRef = useRef(false);
   useEffect(() => {
-    if (ok) clearCart();
-  }, [ok, clearCart]);
+    if (!ok) return;
+    clearCart();
+    if (!orderId || confirmedRef.current) return;
+    confirmedRef.current = true;
+    confirmPaymentIntent(orderId, "").catch(() => {
+      // El webhook o el detalle del pedido cierran el caso si esto falla
+    });
+  }, [ok, orderId, clearCart]);
 
   return (
     <ScreenContainer>

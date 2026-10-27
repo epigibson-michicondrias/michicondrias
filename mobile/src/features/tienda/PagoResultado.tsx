@@ -2,12 +2,13 @@
  * PagoResultado — pantalla de vuelta desde Stripe (pago-exitoso / pago-cancelado). No inventa datos del pedido:
  * lleva al detalle real, cuyo estado viene del servidor. Las dos rutas existen porque el backend las abre por deep link.
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CheckCircle, XCircle, ShoppingBag, Store } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '@/src/contexts/CartContext';
+import { confirmPaymentIntent } from '@/src/services/ecommerce';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import Button from '@/src/components/Button';
@@ -41,9 +42,17 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
     const Icon = ok ? CheckCircle : XCircle;
 
     // La bolsa se vacía cuando el pago se confirma (no al abrir la pasarela: si falla, se conserva)
+    // y se confirma el cobro en el servidor (respaldo del webhook).
+    const confirmedRef = useRef(false);
     useEffect(() => {
-        if (ok) clearCart();
-    }, [ok, clearCart]);
+        if (!ok) return;
+        clearCart();
+        if (!orderId || confirmedRef.current) return;
+        confirmedRef.current = true;
+        confirmPaymentIntent(orderId, '').catch(() => {
+            // El webhook o el refresco del detalle del pedido cierran el caso si esto falla
+        });
+    }, [ok, orderId, clearCart]);
 
     const goToShop = () => router.replace('/(tabs)/tienda-tab' as any);
     const goToOrder = () => router.replace((orderId ? `/tienda/pedido/${orderId}` : '/tienda/compras') as any);

@@ -276,12 +276,19 @@ async def confirm_payment_intent(
 ) -> Any:
     """
     Verifies that a PaymentIntent has succeeded in Stripe and updates the order status immediately.
+    `paymentIntentId` es opcional: si falta se usa el guardado en el pedido.
     """
     client = get_stripe_client()
     if not client:
         raise HTTPException(status_code=503, detail="Stripe no disponible")
 
-    payment_intent_id = payload.get("paymentIntentId")
+    db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
+    if not db_order:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    if db_order.user_id != user_id and role != "admin":
+        raise HTTPException(status_code=403, detail="No puedes confirmar este pedido")
+
+    payment_intent_id = (payload or {}).get("paymentIntentId") or db_order.payment_intent_id
     if not payment_intent_id:
         raise HTTPException(status_code=400, detail="Falta paymentIntentId")
 
@@ -290,15 +297,14 @@ async def confirm_payment_intent(
         if pi.status != "succeeded":
             raise HTTPException(status_code=400, detail=f"El pago aún no se completa (estado: {pi.status})")
 
-        if pi.metadata.get("order_id") != order_id:
+        meta = _stripe_obj_to_dict(pi).get("metadata") or {}
+        if meta.get("order_id") != order_id:
             raise HTTPException(status_code=400, detail="El identificador de pedido no coincide con el pago")
-
-        db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
-        if not db_order:
-            raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
         if db_order.status in ("pending", "cancelled"):
             db_order.status = "paid"
+            if not db_order.payment_intent_id:
+                db_order.payment_intent_id = payment_intent_id
             db.commit()
             crud.crud_ecommerce.notify_order_paid(db, db_order)
 
@@ -417,6 +423,17 @@ a.s{{color:#cbb8ff;font-size:14px}}p{{line-height:1.5;color:#d8ccf5}}</style></h
     return HTMLResponse(page)
 
 
+def _stripe_obj_to_dict(obj: Any) -> dict:
+    """El SDK de Stripe devuelve objetos (no dict): `.get()` lanza AttributeError."""
+    if obj is None:
+        return {}
+    if isinstance(obj, dict):
+        return obj
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict() or {}
+    return {}
+
+
 @router.post("/webhook")
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """
@@ -437,94 +454,87 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     except stripe.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature")
 
+    event_type = event["type"] if isinstance(event, dict) else event.type
+    obj = event["data"]["object"] if isinstance(event, dict) else event.data.object
+    data = _stripe_obj_to_dict(obj)
+    meta = data.get("metadata") or {}
+
     # Handle the event
-    if event['type'] in ('checkout.session.completed', 'checkout.session.async_payment_succeeded'):
-        session = event['data']['object']
-        mode = session.get('mode')
-        meta = session.get('metadata') or {}
-        payment_status = session.get('payment_status')
+    if event_type in ("checkout.session.completed", "checkout.session.async_payment_succeeded"):
+        mode = data.get("mode")
+        payment_status = data.get("payment_status")
 
         # Fulfill only when session is not unpaid (or when subscription is active)
-        if payment_status != 'unpaid':
-            if mode == 'payment' and meta.get('kind') == 'donation':
-                donation_id = meta.get('donation_id') or session.get('client_reference_id')
+        if payment_status != "unpaid":
+            if mode == "payment" and meta.get("kind") == "donation":
+                donation_id = meta.get("donation_id") or data.get("client_reference_id")
                 db_donation = crud.crud_ecommerce.get_donation(db, donation_id) if donation_id else None
-                if db_donation and db_donation.status != 'paid':
+                if db_donation and db_donation.status != "paid":
                     crud.crud_ecommerce.mark_donation_paid(db, db_donation)
                     logger.info(f"Donation {donation_id} marked as paid.")
 
-            elif mode == 'payment':
+            elif mode == "payment":
                 # Regular Store Order
-                order_id = session.get('client_reference_id')
+                order_id = data.get("client_reference_id")
                 if order_id:
                     db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
                     # Solo pendientes (o cancelados por tiempo con pago tardío) pasan a pagado; un evento repetido no
                     # debe regresar a "paid" un pedido que ya fue enviado o entregado.
-                    if db_order and db_order.status in ('pending', 'cancelled'):
-                        if db_order.status == 'cancelled':
+                    if db_order and db_order.status in ("pending", "cancelled"):
+                        if db_order.status == "cancelled":
                             # El stock ya se había devuelto: se vuelve a apartar (sin bajar de 0)
                             for item in db_order.items:
                                 product = crud.crud_ecommerce.get_product(db, item.product_id)
                                 if product:
                                     product.stock = max(0, (product.stock or 0) - item.quantity)
                             logger.warning(f"Order {order_id} was cancelled but paid; reactivating.")
-                        db_order.status = 'paid'
+                        db_order.status = "paid"
                         db.commit()
                         logger.info(f"Order {order_id} marked as paid.")
                         crud.crud_ecommerce.notify_order_paid(db, db_order)
-            
-            elif mode == 'subscription':
+
+            elif mode == "subscription":
                 # Michi-Tracker Pro Subscription Setup
-                pet_id = session.get('client_reference_id')
-                subscription_id = session.get('subscription')
+                pet_id = data.get("client_reference_id")
+                subscription_id = data.get("subscription")
                 if pet_id and subscription_id:
                     logger.info(f"Activating Michi-Tracker Pro for pet {pet_id} (Sub: {subscription_id})")
                     _notify_mascotas_service(pet_id, True, subscription_id)
 
-    elif event['type'] in ('payment_intent.succeeded',):
-        pi = event['data']['object']
-        order_id = pi.get('metadata', {}).get('order_id')
+    elif event_type in ("payment_intent.succeeded",):
+        order_id = meta.get("order_id")
         if order_id:
             db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
-            if db_order and db_order.status in ('pending', 'cancelled'):
-                if db_order.status == 'cancelled':
+            if db_order and db_order.status in ("pending", "cancelled"):
+                if db_order.status == "cancelled":
                     for item in db_order.items:
                         product = crud.crud_ecommerce.get_product(db, item.product_id)
                         if product:
                             product.stock = max(0, (product.stock or 0) - item.quantity)
-                db_order.status = 'paid'
+                db_order.status = "paid"
                 db.commit()
                 logger.info(f"PaymentIntent webhook: Order {order_id} marked as paid.")
                 crud.crud_ecommerce.notify_order_paid(db, db_order)
 
-    elif event['type'] == 'checkout.session.async_payment_failed':
-        session = event['data']['object']
-        order_id = session.get('client_reference_id')
+    elif event_type == "checkout.session.async_payment_failed":
+        order_id = data.get("client_reference_id")
         if order_id:
             db_order = crud.crud_ecommerce.get_order(db, order_id=order_id)
-            if db_order and db_order.status == 'pending':
-                crud.crud_ecommerce.update_order_status(db, db_order, 'cancelled')
+            if db_order and db_order.status == "pending":
+                crud.crud_ecommerce.update_order_status(db, db_order, "cancelled")
                 logger.warning(f"Async payment failed for order {order_id}; order cancelled.")
 
-    elif event['type'] == 'checkout.session.expired':
-        session = event['data']['object']
-        meta = session.get('metadata') or {}
-        if meta.get('kind') == 'donation':
-            donation_id = meta.get('donation_id') or session.get('client_reference_id')
+    elif event_type == "checkout.session.expired":
+        if meta.get("kind") == "donation":
+            donation_id = meta.get("donation_id") or data.get("client_reference_id")
             db_donation = crud.crud_ecommerce.get_donation(db, donation_id) if donation_id else None
-            if db_donation and db_donation.status == 'pending':
-                crud.crud_ecommerce.update_donation_status(db, db_donation, 'expired')
+            if db_donation and db_donation.status == "pending":
+                crud.crud_ecommerce.update_donation_status(db, db_donation, "expired")
 
-    elif event['type'] == 'customer.subscription.deleted':
+    elif event_type == "customer.subscription.deleted":
         # Subscription was cancelled or failed to pay for too long
-        subscription = event['data']['object']
-        subscription_id = subscription.get('id')
+        subscription_id = data.get("id")
         logger.info(f"Subscription {subscription_id} cancelled. Revoking access.")
-        # We need the pet_id to update. We could fetch it if we stored it in the subscription metadata
-        # during creation, or we can broadcast a global block by subscription_id to Mascotas.
-        # But wait, we can just hit a special endpoint or we can find by sub_id if we have one.
-        # Mascotas needs logic to search by stripe_subscription_id. 
-        # For now, let's call a theoretical endpoint that revokes by sub_id.
         _notify_mascotas_service_by_sub(subscription_id, False)
 
     return {"status": "success"}

@@ -394,6 +394,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **Webhook de Stripe roto → pedido pagado seguía en «pendiente»**. El SDK devuelve
+  objetos Stripe (no dict): `session.get(...)` lanzaba `AttributeError` y el webhook respondía **500**, así que
+  `payment_intent.succeeded` nunca marcaba `paid`. Fix: `_stripe_obj_to_dict` + `event_type`/`data` en todo el
+  webhook. `confirm-payment-intent` acepta PI vacío y usa `orders.payment_intent_id`. `PagoResultado` (app+web)
+  confirma el cobro al volver (respaldo). Pedido atascado `8cba47ae…` (PI `succeeded` en Stripe) → **paid**.
+  **Pendiente push (backend+web) + OTA.**
+
 - **2026-10-27 · Claude** — **Push + migrate + OTA + limpieza de tienda**. Push `b00acdd..1b14cb6`.
   Deploy Oracle `40445682623` ✅; `scripts/vm.sh migrate ecommerce` → head `c4f8a2e19b37`
   (`orders.payment_intent_id`); 17/17 http 200. **OTA** Android `01a17b75-5dac-70d4-ba7f-3aafc6efb74d`
