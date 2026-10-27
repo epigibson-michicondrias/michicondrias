@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock, MapPin, Minus, Package, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
@@ -15,12 +16,20 @@ import EmptyState from "@/components/EmptyState";
 import { showAlert } from "@/components/AppAlert";
 import { useCart } from "@/contexts/CartContext";
 import { useCartProducts } from "@/hooks/ecommerce/useCartProducts";
+import { getMyOrders } from "@/services/ecommerce";
 import s from "../tienda.module.css";
 
 export default function CarritoPage() {
   const { items, cartTotal, cartCount, updateQuantity, clearCart, savedAddress } = useCart();
   useCartProducts();
   const router = useRouter();
+
+  const { data: myOrders } = useQuery({
+    queryKey: ["my-orders-pending-cart"],
+    queryFn: () => getMyOrders(0, 5),
+    staleTime: 15_000,
+  });
+  const pendingOrder = (myOrders ?? []).find((o) => o.status === "pending");
 
   return (
     <ScreenContainer>
@@ -48,6 +57,24 @@ export default function CarritoPage() {
           ) : undefined
         }
       />
+
+      {pendingOrder && (
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <strong style={{ fontSize: 14, color: "var(--color-primary)" }}>Tienes un pedido pendiente</strong>
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
+                Pedido #{pendingOrder.id.slice(0, 8)} · ${pendingOrder.total_amount.toFixed(2)}
+              </p>
+            </div>
+            <Button
+              label="Completar pago"
+              size="sm"
+              onPress={() => router.push(`/tienda/pago-nativo?order_id=${pendingOrder.id}`)}
+            />
+          </div>
+        </Card>
+      )}
 
       {items.length === 0 ? (
         <EmptyState

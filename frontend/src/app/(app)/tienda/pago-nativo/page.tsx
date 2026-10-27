@@ -19,11 +19,6 @@ import { useThemeContext } from "@/contexts/ThemeContext";
 import { createPaymentIntent, getOrder, Order } from "@/services/ecommerce";
 import s from "../tienda.module.css";
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ||
-    "pk_test_51UUxT5KudUw71uodwRzmXjFEIv0o2ifgY35fY3H1dP9gQBj3USkxtO7tXbZyQwIMmBLfPlolPqmVHusvAYQAfQ2b00k2w8v6eg"
-);
-
 function PaymentForm({ order }: { order: Order }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -87,6 +82,10 @@ function PagoNativoContent() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [stripePromise, setStripePromise] = useState<ReturnType<typeof loadStripe> | null>(() => {
+    const envKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+    return envKey ? loadStripe(envKey) : null;
+  });
   const [loading, setLoading] = useState(Boolean(orderId));
   const [errorMsg, setErrorMsg] = useState<string | null>(
     orderId ? null : "No se proporcionó un número de pedido."
@@ -105,6 +104,12 @@ function PagoNativoContent() {
         if (!isMounted) return;
         setOrder(ord);
         setClientSecret(session.clientSecret);
+        const pk = session.publishableKey || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+        if (pk) {
+          setStripePromise(loadStripe(pk));
+        } else {
+          throw new Error("No se pudo obtener la clave pública de Stripe.");
+        }
       } catch (err) {
         if (!isMounted) return;
         const msg = err instanceof Error ? err.message : "No se pudo preparar la pasarela de pago.";
@@ -203,7 +208,7 @@ function PagoNativoContent() {
               </div>
             </div>
           </Card>
-        ) : clientSecret && order ? (
+        ) : clientSecret && order && stripePromise ? (
           <Card>
             <Elements
               stripe={stripePromise}

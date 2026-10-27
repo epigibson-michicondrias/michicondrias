@@ -150,10 +150,14 @@ export default function CheckoutDireccionScreen() {
                 params: { order_id: order.id },
             } as any);
         } catch (err: any) {
+            const rawMsg = err?.message || 'Inténtalo de nuevo en unos momentos.';
+            const message = rawMsg.includes('Stock insuficiente')
+                ? `${rawMsg}. Si ya intentaste pagar antes, revisa tus pedidos pendientes en Mis compras.`
+                : rawMsg;
             showAlert({
                 type: 'error',
                 title: 'No se pudo crear el pedido',
-                message: err?.message || 'Inténtalo de nuevo en unos momentos.',
+                message,
             });
         } finally {
             setIsSubmitting(false);

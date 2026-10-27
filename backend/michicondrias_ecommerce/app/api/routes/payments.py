@@ -122,7 +122,7 @@ async def create_payment_intent(
         raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
 
     crud.crud_ecommerce.release_stale_pending_orders(db)
-    order = crud.crud_ecommerce.get_order(db, order_id=order_id)
+    order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if order.user_id != user_id and role != "admin":
@@ -148,6 +148,18 @@ async def create_payment_intent(
                 logger.warning("No se pudo leer el PaymentIntent previo %s; se crea uno nuevo", order.payment_intent_id)
                 existing = None
             if existing is not None:
+                if existing.status == "succeeded":
+                    if order.status in ("pending", "cancelled"):
+                        order.status = "paid"
+                        db.commit()
+                        crud.crud_ecommerce.notify_order_paid(db, order)
+                    return {
+                        "clientSecret": existing.client_secret,
+                        "paymentIntentId": existing.id,
+                        "amount": order.total_amount,
+                        "publishableKey": get_publishable_key(),
+                        "status": "paid",
+                    }
                 if (
                     existing.status in _REUSABLE_PI_STATUSES
                     and existing.amount == total_amount
@@ -302,6 +314,12 @@ async def confirm_payment_intent(
             raise HTTPException(status_code=400, detail="El identificador de pedido no coincide con el pago")
 
         if db_order.status in ("pending", "cancelled"):
+            if db_order.status == "cancelled":
+                for item in db_order.items:
+                    product = crud.crud_ecommerce.get_product(db, item.product_id)
+                    if product:
+                        product.stock = max(0, (product.stock or 0) - item.quantity)
+                logger.warning(f"Order {order_id} was cancelled but paid; reactivating and restocking.")
             db_order.status = "paid"
             if not db_order.payment_intent_id:
                 db_order.payment_intent_id = payment_intent_id
@@ -536,6 +554,32 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
         subscription_id = data.get("id")
         logger.info(f"Subscription {subscription_id} cancelled. Revoking access.")
         _notify_mascotas_service_by_sub(subscription_id, False)
+
+    elif event_type == "payment_intent.payment_failed":
+        order_id = meta.get("order_id")
+        last_error = data.get("last_payment_error") or {}
+        err_msg = last_error.get("message") if isinstance(last_error, dict) else None
+        logger.warning(f"PaymentIntent failed for order {order_id}: {err_msg}")
+
+    elif event_type == "charge.refunded":
+        order_id = meta.get("order_id")
+        if not order_id and data.get("payment_intent"):
+            pi_id = data.get("payment_intent")
+            from app.models.ecommerce import Order as _OrderModel
+            db_order_pi = db.query(_OrderModel).filter(_OrderModel.payment_intent_id == pi_id).first()
+            if db_order_pi:
+                order_id = db_order_pi.id
+        if order_id:
+            db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
+            if db_order and db_order.status in ("paid", "confirmed"):
+                crud.crud_ecommerce.update_order_status(db, db_order, "cancelled")
+                logger.info(f"Order {order_id} marked as cancelled due to charge refund.")
+
+    elif event_type == "invoice.payment_failed":
+        subscription_id = data.get("subscription")
+        if subscription_id:
+            logger.warning(f"Subscription renewal payment failed for {subscription_id}. Revoking tracker.")
+            _notify_mascotas_service_by_sub(subscription_id, False)
 
     return {"status": "success"}
 

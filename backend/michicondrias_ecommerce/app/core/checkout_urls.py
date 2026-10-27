@@ -24,11 +24,16 @@ def safe_session(value: str | None) -> str | None:
 
 def web_url(kind: str, result: str, ref: str, session_id: str | None = None) -> str:
     base = settings.FRONTEND_URL.rstrip("/")
+    ref_q = quote(ref, safe="")
     sid = f"session_id={session_id}" if session_id else ""
     if kind == "order":
+        query_parts = [f"order_id={ref_q}"]
+        if sid:
+            query_parts.append(sid)
+        query = "?" + "&".join(query_parts)
         if result == "success":
-            return f"{base}/tienda/pago-exitoso" + (f"?{sid}" if sid else "")
-        return f"{base}/tienda/pago-cancelado"
+            return f"{base}/tienda/pago-exitoso{query}"
+        return f"{base}/tienda/pago-cancelado{query}"
     if kind == "subscription":
         state = "success" if result == "success" else "cancelled"
         return f"{base}/mascotas/{ref}?subscription={state}" + (f"&{sid}" if sid else "")

@@ -68,7 +68,6 @@ def read_my_orders(
     """
     Historial de pedidos del usuario, paginado (`skip`/`limit`, máx. 50 por página).
     """
-    crud.crud_ecommerce.release_stale_pending_orders(db)
     return crud.crud_ecommerce.get_user_orders(db, user_id=user_id, skip=max(skip, 0), limit=min(max(limit, 1), 50))
 
 @router.get("/seller/me", response_model=List[OrderResponse])
@@ -81,11 +80,11 @@ def read_seller_orders(
     """
     Retrieve orders containing products from the current seller.
     """
-    crud.crud_ecommerce.release_stale_pending_orders(db)
     orders = crud.crud_ecommerce.get_seller_orders(db, seller_id=user_id, skip=skip, limit=limit)
     names = _user_names(db, {o.user_id for o in orders})
     for o in orders:
         o.buyer_name = names.get(str(o.user_id))
+        o.items = [i for i in o.items if i.product and str(i.product.seller_id) == str(user_id)]
     return orders
 
 @router.get("/{order_id}", response_model=OrderResponse)
@@ -98,12 +97,13 @@ def read_order(
     """
     Get order details.
     """
-    crud.crud_ecommerce.release_stale_pending_orders(db)
     order = crud.crud_ecommerce.get_order(db, order_id=order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     if order.user_id != user_id and not _is_seller_of(db, order_id, user_id) and role != "admin":
         raise HTTPException(status_code=403, detail="No puedes ver este pedido")
+    if role != "admin" and str(order.user_id) != str(user_id):
+        order.items = [i for i in order.items if i.product and str(i.product.seller_id) == str(user_id)]
     return order
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
@@ -152,7 +152,6 @@ def read_all_orders(
     """
     Retrieve all orders across the system (Admin only).
     """
-    crud.crud_ecommerce.release_stale_pending_orders(db)
     orders = crud.crud_ecommerce.get_all_orders(db, skip=skip, limit=limit)
     names = _user_names(db, {o.user_id for o in orders})
     for o in orders:

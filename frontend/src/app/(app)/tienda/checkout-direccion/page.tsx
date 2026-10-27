@@ -129,10 +129,14 @@ export default function CheckoutDireccionPage() {
       });
       router.push(`/tienda/pago-nativo?order_id=${order.id}`);
     } catch (err) {
+      const rawMsg = err instanceof Error ? err.message : "Inténtalo de nuevo.";
+      const message = rawMsg.includes("Stock insuficiente")
+        ? `${rawMsg}. Si ya intentaste pagar antes, revisa tus pedidos pendientes en Mis compras.`
+        : rawMsg;
       showAlert({
         type: "error",
         title: "No se pudo crear el pedido",
-        message: err instanceof Error ? err.message : "Inténtalo de nuevo.",
+        message,
       });
     } finally {
       setIsSubmitting(false);

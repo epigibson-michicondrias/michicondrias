@@ -12,6 +12,7 @@ import Card from '@/src/components/Card';
 import Button from '@/src/components/Button';
 import { Skeleton } from '@/src/components/Skeleton';
 import CheckoutSteps from '@/src/features/tienda/CheckoutSteps';
+import { WEB_URL } from '@/src/constants/support';
 import { families, radius, spacing, type } from '@/constants/design';
 
 export default function PagoNativoScreen() {
@@ -230,7 +231,7 @@ export default function PagoNativoScreen() {
             const { error } = await stripe.confirmPayment({
               elements,
               confirmParams: {
-                return_url: 'https://michicondrias.vercel.app/tienda/pago-exitoso?orderId=${order_id}',
+                return_url: '${WEB_URL.replace(/\/$/, '')}/tienda/pago-exitoso?orderId=${order_id}',
               },
             });
 
@@ -325,7 +326,7 @@ export default function PagoNativoScreen() {
                     <View style={[styles.webviewContainer, { borderColor: theme.border, backgroundColor: theme.background }]}>
                         <WebView
                             originWhitelist={['*']}
-                            source={{ html: htmlContent, baseUrl: 'https://michicondrias.vercel.app' }}
+                            source={{ html: htmlContent, baseUrl: WEB_URL }}
                             onNavigationStateChange={handleNavigationStateChange}
                             javaScriptEnabled={true}
                             domStorageEnabled={true}

@@ -124,10 +124,13 @@ def read_donation(
         raise HTTPException(status_code=403, detail="No tienes acceso a esta donación")
     if donation.status == "pending" and donation.stripe_session_id and settings.STRIPE_SECRET_KEY:
         try:
-            session = stripe.checkout.Session.retrieve(donation.stripe_session_id)
-            if session.get("payment_status") == "paid":
+            client = stripe.StripeClient(settings.STRIPE_SECRET_KEY)
+            session = client.v1.checkout.sessions.retrieve(donation.stripe_session_id)
+            payment_status = getattr(session, "payment_status", None) or (session.get("payment_status") if isinstance(session, dict) else None)
+            session_status = getattr(session, "status", None) or (session.get("status") if isinstance(session, dict) else None)
+            if payment_status == "paid":
                 donation = crud.crud_ecommerce.mark_donation_paid(db, donation)
-            elif session.get("status") == "expired":
+            elif session_status == "expired":
                 donation = crud.crud_ecommerce.update_donation_status(db, donation, "expired")
         except Exception:
             logger.warning("No se pudo verificar la donación %s con Stripe", donation_id, exc_info=True)

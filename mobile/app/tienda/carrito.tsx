@@ -3,9 +3,11 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Trash2, ShoppingBag, ShieldCheck, MapPin, ArrowRight, Zap, CheckCircle2, ChevronRight } from 'lucide-react-native';
+import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '@/src/contexts/CartContext';
 import { useCartProducts } from '@/src/hooks/ecommerce/useCartProducts';
+import { getMyOrders } from '@/src/services/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
 import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -25,6 +27,13 @@ export default function CarritoScreen() {
     const insets = useSafeAreaInsets();
     const { items, cartTotal, cartCount, updateQuantity, clearCart, savedAddress } = useCart();
     useCartProducts();
+
+    const { data: myOrders } = useQuery({
+        queryKey: ['my-orders-pending-cart'],
+        queryFn: () => getMyOrders(0, 5),
+        staleTime: 15_000,
+    });
+    const pendingOrder = (myOrders ?? []).find((o) => o.status === 'pending');
 
     const handleContinue = () => {
         router.push('/tienda/checkout-direccion');
@@ -86,6 +95,24 @@ export default function CarritoScreen() {
             />
 
             <KeyboardScreen contentContainerStyle={styles.content} footer={footer}>
+                {Boolean(pendingOrder) && (
+                    <Card style={{ marginBottom: spacing.md, borderColor: theme.primary, borderWidth: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm }}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[type.bodyStrong, { color: theme.primary }]}>Tienes un pedido pendiente</Text>
+                                <Text style={[type.caption, { color: theme.textMuted }]}>
+                                    Pedido #{pendingOrder!.id.slice(0, 8)} · {formatCurrency(pendingOrder!.total_amount)}
+                                </Text>
+                            </View>
+                            <Button
+                                label="Pagar"
+                                size="sm"
+                                onPress={() => router.push({ pathname: '/tienda/pago-nativo', params: { order_id: pendingOrder!.id } } as any)}
+                            />
+                        </View>
+                    </Card>
+                )}
+
                 {/* Barra de progreso de Envío Gratis estilo Mercado Libre */}
                 <View style={[styles.shippingProgressCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                     <View style={styles.shippingProgressHeader}>

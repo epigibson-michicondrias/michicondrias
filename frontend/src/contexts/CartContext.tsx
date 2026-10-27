@@ -166,30 +166,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const byId = new Map(products.map((p) => [p.id, p]));
         let removed = 0;
         let changed = false;
-        const next = items.flatMap((item) => {
-            const fresh = byId.get(item.product.id);
-            if (!fresh) return [item];
-            const stock = fresh.stock ?? 0;
-            if (stock <= 0) {
-                removed += 1;
-                changed = true;
-                return [];
-            }
-            const quantity = Math.min(item.quantity, stock);
-            if (quantity !== item.quantity || fresh.price !== item.product.price) changed = true;
-            return [{ product: fresh, quantity }];
-        });
-        if (removed > 0) {
-            showAlert({
-                type: 'info',
-                title: 'Bolsa actualizada',
-                message: removed === 1
-                    ? 'Un producto ya no está disponible y se quitó de tu bolsa.'
-                    : `${removed} productos ya no están disponibles y se quitaron de tu bolsa.`,
+        setItems((prevItems) => {
+            const next = prevItems.flatMap((item) => {
+                const fresh = byId.get(item.product.id);
+                if (!fresh) return [item];
+                const stock = fresh.stock ?? 0;
+                if (stock <= 0) {
+                    removed += 1;
+                    changed = true;
+                    return [];
+                }
+                const quantity = Math.min(item.quantity, stock);
+                if (quantity !== item.quantity || fresh.price !== item.product.price) changed = true;
+                return [{ product: fresh, quantity }];
             });
-        }
-        if (changed) setItems(next);
-    }, [items]);
+            if (removed > 0) {
+                showAlert({
+                    type: 'info',
+                    title: 'Bolsa actualizada',
+                    message: removed === 1
+                        ? 'Un producto ya no está disponible y se quitó de tu bolsa.'
+                        : `${removed} productos ya no están disponibles y se quitaron de tu bolsa.`,
+                });
+            }
+            return changed ? next : prevItems;
+        });
+    }, []);
 
     const cartTotal = items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
     const cartCount = items.reduce((count, item) => count + item.quantity, 0);
