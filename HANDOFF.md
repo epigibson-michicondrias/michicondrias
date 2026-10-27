@@ -390,17 +390,20 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
-- **2026-10-25 · Claude** — **UI pagos P2 + OTA**. `CheckoutSteps` compartido (paso 1 y 2); `pago-nativo` con
-  `Skeleton` en vez de `ActivityIndicator` y `accessibilityLabel` en el error; quitado `useCheckout` sin usar de
-  `checkout-direccion`; `#00a650` → `theme.success` en `carrito`, `producto/[id]` y `CartItemRow`. Verificado:
-  `npm run check` 0 errores. Commit P2 + push + OTA production. (Los puntos 1–3 anteriores: `e80e81a`.)
+- **2026-10-25 · Claude** — **Mobile completo al git + OTA**. Commits: pagos P1–P2 (`e80e81a`, `69a1a6a`);
+  componentes base + haptics/animations (`c81f126`); listas premium explorar/P2 (`3d8fa38`); mascotas + home +
+  ecommerce (`bc52e40`). `npm run check` 0 errores. Push a `main` + OTA production. **No se commiteó** `backend/`,
+  `frontend/` ni `scripts/` (siguen en el working tree).
+
+- **2026-10-25 · Claude** — **UI pagos P2**. `CheckoutSteps` compartido; `Skeleton` en `pago-nativo`; quitado
+  `useCheckout` sin usar; `#00a650` → `theme.success` en carrito/producto/CartItemRow. Verificado: `npm run check`
+  0 errores.
 
 - **2026-10-25 · Claude** — **UI pagos (ui-ux-pro-max), puntos 1–3**. (1) `PagoResultado` lee `orderId` y `order_id`
   (deep link del backend vs WebView); `pago-nativo` unifica `orderId` en `return_url` y al navegar → «Ver mi pedido»
   abre el detalle. (2) Quitar `user-scalable=no`/`maximum-scale` del HTML de Stripe; error HTML con
   `role="alert"`/`aria-live`. (3) Tokens: `#00a650`→`theme.success`, `#ffffff`→`theme.onPrimary`, inputs/tab Stripe
   desde tema; emoji `⚡`→ícono `Zap`. Archivos: `PagoResultado.tsx`, `pago-nativo.tsx`, `checkout-direccion.tsx`.
-  Verificado: `tsc` + ESLint limpios. No desplegado. Quedan P2 en §5 (Skeleton, steps compartidos, carrito/producto).
 
 - **2026-10-25 · Mimo** — **Data dummy masiva + limpieza + Web Perfil**. Seed completo (~90 registros) en todos los
   módulos con estados de flujo variados: adopciones (abierto/adoptado, aprobadas con admin), perdidas (lost/found ×
