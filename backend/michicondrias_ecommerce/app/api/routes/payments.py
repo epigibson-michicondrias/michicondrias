@@ -23,6 +23,11 @@ def get_stripe_client() -> stripe.StripeClient | None:
         return None
     return stripe.StripeClient(settings.STRIPE_SECRET_KEY)
 
+def get_publishable_key() -> str:
+    if not settings.STRIPE_PUBLISHABLE_KEY:
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+    return settings.STRIPE_PUBLISHABLE_KEY
+
 @router.post("/create-checkout-session/{order_id}")
 async def create_checkout_session(
     order_id: str,
@@ -94,6 +99,181 @@ async def create_checkout_session(
     except Exception:
         logger.exception("Stripe session creation failed")
         raise HTTPException(status_code=502, detail="No se pudo iniciar el pago. Intenta de nuevo en unos minutos.")
+
+@router.post("/create-payment-intent/{order_id}")
+async def create_payment_intent(
+    order_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """
+    Create a Stripe PaymentIntent for native Elements checkout (custom UI themed with Michicondrias colors).
+    """
+    if not settings.STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+
+    crud.crud_ecommerce.release_stale_pending_orders(db)
+    order = crud.crud_ecommerce.get_order(db, order_id=order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    if order.user_id != user_id and role != "admin":
+        raise HTTPException(status_code=403, detail="No puedes pagar este pedido")
+    if order.status != "pending":
+        detail = "El pedido fue cancelado. Crea uno nuevo desde tu bolsa." if order.status == "cancelled" else "Order is already paid"
+        raise HTTPException(status_code=400, detail=detail)
+
+    client = get_stripe_client()
+    if not client:
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+
+    total_amount = round(order.total_amount * 100)
+    if total_amount <= 0:
+        raise HTTPException(status_code=400, detail="Monto inválido para cobrar")
+
+    try:
+        intent = client.v1.payment_intents.create(
+            params={
+                "amount": total_amount,
+                "currency": "mxn",
+                "automatic_payment_methods": {"enabled": True},
+                "metadata": {
+                    "order_id": order.id,
+                    "user_id": user_id,
+                },
+            }
+        )
+        return {
+            "clientSecret": intent.client_secret,
+            "paymentIntentId": intent.id,
+            "amount": order.total_amount,
+            "publishableKey": get_publishable_key(),
+        }
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Failed to create PaymentIntent")
+        raise HTTPException(status_code=502, detail="No se pudo iniciar el intento de pago nativo.")
+
+@router.post("/create-embedded-session/{order_id}")
+async def create_embedded_checkout_session(
+    order_id: str,
+    source: str | None = None,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """
+    Create a Stripe Embedded Checkout Session (client_secret) for native in-app/in-web checkout.
+    """
+    if not settings.STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+
+    crud.crud_ecommerce.release_stale_pending_orders(db)
+    order = crud.crud_ecommerce.get_order(db, order_id=order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    if order.user_id != user_id and role != "admin":
+        raise HTTPException(status_code=403, detail="No puedes pagar este pedido")
+    if order.status != "pending":
+        detail = "El pedido fue cancelado. Crea uno nuevo desde tu bolsa." if order.status == "cancelled" else "Order is already paid"
+        raise HTTPException(status_code=400, detail=detail)
+
+    line_items = []
+    for item in order.items:
+        product = crud.crud_ecommerce.get_product(db, item.product_id)
+        if product:
+            line_items.append({
+                "price_data": {
+                    "currency": "mxn",
+                    "product_data": {
+                        "name": product.name,
+                        "description": product.description or "Producto de Michicondrias Tienda",
+                        "images": [product.image_url] if product.image_url else [],
+                        "tax_code": "txcd_20030000",
+                    },
+                    "unit_amount": round(item.price_at_purchase * 100),
+                },
+                "quantity": item.quantity,
+            })
+
+    if not line_items:
+        raise HTTPException(status_code=400, detail="El pedido no tiene productos disponibles para cobrar")
+
+    client = get_stripe_client()
+    if not client:
+        raise HTTPException(status_code=503, detail="Los pagos no están disponibles por el momento.")
+
+    return_url = f"{settings.FRONTEND_URL}/tienda/pago-exitoso?session_id={{CHECKOUT_SESSION_ID}}&order_id={order.id}"
+
+    try:
+        session = client.v1.checkout.sessions.create(
+            params={
+                "ui_mode": "embedded_page",
+                "mode": "payment",
+                "line_items": line_items,
+                "automatic_tax": {"enabled": True},
+                "return_url": return_url,
+                "client_reference_id": order.id,
+                "expires_at": int(time.time()) + 31 * 60,
+                "metadata": {"order_id": order.id, "user_id": user_id},
+            }
+        )
+        return {
+            "clientSecret": session.client_secret,
+            "sessionId": session.id,
+            "publishableKey": get_publishable_key(),
+        }
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Failed to create embedded checkout session")
+        raise HTTPException(status_code=502, detail="No se pudo iniciar la pasarela de pago nativa.")
+
+
+@router.post("/confirm-payment-intent/{order_id}")
+async def confirm_payment_intent(
+    order_id: str,
+    payload: dict,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(deps.get_current_user_id),
+    role: str = Depends(deps.get_current_user_role),
+) -> Any:
+    """
+    Verifies that a PaymentIntent has succeeded in Stripe and updates the order status immediately.
+    """
+    client = get_stripe_client()
+    if not client:
+        raise HTTPException(status_code=503, detail="Stripe no disponible")
+
+    payment_intent_id = payload.get("paymentIntentId")
+    if not payment_intent_id:
+        raise HTTPException(status_code=400, detail="Falta paymentIntentId")
+
+    try:
+        pi = client.v1.payment_intents.retrieve(payment_intent_id)
+        if pi.status != "succeeded":
+            raise HTTPException(status_code=400, detail=f"El pago aún no se completa (estado: {pi.status})")
+
+        if pi.metadata.get("order_id") != order_id:
+            raise HTTPException(status_code=400, detail="El identificador de pedido no coincide con el pago")
+
+        db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
+        if not db_order:
+            raise HTTPException(status_code=404, detail="Pedido no encontrado")
+
+        if db_order.status in ("pending", "cancelled"):
+            db_order.status = "paid"
+            db.commit()
+            crud.crud_ecommerce.notify_order_paid(db, db_order)
+
+        return {"status": "paid", "order_id": order_id}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error checking payment intent status")
+        raise HTTPException(status_code=502, detail="Error al verificar el estado del pago con Stripe")
+
 
 @router.post("/create-subscription-session/{pet_id}")
 async def create_subscription_session(
@@ -265,6 +445,22 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 if pet_id and subscription_id:
                     logger.info(f"Activating Michi-Tracker Pro for pet {pet_id} (Sub: {subscription_id})")
                     _notify_mascotas_service(pet_id, True, subscription_id)
+
+    elif event['type'] in ('payment_intent.succeeded',):
+        pi = event['data']['object']
+        order_id = pi.get('metadata', {}).get('order_id')
+        if order_id:
+            db_order = crud.crud_ecommerce.get_order_for_update(db, order_id=order_id)
+            if db_order and db_order.status in ('pending', 'cancelled'):
+                if db_order.status == 'cancelled':
+                    for item in db_order.items:
+                        product = crud.crud_ecommerce.get_product(db, item.product_id)
+                        if product:
+                            product.stock = max(0, (product.stock or 0) - item.quantity)
+                db_order.status = 'paid'
+                db.commit()
+                logger.info(f"PaymentIntent webhook: Order {order_id} marked as paid.")
+                crud.crud_ecommerce.notify_order_paid(db, db_order)
 
     elif event['type'] == 'checkout.session.async_payment_failed':
         session = event['data']['object']

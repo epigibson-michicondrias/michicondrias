@@ -56,6 +56,8 @@ class Settings(BaseSettings):
     # Stripe Settings
     STRIPE_SECRET_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
+    # Publishable key (pk_…) es pública por diseño; se inyecta desde env en producción.
+    STRIPE_PUBLISHABLE_KEY: str | None = None
     FRONTEND_URL: str = "http://localhost:3000"
     # Retorno de Stripe hacia la app móvil. Stripe solo redirige a http(s), así que success/cancel apuntan a
     # {PUBLIC_API_URL}/api/v1/payments/return (p. ej. https://michicondrias.duckdns.org/ecommerce) y ese endpoint
