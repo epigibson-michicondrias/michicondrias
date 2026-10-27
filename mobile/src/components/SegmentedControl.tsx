@@ -6,6 +6,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { haptic } from '@/src/utils/haptics';
 import { layout, radius, spacing, type, press } from '@/constants/design';
 
 export interface SegmentOption<T extends string> {
@@ -39,7 +40,10 @@ export default function SegmentedControl<T extends string>({ value, onChange, op
                     <TouchableOpacity
                         key={opt.value}
                         style={[styles.segment, active && [styles.active, { backgroundColor: theme.surface, borderColor: theme.border }]]}
-                        onPress={() => onChange(opt.value)}
+                        onPress={() => {
+                            haptic.selection();
+                            onChange(opt.value);
+                        }}
                         accessibilityRole="tab"
                         accessibilityState={{ selected: active }}
                         accessibilityLabel={opt.label}

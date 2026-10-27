@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useTheme } from '@/src/hooks/useTheme';
-import EmptyState from '@/src/components/EmptyState';
+import EmptyState, { type EmptySuggestion } from '@/src/components/EmptyState';
 import LoadingOverlay from '@/src/components/LoadingOverlay';
 import { SkeletonGrid, SkeletonList } from '@/src/components/Skeleton';
 import { font, spacing, layout } from '@/constants/design';
@@ -43,6 +43,8 @@ interface DataListProps<T> extends Omit<FlatListProps<T>, 'data' | 'renderItem'>
     emptySubtitle?: string;
     /** Empty state action label */
     emptyActionLabel?: string;
+    /** Sugerencias rápidas al no haber resultados */
+    emptySuggestions?: EmptySuggestion[];
     /** Si hay error, no pintes el vacío: el banner de ScreenContainer ya lo comunica. */
     isError?: boolean;
     /** Empty state action handler */
@@ -69,6 +71,7 @@ export default function DataList<T>({
     emptyTitle = 'Sin resultados',
     emptySubtitle,
     emptyActionLabel,
+    emptySuggestions,
     onEmptyAction,
     isError = false,
     contentStyle,
@@ -101,6 +104,7 @@ export default function DataList<T>({
                 subtitle={emptySubtitle}
                 actionLabel={emptyActionLabel}
                 onAction={onEmptyAction}
+                suggestions={emptySuggestions}
             />
         );
 

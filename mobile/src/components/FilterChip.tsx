@@ -1,6 +1,8 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/hooks/useTheme';
+import { haptic } from '@/src/utils/haptics';
+import { animateLayout } from '@/src/utils/animations';
 import { spacing, radius, type, layout, press } from '@/constants/design';
 
 interface FilterChipProps {
@@ -19,6 +21,12 @@ export default function FilterChip({ label, active, onPress, color, icon, count 
     const { theme } = useTheme();
     const accentColor = color || theme.primary;
 
+    const handlePress = () => {
+        haptic.selection();
+        animateLayout();
+        onPress();
+    };
+
     return (
         <TouchableOpacity
             style={[
@@ -27,7 +35,7 @@ export default function FilterChip({ label, active, onPress, color, icon, count 
                     ? { backgroundColor: accentColor, borderColor: accentColor }
                     : { backgroundColor: theme.surface, borderColor: theme.border },
             ]}
-            onPress={onPress}
+            onPress={handlePress}
             activeOpacity={press.subtle}
             accessibilityRole="button"
             accessibilityLabel={typeof count === 'number' ? `${label}, ${count}` : label}
