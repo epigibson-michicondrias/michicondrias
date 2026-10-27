@@ -394,6 +394,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Antigravity** — **Homologación de diseño UI/UX pagos, carrito y donaciones (web + app)**.
+  Auditoría visual ejecutada y correcciones aplicadas:
+  - **Web**: barra dinámica de envío gratis ($299 MXN) en `carrito/page.tsx`; `.optionRadio` corregido a borde neutro y `primary` activo; `.formGrid2` y `.formGridColoniaCp` responsivos en `checkout-direccion/page.tsx` sin inline styles desbordables; desglose colapsable de productos en `pago-nativo/page.tsx`; `PagoResultado.tsx` con CTA «Reintentar pago» que reabre `pago-nativo?order_id=…`.
+  - **Móvil**: `donaciones.tsx` tokenizado con `<Button />`, `radius.md`, tipografía y inputs unificados al diseño del sistema; `PagoResultado.tsx` con contenedor de icono compacto (96px vs 140px) y botón «Reintentar pago»; `pago-nativo.tsx` con desglose colapsable de productos y etiqueta de pago dinámica (`Confirmar y pagar · $...`).
+  - Verificación: `tsc --noEmit` 0 errores en mobile y web. Commit `28d2d0a` en `main`.
+  - **OTA Android** `01a17f9b-2015-74ae-b910-5a9e49dfc016` (grupo `90e83ad2-…`, runtime `1.1.0`) ✅.
+
 - **2026-10-27 · Antigravity** — **Auditoría integral y corrección de pagos Stripe, carrito y pedidos**.
   Fixes: `donations.py` usa `stripe.StripeClient` con API key para `retrieve` de sesión; `create-payment-intent`
   bloquea orden (`get_order_for_update`), si el PI ya estaba `succeeded` marca pagado sin cobrar doble;
