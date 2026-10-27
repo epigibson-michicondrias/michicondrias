@@ -6,7 +6,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, MapPin, Minus, Package, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { CheckCircle, Lock, MapPin, Minus, Package, Plus, ShieldCheck, Trash2, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
@@ -19,10 +19,16 @@ import { useCartProducts } from "@/hooks/ecommerce/useCartProducts";
 import { getMyOrders } from "@/services/ecommerce";
 import s from "../tienda.module.css";
 
+const FREE_SHIPPING_THRESHOLD = 299;
+
 export default function CarritoPage() {
   const { items, cartTotal, cartCount, updateQuantity, clearCart, savedAddress } = useCart();
   useCartProducts();
   const router = useRouter();
+
+  const diffShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal);
+  const progressShipping = Math.min(1, cartTotal / FREE_SHIPPING_THRESHOLD);
+  const hasFreeShipping = cartTotal >= FREE_SHIPPING_THRESHOLD;
 
   const { data: myOrders } = useQuery({
     queryKey: ["my-orders-pending-cart"],
@@ -86,6 +92,24 @@ export default function CarritoPage() {
         />
       ) : (
         <>
+          <div className={s.shippingCard}>
+            <div className={s.shippingHeader}>
+              <span className={s.fullBadge}>
+                <Zap size={13} fill="currentColor" aria-hidden />
+                FULL
+              </span>
+              <span className={`${s.shippingText} ${hasFreeShipping ? s.shippingTextSuccess : ""}`}>
+                {hasFreeShipping
+                  ? "¡Genial! Tienes Envío Gratis en este pedido"
+                  : `Agrega $${diffShipping.toFixed(2)} para tener Envío Gratis`}
+              </span>
+              {hasFreeShipping && <CheckCircle size={16} color="var(--color-success)" aria-hidden />}
+            </div>
+            <div className={s.progressTrack} role="progressbar" aria-valuenow={Math.round(progressShipping * 100)} aria-valuemin={0} aria-valuemax={100}>
+              <div className={s.progressFill} style={{ width: `${progressShipping * 100}%` }} />
+            </div>
+          </div>
+
           <div className={s.cartList}>
             {items.map(({ product, quantity }) => (
               <div key={product.id} className={s.cartRow}>

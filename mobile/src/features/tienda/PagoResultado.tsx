@@ -5,7 +5,7 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { CheckCircle, XCircle, ShoppingBag, Store } from 'lucide-react-native';
+import { CheckCircle, XCircle, ShoppingBag, Store, RotateCcw } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '@/src/contexts/CartContext';
 import { confirmPaymentIntent } from '@/src/services/ecommerce';
@@ -25,8 +25,8 @@ const COPY = {
     cancelled: {
         header: 'Pago no completado',
         title: 'No se completó el pago',
-        message: 'No se hizo ningún cargo a tu tarjeta. Tu pedido sigue pendiente por un tiempo: puedes pagarlo o cancelarlo desde su detalle.',
-        cta: 'Ir a mi pedido',
+        message: 'No se hizo ningún cargo a tu tarjeta. Tu pedido sigue apartado: puedes reintentar el pago o cancelarlo.',
+        cta: 'Reintentar pago',
     },
 } as const;
 
@@ -71,6 +71,10 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
 
     const goToOrder = () => {
         leaveCheckout();
+        if (!ok && orderId) {
+            router.replace({ pathname: '/tienda/pago-nativo', params: { order_id: orderId } } as any);
+            return;
+        }
         router.push((orderId ? `/tienda/pedido/${orderId}` : '/tienda/compras') as any);
     };
 
@@ -79,13 +83,19 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
             <ScreenHeader title={copy.header} onBack={goToShop} />
             <View style={styles.content}>
                 <View style={[styles.iconBox, { backgroundColor: ok ? theme.successLight : theme.errorLight }]}>
-                    <Icon size={layout.icon.xl * 2} color={ok ? theme.success : theme.error} />
+                    <Icon size={44} color={ok ? theme.success : theme.error} />
                 </View>
                 <Text style={[type.h1, styles.center, { color: theme.text }]}>{copy.title}</Text>
                 <Text style={[type.body, styles.center, { color: theme.textMuted }]}>{copy.message}</Text>
 
                 <View style={styles.buttons}>
-                    <Button label={copy.cta} onPress={goToOrder} size="lg" fullWidth icon={<ShoppingBag size={layout.icon.md} color={theme.background} />} />
+                    <Button
+                        label={copy.cta}
+                        onPress={goToOrder}
+                        size="lg"
+                        fullWidth
+                        icon={ok ? <ShoppingBag size={layout.icon.md} color={theme.background} /> : <RotateCcw size={layout.icon.md} color={theme.background} />}
+                    />
                     <Button label="Volver a la tienda" onPress={goToShop} variant="secondary" fullWidth icon={<Store size={layout.icon.md} color={theme.text} />} />
                 </View>
 
@@ -105,8 +115,8 @@ const styles = StyleSheet.create({
         gap: spacing.md,
     },
     iconBox: {
-        width: 140,
-        height: 140,
+        width: 96,
+        height: 96,
         borderRadius: radius.pill,
         justifyContent: 'center',
         alignItems: 'center',

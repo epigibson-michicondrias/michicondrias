@@ -206,7 +206,7 @@ export default function CheckoutDireccionPage() {
               <h3 style={{ margin: 0, fontSize: 16 }}>Datos del domicilio</h3>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className={s.formGrid2}>
               <FormField
                 label="Nombre de quien recibe"
                 value={form.receiverName}
@@ -231,7 +231,7 @@ export default function CheckoutDireccionPage() {
               error={errors.street}
             />
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className={s.formGrid2}>
               <FormField
                 label="Núm. Exterior"
                 value={form.extNumber}
@@ -247,7 +247,7 @@ export default function CheckoutDireccionPage() {
               />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 12 }}>
+            <div className={s.formGridColoniaCp}>
               <FormField
                 label="Colonia"
                 value={form.colonia}
@@ -264,7 +264,7 @@ export default function CheckoutDireccionPage() {
               />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div className={s.formGrid2}>
               <FormField
                 label="Ciudad / Alcaldía"
                 value={form.city}

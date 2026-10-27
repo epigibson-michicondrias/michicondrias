@@ -7,7 +7,7 @@
  */
 import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle, ShoppingBag, XCircle } from "lucide-react";
+import { CheckCircle, ShoppingBag, XCircle, RotateCcw } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Button from "@/components/Button";
@@ -26,8 +26,8 @@ const COPY = {
   cancelled: {
     header: "Pago no completado",
     title: "No se completó el pago",
-    message: "No se hizo ningún cargo a tu tarjeta. Tu pedido sigue pendiente por un tiempo: puedes pagarlo o cancelarlo desde su detalle.",
-    cta: "Ir a mi pedido",
+    message: "No se hizo ningún cargo a tu tarjeta. Tu pedido sigue apartado: puedes reintentar el pago o cancelarlo.",
+    cta: "Reintentar pago",
   },
 } as const;
 
@@ -67,6 +67,10 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
 
   const goToOrder = () => {
     leaveCheckout();
+    if (!ok && orderId) {
+      router.replace(`/tienda/pago-nativo?order_id=${orderId}`);
+      return;
+    }
     router.replace(orderId ? `/tienda/pedido/${orderId}` : "/tienda/compras");
   };
 
@@ -83,7 +87,7 @@ export default function PagoResultado({ variant }: { variant: keyof typeof COPY 
         <div className={s.actions}>
           <Button
             label={copy.cta}
-            icon={<ShoppingBag size={18} />}
+            icon={ok ? <ShoppingBag size={18} /> : <RotateCcw size={18} />}
             onPress={goToOrder}
           />
           <Button label="Volver a la tienda" variant="secondary" onPress={goToShop} />

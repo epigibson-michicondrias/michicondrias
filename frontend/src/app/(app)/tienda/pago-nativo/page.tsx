@@ -9,7 +9,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { ShieldCheck, ArrowLeft, Loader2, Lock, AlertCircle } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Loader2, Lock, AlertCircle, ChevronDown } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Card from "@/components/Card";
@@ -86,6 +86,7 @@ function PagoNativoContent() {
     const envKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
     return envKey ? loadStripe(envKey) : null;
   });
+  const [showItems, setShowItems] = useState(false);
   const [loading, setLoading] = useState(Boolean(orderId));
   const [errorMsg, setErrorMsg] = useState<string | null>(
     orderId ? null : "No se proporcionó un número de pedido."
@@ -191,6 +192,40 @@ function PagoNativoContent() {
               </div>
               <strong className={s.orderSummaryTotal}>${order.total_amount.toFixed(2)}</strong>
             </div>
+            {Boolean(order.items && order.items.length > 0) && (
+              <button
+                type="button"
+                onClick={() => setShowItems((prev) => !prev)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  background: "none",
+                  border: "none",
+                  borderTop: "1px solid var(--color-border)",
+                  marginTop: 12,
+                  paddingTop: 8,
+                  color: "var(--color-primary)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                <span>{showItems ? "Ocultar productos" : `Ver productos (${order.items?.length || 0})`}</span>
+                <ChevronDown size={16} style={showItems ? { transform: "rotate(180deg)" } : undefined} />
+              </button>
+            )}
+            {showItems && order.items && (
+              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+                {order.items.map((item) => (
+                  <div key={item.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                    <span style={{ color: "var(--color-text)" }}>{item.quantity}× {item.product?.name || "Producto"}</span>
+                    <span style={{ color: "var(--color-text-muted)" }}>${(item.price_at_purchase * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         )}
 

@@ -7,7 +7,8 @@ import { openStripeUrl } from '@/src/utils/payments';
 import { useTheme } from '@/src/hooks/useTheme';
 import { DollarSign, MessageCircle, ShieldCheck, HeartPulse } from 'lucide-react-native';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
-import { families, font, spacing } from '@/constants/design';
+import Button from '@/src/components/Button';
+import { families, font, layout, radius, spacing, type } from '@/constants/design';
 
 const AMOUNTS = [50, 100, 200, 500];
 
@@ -189,18 +190,14 @@ export default function DonacionesScreen() {
                         </Text>
                     </View>
 
-                    <TouchableOpacity
-                        style={[styles.submitBtn, { backgroundColor: theme.primary }]}
+                    <Button
+                        label={loading ? 'Procesando donación…' : 'Donar con tarjeta'}
+                        icon={<HeartPulse size={layout.icon.md} color={theme.onPrimary} />}
                         onPress={handleDonation}
-                        disabled={loading}
-                    >
-                        {loading ? <ActivityIndicator color={theme.onPrimary} /> : (
-                            <>
-                                <HeartPulse size={24} color={theme.onPrimary} />
-                                <Text style={styles.submitBtnText}>Donar con tarjeta</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
+                        loading={loading}
+                        size="lg"
+                        fullWidth
+                    />
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -212,13 +209,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     content: {
-        padding: spacing.xxl,
-        gap: spacing.xxl,
+        padding: spacing.xl,
+        gap: spacing.xl,
     },
     sectionTitle: {
-        fontSize: font.xxl,
-        fontFamily: families.extrabold,
-        marginBottom: -12,
+        fontSize: font.h3,
+        fontFamily: families.bold,
+        marginBottom: -spacing.xs,
     },
     amountsGrid: {
         flexDirection: 'row',
@@ -228,87 +225,72 @@ const styles = StyleSheet.create({
     amountBtn: {
         flex: 1,
         minWidth: '45%',
-        height: 60,
-        borderRadius: 16,
+        height: 52,
+        borderRadius: radius.md,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
     },
     amountText: {
-        fontSize: font.xxl,
-        fontFamily: families.extrabold,
+        fontSize: font.xl,
+        fontFamily: families.bold,
     },
     inputGroup: {
         gap: spacing.sm,
     },
     label: {
         fontSize: font.base,
-        fontFamily: families.bold,
+        fontFamily: families.semibold,
         marginLeft: spacing.xs,
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.lg,
-        height: 60,
-        borderRadius: 16,
+        height: 52,
+        borderRadius: radius.md,
         gap: spacing.md,
         borderWidth: 1,
     },
     input: {
         flex: 1,
-        fontSize: font.xxl,
-        fontFamily: families.bold,
+        fontSize: font.lg,
+        fontFamily: families.semibold,
     },
     textAreaContainer: {
         flexDirection: 'row',
         paddingHorizontal: spacing.lg,
-        borderRadius: 16,
+        borderRadius: radius.md,
         gap: spacing.md,
         borderWidth: 1,
     },
     textArea: {
         flex: 1,
-        height: 120,
-        paddingVertical: spacing.lg,
-        fontSize: font.xl,
+        height: 100,
+        paddingVertical: spacing.md,
+        fontSize: font.base,
         textAlignVertical: 'top',
     },
     trustBox: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.md,
-        padding: spacing.lg,
-        borderRadius: 16,
+        padding: spacing.md,
+        borderRadius: radius.md,
     },
     trustText: {
         flex: 1,
-        fontSize: font.md,
+        fontSize: font.sm,
         lineHeight: 18,
-    },
-    submitBtn: {
-        height: 64,
-        borderRadius: 24,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: spacing.md,
-        marginTop: spacing.md,
-        marginBottom: spacing.huge,
-        elevation: 8,
     },
     statusBox: {
         borderWidth: 1,
-        borderRadius: 16,
+        borderRadius: radius.md,
         padding: spacing.lg,
         gap: spacing.sm,
         alignItems: 'center',
     },
-    statusTitle: { fontSize: font.xl, fontFamily: families.extrabold, textAlign: 'center' },
+    statusTitle: { fontSize: font.lg, fontFamily: families.bold, textAlign: 'center' },
     statusText: { fontSize: font.base, lineHeight: 19, textAlign: 'center' },
-    statusLink: { fontSize: font.base, fontFamily: families.extrabold, marginTop: spacing.xs },
-    submitBtnText: {
-        fontSize: font.xxl,
-        fontFamily: families.extrabold,
-    }
+    statusLink: { fontSize: font.base, fontFamily: families.bold, marginTop: spacing.xs },
 });

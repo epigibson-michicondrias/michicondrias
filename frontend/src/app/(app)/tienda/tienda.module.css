@@ -296,6 +296,56 @@
   line-height: 1.45;
 }
 
+/* Barra de progreso de Envío Gratis */
+.shippingCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.shippingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+.fullBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--color-success);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.shippingText {
+  flex: 1;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.shippingTextSuccess {
+  color: var(--color-success);
+}
+.progressTrack {
+  width: 100%;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: var(--radius-pill);
+  transition: width 0.3s ease;
+}
+
 /* Compras / pedido */
 .orderList {
   display: flex;
@@ -376,16 +426,39 @@
   width: 20px;
   height: 20px;
   margin-top: 2px;
-  border: 2px solid var(--color-success);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-pill);
   display: grid;
   place-items: center;
+  transition: border-color 0.15s ease;
+}
+.optionCardSelected .optionRadio {
+  border-color: var(--color-primary);
 }
 .optionRadioDot {
   width: 10px;
   height: 10px;
   border-radius: var(--radius-pill);
   background: var(--color-primary);
+}
+
+/* Grids responsivos de formulario de entrega */
+.formGrid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+.formGridColoniaCp {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: var(--space-md);
+}
+@media (max-width: 560px) {
+  .formGrid2,
+  .formGridColoniaCp {
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+  }
 }
 .optionTitle {
   margin: 0;

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { WebView } from 'react-native-webview';
-import { ShieldCheck, AlertCircle } from 'lucide-react-native';
+import { ShieldCheck, AlertCircle, ChevronDown } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { createPaymentIntent, getOrder, Order } from '@/src/services/ecommerce';
 import { formatCurrency } from '@/src/utils/formatters';
@@ -23,6 +23,7 @@ export default function PagoNativoScreen() {
     const [order, setOrder] = useState<Order | null>(null);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [publishableKey, setPublishableKey] = useState<string>('');
+    const [showItems, setShowItems] = useState(false);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -192,7 +193,7 @@ export default function PagoNativoScreen() {
             </div>
             <div id="error-message" class="error-msg" role="alert" aria-live="assertive"></div>
             <button id="submit-btn" class="pay-button" disabled>
-              <span>Confirmar y pagar</span>
+              <span>Confirmar y pagar ${order?.total_amount ? `· ${formatCurrency(order.total_amount)}` : ''}</span>
             </button>
           </form>
         </div>
@@ -239,7 +240,7 @@ export default function PagoNativoScreen() {
               errEl.innerText = error.message || 'Error al procesar el pago.';
               errEl.style.display = 'block';
               btn.disabled = false;
-              btn.innerText = 'Confirmar y pagar';
+              btn.innerText = 'Confirmar y pagar ${order?.total_amount ? `· ${formatCurrency(order.total_amount)}` : ''}';
             }
           });
         </script>
@@ -285,6 +286,33 @@ export default function PagoNativoScreen() {
                                 {formatCurrency(order.total_amount)}
                             </Text>
                         </View>
+                        {Boolean(order.items && order.items.length > 0) && (
+                            <TouchableOpacity
+                                onPress={() => setShowItems((prev) => !prev)}
+                                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.sm, paddingTop: spacing.xs, borderTopWidth: 1, borderTopColor: theme.divider }}
+                                accessibilityRole="button"
+                                accessibilityLabel={showItems ? 'Ocultar productos' : 'Ver productos del pedido'}
+                            >
+                                <Text style={[type.caption, { color: theme.primary, fontFamily: families.bold }]}>
+                                    {showItems ? 'Ocultar productos' : `Ver productos (${order.items?.length || 0})`}
+                                </Text>
+                                <ChevronDown size={14} color={theme.primary} style={showItems ? { transform: [{ rotate: '180deg' }] } : undefined} />
+                            </TouchableOpacity>
+                        )}
+                        {showItems && order.items && (
+                            <View style={{ marginTop: spacing.sm, gap: spacing.xs }}>
+                                {order.items.map((item) => (
+                                    <View key={item.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Text style={[type.caption, { color: theme.text, flex: 1 }]} numberOfLines={1}>
+                                            {item.quantity}× {item.product?.name || 'Producto'}
+                                        </Text>
+                                        <Text style={[type.caption, { color: theme.textMuted }]}>
+                                            {formatCurrency(item.price_at_purchase * item.quantity)}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
                     </Card>
                 )}
 
