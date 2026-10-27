@@ -158,6 +158,25 @@ export async function createCheckoutSession(orderId: string): Promise<{ sessionI
     });
 }
 
+export async function createPaymentIntent(orderId: string): Promise<{ clientSecret: string; paymentIntentId: string; amount: number; publishableKey: string }> {
+    return apiFetch<{ clientSecret: string; paymentIntentId: string; amount: number; publishableKey: string }>("ecommerce", `/payments/create-payment-intent/${orderId}`, {
+        method: "POST"
+    });
+}
+
+export async function createEmbeddedSession(orderId: string): Promise<{ clientSecret: string; sessionId: string; publishableKey: string }> {
+    return apiFetch<{ clientSecret: string; sessionId: string; publishableKey: string }>("ecommerce", `/payments/create-embedded-session/${orderId}`, {
+        method: "POST"
+    });
+}
+
+export async function confirmPaymentIntent(orderId: string, paymentIntentId: string): Promise<{ status: string; order_id: string }> {
+    return apiFetch<{ status: string; order_id: string }>("ecommerce", `/payments/confirm-payment-intent/${orderId}`, {
+        method: "POST",
+        body: JSON.stringify({ paymentIntentId })
+    });
+}
+
 export async function createSubscriptionSession(petId: string): Promise<{ sessionId: string, url: string }> {
     return apiFetch<{ sessionId: string, url: string }>("ecommerce", `/payments/create-subscription-session/${petId}?source=app`, {
         method: "POST"

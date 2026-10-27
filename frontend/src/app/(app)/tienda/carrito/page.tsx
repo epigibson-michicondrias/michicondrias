@@ -3,37 +3,24 @@
 /**
  * Mi bolsa — espejo de `mobile/app/tienda/carrito.tsx`.
  */
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Minus, Package, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { Lock, MapPin, Minus, Package, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
-import FormField from "@/components/FormField";
 import Button from "@/components/Button";
 import Card from "@/components/Card";
 import EmptyState from "@/components/EmptyState";
 import { showAlert } from "@/components/AppAlert";
 import { useCart } from "@/contexts/CartContext";
 import { useCartProducts } from "@/hooks/ecommerce/useCartProducts";
-import { useCheckout } from "@/hooks/ecommerce/useCheckout";
 import s from "../tienda.module.css";
 
 export default function CarritoPage() {
-  const { items, cartTotal, cartCount, updateQuantity, clearCart, savedAddress, rememberAddress } = useCart();
-  const { isRefreshing } = useCartProducts();
-  const { checkout, isCheckingOut } = useCheckout();
-  const [address, setAddress] = useState(savedAddress);
+  const { items, cartTotal, cartCount, updateQuantity, clearCart, savedAddress } = useCart();
+  useCartProducts();
   const router = useRouter();
-
-  const handlePay = () => {
-    if (address.trim().length > 0 && address.trim().length < 10) {
-      showAlert({ type: "warning", title: "Dirección incompleta", message: "Escribe una dirección más completa o déjala vacía." });
-      return;
-    }
-    checkout(address);
-  };
 
   return (
     <ScreenContainer>
@@ -117,15 +104,21 @@ export default function CarritoPage() {
             ))}
           </div>
 
-          <FormField
-            label="Dirección de envío"
-            value={address}
-            onChangeText={(v) => { setAddress(v); rememberAddress(v); }}
-            placeholder="Calle, número, colonia y ciudad"
-            multiline
-            numberOfLines={2}
-            hint="La misma de tu última compra."
-          />
+          {/* Selección rápida de dirección estilo ML */}
+          <Link href="/tienda/checkout-direccion" style={{ textDecoration: "none", color: "inherit" }}>
+            <Card>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <MapPin size={20} color="var(--color-primary)" />
+                  <div>
+                    <span style={{ fontSize: 12, color: "var(--color-text-muted)", display: "block" }}>Enviar a</span>
+                    <strong style={{ fontSize: 14 }}>{savedAddress || "Ingresar código postal y dirección"}</strong>
+                  </div>
+                </div>
+                <span style={{ color: "var(--color-primary)", fontSize: 13, fontWeight: 600 }}>Cambiar &gt;</span>
+              </div>
+            </Card>
+          </Link>
 
           <Card>
             <div className={s.summaryRow}><span>Subtotal</span><strong>${cartTotal.toFixed(2)}</strong></div>
@@ -138,9 +131,8 @@ export default function CarritoPage() {
           </Card>
 
           <Button
-            label={isCheckingOut ? "Abriendo pago…" : `Pagar · $${cartTotal.toFixed(2)}`}
-            onPress={handlePay}
-            loading={isCheckingOut || isRefreshing}
+            label={`Continuar compra · $${cartTotal.toFixed(2)}`}
+            onPress={() => router.push("/tienda/checkout-direccion")}
             icon={<Lock size={18} />}
           />
         </>

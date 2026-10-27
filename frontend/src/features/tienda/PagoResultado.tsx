@@ -33,7 +33,8 @@ const COPY = {
 export default function PagoResultado({ variant }: { variant: keyof typeof COPY }) {
   const router = useRouter();
   const params = useSearchParams();
-  const orderId = params.get("orderId");
+  // Deep link del backend usa `orderId`; return_url de Stripe en web puede mandar `order_id`.
+  const orderId = params.get("orderId") ?? params.get("order_id");
   const { clearCart } = useCart();
   const copy = COPY[variant];
   const ok = variant === "success";
