@@ -17,7 +17,6 @@ import {
 } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import { useCart } from '@/src/contexts/CartContext';
-import { useCheckout } from '@/src/hooks/ecommerce/useCheckout';
 import { formatCurrency } from '@/src/utils/formatters';
 import { showAlert } from '@/src/components/AppAlert';
 import ScreenContainer from '@/src/components/layout/ScreenContainer';
@@ -26,6 +25,7 @@ import KeyboardScreen from '@/src/components/KeyboardScreen';
 import FormField from '@/src/components/FormField';
 import Button from '@/src/components/Button';
 import Card from '@/src/components/Card';
+import CheckoutSteps from '@/src/features/tienda/CheckoutSteps';
 import { families, layout, radius, shadow, spacing, type } from '@/constants/design';
 
 interface AddressForm {
@@ -46,7 +46,6 @@ export default function CheckoutDireccionScreen() {
     const { theme } = useTheme();
     const insets = useSafeAreaInsets();
     const { items, cartTotal, cartCount, savedAddress, rememberAddress } = useCart();
-    const { checkout, isCheckingOut } = useCheckout();
 
     const [useNewAddress, setUseNewAddress] = useState(!savedAddress);
     const [form, setForm] = useState<AddressForm>({
@@ -189,22 +188,7 @@ export default function CheckoutDireccionScreen() {
             />
 
             <KeyboardScreen contentContainerStyle={styles.content} footer={footer}>
-                {/* Paso del Checkout ML */}
-                <View style={styles.stepsBar}>
-                    <View style={styles.stepItem}>
-                        <View style={styles.stepCircle}>
-                            <Text style={[styles.stepNumberActive, { color: theme.onPrimary }]}>1</Text>
-                        </View>
-                        <Text style={[type.caption, { fontFamily: families.bold, color: theme.primary }]}>Envío</Text>
-                    </View>
-                    <View style={[styles.stepLine, { backgroundColor: theme.border }]} />
-                    <View style={styles.stepItem}>
-                        <View style={[styles.stepCircle, { backgroundColor: theme.backgroundSecondary }]}>
-                            <Text style={[styles.stepNumber, { color: theme.textMuted }]}>2</Text>
-                        </View>
-                        <Text style={[type.caption, { color: theme.textMuted }]}>Pago</Text>
-                    </View>
-                </View>
+                <CheckoutSteps current={1} />
 
                 {/* Opción Dirección Guardada */}
                 {Boolean(savedAddress) && (
@@ -405,38 +389,6 @@ const styles = StyleSheet.create({
         padding: spacing.md,
         paddingBottom: 120,
         gap: spacing.md,
-    },
-    stepsBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: spacing.xs,
-        paddingHorizontal: spacing.lg,
-    },
-    stepItem: {
-        alignItems: 'center',
-        gap: 4,
-    },
-    stepCircle: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    stepNumberActive: {
-        fontFamily: families.bold,
-        fontSize: 13,
-    },
-    stepNumber: {
-        fontSize: 13,
-        fontFamily: families.bold,
-    },
-    stepLine: {
-        flex: 1,
-        height: 2,
-        marginHorizontal: spacing.md,
-        marginBottom: 16,
     },
     optionCard: {
         padding: spacing.md,

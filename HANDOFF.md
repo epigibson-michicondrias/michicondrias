@@ -244,10 +244,7 @@ Solo lo que sigue abierto. Formato: prioridad · hallazgo (archivo:línea cuando
 - **Mascotas:** P2 query keys duplicadas (`pet` / `pet-profile`, `user-pets` / `my-pets-carnet`).
 - **Carnet:** P1 `recordatorios.tsx` huérfana; «Modo médico» pide UUID; botón anidado; guardar solo como ícono · P2 partir
   `carnet/[id]`, `EmptyState` con acción por pestaña, `ScreenHeader` en receta, fechas `es-MX`.
-- **Tienda:** P1 pedidos abandonados que no expiran (backend) · P2 pagos UI: `Skeleton` en vez de `ActivityIndicator`
-  en `pago-nativo`, barra de pasos compartida con `checkout-direccion`, y `#00a650` residual en `carrito.tsx` /
-  `producto/[id].tsx` (usar `theme.success`); un solo camino de checkout (`useCheckout` sin usar en
-  `checkout-direccion`).
+- **Tienda:** P1 pedidos abandonados que no expiran (backend).
 - **Notificaciones/Búsqueda:** P1 entradas duplicadas; tarjetas sin destino que parecen tocables; productos sin precio · P2 tipar `services/search.ts`.
 - **Directorio y citas:** P2 unificar `citas.ts`/`directorio.ts` (borrar `MOCK_SERVICES`, `types/citas.ts`, query duplicada); partir `especialista/[id]`.
 - **Adopciones:** **P0 flujo B roto** (formulario inalcanzable; el contrato promete «aprobada» sin cerrar la publicación
@@ -392,6 +389,11 @@ app/
 ## 9. Bitácora compartida (más reciente arriba)
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
+
+- **2026-10-25 · Claude** — **UI pagos P2 + OTA**. `CheckoutSteps` compartido (paso 1 y 2); `pago-nativo` con
+  `Skeleton` en vez de `ActivityIndicator` y `accessibilityLabel` en el error; quitado `useCheckout` sin usar de
+  `checkout-direccion`; `#00a650` → `theme.success` en `carrito`, `producto/[id]` y `CartItemRow`. Verificado:
+  `npm run check` 0 errores. Commit P2 + push + OTA production. (Los puntos 1–3 anteriores: `e80e81a`.)
 
 - **2026-10-25 · Claude** — **UI pagos (ui-ux-pro-max), puntos 1–3**. (1) `PagoResultado` lee `orderId` y `order_id`
   (deep link del backend vs WebView); `pago-nativo` unifica `orderId` en `return_url` y al navegar → «Ver mi pedido»

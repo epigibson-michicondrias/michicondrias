@@ -1,15 +1,16 @@
 /**
- * CartItemRow — Artículo de la bolsa: foto, nombre, precio unitario, cantidad (− en 1 lo quita) y subtotal.
+ * CartItemRow — Artículo del carrito estilo Mercado Libre: foto nítida, título,
+ * precio unitario, stepper y botón de eliminar.
  */
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Image } from 'expo-image';
-import { Package } from 'lucide-react-native';
+import { Package, Trash2, Zap } from 'lucide-react-native';
 import { useTheme } from '@/src/hooks/useTheme';
 import QuantityStepper from '@/src/components/QuantityStepper';
 import { formatCurrency } from '@/src/utils/formatters';
 import type { CartItem } from '@/src/contexts/CartContext';
-import { families, layout, radius, spacing, type } from '@/constants/design';
+import { families, layout, radius, spacing, type, shadow } from '@/constants/design';
 
 interface CartItemRowProps {
     item: CartItem;
@@ -27,7 +28,7 @@ export default function CartItemRow({ item, onOpen, onChangeQuantity, onMaxReach
         <View style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
             <TouchableOpacity onPress={onOpen} accessibilityRole="button" accessibilityLabel={`Ver ${product.name}`}>
                 {product.image_url ? (
-                    <Image source={{ uri: product.image_url }} style={styles.thumb} contentFit="cover" transition={150} />
+                    <Image source={{ uri: product.image_url }} style={styles.thumb} contentFit="contain" transition={150} />
                 ) : (
                     <View style={[styles.thumb, styles.thumbFallback, { backgroundColor: theme.backgroundSecondary }]}>
                         <Package size={layout.icon.lg} color={theme.textMuted} strokeWidth={1.5} />
@@ -35,10 +36,28 @@ export default function CartItemRow({ item, onOpen, onChangeQuantity, onMaxReach
                 )}
             </TouchableOpacity>
             <View style={styles.info}>
-                <Text style={[type.bodyStrong, { color: theme.text }]} numberOfLines={2}>{product.name}</Text>
-                <Text style={[type.caption, { color: theme.textMuted }]}>
-                    {formatCurrency(product.price)} c/u{stock > 0 && stock <= 5 ? ` · quedan ${stock}` : ''}
-                </Text>
+                <View style={styles.topRow}>
+                    <TouchableOpacity style={styles.titleWrap} onPress={onOpen}>
+                        <Text style={[type.bodyStrong, { color: theme.text }]} numberOfLines={2}>{product.name}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => onChangeQuantity(0)}
+                        style={styles.deleteBtn}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Eliminar ${product.name}`}
+                    >
+                        <Trash2 size={16} color={theme.textMuted} />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.fullRow}>
+                    <View style={[styles.fullBadge, { backgroundColor: `${theme.success}18` }]}>
+                        <Zap size={9} color={theme.success} fill={theme.success} />
+                        <Text style={[styles.fullBadgeText, { color: theme.success }]}>FULL</Text>
+                    </View>
+                    <Text style={[type.caption, { color: theme.success }]}>Envío gratis</Text>
+                </View>
+
                 <View style={styles.bottom}>
                     <QuantityStepper
                         value={quantity}
@@ -49,7 +68,16 @@ export default function CartItemRow({ item, onOpen, onChangeQuantity, onMaxReach
                         itemLabel={product.name}
                         onMaxReached={onMaxReached}
                     />
-                    <Text style={[type.title, styles.total, { color: theme.text }]}>{formatCurrency(product.price * quantity)}</Text>
+                    <View style={styles.priceCol}>
+                        <Text style={[type.title, styles.total, { color: theme.text }]}>
+                            {formatCurrency(product.price * quantity)}
+                        </Text>
+                        {quantity > 1 && (
+                            <Text style={[type.caption, { color: theme.textMuted }]}>
+                                {formatCurrency(product.price)} c/u
+                            </Text>
+                        )}
+                    </View>
                 </View>
             </View>
         </View>
@@ -57,10 +85,70 @@ export default function CartItemRow({ item, onOpen, onChangeQuantity, onMaxReach
 }
 
 const styles = StyleSheet.create({
-    row: { flexDirection: 'row', gap: spacing.md, padding: spacing.md, borderRadius: radius.lg, borderWidth: 1 },
-    thumb: { width: layout.iconBox.lg * 1.6, height: layout.iconBox.lg * 1.6, borderRadius: radius.md },
-    thumbFallback: { alignItems: 'center', justifyContent: 'center' },
-    info: { flex: 1, gap: spacing.xxs },
-    bottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.xs },
-    total: { fontFamily: families.extrabold },
+    row: {
+        flexDirection: 'row',
+        gap: spacing.md,
+        padding: spacing.md,
+        borderRadius: radius.lg,
+        borderWidth: 1,
+        ...shadow.card,
+    },
+    thumb: {
+        width: 80,
+        height: 80,
+        borderRadius: radius.md,
+        backgroundColor: '#fff',
+    },
+    thumbFallback: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    info: {
+        flex: 1,
+        gap: spacing.xxs,
+    },
+    topRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        gap: spacing.xs,
+    },
+    titleWrap: {
+        flex: 1,
+    },
+    deleteBtn: {
+        padding: 4,
+    },
+    fullRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        marginTop: 2,
+    },
+    fullBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 4,
+        paddingVertical: 1,
+        borderRadius: 2,
+        gap: 1,
+    },
+    fullBadgeText: {
+        fontFamily: families.extrabold,
+        fontSize: 9,
+        fontStyle: 'italic',
+    },
+    bottom: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: spacing.xs,
+    },
+    priceCol: {
+        alignItems: 'flex-end',
+    },
+    total: {
+        fontFamily: families.extrabold,
+        fontSize: 16,
+    },
 });

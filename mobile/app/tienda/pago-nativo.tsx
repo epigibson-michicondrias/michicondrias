@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { WebView } from 'react-native-webview';
 import { ShieldCheck, AlertCircle } from 'lucide-react-native';
@@ -10,7 +10,9 @@ import ScreenContainer from '@/src/components/layout/ScreenContainer';
 import ScreenHeader from '@/src/components/layout/ScreenHeader';
 import Card from '@/src/components/Card';
 import Button from '@/src/components/Button';
-import { families, layout, radius, spacing, type } from '@/constants/design';
+import { Skeleton } from '@/src/components/Skeleton';
+import CheckoutSteps from '@/src/features/tienda/CheckoutSteps';
+import { families, radius, spacing, type } from '@/constants/design';
 
 export default function PagoNativoScreen() {
     const { order_id } = useLocalSearchParams<{ order_id: string }>();
@@ -258,22 +260,7 @@ export default function PagoNativoScreen() {
             />
 
             <View style={[styles.container, { backgroundColor: theme.background }]}>
-                {/* Indicador de pasos estilo ML */}
-                <View style={styles.stepsBar}>
-                    <View style={styles.stepItem}>
-                        <View style={[styles.stepCircle, { backgroundColor: theme.primary }]}>
-                            <Text style={[styles.stepNumberActive, { color: theme.onPrimary }]}>✓</Text>
-                        </View>
-                        <Text style={[type.caption, { fontFamily: families.bold, color: theme.primary }]}>Envío</Text>
-                    </View>
-                    <View style={[styles.stepLine, { backgroundColor: theme.primary }]} />
-                    <View style={styles.stepItem}>
-                        <View style={[styles.stepCircle, { backgroundColor: theme.primary }]}>
-                            <Text style={[styles.stepNumberActive, { color: theme.onPrimary }]}>2</Text>
-                        </View>
-                        <Text style={[type.caption, { fontFamily: families.bold, color: theme.primary }]}>Pago in-app</Text>
-                    </View>
-                </View>
+                <CheckoutSteps current={2} />
 
                 {order && (
                     <Card style={[styles.orderSummaryCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
@@ -292,14 +279,29 @@ export default function PagoNativoScreen() {
                 )}
 
                 {loading ? (
-                    <View style={styles.centerContainer}>
-                        <ActivityIndicator size="large" color={theme.primary} />
-                        <Text style={[type.body, { color: theme.textMuted, marginTop: spacing.sm }]}>
+                    <View style={styles.skeletonBox} accessibilityLabel="Cargando pasarela de pago">
+                        <Card style={[styles.orderSummaryCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                            <View style={styles.orderRow}>
+                                <View style={{ flex: 1, gap: spacing.sm }}>
+                                    <Skeleton width="40%" height={12} />
+                                    <Skeleton width="80%" height={16} />
+                                </View>
+                                <Skeleton width={96} height={22} />
+                            </View>
+                        </Card>
+                        <View style={[styles.webviewSkeleton, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                            <Skeleton width="70%" height={16} />
+                            <Skeleton width="100%" height={44} borderRadius={radius.md} />
+                            <Skeleton width="100%" height={44} borderRadius={radius.md} />
+                            <Skeleton width="100%" height={48} borderRadius={radius.md} />
+                            <Skeleton width="55%" height={12} />
+                        </View>
+                        <Text style={[type.body, { color: theme.textMuted, textAlign: 'center' }]}>
                             Cargando pasarela de pago segura de Michicondrias…
                         </Text>
                     </View>
                 ) : errorMsg ? (
-                    <Card style={styles.errorCard}>
+                    <Card style={styles.errorCard} accessibilityLabel={errorMsg}>
                         <AlertCircle size={32} color={theme.error} />
                         <Text style={[type.bodyStrong, { color: theme.error, textAlign: 'center', marginTop: spacing.sm }]}>
                             {errorMsg}
@@ -321,7 +323,7 @@ export default function PagoNativoScreen() {
                             startInLoadingState={true}
                             renderLoading={() => (
                                 <View style={[styles.centerContainer, { backgroundColor: theme.background }]}>
-                                    <ActivityIndicator size="small" color={theme.primary} />
+                                    <Skeleton width={120} height={14} />
                                 </View>
                             )}
                             style={{ flex: 1, backgroundColor: theme.background }}
@@ -346,33 +348,6 @@ const styles = StyleSheet.create({
         padding: spacing.md,
         gap: spacing.md,
     },
-    stepsBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: spacing.xl,
-    },
-    stepItem: {
-        alignItems: 'center',
-        gap: 4,
-    },
-    stepCircle: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    stepNumberActive: {
-        fontFamily: families.bold,
-        fontSize: 12,
-    },
-    stepLine: {
-        flex: 1,
-        height: 2,
-        marginHorizontal: spacing.md,
-        marginBottom: 16,
-    },
     orderSummaryCard: {
         padding: spacing.md,
         borderRadius: radius.md,
@@ -383,6 +358,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: spacing.sm,
+    },
+    skeletonBox: {
+        gap: spacing.md,
+    },
+    webviewSkeleton: {
+        minHeight: 480,
+        borderRadius: radius.lg,
+        borderWidth: 1,
+        padding: spacing.md,
+        gap: spacing.md,
     },
     centerContainer: {
         flex: 1,
