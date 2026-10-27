@@ -394,6 +394,17 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Antigravity** — **Auditoría integral y corrección de pagos Stripe, carrito y pedidos**.
+  Fixes: `donations.py` usa `stripe.StripeClient` con API key para `retrieve` de sesión; `create-payment-intent`
+  bloquea orden (`get_order_for_update`), si el PI ya estaba `succeeded` marca pagado sin cobrar doble;
+  `confirm_payment_intent` descuenta stock si pedido fue reactivado desde `cancelled`; `checkout_urls.py` pasa
+  `order_id` en `web_url` para navegación post-pago; `pago-nativo` (web) carga `publishableKey` dinámico sin key
+  de prueba hardcodeada; `pago-nativo` (móvil) usa `WEB_URL` exportado en vez de URL hardcodeada; webhooks
+  `payment_intent.payment_failed`, `charge.refunded` e `invoice.payment_failed` agregados; banner de pedido pendiente
+  en carrito (web + móvil) con mensaje de stock claro; privacidad de pedidos multi-vendedor en `orders.py`;
+  eliminado `release_stale_pending_orders` de GETs; borrado código muerto (`useCheckout.ts`, `lib/contexts/CartContext.tsx`).
+  Commit `b79c055` en `main`. **OTA Android** `01a17f8c-ce57-7be8-9b60-681330c8e0dd` (grupo `c55ea450-…`, runtime `1.1.0`) ✅.
+
 - **2026-10-27 · Claude** — **Homologación UI tienda/pagos (ui-ux-pro-max)**. Auditoría: botones/steps ad-hoc en
   web, `stepBtn` duplicado en `tienda.module.css`, radio de dirección con borde `success` (semántica mal), CTA del
   WebView fuera de tokens. Fixes: `CheckoutSteps` web (`features/tienda/CheckoutSteps` + `checkout.module.css`);
