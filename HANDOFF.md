@@ -394,6 +394,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **Homologación UI tienda/pagos (ui-ux-pro-max)**. Auditoría: botones/steps ad-hoc en
+  web, `stepBtn` duplicado en `tienda.module.css`, radio de dirección con borde `success` (semántica mal), CTA del
+  WebView fuera de tokens. Fixes: `CheckoutSteps` web (`features/tienda/CheckoutSteps` + `checkout.module.css`);
+  checkout/pago usan steps + `optionCard`/`payAlert`/`guarantee`/`orderSummary*` en CSS; radio seleccionado con
+  `primary`; WebView pay-button alineado a Button (52px, radius 12, weight 600, focus-visible, disabled 0.55);
+  un solo `.stepBtn` pill (espejo QuantityStepper). `tsc`/ESLint/build ✅. **Pendiente commit + push + OTA.**
+
 - **2026-10-27 · Claude** — **Atrás desde el pedido ya no vuelve al checkout**. Tras pagar, «Ver mi pedido»
   dejaba carrito/entrega/pago en el historial. `PagoResultado` (app) hace `router.dismissAll()` antes de ir al
   pedido/tienda; detalle del pedido (app+web) el botón atrás → `replace` a Mis compras; web limpia el history

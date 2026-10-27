@@ -1,0 +1,48 @@
+/* Pasos del checkout (Envío → Pago). Espejo visual de mobile CheckoutSteps. */
+
+.stepsBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) 0;
+  margin-bottom: var(--space-xs);
+}
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.stepCircle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-base);
+  font-weight: 700;
+}
+.stepCircleActive {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.stepCircleIdle {
+  background: var(--color-background-secondary);
+  color: var(--color-text-muted);
+}
+.stepLabel {
+  font-size: var(--font-sm);
+  font-weight: 700;
+}
+.stepLabelActive { color: var(--color-primary); }
+.stepLabelIdle { color: var(--color-text-muted); }
+.stepLine {
+  flex: 1;
+  max-width: 48px;
+  height: 2px;
+  margin-bottom: 16px;
+}
+.stepLineDone { background: var(--color-primary); }
+.stepLineIdle { background: var(--color-border); }

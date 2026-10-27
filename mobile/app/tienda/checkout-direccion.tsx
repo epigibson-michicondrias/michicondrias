@@ -198,7 +198,7 @@ export default function CheckoutDireccionScreen() {
                             onPress={() => setUseNewAddress(false)}
                             style={styles.optionRow}
                         >
-                            <View style={[styles.radio, { borderColor: theme.success }]}>
+                            <View style={[styles.radio, { borderColor: !useNewAddress ? theme.primary : theme.border }]}>
                                 {!useNewAddress && <View style={[styles.radioDot, { backgroundColor: theme.primary }]} />}
                             </View>
                             <View style={{ flex: 1, marginLeft: spacing.sm }}>
@@ -232,7 +232,7 @@ export default function CheckoutDireccionScreen() {
                         ]}
                     >
                         <View style={styles.optionRow}>
-                            <View style={[styles.radio, { borderColor: theme.success }]}>
+                            <View style={[styles.radio, { borderColor: useNewAddress ? theme.primary : theme.border }]}>
                                 {useNewAddress && <View style={[styles.radioDot, { backgroundColor: theme.primary }]} />}
                             </View>
                             <View style={{ flex: 1, marginLeft: spacing.sm }}>

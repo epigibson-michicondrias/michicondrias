@@ -1,16 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  MapPin,
   Building2,
   ShieldCheck,
   Lock,
-  ArrowRight,
   Home,
-  CheckCircle2,
 } from "lucide-react";
 import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
@@ -19,6 +15,7 @@ import Button from "@/components/Button";
 import Card from "@/components/Card";
 import { showAlert } from "@/components/AppAlert";
 import { useCart } from "@/contexts/CartContext";
+import CheckoutSteps from "@/features/tienda/CheckoutSteps";
 import s from "../tienda.module.css";
 
 interface AddressForm {
@@ -150,58 +147,51 @@ export default function CheckoutDireccionPage() {
       />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {/* Indicador de pasos estilo ML */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "8px 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--color-primary)", fontWeight: 700 }}>
-            <span style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-primary)", color: "var(--color-on-primary, #fff)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>1</span>
-            <span>Envío</span>
-          </div>
-          <div style={{ width: 40, height: 2, background: "var(--color-border)" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--color-text-muted)" }}>
-            <span style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-surface-secondary)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>2</span>
-            <span>Pago</span>
-          </div>
-        </div>
+        <CheckoutSteps current={1} />
 
         {/* Dirección habitual guardada */}
         {Boolean(savedAddress) && (
-          <Card>
-            <label style={{ display: "flex", alignItems: "flex-start", gap: 12, cursor: "pointer" }}>
-              <input
-                type="radio"
-                name="deliveryAddress"
-                checked={!useNewAddress}
-                onChange={() => setUseNewAddress(false)}
-                style={{ marginTop: 4 }}
-              />
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--color-primary)", fontWeight: 600, fontSize: 13 }}>
+          <button
+            type="button"
+            className={`${s.optionCard} ${!useNewAddress ? s.optionCardSelected : ""}`}
+            onClick={() => setUseNewAddress(false)}
+            aria-pressed={!useNewAddress}
+          >
+            <span className={s.optionRow}>
+              <span className={s.optionRadio} aria-hidden>
+                {!useNewAddress && <span className={s.optionRadioDot} />}
+              </span>
+              <span style={{ flex: 1 }}>
+                <span className={`${s.optionTag} ${s.optionTagPrimary}`}>
                   <Home size={16} aria-hidden />
-                  <span>Dirección guardada habitual</span>
-                </div>
-                <p style={{ margin: "6px 0 2px 0", fontSize: 15, fontWeight: 500 }}>{savedAddress}</p>
-                <span style={{ color: "var(--color-success)", fontSize: 12, fontWeight: 600 }}>Envío FULL directo a este domicilio</span>
-              </div>
-            </label>
-          </Card>
+                  Dirección guardada habitual
+                </span>
+                <span className={s.optionTitle} style={{ display: "block", marginTop: 6 }}>{savedAddress}</span>
+                <span className={s.optionTag}>Envío FULL directo a este domicilio</span>
+              </span>
+            </span>
+          </button>
         )}
 
         {/* Opción para escribir otra dirección */}
         {Boolean(savedAddress) && (
-          <Card>
-            <label style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
-              <input
-                type="radio"
-                name="deliveryAddress"
-                checked={useNewAddress}
-                onChange={() => setUseNewAddress(true)}
-              />
-              <div>
-                <strong style={{ fontSize: 14 }}>Entregar en otra dirección</strong>
-                <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-muted)" }}>Ingresa un nuevo domicilio para este pedido</p>
-              </div>
-            </label>
-          </Card>
+          <button
+            type="button"
+            className={`${s.optionCard} ${useNewAddress ? s.optionCardSelected : ""}`}
+            onClick={() => setUseNewAddress(true)}
+            aria-pressed={useNewAddress}
+            style={{ marginTop: 8 }}
+          >
+            <span className={s.optionRow}>
+              <span className={s.optionRadio} aria-hidden>
+                {useNewAddress && <span className={s.optionRadioDot} />}
+              </span>
+              <span>
+                <span className={s.optionTitle}>Entregar en otra dirección</span>
+                <span className={s.optionDesc} style={{ display: "block" }}>Ingresa un nuevo domicilio para este pedido</span>
+              </span>
+            </span>
+          </button>
         )}
 
         {/* Formulario desglosado si es nueva dirección */}

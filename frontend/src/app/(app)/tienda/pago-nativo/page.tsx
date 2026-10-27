@@ -14,6 +14,7 @@ import ScreenContainer from "@/components/layout/ScreenContainer";
 import ScreenHeader from "@/components/layout/ScreenHeader";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
+import CheckoutSteps from "@/features/tienda/CheckoutSteps";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { createPaymentIntent, getOrder, Order } from "@/services/ecommerce";
 import s from "../tienda.module.css";
@@ -60,10 +61,7 @@ function PaymentForm({ order }: { order: Order }) {
       />
 
       {errorMessage && (
-        <div
-          role="alert"
-          style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--color-danger)", fontSize: 13, padding: "8px 12px", background: "var(--color-danger-light, rgba(240, 113, 111, 0.1))", borderRadius: 8 }}
-        >
+        <div className={s.payAlert} role="alert">
           <AlertCircle size={16} aria-hidden />
           <span>{errorMessage}</span>
         </div>
@@ -175,46 +173,31 @@ function PagoNativoContent() {
       />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {/* Barra de progreso */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, padding: "8px 0" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--color-primary)", fontWeight: 700 }}>
-            <span style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-primary)", color: "var(--color-on-primary, #fff)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>✓</span>
-            <span>Envío</span>
-          </div>
-          <div style={{ width: 40, height: 2, background: "var(--color-primary)" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--color-primary)", fontWeight: 700 }}>
-            <span style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-primary)", color: "var(--color-on-primary, #fff)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>2</span>
-            <span>Pago in-app</span>
-          </div>
-        </div>
+        <CheckoutSteps current={2} />
 
         {order && (
           <Card>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div className={s.orderSummaryTop}>
               <div>
-                <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Pedido #{order.id.slice(0, 8)}</span>
-                <p style={{ margin: "4px 0 0 0", fontSize: 14, fontWeight: 500 }}>
+                <span className={s.orderSummaryMeta}>Pedido #{order.id.slice(0, 8)}</span>
+                <p className={s.orderSummaryAddress}>
                   {order.shipping_address ? `Entrega en: ${order.shipping_address}` : "Envío a domicilio"}
                 </p>
               </div>
-              <strong style={{ fontSize: 18, color: "var(--color-primary)" }}>
-                ${order.total_amount.toFixed(2)}
-              </strong>
+              <strong className={s.orderSummaryTotal}>${order.total_amount.toFixed(2)}</strong>
             </div>
           </Card>
         )}
 
         {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: 48, gap: 12 }} aria-busy="true" aria-live="polite">
+          <div className={s.payLoading} aria-busy="true" aria-live="polite">
             <Loader2 size={32} className={s.spinner} aria-hidden />
-            <p style={{ color: "var(--color-text-muted)", fontSize: 14 }}>
-              Cargando pasarela de pago segura de Michicondrias…
-            </p>
+            <p>Cargando pasarela de pago segura de Michicondrias…</p>
           </div>
         ) : errorMsg ? (
           <Card>
             <div style={{ textAlign: "center", padding: 24 }} role="alert">
-              <p style={{ color: "var(--color-danger)", fontWeight: 600 }}>{errorMsg}</p>
+              <p style={{ color: "var(--color-error)", fontWeight: 600 }}>{errorMsg}</p>
               <div style={{ marginTop: 16 }}>
                 <Button label="Volver al carrito" onPress={() => router.push("/tienda/carrito")} />
               </div>
@@ -234,9 +217,9 @@ function PagoNativoContent() {
           </Card>
         ) : null}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 12, background: "var(--color-surface-secondary)", borderRadius: "var(--radius-md)" }}>
-          <ShieldCheck size={20} color="var(--color-success)" aria-hidden />
-          <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
+        <div className={s.guarantee}>
+          <ShieldCheck size={20} aria-hidden />
+          <span>
             Pagos procesados directamente con cifrado SSL de 256 bits. Michicondrias nunca almacena los datos de tu tarjeta.
           </span>
         </div>

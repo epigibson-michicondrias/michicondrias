@@ -142,11 +142,14 @@ export default function PagoNativoScreen() {
           .pay-button {
             margin-top: 20px;
             width: 100%;
-            height: 48px;
+            min-height: 52px;
+            padding: 0 28px;
             background-color: ${theme.primary};
             color: ${theme.onPrimary};
-            font-size: 16px;
-            font-weight: 700;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.005em;
             border: none;
             border-radius: 12px;
             cursor: pointer;
@@ -154,18 +157,24 @@ export default function PagoNativoScreen() {
             align-items: center;
             justify-content: center;
             gap: 8px;
+            transition: opacity 0.15s ease;
           }
           .pay-button:disabled {
-            opacity: 0.6;
+            opacity: 0.55;
             cursor: not-allowed;
+          }
+          .pay-button:focus-visible {
+            outline: 2px solid ${theme.primary};
+            outline-offset: 2px;
           }
           .error-msg {
             margin-top: 12px;
-            padding: 10px;
+            padding: 10px 12px;
             background: ${theme.errorLight};
             color: ${theme.error};
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 13px;
+            font-weight: 600;
             text-align: center;
             display: none;
           }
