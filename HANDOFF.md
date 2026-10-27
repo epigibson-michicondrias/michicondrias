@@ -390,6 +390,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Claude** — **Push + deploy pagos (backend y web)**. Commits `db11214`…`c5cec74` a `main`.
+  **Oracle** `deploy-oracle` run `40443849686` ✅ (30s); **17/17** servicios `active` + http 200 (sin migración).
+  **Vercel** `michicondrias` ✅ (`5ETNQUJypo8…`); `/tienda/checkout-direccion`, `/tienda/pago-nativo` y
+  `/tienda/carrito` → 200. `michicondrias-docs` ❌ (falla siempre, se ignora). Endpoint
+  `POST …/payments/create-payment-intent/…` → 401 (ruta viva; auth requerida). Env Stripe verificada antes del
+  push (VM + Vercel alineadas a `pk_test_51UUx…`).
+
 - **2026-10-27 · Claude** — **Env Stripe/Vercel lista**. Login Vercel con cuenta `epigibson-michicondrias`;
   frontend linkeado al proyecto `michicondrias` (`.vercel/` gitignored). **VM** `/etc/michicondrias/common.env`
   ya tenía las 3 claves (`sk_test`/`whsec`/`pk_test`, publishable = app/web, 107 chars). **Vercel**: la
