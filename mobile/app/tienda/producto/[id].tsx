@@ -133,7 +133,7 @@ export default function ProductDetailScreen() {
                             Nuevo  ·  +{Math.max(50, (product.review_count || 1) * 15)} vendidos
                         </Text>
                         <View style={styles.ratingBadge}>
-                            <Star size={14} color="#f5a623" fill="#f5a623" />
+                            <Star size={14} color={theme.accent} fill={theme.accent} />
                             <Text style={[type.caption, { fontFamily: families.bold, color: theme.text }]}>
                                 {hasReviews ? product.average_rating.toFixed(1) : '5.0'}
                             </Text>
@@ -191,8 +191,8 @@ export default function ProductDetailScreen() {
                                     onPress={() => router.push('/tienda/carrito')}
                                     accessibilityRole="button"
                                 >
-                                    <MapPin size={12} color={theme.primary} />
-                                    <Text style={[type.caption, { color: theme.primary, fontFamily: families.bold }]}>
+                                    <MapPin size={12} color={theme.accent} />
+                                    <Text style={[type.caption, { color: theme.accent, fontFamily: families.bold }]}>
                                         Enviar a México  ›
                                     </Text>
                                 </TouchableOpacity>
@@ -203,8 +203,8 @@ export default function ProductDetailScreen() {
 
                         {/* Devolución y Compra Protegida */}
                         <View style={styles.boxRow}>
-                            <View style={[styles.iconPill, { backgroundColor: '#3483fa18' }]}>
-                                <RotateCcw size={18} color="#3483fa" />
+                            <View style={[styles.iconPill, { backgroundColor: theme.accentLight }]}>
+                                <RotateCcw size={18} color={theme.accent} />
                             </View>
                             <View style={styles.flex}>
                                 <Text style={[type.bodyStrong, { color: theme.text }]}>Devolución gratis</Text>
@@ -329,7 +329,7 @@ export default function ProductDetailScreen() {
                         </Text>
                         <View style={styles.paymentBadges}>
                             <View style={[styles.paymentBadge, { borderColor: theme.border }]}>
-                                <CreditCard size={14} color={theme.primary} />
+                                <CreditCard size={14} color={theme.accent} />
                                 <Text style={[type.caption, { fontFamily: families.bold, color: theme.text }]}>Tarjetas</Text>
                             </View>
                             <View style={[styles.paymentBadge, { borderColor: theme.border }]}>
@@ -394,16 +394,16 @@ export default function ProductDetailScreen() {
                     <View style={styles.footerActionStack}>
                         <Button
                             label={soldOut ? 'Agotado' : 'Comprar ahora'}
-                            icon={<Zap size={16} color={theme.onPrimary} fill={theme.onPrimary} />}
+                            variant="gold"
+                            icon={<Zap size={16} color={theme.onAccent} fill={theme.onAccent} />}
                             onPress={handleBuyNow}
                             disabled={soldOut}
                             size="lg"
                             fullWidth
-                            style={styles.buyNowBtn}
                         />
                         <Button
                             label={available === 0 && !soldOut ? 'Ver en mi bolsa' : 'Agregar al carrito'}
-                            icon={<ShoppingBag size={16} color={theme.primary} />}
+                            icon={<ShoppingBag size={16} color={theme.accent} />}
                             variant="secondary"
                             onPress={available === 0 && !soldOut ? () => router.push('/tienda/carrito') : handleAddToCart}
                             disabled={soldOut}
@@ -608,8 +608,5 @@ const styles = StyleSheet.create({
     footerActionStack: {
         flex: 1,
         gap: spacing.xs,
-    },
-    buyNowBtn: {
-        backgroundColor: '#3483fa',
     },
 });

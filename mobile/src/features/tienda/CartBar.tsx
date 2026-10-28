@@ -24,19 +24,19 @@ export default function CartBar() {
     return (
         <View style={styles.wrap} pointerEvents="box-none">
             <TouchableOpacity
-                style={[styles.bar, { backgroundColor: theme.primary }]}
+                style={[styles.bar, { backgroundColor: theme.accent }]}
                 onPress={() => router.push('/tienda/carrito')}
                 activeOpacity={0.9}
                 accessibilityRole="button"
                 accessibilityLabel={`Ver bolsa: ${cartCount} ${cartCount === 1 ? 'artículo' : 'artículos'}, ${formatCurrency(cartTotal)}`}
             >
-                <View style={[styles.count, { backgroundColor: theme.onPrimary }]}>
-                    <ShoppingBag size={layout.icon.xs} color={theme.primary} />
-                    <Text style={[type.caption, styles.bold, { color: theme.primary }]}>{cartCount > 99 ? '99+' : cartCount}</Text>
+                <View style={[styles.count, { backgroundColor: theme.onAccent }]}>
+                    <ShoppingBag size={layout.icon.xs} color={theme.accent} />
+                    <Text style={[type.caption, styles.bold, { color: theme.accent }]}>{cartCount > 99 ? '99+' : cartCount}</Text>
                 </View>
-                <Text style={[type.bodyStrong, styles.flex, { color: theme.onPrimary }]}>Ver bolsa</Text>
-                <Text style={[type.title, styles.bold, { color: theme.onPrimary }]}>{formatCurrency(cartTotal)}</Text>
-                <ChevronRight size={layout.icon.sm} color={theme.onPrimary} />
+                <Text style={[type.bodyStrong, styles.flex, { color: theme.onAccent }]}>Ver bolsa</Text>
+                <Text style={[type.title, styles.bold, { color: theme.onAccent }]}>{formatCurrency(cartTotal)}</Text>
+                <ChevronRight size={layout.icon.sm} color={theme.onAccent} />
             </TouchableOpacity>
         </View>
     );

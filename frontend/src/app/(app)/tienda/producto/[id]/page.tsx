@@ -190,22 +190,23 @@ function ProductoContent() {
             ) : (
               <>
                 <Button
-                  label={`Agregar al carrito · $${(product.price * qty).toFixed(2)}`}
-                  icon={<Plus size={18} />}
-                  fullWidth
-                  onPress={() => {
-                    addToCart(product, qty);
-                    setQty(1);
-                  }}
-                />
-                <Button
                   label="Comprar ahora"
-                  variant="secondary"
+                  variant="gold"
                   fullWidth
                   icon={<Zap size={16} />}
                   onPress={() => {
                     addToCart(product, qty);
                     router.push("/tienda/carrito");
+                  }}
+                />
+                <Button
+                  label={`Agregar al carrito · $${(product.price * qty).toFixed(2)}`}
+                  variant="secondary"
+                  icon={<Plus size={18} />}
+                  fullWidth
+                  onPress={() => {
+                    addToCart(product, qty);
+                    setQty(1);
                   }}
                 />
               </>

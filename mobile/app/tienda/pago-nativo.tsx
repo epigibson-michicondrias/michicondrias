@@ -61,7 +61,7 @@ export default function PagoNativoScreen() {
     const stripeAppearance = JSON.stringify({
         theme: isDark ? 'night' : 'stripe',
         variables: {
-            colorPrimary: theme.primary,
+            colorPrimary: theme.accent,
             colorBackground: theme.surface,
             colorText: theme.text,
             colorDanger: theme.error,
@@ -78,8 +78,8 @@ export default function PagoNativoScreen() {
                 color: theme.text,
             },
             '.Tab--selected': {
-                borderColor: theme.primary,
-                backgroundColor: `${theme.primary}1f`,
+                borderColor: theme.accent,
+                backgroundColor: theme.accentLight,
                 color: theme.text,
             },
             '.Input': {
@@ -88,8 +88,8 @@ export default function PagoNativoScreen() {
                 color: theme.text,
             },
             '.Input:focus': {
-                borderColor: theme.primary,
-                boxShadow: `0 0 0 1px ${theme.primary}`,
+                borderColor: theme.accent,
+                boxShadow: `0 0 0 1px ${theme.accent}`,
             },
             '.Block': {
                 backgroundColor: theme.surface,
@@ -134,7 +134,7 @@ export default function PagoNativoScreen() {
             width: 32px;
             height: 32px;
             border: 3px solid ${isDark ? 'rgba(233, 200, 131, 0.16)' : '#ebe5d8'};
-            border-top-color: ${theme.primary};
+            border-top-color: ${theme.accent};
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
           }
@@ -146,8 +146,8 @@ export default function PagoNativoScreen() {
             width: 100%;
             min-height: 52px;
             padding: 0 28px;
-            background-color: ${theme.primary};
-            color: ${theme.onPrimary};
+            background-color: ${theme.accent};
+            color: ${theme.onAccent};
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-size: 14px;
             font-weight: 600;
@@ -166,7 +166,7 @@ export default function PagoNativoScreen() {
             cursor: not-allowed;
           }
           .pay-button:focus-visible {
-            outline: 2px solid ${theme.primary};
+            outline: 2px solid ${theme.accent};
             outline-offset: 2px;
           }
           .error-msg {
@@ -282,7 +282,7 @@ export default function PagoNativoScreen() {
                                     {order.shipping_address ? `Entrega en: ${order.shipping_address}` : 'Envío a domicilio'}
                                 </Text>
                             </View>
-                            <Text style={[type.h2, { fontFamily: families.bold, color: theme.primary }]}>
+                            <Text style={[type.h2, { fontFamily: families.bold, color: theme.accent }]}>
                                 {formatCurrency(order.total_amount)}
                             </Text>
                         </View>
@@ -293,10 +293,10 @@ export default function PagoNativoScreen() {
                                 accessibilityRole="button"
                                 accessibilityLabel={showItems ? 'Ocultar productos' : 'Ver productos del pedido'}
                             >
-                                <Text style={[type.caption, { color: theme.primary, fontFamily: families.bold }]}>
+                                <Text style={[type.caption, { color: theme.accent, fontFamily: families.bold }]}>
                                     {showItems ? 'Ocultar productos' : `Ver productos (${order.items?.length || 0})`}
                                 </Text>
-                                <ChevronDown size={14} color={theme.primary} style={showItems ? { transform: [{ rotate: '180deg' }] } : undefined} />
+                                <ChevronDown size={14} color={theme.accent} style={showItems ? { transform: [{ rotate: '180deg' }] } : undefined} />
                             </TouchableOpacity>
                         )}
                         {showItems && order.items && (

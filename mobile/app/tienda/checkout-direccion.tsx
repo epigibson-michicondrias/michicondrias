@@ -173,7 +173,8 @@ export default function CheckoutDireccionScreen() {
                 </View>
                 <Button
                     label="Pagar in-app"
-                    icon={<Lock size={layout.icon.sm} color={theme.onPrimary} />}
+                    variant="gold"
+                    icon={<Lock size={layout.icon.sm} color={theme.onAccent} />}
                     onPress={handleContinueToPayment}
                     loading={isSubmitting}
                     size="lg"
@@ -196,19 +197,19 @@ export default function CheckoutDireccionScreen() {
 
                 {/* Opción Dirección Guardada */}
                 {Boolean(savedAddress) && (
-                    <Card style={[styles.optionCard, !useNewAddress && { borderColor: theme.primary, borderWidth: 2 }]}>
+                    <Card style={[styles.optionCard, !useNewAddress && { borderColor: theme.accent, borderWidth: 2 }]}>
                         <TouchableOpacity
                             activeOpacity={0.8}
                             onPress={() => setUseNewAddress(false)}
                             style={styles.optionRow}
                         >
-                            <View style={[styles.radio, { borderColor: !useNewAddress ? theme.primary : theme.border }]}>
-                                {!useNewAddress && <View style={[styles.radioDot, { backgroundColor: theme.primary }]} />}
+                            <View style={[styles.radio, { borderColor: !useNewAddress ? theme.accent : theme.border }]}>
+                                {!useNewAddress && <View style={[styles.radioDot, { backgroundColor: theme.accent }]} />}
                             </View>
                             <View style={{ flex: 1, marginLeft: spacing.sm }}>
                                 <View style={styles.tagRow}>
-                                    <Home size={14} color={theme.primary} />
-                                    <Text style={[type.caption, { fontFamily: families.bold, color: theme.primary, marginLeft: 4 }]}>
+                                    <Home size={14} color={theme.accent} />
+                                    <Text style={[type.caption, { fontFamily: families.bold, color: theme.accent, marginLeft: 4 }]}>
                                         Dirección habitual guardada
                                     </Text>
                                 </View>
@@ -231,13 +232,13 @@ export default function CheckoutDireccionScreen() {
                         onPress={() => setUseNewAddress(true)}
                         style={[
                             styles.optionCard,
-                            useNewAddress && { borderColor: theme.primary, borderWidth: 2 },
+                            useNewAddress && { borderColor: theme.accent, borderWidth: 2 },
                             { backgroundColor: theme.surface, padding: spacing.md, borderRadius: radius.lg, marginTop: spacing.xs },
                         ]}
                     >
                         <View style={styles.optionRow}>
-                            <View style={[styles.radio, { borderColor: useNewAddress ? theme.primary : theme.border }]}>
-                                {useNewAddress && <View style={[styles.radioDot, { backgroundColor: theme.primary }]} />}
+                            <View style={[styles.radio, { borderColor: useNewAddress ? theme.accent : theme.border }]}>
+                                {useNewAddress && <View style={[styles.radioDot, { backgroundColor: theme.accent }]} />}
                             </View>
                             <View style={{ flex: 1, marginLeft: spacing.sm }}>
                                 <Text style={[type.bodyStrong, { color: theme.text }]}>Entregar en otra dirección</Text>
@@ -251,7 +252,7 @@ export default function CheckoutDireccionScreen() {
                 {useNewAddress && (
                     <Card style={styles.formCard}>
                         <View style={styles.formHeader}>
-                            <Building2 size={18} color={theme.primary} />
+                            <Building2 size={18} color={theme.accent} />
                             <Text style={[type.title, { color: theme.text, marginLeft: spacing.xs }]}>
                                 Datos del domicilio
                             </Text>

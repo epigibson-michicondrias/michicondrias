@@ -96,8 +96,8 @@
   cursor: pointer;
 }
 .viewBtnActive {
-  background: var(--color-primary-light);
-  color: var(--color-primary);
+  background: var(--color-accent-light);
+  color: var(--color-accent-strong);
 }
 
 .grid {
@@ -169,14 +169,11 @@
   text-decoration: none;
 }
 .cardPrice {
-  font-size: var(--font-lg, 1.25rem);
-  font-weight: 800;
-  color: var(--color-text);
-  line-height: 1.2;
   margin: 0;
-  color: var(--color-primary);
+  color: var(--color-accent-strong);
   font-size: var(--font-xl);
   font-weight: 800;
+  line-height: 1.2;
 }
 .cardMeta {
   margin: 0;
@@ -364,7 +361,7 @@
   text-decoration: none;
   color: inherit;
 }
-.orderRow:hover { border-color: var(--color-primary); }
+.orderRow:hover { border-color: var(--color-accent); }
 .orderMedia { width: 56px; height: 56px; flex-shrink: 0; }
 .orderBody { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .orderPending {
@@ -412,7 +409,7 @@
   text-align: left;
 }
 .optionCardSelected {
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
   border-width: 2px;
   padding: calc(var(--space-lg) - 1px);
 }
@@ -433,13 +430,13 @@
   transition: border-color 0.15s ease;
 }
 .optionCardSelected .optionRadio {
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
 }
 .optionRadioDot {
   width: 10px;
   height: 10px;
   border-radius: var(--radius-pill);
-  background: var(--color-primary);
+  background: var(--color-accent);
 }
 
 /* Grids responsivos de formulario de entrega */
@@ -481,7 +478,7 @@
   color: var(--color-success);
 }
 .optionTagPrimary {
-  color: var(--color-primary);
+  color: var(--color-accent-strong);
 }
 
 /* Banner de error / aviso en flujo de pago */
@@ -525,7 +522,7 @@
   margin: 0;
   font-size: var(--font-h3);
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-accent-strong);
 }
 
 /* Banda de garantía / seguridad */
@@ -578,7 +575,7 @@
 }
 .productPrice {
   margin: 0;
-  color: var(--color-primary);
+  color: var(--color-accent-strong);
   font-size: var(--font-display);
   font-weight: 800;
 }
@@ -595,9 +592,9 @@
   gap: var(--space-md);
   margin: var(--space-lg) 0;
   padding: var(--space-md);
-  background: var(--color-primary-light);
+  background: var(--color-accent-light);
   border-radius: var(--radius-md);
-  color: var(--color-primary);
+  color: var(--color-accent-strong);
   font-size: var(--font-sm);
   font-weight: 600;
 }
@@ -674,7 +671,7 @@
   background: var(--color-border);
   margin: 0 auto var(--space-sm);
 }
-.trackDone .trackDot { background: var(--color-primary); }
+.trackDone .trackDot { background: var(--color-accent); }
 .trackLabel {
   margin: 0;
   color: var(--color-text);
@@ -778,7 +775,7 @@
 
 .cardInstallments {
   font-size: var(--font-xs);
-  color: var(--color-primary);
+  color: var(--color-accent-strong);
   font-weight: 600;
 }
 
@@ -883,12 +880,12 @@
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
 }
 .cardList:hover {
   transform: translateX(4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
 }
 
 /* Imagen con zoom al hover */
@@ -1042,7 +1039,7 @@
   text-align: center;
 }
 .priceInput:focus {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-accent);
   outline-offset: -1px;
 }
 
@@ -1070,8 +1067,8 @@
   background: var(--color-overlay-hover, rgba(0, 0, 0, 0.04));
 }
 .ratingOption.active {
-  background: var(--color-primary-light, rgba(233, 200, 131, 0.15));
-  color: var(--color-primary);
+  background: var(--color-accent-light);
+  color: var(--color-accent-strong);
   font-weight: 600;
 }
 
@@ -1124,8 +1121,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1165,5 +1162,5 @@
   transition: border-color 0.15s ease;
 }
 .galleryThumb:hover, .galleryThumb.active {
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
 }

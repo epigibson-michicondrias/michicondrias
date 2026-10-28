@@ -77,10 +77,11 @@ export default function CarritoScreen() {
             </View>
             <Button
                 label="Continuar compra"
-                icon={<ArrowRight size={layout.icon.sm} color={theme.onPrimary} />}
+                variant="gold"
+                icon={<ArrowRight size={layout.icon.sm} color={theme.onAccent} />}
                 onPress={handleContinue}
                 size="lg"
-                style={styles.payBtn}
+                style={{ flex: 1.4 }}
                 accessibilityLabel={`Continuar compra por ${formatCurrency(cartTotal)}`}
             />
         </View>
@@ -96,16 +97,17 @@ export default function CarritoScreen() {
 
             <KeyboardScreen contentContainerStyle={styles.content} footer={footer}>
                 {Boolean(pendingOrder) && (
-                    <Card style={{ marginBottom: spacing.md, borderColor: theme.primary, borderWidth: 1 }}>
+                    <Card style={{ marginBottom: spacing.md, borderColor: theme.accent, borderWidth: 1, backgroundColor: theme.accentLight }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm }}>
                             <View style={{ flex: 1 }}>
-                                <Text style={[type.bodyStrong, { color: theme.primary }]}>Tienes un pedido pendiente</Text>
+                                <Text style={[type.bodyStrong, { color: theme.accent }]}>Tienes un pedido pendiente</Text>
                                 <Text style={[type.caption, { color: theme.textMuted }]}>
                                     Pedido #{pendingOrder!.id.slice(0, 8)} · {formatCurrency(pendingOrder!.total_amount)}
                                 </Text>
                             </View>
                             <Button
                                 label="Pagar"
+                                variant="gold"
                                 size="sm"
                                 onPress={() => router.push({ pathname: '/tienda/pago-nativo', params: { order_id: pendingOrder!.id } } as any)}
                             />
@@ -158,7 +160,7 @@ export default function CarritoScreen() {
                     style={[styles.addressBanner, { backgroundColor: theme.surface, borderColor: theme.border }]}
                 >
                     <View style={styles.addressLeft}>
-                        <MapPin size={18} color={theme.primary} />
+                        <MapPin size={18} color={theme.accent} />
                         <View style={{ flex: 1, marginLeft: spacing.xs }}>
                             <Text style={[type.caption, { color: theme.textMuted }]}>Enviar a</Text>
                             <Text style={[type.bodyStrong, { color: theme.text }]} numberOfLines={1}>
@@ -190,7 +192,7 @@ export default function CarritoScreen() {
                         <View style={[styles.divider, { backgroundColor: theme.divider }]} />
                         <View style={styles.summaryRow}>
                             <Text style={[type.title, { color: theme.text }]}>Total a pagar</Text>
-                            <Text style={[type.title, styles.bold, { color: theme.primary, fontSize: 20 }]}>
+                            <Text style={[type.title, styles.bold, { color: theme.accent, fontSize: 20 }]}>
                                 {formatCurrency(cartTotal)}
                             </Text>
                         </View>
@@ -292,8 +294,4 @@ const styles = StyleSheet.create({
         ...shadow.raised,
     },
     footerTotal: { flex: 1 },
-    payBtn: {
-        flex: 1.4,
-        backgroundColor: '#3483fa',
-    },
 });

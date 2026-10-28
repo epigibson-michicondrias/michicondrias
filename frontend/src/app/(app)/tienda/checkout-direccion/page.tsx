@@ -202,7 +202,7 @@ export default function CheckoutDireccionPage() {
         {useNewAddress && (
           <Card>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <Building2 size={18} color="var(--color-primary)" aria-hidden />
+              <Building2 size={18} color="var(--color-accent-strong)" aria-hidden />
               <h3 style={{ margin: 0, fontSize: 16 }}>Datos del domicilio</h3>
             </div>
 

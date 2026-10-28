@@ -25,8 +25,8 @@
   font-weight: 700;
 }
 .stepCircleActive {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }
 .stepCircleIdle {
   background: var(--color-background-secondary);
@@ -36,7 +36,7 @@
   font-size: var(--font-sm);
   font-weight: 700;
 }
-.stepLabelActive { color: var(--color-primary); }
+.stepLabelActive { color: var(--color-accent-strong); }
 .stepLabelIdle { color: var(--color-text-muted); }
 .stepLine {
   flex: 1;
@@ -44,5 +44,5 @@
   height: 2px;
   margin-bottom: 16px;
 }
-.stepLineDone { background: var(--color-primary); }
+.stepLineDone { background: var(--color-accent); }
 .stepLineIdle { background: var(--color-border); }

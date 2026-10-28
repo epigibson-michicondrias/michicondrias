@@ -60,7 +60,7 @@ function ProductCard({
         )}
         {stock <= 0 && <p className={s.cardMeta}>Agotado</p>}
         {onQuickAdd && canBuy && stock > 0 && (
-          <Button label="Agregar al carrito" size="sm" fullWidth icon={<Plus size={16} />} onPress={onQuickAdd} />
+          <Button label="Agregar al carrito" variant="gold" size="sm" fullWidth icon={<Plus size={16} />} onPress={onQuickAdd} />
         )}
       </div>
     </div>

@@ -93,7 +93,7 @@ export default function ComprasScreen() {
                     contentContainerStyle={styles.list}
                     onEndReached={loadMore}
                     onEndReachedThreshold={0.4}
-                    ListFooterComponent={isLoadingMore ? <ActivityIndicator color={theme.primary} style={styles.footerLoader} /> : null}
+                    ListFooterComponent={isLoadingMore ? <ActivityIndicator color={theme.accent} style={styles.footerLoader} /> : null}
                     ListEmptyComponent={orders.length > 0 ? (
                         <EmptyState
                             icon={<SearchX size={layout.icon.xl} color={theme.textMuted} />}

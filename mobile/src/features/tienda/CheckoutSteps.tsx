@@ -10,8 +10,8 @@ export default function CheckoutSteps({ current }: { current: 1 | 2 }) {
     const renderStep = (step: 1 | 2, label: string) => {
         const done = current > step;
         const active = current === step;
-        const fill = done || active ? theme.primary : theme.backgroundSecondary;
-        const fg = done || active ? theme.onPrimary : theme.textMuted;
+        const fill = done || active ? theme.accent : theme.backgroundSecondary;
+        const fg = done || active ? theme.onAccent : theme.textMuted;
 
         return (
             <View style={styles.stepItem} key={label}>
@@ -23,7 +23,7 @@ export default function CheckoutSteps({ current }: { current: 1 | 2 }) {
                         type.caption,
                         {
                             fontFamily: families.bold,
-                            color: done || active ? theme.primary : theme.textMuted,
+                            color: done || active ? theme.accent : theme.textMuted,
                         },
                     ]}
                 >
@@ -40,7 +40,7 @@ export default function CheckoutSteps({ current }: { current: 1 | 2 }) {
             accessibilityValue={{ min: 1, max: 2, now: current, text: `Paso ${current} de 2` }}
         >
             {renderStep(1, 'Envío')}
-            <View style={[styles.stepLine, { backgroundColor: current > 1 ? theme.primary : theme.border }]} />
+            <View style={[styles.stepLine, { backgroundColor: current > 1 ? theme.accent : theme.border }]} />
             {renderStep(2, 'Pago')}
         </View>
     );

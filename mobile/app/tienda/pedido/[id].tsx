@@ -94,7 +94,8 @@ export default function PedidoDetailScreen() {
                         </Text>
                         <Button
                             label={`Pagar ahora · ${formatCurrency(order.total_amount)}`}
-                            icon={<CreditCard size={layout.icon.sm} color={theme.onPrimary} />}
+                            variant="gold"
+                            icon={<CreditCard size={layout.icon.sm} color={theme.onAccent} />}
                             onPress={o.payNow}
                             disabled={busy}
                             fullWidth
@@ -136,7 +137,7 @@ export default function PedidoDetailScreen() {
                 <Card>
                     <View style={styles.block}>
                         <View style={styles.blockTitle}>
-                            <MapPin size={layout.icon.sm} color={theme.primary} />
+                            <MapPin size={layout.icon.sm} color={theme.accent} />
                             <Text style={[type.bodyStrong, { color: theme.text }]}>Dirección de envío</Text>
                         </View>
                         <Text style={[type.body, { color: theme.textMuted }]}>{order.shipping_address || 'Sin dirección registrada'}</Text>
@@ -154,7 +155,7 @@ export default function PedidoDetailScreen() {
                         <Text style={[type.title, { color: theme.text }]}>
                             {isPending ? 'Total a pagar' : isCancelled ? 'Total (sin cargo)' : 'Total pagado'}
                         </Text>
-                        <Text style={[type.h2, styles.bold, { color: isCancelled ? theme.textMuted : theme.primary }]}>{formatCurrency(order.total_amount)}</Text>
+                        <Text style={[type.h2, styles.bold, { color: isCancelled ? theme.textMuted : theme.accent }]}>{formatCurrency(order.total_amount)}</Text>
                     </View>
                 </Card>
 
@@ -163,7 +164,7 @@ export default function PedidoDetailScreen() {
                     <Button
                         label="Volver a comprar"
                         variant="secondary"
-                        icon={<RotateCcw size={layout.icon.sm} color={theme.primary} />}
+                        icon={<RotateCcw size={layout.icon.sm} color={theme.accent} />}
                         onPress={o.reorder}
                         fullWidth
                     />

@@ -129,7 +129,7 @@ function PagoNativoContent() {
   const appearance = {
     theme: (isDark ? "night" : "stripe") as "night" | "stripe",
     variables: {
-      colorPrimary: isDark ? "#4f8cff" : "#2f5fd0",
+      colorPrimary: isDark ? "#e9c883" : "#b8893a",
       colorBackground: isDark ? "#131826" : "#ffffff",
       colorText: isDark ? "#f5f1e8" : "#141824",
       colorDanger: isDark ? "#f0716f" : "#d64545",
@@ -146,13 +146,17 @@ function PagoNativoContent() {
         color: isDark ? "#f5f1e8" : "#141824",
       },
       ".Tab--selected": {
-        borderColor: isDark ? "#4f8cff" : "#2f5fd0",
-        backgroundColor: isDark ? "rgba(79, 140, 255, 0.12)" : "#e8eefc",
+        borderColor: isDark ? "#e9c883" : "#b8893a",
+        backgroundColor: isDark ? "rgba(233, 200, 131, 0.14)" : "#f7edd6",
       },
       ".Input": {
         border: isDark ? "1px solid rgba(233, 200, 131, 0.2)" : "1px solid #ddd5c3",
         backgroundColor: isDark ? "rgba(255, 255, 255, 0.045)" : "#ffffff",
         color: isDark ? "#f5f1e8" : "#141824",
+      },
+      ".Input:focus": {
+        borderColor: isDark ? "#e9c883" : "#b8893a",
+        boxShadow: isDark ? "0 0 0 1px #e9c883" : "0 0 0 1px #b8893a",
       },
       ".Block": {
         backgroundColor: isDark ? "#131826" : "#ffffff",
@@ -206,7 +210,7 @@ function PagoNativoContent() {
                   borderTop: "1px solid var(--color-border)",
                   marginTop: 12,
                   paddingTop: 8,
-                  color: "var(--color-primary)",
+                  color: "var(--color-accent-strong)",
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: "pointer",

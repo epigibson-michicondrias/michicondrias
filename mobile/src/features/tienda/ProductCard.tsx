@@ -125,22 +125,22 @@ export function ProductGridCard({
                         <Text style={styles.tagBadgeText}>{`ÚLTIMAS ${product.stock}`}</Text>
                     </View>
                 ) : isBestSeller ? (
-                    <View style={[styles.tagBadge, { backgroundColor: '#2563EB' }]}>
-                        <Text style={styles.tagBadgeText}>MÁS VENDIDO</Text>
+                    <View style={[styles.tagBadge, { backgroundColor: theme.accent }]}>
+                        <Text style={[styles.tagBadgeText, { color: theme.onAccent }]}>MÁS VENDIDO</Text>
                     </View>
                 ) : null}
 
                 {/* Botón Favorito Flotante */}
                 {onToggleFavorite && (
                     <TouchableOpacity
-                        style={[styles.favoriteBtn, { backgroundColor: 'rgba(255,255,255,0.92)' }]}
+                        style={[styles.favoriteBtn, { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1 }]}
                         onPress={handleFavPress}
                         hitSlop={8}
                     >
                         <Heart
                             size={16}
-                            color={isFavorite ? '#EF4444' : '#6B7280'}
-                            fill={isFavorite ? '#EF4444' : 'transparent'}
+                            color={isFavorite ? theme.error : theme.textMuted}
+                            fill={isFavorite ? theme.error : 'transparent'}
                         />
                     </TouchableOpacity>
                 )}
@@ -158,7 +158,7 @@ export function ProductGridCard({
 
                 {/* Calificación y Reseñas */}
                 <View style={styles.ratingRow}>
-                    <Star size={11} color="#F59E0B" fill="#F59E0B" />
+                    <Star size={11} color={theme.accent} fill={theme.accent} />
                     <Text style={[styles.ratingNumber, { color: theme.text }]}>{rating}</Text>
                     <Text style={[styles.ratingCount, { color: theme.textMuted }]}>({reviews})</Text>
                 </View>
@@ -203,7 +203,7 @@ export function ProductGridCard({
                         <TouchableOpacity
                             style={[
                                 styles.quickAddBtn,
-                                { backgroundColor: added ? theme.success : theme.primary },
+                                { backgroundColor: added ? theme.success : theme.accent },
                             ]}
                             onPress={handleQuickAddPress}
                             hitSlop={6}
@@ -211,7 +211,7 @@ export function ProductGridCard({
                             {added ? (
                                 <Check size={14} color={theme.onPrimary} strokeWidth={2.5} />
                             ) : (
-                                <Plus size={14} color={theme.onPrimary} strokeWidth={2.5} />
+                                <Plus size={14} color={theme.onAccent} strokeWidth={2.5} />
                             )}
                         </TouchableOpacity>
                     </View>
@@ -316,8 +316,8 @@ export function ProductListRow({
                         >
                             <Heart
                                 size={17}
-                                color={isFavorite ? '#EF4444' : '#9CA3AF'}
-                                fill={isFavorite ? '#EF4444' : 'transparent'}
+                                color={isFavorite ? theme.error : theme.textMuted}
+                                fill={isFavorite ? theme.error : 'transparent'}
                             />
                         </TouchableOpacity>
                     )}
@@ -325,7 +325,7 @@ export function ProductListRow({
 
                 {/* Rating */}
                 <View style={styles.ratingRow}>
-                    <Star size={11} color="#F59E0B" fill="#F59E0B" />
+                    <Star size={11} color={theme.accent} fill={theme.accent} />
                     <Text style={[styles.ratingNumber, { color: theme.text }]}>{rating}</Text>
                     <Text style={[styles.ratingCount, { color: theme.textMuted }]}>({reviews})</Text>
                 </View>
@@ -369,7 +369,7 @@ export function ProductListRow({
                         <TouchableOpacity
                             style={[
                                 styles.quickAddBtnList,
-                                { backgroundColor: added ? theme.success : theme.primary },
+                                { backgroundColor: added ? theme.success : theme.accent },
                             ]}
                             onPress={handleQuickAddPress}
                             hitSlop={6}
@@ -377,7 +377,7 @@ export function ProductListRow({
                             {added ? (
                                 <Check size={14} color={theme.onPrimary} strokeWidth={2.5} />
                             ) : (
-                                <Plus size={14} color={theme.onPrimary} strokeWidth={2.5} />
+                                <Plus size={14} color={theme.onAccent} strokeWidth={2.5} />
                             )}
                         </TouchableOpacity>
                     )}

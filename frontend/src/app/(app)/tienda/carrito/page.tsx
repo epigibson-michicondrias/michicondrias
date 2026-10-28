@@ -68,7 +68,7 @@ export default function CarritoPage() {
         <Card>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <strong style={{ fontSize: 14, color: "var(--color-primary)" }}>Tienes un pedido pendiente</strong>
+              <strong style={{ fontSize: 14, color: "var(--color-accent-strong)" }}>Tienes un pedido pendiente</strong>
               <p style={{ fontSize: 13, color: "var(--color-text-muted)", margin: "4px 0 0" }}>
                 Pedido #{pendingOrder.id.slice(0, 8)} · ${pendingOrder.total_amount.toFixed(2)}
               </p>
@@ -160,13 +160,13 @@ export default function CarritoPage() {
             <Card>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <MapPin size={20} color="var(--color-primary)" />
+                  <MapPin size={20} color="var(--color-accent-strong)" />
                   <div>
                     <span style={{ fontSize: 12, color: "var(--color-text-muted)", display: "block" }}>Enviar a</span>
                     <strong style={{ fontSize: 14 }}>{savedAddress || "Ingresar código postal y dirección"}</strong>
                   </div>
                 </div>
-                <span style={{ color: "var(--color-primary)", fontSize: 13, fontWeight: 600 }}>Cambiar &gt;</span>
+                <span style={{ color: "var(--color-accent-strong)", fontSize: 13, fontWeight: 600 }}>Cambiar &gt;</span>
               </div>
             </Card>
           </Link>

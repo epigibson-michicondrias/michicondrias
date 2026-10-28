@@ -88,8 +88,8 @@ export default function TiendaTabScreen() {
           style={[
             styles.filterIconButton,
             {
-              backgroundColor: activeFiltersCount > 0 ? theme.primary : theme.surface,
-              borderColor: activeFiltersCount > 0 ? theme.primary : theme.border,
+              backgroundColor: activeFiltersCount > 0 ? theme.accent : theme.surface,
+              borderColor: activeFiltersCount > 0 ? theme.accent : theme.border,
             },
           ]}
           onPress={() => {
@@ -99,11 +99,11 @@ export default function TiendaTabScreen() {
         >
           <SlidersHorizontal
             size={19}
-            color={activeFiltersCount > 0 ? theme.onPrimary : theme.text}
+            color={activeFiltersCount > 0 ? theme.onAccent : theme.text}
           />
           {activeFiltersCount > 0 && (
             <View style={[styles.filterBadge, { backgroundColor: theme.error }]}>
-              <Text style={[styles.filterBadgeText, { color: '#FFFFFF' }]}>
+              <Text style={[styles.filterBadgeText, { color: theme.onPrimary }]}>
                 {activeFiltersCount}
               </Text>
             </View>
@@ -113,7 +113,7 @@ export default function TiendaTabScreen() {
 
       {/* Franja de Envío / Ubicación estilo Mercado Libre */}
       <View style={styles.locationStrip}>
-        <MapPin size={13} color={theme.textMuted} />
+        <MapPin size={13} color={theme.accent} />
         <Text style={[styles.locationText, { color: theme.textMuted }]}>
           Enviar a <Text style={{ color: theme.text, fontFamily: families.bold }}>México</Text>
         </Text>
@@ -138,8 +138,8 @@ export default function TiendaTabScreen() {
         </View>
 
         <View style={[styles.promoCard, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
-          <View style={[styles.promoIconBox, { backgroundColor: theme.primary + '18' }]}>
-            <CreditCard size={15} color={theme.primary} />
+          <View style={[styles.promoIconBox, { backgroundColor: theme.accentLight }]}>
+            <CreditCard size={15} color={theme.accent} />
           </View>
           <View>
             <Text style={[styles.promoTitle, { color: theme.text }]}>Hasta 12 MSI</Text>
@@ -183,19 +183,19 @@ export default function TiendaTabScreen() {
                   style={[
                     styles.circleIconBox,
                     {
-                      backgroundColor: active ? theme.primary : theme.surface,
-                      borderColor: active ? theme.primary : theme.borderLight,
+                      backgroundColor: active ? theme.accent : theme.surface,
+                      borderColor: active ? theme.accent : theme.borderLight,
                     },
                   ]}
                 >
-                  <Icon size={19} color={active ? theme.onPrimary : cat.color || theme.text} />
+                  <Icon size={19} color={active ? theme.onAccent : cat.color || theme.text} />
                 </View>
                 <Text
                   numberOfLines={1}
                   style={[
                     styles.circleCategoryLabel,
                     {
-                      color: active ? theme.primary : theme.textMuted,
+                      color: active ? theme.accent : theme.textMuted,
                       fontFamily: active ? families.bold : families.medium,
                     },
                   ]}
@@ -288,7 +288,7 @@ export default function TiendaTabScreen() {
         keyboardShouldPersistTaps="handled"
         onEndReached={shop.loadMore}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={shop.isLoadingMore ? <ActivityIndicator color={theme.primary} style={styles.footerLoader} /> : null}
+        ListFooterComponent={shop.isLoadingMore ? <ActivityIndicator color={theme.accent} style={styles.footerLoader} /> : null}
         contentStyle={{ paddingBottom: CART_BAR_SPACE + spacing.lg }}
         {...emptyProps}
       />
@@ -308,7 +308,7 @@ export default function TiendaTabScreen() {
             </Text>
             {activeFiltersCount > 0 && (
               <TouchableOpacity onPress={handleResetFilters} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Text style={[styles.modalResetText, { color: theme.primary }]}>Limpiar todo</Text>
+                <Text style={[styles.modalResetText, { color: theme.accent }]}>Limpiar todo</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -326,20 +326,20 @@ export default function TiendaTabScreen() {
                     style={[
                       styles.optionCard,
                       {
-                        backgroundColor: isSelected ? theme.primary + '10' : theme.surface,
-                        borderColor: isSelected ? theme.primary : theme.border,
+                        backgroundColor: isSelected ? theme.accentLight : theme.surface,
+                        borderColor: isSelected ? theme.accent : theme.border,
                       },
                     ]}
                     onPress={() => shop.setSelectedCategory(cat.id)}
                   >
-                    <View style={[styles.optionIconBox, { backgroundColor: isSelected ? theme.primary + '20' : theme.background }]}>
-                      <IconComp size={18} color={isSelected ? theme.primary : cat.color} />
+                    <View style={[styles.optionIconBox, { backgroundColor: isSelected ? theme.accentLight : theme.background }]}>
+                      <IconComp size={18} color={isSelected ? theme.accent : cat.color} />
                     </View>
-                    <Text style={[styles.optionCardText, { color: isSelected ? theme.primary : theme.text, fontFamily: isSelected ? families.bold : families.medium }]}>
+                    <Text style={[styles.optionCardText, { color: isSelected ? theme.accent : theme.text, fontFamily: isSelected ? families.bold : families.medium }]}>
                       {cat.label}
                     </Text>
-                    <View style={[styles.radioIndicator, { borderColor: isSelected ? theme.primary : theme.border }]}>
-                      {isSelected && <View style={[styles.radioDot, { backgroundColor: theme.primary }]} />}
+                    <View style={[styles.radioIndicator, { borderColor: isSelected ? theme.accent : theme.border }]}>
+                      {isSelected && <View style={[styles.radioDot, { backgroundColor: theme.accent }]} />}
                     </View>
                   </TouchableOpacity>
                 );
@@ -359,17 +359,17 @@ export default function TiendaTabScreen() {
                     style={[
                       styles.optionCard,
                       {
-                        backgroundColor: isSelected ? theme.primary + '10' : theme.surface,
-                        borderColor: isSelected ? theme.primary : theme.border,
+                        backgroundColor: isSelected ? theme.accentLight : theme.surface,
+                        borderColor: isSelected ? theme.accent : theme.border,
                       },
                     ]}
                     onPress={() => shop.setSort(s.value)}
                   >
-                    <Text style={[styles.optionCardText, { color: isSelected ? theme.primary : theme.text, fontFamily: isSelected ? families.bold : families.medium }]}>
+                    <Text style={[styles.optionCardText, { color: isSelected ? theme.accent : theme.text, fontFamily: isSelected ? families.bold : families.medium }]}>
                       {s.label}
                     </Text>
-                    <View style={[styles.radioIndicator, { borderColor: isSelected ? theme.primary : theme.border }]}>
-                      {isSelected && <View style={[styles.radioDot, { backgroundColor: theme.primary }]} />}
+                    <View style={[styles.radioIndicator, { borderColor: isSelected ? theme.accent : theme.border }]}>
+                      {isSelected && <View style={[styles.radioDot, { backgroundColor: theme.accent }]} />}
                     </View>
                   </TouchableOpacity>
                 );
@@ -387,7 +387,7 @@ export default function TiendaTabScreen() {
             />
             <Button
               label={`Ver ${shop.products.length} ${shop.products.length === 1 ? 'producto' : 'productos'}`}
-              variant="primary"
+              variant="gold"
               onPress={() => setIsFilterModalOpen(false)}
               style={styles.footerBtnHalf}
             />
