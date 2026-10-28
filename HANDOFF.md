@@ -394,6 +394,13 @@ app/
 
 Entradas cortas. Lo anterior al 2026-10-24 está en git (`git log -p -- HANDOFF.md PROGRESO_MOBILE.md`).
 
+- **2026-10-27 · Antigravity** — **Eliminación de azules genéricos y unificación de Michi Shop con tokens Midnight & Gold (web + app)**.
+  Reemplazo de colores duros (`#3483fa`, `#2563EB`, tailwind blues) y `theme.primary` azul por la paleta oficial:
+  - **Móvil**: `CartBar` flotante en dorado (`theme.accent` / `theme.onAccent`); `ProductCard` (grid y list) con botón de agregar rápido y badges en dorado; carrusel de beneficios, chips de categorías y filtros del `BottomSheet` en dorado y `theme.accentLight`; ficha de producto (`producto/[id].tsx`) sin `#3483fa`, botón «Comprar ahora» en `variant="gold"` y badges en tokens de marca; carrito y checkout con botones principales en dorado; Stripe Elements y WebView en `pago-nativo.tsx` estilizados en dorado y midnight; `CheckoutSteps` con pasos activos en dorado.
+  - **Web**: `tienda.module.css` sin `var(--color-primary)` (precios, filtros, active state, bordes hover, avatars en `var(--color-accent)`); `checkout.module.css` con pasos activos y líneas en dorado; Stripe Elements en `pago-nativo/page.tsx` con acento dorado; CTAs de producto alineados con «Comprar ahora» en `gold`.
+  - Verificación: `tsc --noEmit` 0 errores en mobile y web. Commit `6521c29` en `main`.
+  - **OTA Android** `01a18005-e2a6-7fd0-8db3-b61bde9e5af1` (grupo `c730cbc8-…`, runtime `1.1.0`) ✅.
+
 - **2026-10-27 · Antigravity** — **Homologación de diseño UI/UX pagos, carrito y donaciones (web + app)**.
   Auditoría visual ejecutada y correcciones aplicadas:
   - **Web**: barra dinámica de envío gratis ($299 MXN) en `carrito/page.tsx`; `.optionRadio` corregido a borde neutro y `primary` activo; `.formGrid2` y `.formGridColoniaCp` responsivos en `checkout-direccion/page.tsx` sin inline styles desbordables; desglose colapsable de productos en `pago-nativo/page.tsx`; `PagoResultado.tsx` con CTA «Reintentar pago» que reabre `pago-nativo?order_id=…`.
